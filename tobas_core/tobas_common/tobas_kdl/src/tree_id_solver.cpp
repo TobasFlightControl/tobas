@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace kdl
 {
-TreeIdSolver::TreeIdSolver(const Tree& tree, const Vector& grav) : super(tree), ag_(-grav, Vector::Zero())
+TreeIdSolver::TreeIdSolver(const Tree& _tree, const Vector& _grav) : super(_tree), ag_(-_grav, Vector::Zero())
 {
   resize();
 }
@@ -20,14 +20,14 @@ void TreeIdSolver::updateInternalDataStructures()
 }
 
 const JntArray&
-TreeIdSolver::cartToJnt(const JntArray& q, const JntArray& qd, const JntArray& qdd, const WrenchMap& f_ext)
+TreeIdSolver::cartToJnt(const JntArray& _q, const JntArray& _qd, const JntArray& _qdd, const WrenchMap& _f_ext)
 {
-  assert(q.size() == tree_.getNrOfJoints());
-  assert(qd.size() == tree_.getNrOfJoints());
-  assert(qdd.size() == tree_.getNrOfJoints());
+  assert(_q.size() == tree_.getNrOfJoints());
+  assert(_qd.size() == tree_.getNrOfJoints());
+  assert(_qdd.size() == tree_.getNrOfJoints());
 
   // Do the recursion here.
-  rneStep(tree_.getRootSegment(), q, qd, qdd, f_ext);
+  rneStep(tree_.getRootSegment(), _q, _qd, _qdd, _f_ext);
 
   return effort_out_;
 }
@@ -44,25 +44,25 @@ void TreeIdSolver::resize()
 }
 
 void TreeIdSolver::rneStep(
-  const SegmentMap::const_iterator& cur_it,
-  const JntArray& q,
-  const JntArray& qd,
-  const JntArray& qdd,
-  const WrenchMap& f_ext)
+  const SegmentMap::const_iterator& _cur_it,
+  const JntArray& _q,
+  const JntArray& _qd,
+  const JntArray& _qdd,
+  const WrenchMap& _f_ext)
 {
-  const auto& cur_name = cur_it->first;
-  const auto& cur_ele = cur_it->second;
+  const auto& cur_name = _cur_it->first;
+  const auto& cur_ele = _cur_it->second;
   const auto& cur_seg = cur_ele.segment;
   const auto& par_it = cur_ele.parent;
-  const auto& par_name = cur_it == tree_.getRootSegment() ? cur_name : par_it->first;
+  const auto& par_name = _cur_it == tree_.getRootSegment() ? cur_name : par_it->first;
 
   // Do forward calculations involving velocity & acceleration of this segment.
   const auto& j = cur_ele.q_nr;
   double qj, qdj, qddj;
   if (cur_seg.joint().type != Joint::kFixed) {
-    qj = q(j);
-    qdj = qd(j);
-    qddj = qdd(j);
+    qj = _q(j);
+    qdj = _qd(j);
+    qddj = _qdd(j);
   }
   else {
     qj = 0.0;
@@ -75,7 +75,7 @@ void TreeIdSolver::rneStep(
   const auto vj = Xj.M.inverse(cur_seg.twist(qj, qdj));  // Transform velocity
 
   // Calculate velocity and acceleration of the segment (in segment coordinates).
-  if (cur_it == tree_.getRootSegment()) {
+  if (_cur_it == tree_.getRootSegment()) {
     v_.at(cur_name) = vj;
     a_.at(cur_name) = Xj.inverse(ag_) + Sj.accel(qddj) + vj * vj;
   }
@@ -88,13 +88,13 @@ void TreeIdSolver::rneStep(
   // Collect RigidBodyInertia and external forces.
   const auto& I = cur_seg.inertia();
   f_.at(cur_name) = I * a_.at(cur_name) + v_.at(cur_name) * (I * v_.at(cur_name));
-  if (f_ext.find(cur_name) != f_ext.end()) {
-    f_.at(cur_name) = f_.at(cur_name) - f_ext.at(cur_name);
+  if (_f_ext.find(cur_name) != _f_ext.end()) {
+    f_.at(cur_name) = f_.at(cur_name) - _f_ext.at(cur_name);
   }
 
   // propagate calculations over each child segment.
   for (const auto& child : cur_ele.children) {
-    rneStep(child, q, qd, qdd, f_ext);
+    rneStep(child, _q, _qd, _qdd, _f_ext);
   }
 
   // Do backward calculations involving wrenches and joint efforts.
@@ -105,7 +105,7 @@ void TreeIdSolver::rneStep(
   }
 
   // Add reaction forces to parent segment.
-  if (cur_it != tree_.getRootSegment()) {
+  if (_cur_it != tree_.getRootSegment()) {
     f_.at(par_name) = f_.at(par_name) + Xj * f_.at(cur_name);
   }
 }

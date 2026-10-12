@@ -34,22 +34,22 @@ struct rclcpp::TypeAdapter<tobas_msgs::OdometryWithCovariance, tobas_msgs::msg::
   using custom_type = tobas_msgs::OdometryWithCovariance;
   using ros_message_type = tobas_msgs::msg::OdometryWithCovariance;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    tobas_msgs::OdometryAdapter::convert_to_ros_message(src.odom, dst.odom);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.position_covariance, dst.position_covariance);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.orientation_covariance, dst.orientation_covariance);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.velocity_covariance, dst.velocity_covariance);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.gyro_covariance, dst.gyro_covariance);
+    tobas_msgs::OdometryAdapter::convert_to_ros_message(_src.odom, _dst.odom);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(_src.position_covariance, _dst.position_covariance);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(_src.orientation_covariance, _dst.orientation_covariance);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(_src.velocity_covariance, _dst.velocity_covariance);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(_src.gyro_covariance, _dst.gyro_covariance);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas_msgs::OdometryAdapter::convert_to_custom(src.odom, dst.odom);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.position_covariance, dst.position_covariance);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.orientation_covariance, dst.orientation_covariance);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.velocity_covariance, dst.velocity_covariance);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.gyro_covariance, dst.gyro_covariance);
+    tobas_msgs::OdometryAdapter::convert_to_custom(_src.odom, _dst.odom);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(_src.position_covariance, _dst.position_covariance);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(_src.orientation_covariance, _dst.orientation_covariance);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(_src.velocity_covariance, _dst.velocity_covariance);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(_src.gyro_covariance, _dst.gyro_covariance);
   }
 };
 

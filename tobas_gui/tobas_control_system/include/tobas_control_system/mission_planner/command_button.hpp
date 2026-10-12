@@ -18,7 +18,7 @@ class CommandButton : public QPushButton
   using super = QPushButton;
 
 public:
-  explicit CommandButton(const QString& text);
+  explicit CommandButton(const QString& _text);
 };
 }  // namespace ctrl
 }  // namespace gui

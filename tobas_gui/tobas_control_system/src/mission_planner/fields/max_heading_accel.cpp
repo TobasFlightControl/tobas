@@ -41,9 +41,9 @@ double MaxHeadingAccelWidget::getValue() const
   return st::deg2rad(spin_box_->value());
 }
 
-void MaxHeadingAccelWidget::setValue(double value)
+void MaxHeadingAccelWidget::setValue(double _value)
 {
-  spin_box_->setValue(st::rad2deg(value));
+  spin_box_->setValue(st::rad2deg(_value));
 }
 }  // namespace field
 }  // namespace ctrl

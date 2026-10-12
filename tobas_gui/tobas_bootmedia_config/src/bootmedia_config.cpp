@@ -64,7 +64,7 @@ void BootmediaConfigWidget::reset()
   }
 }
 
-void BootmediaConfigWidget::closeEvent(QCloseEvent* event)
+void BootmediaConfigWidget::closeEvent(QCloseEvent* _event)
 {
   if (media_manager_->isConnected()) {
     if (!qt::yesOrNo(
@@ -72,23 +72,23 @@ void BootmediaConfigWidget::closeEvent(QCloseEvent* event)
           "You’re attempting to close the application while the boot device is still connected. "
           "Are you sure you want to exit?",
           qt::WARN)) {
-      event->ignore();
+      _event->ignore();
       return;
     }
   }
 
-  event->accept();
+  _event->accept();
 }
 
-BaseConfigWidget* BootmediaConfigWidget::getWidget(int index)
+BaseConfigWidget* BootmediaConfigWidget::getWidget(int _index)
 {
-  return qt::qPointerCast<BaseConfigWidget>(tabs_->widget(index));
+  return qt::qPointerCast<BaseConfigWidget>(tabs_->widget(_index));
 }
 
-void BootmediaConfigWidget::setTabsEnabled(bool enabled)
+void BootmediaConfigWidget::setTabsEnabled(bool _enabled)
 {
   for (int i = 0; i < tabs_->count(); ++i) {
-    getWidget(i)->setEnabled(enabled);
+    getWidget(i)->setEnabled(_enabled);
   }
 }
 

@@ -20,14 +20,14 @@ class Label : public QLabel
 
 public:
   explicit Label(
-    const QString& text = "",
-    int point_size = -1,
-    int weight = -1,
-    bool italic = false,
-    QWidget* parent = nullptr);
+    const QString& _text = "",
+    int _point_size = -1,
+    int _weight = -1,
+    bool _italic = false,
+    QWidget* _parent = nullptr);
 
-  void setTextColor(const QString& color);
-  void setTextColor(Qt::GlobalColor color);
+  void setTextColor(const QString& _color);
+  void setTextColor(Qt::GlobalColor _color);
 };
 }  // namespace qt
 }  // namespace tobas

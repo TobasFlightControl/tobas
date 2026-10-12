@@ -53,38 +53,38 @@ std::expected<void, std::string> PwmBattImu::transfer()
   return {};
 }
 
-void PwmBattImu::setPwmPeriod(uint16_t* period_us)
+void PwmBattImu::setPwmPeriod(uint16_t* _period_us)
 {
   tx_buf_[kCmdTypeIdx] = 0x0000;
 
-  std::memcpy(tx_buf_ + 1, period_us, sizeof(uint16_t) * kPwmChannels);
+  std::memcpy(tx_buf_ + 1, _period_us, sizeof(uint16_t) * kPwmChannels);
 
   setTxCrc();
 }
 
-void PwmBattImu::configureLowPassFilter(uint16_t acc_cutoff, uint16_t gyro_cutoff, uint16_t dgyro_cutoff)
+void PwmBattImu::configureLowPassFilter(uint16_t _acc_cutoff, uint16_t _gyro_cutoff, uint16_t _dgyro_cutoff)
 {
   tx_buf_[kCmdTypeIdx] = 0x0001;
 
-  tx_buf_[1] = acc_cutoff;
-  tx_buf_[2] = gyro_cutoff;
-  tx_buf_[3] = dgyro_cutoff;
+  tx_buf_[1] = _acc_cutoff;
+  tx_buf_[2] = _gyro_cutoff;
+  tx_buf_[3] = _dgyro_cutoff;
 
   setTxCrc();
 }
 
 void PwmBattImu::configureRpmFilter(
-  uint16_t quality_factor,
-  uint16_t min_center_freq,
-  uint16_t fade_range,
-  uint16_t lpf_cutoff)
+  uint16_t _quality_factor,
+  uint16_t _min_center_freq,
+  uint16_t _fade_range,
+  uint16_t _lpf_cutoff)
 {
   tx_buf_[kCmdTypeIdx] = 0x0002;
 
-  tx_buf_[1] = quality_factor;
-  tx_buf_[2] = min_center_freq;
-  tx_buf_[3] = fade_range;
-  tx_buf_[4] = lpf_cutoff;
+  tx_buf_[1] = _quality_factor;
+  tx_buf_[2] = _min_center_freq;
+  tx_buf_[3] = _fade_range;
+  tx_buf_[4] = _lpf_cutoff;
 
   setTxCrc();
 }

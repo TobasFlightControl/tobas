@@ -27,7 +27,7 @@ class AddWifiDialog : public QDialog
   using super = QDialog;
 
 public:
-  explicit AddWifiDialog(QWidget* parent);
+  explicit AddWifiDialog(QWidget* _parent);
 
   QString getKeyMgmt() const;
   QString getSsid() const;
@@ -44,7 +44,7 @@ private:
 
   QDialogButtonBox* btn_box_;
 
-  void enableOkButton(bool enable);
+  void enableOkButton(bool _enable);
 
 private Q_SLOTS:
   void onChanged();

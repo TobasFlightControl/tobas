@@ -27,7 +27,7 @@ class JointsHandlerNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit JointsHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit JointsHandlerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   Drone::ConstSharedPtr drone_;
@@ -48,20 +48,20 @@ private:
   ros2::TimerPtr vel_reset_timer_;
   ros2::TimerPtr eff_reset_timer_;
 
-  double pwmPeriodFromJointPos(const PwmConfig& pwm, double cmd_pos);
+  double pwmPeriodFromJointPos(const PwmConfig& _pwm, double _cmd_pos);
 
-  void droneCb(const Drone::ConstSharedPtr& drone);
-  void jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions);
-  void jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities);
-  void jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts);
+  void droneCb(const Drone::ConstSharedPtr& _drone);
+  void jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _positions);
+  void jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _velocities);
+  void jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _efforts);
 
   void positionResetTimerCb();
   void velocityResetTimerCb();
   void effortResetTimerCb();
 };
 
-JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options)
-  : super("real_joints_handler", nodeOptions_Default(options))
+JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& _options)
+  : super("real_joints_handler", nodeOptions_Default(_options))
 {
   pwms_pub_ = createPublisher<tobas_msgs::msg::PwmArray>(topic::kPwmCmd);
   joint_states_pub_ = createPublisher<tobas_msgs::msg::JointStateArray>(topic::kJointStates);
@@ -76,15 +76,15 @@ JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options)
   eff_reset_timer_ = createWallTimer(kCommandAutoResetTimeout, &self::effortResetTimerCb, this, false);
 }
 
-double JointsHandlerNode::pwmPeriodFromJointPos(const PwmConfig& pwm, double cmd_pos)
+double JointsHandlerNode::pwmPeriodFromJointPos(const PwmConfig& _pwm, double _cmd_pos)
 {
-  cmd_pos = std::clamp(cmd_pos, pwm.value_range.first, pwm.value_range.second);
-  return pwm.periodFromValue(cmd_pos);
+  _cmd_pos = std::clamp(_cmd_pos, _pwm.value_range.first, _pwm.value_range.second);
+  return _pwm.periodFromValue(_cmd_pos);
 }
 
-void JointsHandlerNode::droneCb(const Drone::ConstSharedPtr& drone)
+void JointsHandlerNode::droneCb(const Drone::ConstSharedPtr& _drone)
 {
-  drone_ = drone;
+  drone_ = _drone;
 
   // Start or stop auto-reset timers.
   bool has_pos = false;
@@ -132,7 +132,7 @@ void JointsHandlerNode::droneCb(const Drone::ConstSharedPtr& drone)
   }
 }
 
-void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
+void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _positions)
 {
   if (!drone_) {
     return;
@@ -142,7 +142,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
   auto pwms = std::make_unique<tobas_msgs::msg::PwmArray>();
   auto joint_states = std::make_unique<tobas_msgs::msg::JointStateArray>();
 
-  for (const auto& cmd : positions->commands) {
+  for (const auto& cmd : _positions->commands) {
     const auto& jnt_name = cmd.name;
     auto cmd_pos = cmd.data;
 
@@ -183,11 +183,11 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
 
   // Publish messages.
   if (!pwms->pwms.empty()) {
-    pwms->header.stamp = positions->header.stamp;
+    pwms->header.stamp = _positions->header.stamp;
     pwms_pub_->publish(std::move(pwms));
   }
   if (!joint_states->states.empty()) {
-    joint_states->header.stamp = positions->header.stamp;
+    joint_states->header.stamp = _positions->header.stamp;
     joint_states_pub_->publish(std::move(joint_states));
   }
 
@@ -196,26 +196,26 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
   pos_reset_timer_->reset();
 }
 
-void JointsHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
+void JointsHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _velocities)
 {
   if (!drone_) {
     return;
   }
 
-  (void)velocities;  // TODO
+  (void)_velocities;  // TODO
 
   // Reset timeout timer.
   vel_commanded_ = true;
   vel_reset_timer_->reset();
 }
 
-void JointsHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
+void JointsHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _efforts)
 {
   if (!drone_) {
     return;
   }
 
-  (void)efforts;  // TODO
+  (void)_efforts;  // TODO
 
   // Reset timeout timer.
   eff_commanded_ = true;

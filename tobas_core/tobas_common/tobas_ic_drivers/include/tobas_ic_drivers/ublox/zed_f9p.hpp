@@ -117,13 +117,13 @@ public:
   ZEDF9P& operator=(const ZEDF9P& _other) = delete;
 
   bool initialize();
-  bool update(bool blocking = false);
+  bool update(bool _blocking = false);
 
   // ===== Configurations =====
 
-  bool enableSpiMessage(UbxClass cls, uint8_t id, bool enable);
-  bool configureDynamicsModel(DynamicsModel model);
-  bool configureMeasurementRate(uint16_t period_ms);
+  bool enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable);
+  bool configureDynamicsModel(DynamicsModel _model);
+  bool configureMeasurementRate(uint16_t _period_ms);
 
   bool enableGps();
   bool disableGps();
@@ -146,15 +146,15 @@ public:
   bool enableNavIc();
   bool disableNavIc();
 
-  bool enableSpiProtocol_UBX(bool enable_input, bool enable_output);
-  bool enableSpiProtocol_NMEA(bool enable_input, bool enable_output);
-  bool enableSpiProtocol_RTCM3X(bool enable_input, bool enable_output);
-  bool enableSpiProtocol_SPARTN(bool enable_input);
+  bool enableSpiProtocol_UBX(bool _enable_input, bool _enable_output);
+  bool enableSpiProtocol_NMEA(bool _enable_input, bool _enable_output);
+  bool enableSpiProtocol_RTCM3X(bool _enable_input, bool _enable_output);
+  bool enableSpiProtocol_SPARTN(bool _enable_input);
 
   /** Set the analog transmission delay from the length of the `RF174` cable. */
-  bool setAntennaLength(uint8_t length_m);
+  bool setAntennaLength(uint8_t _length_m);
 
-  bool enableUsb(bool enable);
+  bool enableUsb(bool _enable);
 
   // ===== Getters =====
 
@@ -274,53 +274,53 @@ private:
   tim::Rate scan_rate_;
 
   template <typename T>
-  bool cfgValSetSingle(CfgSize size, CfgGroup group, uint8_t id, T value);
+  bool cfgValSetSingle(CfgSize _size, CfgGroup _group, uint8_t _id, T _value);
 
-  bool sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t size);
-  bool waitForAcknowledge(UbxClass cls, uint8_t id);
-  bool configure(UbxCfgId cfg_id, const void* msg, uint16_t size);
+  bool sendMessage(UbxClass _cls, uint8_t _id, const void* _msg, uint16_t _size);
+  bool waitForAcknowledge(UbxClass _cls, uint8_t _id);
+  bool configure(UbxCfgId _cfg_id, const void* _msg, uint16_t _size);
   bool verifyMessage() const;
 
-  bool enableGps(bool enable);
+  bool enableGps(bool _enable);
   bool enableGpsL1();
   bool enableGpsL2();
   bool enableGpsL5();
 
-  bool enableSbas(bool enable);
+  bool enableSbas(bool _enable);
   bool enableSbasL1();
 
-  bool enableGalileo(bool enable);
+  bool enableGalileo(bool _enable);
   bool enableGalileoL1();
   bool enableGalileoL2();
   bool enableGalileoL5();
 
-  bool enableBeiDou(bool enable);
+  bool enableBeiDou(bool _enable);
   bool enableBeiDouL1();
   bool enableBeiDouL2();
   bool enableBeiDouL5();
 
-  bool enableQzss(bool enable);
+  bool enableQzss(bool _enable);
   bool enableQzssL1();
   bool enableQzssL2();
   bool enableQzssL5();
 
-  bool enableGlonass(bool enable);
+  bool enableGlonass(bool _enable);
   bool enableGlonassL1();
   bool enableGlonassL2();
 
-  bool enableNavIc(bool enable);
+  bool enableNavIc(bool _enable);
   bool enableNavIcL5();
 
-  bool enableSpiInputProtocol(CfgProtocol prot, bool enable);
-  bool enableSpiOutputProtocol(CfgProtocol prot, bool enable);
+  bool enableSpiInputProtocol(CfgProtocol _prot, bool _enable);
+  bool enableSpiOutputProtocol(CfgProtocol _prot, bool _enable);
 
   /** 5.4 UBX Checksum */
-  static CheckSum computeChecksum(const uint8_t* message, size_t checksum_pos);
+  static CheckSum computeChecksum(const uint8_t* _message, size_t _checksum_pos);
 
-  static size_t spliceMemory(uint8_t* dest, const void* src, size_t size, size_t dest_offset = 0);
+  static size_t spliceMemory(uint8_t* _dest, const void* _src, size_t _size, size_t _dest_offset = 0);
 
   /** Configuration Key ID | 6.2 Configuration Items */
-  static uint32_t configKeyID(CfgSize size, CfgGroup group, uint8_t id);
+  static uint32_t configKeyID(CfgSize _size, CfgGroup _group, uint8_t _id);
 };
 
 inline ZEDF9P::UbxClass ZEDF9P::latestClass() const
@@ -339,11 +339,11 @@ inline const uint8_t* ZEDF9P::payload() const
 }
 
 template <typename T>
-bool ZEDF9P::cfgValSetSingle(CfgSize size, CfgGroup group, uint8_t id, T value)
+bool ZEDF9P::cfgValSetSingle(CfgSize _size, CfgGroup _group, uint8_t _id, T _value)
 {
   CfgValSet<T, 1> cfg;
-  cfg.data[0].key = configKeyID(size, group, id);
-  cfg.data[0].value = value;
+  cfg.data[0].key = configKeyID(_size, _group, _id);
+  cfg.data[0].value = _value;
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 }  // namespace ublox

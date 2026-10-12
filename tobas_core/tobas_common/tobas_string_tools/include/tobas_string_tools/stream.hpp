@@ -9,8 +9,8 @@ namespace tobas
 {
 namespace str
 {
-bool readText(const std::string& path, std::string& text);
+bool readText(const std::string& _path, std::string& _text);
 
-bool writeText(const std::string& path, const std::string& text);
+bool writeText(const std::string& _path, const std::string& _text);
 }  // namespace str
 }  // namespace tobas

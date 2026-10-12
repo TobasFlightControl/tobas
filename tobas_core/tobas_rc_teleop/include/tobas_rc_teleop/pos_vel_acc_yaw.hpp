@@ -24,9 +24,9 @@ public:
   bool requireAttitude() override;
   bool requireHeading() override;
 
-  void initialize(BaseNode* node, FlightMode mode) override;
-  void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) override;
-  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
+  void initialize(BaseNode* _node, FlightMode _mode) override;
+  void reset(const builtin_interfaces::msg::Time& _stamp, const tobas_msgs::Odometry& _setpoint, bool _landed) override;
+  void update(const tobas_msgs::RCInput& _rcin, const tobas_msgs::Odometry& _odom, bool _landed) override;
 
 private:
   builtin_interfaces::msg::Time t_last_rcin_;
@@ -46,15 +46,15 @@ private:
   // Publisher
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> cmd_pub_;
 
-  void maxHorizontalVelocityCb(double p);
-  void maxHorizontalJerkCb(double p);
-  void maxVerticalVelocityCb(double p);
-  void maxVerticalJerkCb(double p);
-  void maxHeadingRateCb(double p);
-  void maxPositionErrorDown(double p);
-  void horizontalVelocityExpoCb(double p);
-  void verticalVelocityExpoCb(double p);
-  void headingExpoCb(double p);
+  void maxHorizontalVelocityCb(double _p);
+  void maxHorizontalJerkCb(double _p);
+  void maxVerticalVelocityCb(double _p);
+  void maxVerticalJerkCb(double _p);
+  void maxHeadingRateCb(double _p);
+  void maxPositionErrorDown(double _p);
+  void horizontalVelocityExpoCb(double _p);
+  void verticalVelocityExpoCb(double _p);
+  void headingExpoCb(double _p);
 };
 }  // namespace rc
 }  // namespace tobas

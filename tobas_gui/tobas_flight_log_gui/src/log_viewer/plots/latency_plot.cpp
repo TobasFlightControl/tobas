@@ -78,26 +78,26 @@ void LatencyPlotWidget::clear()
   ctrl_latency_hist_plot_->replot();
 }
 
-void LatencyPlotWidget::setTimeScale(double t_start, double t_stop)
+void LatencyPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
-  sampling_time_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  ctrl_latency_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+  sampling_time_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  ctrl_latency_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
 }
 
 void LatencyPlotWidget::setData(
-  const QVector<tobas_msgs::msg::Latency>& sampling_time_msgs,
-  const QVector<tobas_msgs::msg::Latency>& ctrl_latency_msgs)
+  const QVector<tobas_msgs::msg::Latency>& _sampling_time_msgs,
+  const QVector<tobas_msgs::msg::Latency>& _ctrl_latency_msgs)
 {
-  setSamplingTimeData(sampling_time_msgs);
-  setControlLatencyData(ctrl_latency_msgs);
+  setSamplingTimeData(_sampling_time_msgs);
+  setControlLatencyData(_ctrl_latency_msgs);
 }
 
-void LatencyPlotWidget::setSamplingTimeData(const QVector<tobas_msgs::msg::Latency>& msgs)
+void LatencyPlotWidget::setSamplingTimeData(const QVector<tobas_msgs::msg::Latency>& _msgs)
 {
   QVector<double> t_data;
   QVector<double> val_data;
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
     val_data.push_back(ros2::microseconds(msg.data));
   }
@@ -109,12 +109,12 @@ void LatencyPlotWidget::setSamplingTimeData(const QVector<tobas_msgs::msg::Laten
   sampling_time_hist_plot_->replot();
 }
 
-void LatencyPlotWidget::setControlLatencyData(const QVector<tobas_msgs::msg::Latency>& msgs)
+void LatencyPlotWidget::setControlLatencyData(const QVector<tobas_msgs::msg::Latency>& _msgs)
 {
   QVector<double> t_data;
   QVector<double> val_data;
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
     val_data.push_back(ros2::microseconds(msg.data));
   }

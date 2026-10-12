@@ -16,8 +16,8 @@ namespace gui
 {
 namespace sc
 {
-LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const rqt::RosQtBridge& bridge)
-  : spinner_(Qt::WindowModal, this), thread_(bridge)
+LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const rqt::RosQtBridge& _bridge)
+  : spinner_(Qt::WindowModal, this), thread_(_bridge)
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Make sure the GNSS is fixed. This is required to obtain the reference geomagnetic field.\n\n"
@@ -40,7 +40,7 @@ LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const rqt::RosQtBridge& b
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
-  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 void LargeVehicleMagCalibWidget::reset()
@@ -50,9 +50,9 @@ void LargeVehicleMagCalibWidget::reset()
   arming_.reset();
 }
 
-void LargeVehicleMagCalibWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void LargeVehicleMagCalibWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  thread_.initializeRosInterfaces(std::move(node), ns);
+  thread_.initializeRosInterfaces(std::move(_node), _ns);
 }
 
 void LargeVehicleMagCalibWidget::clearRosInterfaces()
@@ -84,9 +84,9 @@ void LargeVehicleMagCalibWidget::onStartButtonClicked()
   }
 }
 
-void LargeVehicleMagCalibWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void LargeVehicleMagCalibWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming)
 {
-  arming_ = arming;
+  arming_ = _arming;
 }
 }  // namespace sc
 }  // namespace gui

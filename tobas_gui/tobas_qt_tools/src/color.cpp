@@ -11,10 +11,10 @@ namespace color
 {
 namespace
 {
-QColor grayByPercentage(int percentage)
+QColor grayByPercentage(int _percentage)
 {
   // Add half of the divisor to round to the nearest integer.
-  const auto value = (percentage * 255 + 50) / 100;
+  const auto value = (_percentage * 255 + 50) / 100;
   return QColor(value, value, value);
 }
 }  // namespace

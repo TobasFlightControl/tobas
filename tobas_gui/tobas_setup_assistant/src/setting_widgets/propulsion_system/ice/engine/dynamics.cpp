@@ -60,9 +60,9 @@ YAML::Node EngineDynamicsWidget::dump() const
   return node;
 }
 
-void EngineDynamicsWidget::load(const YAML::Node& node)
+void EngineDynamicsWidget::load(const YAML::Node& _node)
 {
-  data_->setValue(node[data_->name()].as<Eigen::MatrixXd>());
+  data_->setValue(_node[data_->name()].as<Eigen::MatrixXd>());
 }
 
 std::pair<double, double> EngineDynamicsWidget::engineConstant() const

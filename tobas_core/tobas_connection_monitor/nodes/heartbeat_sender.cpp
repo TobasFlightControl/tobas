@@ -16,7 +16,7 @@ class HeartbeatSenderNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit HeartbeatSenderNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit HeartbeatSenderNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   uint64_t sequence_number_ = 0;
@@ -26,8 +26,8 @@ private:
   void mainTimerCb();
 };
 
-HeartbeatSenderNode::HeartbeatSenderNode(const rclcpp::NodeOptions& options)
-  : super("heartbeat_sender", nodeOptions_Default(options))
+HeartbeatSenderNode::HeartbeatSenderNode(const rclcpp::NodeOptions& _options)
+  : super("heartbeat_sender", nodeOptions_Default(_options))
 {
   heartbeat_pub_ = createPublisher<tobas_msgs::msg::Heartbeat>(topic::kHeartbeat);
   main_timer_ = createTimer(200ms, &self::mainTimerCb, this);

@@ -30,7 +30,7 @@ struct SignalTraits<void (Class::*)(const Arg&)>
 }  // namespace detail
 
 template <auto SignalType>
-auto waitForMessage(const RosQtBridge& bridge, int timeout_ms)
+auto waitForMessage(const RosQtBridge& _bridge, int _timeout_ms)
 {
   /** Derive the message pointer type from the signal so callers only need to specify the signal itself. */
   using MsgPtr = typename detail::SignalTraits<decltype(SignalType)>::Argument;
@@ -42,18 +42,18 @@ auto waitForMessage(const RosQtBridge& bridge, int timeout_ms)
   timeout_timer.setSingleShot(true);
 
   const auto connection = QObject::connect(
-    &bridge,
+    &_bridge,
     SignalType,
     &event_loop,
-    [&res, &event_loop](const MsgPtr& msg)
+    [&res, &event_loop](const MsgPtr& _msg)
     {
-      res = msg;
+      res = _msg;
       event_loop.quit();
     },
     Qt::QueuedConnection);
   QObject::connect(&timeout_timer, &QTimer::timeout, &event_loop, &QEventLoop::quit);
 
-  timeout_timer.start(timeout_ms);
+  timeout_timer.start(_timeout_ms);
   event_loop.exec(QEventLoop::AllEvents | QEventLoop::ExcludeUserInputEvents);
 
   QObject::disconnect(connection);

@@ -16,22 +16,22 @@ class LabeledDoubleSpinBox : public QWidget
   using self = LabeledDoubleSpinBox;
 
 Q_SIGNALS:
-  void valueChanged(double value);
+  void valueChanged(double _value);
 
 public:
-  explicit LabeledDoubleSpinBox(const QString& label_text);
+  explicit LabeledDoubleSpinBox(const QString& _label_text);
 
   double getValue() const;
-  bool setValue(double value);
+  bool setValue(double _value);
 
-  void setDecimals(int decimals);
-  void setMinimum(double minimum);
-  void setMaximum(double maximum);
-  void setSingleStep(double single_step);
-  void setSuffix(const QString& suffix);
+  void setDecimals(int _decimals);
+  void setMinimum(double _minimum);
+  void setMaximum(double _maximum);
+  void setSingleStep(double _single_step);
+  void setSuffix(const QString& _suffix);
 
 private Q_SLOTS:
-  void onValueChanged(double value);
+  void onValueChanged(double _value);
 
 private:
   qt::DoubleSpinBox* data_;

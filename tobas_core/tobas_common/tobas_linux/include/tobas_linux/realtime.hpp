@@ -14,12 +14,12 @@ namespace tobas
 {
 namespace linux
 {
-bool setThreadPriority(pthread_t thread, size_t priority, sched_t policy);
-bool setProcessPriority(pid_t pid, size_t priority, sched_t policy);
-bool setThisProcessPriority(size_t priority, sched_t policy);
+bool setThreadPriority(pthread_t _thread, size_t _priority, sched_t _policy);
+bool setProcessPriority(pid_t _pid, size_t _priority, sched_t _policy);
+bool setThisProcessPriority(size_t _priority, sched_t _policy);
 
-bool setThreadCPUAffinity(pthread_t thread, uint32_t cpu_bit_mask);
-bool setProcessCPUAffinity(pid_t pid, uint32_t cpu_bit_mask);
-bool setThisProcessCpuAffinity(uint32_t cpu_bit_mask);
+bool setThreadCPUAffinity(pthread_t _thread, uint32_t _cpu_bit_mask);
+bool setProcessCPUAffinity(pid_t _pid, uint32_t _cpu_bit_mask);
+bool setThisProcessCpuAffinity(uint32_t _cpu_bit_mask);
 }  // namespace linux
 }  // namespace tobas

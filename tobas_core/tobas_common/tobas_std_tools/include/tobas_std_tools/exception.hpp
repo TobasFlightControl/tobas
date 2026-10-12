@@ -13,7 +13,7 @@ namespace st
 class NotImplementedError : public std::exception
 {
 public:
-  NotImplementedError(const std::string& msg = "");
+  NotImplementedError(const std::string& _msg = "");
 
   virtual const char* what() const noexcept;
 

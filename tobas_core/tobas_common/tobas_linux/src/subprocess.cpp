@@ -51,13 +51,13 @@ std::expected<pid_t, std::string> createSubprocess(const std::vector<char*>& _ar
   }
 }
 
-std::expected<pid_t, std::string> createSubprocess(const std::string& command)
+std::expected<pid_t, std::string> createSubprocess(const std::string& _command)
 {
   // Since const_cast does not copy, the command memory must remain valid when the process is created.
   std::vector<char*> argv;
   argv.push_back(const_cast<char*>("/bin/bash"));
   argv.push_back(const_cast<char*>("-c"));
-  argv.push_back(const_cast<char*>(command.c_str()));
+  argv.push_back(const_cast<char*>(_command.c_str()));
 
   return createSubprocess(argv);
 }

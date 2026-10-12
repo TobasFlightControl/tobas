@@ -19,7 +19,7 @@ public:
   explicit Battery();
 
   bool initialize();
-  bool read(float& voltage, float& current);
+  bool read(float& _voltage, float& _current);
 
 private:
   linux::SPIdev spi_;

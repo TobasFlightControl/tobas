@@ -10,20 +10,20 @@ namespace tobas
 {
 namespace qt
 {
-SpinBox::SpinBox(QWidget* parent) : super(parent)
+SpinBox::SpinBox(QWidget* _parent) : super(_parent)
 {
   setMinimum(std::numeric_limits<int>::lowest());
   setMaximum(std::numeric_limits<int>::max());
 }
 
-void SpinBox::wheelEvent(QWheelEvent* event)
+void SpinBox::wheelEvent(QWheelEvent* _event)
 {
-  event->ignore();
+  _event->ignore();
 }
 
-void SpinBox::focusInEvent(QFocusEvent* event)
+void SpinBox::focusInEvent(QFocusEvent* _event)
 {
-  super::focusInEvent(event);
+  super::focusInEvent(_event);
   QTimer::singleShot(0, this, &SpinBox::selectAll);
 }
 }  // namespace qt

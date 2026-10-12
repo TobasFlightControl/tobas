@@ -7,246 +7,246 @@
 
 namespace tobas
 {
-BaseNode::BaseNode(const std::string& node_name, const rclcpp::NodeOptions& options)
-  : super(node_name, options), dparam_sub_(this)
+BaseNode::BaseNode(const std::string& _node_name, const rclcpp::NodeOptions& _options)
+  : super(_node_name, _options), dparam_sub_(this)
 {
-  RCLCPP_INFO_STREAM(get_logger(), "Initializing '" << node_name << "'.");
+  RCLCPP_INFO_STREAM(get_logger(), "Initializing '" << _node_name << "'.");
 
   message_pub_ = createPublisher<tobas_msgs::msg::Message>(topic::kMessage, false, true, 1);
 }
 
-bool BaseNode::getBoolParam(const std::string& param_name)
+bool BaseNode::getBoolParam(const std::string& _param_name)
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_bool();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_bool();
   }
   else {
-    return declareParam<bool>(param_name);
+    return declareParam<bool>(_param_name);
   }
 }
 
-long BaseNode::getIntParam(const std::string& param_name)
+long BaseNode::getIntParam(const std::string& _param_name)
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_int();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_int();
   }
   else {
-    return declareParam<long>(param_name);
+    return declareParam<long>(_param_name);
   }
 }
 
-double BaseNode::getDoubleParam(const std::string& param_name)
+double BaseNode::getDoubleParam(const std::string& _param_name)
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_double();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_double();
   }
   else {
-    return declareParam<double>(param_name);
+    return declareParam<double>(_param_name);
   }
 }
 
-std::string BaseNode::getStringParam(const std::string& param_name)
+std::string BaseNode::getStringParam(const std::string& _param_name)
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_string();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_string();
   }
   else {
-    return declareParam<std::string>(param_name);
+    return declareParam<std::string>(_param_name);
   }
 }
 
-std::vector<bool> BaseNode::getBoolArrayParam(const std::string& param_name)
+std::vector<bool> BaseNode::getBoolArrayParam(const std::string& _param_name)
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_bool_array();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_bool_array();
   }
   else {
-    return declareParam<std::vector<bool>>(param_name);
+    return declareParam<std::vector<bool>>(_param_name);
   }
 }
 
-std::vector<uint8_t> BaseNode::getByteArrayParam(const std::string& param_name)
+std::vector<uint8_t> BaseNode::getByteArrayParam(const std::string& _param_name)
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_byte_array();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_byte_array();
   }
   else {
-    return declareParam<std::vector<uint8_t>>(param_name);
+    return declareParam<std::vector<uint8_t>>(_param_name);
   }
 }
 
-std::vector<long> BaseNode::getIntArrayParam(const std::string& param_name)
+std::vector<long> BaseNode::getIntArrayParam(const std::string& _param_name)
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_integer_array();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_integer_array();
   }
   else {
-    return declareParam<std::vector<long>>(param_name);
+    return declareParam<std::vector<long>>(_param_name);
   }
 }
 
-std::vector<double> BaseNode::getDoubleArrayParam(const std::string& param_name)
+std::vector<double> BaseNode::getDoubleArrayParam(const std::string& _param_name)
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_double_array();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_double_array();
   }
   else {
-    return declareParam<std::vector<double>>(param_name);
+    return declareParam<std::vector<double>>(_param_name);
   }
 }
 
-std::vector<std::string> BaseNode::getStringArrayParam(const std::string& param_name)
+std::vector<std::string> BaseNode::getStringArrayParam(const std::string& _param_name)
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_string_array();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_string_array();
   }
   else {
-    return declareParam<std::vector<std::string>>(param_name);
+    return declareParam<std::vector<std::string>>(_param_name);
   }
 }
 
-bool BaseNode::getBoolParam(const std::string& param_name, bool dflt) noexcept
+bool BaseNode::getBoolParam(const std::string& _param_name, bool _dflt) noexcept
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_bool();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_bool();
   }
   else {
-    return declareParam(param_name, dflt);
+    return declareParam(_param_name, _dflt);
   }
 }
 
-long BaseNode::getIntParam(const std::string& param_name, long dflt) noexcept
+long BaseNode::getIntParam(const std::string& _param_name, long _dflt) noexcept
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_int();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_int();
   }
   else {
-    return declareParam(param_name, dflt);
+    return declareParam(_param_name, _dflt);
   }
 }
 
-double BaseNode::getDoubleParam(const std::string& param_name, double dflt) noexcept
+double BaseNode::getDoubleParam(const std::string& _param_name, double _dflt) noexcept
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_double();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_double();
   }
   else {
-    return declareParam(param_name, dflt);
+    return declareParam(_param_name, _dflt);
   }
 }
 
-std::string BaseNode::getStringParam(const std::string& param_name, const std::string& dflt) noexcept
+std::string BaseNode::getStringParam(const std::string& _param_name, const std::string& _dflt) noexcept
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_string();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_string();
   }
   else {
-    return declareParam(param_name, dflt);
+    return declareParam(_param_name, _dflt);
   }
 }
 
-std::vector<bool> BaseNode::getBoolArrayParam(const std::string& param_name, const std::vector<bool>& dflt) noexcept
+std::vector<bool> BaseNode::getBoolArrayParam(const std::string& _param_name, const std::vector<bool>& _dflt) noexcept
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_bool_array();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_bool_array();
   }
   else {
-    return declareParam(param_name, dflt);
+    return declareParam(_param_name, _dflt);
   }
 }
 
 std::vector<uint8_t>
-BaseNode::getByteArrayParam(const std::string& param_name, const std::vector<uint8_t>& dflt) noexcept
+BaseNode::getByteArrayParam(const std::string& _param_name, const std::vector<uint8_t>& _dflt) noexcept
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_byte_array();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_byte_array();
   }
   else {
-    return declareParam(param_name, dflt);
+    return declareParam(_param_name, _dflt);
   }
 }
 
-std::vector<long> BaseNode::getIntArrayParam(const std::string& param_name, const std::vector<long>& dflt) noexcept
+std::vector<long> BaseNode::getIntArrayParam(const std::string& _param_name, const std::vector<long>& _dflt) noexcept
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_integer_array();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_integer_array();
   }
   else {
-    return declareParam(param_name, dflt);
+    return declareParam(_param_name, _dflt);
   }
 }
 
 std::vector<double>
-BaseNode::getDoubleArrayParam(const std::string& param_name, const std::vector<double>& dflt) noexcept
+BaseNode::getDoubleArrayParam(const std::string& _param_name, const std::vector<double>& _dflt) noexcept
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_double_array();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_double_array();
   }
   else {
-    return declareParam(param_name, dflt);
+    return declareParam(_param_name, _dflt);
   }
 }
 
 std::vector<std::string>
-BaseNode::getStringArrayParam(const std::string& param_name, const std::vector<std::string>& dflt) noexcept
+BaseNode::getStringArrayParam(const std::string& _param_name, const std::vector<std::string>& _dflt) noexcept
 {
-  if (has_parameter(param_name)) {
-    return get_parameter(param_name).as_string_array();
+  if (has_parameter(_param_name)) {
+    return get_parameter(_param_name).as_string_array();
   }
   else {
-    return declareParam(param_name, dflt);
+    return declareParam(_param_name, _dflt);
   }
 }
 
-rclcpp::NodeOptions BaseNode::nodeOptions_Default(rclcpp::NodeOptions options)
+rclcpp::NodeOptions BaseNode::nodeOptions_Default(rclcpp::NodeOptions _options)
 {
-  options.enable_rosout(false);
-  options.use_intra_process_comms(true);
-  options.start_parameter_services(false);
-  options.start_parameter_event_publisher(false);
-  setClockType(options);
-  options.append_parameter_override("start_type_description_service", false);
+  _options.enable_rosout(false);
+  _options.use_intra_process_comms(true);
+  _options.start_parameter_services(false);
+  _options.start_parameter_event_publisher(false);
+  setClockType(_options);
+  _options.append_parameter_override("start_type_description_service", false);
 
-  return options;
+  return _options;
 }
 
-rclcpp::NodeOptions BaseNode::nodeOptions_DParam(rclcpp::NodeOptions options)
+rclcpp::NodeOptions BaseNode::nodeOptions_DParam(rclcpp::NodeOptions _options)
 {
-  return nodeOptions_Default(options).start_parameter_services(true).start_parameter_event_publisher(true);
+  return nodeOptions_Default(_options).start_parameter_services(true).start_parameter_event_publisher(true);
 }
 
-void BaseNode::rclcppLog(uint8_t level, const std::string& text) const
+void BaseNode::rclcppLog(uint8_t _level, const std::string& _text) const
 {
-  switch (level) {
+  switch (_level) {
     case tobas_msgs::msg::Message::LEVEL_DEBUG:
-      RCLCPP_DEBUG_STREAM(get_logger(), text);
+      RCLCPP_DEBUG_STREAM(get_logger(), _text);
       break;
     case tobas_msgs::msg::Message::LEVEL_INFO:
-      RCLCPP_INFO_STREAM(get_logger(), text);
+      RCLCPP_INFO_STREAM(get_logger(), _text);
       break;
     case tobas_msgs::msg::Message::LEVEL_WARN:
-      RCLCPP_WARN_STREAM(get_logger(), text);
+      RCLCPP_WARN_STREAM(get_logger(), _text);
       break;
     case tobas_msgs::msg::Message::LEVEL_ERROR:
-      RCLCPP_ERROR_STREAM(get_logger(), text);
+      RCLCPP_ERROR_STREAM(get_logger(), _text);
       break;
     case tobas_msgs::msg::Message::LEVEL_FATAL:
-      RCLCPP_FATAL_STREAM(get_logger(), text);
+      RCLCPP_FATAL_STREAM(get_logger(), _text);
       break;
     default:
-      RCLCPP_ERROR_STREAM(get_logger(), "Invalid log level: " << static_cast<int>(level));
+      RCLCPP_ERROR_STREAM(get_logger(), "Invalid log level: " << static_cast<int>(_level));
       break;
   }
 }
 
 void BaseNode::getDParamCb(
   const tobas_dparam_msgs::srv::GetParams::Request::ConstSharedPtr&,
-  const tobas_dparam_msgs::srv::GetParams::Response::SharedPtr& res)
+  const tobas_dparam_msgs::srv::GetParams::Response::SharedPtr& _res)
 {
-  res->params = dparams_;
+  _res->params = dparams_;
 }
 
-void BaseNode::setClockType(rclcpp::NodeOptions& options)
+void BaseNode::setClockType(rclcpp::NodeOptions& _options)
 {
   const auto clock_type = ros2::getEnv("TOBAS_CLOCK_TYPE");
 
@@ -256,16 +256,16 @@ void BaseNode::setClockType(rclcpp::NodeOptions& options)
   }
 
   if (std::strcmp(*clock_type, "ros_time") == 0) {
-    options.clock_type(RCL_ROS_TIME);  // Use the system clock if no reference clock is available.
-    options.use_clock_thread(true);    // Use a dedicated thread because `/clock` may be received.
+    _options.clock_type(RCL_ROS_TIME);  // Use the system clock if no reference clock is available.
+    _options.use_clock_thread(true);    // Use a dedicated thread because `/clock` may be received.
   }
   else if (std::strcmp(*clock_type, "system_time") == 0) {
-    options.clock_type(RCL_SYSTEM_TIME);  // System clock synchronized with NTP.
-    options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
+    _options.clock_type(RCL_SYSTEM_TIME);  // System clock synchronized with NTP.
+    _options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
   }
   else if (std::strcmp(*clock_type, "steady_time") == 0) {
-    options.clock_type(RCL_STEADY_TIME);  // Monotonic timer unaffected by NTP.
-    options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
+    _options.clock_type(RCL_STEADY_TIME);  // Monotonic timer unaffected by NTP.
+    _options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
   }
   else {
     std::cerr << "Unknown clock type: " << *clock_type << std::endl;

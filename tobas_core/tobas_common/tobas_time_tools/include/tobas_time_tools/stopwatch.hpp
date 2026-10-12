@@ -12,7 +12,7 @@ namespace tim
 class Stopwatch
 {
 public:
-  explicit Stopwatch(size_t samples = 1);
+  explicit Stopwatch(size_t _samples = 1);
 
   void start();
   uint64_t stop();

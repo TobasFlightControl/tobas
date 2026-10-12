@@ -41,9 +41,9 @@ double AltitudeToleranceWidget::getValue() const
   return spin_box_->value();
 }
 
-void AltitudeToleranceWidget::setValue(double value)
+void AltitudeToleranceWidget::setValue(double _value)
 {
-  spin_box_->setValue(value);
+  spin_box_->setValue(_value);
 }
 }  // namespace field
 }  // namespace ctrl

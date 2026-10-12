@@ -17,21 +17,21 @@ class HeartbeatReceiverNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit HeartbeatReceiverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit HeartbeatReceiverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   ros2::PublisherPtr<tobas_msgs::msg::RemoteConnection> connection_pub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Heartbeat> heartbeat_sub_;
   ros2::TimerPtr timeout_timer_;
 
-  void publishConnectionState(bool connected);
+  void publishConnectionState(bool _connected);
 
-  void heartbeatCb(const tobas_msgs::msg::Heartbeat::ConstSharedPtr& msg);
+  void heartbeatCb(const tobas_msgs::msg::Heartbeat::ConstSharedPtr& _msg);
   void onConnectionTimeout();
 };
 
-HeartbeatReceiverNode::HeartbeatReceiverNode(const rclcpp::NodeOptions& options)
-  : super("heartbeat_receiver", nodeOptions_Default(options))
+HeartbeatReceiverNode::HeartbeatReceiverNode(const rclcpp::NodeOptions& _options)
+  : super("heartbeat_receiver", nodeOptions_Default(_options))
 {
   const auto timeout = getDoubleParam("timeout");  // [s]
 
@@ -41,11 +41,11 @@ HeartbeatReceiverNode::HeartbeatReceiverNode(const rclcpp::NodeOptions& options)
   timeout_timer_ = createTimer(ch::duration<double>(timeout), &self::onConnectionTimeout, this);
 }
 
-void HeartbeatReceiverNode::publishConnectionState(bool connected)
+void HeartbeatReceiverNode::publishConnectionState(bool _connected)
 {
   auto msg = std::make_unique<tobas_msgs::msg::RemoteConnection>();
   msg->header.stamp = now();
-  msg->data = connected;
+  msg->data = _connected;
   connection_pub_->publish(std::move(msg));
 }
 

@@ -50,28 +50,28 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(500ms)
 }
 
 void ErrorStateKalmanFilter::initialize(
-  const Eigen::Vector3d& init_pos,
-  const Eigen::Matrix3d& init_pos_cov,
-  const Eigen::Vector3d& init_vel,
-  const Eigen::Matrix3d& init_vel_cov,
-  const Eigen::Quaterniond& init_quat,
-  const Eigen::Matrix3d& init_dtheta_cov,
-  const Eigen::Vector3d& init_acc_bias,
-  const Eigen::Matrix3d& init_acc_bias_cov,
-  const Eigen::Vector3d& init_gyro_bias,
-  const Eigen::Matrix3d& init_gyro_bias_cov,
-  const Eigen::Vector3d& init_mag_hard_bias,
-  const Eigen::Matrix3d& init_mag_hard_bias_cov,
-  const Eigen::Matrix3d& init_mag_soft_bias,
-  const Eigen::Matrix6d& init_mag_soft_bias_cov,
-  double init_baro_alt_bias,
-  double init_baro_alt_bias_var,
-  double init_grav,
-  double init_grav_var,
-  const ch::steady_clock::time_point& time)
+  const Eigen::Vector3d& _init_pos,
+  const Eigen::Matrix3d& _init_pos_cov,
+  const Eigen::Vector3d& _init_vel,
+  const Eigen::Matrix3d& _init_vel_cov,
+  const Eigen::Quaterniond& _init_quat,
+  const Eigen::Matrix3d& _init_dtheta_cov,
+  const Eigen::Vector3d& _init_acc_bias,
+  const Eigen::Matrix3d& _init_acc_bias_cov,
+  const Eigen::Vector3d& _init_gyro_bias,
+  const Eigen::Matrix3d& _init_gyro_bias_cov,
+  const Eigen::Vector3d& _init_mag_hard_bias,
+  const Eigen::Matrix3d& _init_mag_hard_bias_cov,
+  const Eigen::Matrix3d& _init_mag_soft_bias,
+  const Eigen::Matrix6d& _init_mag_soft_bias_cov,
+  double _init_baro_alt_bias,
+  double _init_baro_alt_bias_var,
+  double _init_grav,
+  double _init_grav_var,
+  const ch::steady_clock::time_point& _time)
 {
   // Set initial IMU time.
-  t_last_imu_ = time;
+  t_last_imu_ = _time;
 
   // Fill the constant part of matrices.
   P_.setZero();
@@ -79,226 +79,226 @@ void ErrorStateKalmanFilter::initialize(
   G_.setIdentity();
 
   // Initialize states and covariances.
-  initializePosition(init_pos, init_pos_cov);
-  initializeVelocity(init_vel, init_vel_cov);
-  initializeQuaternion(init_quat, init_dtheta_cov);
-  initializeAccelBias(init_acc_bias, init_acc_bias_cov);
-  initializeGyroBias(init_gyro_bias, init_gyro_bias_cov);
-  initializeMagHardBias(init_mag_hard_bias, init_mag_hard_bias_cov);
-  initializeMagSoftBias(init_mag_soft_bias, init_mag_soft_bias_cov);
-  initializeBaroAltBias(init_baro_alt_bias, init_baro_alt_bias_var);
-  initializeGravity(init_grav, init_grav_var);
+  initializePosition(_init_pos, _init_pos_cov);
+  initializeVelocity(_init_vel, _init_vel_cov);
+  initializeQuaternion(_init_quat, _init_dtheta_cov);
+  initializeAccelBias(_init_acc_bias, _init_acc_bias_cov);
+  initializeGyroBias(_init_gyro_bias, _init_gyro_bias_cov);
+  initializeMagHardBias(_init_mag_hard_bias, _init_mag_hard_bias_cov);
+  initializeMagSoftBias(_init_mag_soft_bias, _init_mag_soft_bias_cov);
+  initializeBaroAltBias(_init_baro_alt_bias, _init_baro_alt_bias_var);
+  initializeGravity(_init_grav, _init_grav_var);
 }
 
-void ErrorStateKalmanFilter::initializePosition(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
+void ErrorStateKalmanFilter::initializePosition(const Eigen::Vector3d& _value, const Eigen::Matrix3d& _cov)
 {
-  assert(eigen::isSymmetricSemiPositiveDefinite(cov));
+  assert(eigen::isSymmetricSemiPositiveDefinite(_cov));
 
-  x_.segment<3>(kPosIdx) = value;
+  x_.segment<3>(kPosIdx) = _value;
 
   P_.middleRows<3>(kDeltaPosIdx).setZero();
   P_.middleCols<3>(kDeltaPosIdx).setZero();
-  P_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx) = cov;
+  P_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx) = _cov;
 
   resetStateHistory();
 }
 
-void ErrorStateKalmanFilter::initializeVelocity(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
+void ErrorStateKalmanFilter::initializeVelocity(const Eigen::Vector3d& _value, const Eigen::Matrix3d& _cov)
 {
-  assert(eigen::isSymmetricSemiPositiveDefinite(cov));
+  assert(eigen::isSymmetricSemiPositiveDefinite(_cov));
 
-  x_.segment<3>(kVelIdx) = value;
+  x_.segment<3>(kVelIdx) = _value;
 
   P_.middleRows<3>(kDeltaVelIdx).setZero();
   P_.middleCols<3>(kDeltaVelIdx).setZero();
-  P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) = cov;
+  P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) = _cov;
 
   resetStateHistory();
 }
 
-void ErrorStateKalmanFilter::initializeQuaternion(const Eigen::Quaterniond& value, const Eigen::Matrix3d& cov)
+void ErrorStateKalmanFilter::initializeQuaternion(const Eigen::Quaterniond& _value, const Eigen::Matrix3d& _cov)
 {
-  assert(eigen::isSymmetricSemiPositiveDefinite(cov));
+  assert(eigen::isSymmetricSemiPositiveDefinite(_cov));
 
-  x_.segment<4>(kQuatIdx) = eigen::hamiltonFromQuaternion(value).normalized();
+  x_.segment<4>(kQuatIdx) = eigen::hamiltonFromQuaternion(_value).normalized();
 
   P_.middleRows<3>(kDeltaThetaIdx).setZero();
   P_.middleCols<3>(kDeltaThetaIdx).setZero();
-  P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = cov;
+  P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = _cov;
 
   resetStateHistory();
 }
 
-void ErrorStateKalmanFilter::initializeAccelBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
+void ErrorStateKalmanFilter::initializeAccelBias(const Eigen::Vector3d& _value, const Eigen::Matrix3d& _cov)
 {
-  assert(eigen::isSymmetricSemiPositiveDefinite(cov));
+  assert(eigen::isSymmetricSemiPositiveDefinite(_cov));
 
-  x_.segment<3>(kAccBiasIdx) = value;
+  x_.segment<3>(kAccBiasIdx) = _value;
 
   P_.middleRows<3>(kDeltaAccBiasIdx).setZero();
   P_.middleCols<3>(kDeltaAccBiasIdx).setZero();
-  P_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx) = cov;
+  P_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx) = _cov;
 
   resetStateHistory();
 }
 
-void ErrorStateKalmanFilter::initializeGyroBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
+void ErrorStateKalmanFilter::initializeGyroBias(const Eigen::Vector3d& _value, const Eigen::Matrix3d& _cov)
 {
-  assert(eigen::isSymmetricSemiPositiveDefinite(cov));
+  assert(eigen::isSymmetricSemiPositiveDefinite(_cov));
 
-  x_.segment<3>(kGyroBiasIdx) = value;
+  x_.segment<3>(kGyroBiasIdx) = _value;
 
   P_.middleRows<3>(kDeltaGyroBiasIdx).setZero();
   P_.middleCols<3>(kDeltaGyroBiasIdx).setZero();
-  P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx) = cov;
+  P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx) = _cov;
 
   resetStateHistory();
 }
 
-void ErrorStateKalmanFilter::initializeMagHardBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov)
+void ErrorStateKalmanFilter::initializeMagHardBias(const Eigen::Vector3d& _value, const Eigen::Matrix3d& _cov)
 {
-  assert(eigen::isSymmetricSemiPositiveDefinite(cov));
+  assert(eigen::isSymmetricSemiPositiveDefinite(_cov));
 
-  x_.segment<3>(kMagHardBiasIdx) = value;
+  x_.segment<3>(kMagHardBiasIdx) = _value;
 
   P_.middleRows<3>(kDeltaMagHardBiasIdx).setZero();
   P_.middleCols<3>(kDeltaMagHardBiasIdx).setZero();
-  P_.block<3, 3>(kDeltaMagHardBiasIdx, kDeltaMagHardBiasIdx) = cov;
+  P_.block<3, 3>(kDeltaMagHardBiasIdx, kDeltaMagHardBiasIdx) = _cov;
 
   resetStateHistory();
 }
 
-void ErrorStateKalmanFilter::initializeMagSoftBias(const Eigen::Matrix3d& value, const Eigen::Matrix6d& cov)
+void ErrorStateKalmanFilter::initializeMagSoftBias(const Eigen::Matrix3d& _value, const Eigen::Matrix6d& _cov)
 {
-  assert(eigen::isSymmetricPositiveDefinite(value));
-  assert(eigen::isSymmetricSemiPositiveDefinite(cov));
+  assert(eigen::isSymmetricPositiveDefinite(_value));
+  assert(eigen::isSymmetricSemiPositiveDefinite(_cov));
 
-  setMagSoftBiasFromMatrix(value);
+  setMagSoftBiasFromMatrix(_value);
 
   P_.middleRows<6>(kDeltaMagSoftBiasIdx).setZero();
   P_.middleCols<6>(kDeltaMagSoftBiasIdx).setZero();
-  P_.block<6, 6>(kDeltaMagSoftBiasIdx, kDeltaMagSoftBiasIdx) = cov;
+  P_.block<6, 6>(kDeltaMagSoftBiasIdx, kDeltaMagSoftBiasIdx) = _cov;
 
   resetStateHistory();
 }
 
-void ErrorStateKalmanFilter::initializeBaroAltBias(double value, double var)
+void ErrorStateKalmanFilter::initializeBaroAltBias(double _value, double _var)
 {
-  assert(var >= 0.0);
+  assert(_var >= 0.0);
 
-  x_(kBaroAltBiasIdx) = value;
+  x_(kBaroAltBiasIdx) = _value;
 
   P_.row(kDeltaBaroAltBiasIdx).setZero();
   P_.col(kDeltaBaroAltBiasIdx).setZero();
-  P_(kDeltaBaroAltBiasIdx, kDeltaBaroAltBiasIdx) = var;
+  P_(kDeltaBaroAltBiasIdx, kDeltaBaroAltBiasIdx) = _var;
 
   resetStateHistory();
 }
 
-void ErrorStateKalmanFilter::initializeGravity(double value, double var)
+void ErrorStateKalmanFilter::initializeGravity(double _value, double _var)
 {
-  assert(var >= 0.0);
+  assert(_var >= 0.0);
 
-  x_(kGravIdx) = value;
+  x_(kGravIdx) = _value;
 
   P_.row(kDeltaGravIdx).setZero();
   P_.col(kDeltaGravIdx).setZero();
-  P_(kDeltaGravIdx, kDeltaGravIdx) = var;
+  P_(kDeltaGravIdx, kDeltaGravIdx) = _var;
 
   resetStateHistory();
 }
 
-void ErrorStateKalmanFilter::enableSecondIntegral(bool enable)
+void ErrorStateKalmanFilter::enableSecondIntegral(bool _enable)
 {
-  enable_second_integral_ = enable;
+  enable_second_integral_ = _enable;
 }
 
-void ErrorStateKalmanFilter::enableCovSymmetrisation(bool enable)
+void ErrorStateKalmanFilter::enableCovSymmetrisation(bool _enable)
 {
-  enable_cov_symmetrisation_ = enable;
+  enable_cov_symmetrisation_ = _enable;
 }
 
-void ErrorStateKalmanFilter::enableCovInitialization(bool enable)
+void ErrorStateKalmanFilter::enableCovInitialization(bool _enable)
 {
-  enable_cov_initialization_ = enable;
+  enable_cov_initialization_ = _enable;
 }
 
-void ErrorStateKalmanFilter::enableJosephForm(bool enable)
+void ErrorStateKalmanFilter::enableJosephForm(bool _enable)
 {
-  enable_joseph_form_ = enable;
+  enable_joseph_form_ = _enable;
 }
 
-void ErrorStateKalmanFilter::setAccBiasProcNoiseDensity(double value)
+void ErrorStateKalmanFilter::setAccBiasProcNoiseDensity(double _value)
 {
-  assert(value >= 0.0);
-  acc_bias_proc_noise_density_ = value;
+  assert(_value >= 0.0);
+  acc_bias_proc_noise_density_ = _value;
 }
 
-void ErrorStateKalmanFilter::setGyroBiasProcNoiseDensity(double value)
+void ErrorStateKalmanFilter::setGyroBiasProcNoiseDensity(double _value)
 {
-  assert(value >= 0.0);
-  gyro_bias_proc_noise_density_ = value;
+  assert(_value >= 0.0);
+  gyro_bias_proc_noise_density_ = _value;
 }
 
-void ErrorStateKalmanFilter::setMagHardBiasProcNoiseDensity(double value)
+void ErrorStateKalmanFilter::setMagHardBiasProcNoiseDensity(double _value)
 {
-  assert(value >= 0.0);
-  mag_hard_bias_proc_noise_density_ = value;
+  assert(_value >= 0.0);
+  mag_hard_bias_proc_noise_density_ = _value;
 }
 
-void ErrorStateKalmanFilter::setMagSoftBiasProcNoiseDensity(double value)
+void ErrorStateKalmanFilter::setMagSoftBiasProcNoiseDensity(double _value)
 {
-  assert(value >= 0.0);
-  mag_soft_bias_proc_noise_density_ = value;
+  assert(_value >= 0.0);
+  mag_soft_bias_proc_noise_density_ = _value;
 }
 
-void ErrorStateKalmanFilter::setBaroAltBiasProcNoiseDensity(double value)
+void ErrorStateKalmanFilter::setBaroAltBiasProcNoiseDensity(double _value)
 {
-  assert(value >= 0.0);
-  baro_alt_bias_proc_noise_density_ = value;
+  assert(_value >= 0.0);
+  baro_alt_bias_proc_noise_density_ = _value;
 }
 
-void ErrorStateKalmanFilter::setGravProcNoiseDensity(double value)
+void ErrorStateKalmanFilter::setGravProcNoiseDensity(double _value)
 {
-  assert(value >= 0.0);
-  grav_proc_noise_density_ = value;
+  assert(_value >= 0.0);
+  grav_proc_noise_density_ = _value;
 }
 
-void ErrorStateKalmanFilter::setMagneticFieldRef(const Eigen::Vector3d& mag_W)
+void ErrorStateKalmanFilter::setMagneticFieldRef(const Eigen::Vector3d& _mag_w)
 {
-  assert(mag_W.norm() > 0.0);
-  mag_W_ = mag_W.normalized();
+  assert(_mag_w.norm() > 0.0);
+  mag_W_ = _mag_w.normalized();
 }
 
-void ErrorStateKalmanFilter::setAirPressureOrigin(double pres)
+void ErrorStateKalmanFilter::setAirPressureOrigin(double _pres)
 {
-  baro_alt_origin_ = st::pressureToAltitude(pres);
+  baro_alt_origin_ = st::pressureToAltitude(_pres);
 }
 
 std::expected<double, std::string> ErrorStateKalmanFilter::measureImu(
-  const Eigen::Vector3d& acc_meas,
-  const Eigen::Vector3d& gyro_meas,
-  const Eigen::Matrix3d& acc_cov,
-  const Eigen::Matrix3d& gyro_cov,
-  const Eigen::Matrix3d& grav_cov,
-  const ch::steady_clock::time_point& time)
+  const Eigen::Vector3d& _acc_meas,
+  const Eigen::Vector3d& _gyro_meas,
+  const Eigen::Matrix3d& _acc_cov,
+  const Eigen::Matrix3d& _gyro_cov,
+  const Eigen::Matrix3d& _grav_cov,
+  const ch::steady_clock::time_point& _time)
 {
-  assert(eigen::isSymmetricSemiPositiveDefinite(acc_cov));
-  assert(eigen::isSymmetricSemiPositiveDefinite(gyro_cov));
-  assert(eigen::isSymmetricPositiveDefinite(grav_cov));
+  assert(eigen::isSymmetricSemiPositiveDefinite(_acc_cov));
+  assert(eigen::isSymmetricSemiPositiveDefinite(_gyro_cov));
+  assert(eigen::isSymmetricPositiveDefinite(_grav_cov));
 
   // Compute the sampling time and update the timestamp.
-  const auto dt = ch::duration<double>(time - t_last_imu_).count();  // [s]
+  const auto dt = ch::duration<double>(_time - t_last_imu_).count();  // [s]
   const auto dt2 = math::sqr(dt);
-  t_last_imu_ = time;
+  t_last_imu_ = _time;
 
   // `dt = 0` cannot be accepted because quaternion normalization depends on it.
   if (dt <= 0.0) {
     return std::unexpected(std::format("IMU time gap must be positive: {} <= 0 [sec]", dt));
   }
 
-  const Eigen::Vector3d acc_B = acc_meas - getAccelBias(x_);
-  const Eigen::Vector3d gyro_B = gyro_meas - getGyroBias(x_);
+  const Eigen::Vector3d acc_B = _acc_meas - getAccelBias(x_);
+  const Eigen::Vector3d gyro_B = _gyro_meas - getGyroBias(x_);
 
   const Eigen::Quaterniond delta_q = eigen::quaternionFromAngleAxis(gyro_B * dt);
   const Eigen::Matrix3d delta_R = delta_q.toRotationMatrix();
@@ -316,8 +316,8 @@ std::expected<double, std::string> ErrorStateKalmanFilter::measureImu(
   // so lower bounds are imposed on the eigenvalues.
   constexpr double kMinAccStddev = 0.1;    // [m/s^2]
   constexpr double kMinGyroStddev = 0.01;  // [rad/s]
-  const auto acc_cov_fixed = eigen::nearestPositiveDefinite(acc_cov, math::sqr(kMinAccStddev));
-  const auto gyro_cov_fixed = eigen::nearestPositiveDefinite(gyro_cov, math::sqr(kMinGyroStddev));
+  const auto acc_cov_fixed = eigen::nearestPositiveDefinite(_acc_cov, math::sqr(kMinAccStddev));
+  const auto gyro_cov_fixed = eigen::nearestPositiveDefinite(_gyro_cov, math::sqr(kMinGyroStddev));
 
   // (260) Nominal-state kinematics.
   x_.segment<3>(kPosIdx) += vel_W * dt;
@@ -352,53 +352,53 @@ std::expected<double, std::string> ErrorStateKalmanFilter::measureImu(
   applyConstraints();
 
   // Save the state history.
-  x_history_.add(time, x_);
+  x_history_.add(_time, x_);
 
   // Gravity-direction observation: acceleration and attitude have an equality relation (= output equation),
   // so correction is performed according to Kalman filter theory.
   // During free fall or when acceleration is too large, the acceleration may not reflect attitude at all,
   // so the gravity-direction observation is limited to acceleration values in this range.
   constexpr double kFreeFallAccelNormThresh = 0.1;  // [G]
-  const auto acc_norm = acc_meas.norm();
+  const auto acc_norm = _acc_meas.norm();
   const auto gravity = getGravity(x_);
   if (acc_norm < kFreeFallAccelNormThresh * gravity) {
     return std::unexpected("Attitude correction cannot be performed because the aircraft is in free fall.");
   }
 
-  return measureGravity(acc_meas, grav_cov, time);
+  return measureGravity(_acc_meas, _grav_cov, _time);
 }
 
 std::expected<double, std::string> ErrorStateKalmanFilter::measurePosition(
-  const Eigen::Vector3d& pos_meas,
-  const Eigen::Matrix3d& pos_cov,
-  const Eigen::Vector3d& offset,
-  const ch::steady_clock::time_point& time)
+  const Eigen::Vector3d& _pos_meas,
+  const Eigen::Matrix3d& _pos_cov,
+  const Eigen::Vector3d& _offset,
+  const ch::steady_clock::time_point& _time)
 {
-  const auto& x = x_history_.closestAfterValue(time);
+  const auto& x = x_history_.closestAfterValue(_time);
 
-  const Eigen::Vector3d delta = pos_meas - getPosition(x, offset);
+  const Eigen::Vector3d delta = _pos_meas - getPosition(x, _offset);
 
   // Partial derivative with respect to attitude.
-  const auto dqvq_dq = quatRotationDerivative(x, offset);
+  const auto dqvq_dq = quatRotationDerivative(x, _offset);
   const auto Q_dtheta = getQ_dtheta(x);
   H_pos_.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
 
-  return correct(delta, pos_cov, H_pos_);
+  return correct(delta, _pos_cov, H_pos_);
 }
 
 std::expected<double, std::string> ErrorStateKalmanFilter::measureVelocity(
-  const Eigen::Vector3d& vel_meas,
-  const Eigen::Matrix3d& vel_cov,
-  const Eigen::Vector3d& offset,
-  const Eigen::Vector3d& gyro_meas,
-  const ch::steady_clock::time_point& time)
+  const Eigen::Vector3d& _vel_meas,
+  const Eigen::Matrix3d& _vel_cov,
+  const Eigen::Vector3d& _offset,
+  const Eigen::Vector3d& _gyro_meas,
+  const ch::steady_clock::time_point& _time)
 {
-  const auto& x = x_history_.closestAfterValue(time);
+  const auto& x = x_history_.closestAfterValue(_time);
 
-  const Eigen::Vector3d gyro_nominal = gyro_meas - getGyroBias(x);
-  const Eigen::Vector3d gyro_offset = gyro_nominal.cross(offset);
+  const Eigen::Vector3d gyro_nominal = _gyro_meas - getGyroBias(x);
+  const Eigen::Vector3d gyro_offset = gyro_nominal.cross(_offset);
   const Eigen::Vector3d vel_nominal = getVelocity(x) + getQuaternion(x) * gyro_offset;
-  const Eigen::Vector3d delta = vel_meas - vel_nominal;
+  const Eigen::Vector3d delta = _vel_meas - vel_nominal;
 
   // Partial derivative with respect to attitude.
   const auto dqvq_dq = quatRotationDerivative(x, gyro_offset);
@@ -406,86 +406,86 @@ std::expected<double, std::string> ErrorStateKalmanFilter::measureVelocity(
   H_vel_.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
 
   // Partial derivative with respect to gyro bias.
-  H_vel_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * eigen::skew(offset);
+  H_vel_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * eigen::skew(_offset);
 
-  return correct(delta, vel_cov, H_vel_);
+  return correct(delta, _vel_cov, H_vel_);
 }
 
 std::expected<double, std::string> ErrorStateKalmanFilter::measurePosVel(
-  const Eigen::Vector3d& pos_meas,
-  const Eigen::Vector3d& vel_meas,
-  const Eigen::Matrix6d& cov,
-  const Eigen::Vector3d& offset,
-  const Eigen::Vector3d& gyro_meas,
-  const ch::steady_clock::time_point& time)
+  const Eigen::Vector3d& _pos_meas,
+  const Eigen::Vector3d& _vel_meas,
+  const Eigen::Matrix6d& _cov,
+  const Eigen::Vector3d& _offset,
+  const Eigen::Vector3d& _gyro_meas,
+  const ch::steady_clock::time_point& _time)
 {
-  const auto& x = x_history_.closestAfterValue(time);
+  const auto& x = x_history_.closestAfterValue(_time);
 
   // Observation error.
   Eigen::Vector6d delta;
-  const Eigen::Vector3d gyro_nominal = gyro_meas - getGyroBias(x);
-  const Eigen::Vector3d gyro_offset = gyro_nominal.cross(offset);
+  const Eigen::Vector3d gyro_nominal = _gyro_meas - getGyroBias(x);
+  const Eigen::Vector3d gyro_offset = gyro_nominal.cross(_offset);
   const Eigen::Vector3d vel_nominal = getVelocity(x) + getQuaternion(x) * gyro_offset;
-  delta.head<3>() = pos_meas - getPosition(x, offset);  // Position error.
-  delta.tail<3>() = vel_meas - vel_nominal;             // Velocity error.
+  delta.head<3>() = _pos_meas - getPosition(x, _offset);  // Position error.
+  delta.tail<3>() = _vel_meas - vel_nominal;              // Velocity error.
 
   // Observation equation.
   const auto Q_dtheta = getQ_dtheta(x);
-  const auto pos_q_deriv = quatRotationDerivative(x, offset);
+  const auto pos_q_deriv = quatRotationDerivative(x, _offset);
   const auto vel_q_deriv = quatRotationDerivative(x, gyro_offset);
   H_pv_.block<3, 3>(0, kDeltaThetaIdx) = pos_q_deriv * Q_dtheta;  // Position derivative by attitude.
   H_pv_.block<3, 3>(3, kDeltaThetaIdx) = vel_q_deriv * Q_dtheta;  // Velocity derivative by attitude.
-  H_pv_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * eigen::skew(offset);
+  H_pv_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * eigen::skew(_offset);
 
   // Update the posterior estimate.
-  return correct(delta, cov, H_pv_);
+  return correct(delta, _cov, H_pv_);
 }
 
 std::expected<double, std::string> ErrorStateKalmanFilter::measureQuaternion(
-  const Eigen::Quaterniond& q_meas,
-  const Eigen::Matrix3d& theta_cov,
-  const ch::steady_clock::time_point& time)
+  const Eigen::Quaterniond& _q_meas,
+  const Eigen::Matrix3d& _theta_cov,
+  const ch::steady_clock::time_point& _time)
 {
-  const auto& x = x_history_.closestAfterValue(time);
+  const auto& x = x_history_.closestAfterValue(_time);
 
-  const auto q_error = getQuaternion(x).conjugate() * q_meas;
+  const auto q_error = getQuaternion(x).conjugate() * _q_meas;
   const auto delta = eigen::angleAxisFromQuaternion(q_error);
 
-  return correct(delta, theta_cov, H_theta_);
+  return correct(delta, _theta_cov, H_theta_);
 }
 
 std::expected<double, std::string> ErrorStateKalmanFilter::measurePose(
-  const Eigen::Vector3d& pos_meas,
-  const Eigen::Quaterniond& q_meas,
-  const Eigen::Matrix6d& cov,
-  const Eigen::Vector3d& offset,
-  const ch::steady_clock::time_point& time)
+  const Eigen::Vector3d& _pos_meas,
+  const Eigen::Quaterniond& _q_meas,
+  const Eigen::Matrix6d& _cov,
+  const Eigen::Vector3d& _offset,
+  const ch::steady_clock::time_point& _time)
 {
-  const auto& x = x_history_.closestAfterValue(time);
+  const auto& x = x_history_.closestAfterValue(_time);
 
   // Observation error.
   Eigen::Vector6d delta;
-  delta.head<3>() = pos_meas - getPosition(x, offset);
-  delta.tail<3>() = eigen::angleAxisFromQuaternion(getQuaternion(x).conjugate() * q_meas);
+  delta.head<3>() = _pos_meas - getPosition(x, _offset);
+  delta.tail<3>() = eigen::angleAxisFromQuaternion(getQuaternion(x).conjugate() * _q_meas);
 
   // Partial derivative of the position observation with respect to attitude.
-  const auto dqvq_dq = quatRotationDerivative(x, offset);
+  const auto dqvq_dq = quatRotationDerivative(x, _offset);
   const auto Q_dtheta = getQ_dtheta(x);
   H_pose_.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
 
-  return correct(delta, cov, H_pose_);
+  return correct(delta, _cov, H_pose_);
 }
 
 std::expected<double, std::string> ErrorStateKalmanFilter::measureMagneticField3d(
-  const Eigen::Vector3d& mag_meas,
-  const Eigen::Matrix3d& mag_cov,
-  const ch::steady_clock::time_point& time)
+  const Eigen::Vector3d& _mag_meas,
+  const Eigen::Matrix3d& _mag_cov,
+  const ch::steady_clock::time_point& _time)
 {
   if (mag_W_.norm() == 0.0) {
     return std::unexpected("Reference magnetic field is not set.");
   }
 
-  const auto& x = x_history_.closestAfterValue(time);
+  const auto& x = x_history_.closestAfterValue(_time);
 
   const Eigen::Vector3d mag_B = getQuaternion(x).inverse() * mag_W_;
   const Eigen::Vector3d m_b = getMagHardBias(x);
@@ -497,26 +497,26 @@ std::expected<double, std::string> ErrorStateKalmanFilter::measureMagneticField3
 
   // Observation error.
   const auto mag_pred = T * mag_B + m_b;
-  const Eigen::Vector3d delta = mag_meas - mag_pred;
+  const Eigen::Vector3d delta = _mag_meas - mag_pred;
 
   // Observation equation (memo: 3-20).
   H_mag_.block<3, 3>(0, kDeltaThetaIdx) = T * eigen::skew(2 * mag_B);
   H_mag_.block<3, 6>(0, kDeltaMagSoftBiasIdx) << mx, my, mz, 0, 0, 0, 0, mx, 0, my, mz, 0, 0, 0, mx, 0, my, mz;
 
   // Update the posterior estimate.
-  return correct(delta, mag_cov, H_mag_);
+  return correct(delta, _mag_cov, H_mag_);
 }
 
 std::expected<double, std::string> ErrorStateKalmanFilter::measureMagneticFieldHead(
-  const Eigen::Vector3d& mag_meas,
-  double yaw_var,
-  const ch::steady_clock::time_point& time)
+  const Eigen::Vector3d& _mag_meas,
+  double _yaw_var,
+  const ch::steady_clock::time_point& _time)
 {
   if (mag_W_.norm() == 0.0) {
     return std::unexpected("Reference magnetic field is not set.");
   }
 
-  const auto& x = x_history_.closestAfterValue(time);
+  const auto& x = x_history_.closestAfterValue(_time);
 
   // Get Euler angles.
   const auto R_W_B = getQuaternion(x);
@@ -525,7 +525,7 @@ std::expected<double, std::string> ErrorStateKalmanFilter::measureMagneticFieldH
   // Move the geomagnetic field to ground coordinate system `G`,
   // whose yaw alone matches the body and whose XY axes are parallel to the ground.
   const Eigen::AngleAxisd R_W_G(yaw_pred, Eigen::Vector3d::UnitZ());
-  const auto mag_G = R_W_G.inverse() * (R_W_B * mag_meas);  // Reduce computation by evaluating from the back.
+  const auto mag_G = R_W_G.inverse() * (R_W_B * _mag_meas);  // Reduce computation by evaluating from the back.
   const auto mx = mag_G.x();
   const auto my = mag_G.y();
 
@@ -542,24 +542,24 @@ std::expected<double, std::string> ErrorStateKalmanFilter::measureMagneticFieldH
   H_yaw_.block<1, 3>(0, kDeltaThetaIdx) = *H * getQ_dtheta(x);
 
   // Update the posterior estimate.
-  return correct(Eigen::Scalard(delta), Eigen::Scalard(yaw_var), H_yaw_);
+  return correct(Eigen::Scalard(delta), Eigen::Scalard(_yaw_var), H_yaw_);
 }
 
 std::expected<double, std::string>
-ErrorStateKalmanFilter::measureAirPressure(double pres, double alt_var, const ch::steady_clock::time_point& time)
+ErrorStateKalmanFilter::measureAirPressure(double _pres, double _alt_var, const ch::steady_clock::time_point& _time)
 {
-  const auto& x = x_history_.closestAfterValue(time);
+  const auto& x = x_history_.closestAfterValue(_time);
 
   const auto baro_alt_pred = getAltitude(x) + getBaroAltBias(x);
-  const auto baro_alt_meas = st::pressureToAltitude(pres) - baro_alt_origin_;
+  const auto baro_alt_meas = st::pressureToAltitude(_pres) - baro_alt_origin_;
   const auto delta = baro_alt_meas - baro_alt_pred;
 
-  return correct(Eigen::Scalard(delta), Eigen::Scalard(alt_var), H_baro_alt_);
+  return correct(Eigen::Scalard(delta), Eigen::Scalard(_alt_var), H_baro_alt_);
 }
 
-Eigen::Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta(const StateVector& x) const
+Eigen::Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta(const StateVector& _x) const
 {
-  const Eigen::Vector4d qby2 = 0.5 * getHamilton(x);
+  const Eigen::Vector4d qby2 = 0.5 * getHamilton(_x);
   const auto& qw = qby2(0);
   const auto& qx = qby2(1);
   const auto& qy = qby2(2);
@@ -568,27 +568,27 @@ Eigen::Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta(const StateVecto
 }
 
 Eigen::Matrix<double, 3, 4>
-ErrorStateKalmanFilter::quatRotationDerivative(const StateVector& x, const Eigen::Vector3d& a) const
+ErrorStateKalmanFilter::quatRotationDerivative(const StateVector& _x, const Eigen::Vector3d& _a) const
 {
-  const auto ham = getHamilton(x);
+  const auto ham = getHamilton(_x);
   const auto w = ham(0);
   const auto v = ham.tail<3>();
 
   Eigen::Matrix<double, 3, 4> res;
-  res.block<3, 1>(0, 0) = 2 * (w * a - a.cross(v));
-  res.block<3, 3>(0, 1) = 2 * (a.dot(v) * E3 + v * a.transpose() - a * v.transpose() - w * eigen::skew(a));
+  res.block<3, 1>(0, 0) = 2 * (w * _a - _a.cross(v));
+  res.block<3, 3>(0, 1) = 2 * (_a.dot(v) * E3 + v * _a.transpose() - _a * v.transpose() - w * eigen::skew(_a));
 
   return res;
 }
 
 std::expected<Eigen::RowVector4d, std::string>
-ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector& x) const
+ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector& _x) const
 {
   // Ref: [Ekf::fuseYaw321](https://github.com/PX4/PX4-ECL/blob/46dd05a9159817035dab6acebc33f8a3da69d3a7/EKF/mag_fusion.cpp#L420)
 
   constexpr double kEpsilon = 1e-6;
 
-  const auto ham = getHamilton(x);
+  const auto ham = getHamilton(_x);
   const auto& qw = ham(0);
   const auto& qx = ham(1);
   const auto& qy = ham(2);
@@ -651,9 +651,9 @@ ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector& x) const
   return H;
 }
 
-void ErrorStateKalmanFilter::setMagSoftBiasFromMatrix(const Eigen::Matrix3d& T)
+void ErrorStateKalmanFilter::setMagSoftBiasFromMatrix(const Eigen::Matrix3d& _t)
 {
-  x_.segment<6>(kMagSoftBiasIdx) << T(0, 0), T(0, 1), T(0, 2), T(1, 1), T(1, 2), T(2, 2);
+  x_.segment<6>(kMagSoftBiasIdx) << _t(0, 0), _t(0, 1), _t(0, 2), _t(1, 1), _t(1, 2), _t(2, 2);
 }
 
 void ErrorStateKalmanFilter::applyConstraints()
@@ -703,9 +703,9 @@ void ErrorStateKalmanFilter::resetStateHistory()
 }
 
 std::expected<double, std::string> ErrorStateKalmanFilter::measureGravity(
-  const Eigen::Vector3d& acc_meas,
-  const Eigen::Matrix3d& grav_cov,
-  const ch::steady_clock::time_point& time)
+  const Eigen::Vector3d& _acc_meas,
+  const Eigen::Matrix3d& _grav_cov,
+  const ch::steady_clock::time_point& _time)
 {
   // Observation equation:
   //    a_t = a_b - R^T g (g = [0, 0, -9.8xxxx])
@@ -715,16 +715,16 @@ std::expected<double, std::string> ErrorStateKalmanFilter::measureGravity(
   //    pda_t/pdg = -R^T (the sign is inverted to estimate only positive gravitational acceleration,
   //    and only the second column is used).
 
-  const auto& x = x_history_.closestAfterValue(time);
+  const auto& x = x_history_.closestAfterValue(_time);
 
   const Eigen::Matrix3d R_B_W = getDCM(x).transpose();
   const Eigen::Vector3d grav_B = R_B_W * getGravVector(x);
   const Eigen::Vector3d acc_ref = getAccelBias(x) - grav_B;  // Acceleration expected without dynamic acceleration.
-  const Eigen::Vector3d delta = acc_meas - acc_ref;
+  const Eigen::Vector3d delta = _acc_meas - acc_ref;
 
   H_grav_.block<3, 3>(0, kDeltaThetaIdx) = -eigen::skew(2 * grav_B);
   H_grav_.col(kDeltaGravIdx) = R_B_W.col(2);
-  return correct(delta, grav_cov, H_grav_);
+  return correct(delta, _grav_cov, H_grav_);
 }
 }  // namespace eskf
 }  // namespace tobas

@@ -26,32 +26,32 @@ class PropulsionUnitsWidget : public qt::TabWidget
   using super = qt::TabWidget;
 
 public:
-  explicit PropulsionUnitsWidget(const uadf::Model& uadf);
+  explicit PropulsionUnitsWidget(const uadf::Model& _uadf);
 
   void updateInternalDataStructures();
   void setToDefaults();
   bool isValid();
 
   YAML::Node dump() const;
-  void load(const YAML::Node& node);
+  void load(const YAML::Node& _node);
 
   int numUnits() const;
 
-  QString linkName(int index) const;
+  QString linkName(int _index) const;
 
   /** Return the tab index, or -1 if it does not exist. */
-  int index(const QString& link_name) const;
+  int index(const QString& _link_name) const;
 
-  PropulsionUnitWidget* widget(int index);
-  const PropulsionUnitWidget* widget(int index) const;
-  PropulsionUnitWidget* widget(const QString& link_name);
-  const PropulsionUnitWidget* widget(const QString& link_name) const;
+  PropulsionUnitWidget* widget(int _index);
+  const PropulsionUnitWidget* widget(int _index) const;
+  PropulsionUnitWidget* widget(const QString& _link_name);
+  const PropulsionUnitWidget* widget(const QString& _link_name) const;
 
 private:
   const uadf::Model& uadf_;
 
 private Q_SLOTS:
-  void onCopyToAllButtonClicked(const QString& link_name);
+  void onCopyToAllButtonClicked(const QString& _link_name);
 };
 }  // namespace electric
 }  // namespace propulsion

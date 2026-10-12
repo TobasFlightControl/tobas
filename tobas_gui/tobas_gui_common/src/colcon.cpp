@@ -20,11 +20,11 @@ class ColconBuildThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(bool success, const QString& message);
+  void finished(bool _success, const QString& _message);
 
 public:
-  explicit ColconBuildThread(const QString& pkg_path, const QString& ws_path, const colcon::BuildOptions& options)
-    : options_(options), pkg_path_(pkg_path), ws_path_(ws_path)
+  explicit ColconBuildThread(const QString& _pkg_path, const QString& _ws_path, const colcon::BuildOptions& _options)
+    : options_(_options), pkg_path_(_pkg_path), ws_path_(_ws_path)
   {
   }
 
@@ -46,9 +46,9 @@ private:
 }  // namespace
 
 std::expected<void, QString>
-colconBuild(const QString& pkg_path, const QString& ws_path, const colcon::BuildOptions& options)
+colconBuild(const QString& _pkg_path, const QString& _ws_path, const colcon::BuildOptions& _options)
 {
-  ColconBuildThread thread(pkg_path, ws_path, options);
+  ColconBuildThread thread(_pkg_path, _ws_path, _options);
   const auto [success, message] = qt::startThreadAndWait(thread, &ColconBuildThread::finished);
   if (!success) {
     return std::unexpected(message);

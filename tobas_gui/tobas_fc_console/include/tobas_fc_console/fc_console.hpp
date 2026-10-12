@@ -28,13 +28,13 @@ class FcConsoleWidget : public QWidget
   using self = FcConsoleWidget;
 
 Q_SIGNALS:
-  void runningChanged(bool running);
+  void runningChanged(bool _running);
 
 public:
-  explicit FcConsoleWidget(QWidget* parent = nullptr);
+  explicit FcConsoleWidget(QWidget* _parent = nullptr);
   ~FcConsoleWidget();
 
-  void setEndpoint(const QString& host, const QString& user);
+  void setEndpoint(const QString& _host, const QString& _user);
   bool isRunning() const;
 
   void start();
@@ -67,11 +67,11 @@ private:
   QLabel* status_label_;
   QPlainTextEdit* output_;
 
-  void setStatus(Status status);
+  void setStatus(Status _status);
   void updateStatusLabel();
   void updateActions();
 
-  void queueOutput(const QString& text);
+  void queueOutput(const QString& _text);
   void readStandardOutput();
   void readStandardError();
   void readOutput();
@@ -83,12 +83,12 @@ private:
   void onClearButtonClicked();
   void onSaveButtonClicked();
 
-  void onWrapToggled(bool checked);
+  void onWrapToggled(bool _checked);
   void onStatusAnimationTimeout();
-  void onProcessFinished(int code, QProcess::ExitStatus status);
-  void onProcessErrorOccurred(QProcess::ProcessError error);
+  void onProcessFinished(int _code, QProcess::ExitStatus _status);
+  void onProcessErrorOccurred(QProcess::ProcessError _error);
 
-  friend QDebug operator<<(QDebug debug, Status status);
+  friend QDebug operator<<(QDebug _debug, Status _status);
 };
 }  // namespace console
 }  // namespace gui

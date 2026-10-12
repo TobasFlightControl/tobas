@@ -36,12 +36,12 @@ MjpgDecompressor::MjpgDecompressor(const rclcpp::NodeOptions& _options) : BaseNo
   sub_ = createSubscriber(mjpg_topic, &MjpgDecompressor::msgCb, this);
 }
 
-void MjpgDecompressor::msgCb(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& msg)
+void MjpgDecompressor::msgCb(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& _msg)
 {
   try {
     cv_bridge::CvImagePtr cv_ptr(new cv_bridge::CvImage);
-    cv_ptr->header = msg->header;
-    cv_ptr->image = cv::imdecode(cv::Mat(msg->data), 1);
+    cv_ptr->header = _msg->header;
+    cv_ptr->image = cv::imdecode(cv::Mat(_msg->data), 1);
     switch (cv_ptr->image.channels()) {
       case 1:
         cv_ptr->encoding = sensor_msgs::image_encodings::MONO8;

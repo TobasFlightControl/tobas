@@ -19,10 +19,10 @@ constexpr char kDronePrefix[] = "TOBAS_DRONE=";
 constexpr char kIdPrefix[] = "TOBAS_ID=";
 }  // namespace
 
-ProjectEnv parseProjectEnv(const QString& text)
+ProjectEnv parseProjectEnv(const QString& _text)
 {
   ProjectEnv env;
-  for (auto line : text.split('\n')) {
+  for (auto line : _text.split('\n')) {
     // Trim whitespaces.
     line = line.trimmed();
 
@@ -53,13 +53,13 @@ ProjectEnv parseProjectEnv(const QString& text)
   return env;
 }
 
-QString exportProjectEnv(const ProjectEnv& env)
+QString exportProjectEnv(const ProjectEnv& _env)
 {
   QString res;
-  res += kConfigPkgPrefix + env.config_pkg + '\n';
-  res += kNetworkIfacePrefix + env.nic + '\n';
-  res += kDronePrefix + env.drone + '\n';
-  res += kIdPrefix + env.id + '\n';
+  res += kConfigPkgPrefix + _env.config_pkg + '\n';
+  res += kNetworkIfacePrefix + _env.nic + '\n';
+  res += kDronePrefix + _env.drone + '\n';
+  res += kIdPrefix + _env.id + '\n';
   return res;
 }
 }  // namespace gcs

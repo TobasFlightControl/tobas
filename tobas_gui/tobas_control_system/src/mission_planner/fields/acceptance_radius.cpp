@@ -40,9 +40,9 @@ double AcceptanceRadiusWidget::getValue() const
   return spin_box_->value();
 }
 
-void AcceptanceRadiusWidget::setValue(double value)
+void AcceptanceRadiusWidget::setValue(double _value)
 {
-  spin_box_->setValue(value);
+  spin_box_->setValue(_value);
 }
 }  // namespace field
 }  // namespace ctrl

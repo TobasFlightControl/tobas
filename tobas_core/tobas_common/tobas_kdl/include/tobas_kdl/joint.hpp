@@ -48,29 +48,29 @@ public:
   inline const Vector& axis() const;
 
   /** Set joint axis. */
-  inline void axis(const Vector& axis);
+  inline void axis(const Vector& _axis);
 
   /** Request the 6D-pose of the end of the joint wrt. the parent frame. */
-  inline Frame pose(double q) const;
+  inline Frame pose(double _q) const;
 
   /** Request the resulting 6D-velocity of the end of the joint wrt. the parent frame. */
-  inline Twist twist(double qd) const;
+  inline Twist twist(double _qd) const;
 
   /** Request the resulting 6D-acceleration of the end of the joint wrt. the parent frame. */
-  inline Accel accel(double qdd) const;
+  inline Accel accel(double _qdd) const;
 
   /** Request the jacobian for this joint wrt. the parent frame. */
   inline SegmentJacobian jacobian() const;
 
   /** Compute the first derivative of the rotation matrix with respect to the joint position. */
-  inline Eigen::Matrix3d rotGrad(double q) const;
+  inline Eigen::Matrix3d rotGrad(double _q) const;
 
   /** Compute the second derivative of the rotation matrix with respect to the joint position. */
-  inline Eigen::Matrix3d rotGrad2(double q) const;
+  inline Eigen::Matrix3d rotGrad2(double _q) const;
 
-  static const char* typeToText(JointType type);
+  static const char* typeToText(JointType _type);
 
-  friend std::ostream& operator<<(std::ostream& os, const Joint& arg);
+  friend std::ostream& operator<<(std::ostream& _os, const Joint& _arg);
 
 private:
   Vector axis_ = Vector::UnitZ();  ///< The normalized joint axis wrt. the parent frame.
@@ -85,19 +85,19 @@ inline const Vector& Joint::axis() const
   return axis_;
 }
 
-inline void Joint::axis(const Vector& axis)
+inline void Joint::axis(const Vector& _axis)
 {
-  assert(axis.norm() > 0);
-  axis_ = axis.normalized();
+  assert(_axis.norm() > 0);
+  axis_ = _axis.normalized();
 }
 
-inline Frame Joint::pose(double q) const
+inline Frame Joint::pose(double _q) const
 {
   switch (type) {
     case kRotation:
-      return Frame(Rotation::Rot(axis_, q), origin);
+      return Frame(Rotation::Rot(axis_, _q), origin);
     case kTranslation:
-      return Frame(origin + (axis_ * q));
+      return Frame(origin + (axis_ * _q));
     case kFixed:
       return Frame::Identity();
     default:
@@ -105,13 +105,13 @@ inline Frame Joint::pose(double q) const
   }
 }
 
-inline Twist Joint::twist(double qd) const
+inline Twist Joint::twist(double _qd) const
 {
   switch (type) {
     case kRotation:
-      return Twist(Vector::Zero(), axis_ * qd);
+      return Twist(Vector::Zero(), axis_ * _qd);
     case kTranslation:
-      return Twist(axis_ * qd, Vector::Zero());
+      return Twist(axis_ * _qd, Vector::Zero());
     case kFixed:
       return Twist::Zero();
     default:
@@ -119,13 +119,13 @@ inline Twist Joint::twist(double qd) const
   }
 }
 
-inline Accel Joint::accel(double qdd) const
+inline Accel Joint::accel(double _qdd) const
 {
   switch (type) {
     case kRotation:
-      return Accel(Vector::Zero(), axis_ * qdd);
+      return Accel(Vector::Zero(), axis_ * _qdd);
     case kTranslation:
-      return Accel(axis_ * qdd, Vector::Zero());
+      return Accel(axis_ * _qdd, Vector::Zero());
     case kFixed:
       return Accel::Zero();
     default:
@@ -147,20 +147,20 @@ inline SegmentJacobian Joint::jacobian() const
   }
 }
 
-inline Eigen::Matrix3d Joint::rotGrad(double q) const
+inline Eigen::Matrix3d Joint::rotGrad(double _q) const
 {
   if (type == kRotation) {
-    return eigen::skew(axis_.data) * Rotation::Rot(axis_, q).data;
+    return eigen::skew(axis_.data) * Rotation::Rot(axis_, _q).data;
   }
   else {
     return Eigen::Matrix3d::Zero();
   }
 }
 
-inline Eigen::Matrix3d Joint::rotGrad2(double q) const
+inline Eigen::Matrix3d Joint::rotGrad2(double _q) const
 {
   if (type == kRotation) {
-    return eigen::skew2(axis_.data) * Rotation::Rot(axis_, q).data;
+    return eigen::skew2(axis_.data) * Rotation::Rot(axis_, _q).data;
   }
   else {
     return Eigen::Matrix3d::Zero();

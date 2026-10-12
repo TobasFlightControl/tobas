@@ -18,8 +18,8 @@ namespace ros2
 class AsyncNodeManager
 {
 public:
-  explicit AsyncNodeManager(int argc, char** argv, const std::string& node_name);
-  explicit AsyncNodeManager(rclcpp::Context::SharedPtr context, const std::string& node_name);
+  explicit AsyncNodeManager(int _argc, char** _argv, const std::string& _node_name);
+  explicit AsyncNodeManager(rclcpp::Context::SharedPtr _context, const std::string& _node_name);
   ~AsyncNodeManager();
 
   void shutdown();
@@ -33,7 +33,7 @@ private:
   std::optional<rclcpp::executors::SingleThreadedExecutor> executor_;
   std::optional<std::thread> executor_thread_;
 
-  void initialize(rclcpp::Context::SharedPtr context, const std::string& node_name);
+  void initialize(rclcpp::Context::SharedPtr _context, const std::string& _node_name);
 };
 
 inline rclcpp::Node::SharedPtr AsyncNodeManager::node()

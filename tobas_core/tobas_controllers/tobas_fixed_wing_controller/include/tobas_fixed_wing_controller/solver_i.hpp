@@ -35,7 +35,7 @@ protected:
   std::string error_msg_;
 
   /** Update the error if the argument error code is more serious, then return the current error code. */
-  inline int updateError(const SolverI& arg);
+  inline int updateError(const SolverI& _arg);
 };
 
 inline const int& SolverI::errorCode() const
@@ -48,11 +48,11 @@ inline const std::string& SolverI::errorMessage() const
   return error_msg_;
 }
 
-inline int SolverI::updateError(const SolverI& arg)
+inline int SolverI::updateError(const SolverI& _arg)
 {
-  if (arg.errorCode() < error_code_) {
-    error_code_ = arg.errorCode();
-    error_msg_ = arg.errorMessage();
+  if (_arg.errorCode() < error_code_) {
+    error_code_ = _arg.errorCode();
+    error_msg_ = _arg.errorMessage();
   }
   return error_code_;
 }

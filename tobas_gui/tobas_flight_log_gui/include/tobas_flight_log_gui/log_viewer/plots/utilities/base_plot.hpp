@@ -17,7 +17,7 @@ class BasePlotWidget : public QWidget
 
 public:
   virtual void clear() = 0;
-  virtual void setTimeScale(double t_start, double t_stop) = 0;
+  virtual void setTimeScale(double _t_start, double _t_stop) = 0;
 };
 }  // namespace log
 }  // namespace gui

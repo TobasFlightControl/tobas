@@ -18,10 +18,10 @@ class LampWidget : public QLabel
   using super = QLabel;
 
 public:
-  explicit LampWidget(QWidget* parent = nullptr);
-  explicit LampWidget(const QString& text, QWidget* parent = nullptr);
+  explicit LampWidget(QWidget* _parent = nullptr);
+  explicit LampWidget(const QString& _text, QWidget* _parent = nullptr);
 
-  void setColor(const RGBColor& color);
+  void setColor(const RGBColor& _color);
 
 private:
   RGBColor c_ = RGBColor::Black();

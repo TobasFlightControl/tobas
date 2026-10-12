@@ -7,9 +7,9 @@ namespace tobas
 {
 namespace qt
 {
-CheckBox::CheckBox(const QString& text, bool checked, QWidget* parent) : super(text, parent)
+CheckBox::CheckBox(const QString& _text, bool _checked, QWidget* _parent) : super(_text, _parent)
 {
-  setChecked(checked);
+  setChecked(_checked);
 }
 
 void CheckBox::setDisabledTextNormal()

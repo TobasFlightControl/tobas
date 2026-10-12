@@ -18,10 +18,10 @@ class BMM150
 public:
   explicit BMM150();
 
-  bool initialize(const char* i2c_device);
+  bool initialize(const char* _i2c_device);
 
   /** Read the current magnetic field [μT]. */
-  bool readMag(double& mx, double& my, double& mz);
+  bool readMag(double& _mx, double& _my, double& _mz);
 
 private:
   /** 7: Register mapping (p.22) */
@@ -144,29 +144,29 @@ private:
   /**
    * This internal API is used to obtain the compensated magnetometer X axis data in microteslas.
    *
-   * @param mag_data_x magneto X axis raw data (int16_t)
-   * @param data_r_hall hall sensor resistance raw data (uint16_t)
+   * @param _mag_data_x magneto X axis raw data (int16_t)
+   * @param _data_r_hall hall sensor resistance raw data (uint16_t)
    * @return int16_t compensated magneto X axis data
    */
-  int16_t compensateX(int16_t mag_data_x, uint16_t data_r_hall);
+  int16_t compensateX(int16_t _mag_data_x, uint16_t _data_r_hall);
 
   /**
    * This internal API is used to obtain the compensated magnetometer Y axis data in microteslas.
    *
-   * @param mag_data_y magneto Y axis raw data (int16_t)
-   * @param data_r_hall hall sensor resistance raw data (uint16_t)
+   * @param _mag_data_y magneto Y axis raw data (int16_t)
+   * @param _data_r_hall hall sensor resistance raw data (uint16_t)
    * @return int16_t compensated magneto Y axis data
    */
-  int16_t compensateY(int16_t mag_data_y, uint16_t data_r_hall);
+  int16_t compensateY(int16_t _mag_data_y, uint16_t _data_r_hall);
 
   /**
    * This internal API is used to obtain the compensated magnetometer Z axis data in microteslas.
    *
-   * @param mag_data_z magneto Z axis raw data (int16_t)
-   * @param data_r_hall hall sensor resistance raw data (uint16_t)
+   * @param _mag_data_z magneto Z axis raw data (int16_t)
+   * @param _data_r_hall hall sensor resistance raw data (uint16_t)
    * @return int16_t compensated magneto Z axis data
    */
-  int16_t compensateZ(int16_t mag_data_z, uint16_t data_r_hall);
+  int16_t compensateZ(int16_t _mag_data_z, uint16_t _data_r_hall);
 };
 }  // namespace driver
 }  // namespace tobas

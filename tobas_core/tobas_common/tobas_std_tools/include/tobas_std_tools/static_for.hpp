@@ -13,16 +13,16 @@ namespace st
 namespace detail
 {
 template <size_t... Is, typename Func>
-void staticForImpl(std::index_sequence<Is...>, Func&& f)
+void staticForImpl(std::index_sequence<Is...>, Func&& _f)
 {
-  (f.template operator()<Is>(), ...);
+  (_f.template operator()<Is>(), ...);
 }
 }  // namespace detail
 
 template <size_t N, typename Func>
-void staticFor(Func&& f)
+void staticFor(Func&& _f)
 {
-  detail::staticForImpl(std::make_index_sequence<N>{}, std::forward<Func>(f));
+  detail::staticForImpl(std::make_index_sequence<N>{}, std::forward<Func>(_f));
 }
 }  // namespace st
 }  // namespace tobas

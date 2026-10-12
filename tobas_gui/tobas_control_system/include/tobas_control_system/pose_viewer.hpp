@@ -19,7 +19,7 @@ class PoseViewerWidget : public qt::Widget
   using self = PoseViewerWidget;
 
 public:
-  explicit PoseViewerWidget(const rqt::RosQtBridge& bridge);
+  explicit PoseViewerWidget(const rqt::RosQtBridge& _bridge);
 
   void reset();
 
@@ -29,35 +29,35 @@ private:
   double alt_msl_;             ///< Current altitude above mean sea level [m].
   bool alt_msl_valid_;
 
-  void paintEvent(QPaintEvent* event) override;
+  void paintEvent(QPaintEvent* _event) override;
 
-  void scale(QPainter& painter, bool keep_aspect);
+  void scale(QPainter& _painter, bool _keep_aspect);
 
-  void drawGround(QPainter& painter);
-  void drawSky(QPainter& painter);
-  void drawRoll(QPainter& painter);
-  void drawPitch(QPainter& painter);
-  void drawYaw(QPainter& painter);
-  void drawRelativeAltitude(QPainter& painter);
-  void drawMslAltitude(QPainter& painter);
+  void drawGround(QPainter& _painter);
+  void drawSky(QPainter& _painter);
+  void drawRoll(QPainter& _painter);
+  void drawPitch(QPainter& _painter);
+  void drawYaw(QPainter& _painter);
+  void drawRelativeAltitude(QPainter& _painter);
+  void drawMslAltitude(QPainter& _painter);
 
-  void addGradation(QPainter& painter);
+  void addGradation(QPainter& _painter);
 
   /** Determine whether a point in the camera frame is included in the sky. */
-  bool isSky(const QPoint& p, double a, double b) const;
+  bool isSky(const QPoint& _p, double _a, double _b) const;
 
   /** Convert pitch angle [rad] to window height. */
-  static double pitchToHeight(double pitch);
+  static double pitchToHeight(double _pitch);
 
   /** Convert yaw angle [rad] to window width. */
-  static double yawToWidth(double yaw);
+  static double yawToWidth(double _yaw);
 
   /** Convert altitude difference [m] to window height. */
-  static double altitudeToHeight(double altitude);
+  static double altitudeToHeight(double _altitude);
 
 private Q_SLOTS:
-  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
-  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom);
+  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss);
 };
 }  // namespace ctrl
 }  // namespace gui

@@ -29,16 +29,16 @@ struct rclcpp::TypeAdapter<tobas_msgs::MagneticField, tobas_msgs::msg::MagneticF
   using custom_type = tobas_msgs::MagneticField;
   using ros_message_type = tobas_msgs::msg::MagneticField;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.mag, dst.mag);
+    _dst.header = _src.header;
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.mag, _dst.mag);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.mag, dst.mag);
+    _dst.header = _src.header;
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.mag, _dst.mag);
   }
 };
 

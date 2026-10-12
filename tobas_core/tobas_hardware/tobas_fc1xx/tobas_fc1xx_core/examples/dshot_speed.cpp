@@ -11,19 +11,19 @@
 
 using namespace std;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
   // Parse arguments.
-  if (argc != 7) {
-    cerr << "Usage: " << argv[0] << " <Channel> <KV> <Prop Diameter> <Poles> <Gain> <Target RPM>" << endl;
+  if (_argc != 7) {
+    cerr << "Usage: " << _argv[0] << " <Channel> <KV> <Prop Diameter> <Poles> <Gain> <Target RPM>" << endl;
     return EXIT_FAILURE;
   }
-  const auto channel = stoul(argv[1]);
-  const auto kv = stoul(argv[2]);  // [rpm/V]
-  const auto d = stoul(argv[3]);   // [inch]
-  const auto poles = stoul(argv[4]);
-  const auto gain = stoul(argv[5]);
-  const auto tar_rpm = stoul(argv[6]);
+  const auto channel = stoul(_argv[1]);
+  const auto kv = stoul(_argv[2]);  // [rpm/V]
+  const auto d = stoul(_argv[3]);   // [inch]
+  const auto poles = stoul(_argv[4]);
+  const auto gain = stoul(_argv[5]);
+  const auto tar_rpm = stoul(_argv[6]);
   if (channel >= tobas::fc1xx::DShot::kChannelSize) {
     cerr << "DShot channel is out of range." << endl;
     return EXIT_FAILURE;

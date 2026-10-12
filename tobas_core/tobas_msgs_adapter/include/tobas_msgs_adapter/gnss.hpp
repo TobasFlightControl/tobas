@@ -38,32 +38,32 @@ struct rclcpp::TypeAdapter<tobas_msgs::Gnss, tobas_msgs::msg::Gnss>
   using custom_type = tobas_msgs::Gnss;
   using ros_message_type = tobas_msgs::msg::Gnss;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
-    dst.fix_type = src.fix_type;
-    dst.latitude = src.latitude;
-    dst.longitude = src.longitude;
-    dst.height_wgs84 = src.height_wgs84;
-    dst.height_msl = src.height_msl;
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.position_covariance, dst.position_covariance);
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.ground_speed, dst.ground_speed);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.velocity_covariance, dst.velocity_covariance);
-    dst.num_satellites_used = src.num_satellites_used;
+    _dst.header = _src.header;
+    _dst.fix_type = _src.fix_type;
+    _dst.latitude = _src.latitude;
+    _dst.longitude = _src.longitude;
+    _dst.height_wgs84 = _src.height_wgs84;
+    _dst.height_msl = _src.height_msl;
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(_src.position_covariance, _dst.position_covariance);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.ground_speed, _dst.ground_speed);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(_src.velocity_covariance, _dst.velocity_covariance);
+    _dst.num_satellites_used = _src.num_satellites_used;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
-    dst.fix_type = src.fix_type;
-    dst.latitude = src.latitude;
-    dst.longitude = src.longitude;
-    dst.height_wgs84 = src.height_wgs84;
-    dst.height_msl = src.height_msl;
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.position_covariance, dst.position_covariance);
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.ground_speed, dst.ground_speed);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.velocity_covariance, dst.velocity_covariance);
-    dst.num_satellites_used = src.num_satellites_used;
+    _dst.header = _src.header;
+    _dst.fix_type = _src.fix_type;
+    _dst.latitude = _src.latitude;
+    _dst.longitude = _src.longitude;
+    _dst.height_wgs84 = _src.height_wgs84;
+    _dst.height_msl = _src.height_msl;
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(_src.position_covariance, _dst.position_covariance);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.ground_speed, _dst.ground_speed);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(_src.velocity_covariance, _dst.velocity_covariance);
+    _dst.num_satellites_used = _src.num_satellites_used;
   }
 };
 

@@ -7,7 +7,7 @@ namespace tobas
 {
 namespace st
 {
-NotImplementedError::NotImplementedError(const std::string& msg) : msg_(msg)
+NotImplementedError::NotImplementedError(const std::string& _msg) : msg_(_msg)
 {
 }
 

@@ -46,19 +46,19 @@ void TwistPlotWidget::clear()
   }
 }
 
-void TwistPlotWidget::setTimeScale(double t_start, double t_stop)
+void TwistPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
   for (auto& plot : plots_) {
-    plot->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+    plot->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
   }
 }
 
 void TwistPlotWidget::setData(
-  const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs,
-  const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
+  const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& _odom_msgs,
+  const QVector<tobas_msgs::msg::OdometryStamped>& _setpoint_msgs)
 {
-  const auto ranges = updateCurrentSamples(odom_msgs);
-  const auto tar_ranges = updateTargetSamples(setpoint_msgs);
+  const auto ranges = updateCurrentSamples(_odom_msgs);
+  const auto tar_ranges = updateTargetSamples(_setpoint_msgs);
 
   constexpr double kMinLinearScale = 1.0;   // [m/s]
   constexpr double kMinAngularScale = 1.0;  // [rad/s]
@@ -73,13 +73,13 @@ void TwistPlotWidget::setData(
 }
 
 TwistPlotWidget::ValueRanges
-TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs)
+TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& _odom_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
   ValueRanges ranges;
 
-  for (const auto& odom : odom_msgs) {
+  for (const auto& odom : _odom_msgs) {
     t_data.push_back(ros2::seconds(odom.header.stamp));
 
     const auto& lin_vel = odom.odom.odom.twist.linear;
@@ -105,13 +105,13 @@ TwistPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWit
 }
 
 TwistPlotWidget::ValueRanges
-TwistPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
+TwistPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStamped>& _setpoint_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
   ValueRanges ranges;
 
-  for (const auto& setpoint : setpoint_msgs) {
+  for (const auto& setpoint : _setpoint_msgs) {
     t_data.push_back(ros2::seconds(setpoint.header.stamp));
 
     const auto& lin_vel = setpoint.odom.twist.linear;

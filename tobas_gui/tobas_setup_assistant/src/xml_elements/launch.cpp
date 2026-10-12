@@ -14,39 +14,39 @@ namespace sa
 namespace xml
 {
 tinyxml2::XMLElement* addNode(
-  tinyxml2::XMLElement* parent,
-  const std::string& pkg,
-  const std::string& exec,
-  const std::string& name,
-  const std::string& ns,
-  const std::string& output,
-  const std::string& args)
+  tinyxml2::XMLElement* _parent,
+  const std::string& _pkg,
+  const std::string& _exec,
+  const std::string& _name,
+  const std::string& _ns,
+  const std::string& _output,
+  const std::string& _args)
 {
-  const auto node = parent->InsertNewChildElement("node");
-  node->SetAttribute("pkg", pkg.c_str());
-  node->SetAttribute("exec", exec.c_str());
-  if (!name.empty()) {
-    node->SetAttribute("name", name.c_str());
+  const auto node = _parent->InsertNewChildElement("node");
+  node->SetAttribute("pkg", _pkg.c_str());
+  node->SetAttribute("exec", _exec.c_str());
+  if (!_name.empty()) {
+    node->SetAttribute("name", _name.c_str());
   }
-  if (!ns.empty()) {
-    node->SetAttribute("namespace", ns.c_str());
+  if (!_ns.empty()) {
+    node->SetAttribute("namespace", _ns.c_str());
   }
-  if (!output.empty()) {
-    node->SetAttribute("output", output.c_str());
+  if (!_output.empty()) {
+    node->SetAttribute("output", _output.c_str());
   }
-  if (!args.empty()) {
-    node->SetAttribute("args", args.c_str());
+  if (!_args.empty()) {
+    node->SetAttribute("args", _args.c_str());
   }
   return node;
 }
 
-tinyxml2::XMLElement* addNodeParam(tinyxml2::XMLElement* node, const std::string& name, const std::string& value)
+tinyxml2::XMLElement* addNodeParam(tinyxml2::XMLElement* _node, const std::string& _name, const std::string& _value)
 {
-  TOBAS_CHECK(std::strcmp(node->Name(), "node") == 0);
+  TOBAS_CHECK(std::strcmp(_node->Name(), "node") == 0);
 
-  const auto param = node->InsertNewChildElement("param");
-  param->SetAttribute("name", name.c_str());
-  param->SetAttribute("value", value.c_str());
+  const auto param = _node->InsertNewChildElement("param");
+  param->SetAttribute("name", _name.c_str());
+  param->SetAttribute("value", _value.c_str());
 
   return param;
 }

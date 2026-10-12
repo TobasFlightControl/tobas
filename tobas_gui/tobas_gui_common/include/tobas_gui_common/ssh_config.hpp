@@ -19,8 +19,8 @@ struct SshConfig
   QString user;
 };
 
-std::expected<SshConfig, QString> loadSshConfig(const QString& path);
-std::expected<void, QString> saveSshConfig(const QString& path, const SshConfig& config);
+std::expected<SshConfig, QString> loadSshConfig(const QString& _path);
+std::expected<void, QString> saveSshConfig(const QString& _path, const SshConfig& _config);
 }  // namespace cmn
 }  // namespace gui
 }  // namespace tobas

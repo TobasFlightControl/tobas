@@ -19,7 +19,7 @@ class MessageDecoder
 public:
   explicit MessageDecoder();
 
-  MsgType decode(rcutils_time_point_value_t time_ns, const rclcpp::SerializedMessage& ser_msg);
+  MsgType decode(rcutils_time_point_value_t _time_ns, const rclcpp::SerializedMessage& _ser_msg);
 
   void clearCache();
 
@@ -35,14 +35,14 @@ MessageDecoder<MsgType>::MessageDecoder()
 }
 
 template <typename MsgType>
-MsgType MessageDecoder<MsgType>::decode(rcutils_time_point_value_t time_ns, const rclcpp::SerializedMessage& ser_msg)
+MsgType MessageDecoder<MsgType>::decode(rcutils_time_point_value_t _time_ns, const rclcpp::SerializedMessage& _ser_msg)
 {
-  if (cache_map_.contains(time_ns)) {
-    return cache_map_[time_ns];
+  if (cache_map_.contains(_time_ns)) {
+    return cache_map_[_time_ns];
   }
   {
-    ser_.deserialize_message(&ser_msg, &msg_);
-    cache_map_[time_ns] = msg_;
+    ser_.deserialize_message(&_ser_msg, &msg_);
+    cache_map_[_time_ns] = msg_;
     return msg_;
   }
 }

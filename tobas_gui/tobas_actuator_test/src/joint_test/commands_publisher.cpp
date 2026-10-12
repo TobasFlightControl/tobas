@@ -14,8 +14,8 @@ namespace gui
 {
 namespace at
 {
-JointCommandsPublisherWidget::JointCommandsPublisherWidget(const kdl::Tree& tree, const Drone& drone)
-  : tree_(tree), drone_(drone), joint_parser_(tree)
+JointCommandsPublisherWidget::JointCommandsPublisherWidget(const kdl::Tree& _tree, const Drone& _drone)
+  : tree_(_tree), drone_(_drone), joint_parser_(_tree)
 {
   rows_ = new QVBoxLayout();
   setLayout(rows_);
@@ -104,13 +104,13 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
   }
 }
 
-void JointCommandsPublisherWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void JointCommandsPublisherWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  node_ = std::move(node);
+  node_ = std::move(_node);
 
-  const auto pos_topic = path::join(ns, kRemoteIfaceNS, topic::kJointPosCmd);
-  const auto vel_topic = path::join(ns, kRemoteIfaceNS, topic::kJointVelCmd);
-  const auto eff_topic = path::join(ns, kRemoteIfaceNS, topic::kJointEffCmd);
+  const auto pos_topic = path::join(_ns, kRemoteIfaceNS, topic::kJointPosCmd);
+  const auto vel_topic = path::join(_ns, kRemoteIfaceNS, topic::kJointVelCmd);
+  const auto eff_topic = path::join(_ns, kRemoteIfaceNS, topic::kJointEffCmd);
   pos_pub_ = ros2::createPublisher<tobas_msgs::msg::JointCommandArray>(node_, pos_topic);
   vel_pub_ = ros2::createPublisher<tobas_msgs::msg::JointCommandArray>(node_, vel_topic);
   eff_pub_ = ros2::createPublisher<tobas_msgs::msg::JointCommandArray>(node_, eff_topic);

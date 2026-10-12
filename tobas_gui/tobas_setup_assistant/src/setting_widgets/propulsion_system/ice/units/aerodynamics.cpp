@@ -24,7 +24,7 @@ namespace propulsion
 {
 namespace ice
 {
-AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* propeller) : propeller_(propeller)
+AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : propeller_(_propeller)
 {
   data_ = new ParamGetterWidget_DoubleTable(
     "Propeller Single Test Data", "Select Test Data", { "RPM", "Pitch [deg]", "Thrust [N]", "Torque [Nm]" });
@@ -84,9 +84,9 @@ bool AerodynamicsWidget::isValid()
   return true;
 }
 
-void AerodynamicsWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
+void AerodynamicsWidget::copyFrom(const BaseSelectedLinkSettingWidget* _src)
 {
-  const auto derived = qt::qConstPointerCast<AerodynamicsWidget>(src);
+  const auto derived = qt::qConstPointerCast<AerodynamicsWidget>(_src);
   data_->setValue(derived->data_->getValue());
 }
 
@@ -99,9 +99,9 @@ YAML::Node AerodynamicsWidget::dump() const
   return node;
 }
 
-void AerodynamicsWidget::load(const YAML::Node& node)
+void AerodynamicsWidget::load(const YAML::Node& _node)
 {
-  data_->setValue(node[data_->name()].as<Eigen::MatrixXd>());
+  data_->setValue(_node[data_->name()].as<Eigen::MatrixXd>());
 }
 
 VppMotorConstant AerodynamicsWidget::motorConst() const

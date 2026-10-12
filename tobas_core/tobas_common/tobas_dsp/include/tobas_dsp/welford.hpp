@@ -28,7 +28,7 @@ public:
   void reset();
 
   /** Add new data. */
-  inline void add(const DataType& x);
+  inline void add(const DataType& _x);
 
   /** Get the mean. */
   inline const DataType& mean() const;
@@ -61,14 +61,14 @@ void Welford<Scalar, Size>::reset()
 }
 
 template <typename Scalar, int Size>
-inline void Welford<Scalar, Size>::add(const DataType& x)
+inline void Welford<Scalar, Size>::add(const DataType& _x)
 {
   ++n_;
 
-  const DataType d = x - mean_;
+  const DataType d = _x - mean_;
   mean_ += d / n_;
 
-  const DataType d2 = x - mean_;
+  const DataType d2 = _x - mean_;
   var_n_ += d * d2.transpose();
   eigen::symmetrise(var_n_);
 }

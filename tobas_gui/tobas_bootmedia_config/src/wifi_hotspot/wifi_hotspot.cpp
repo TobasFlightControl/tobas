@@ -81,19 +81,19 @@ QString WifiHotspotWidget::getPsk() const
   return psk_->text();
 }
 
-bool WifiHotspotWidget::checkSsid(QString& msg) const
+bool WifiHotspotWidget::checkSsid(QString& _msg) const
 {
   const auto ssid = getSsid();
 
   // Empty values are not allowed.
   if (ssid.isEmpty()) {
-    msg = "Please enter your SSID.";
+    _msg = "Please enter your SSID.";
     return false;
   }
 
   // Control characters are not allowed.
   if (qt::containsControlChars(ssid)) {
-    msg = "SSID must not contain control characters.";
+    _msg = "SSID must not contain control characters.";
     return false;
   }
 
@@ -101,56 +101,56 @@ bool WifiHotspotWidget::checkSsid(QString& msg) const
   constexpr int kMaxSsidBytes = 128;
   const int bytes = ssid.toUtf8().size();
   if (bytes > kMaxSsidBytes) {
-    msg = "SSID is too long (max " + QString::number(kMaxSsidBytes) + " bytes).";
+    _msg = "SSID is too long (max " + QString::number(kMaxSsidBytes) + " bytes).";
     return false;
   }
 
   // Leading or trailing spaces work, but are not recommended.
   if (!ssid.isEmpty() && (ssid.front().isSpace() || ssid.back().isSpace())) {
-    msg = "SSID should not have leading or trailing whitespace.";
+    _msg = "SSID should not have leading or trailing whitespace.";
     return false;
   }
 
-  msg.clear();
+  _msg.clear();
   return true;
 }
 
-bool WifiHotspotWidget::checkPsk(QString& msg) const
+bool WifiHotspotWidget::checkPsk(QString& _msg) const
 {
   const auto psk = getPsk();
 
   // Empty values are not allowed.
   if (psk.isEmpty()) {
-    msg = "Please enter your PSK.";
+    _msg = "Please enter your PSK.";
     return false;
   }
 
   // Use either ASCII or hex.
   if (!isValidAsciiPsk(psk) && !isValid64HexPsk(psk)) {
-    msg = "PSK must be 8–63 ASCII printable characters, or 64 hex digits.";
+    _msg = "PSK must be 8–63 ASCII printable characters, or 64 hex digits.";
     return false;
   }
 
   // Leading or trailing spaces work, but are not recommended.
   if (!psk.isEmpty() && (psk.front().isSpace() || psk.back().isSpace())) {
-    msg = "PSK should not have leading or trailing whitespace.";
+    _msg = "PSK should not have leading or trailing whitespace.";
     return false;
   }
 
-  msg.clear();
+  _msg.clear();
   return true;
 }
 
-bool WifiHotspotWidget::isValidAsciiPsk(const QString& psk)
+bool WifiHotspotWidget::isValidAsciiPsk(const QString& _psk)
 {
   const QRegularExpression re(R"(^[ -~]{8,63}$)");
-  return re.match(psk).hasMatch();
+  return re.match(_psk).hasMatch();
 }
 
-bool WifiHotspotWidget::isValid64HexPsk(const QString& psk)
+bool WifiHotspotWidget::isValid64HexPsk(const QString& _psk)
 {
   const QRegularExpression re(R"(^[0-9A-Fa-f]{64}$)");
-  return re.match(psk).hasMatch();
+  return re.match(_psk).hasMatch();
 }
 
 void WifiHotspotWidget::onWriteButtonClicked()

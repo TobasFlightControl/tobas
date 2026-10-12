@@ -32,16 +32,16 @@ struct rclcpp::TypeAdapter<tobas_kdl_msgs::AccelStamped, tobas_kdl_msgs::msg::Ac
   using custom_type = tobas_kdl_msgs::AccelStamped;
   using ros_message_type = tobas_kdl_msgs::msg::AccelStamped;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
-    tobas_kdl_msgs::AccelAdapter::convert_to_ros_message(src.accel, dst.accel);
+    _dst.header = _src.header;
+    tobas_kdl_msgs::AccelAdapter::convert_to_ros_message(_src.accel, _dst.accel);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
-    tobas_kdl_msgs::AccelAdapter::convert_to_custom(src.accel, dst.accel);
+    _dst.header = _src.header;
+    tobas_kdl_msgs::AccelAdapter::convert_to_custom(_src.accel, _dst.accel);
   }
 };
 

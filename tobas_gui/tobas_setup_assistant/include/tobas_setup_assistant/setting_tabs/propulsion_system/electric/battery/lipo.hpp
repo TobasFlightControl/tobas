@@ -28,7 +28,7 @@ public:
   bool isValid() override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   double nominalVoltage() override;
   double maxVoltage() override;

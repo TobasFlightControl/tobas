@@ -29,8 +29,8 @@ public:
   explicit ParameterTuningWidget();
 
   void reset();
-  void setProjectPath(const QString& proj_path);
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void setProjectPath(const QString& _proj_path);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:

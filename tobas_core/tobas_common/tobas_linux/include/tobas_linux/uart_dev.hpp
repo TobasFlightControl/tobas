@@ -30,23 +30,23 @@ public:
   explicit UARTdev();
   ~UARTdev();
 
-  bool initialize(const char* uart_dev, bool block_mode = false);
+  bool initialize(const char* _uart_dev, bool _block_mode = false);
 
-  bool setBaudRate(uint32_t baud_rate);
-  bool setDataBits(uint8_t data_bits);
+  bool setBaudRate(uint32_t _baud_rate);
+  bool setDataBits(uint8_t _data_bits);
   bool setSingleStopBit();
   bool setDoubleStopBit();
-  bool enableParity(ParityMode mode);
+  bool enableParity(ParityMode _mode);
   bool disableParity();
   bool enableHungupClose();
   bool disableHungupClose();
-  bool setTimeout(cc_t msec_100);
+  bool setTimeout(cc_t _msec_100);
 
   /** Set the minimum number of characters that `receive()` waits for. */
-  bool setMinimumChars(uint8_t num);
+  bool setMinimumChars(uint8_t _num);
 
-  bool send(const uint8_t* data, size_t length);
-  bool receive(uint8_t* data, size_t length);
+  bool send(const uint8_t* _data, size_t _length);
+  bool receive(uint8_t* _data, size_t _length);
 
   /** Receive 1 byte. */
   std::optional<uint8_t> receiveByte();
@@ -59,9 +59,9 @@ private:
   bool getConfig();
   bool setConfig();
 
-  bool isStandardBaudRate(uint32_t baud_rate);
-  bool setStandardBaudRate(uint32_t baud_rate);
-  bool setNonStandardBaudRate(uint32_t baud_rate);
+  bool isStandardBaudRate(uint32_t _baud_rate);
+  bool setStandardBaudRate(uint32_t _baud_rate);
+  bool setNonStandardBaudRate(uint32_t _baud_rate);
 };
 }  // namespace linux
 }  // namespace tobas

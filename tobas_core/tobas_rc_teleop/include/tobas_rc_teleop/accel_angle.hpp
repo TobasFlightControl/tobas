@@ -26,9 +26,9 @@ public:
   bool requireAttitude() override;
   bool requireHeading() override;
 
-  void initialize(BaseNode* node, FlightMode mode) override;
-  void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) override;
-  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
+  void initialize(BaseNode* _node, FlightMode _mode) override;
+  void reset(const builtin_interfaces::msg::Time& _stamp, const tobas_msgs::Odometry& _setpoint, bool _landed) override;
+  void update(const tobas_msgs::RCInput& _rcin, const tobas_msgs::Odometry& _odom, bool _landed) override;
 
 private:
   rclcpp::Time t_last_rcin_;
@@ -49,19 +49,19 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::Accel> accel_pub_;
   ros2::PublisherPtr<tobas_command_msgs::Angle> angle_pub_;
 
-  void publishAccel(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& acc);
-  void publishAngle(const builtin_interfaces::msg::Time& stamp, double roll, double pitch, double yaw);
+  void publishAccel(const builtin_interfaces::msg::Time& _stamp, const kdl::Vector& _acc);
+  void publishAngle(const builtin_interfaces::msg::Time& _stamp, double _roll, double _pitch, double _yaw);
 
-  void maxHorizontalAccelCb(double p);
-  void maxHorizontalJerkCb(double p);
-  void maxVerticalAccelCb(double p);
-  void maxAttitudeCb(double p);
-  void maxAttitudeRateCb(double p);
-  void maxHeadingRateCb(double p);
-  void horizontalAccelExpoCb(double p);
-  void verticalAccelExpoCb(double p);
-  void attitudeExpoCb(double p);
-  void headingExpoCb(double p);
+  void maxHorizontalAccelCb(double _p);
+  void maxHorizontalJerkCb(double _p);
+  void maxVerticalAccelCb(double _p);
+  void maxAttitudeCb(double _p);
+  void maxAttitudeRateCb(double _p);
+  void maxHeadingRateCb(double _p);
+  void horizontalAccelExpoCb(double _p);
+  void verticalAccelExpoCb(double _p);
+  void attitudeExpoCb(double _p);
+  void headingExpoCb(double _p);
 };
 }  // namespace rc
 }  // namespace tobas

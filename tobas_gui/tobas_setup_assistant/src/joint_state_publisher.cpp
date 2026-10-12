@@ -23,10 +23,10 @@ namespace gui
 namespace sa
 {
 JointStatePublisherWidget::JointStatePublisherWidget(
-  rclcpp::Node::SharedPtr node,
-  const uadf::Model& uadf,
-  const kdl::Tree& tree)
-  : node_(node), uadf_(uadf), tree_(tree), rnd_gen_(rnd_dev_())
+  rclcpp::Node::SharedPtr _node,
+  const uadf::Model& _uadf,
+  const kdl::Tree& _tree)
+  : node_(_node), uadf_(_uadf), tree_(_tree), rnd_gen_(rnd_dev_())
 {
   slider_rows_ = new QVBoxLayout();
 
@@ -155,22 +155,22 @@ void JointStatePublisherWidget::publishCurrentPositions()
   drs_pub_->publish(std::move(drs));
 }
 
-void JointStatePublisherWidget::setControlButtonsEnabled(bool enabled)
+void JointStatePublisherWidget::setControlButtonsEnabled(bool _enabled)
 {
-  zero_button_->setEnabled(enabled);
-  center_button_->setEnabled(enabled);
-  random_button_->setEnabled(enabled);
+  zero_button_->setEnabled(_enabled);
+  center_button_->setEnabled(_enabled);
+  random_button_->setEnabled(_enabled);
 }
 
-void JointStatePublisherWidget::onValueChanged(int value, const std::string& jnt_name, double position_per_step)
+void JointStatePublisherWidget::onValueChanged(int _value, const std::string& _jnt_name, double _position_per_step)
 {
-  const auto idx = st::index(js_.name, jnt_name);
+  const auto idx = st::index(js_.name, _jnt_name);
   if (idx < 0) {
-    qWarning() << "Joint" << QString::fromStdString(jnt_name) << "does not exist.";
+    qWarning() << "Joint" << QString::fromStdString(_jnt_name) << "does not exist.";
     return;
   }
 
-  js_.position.at(idx) = value * position_per_step;
+  js_.position.at(idx) = _value * _position_per_step;
 }
 
 void JointStatePublisherWidget::onZeroButtonClicked()

@@ -10,16 +10,16 @@ namespace tobas
 namespace gazebo
 {
 std::string makeBoxSdf(
-  const std::string& name,
-  double sx,
-  double sy,
-  double sz,
-  double mass,
-  double px = 0.0,
-  double py = 0.0,
-  double pz = 0.0,
-  double rr = 0.0,
-  double rp = 0.0,
-  double ry = 0.0);
+  const std::string& _name,
+  double _sx,
+  double _sy,
+  double _sz,
+  double _mass,
+  double _px = 0.0,
+  double _py = 0.0,
+  double _pz = 0.0,
+  double _rr = 0.0,
+  double _rp = 0.0,
+  double _ry = 0.0);
 }  // namespace gazebo
 }  // namespace tobas

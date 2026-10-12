@@ -12,10 +12,10 @@ namespace gazebo
 class RateManager
 {
 public:
-  explicit RateManager(int update_rate);
+  explicit RateManager(int _update_rate);
 
   /** True if the cycle can be executed. */
-  bool update(const std::chrono::steady_clock::duration& cur_time);
+  bool update(const std::chrono::steady_clock::duration& _cur_time);
 
 private:
   const int update_rate_;

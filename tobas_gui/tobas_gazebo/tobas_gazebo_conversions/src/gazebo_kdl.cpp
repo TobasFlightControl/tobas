@@ -9,53 +9,53 @@ namespace tobas
 {
 namespace gazebo
 {
-void vectorGazeboToKDL(const gz::math::Vector3d& g, kdl::Vector& k)
+void vectorGazeboToKDL(const gz::math::Vector3d& _g, kdl::Vector& _k)
 {
-  k.x(g.X());
-  k.y(g.Y());
-  k.z(g.Z());
+  _k.x(_g.X());
+  _k.y(_g.Y());
+  _k.z(_g.Z());
 }
 
-void vectorKDLToGazebo(const kdl::Vector& k, gz::math::Vector3d& g)
+void vectorKDLToGazebo(const kdl::Vector& _k, gz::math::Vector3d& _g)
 {
-  g.Set(k.x(), k.y(), k.z());
+  _g.Set(_k.x(), _k.y(), _k.z());
 }
 
-void rotationGazeboToKDL(const gz::math::Quaterniond& g, kdl::Rotation& k)
+void rotationGazeboToKDL(const gz::math::Quaterniond& _g, kdl::Rotation& _k)
 {
-  k = kdl::Rotation::Quaternion(g.X(), g.Y(), g.Z(), g.W());
+  _k = kdl::Rotation::Quaternion(_g.X(), _g.Y(), _g.Z(), _g.W());
 }
 
-void rotationKDLToGazebo(const kdl::Rotation& k, gz::math::Quaterniond& g)
+void rotationKDLToGazebo(const kdl::Rotation& _k, gz::math::Quaterniond& _g)
 {
   gz::math::Matrix3d data;
-  matrix3EigenToGazebo(k.data, data);
-  g.SetFromMatrix(data);
+  matrix3EigenToGazebo(_k.data, data);
+  _g.SetFromMatrix(data);
 }
 
-void quaternionGazeboToKDL(const gz::math::Quaterniond& g, kdl::Quaternion& k)
+void quaternionGazeboToKDL(const gz::math::Quaterniond& _g, kdl::Quaternion& _k)
 {
-  k.w = g.W();
-  k.x = g.X();
-  k.y = g.Y();
-  k.z = g.Z();
+  _k.w = _g.W();
+  _k.x = _g.X();
+  _k.y = _g.Y();
+  _k.z = _g.Z();
 }
 
-void quaternionKDLToGazebo(const kdl::Quaternion& k, gz::math::Quaterniond& g)
+void quaternionKDLToGazebo(const kdl::Quaternion& _k, gz::math::Quaterniond& _g)
 {
-  g.Set(k.w, k.x, k.y, k.z);
+  _g.Set(_k.w, _k.x, _k.y, _k.z);
 }
 
-void poseGazeboToKDL(const gz::math::Pose3d& g, kdl::Frame& k)
+void poseGazeboToKDL(const gz::math::Pose3d& _g, kdl::Frame& _k)
 {
-  vectorGazeboToKDL(g.Pos(), k.p);
-  rotationGazeboToKDL(g.Rot(), k.M);
+  vectorGazeboToKDL(_g.Pos(), _k.p);
+  rotationGazeboToKDL(_g.Rot(), _k.M);
 }
 
-void poseKDLToGazebo(const kdl::Frame& k, gz::math::Pose3d& g)
+void poseKDLToGazebo(const kdl::Frame& _k, gz::math::Pose3d& _g)
 {
-  vectorKDLToGazebo(k.p, g.Pos());
-  rotationKDLToGazebo(k.M, g.Rot());
+  vectorKDLToGazebo(_k.p, _g.Pos());
+  rotationKDLToGazebo(_k.M, _g.Rot());
 }
 }  // namespace gazebo
 }  // namespace tobas

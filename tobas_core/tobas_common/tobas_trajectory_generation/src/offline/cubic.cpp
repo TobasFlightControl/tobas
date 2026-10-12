@@ -12,16 +12,16 @@ namespace tobas
 {
 namespace traj
 {
-CubicSpline::CubicSpline(double p0, double pf, double T) : T_(T)
+CubicSpline::CubicSpline(double _p0, double _pf, double _t) : T_(_t)
 {
-  a0_ = p0;
+  a0_ = _p0;
   a1_ = 0.0;
 
-  if (T > 0.0) {
-    a2_ = (3 / math::sqr(T)) * (pf - p0);
-    a3_ = (-2 / math::cube(T)) * (pf - p0);
+  if (_t > 0.0) {
+    a2_ = (3 / math::sqr(_t)) * (_pf - _p0);
+    a3_ = (-2 / math::cube(_t)) * (_pf - _p0);
   }
-  else if (p0 == pf && T == 0.0) {
+  else if (_p0 == _pf && _t == 0.0) {
     a2_ = 0.0;
     a3_ = 0.0;
   }

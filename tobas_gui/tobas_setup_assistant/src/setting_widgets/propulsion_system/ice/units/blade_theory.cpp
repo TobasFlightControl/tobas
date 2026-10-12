@@ -25,14 +25,14 @@ constexpr double gamma = 8.0;  // Lock number (Ref: Balic Helicopter Aerodynamic
 constexpr double C_d0 = 0.02;  // Profile drag coefficient (typical value)
 }  // namespace
 
-BladeTheory::BladeTheory(int num_blades, double radius, double blade_chord, double pitch_angle, double air_density)
-  : N_(num_blades), R_(radius), c_(blade_chord), theta_(pitch_angle), rho_(air_density)
+BladeTheory::BladeTheory(int _num_blades, double _radius, double _blade_chord, double _pitch_angle, double _air_density)
+  : N_(_num_blades), R_(_radius), c_(_blade_chord), theta_(_pitch_angle), rho_(_air_density)
 {
-  TOBAS_CHECK(num_blades > 0);
-  TOBAS_CHECK(radius > 0.0);
-  TOBAS_CHECK(blade_chord > 0.0);
-  TOBAS_CHECK(0.0 < pitch_angle && pitch_angle < M_PI_2);
-  TOBAS_CHECK(air_density > 0.0);
+  TOBAS_CHECK(_num_blades > 0);
+  TOBAS_CHECK(_radius > 0.0);
+  TOBAS_CHECK(_blade_chord > 0.0);
+  TOBAS_CHECK(0.0 < _pitch_angle && _pitch_angle < M_PI_2);
+  TOBAS_CHECK(_air_density > 0.0);
 }
 
 VppMotorConstant BladeTheory::motorConst() const

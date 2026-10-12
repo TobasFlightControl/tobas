@@ -88,13 +88,13 @@ YAML::Node VehicleParametersWidget::dump() const
   return node;
 }
 
-void VehicleParametersWidget::load(const YAML::Node& node)
+void VehicleParametersWidget::load(const YAML::Node& _node)
 {
-  wing_surface_->setValue(node[wing_surface_->name()].as<double>());
-  wing_span_->setValue(node[wing_span_->name()].as<double>());
-  mac_->setValue(node[mac_->name()].as<double>());
-  aerodynamic_center_->setValue(node[aerodynamic_center_->name()].as<Eigen::Vector3d>());
-  alpha_limit_->setValue(node[alpha_limit_->name()].as<st::Range<double>>());
+  wing_surface_->setValue(_node[wing_surface_->name()].as<double>());
+  wing_span_->setValue(_node[wing_span_->name()].as<double>());
+  mac_->setValue(_node[mac_->name()].as<double>());
+  aerodynamic_center_->setValue(_node[aerodynamic_center_->name()].as<Eigen::Vector3d>());
+  alpha_limit_->setValue(_node[alpha_limit_->name()].as<st::Range<double>>());
 }
 
 double VehicleParametersWidget::wingSurface() const

@@ -39,9 +39,9 @@ double LongitudeWidget::getValue() const
   return spin_box_->value();
 }
 
-void LongitudeWidget::setValue(double value)
+void LongitudeWidget::setValue(double _value)
 {
-  spin_box_->setValue(value);
+  spin_box_->setValue(_value);
 }
 }  // namespace field
 }  // namespace ctrl

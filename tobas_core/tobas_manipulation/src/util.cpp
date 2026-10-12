@@ -7,25 +7,25 @@ namespace tobas
 {
 namespace manipulation
 {
-std::vector<std::string> linkNames(const tobas_msgs::LinkStateArray& msg)
+std::vector<std::string> linkNames(const tobas_msgs::LinkStateArray& _msg)
 {
   std::vector<std::string> res;
-  for (const auto& state : msg.states) {
+  for (const auto& state : _msg.states) {
     res.push_back(state.name);
   }
   return res;
 }
 
 std::expected<std::vector<std::string>, std::string>
-findActiveJointNames(const kdl::Tree& tree, const std::vector<std::string>& endpoints)
+findActiveJointNames(const kdl::Tree& _tree, const std::vector<std::string>& _endpoints)
 {
   std::vector<std::string> active_joints;
-  std::vector<bool> seen(tree.getNrOfJoints(), false);
-  const auto root_it = tree.getRootSegment();
+  std::vector<bool> seen(_tree.getNrOfJoints(), false);
+  const auto root_it = _tree.getRootSegment();
 
-  for (const auto& seg_name : endpoints) {
-    auto cur_it = tree.getSegment(seg_name);
-    if (cur_it == tree.getSegments().end()) {
+  for (const auto& seg_name : _endpoints) {
+    auto cur_it = _tree.getSegment(seg_name);
+    if (cur_it == _tree.getSegments().end()) {
       return std::unexpected("The tree does not contain segment '" + seg_name + "'.");
     }
 

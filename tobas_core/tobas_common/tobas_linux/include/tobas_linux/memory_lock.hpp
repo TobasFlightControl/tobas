@@ -19,6 +19,6 @@ bool lockMemory();
 bool lockAndPrefaultDynamic();
 
 /** Commit a pool of dynamic memory based on a prefixed size. */
-bool lockAndPrefaultDynamic(size_t process_max_dynamic_memory);
+bool lockAndPrefaultDynamic(size_t _process_max_dynamic_memory);
 }  // namespace linux
 }  // namespace tobas

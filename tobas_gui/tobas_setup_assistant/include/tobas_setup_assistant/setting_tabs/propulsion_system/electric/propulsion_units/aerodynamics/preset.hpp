@@ -33,17 +33,17 @@ class AerodynamicsWidget_Preset : public AerodynamicsWidget_Base
   };
 
 public:
-  explicit AerodynamicsWidget_Preset(const PropellerWidget* propeller);
+  explicit AerodynamicsWidget_Preset(const PropellerWidget* _propeller);
 
   const char* name() const override;
   const char* description() const override;
 
   void setToDefaults() override;
   bool isValid() override;
-  void copyFrom(const AerodynamicsWidget_Base* src) override;
+  void copyFrom(const AerodynamicsWidget_Base* _src) override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   double motorConst() const override;
   double momentConst() const override;
@@ -57,8 +57,8 @@ private:
   DataType getCurrentDataType() const;
 
   std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd>
-  parseThrustStandData(const std::filesystem::path& path) const;
-  std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> parseUiucData(const std::filesystem::path& path) const;
+  parseThrustStandData(const std::filesystem::path& _path) const;
+  std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> parseUiucData(const std::filesystem::path& _path) const;
 
   static std::filesystem::path dataDir();
   static std::filesystem::path thrustStandDataDir();

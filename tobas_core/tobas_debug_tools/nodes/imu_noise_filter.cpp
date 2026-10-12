@@ -18,7 +18,7 @@ class ImuNoiseFilter : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit ImuNoiseFilter(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit ImuNoiseFilter(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   static constexpr size_t kWindowSize = 400;  ///< 1 second at 400 Hz
@@ -31,35 +31,35 @@ private:
   ros2::PublisherPtr<Eigen::Matrix3d> gyro_noise_pub_;
   ros2::SubscriberPtr<tobas_msgs::Imu> imu_sub_;
 
-  void imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu);
+  void imuCb(const tobas_msgs::Imu::ConstSharedPtr& _imu);
 };
 
-ImuNoiseFilter::ImuNoiseFilter(const rclcpp::NodeOptions& options)
-  : super("imu_noise_filter", nodeOptions_Default(options))
+ImuNoiseFilter::ImuNoiseFilter(const rclcpp::NodeOptions& _options)
+  : super("imu_noise_filter", nodeOptions_Default(_options))
 {
   acc_noise_pub_ = createPublisher<Eigen::Matrix3d>("accel_covariance");
   gyro_noise_pub_ = createPublisher<Eigen::Matrix3d>("gyro_covariance");
   imu_sub_ = createSubscriber(topic::kImuRaw, &self::imuCb, this);
 }
 
-void ImuNoiseFilter::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu)
+void ImuNoiseFilter::imuCb(const tobas_msgs::Imu::ConstSharedPtr& _imu)
 {
   if (!imu_) {
     constexpr double kHpfCutoffFreq = 1.0;  // [Hz]
-    acc_noise_filter_.initialize(kHpfCutoffFreq, imu->accel.data);
-    gyro_noise_filter_.initialize(kHpfCutoffFreq, imu->gyro.data);
-    imu_ = imu;
+    acc_noise_filter_.initialize(kHpfCutoffFreq, _imu->accel.data);
+    gyro_noise_filter_.initialize(kHpfCutoffFreq, _imu->gyro.data);
+    imu_ = _imu;
     return;
   }
 
-  const auto dt = (imu->header.stamp - imu_->header.stamp).seconds();
-  imu_ = imu;
+  const auto dt = (_imu->header.stamp - imu_->header.stamp).seconds();
+  imu_ = _imu;
 
-  acc_noise_filter_.update(imu->accel.data, dt);
+  acc_noise_filter_.update(_imu->accel.data, dt);
   auto acc_cov = std::make_unique<Eigen::Matrix3d>(acc_noise_filter_.noiseVariance());
   acc_noise_pub_->publish(std::move(acc_cov));
 
-  gyro_noise_filter_.update(imu->gyro.data, dt);
+  gyro_noise_filter_.update(_imu->gyro.data, dt);
   auto gyro_cov = std::make_unique<Eigen::Matrix3d>(gyro_noise_filter_.noiseVariance());
   gyro_noise_pub_->publish(std::move(gyro_cov));
 }

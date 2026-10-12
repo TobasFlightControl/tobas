@@ -15,13 +15,13 @@ namespace tobas
 {
 namespace linux
 {
-bool setThreadPriority(pthread_t thread, size_t priority, sched_t policy)
+bool setThreadPriority(pthread_t _thread, size_t _priority, sched_t _policy)
 {
   struct sched_param param;
   std::memset(&param, 0, sizeof(param));
-  param.sched_priority = priority;
+  param.sched_priority = _priority;
 
-  if (pthread_setschedparam(thread, policy, &param) != 0) {
+  if (pthread_setschedparam(_thread, _policy, &param) != 0) {
     std::cerr << "Failed to set scheduling policy: " << st::strError() << std::endl;
     return false;
   }
@@ -29,13 +29,13 @@ bool setThreadPriority(pthread_t thread, size_t priority, sched_t policy)
   return true;
 }
 
-bool setProcessPriority(pid_t pid, size_t priority, sched_t policy)
+bool setProcessPriority(pid_t _pid, size_t _priority, sched_t _policy)
 {
   struct sched_param param;
   std::memset(&param, 0, sizeof(param));
-  param.sched_priority = priority;
+  param.sched_priority = _priority;
 
-  if (sched_setscheduler(pid, policy, &param) != 0) {
+  if (sched_setscheduler(_pid, _policy, &param) != 0) {
     std::cerr << "Failed to set scheduling policy: " << st::strError() << std::endl;
     return false;
   }
@@ -43,25 +43,25 @@ bool setProcessPriority(pid_t pid, size_t priority, sched_t policy)
   return true;
 }
 
-bool setThisProcessPriority(size_t priority, sched_t policy)
+bool setThisProcessPriority(size_t _priority, sched_t _policy)
 {
-  return setProcessPriority(getpid(), priority, policy);
+  return setProcessPriority(getpid(), _priority, _policy);
 }
 
-bool setThreadCPUAffinity(pthread_t thread, uint32_t cpu_bit_mask)
+bool setThreadCPUAffinity(pthread_t _thread, uint32_t _cpu_bit_mask)
 {
   cpu_set_t set;
   uint32_t cpu_cnt = 0;
   CPU_ZERO(&set);
-  while (cpu_bit_mask > 0) {
-    if (cpu_bit_mask & 1) {
+  while (_cpu_bit_mask > 0) {
+    if (_cpu_bit_mask & 1) {
       CPU_SET(cpu_cnt, &set);
     }
-    cpu_bit_mask >>= 1;
+    _cpu_bit_mask >>= 1;
     ++cpu_cnt;
   }
 
-  if (pthread_setaffinity_np(thread, sizeof(set), &set) != 0) {
+  if (pthread_setaffinity_np(_thread, sizeof(set), &set) != 0) {
     std::cerr << "Failed to set CPU affinity: " << st::strError() << std::endl;
     return false;
   }
@@ -69,20 +69,20 @@ bool setThreadCPUAffinity(pthread_t thread, uint32_t cpu_bit_mask)
   return true;
 }
 
-bool setProcessCPUAffinity(pid_t pid, uint32_t cpu_bit_mask)
+bool setProcessCPUAffinity(pid_t _pid, uint32_t _cpu_bit_mask)
 {
   cpu_set_t set;
   uint32_t cpu_cnt = 0;
   CPU_ZERO(&set);
-  while (cpu_bit_mask > 0) {
-    if ((cpu_bit_mask & 1) > 0) {
+  while (_cpu_bit_mask > 0) {
+    if ((_cpu_bit_mask & 1) > 0) {
       CPU_SET(cpu_cnt, &set);
     }
-    cpu_bit_mask >>= 1;
+    _cpu_bit_mask >>= 1;
     ++cpu_cnt;
   }
 
-  if (sched_setaffinity(pid, sizeof(set), &set) != 0) {
+  if (sched_setaffinity(_pid, sizeof(set), &set) != 0) {
     std::cerr << "Failed to set CPU affinity: " << st::strError() << std::endl;
     return false;
   }
@@ -90,9 +90,9 @@ bool setProcessCPUAffinity(pid_t pid, uint32_t cpu_bit_mask)
   return true;
 }
 
-bool setThisProcessCpuAffinity(uint32_t cpu_bit_mask)
+bool setThisProcessCpuAffinity(uint32_t _cpu_bit_mask)
 {
-  return setProcessCPUAffinity(getpid(), cpu_bit_mask);
+  return setProcessCPUAffinity(getpid(), _cpu_bit_mask);
 }
 }  // namespace linux
 }  // namespace tobas

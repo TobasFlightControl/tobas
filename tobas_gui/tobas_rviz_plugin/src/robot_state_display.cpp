@@ -88,17 +88,17 @@ RobotStateDisplay::RobotStateDisplay()
     new rviz_common::properties::BoolProperty("Reload", true, "Reload robot model.", this, SLOT(changedReload()), this);
 }
 
-void RobotStateDisplay::load(const rviz_common::Config& config)
+void RobotStateDisplay::load(const rviz_common::Config& _config)
 {
   // This property needs to be loaded in onEnable() below,
   // which is triggered in the beginning of super::load() before the other property would be available.
-  robot_description_property_->load(config.mapGetChild("Robot Description"));
-  super::load(config);
+  robot_description_property_->load(_config.mapGetChild("Robot Description"));
+  super::load(_config);
 }
 
-void RobotStateDisplay::update(float wall_dt, float ros_dt)
+void RobotStateDisplay::update(float _wall_dt, float _ros_dt)
 {
-  super::update(wall_dt, ros_dt);
+  super::update(_wall_dt, _ros_dt);
   calculateOffsetPosition();
   if (robot_ && update_state_ && robot_state_) {
     update_state_ = false;
@@ -226,7 +226,7 @@ void RobotStateDisplay::calculateOffsetPosition()
 }
 
 void RobotStateDisplay::newRobotStateCallback(
-  const tobas_visualization_msgs::msg::DisplayRobotState::ConstSharedPtr& state_msg)
+  const tobas_visualization_msgs::msg::DisplayRobotState::ConstSharedPtr& _state_msg)
 {
   if (!robot_model_) {
     return;
@@ -236,8 +236,8 @@ void RobotStateDisplay::newRobotStateCallback(
   }
 
   try {
-    robotStateMsgToRobotState(state_msg->state, *robot_state_);
-    setRobotHighlights(state_msg->highlight_links);
+    robotStateMsgToRobotState(_state_msg->state, *robot_state_);
+    setRobotHighlights(_state_msg->highlight_links);
   }
   catch (const std::exception& e) {
     robot_state_->setToDefaultValues();
@@ -247,8 +247,8 @@ void RobotStateDisplay::newRobotStateCallback(
     return;
   }
 
-  if (robot_->isVisible() != !state_msg->hide) {
-    robot_->setVisible(!state_msg->hide);
+  if (robot_->isVisible() != !_state_msg->hide) {
+    robot_->setVisible(!_state_msg->hide);
     if (robot_->isVisible()) {
       setStatus(rviz_common::properties::StatusProperty::Ok, "RobotState", "");
     }
@@ -261,14 +261,14 @@ void RobotStateDisplay::newRobotStateCallback(
 }
 
 void RobotStateDisplay::setRobotHighlights(
-  const tobas_visualization_msgs::msg::DisplayRobotState::_highlight_links_type& links)
+  const tobas_visualization_msgs::msg::DisplayRobotState::_highlight_links_type& _links)
 {
-  if (links.empty() && highlights_.empty()) {
+  if (_links.empty() && highlights_.empty()) {
     return;
   }
 
   std::map<std::string, std_msgs::msg::ColorRGBA> highlights;
-  for (const auto& link : links) {
+  for (const auto& link : _links) {
     highlights[link.id] = link.color;
   }
 
@@ -307,18 +307,18 @@ void RobotStateDisplay::setRobotHighlights(
   swap(highlights, highlights_);
 }
 
-void RobotStateDisplay::setHighlight(const std::string& link_name, const std_msgs::msg::ColorRGBA& color)
+void RobotStateDisplay::setHighlight(const std::string& _link_name, const std_msgs::msg::ColorRGBA& _color)
 {
-  const auto link = robot_->getLink(link_name);
+  const auto link = robot_->getLink(_link_name);
   if (link) {
-    link->setColor(color.r, color.g, color.b);
-    link->setRobotAlpha(color.a * robot_alpha_property_->getFloat());
+    link->setColor(_color.r, _color.g, _color.b);
+    link->setRobotAlpha(_color.a * robot_alpha_property_->getFloat());
   }
 }
 
-void RobotStateDisplay::unsetHighlight(const std::string& link_name)
+void RobotStateDisplay::unsetHighlight(const std::string& _link_name)
 {
-  const auto link = robot_->getLink(link_name);
+  const auto link = robot_->getLink(_link_name);
   if (link) {
     link->unsetColor();
     link->setRobotAlpha(robot_alpha_property_->getFloat());
@@ -357,8 +357,8 @@ void RobotStateDisplay::changedRobotStateTopic()
   robot_state_sub_ = node_->create_subscription<tobas_visualization_msgs::msg::DisplayRobotState>(
     robot_state_topic_property_->getStdString(),
     rclcpp::SystemDefaultsQoS(),
-    [this](const tobas_visualization_msgs::msg::DisplayRobotState::ConstSharedPtr& state)
-    { return newRobotStateCallback(state); });
+    [this](const tobas_visualization_msgs::msg::DisplayRobotState::ConstSharedPtr& _state)
+    { return newRobotStateCallback(_state); });
 }
 
 void RobotStateDisplay::changedEnableLinkHighlight()

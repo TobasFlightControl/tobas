@@ -30,25 +30,25 @@ struct rclcpp::TypeAdapter<tobas_msgs::LinkStateArray, tobas_msgs::msg::LinkStat
   using custom_type = tobas_msgs::LinkStateArray;
   using ros_message_type = tobas_msgs::msg::LinkStateArray;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
+    _dst.header = _src.header;
 
-    dst.states.clear();
-    for (const auto& state : src.states) {
-      dst.states.emplace_back();
-      tobas_msgs::LinkStateAdapter::convert_to_ros_message(state, dst.states.back());
+    _dst.states.clear();
+    for (const auto& state : _src.states) {
+      _dst.states.emplace_back();
+      tobas_msgs::LinkStateAdapter::convert_to_ros_message(state, _dst.states.back());
     }
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
+    _dst.header = _src.header;
 
-    dst.states.clear();
-    for (const auto& state : src.states) {
-      dst.states.emplace_back();
-      tobas_msgs::LinkStateAdapter::convert_to_custom(state, dst.states.back());
+    _dst.states.clear();
+    for (const auto& state : _src.states) {
+      _dst.states.emplace_back();
+      tobas_msgs::LinkStateAdapter::convert_to_custom(state, _dst.states.back());
     }
   }
 };

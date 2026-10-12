@@ -19,23 +19,23 @@ public:
   T lower;
   T upper;
 
-  inline Range(const T& lower, const T& upper);
+  inline Range(const T& _lower, const T& _upper);
   inline Range();
 
-  inline void set(const T& lower, const T& upper);
+  inline void set(const T& _lower, const T& _upper);
 
   inline bool isValid() const;
-  inline bool inRange(const T& x, const T& margin = 0) const;
+  inline bool inRange(const T& _x, const T& _margin = 0) const;
 
-  inline bool isStrictlyGreaterThan(const Range<T>& other);
-  inline bool isStrictlyLowerThan(const Range<T>& other);
-  inline bool isOverlapped(const Range<T>& other);
-  inline Range<T> overlappedArea(const Range<T>& other);
+  inline bool isStrictlyGreaterThan(const Range<T>& _other);
+  inline bool isStrictlyLowerThan(const Range<T>& _other);
+  inline bool isOverlapped(const Range<T>& _other);
+  inline Range<T> overlappedArea(const Range<T>& _other);
 
-  inline T clamp(const T& x) const;
+  inline T clamp(const T& _x) const;
 
   /** Return true if value is clamped. */
-  inline bool clamp(const T& src, T& dst) const;
+  inline bool clamp(const T& _src, T& _dst) const;
 
   inline T range() const;
   inline T mean() const;
@@ -44,13 +44,13 @@ public:
   inline std::string toString() const;
 
   template <typename U>
-  friend std::ostream& operator<<(std::ostream& os, const Range<U>& range);
+  friend std::ostream& operator<<(std::ostream& _os, const Range<U>& _range);
 };
 
 template <typename T>
-inline Range<T>::Range(const T& lower, const T& upper) : lower(lower), upper(upper)
+inline Range<T>::Range(const T& _lower, const T& _upper) : lower(_lower), upper(_upper)
 {
-  assert(lower <= upper);
+  assert(_lower <= _upper);
 }
 
 template <typename T>
@@ -72,54 +72,54 @@ inline bool Range<T>::isValid() const
 }
 
 template <typename T>
-inline bool Range<T>::inRange(const T& x, const T& margin) const
+inline bool Range<T>::inRange(const T& _x, const T& _margin) const
 {
-  return lower - margin <= x && x <= upper + margin;
+  return lower - _margin <= _x && _x <= upper + _margin;
 }
 
 template <typename T>
-inline bool Range<T>::isOverlapped(const Range<T>& other)
+inline bool Range<T>::isOverlapped(const Range<T>& _other)
 {
-  return std::max(lower, other.lower) <= std::min(upper, other.upper);
+  return std::max(lower, _other.lower) <= std::min(upper, _other.upper);
 }
 
 template <typename T>
-inline bool Range<T>::isStrictlyGreaterThan(const Range<T>& other)
+inline bool Range<T>::isStrictlyGreaterThan(const Range<T>& _other)
 {
-  return lower > other.upper;
+  return lower > _other.upper;
 }
 
 template <typename T>
-inline bool Range<T>::isStrictlyLowerThan(const Range<T>& other)
+inline bool Range<T>::isStrictlyLowerThan(const Range<T>& _other)
 {
-  return upper < other.lower;
+  return upper < _other.lower;
 }
 
 template <typename T>
-inline Range<T> Range<T>::overlappedArea(const Range<T>& other)
+inline Range<T> Range<T>::overlappedArea(const Range<T>& _other)
 {
-  return Range(std::max(lower, other.lower), std::min(upper, other.upper));
+  return Range(std::max(lower, _other.lower), std::min(upper, _other.upper));
 }
 
 template <typename T>
-inline T Range<T>::clamp(const T& x) const
+inline T Range<T>::clamp(const T& _x) const
 {
-  return std::clamp(x, lower, upper);
+  return std::clamp(_x, lower, upper);
 }
 
 template <typename T>
-inline bool Range<T>::clamp(const T& src, T& dst) const
+inline bool Range<T>::clamp(const T& _src, T& _dst) const
 {
-  if (src < lower) {
-    dst = lower;
+  if (_src < lower) {
+    _dst = lower;
     return true;
   }
-  else if (src > upper) {
-    dst = upper;
+  else if (_src > upper) {
+    _dst = upper;
     return true;
   }
   else {
-    dst = src;
+    _dst = _src;
     return false;
   }
 }
@@ -149,10 +149,10 @@ inline std::string Range<T>::toString() const
 }
 
 template <typename U>
-std::ostream& operator<<(std::ostream& os, const Range<U>& arg)
+std::ostream& operator<<(std::ostream& _os, const Range<U>& _arg)
 {
-  os << "[" << arg.lower << ", " << arg.upper << "]";
-  return os;
+  _os << "[" << _arg.lower << ", " << _arg.upper << "]";
+  return _os;
 }
 }  // namespace st
 }  // namespace tobas

@@ -19,7 +19,7 @@ class ConsoleWidget : public QWidget
   using self = ConsoleWidget;
 
 public:
-  explicit ConsoleWidget(const rqt::RosQtBridge& bridge);
+  explicit ConsoleWidget(const rqt::RosQtBridge& _bridge);
 
   void reset();
 
@@ -27,7 +27,7 @@ private:
   qt::TableWidget* table_;
 
 private Q_SLOTS:
-  void messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& msg);
+  void messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& _msg);
 };
 }  // namespace ctrl
 }  // namespace gui

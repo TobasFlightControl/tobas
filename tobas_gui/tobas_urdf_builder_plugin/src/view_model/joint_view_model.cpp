@@ -11,8 +11,8 @@ namespace ub
 {
 namespace view_model
 {
-JointViewModel::JointViewModel(const ::urdf::JointSharedPtr& model)
-  : BaseViewModel<::urdf::Joint, JointViewModel>(model)
+JointViewModel::JointViewModel(const ::urdf::JointSharedPtr& _model)
+  : BaseViewModel<::urdf::Joint, JointViewModel>(_model)
 {
   if (model_->type == ::urdf::Joint::UNKNOWN) {
     model_->type = ::urdf::Joint::FIXED;
@@ -35,9 +35,9 @@ QString JointViewModel::name() const
   return QString::fromStdString(model_->name);
 }
 
-void JointViewModel::name(const QString& name)
+void JointViewModel::name(const QString& _name)
 {
-  model_->name = name.toStdString();
+  model_->name = _name.toStdString();
 }
 
 QString JointViewModel::type() const
@@ -62,31 +62,31 @@ QString JointViewModel::type() const
   }
 }
 
-void JointViewModel::type(const QString& type)
+void JointViewModel::type(const QString& _type)
 {
-  if (type == "Unknown") {
+  if (_type == "Unknown") {
     model_->type = ::urdf::Joint::UNKNOWN;
   }
-  else if (type == "Revolute") {
+  else if (_type == "Revolute") {
     model_->type = ::urdf::Joint::REVOLUTE;
   }
-  else if (type == "Continuous") {
+  else if (_type == "Continuous") {
     model_->type = ::urdf::Joint::CONTINUOUS;
   }
-  else if (type == "Prismatic") {
+  else if (_type == "Prismatic") {
     model_->type = ::urdf::Joint::PRISMATIC;
   }
-  else if (type == "Floating") {
+  else if (_type == "Floating") {
     model_->type = ::urdf::Joint::FLOATING;
   }
-  else if (type == "Planar") {
+  else if (_type == "Planar") {
     model_->type = ::urdf::Joint::PLANAR;
   }
-  else if (type == "Fixed") {
+  else if (_type == "Fixed") {
     model_->type = ::urdf::Joint::FIXED;
   }
   else {
-    throw std::runtime_error("Invalid joint type: " + type.toStdString());
+    throw std::runtime_error("Invalid joint type: " + _type.toStdString());
   }
 
   if (limitsEnabled()) {
@@ -102,9 +102,9 @@ const ::urdf::Pose& JointViewModel::origin() const
   return model_->parent_to_joint_origin_transform;
 }
 
-void JointViewModel::origin(const ::urdf::Pose& origin)
+void JointViewModel::origin(const ::urdf::Pose& _origin)
 {
-  model_->parent_to_joint_origin_transform = origin;
+  model_->parent_to_joint_origin_transform = _origin;
 }
 
 QString JointViewModel::parentLinkName() const
@@ -112,9 +112,9 @@ QString JointViewModel::parentLinkName() const
   return QString::fromStdString(model_->parent_link_name);
 }
 
-void JointViewModel::parentLinkName(const QString& name)
+void JointViewModel::parentLinkName(const QString& _name)
 {
-  model_->parent_link_name = name.toStdString();
+  model_->parent_link_name = _name.toStdString();
 }
 
 QString JointViewModel::childLinkName() const
@@ -122,9 +122,9 @@ QString JointViewModel::childLinkName() const
   return QString::fromStdString(model_->child_link_name);
 }
 
-void JointViewModel::childLinkName(const QString& name)
+void JointViewModel::childLinkName(const QString& _name)
 {
-  model_->child_link_name = name.toStdString();
+  model_->child_link_name = _name.toStdString();
 }
 
 const ::urdf::Vector3& JointViewModel::axis() const
@@ -132,9 +132,9 @@ const ::urdf::Vector3& JointViewModel::axis() const
   return model_->axis;
 }
 
-void JointViewModel::axis(const ::urdf::Vector3& axis)
+void JointViewModel::axis(const ::urdf::Vector3& _axis)
 {
-  model_->axis = axis;
+  model_->axis = _axis;
 }
 
 const JointLimitsViewModelPtr& JointViewModel::limits()

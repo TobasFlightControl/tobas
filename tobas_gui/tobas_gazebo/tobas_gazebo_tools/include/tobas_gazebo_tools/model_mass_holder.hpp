@@ -15,7 +15,7 @@ class ModelMassHolder
 public:
   explicit ModelMassHolder();
 
-  bool initialize(const gz::sim::Entity& model, const gz::sim::EntityComponentManager& ecm);
+  bool initialize(const gz::sim::Entity& _model, const gz::sim::EntityComponentManager& _ecm);
 
   inline const double& getMass() const
   {

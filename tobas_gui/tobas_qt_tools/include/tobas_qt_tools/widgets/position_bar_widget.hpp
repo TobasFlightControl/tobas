@@ -17,8 +17,8 @@ class PositionBarWidget : public QWidget
   using super = QWidget;
 
 public:
-  explicit PositionBarWidget(QWidget* parent = nullptr);
-  explicit PositionBarWidget(double minimum, double maximum, QWidget* parent = nullptr);
+  explicit PositionBarWidget(QWidget* _parent = nullptr);
+  explicit PositionBarWidget(double _minimum, double _maximum, QWidget* _parent = nullptr);
 
   double getMinimum() const;
   double getMaximum() const;
@@ -33,25 +33,25 @@ public:
   std::optional<double> getMiddle() const;
   std::optional<double> getRange() const;
 
-  void setMinimum(double minimum);
-  void setMaximum(double maximum);
-  void setLineWidth(int line_width);
-  void setTextPSize(int text_psize);
-  void setFillColor(const QColor& color);
-  void setLimitLineColor(const QColor& color);
-  void setValueLineColor(const QColor& color);
-  void setCenterText(const QString& text);
-  void setLowerText(const QString& text);
-  void setUpperText(const QString& text);
-  void setValue(double value);
-  void setLower(double lower);
-  void setUpper(double upper);
+  void setMinimum(double _minimum);
+  void setMaximum(double _maximum);
+  void setLineWidth(int _line_width);
+  void setTextPSize(int _text_psize);
+  void setFillColor(const QColor& _color);
+  void setLimitLineColor(const QColor& _color);
+  void setValueLineColor(const QColor& _color);
+  void setCenterText(const QString& _text);
+  void setLowerText(const QString& _text);
+  void setUpperText(const QString& _text);
+  void setValue(double _value);
+  void setLower(double _lower);
+  void setUpper(double _upper);
 
   void clear();
   void updateRangeFromValue();
 
 protected:
-  void paintEvent(QPaintEvent* event) override;
+  void paintEvent(QPaintEvent* _event) override;
 
   double minimum_ = 0.0;
   double maximum_ = 1.0;
@@ -68,11 +68,11 @@ protected:
   std::optional<double> lower_;
   std::optional<double> upper_;
 
-  virtual void drawRange(QPainter& painter, double lower, double upper) = 0;
-  virtual void drawValue(QPainter& painter, double value) = 0;
-  virtual void drawCenterText(QPainter& painter, const QString& text) = 0;
-  virtual void drawLowerText(QPainter& painter, const QString& text) = 0;
-  virtual void drawUpperText(QPainter& painter, const QString& text) = 0;
+  virtual void drawRange(QPainter& _painter, double _lower, double _upper) = 0;
+  virtual void drawValue(QPainter& _painter, double _value) = 0;
+  virtual void drawCenterText(QPainter& _painter, const QString& _text) = 0;
+  virtual void drawLowerText(QPainter& _painter, const QString& _text) = 0;
+  virtual void drawUpperText(QPainter& _painter, const QString& _text) = 0;
 };
 
 class HPositionBarWidget : public PositionBarWidget
@@ -83,14 +83,14 @@ public:
   using PositionBarWidget::PositionBarWidget;
 
 protected:
-  void drawRange(QPainter& painter, double lower, double upper) override;
-  void drawValue(QPainter& painter, double value) override;
-  void drawCenterText(QPainter& painter, const QString& text) override;
-  void drawLowerText(QPainter& painter, const QString& text) override;
-  void drawUpperText(QPainter& painter, const QString& text) override;
+  void drawRange(QPainter& _painter, double _lower, double _upper) override;
+  void drawValue(QPainter& _painter, double _value) override;
+  void drawCenterText(QPainter& _painter, const QString& _text) override;
+  void drawLowerText(QPainter& _painter, const QString& _text) override;
+  void drawUpperText(QPainter& _painter, const QString& _text) override;
 
 private:
-  void drawTextCommon(QPainter& painter);
+  void drawTextCommon(QPainter& _painter);
 };
 
 class VPositionBarWidget : public PositionBarWidget
@@ -101,14 +101,14 @@ public:
   using PositionBarWidget::PositionBarWidget;
 
 protected:
-  void drawRange(QPainter& painter, double lower, double upper) override;
-  void drawValue(QPainter& painter, double value) override;
-  void drawCenterText(QPainter& painter, const QString& text) override;
-  void drawLowerText(QPainter& painter, const QString& text) override;
-  void drawUpperText(QPainter& painter, const QString& text) override;
+  void drawRange(QPainter& _painter, double _lower, double _upper) override;
+  void drawValue(QPainter& _painter, double _value) override;
+  void drawCenterText(QPainter& _painter, const QString& _text) override;
+  void drawLowerText(QPainter& _painter, const QString& _text) override;
+  void drawUpperText(QPainter& _painter, const QString& _text) override;
 
 private:
-  void drawTextCommon(QPainter& painter);
+  void drawTextCommon(QPainter& _painter);
 };
 }  // namespace qt
 }  // namespace tobas

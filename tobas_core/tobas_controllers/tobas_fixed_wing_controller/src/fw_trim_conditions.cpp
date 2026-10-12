@@ -11,8 +11,8 @@ namespace tobas
 {
 namespace fixed_wing
 {
-TrimConditions::TrimConditions(const Drone& drone, const kdl::Tree& tree)
-  : drone_(drone), tree_(tree), inertia_solver_(tree), asd_cog_(drone, tree)
+TrimConditions::TrimConditions(const Drone& _drone, const kdl::Tree& _tree)
+  : drone_(_drone), tree_(_tree), inertia_solver_(_tree), asd_cog_(_drone, _tree)
 {
 }
 
@@ -50,33 +50,33 @@ void TrimConditions::updateInternalDataStructures()
   assert(b_ > 0.0);
 }
 
-int TrimConditions::update(double V, double rho, const kdl::JntArray& q)
+int TrimConditions::update(double _v, double _rho, const kdl::JntArray& _q)
 {
-  assert(V > 0);
-  assert(rho > 0);
+  assert(_v > 0);
+  assert(_rho > 0);
 
   error_code_ = kNoError;
 
-  if (q.size() != tree_.getNrOfJoints()) {
+  if (_q.size() != tree_.getNrOfJoints()) {
     error_msg_ = kErrorSizeMismatch;
     return error_code_ = kError;
   }
 
   // Check whether the velocity is within the valid range.
-  const auto speed_limit = speedLimit(rho);
-  if (V < speed_limit.lower) {
+  const auto speed_limit = speedLimit(_rho);
+  if (_v < speed_limit.lower) {
     if (error_code_ > kWarn) {
-      error_msg_ = "Speed is too low: " + std::to_string(V) + " < " + std::to_string(speed_limit.lower);
+      error_msg_ = "Speed is too low: " + std::to_string(_v) + " < " + std::to_string(speed_limit.lower);
       error_code_ = kWarn;
     }
-    V = speed_limit.lower;
+    _v = speed_limit.lower;
   }
-  else if (V > speed_limit.upper) {
+  else if (_v > speed_limit.upper) {
     if (error_code_ > kWarn) {
-      error_msg_ = "Speed is too high: " + std::to_string(V) + " > " + std::to_string(speed_limit.upper);
+      error_msg_ = "Speed is too high: " + std::to_string(_v) + " > " + std::to_string(speed_limit.upper);
       error_code_ = kWarn;
     }
-    V = speed_limit.upper;
+    _v = speed_limit.upper;
   }
 
   // Aliases.
@@ -84,7 +84,7 @@ int TrimConditions::update(double V, double rho, const kdl::JntArray& q)
   const auto& elev_cs = drone_.fixed_wing->control_surfaces.at(elev_link_name_);
 
   // Stability derivatives around the CoG.
-  asd_cog_.update(q);
+  asd_cog_.update(_q);
   if (updateError(asd_cog_) <= kError) {
     return error_code_;
   }
@@ -96,7 +96,7 @@ int TrimConditions::update(double V, double rho, const kdl::JntArray& q)
   }
 
   // Constants that depend on arguments.
-  const auto q_bar = dynamicPressure(rho, V);
+  const auto q_bar = dynamicPressure(_rho, _v);
 
   // Longitudinal balance.
   c_L_ = W_ / (q_bar * drone_.fixed_wing->vehicle.wing_surface);                // (2.9-47)
@@ -107,7 +107,7 @@ int TrimConditions::update(double V, double rho, const kdl::JntArray& q)
   c_T_ = c_D_ / std::cos(alpha_);                                     // (2.2-10b)
 
   // Other dependent variables.
-  u_ = V * std::cos(alpha_);
+  u_ = _v * std::cos(alpha_);
 
   if (!drone_.fixed_wing->vehicle.alpha_limit.inRange(alpha_)) {
     if (error_code_ > kWarn) {
@@ -129,11 +129,11 @@ int TrimConditions::update(double V, double rho, const kdl::JntArray& q)
   return error_code_;
 }
 
-st::Range<double> TrimConditions::speedLimit(double rho) const
+st::Range<double> TrimConditions::speedLimit(double _rho) const
 {
-  assert(rho > 0);
+  assert(_rho > 0);
 
-  const auto c = 2 * W_ / rho / drone_.fixed_wing->vehicle.wing_surface;
+  const auto c = 2 * W_ / _rho / drone_.fixed_wing->vehicle.wing_surface;
 
   // Compute the minimum velocity from the maximum angle of attack.
   const auto max_den = a_ * drone_.fixed_wing->vehicle.alpha_limit.upper + b_;
@@ -148,11 +148,11 @@ st::Range<double> TrimConditions::speedLimit(double rho) const
   return st::Range<double>(V_min, V_max);
 }
 
-double TrimConditions::takeOffSpeed(double rho) const
+double TrimConditions::takeOffSpeed(double _rho) const
 {
-  assert(rho > 0);
+  assert(_rho > 0);
 
-  const auto c = 2 * W_ / rho / drone_.fixed_wing->vehicle.wing_surface;
+  const auto c = 2 * W_ / _rho / drone_.fixed_wing->vehicle.wing_surface;
   constexpr double alpha_zero = 0.0;
   return std::sqrt(c / (a_ * alpha_zero + b_));
 }

@@ -12,19 +12,19 @@ namespace tobas
 namespace gazebo
 {
 std::string makeBoxSdf(
-  const std::string& name,
-  double sx,
-  double sy,
-  double sz,
-  double mass,
-  double px,
-  double py,
-  double pz,
-  double rr,
-  double rp,
-  double ry)
+  const std::string& _name,
+  double _sx,
+  double _sy,
+  double _sz,
+  double _mass,
+  double _px,
+  double _py,
+  double _pz,
+  double _rr,
+  double _rp,
+  double _ry)
 {
-  const auto inertia = boxInertia(sx, sy, sz, mass);
+  const auto inertia = boxInertia(_sx, _sy, _sz, _mass);
 
   return std::format(
     R"(<?xml version="1.0"?>
@@ -59,20 +59,20 @@ std::string makeBoxSdf(
   </model>
 </sdf>
 )",
-    name,
-    px,
-    py,
-    pz,
-    rr,
-    rp,
-    ry,
-    mass,
+    _name,
+    _px,
+    _py,
+    _pz,
+    _rr,
+    _rp,
+    _ry,
+    _mass,
     inertia.Ixx(),
     inertia.Iyy(),
     inertia.Izz(),
-    sx,
-    sy,
-    sz);
+    _sx,
+    _sy,
+    _sz);
 }
 }  // namespace gazebo
 }  // namespace tobas

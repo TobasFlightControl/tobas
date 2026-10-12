@@ -10,6 +10,6 @@ namespace tobas
 {
 namespace git
 {
-std::expected<std::string, std::string> getGitConfigValue(const char* key);
+std::expected<std::string, std::string> getGitConfigValue(const char* _key);
 }  // namespace git
 }  // namespace tobas

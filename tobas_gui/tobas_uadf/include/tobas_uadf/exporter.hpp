@@ -11,6 +11,6 @@ namespace tobas
 {
 namespace uadf
 {
-tinyxml2::XMLDocument* exportUADF(const Model& model);
+tinyxml2::XMLDocument* exportUADF(const Model& _model);
 }  // namespace uadf
 }  // namespace tobas

@@ -25,14 +25,14 @@ class JointTestWidget : public BaseWidget
   using self = JointTestWidget;
 
 public:
-  explicit JointTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone);
+  explicit JointTestWidget(const rqt::RosQtBridge& _bridge, const kdl::Tree& _tree, const Drone& _drone);
 
   const char* title() const override;
 
   void reset() override;
 
   void updateInternalDataStructures();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
   int numRegisteredChannels() const;
@@ -59,7 +59,7 @@ private Q_SLOTS:
   void onZeroButtonClicked();
   void onHomeButtonClicked();
 
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
 };
 }  // namespace at
 }  // namespace gui

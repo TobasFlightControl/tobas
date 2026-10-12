@@ -22,7 +22,7 @@ class IntValidator : public QIntValidator
 public:
   using super::QIntValidator;
 
-  State validate(QString& input, int& pos) const override;
+  State validate(QString& _input, int& _pos) const override;
 };
 }  // namespace qt
 }  // namespace tobas

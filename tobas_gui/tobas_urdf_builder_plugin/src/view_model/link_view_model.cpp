@@ -11,8 +11,8 @@ namespace ub
 {
 namespace view_model
 {
-LinkViewModel::LinkViewModel(const ::urdf::LinkSharedPtr& model)
-  : BaseViewModel<::urdf::Link, LinkViewModel>(model)
+LinkViewModel::LinkViewModel(const ::urdf::LinkSharedPtr& _model)
+  : BaseViewModel<::urdf::Link, LinkViewModel>(_model)
   , inertial_(make_shared<InertialViewModel>(model_->inertial))
   , joint_(make_shared<JointViewModel>(model_->parent_joint))
 {
@@ -49,7 +49,7 @@ void LinkViewModel::sync()
     collisions_.begin(),
     collisions_.end(),
     back_inserter(model_->collision_array),
-    [](const CollisionViewModelPtr& cvm) { return cvm->model(); });
+    [](const CollisionViewModelPtr& _cvm) { return _cvm->model(); });
   if (model_->collision_array.empty()) {
     model_->collision.reset();
   }
@@ -63,7 +63,7 @@ void LinkViewModel::sync()
     visuals_.begin(),
     visuals_.end(),
     back_inserter(model_->visual_array),
-    [](const VisualViewModelPtr& vvm) { return vvm->model(); });
+    [](const VisualViewModelPtr& _vvm) { return _vvm->model(); });
   if (model_->visual_array.empty()) {
     model_->visual.reset();
   }
@@ -82,14 +82,14 @@ QString LinkViewModel::name() const
   return QString::fromStdString(model_->name);
 }
 
-void LinkViewModel::name(const QString& name)
+void LinkViewModel::name(const QString& _name)
 {
-  model_->name = name.toStdString();
+  model_->name = _name.toStdString();
 
   // Also change the link names in the upper and lower joints to keep consistency.
-  joint_->childLinkName(name);
+  joint_->childLinkName(_name);
   for (const auto& child_link : model_->child_links) {
-    child_link->parent_joint->parent_link_name = name.toStdString();
+    child_link->parent_joint->parent_link_name = _name.toStdString();
   }
 }
 
@@ -122,30 +122,30 @@ V_LinkViewModelPtr LinkViewModel::children() const
   return result;
 }
 
-void LinkViewModel::add(const VisualViewModelPtr& visual)
+void LinkViewModel::add(const VisualViewModelPtr& _visual)
 {
-  visuals_.push_back(visual);
+  visuals_.push_back(_visual);
 
   sync();
 }
 
-void LinkViewModel::remove(const VisualViewModelPtr& visual)
+void LinkViewModel::remove(const VisualViewModelPtr& _visual)
 {
-  visuals_.erase(std::remove(visuals_.begin(), visuals_.end(), visual), visuals_.end());
+  visuals_.erase(std::remove(visuals_.begin(), visuals_.end(), _visual), visuals_.end());
 
   sync();
 }
 
-void LinkViewModel::add(const CollisionViewModelPtr& collision)
+void LinkViewModel::add(const CollisionViewModelPtr& _collision)
 {
-  collisions_.push_back(collision);
+  collisions_.push_back(_collision);
 
   sync();
 }
 
-void LinkViewModel::remove(const CollisionViewModelPtr& collision)
+void LinkViewModel::remove(const CollisionViewModelPtr& _collision)
 {
-  collisions_.erase(std::remove(collisions_.begin(), collisions_.end(), collision), collisions_.end());
+  collisions_.erase(std::remove(collisions_.begin(), collisions_.end(), _collision), collisions_.end());
 
   sync();
 }

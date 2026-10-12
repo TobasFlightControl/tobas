@@ -22,7 +22,7 @@ class RotorAnomalyDetectorNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit RotorAnomalyDetectorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit RotorAnomalyDetectorNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   // Parameters
@@ -47,12 +47,12 @@ private:
 
   void publishRotorLiveliness();
 
-  void droneCb(const Drone::ConstSharedPtr& drone);
-  void statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states);
+  void droneCb(const Drone::ConstSharedPtr& _drone);
+  void statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& _states);
 };
 
-RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& options)
-  : super("rotor_anomaly_detector", nodeOptions_Default(options))
+RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& _options)
+  : super("rotor_anomaly_detector", nodeOptions_Default(_options))
 {
   no_comm_timeout_ = getDoubleParam("no_communication_timeout");
 
@@ -73,16 +73,16 @@ void RotorAnomalyDetectorNode::publishRotorLiveliness()
   rotor_liveliness_pub_->publish(std::move(msg));
 }
 
-void RotorAnomalyDetectorNode::droneCb(const Drone::ConstSharedPtr& drone)
+void RotorAnomalyDetectorNode::droneCb(const Drone::ConstSharedPtr& _drone)
 {
-  if (!drone->prop) {
+  if (!_drone->prop) {
     return;
   }
 
-  drone_ = drone;
+  drone_ = _drone;
 
   data_.clear();
-  for (const auto& [link_name, _] : drone->prop->rotors) {
+  for (const auto& [link_name, _] : _drone->prop->rotors) {
     data_[link_name] = RotorData();
   }
 
@@ -90,7 +90,7 @@ void RotorAnomalyDetectorNode::droneCb(const Drone::ConstSharedPtr& drone)
   rotor_states_sub_ = createSubscriber(addThrotNS(topic::kRotorStates), &self::statesCb, this);
 }
 
-void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states)
+void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& _states)
 {
   // Start publishing liveliness after receiving rotor states.
   if (!publish_rotor_liveliness_timer_) {
@@ -101,7 +101,7 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
 
   // TODO: Choose the appropriate criterion for each propulsion system type.
 
-  for (const auto& state : states->states) {
+  for (const auto& state : _states->states) {
     const auto data_it = data_.find(state.link_name);
     if (data_it == data_.end()) {
       TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Invalid rotor: '", state.link_name, "'");
@@ -109,7 +109,7 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
     }
 
     auto& data = data_it->second;
-    const auto& cur_time = states->header.stamp;
+    const auto& cur_time = _states->header.stamp;
 
     if (data.is_alive) {
       if (state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {

@@ -28,42 +28,42 @@ class DShotWidget : public qt::TableWidget
   using super = qt::TableWidget;
 
 public:
-  explicit DShotWidget(const uadf::Model& uadf, const Signals& sig);
+  explicit DShotWidget(const uadf::Model& _uadf, const Signals& _sig);
 
   void updateInternalDataStructures();
   bool isValid();
 
   YAML::Node dump() const;
-  void load(const YAML::Node& node);
+  void load(const YAML::Node& _node);
 
-  void setNumChannels(int num);
+  void setNumChannels(int _num);
 
-  QString targetName(int channel) const;
-  bool bidirectional(int channel) const;
+  QString targetName(int _channel) const;
+  bool bidirectional(int _channel) const;
 
-  bool contains(const QString& target_name) const;
-  int channel(const QString& target_name) const;
+  bool contains(const QString& _target_name) const;
+  int channel(const QString& _target_name) const;
 
 private:
   const uadf::Model& uadf_;
 
   PropulsionSystem prop_type_ = PropulsionSystem::kElectric;
 
-  qt::ComboBox* targetNameWidget(int row);
-  QPushButton* bidirectionalWidget(int row);
+  qt::ComboBox* targetNameWidget(int _row);
+  QPushButton* bidirectionalWidget(int _row);
 
-  const qt::ComboBox* targetNameWidget(int row) const;
-  const QPushButton* bidirectionalWidget(int row) const;
+  const qt::ComboBox* targetNameWidget(int _row) const;
+  const QPushButton* bidirectionalWidget(int _row) const;
 
   void addLastChannel();
   void removeLastChannel();
 
-  void setBidirectionalButtonChecked(QPushButton* button, bool checked);
-  void setBidirectionalButtonText(QPushButton* button, bool checked);
+  void setBidirectionalButtonChecked(QPushButton* _button, bool _checked);
+  void setBidirectionalButtonText(QPushButton* _button, bool _checked);
 
 private Q_SLOTS:
-  void onPropulsionTypeChanged(PropulsionSystem new_prop_type);
-  void onBidirectionalButtonToggled(QPushButton* button, bool checked);
+  void onPropulsionTypeChanged(PropulsionSystem _new_prop_type);
+  void onBidirectionalButtonToggled(QPushButton* _button, bool _checked);
 };
 }  // namespace hw
 }  // namespace sa

@@ -12,14 +12,14 @@ namespace tobas
 {
 namespace
 {
-std::string randomAlNum(size_t n)
+std::string randomAlNum(size_t _n)
 {
   constexpr std::string_view alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
   static thread_local std::mt19937 rng(std::random_device{}());
   std::uniform_int_distribution<size_t> dist(0, alphabet.size() - 1);
 
   std::string s;
-  for (size_t i = 0; i < n; ++i) {
+  for (size_t i = 0; i < _n; ++i) {
     s.push_back(alphabet[dist(rng)]);
   }
   return s;
@@ -29,10 +29,10 @@ std::string randomAlNum(size_t n)
 class DummyNode : public rclcpp::Node
 {
 public:
-  explicit DummyNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit DummyNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 };
 
-DummyNode::DummyNode(const rclcpp::NodeOptions& options) : rclcpp::Node("dummy_node_" + randomAlNum(10), options)
+DummyNode::DummyNode(const rclcpp::NodeOptions& _options) : rclcpp::Node("dummy_node_" + randomAlNum(10), _options)
 {
 }
 }  // namespace tobas

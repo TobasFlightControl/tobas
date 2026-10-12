@@ -20,17 +20,17 @@ class Mixer : public MixerI
   using super = MixerI;
 
 public:
-  explicit Mixer(const Drone& drone, const kdl::Tree& tree);
+  explicit Mixer(const Drone& _drone, const kdl::Tree& _tree);
 
   void updateInternalDataStructures() override;
 
   std::expected<MixerSolution, std::string> solve(
-    const kdl::JntArray& cur_q,
-    const kdl::Vector& cur_gyro_B,
-    const kdl::Vector& tar_dgyro_B,
-    double ux,
-    double uz,
-    const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
+    const kdl::JntArray& _cur_q,
+    const kdl::Vector& _cur_gyro_b,
+    const kdl::Vector& _tar_dgyro_b,
+    double _ux,
+    double _uz,
+    const kdl::Vector& _ext_torque_b = kdl::Vector::Zero());
 
 private:
   kdl::TreeFkSolverPosAll fk_solver_;

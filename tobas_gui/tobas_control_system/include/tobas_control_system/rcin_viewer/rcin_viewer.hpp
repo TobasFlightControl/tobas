@@ -28,7 +28,7 @@ class RCInputViewerWidget : public QWidget
   using self = RCInputViewerWidget;
 
 public:
-  explicit RCInputViewerWidget(const rqt::RosQtBridge& bridge);
+  explicit RCInputViewerWidget(const rqt::RosQtBridge& _bridge);
 
   void reset();
 
@@ -43,12 +43,12 @@ private:
   QLabel* stabilize_;
   QLabel* loiter_;
 
-  QLabel* makeBadge(const QString& text) const;
-  void setBadge(QLabel* badge, const QString& text, const QColor& background);
-  void setMode(FlightMode mode);
+  QLabel* makeBadge(const QString& _text) const;
+  void setBadge(QLabel* _badge, const QString& _text, const QColor& _background);
+  void setMode(FlightMode _mode);
 
 private Q_SLOTS:
-  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin);
 };
 }  // namespace rcin
 }  // namespace ctrl

@@ -26,7 +26,7 @@ namespace gui
 {
 namespace log
 {
-FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& bridge) : spinner_(Qt::WindowModal, this)
+FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& _bridge) : spinner_(Qt::WindowModal, this)
 {
   log_name_ = new qt::HistoryLineEdit();
   log_name_->setEnabled(false);
@@ -69,7 +69,7 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& bridge)
   // Connection
   connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartRequested);
   connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onStopRequested);
-  connect(&bridge, &rqt::RosQtBridge::rosbagStateReceived, this, &self::rosbagStateCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::rosbagStateReceived, this, &self::rosbagStateCb, Qt::QueuedConnection);
 }
 
 void FlightLogRecorderWidget::reset()
@@ -83,10 +83,10 @@ void FlightLogRecorderWidget::reset()
   rosbag_state_.reset();
 }
 
-void FlightLogRecorderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void FlightLogRecorderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  start_thread_.initializeRosInterfaces(node, ns);
-  stop_thread_.initializeRosInterfaces(node, ns);
+  start_thread_.initializeRosInterfaces(_node, _ns);
+  stop_thread_.initializeRosInterfaces(_node, _ns);
 }
 
 void FlightLogRecorderWidget::clearRosInterfaces()
@@ -170,17 +170,17 @@ void FlightLogRecorderWidget::onStopRequested()
   qt::qInfoBox(this, "Flight log recording has stopped.");
 }
 
-void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& rosbag_state)
+void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& _rosbag_state)
 {
   // Switch and enable the widget state according to the current recorder state.
-  start_stop_button_->setChecked(rosbag_state->recording);
+  start_stop_button_->setChecked(_rosbag_state->recording);
   start_stop_button_->setEnabled(true);
 
-  if (rosbag_state->recording) {
-    log_name_->setText(fs::path(rosbag_state->file_path).lexically_normal().filename().c_str());
+  if (_rosbag_state->recording) {
+    log_name_->setText(fs::path(_rosbag_state->file_path).lexically_normal().filename().c_str());
     log_name_->setEnabled(false);
 
-    const auto& total_secs = rosbag_state->duration.sec;
+    const auto& total_secs = _rosbag_state->duration.sec;
     const auto hours = total_secs / 3600;
     const auto minutes = (total_secs % 3600) / 60;
     const auto seconds = total_secs % 60;
@@ -190,18 +190,18 @@ void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::
                           .arg(seconds, 2, 10, QLatin1Char('0'));
     duration_->display(hhmmss);
 
-    file_size_->setUpper(rosbag_state->file_size);
-    file_size_->setMaximum(rosbag_state->file_size + rosbag_state->available_size);
-    file_size_->setCenterText(QString::number(rosbag_state->file_size / 1'000'000) + " MB");
+    file_size_->setUpper(_rosbag_state->file_size);
+    file_size_->setMaximum(_rosbag_state->file_size + _rosbag_state->available_size);
+    file_size_->setCenterText(QString::number(_rosbag_state->file_size / 1'000'000) + " MB");
 
-    message_count_->setText(QString::number(rosbag_state->message_count));
+    message_count_->setText(QString::number(_rosbag_state->message_count));
   }
   else {
     log_name_->setEnabled(true);
     clearRosbagStateViewerWidgets();
   }
 
-  rosbag_state_ = rosbag_state;
+  rosbag_state_ = _rosbag_state;
 }
 }  // namespace log
 }  // namespace gui

@@ -12,17 +12,17 @@ namespace rviz
 {
 struct OrderLinksByIndex
 {
-  bool operator()(const LinkModel::ConstSharedPtr& a, const LinkModel::ConstSharedPtr& b) const
+  bool operator()(const LinkModel::ConstSharedPtr& _a, const LinkModel::ConstSharedPtr& _b) const
   {
-    return a->getLinkIndex() < b->getLinkIndex();
+    return _a->getLinkIndex() < _b->getLinkIndex();
   }
 };
 
 struct OrderJointsByIndex
 {
-  bool operator()(const JointModel::ConstSharedPtr& a, const JointModel::ConstSharedPtr& b) const
+  bool operator()(const JointModel::ConstSharedPtr& _a, const JointModel::ConstSharedPtr& _b) const
   {
-    return a->getJointIndex() < b->getJointIndex();
+    return _a->getJointIndex() < _b->getJointIndex();
   }
 };
 }  // namespace rviz

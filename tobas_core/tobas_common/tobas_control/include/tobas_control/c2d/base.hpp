@@ -13,7 +13,7 @@ namespace ctrl
 class BaseC2D
 {
 public:
-  virtual LinearDynamics convert(const LinearDynamics& cont, double dt) = 0;
+  virtual LinearDynamics convert(const LinearDynamics& _cont, double _dt) = 0;
 };
 }  // namespace ctrl
 }  // namespace tobas

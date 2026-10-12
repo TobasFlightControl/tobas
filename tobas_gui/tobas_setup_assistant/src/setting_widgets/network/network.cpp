@@ -74,9 +74,9 @@ YAML::Node NetworkWidget::dump() const
   return node;
 }
 
-void NetworkWidget::load(const YAML::Node& node)
+void NetworkWidget::load(const YAML::Node& _node)
 {
-  nic_->load(node[kNetworkIfaceLabel]);
+  nic_->load(_node[kNetworkIfaceLabel]);
 }
 
 QString NetworkWidget::networkInterface() const

@@ -11,10 +11,10 @@ namespace tobas
 {
 namespace ros2
 {
-std::expected<const char*, std::string> getEnv(const char* name);
+std::expected<const char*, std::string> getEnv(const char* _name);
 
 std::expected<const char*, std::string> getUserName();
 
-std::filesystem::path expandUser(const char* path);
+std::filesystem::path expandUser(const char* _path);
 }  // namespace ros2
 }  // namespace tobas

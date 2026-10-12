@@ -22,11 +22,11 @@ class DoubleSpinBox : public QDoubleSpinBox
   using super = QDoubleSpinBox;
 
 public:
-  explicit DoubleSpinBox(QWidget* parent = nullptr);
+  explicit DoubleSpinBox(QWidget* _parent = nullptr);
 
 protected:
-  void wheelEvent(QWheelEvent* event) override;
-  void focusInEvent(QFocusEvent* event) override;
+  void wheelEvent(QWheelEvent* _event) override;
+  void focusInEvent(QFocusEvent* _event) override;
 };
 }  // namespace qt
 }  // namespace tobas

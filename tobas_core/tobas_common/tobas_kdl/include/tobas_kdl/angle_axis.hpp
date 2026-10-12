@@ -15,15 +15,15 @@ class AngleAxis
 {
 public:
   inline explicit AngleAxis();
-  inline explicit AngleAxis(double angle, const Vector& axis);
-  inline explicit AngleAxis(const Vector& angle_axis);
+  inline explicit AngleAxis(double _angle, const Vector& _axis);
+  inline explicit AngleAxis(const Vector& _angle_axis);
 
   inline Vector toVector() const;
 
   inline const double& angle() const;
   inline const Vector& axis() const;
 
-  inline friend std::ostream& operator<<(std::ostream& os, const AngleAxis& arg);
+  inline friend std::ostream& operator<<(std::ostream& _os, const AngleAxis& _arg);
 
 private:
   double angle_;
@@ -34,12 +34,12 @@ inline AngleAxis::AngleAxis() : angle_(0), axis_(1, 0, 0)
 {
 }
 
-inline AngleAxis::AngleAxis(double angle, const Vector& axis) : angle_(angle), axis_(axis)
+inline AngleAxis::AngleAxis(double _angle, const Vector& _axis) : angle_(_angle), axis_(_axis)
 {
   axis_.normalize();
 }
 
-inline AngleAxis::AngleAxis(const Vector& angle_axis) : angle_(angle_axis.norm()), axis_(angle_axis)
+inline AngleAxis::AngleAxis(const Vector& _angle_axis) : angle_(_angle_axis.norm()), axis_(_angle_axis)
 {
   axis_.normalize();
 }
@@ -59,10 +59,10 @@ inline const Vector& AngleAxis::axis() const
   return axis_;
 }
 
-inline std::ostream& operator<<(std::ostream& os, const AngleAxis& arg)
+inline std::ostream& operator<<(std::ostream& _os, const AngleAxis& _arg)
 {
-  os << "Angle: " << arg.angle() << ", Axis: " << arg.axis();
-  return os;
+  _os << "Angle: " << _arg.angle() << ", Axis: " << _arg.axis();
+  return _os;
 }
 }  // namespace kdl
 }  // namespace tobas

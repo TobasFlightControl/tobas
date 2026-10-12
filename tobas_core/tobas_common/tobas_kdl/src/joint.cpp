@@ -16,9 +16,9 @@ std::expected<void, std::string> Joint::validate() const
   return {};
 }
 
-const char* Joint::typeToText(JointType type)
+const char* Joint::typeToText(JointType _type)
 {
-  switch (type) {
+  switch (_type) {
     case kRotation:
       return "Rotation";
     case kTranslation:
@@ -30,19 +30,19 @@ const char* Joint::typeToText(JointType type)
   }
 }
 
-std::ostream& operator<<(std::ostream& os, const Joint& arg)
+std::ostream& operator<<(std::ostream& _os, const Joint& _arg)
 {
-  os << "Name: " << arg.name << std::endl;
-  os << "Type: " << Joint::typeToText(arg.type) << std::endl;
-  os << "Origin: " << arg.origin << std::endl;
-  os << "Axis: " << arg.axis() << std::endl;
-  os << "Damping: " << arg.damping << std::endl;
-  os << "Friction: " << arg.friction << std::endl;
-  os << "Lower Limit: " << arg.lower_limit << std::endl;
-  os << "Upper Limit: " << arg.upper_limit << std::endl;
-  os << "Max Effort: " << arg.max_effort << std::endl;
-  os << "Max Velocity: " << arg.max_velocity;
-  return os;
+  _os << "Name: " << _arg.name << std::endl;
+  _os << "Type: " << Joint::typeToText(_arg.type) << std::endl;
+  _os << "Origin: " << _arg.origin << std::endl;
+  _os << "Axis: " << _arg.axis() << std::endl;
+  _os << "Damping: " << _arg.damping << std::endl;
+  _os << "Friction: " << _arg.friction << std::endl;
+  _os << "Lower Limit: " << _arg.lower_limit << std::endl;
+  _os << "Upper Limit: " << _arg.upper_limit << std::endl;
+  _os << "Max Effort: " << _arg.max_effort << std::endl;
+  _os << "Max Velocity: " << _arg.max_velocity;
+  return _os;
 }
 }  // namespace kdl
 }  // namespace tobas

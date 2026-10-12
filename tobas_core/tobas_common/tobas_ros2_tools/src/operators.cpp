@@ -7,66 +7,66 @@ namespace geometry_msgs
 {
 namespace msg
 {
-Vector3 operator*(double lhs, const Vector3& rhs)
+Vector3 operator*(double _lhs, const Vector3& _rhs)
 {
   Vector3 res;
-  res.x = lhs * rhs.x;
-  res.y = lhs * rhs.y;
-  res.z = lhs * rhs.z;
+  res.x = _lhs * _rhs.x;
+  res.y = _lhs * _rhs.y;
+  res.z = _lhs * _rhs.z;
   return res;
 }
 
-Vector3 operator*(const Vector3& lhs, double rhs)
+Vector3 operator*(const Vector3& _lhs, double _rhs)
 {
   Vector3 res;
-  res.x = lhs.x * rhs;
-  res.y = lhs.y * rhs;
-  res.z = lhs.z * rhs;
+  res.x = _lhs.x * _rhs;
+  res.y = _lhs.y * _rhs;
+  res.z = _lhs.z * _rhs;
   return res;
 }
 
-Vector3 operator/(double lhs, const Vector3& rhs)
+Vector3 operator/(double _lhs, const Vector3& _rhs)
 {
   Vector3 res;
-  res.x = lhs / rhs.x;
-  res.y = lhs / rhs.y;
-  res.z = lhs / rhs.z;
+  res.x = _lhs / _rhs.x;
+  res.y = _lhs / _rhs.y;
+  res.z = _lhs / _rhs.z;
   return res;
 }
 
-Vector3 operator/(const Vector3& lhs, double rhs)
+Vector3 operator/(const Vector3& _lhs, double _rhs)
 {
   Vector3 res;
-  res.x = lhs.x / rhs;
-  res.y = lhs.y / rhs;
-  res.z = lhs.z / rhs;
+  res.x = _lhs.x / _rhs;
+  res.y = _lhs.y / _rhs;
+  res.z = _lhs.z / _rhs;
   return res;
 }
 
-Vector3 operator+(const Vector3& lhs, const Vector3& rhs)
+Vector3 operator+(const Vector3& _lhs, const Vector3& _rhs)
 {
   Vector3 res;
-  res.x = lhs.x + rhs.x;
-  res.y = lhs.y + rhs.y;
-  res.z = lhs.z + rhs.z;
+  res.x = _lhs.x + _rhs.x;
+  res.y = _lhs.y + _rhs.y;
+  res.z = _lhs.z + _rhs.z;
   return res;
 }
 
-Vector3 operator-(const Vector3& lhs, const Vector3& rhs)
+Vector3 operator-(const Vector3& _lhs, const Vector3& _rhs)
 {
   Vector3 res;
-  res.x = lhs.x - rhs.x;
-  res.y = lhs.y - rhs.y;
-  res.z = lhs.z - rhs.z;
+  res.x = _lhs.x - _rhs.x;
+  res.y = _lhs.y - _rhs.y;
+  res.z = _lhs.z - _rhs.z;
   return res;
 }
 
-Vector3 operator-(const Point& lhs, const Point& rhs)
+Vector3 operator-(const Point& _lhs, const Point& _rhs)
 {
   Vector3 res;
-  res.x = lhs.x - rhs.x;
-  res.y = lhs.y - rhs.y;
-  res.z = lhs.z - rhs.z;
+  res.x = _lhs.x - _rhs.x;
+  res.y = _lhs.y - _rhs.y;
+  res.z = _lhs.z - _rhs.z;
   return res;
 }
 }  // namespace msg

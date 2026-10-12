@@ -13,9 +13,9 @@ namespace traj
 class CubicSpline : public TrajectoryGenerator
 {
 public:
-  explicit CubicSpline(double p0, double pf, double T);
+  explicit CubicSpline(double _p0, double _pf, double _t);
 
-  TrajectoryPoint get(double t) const noexcept override;
+  TrajectoryPoint get(double _t) const noexcept override;
   double duration() const noexcept override;
 
 private:

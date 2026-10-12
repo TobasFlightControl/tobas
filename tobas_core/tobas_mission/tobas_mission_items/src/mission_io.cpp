@@ -84,13 +84,13 @@ constexpr char kRtlAltitudeTolerance[] = "altitude_tolerance";
 constexpr char kRtlTimeout[] = "timeout";
 }  // namespace
 
-YAML::Node dumpMission(const Mission& mission)
+YAML::Node dumpMission(const Mission& _mission)
 {
   constexpr int kGnssPrecision = 12;
 
   YAML::Node mission_node(YAML::NodeType::Sequence);
 
-  for (const auto& item : mission.items) {
+  for (const auto& item : _mission.items) {
     YAML::Node item_node(YAML::NodeType::Map);
     YAML::Node data_node(YAML::NodeType::Map);
 
@@ -164,14 +164,14 @@ YAML::Node dumpMission(const Mission& mission)
   return mission_node;
 }
 
-std::expected<Mission, std::string> loadMission(const YAML::Node& mission_node)
+std::expected<Mission, std::string> loadMission(const YAML::Node& _mission_node)
 {
   Mission mission;
-  if (!mission_node.IsSequence()) {
+  if (!_mission_node.IsSequence()) {
     return std::unexpected("Mission node must be a sequence.");
   }
 
-  for (const auto& item_node : mission_node) {
+  for (const auto& item_node : _mission_node) {
     const auto type = yaml::load<std::string>(kTypeKey, item_node);
     if (!type) {
       return std::unexpected("Failed to load a mission type: " + type.error());

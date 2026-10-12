@@ -22,7 +22,7 @@ class GnssDriverNode : public hardware::BaseSensorNode
   using super = hardware::BaseSensorNode;
 
 public:
-  explicit GnssDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit GnssDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   ublox::ZEDF9P gnss_;
@@ -42,8 +42,8 @@ private:
   void mainTimerCb();
 };
 
-GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc1xx_gnss_driver", nodeOptions_Default(options))
+GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& _options)
+  : super("fc1xx_gnss_driver", nodeOptions_Default(_options))
   , gnss_(std::make_unique<ublox::UbxTransportSpi>("/dev/spidev1.2"))
 {
   initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);

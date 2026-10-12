@@ -9,8 +9,8 @@ namespace gui
 {
 namespace sa
 {
-ParamGetterWidget_DoublePair::ParamGetterWidget_DoublePair(const QString& param_name, const QString& description_text)
-  : super(param_name, description_text)
+ParamGetterWidget_DoublePair::ParamGetterWidget_DoublePair(const QString& _param_name, const QString& _description_text)
+  : super(_param_name, _description_text)
 {
   const auto cols = new QHBoxLayout();
   rows_->addLayout(cols);
@@ -30,41 +30,41 @@ std::pair<double, double> ParamGetterWidget_DoublePair::getValue() const
   return { first(), second() };
 }
 
-bool ParamGetterWidget_DoublePair::setValue(const std::pair<double, double>& src)
+bool ParamGetterWidget_DoublePair::setValue(const std::pair<double, double>& _src)
 {
-  first_->setValue(src.first);
-  second_->setValue(src.second);
+  first_->setValue(_src.first);
+  second_->setValue(_src.second);
   return true;
 }
 
-void ParamGetterWidget_DoublePair::setDecimals(int decimals)
+void ParamGetterWidget_DoublePair::setDecimals(int _decimals)
 {
-  first_->setDecimals(decimals);
-  second_->setDecimals(decimals);
+  first_->setDecimals(_decimals);
+  second_->setDecimals(_decimals);
 }
 
-void ParamGetterWidget_DoublePair::setMinimum(double minimum)
+void ParamGetterWidget_DoublePair::setMinimum(double _minimum)
 {
-  first_->setMinimum(minimum);
-  second_->setMinimum(minimum);
+  first_->setMinimum(_minimum);
+  second_->setMinimum(_minimum);
 }
 
-void ParamGetterWidget_DoublePair::setMaximum(double maximum)
+void ParamGetterWidget_DoublePair::setMaximum(double _maximum)
 {
-  first_->setMaximum(maximum);
-  second_->setMaximum(maximum);
+  first_->setMaximum(_maximum);
+  second_->setMaximum(_maximum);
 }
 
-void ParamGetterWidget_DoublePair::setSingleStep(double single_step)
+void ParamGetterWidget_DoublePair::setSingleStep(double _single_step)
 {
-  first_->setSingleStep(single_step);
-  second_->setSingleStep(single_step);
+  first_->setSingleStep(_single_step);
+  second_->setSingleStep(_single_step);
 }
 
-void ParamGetterWidget_DoublePair::setSuffix(const QString& suffix)
+void ParamGetterWidget_DoublePair::setSuffix(const QString& _suffix)
 {
-  first_->setSuffix(suffix);
-  second_->setSuffix(suffix);
+  first_->setSuffix(_suffix);
+  second_->setSuffix(_suffix);
 }
 
 double ParamGetterWidget_DoublePair::first() const

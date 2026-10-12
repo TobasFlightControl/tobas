@@ -6,16 +6,16 @@
 #include <complex>
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::complex<T>& z)
+std::ostream& operator<<(std::ostream& _os, const std::complex<T>& _z)
 {
-  os << z.real();
-  if (z.imag() >= 0) {
-    os << " + " << z.imag() << "i";
+  _os << _z.real();
+  if (_z.imag() >= 0) {
+    _os << " + " << _z.imag() << "i";
   }
   else {
-    os << " - " << -z.imag() << "i";
+    _os << " - " << -_z.imag() << "i";
   }
-  return os;
+  return _os;
 }
 
 namespace tobas
@@ -23,6 +23,6 @@ namespace tobas
 namespace math
 {
 /** Calculate the cube root of a complex number. */
-std::complex<double> cbrt(const std::complex<double>& z);
+std::complex<double> cbrt(const std::complex<double>& _z);
 }  // namespace math
 }  // namespace tobas

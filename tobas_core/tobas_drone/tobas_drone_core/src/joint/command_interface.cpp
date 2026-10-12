@@ -13,9 +13,9 @@ constexpr char kEffort[] = "effort";
 constexpr char kNone[] = "none";
 }  // namespace
 
-std::string textFromEnum(JointCommandInterface value)
+std::string textFromEnum(JointCommandInterface _value)
 {
-  switch (value) {
+  switch (_value) {
     case JointCommandInterface::kPosition:
       return kPosition;
     case JointCommandInterface::kVelocity:
@@ -29,22 +29,22 @@ std::string textFromEnum(JointCommandInterface value)
   }
 }
 
-bool enumFromText(const std::string& text, JointCommandInterface& dst)
+bool enumFromText(const std::string& _text, JointCommandInterface& _dst)
 {
-  if (text == kPosition) {
-    dst = JointCommandInterface::kPosition;
+  if (_text == kPosition) {
+    _dst = JointCommandInterface::kPosition;
     return true;
   }
-  else if (text == kVelocity) {
-    dst = JointCommandInterface::kVelocity;
+  else if (_text == kVelocity) {
+    _dst = JointCommandInterface::kVelocity;
     return true;
   }
-  else if (text == kEffort) {
-    dst = JointCommandInterface::kEffort;
+  else if (_text == kEffort) {
+    _dst = JointCommandInterface::kEffort;
     return true;
   }
-  else if (text == kNone) {
-    dst = JointCommandInterface::kNone;
+  else if (_text == kNone) {
+    _dst = JointCommandInterface::kNone;
     return true;
   }
   else {
@@ -55,19 +55,19 @@ bool enumFromText(const std::string& text, JointCommandInterface& dst)
 
 namespace YAML
 {
-Node convert<tobas::JointCommandInterface>::encode(tobas::JointCommandInterface rhs)
+Node convert<tobas::JointCommandInterface>::encode(tobas::JointCommandInterface _rhs)
 {
   Node node;
-  node = tobas::textFromEnum(rhs);
-  return Node(tobas::textFromEnum(rhs));
+  node = tobas::textFromEnum(_rhs);
+  return Node(tobas::textFromEnum(_rhs));
 }
 
-bool convert<tobas::JointCommandInterface>::decode(const Node& node, tobas::JointCommandInterface& rhs)
+bool convert<tobas::JointCommandInterface>::decode(const Node& _node, tobas::JointCommandInterface& _rhs)
 {
-  if (!node.IsScalar()) {
+  if (!_node.IsScalar()) {
     return false;
   }
 
-  return tobas::enumFromText(node.as<std::string>(), rhs);
+  return tobas::enumFromText(_node.as<std::string>(), _rhs);
 }
 }  // namespace YAML

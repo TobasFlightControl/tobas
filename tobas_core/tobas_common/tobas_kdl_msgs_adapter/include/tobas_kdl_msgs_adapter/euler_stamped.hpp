@@ -32,16 +32,16 @@ struct rclcpp::TypeAdapter<tobas_kdl_msgs::EulerStamped, tobas_kdl_msgs::msg::Eu
   using custom_type = tobas_kdl_msgs::EulerStamped;
   using ros_message_type = tobas_kdl_msgs::msg::EulerStamped;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
-    tobas_kdl_msgs::EulerAdapter::convert_to_ros_message(src.euler, dst.euler);
+    _dst.header = _src.header;
+    tobas_kdl_msgs::EulerAdapter::convert_to_ros_message(_src.euler, _dst.euler);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
-    tobas_kdl_msgs::EulerAdapter::convert_to_custom(src.euler, dst.euler);
+    _dst.header = _src.header;
+    tobas_kdl_msgs::EulerAdapter::convert_to_custom(_src.euler, _dst.euler);
   }
 };
 

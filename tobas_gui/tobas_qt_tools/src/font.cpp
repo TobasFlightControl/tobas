@@ -7,17 +7,17 @@ namespace tobas
 {
 namespace qt
 {
-DefaultFont::DefaultFont(int point_size, int weight, bool italic)
+DefaultFont::DefaultFont(int _point_size, int _weight, bool _italic)
 {
-  if (point_size > 0) {
-    setPointSize(point_size);
+  if (_point_size > 0) {
+    setPointSize(_point_size);
   }
 
-  if (weight >= 0) {
-    setWeight(weight);
+  if (_weight >= 0) {
+    setWeight(_weight);
   }
 
-  setItalic(italic);
+  setItalic(_italic);
 }
 }  // namespace qt
 }  // namespace tobas

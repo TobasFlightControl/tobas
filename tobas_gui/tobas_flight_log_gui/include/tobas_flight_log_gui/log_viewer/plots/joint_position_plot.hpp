@@ -25,11 +25,11 @@ public:
   explicit JointPositionPlotWidget();
 
   void clear() override;
-  void setTimeScale(double t_start, double t_stop) override;
+  void setTimeScale(double _t_start, double _t_stop) override;
 
   void setData(
-    const QVector<tobas_msgs::msg::JointStateArray>& cur_msgs,
-    const QVector<tobas_msgs::msg::JointCommandArray>& tar_msgs);
+    const QVector<tobas_msgs::msg::JointStateArray>& _cur_msgs,
+    const QVector<tobas_msgs::msg::JointCommandArray>& _tar_msgs);
 
 private:
   QVector<QwtPlot2*> plots_;
@@ -43,10 +43,10 @@ private:
 
   size_t numJoints() const;
 
-  void addJoint(const std::string& name);
+  void addJoint(const std::string& _name);
 
-  void updateCurrentSamples(const QVector<tobas_msgs::msg::JointStateArray>& msgs);
-  void updateTargetSamples(const QVector<tobas_msgs::msg::JointCommandArray>& msgs);
+  void updateCurrentSamples(const QVector<tobas_msgs::msg::JointStateArray>& _msgs);
+  void updateTargetSamples(const QVector<tobas_msgs::msg::JointCommandArray>& _msgs);
 };
 }  // namespace log
 }  // namespace gui

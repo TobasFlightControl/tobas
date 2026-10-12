@@ -49,17 +49,17 @@ namespace
 using CatmullRomPath = traj::CatmullRomPath<Eigen::Vector3d>;
 
 /** Return true when `value` is finite and positive. */
-inline bool isPositive(double value)
+inline bool isPositive(double _value)
 {
-  return std::isfinite(value) && value > 0.0;
+  return std::isfinite(_value) && _value > 0.0;
 }
 
-inline double selectConservativeLimit(double current, double candidate)
+inline double selectConservativeLimit(double _current, double _candidate)
 {
-  if (!isPositive(candidate)) {
-    return current;
+  if (!isPositive(_candidate)) {
+    return _current;
   }
-  return isPositive(current) ? std::min(current, candidate) : candidate;
+  return isPositive(_current) ? std::min(_current, _candidate) : _candidate;
 }
 
 struct PathComponentScale
@@ -74,7 +74,7 @@ struct PathComponentScale
   double vertical = 0.0;
 };
 
-size_t selectPathConstraintSampleCount(const CatmullRomPath& path)
+size_t selectPathConstraintSampleCount(const CatmullRomPath& _path)
 {
   constexpr double kPathConstraintSampleInterval = 1.0;  // [m]
   constexpr size_t kPathConstraintSamplesPerSegment = 20;
@@ -82,41 +82,41 @@ size_t selectPathConstraintSampleCount(const CatmullRomPath& path)
 
   // Increase the sample count by distance for long paths.
   // For short paths with many turns, increase it by segment count.
-  const auto length_based_samples = static_cast<size_t>(std::ceil(path.length() / kPathConstraintSampleInterval));
-  const auto segment_based_samples = path.segmentCount() * kPathConstraintSamplesPerSegment;
+  const auto length_based_samples = static_cast<size_t>(std::ceil(_path.length() / kPathConstraintSampleInterval));
+  const auto segment_based_samples = _path.segmentCount() * kPathConstraintSamplesPerSegment;
   return std::clamp(std::max(length_based_samples, segment_based_samples), 1UL, kMaxPathConstraintSamples);
 }
 
-PathComponentScale getMaxPathComponentScale(const CatmullRomPath& path)
+PathComponentScale getMaxPathComponentScale(const CatmullRomPath& _path)
 {
   PathComponentScale scale;
-  const auto path_length = path.length();
-  const auto sample_count = selectPathConstraintSampleCount(path);
+  const auto path_length = _path.length();
+  const auto sample_count = selectPathConstraintSampleCount(_path);
 
   // In a Catmull-Rom curve, the tangent direction changes within each interval.
   // Sample the whole path and use the strictest component coefficients.
   for (size_t sample = 0; sample <= sample_count; ++sample) {
     const auto s = path_length * static_cast<double>(sample) / static_cast<double>(sample_count);
-    const auto tangent = path.get(s).tangent;
+    const auto tangent = _path.get(s).tangent;
     scale.horizontal = std::max(scale.horizontal, std::hypot(tangent.x(), tangent.y()));
     scale.vertical = std::max(scale.vertical, std::abs(tangent.z()));
   }
   return scale;
 }
 
-double selectPathConstraintLimit(double horizontal_limit, double vertical_limit, const PathComponentScale& scale)
+double selectPathConstraintLimit(double _horizontal_limit, double _vertical_limit, const PathComponentScale& _scale)
 {
   // Convert per-axis constraints into scalar constraints along path arc length `s`.
   // Since `v_xy = horizontal_scale * s_dot` and `v_z = vertical_scale * s_dot`,
   // divide each axis limit by the corresponding component coefficient.
   auto path_limit = std::numeric_limits<double>::infinity();
-  if (scale.horizontal > 0.0) {
-    path_limit = std::min(path_limit, horizontal_limit / scale.horizontal);
+  if (_scale.horizontal > 0.0) {
+    path_limit = std::min(path_limit, _horizontal_limit / _scale.horizontal);
   }
-  if (scale.vertical > 0.0) {
-    path_limit = std::min(path_limit, vertical_limit / scale.vertical);
+  if (_scale.vertical > 0.0) {
+    path_limit = std::min(path_limit, _vertical_limit / _scale.vertical);
   }
-  return std::isfinite(path_limit) ? path_limit : std::min(horizontal_limit, vertical_limit);
+  return std::isfinite(path_limit) ? path_limit : std::min(_horizontal_limit, _vertical_limit);
 }
 }  // namespace
 
@@ -137,7 +137,7 @@ class MulticopterMissionExecutorNode : public BaseNode
   static constexpr double kAttitudeRate = M_PI / 6;  ///< [rad/s]
 
 public:
-  explicit MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit MulticopterMissionExecutorNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   geo::Geography geography_;
@@ -219,10 +219,10 @@ private:
   void initializeCommand();
 
   /** Publish the command. */
-  void publishCommand(const rclcpp::Time& stamp);
+  void publishCommand(const rclcpp::Time& _stamp);
 
   /** Arm or disarm rotors synchronously. */
-  bool armRotors(bool arming);
+  bool armRotors(bool _arming);
 
   /** Smoothly stop from the current command. */
   void brake();
@@ -233,7 +233,7 @@ private:
    *
    * @return bool Whether the mission can continue.
    */
-  bool handleExternalRequest(const GoalHandlePtr& gh, const ResultPtr& res);
+  bool handleExternalRequest(const GoalHandlePtr& _gh, const ResultPtr& _res);
 
   /**
    * Verify the navigation states required by the current mission phase.
@@ -247,32 +247,32 @@ private:
    * @return bool Whether the mission can continue.
    */
   bool ensureNavigationHealth(
-    bool require_gnss_fix,
-    bool require_horizontal_position_accuracy,
-    const char* mission_name,
-    const GoalHandlePtr& gh,
-    const ResultPtr& res);
+    bool _require_gnss_fix,
+    bool _require_horizontal_position_accuracy,
+    const char* _mission_name,
+    const GoalHandlePtr& _gh,
+    const ResultPtr& _res);
 
-  bool executeWaypoints(std::span<const Waypoint> goals, const GoalHandlePtr& gh, const ResultPtr& res);
-  bool executeTakeoff(const Takeoff& goal, const GoalHandlePtr& gh, const ResultPtr& res);
-  bool executeLand(const Land& goal, const GoalHandlePtr& gh, const ResultPtr& res);
-  bool executeRTL(const ReturnToLaunch& goal, const GoalHandlePtr& gh, const ResultPtr& res);
+  bool executeWaypoints(std::span<const Waypoint> _goals, const GoalHandlePtr& _gh, const ResultPtr& _res);
+  bool executeTakeoff(const Takeoff& _goal, const GoalHandlePtr& _gh, const ResultPtr& _res);
+  bool executeLand(const Land& _goal, const GoalHandlePtr& _gh, const ResultPtr& _res);
+  bool executeRTL(const ReturnToLaunch& _goal, const GoalHandlePtr& _gh, const ResultPtr& _res);
 
-  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
-  void setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& setpoint);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
-  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
-  void gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gnss_origin);
-  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom);
+  void setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& _setpoint);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
+  void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& _landed);
+  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health);
+  void gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& _gnss_origin);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin);
 
-  rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, const GoalPtr& goal);
-  rclcpp_action::CancelResponse handleCancel(const GoalHandlePtr& gh);
-  void execute(const GoalHandlePtr& gh);
+  rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& _uuid, const GoalPtr& _goal);
+  rclcpp_action::CancelResponse handleCancel(const GoalHandlePtr& _gh);
+  void execute(const GoalHandlePtr& _gh);
 };
 
-MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::NodeOptions& options)
-  : super(node::kMissionExecutor, nodeOptions_Default(options))
+MulticopterMissionExecutorNode::MulticopterMissionExecutorNode(const rclcpp::NodeOptions& _options)
+  : super(node::kMissionExecutor, nodeOptions_Default(_options))
 {
   getStaticRosParams();
 
@@ -353,7 +353,7 @@ void MulticopterMissionExecutorNode::initializeCommand()
   }
 }
 
-void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
+void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& _stamp)
 {
   // Set the command priority according to the mission priority.
   uint8_t cmd_priority;
@@ -371,7 +371,7 @@ void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
 
   {
     auto cmd = std::make_unique<tobas_command_msgs::Angle>();
-    cmd->header.stamp = stamp;
+    cmd->header.stamp = _stamp;
     cmd->priority.data = cmd_priority;
     cmd->angle = command_.rot;
     angle_pub_->publish(std::move(cmd));
@@ -379,7 +379,7 @@ void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
 
   {
     auto cmd = std::make_unique<tobas_command_msgs::PosVelAcc>();
-    cmd->header.stamp = stamp;
+    cmd->header.stamp = _stamp;
     cmd->priority.data = cmd_priority;
     cmd->pos = command_.pos;
     cmd->vel = command_.vel;
@@ -389,7 +389,7 @@ void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
 
   {
     auto cmd = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
-    cmd->header.stamp = stamp;
+    cmd->header.stamp = _stamp;
     cmd->priority.data = cmd_priority;
     cmd->pos = command_.pos;
     cmd->vel = command_.vel;
@@ -400,7 +400,7 @@ void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
 
   {
     auto cmd = std::make_unique<tobas_command_msgs::PosVelAccPitchYaw>();
-    cmd->header.stamp = stamp;
+    cmd->header.stamp = _stamp;
     cmd->priority.data = cmd_priority;
     cmd->pos = command_.pos;
     cmd->vel = command_.vel;
@@ -411,10 +411,10 @@ void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& stamp)
   }
 }
 
-bool MulticopterMissionExecutorNode::armRotors(bool arming)
+bool MulticopterMissionExecutorNode::armRotors(bool _arming)
 {
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
-  req->arming = arming;
+  req->arming = _arming;
 
   const auto res = set_arm_sc_->sendRequestAndWait(req);
   if (!res) {
@@ -492,12 +492,12 @@ void MulticopterMissionExecutorNode::brake()
   }
 }
 
-bool MulticopterMissionExecutorNode::handleExternalRequest(const GoalHandlePtr& gh, const ResultPtr& res)
+bool MulticopterMissionExecutorNode::handleExternalRequest(const GoalHandlePtr& _gh, const ResultPtr& _res)
 {
   // Smoothly stop before exiting when the action is canceled.
-  if (gh->is_canceling()) {
+  if (_gh->is_canceling()) {
     brake();
-    gh->canceled(res);
+    _gh->canceled(_res);
     return false;
   }
 
@@ -506,74 +506,74 @@ bool MulticopterMissionExecutorNode::handleExternalRequest(const GoalHandlePtr& 
       return true;
     case kMissionSuperseded:
       brake();
-      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::MISSION_SUPERSEDED;
-      res->error_message = "The mission was superseded by a new mission.";
-      gh->abort(res);
+      _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::MISSION_SUPERSEDED;
+      _res->error_message = "The mission was superseded by a new mission.";
+      _gh->abort(_res);
       return false;
     case kManualOverride:
-      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::MANUAL_OVERRIDE;
-      res->error_message = "Autopilot was overridden by manual control";
-      gh->abort(res);
+      _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::MANUAL_OVERRIDE;
+      _res->error_message = "Autopilot was overridden by manual control";
+      _gh->abort(_res);
       return false;
     default:
-      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-      res->error_message = "Invalid status: " + std::to_string((int)status_);
-      gh->abort(res);
+      _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+      _res->error_message = "Invalid status: " + std::to_string((int)status_);
+      _gh->abort(_res);
       return false;
   }
 }
 
 bool MulticopterMissionExecutorNode::ensureNavigationHealth(
-  bool require_gnss_fix,
-  bool require_horizontal_position_accuracy,
-  const char* mission_name,
-  const GoalHandlePtr& gh,
-  const ResultPtr& res)
+  bool _require_gnss_fix,
+  bool _require_horizontal_position_accuracy,
+  const char* _mission_name,
+  const GoalHandlePtr& _gh,
+  const ResultPtr& _res)
 {
   // Altitude control is the minimum navigation capability required by every autonomous flight mode.
   if (health_->vertical_position_accuracy != VH::PASSED) {
-    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-    res->error_message =
-      std::string("The ") + mission_name + " mission cannot continue because vertical position estimation inaccurate.";
-    gh->abort(res);
+    _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+    _res->error_message =
+      std::string("The ") + _mission_name + " mission cannot continue because vertical position estimation inaccurate.";
+    _gh->abort(_res);
     return false;
   }
 
   // A GNSS fix is required separately from estimator accuracy because geodetic missions depend on live GNSS data.
-  if (require_gnss_fix && health_->gnss_fix != VH::PASSED) {
+  if (_require_gnss_fix && health_->gnss_fix != VH::PASSED) {
     const auto error_message =
-      std::string("The ") + mission_name + " mission cannot continue because GNSS does not have a 3D fix.";
+      std::string("The ") + _mission_name + " mission cannot continue because GNSS does not have a 3D fix.";
 
     // If airborne, replace the GNSS-dependent command with an altitude-only landing command.
     if (arming_->data) {
       TOBAS_WARN(error_message, " Starting an altitude-only emergency landing.");
-      if (!executeLand(Land(), gh, res)) {
+      if (!executeLand(Land(), _gh, _res)) {
         return false;
       }
     }
 
-    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-    res->error_message = error_message;
-    gh->abort(res);
+    _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+    _res->error_message = error_message;
+    _gh->abort(_res);
     return false;
   }
 
   // Horizontal position accuracy is not required for altitude-only landing.
-  if (require_horizontal_position_accuracy && health_->horizontal_position_accuracy != VH::PASSED) {
-    const auto error_message = std::string("The ") + mission_name +
+  if (_require_horizontal_position_accuracy && health_->horizontal_position_accuracy != VH::PASSED) {
+    const auto error_message = std::string("The ") + _mission_name +
                                " mission cannot continue because horizontal position estimation inaccurate.";
 
     // If airborne, replace the invalid horizontal position command with an altitude-only landing command.
     if (arming_->data) {
       TOBAS_WARN(error_message, " Starting an altitude-only emergency landing.");
-      if (!executeLand(Land(), gh, res)) {
+      if (!executeLand(Land(), _gh, _res)) {
         return false;
       }
     }
 
-    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-    res->error_message = error_message;
-    gh->abort(res);
+    _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+    _res->error_message = error_message;
+    _gh->abort(_res);
     return false;
   }
 
@@ -581,23 +581,23 @@ bool MulticopterMissionExecutorNode::ensureNavigationHealth(
 }
 
 bool MulticopterMissionExecutorNode::executeWaypoints(
-  std::span<const Waypoint> goals,
-  const GoalHandlePtr& gh,
-  const ResultPtr& res)
+  std::span<const Waypoint> _goals,
+  const GoalHandlePtr& _gh,
+  const ResultPtr& _res)
 {
-  if (goals.empty()) {
+  if (_goals.empty()) {
     return true;
   }
 
   if (!arming_->data) {
-    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-    res->error_message = "The waypoint mission cannot be started because the vehicle is disarmed.";
-    gh->abort(res);
+    _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+    _res->error_message = "The waypoint mission cannot be started because the vehicle is disarmed.";
+    _gh->abort(_res);
     return false;
   }
 
   // A waypoint path is expressed in geodetic coordinates and controlled in all three position axes.
-  if (!ensureNavigationHealth(true, true, "waypoint", gh, res)) {
+  if (!ensureNavigationHealth(true, true, "waypoint", _gh, _res)) {
     return false;
   }
 
@@ -610,16 +610,16 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
   std::vector<Eigen::Vector3d> path_points;
   path_points.push_back(start_pos.data);
 
-  for (const auto& goal : goals) {
+  for (const auto& goal : _goals) {
     const auto goal_coord =
       geography_.geodeticToPlane(goal.latitude, goal.longitude, gnss_origin_->latitude, gnss_origin_->longitude);
     kdl::Vector goal_pos(goal_coord.east, goal_coord.north, NAN);  // wrt. the odometry frame
     switch (goal.altitude_frame) {
       case kRelativeToLaunch:
         if (!launch_point_) {
-          res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-          res->error_message = "Launch point is not set.";
-          gh->abort(res);
+          _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+          _res->error_message = "Launch point is not set.";
+          _gh->abort(_res);
           return false;
         }
         goal_pos.z(goal.altitude + launch_point_->z());
@@ -628,9 +628,9 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
         goal_pos.z(goal.altitude - gnss_origin_->altitude);
         break;
       default:
-        res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-        res->error_message = "Invalid altitude frame type: " + std::to_string(goal.altitude_frame);
-        gh->abort(res);
+        _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+        _res->error_message = "Invalid altitude frame type: " + std::to_string(goal.altitude_frame);
+        _gh->abort(_res);
         return false;
     }
     path_points.push_back(goal_pos.data);
@@ -649,7 +649,7 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
   auto max_ver_acc = wp_cfg_.max_ver_acc;
   auto max_ver_jerk = wp_cfg_.max_ver_jerk;
   auto max_head_rate = wp_cfg_.max_head_rate;
-  for (const auto& goal : goals) {
+  for (const auto& goal : _goals) {
     max_hor_vel = selectConservativeLimit(max_hor_vel, goal.max_horizontal_velocity);
     max_hor_acc = selectConservativeLimit(max_hor_acc, goal.max_horizontal_accel);
     max_hor_jerk = selectConservativeLimit(max_hor_jerk, goal.max_horizontal_jerk);
@@ -677,18 +677,18 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
   const auto duration = algo::max(traj_path.duration(), traj_roll.duration(), traj_pitch.duration());
   TOBAS_INFO("Moving along the waypoint path will take ", duration, " seconds.");
 
-  const auto auto_heading = std::ranges::any_of(goals, [](const auto& goal) { return goal.auto_heading; });
-  const auto& final_goal = goals.back();
+  const auto auto_heading = std::ranges::any_of(_goals, [](const auto& _goal) { return _goal.auto_heading; });
+  const auto& final_goal = _goals.back();
   const auto final_goal_pos = path.get(path_length).pos;
 
   const auto start_time = now();
   auto prev_time = start_time;
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
-    if (!handleExternalRequest(gh, res)) {
+    if (!handleExternalRequest(_gh, _res)) {
       return false;
     }
-    if (!ensureNavigationHealth(true, true, "waypoint", gh, res)) {
+    if (!ensureNavigationHealth(true, true, "waypoint", _gh, _res)) {
       return false;
     }
 
@@ -698,9 +698,9 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
     prev_time = cur_time;
 
     if (final_goal.timeout > 0.0 && t > duration + final_goal.timeout) {
-      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::ACCEPTANCE_TIMEOUT;
-      res->error_message = "Timed out before reaching the waypoint acceptance radius.";
-      gh->abort(res);
+      _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::ACCEPTANCE_TIMEOUT;
+      _res->error_message = "Timed out before reaching the waypoint acceptance radius.";
+      _gh->abort(_res);
       return false;
     }
 
@@ -744,27 +744,27 @@ bool MulticopterMissionExecutorNode::executeWaypoints(
   return false;
 }
 
-bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const GoalHandlePtr& gh, const ResultPtr& res)
+bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& _goal, const GoalHandlePtr& _gh, const ResultPtr& _res)
 {
   // Verify that the vehicle is disarmed.
   if (arming_->data) {
-    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-    res->error_message = "The takeoff mission cannot be started because the vehicle is already armed.";
-    gh->abort(res);
+    _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+    _res->error_message = "The takeoff mission cannot be started because the vehicle is already armed.";
+    _gh->abort(_res);
     return false;
   }
 
   // Relative-altitude takeoff uses only local odometry; mean-sea-level altitude additionally depends on GNSS.
-  const auto require_gnss_fix = (goal.altitude_frame == kMeanSeaLevel);
-  if (!ensureNavigationHealth(require_gnss_fix, true, "takeoff", gh, res)) {
+  const auto require_gnss_fix = (_goal.altitude_frame == kMeanSeaLevel);
+  if (!ensureNavigationHealth(require_gnss_fix, true, "takeoff", _gh, _res)) {
     return false;
   }
 
   // Arm rotors
   if (!armRotors(true)) {
-    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-    res->error_message = "Failed to arm the vehicle.";
-    gh->abort(res);
+    _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+    _res->error_message = "Failed to arm the vehicle.";
+    _gh->abort(_res);
     return false;
   }
 
@@ -774,24 +774,24 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
 
   // Determine the target altitude.
   double tar_z;  // wrt. the odometry frame
-  switch (goal.altitude_frame) {
+  switch (_goal.altitude_frame) {
     case kRelativeToLaunch:
-      tar_z = start_pos.z() + goal.altitude;
+      tar_z = start_pos.z() + _goal.altitude;
       break;
     case kMeanSeaLevel:
-      tar_z = goal.altitude - gnss_origin_->altitude;
+      tar_z = _goal.altitude - gnss_origin_->altitude;
       break;
     default:
-      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-      res->error_message = "Invalid altitude frame type: " + std::to_string(goal.altitude_frame);
-      gh->abort(res);
+      _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+      _res->error_message = "Invalid altitude frame type: " + std::to_string(_goal.altitude_frame);
+      _gh->abort(_res);
       return false;
   }
 
   // Determine constraints.
-  const auto max_speed = isPositive(goal.max_speed) ? goal.max_speed : takeoff_cfg_.max_speed;
-  const auto max_accel = isPositive(goal.max_accel) ? goal.max_accel : takeoff_cfg_.max_accel;
-  const auto max_jerk = isPositive(goal.max_jerk) ? goal.max_jerk : takeoff_cfg_.max_jerk;
+  const auto max_speed = isPositive(_goal.max_speed) ? _goal.max_speed : takeoff_cfg_.max_speed;
+  const auto max_accel = isPositive(_goal.max_accel) ? _goal.max_accel : takeoff_cfg_.max_accel;
+  const auto max_jerk = isPositive(_goal.max_jerk) ? _goal.max_jerk : takeoff_cfg_.max_jerk;
 
   // Generate the trajectory.
   const traj::JerkLimitedTrajectory traj_z(start_pos.z(), tar_z, max_jerk, max_accel, max_speed);
@@ -805,10 +805,10 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
     // Check whether the mission can continue.
-    if (!handleExternalRequest(gh, res)) {
+    if (!handleExternalRequest(_gh, _res)) {
       return false;
     }
-    if (!ensureNavigationHealth(require_gnss_fix, true, "takeoff", gh, res)) {
+    if (!ensureNavigationHealth(require_gnss_fix, true, "takeoff", _gh, _res)) {
       return false;
     }
 
@@ -817,10 +817,10 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
     const auto t = (cur_time - start_time).seconds();
 
     // Check for timeout.
-    if (goal.timeout > 0.0 && t > duration + goal.timeout) {
-      res->error_code.data = tobas_mission_msgs::msg::ErrorCode::ACCEPTANCE_TIMEOUT;
-      res->error_message = "Timed out before reaching the takeoff altitude tolerance.";
-      gh->abort(res);
+    if (_goal.timeout > 0.0 && t > duration + _goal.timeout) {
+      _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::ACCEPTANCE_TIMEOUT;
+      _res->error_message = "Timed out before reaching the takeoff altitude tolerance.";
+      _gh->abort(_res);
       return false;
     }
 
@@ -828,7 +828,7 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
     const auto& cur_pos = odom_->odom.odom.frame.p;
     const auto alt_err_abs = std::abs(tar_z - cur_pos.z());
     if (t > duration) {
-      if (goal.altitude_tolerance <= 0.0 || alt_err_abs < goal.altitude_tolerance) {
+      if (_goal.altitude_tolerance <= 0.0 || alt_err_abs < _goal.altitude_tolerance) {
         return true;
       }
     }
@@ -849,18 +849,18 @@ bool MulticopterMissionExecutorNode::executeTakeoff(const Takeoff& goal, const G
   return false;
 }
 
-bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHandlePtr& gh, const ResultPtr& res)
+bool MulticopterMissionExecutorNode::executeLand(const Land& _goal, const GoalHandlePtr& _gh, const ResultPtr& _res)
 {
   // Verify that the vehicle is armed.
   if (!arming_->data) {
-    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-    res->error_message = "The land mission cannot be started because the vehicle is disarmed.";
-    gh->abort(res);
+    _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+    _res->error_message = "The land mission cannot be started because the vehicle is disarmed.";
+    _gh->abort(_res);
     return false;
   }
 
   // Landing can continue without GNSS or horizontal position, but it always requires a valid altitude estimate.
-  if (!ensureNavigationHealth(false, false, "land", gh, res)) {
+  if (!ensureNavigationHealth(false, false, "land", _gh, _res)) {
     return false;
   }
 
@@ -880,7 +880,7 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
   const auto start_rot = command_.rot.clone();
 
   // Determine the descent speed.
-  const auto speed = isPositive(goal.speed) ? goal.speed : land_cfg_.speed;
+  const auto speed = isPositive(_goal.speed) ? _goal.speed : land_cfg_.speed;
 
   // Generate attitude trajectories.
   const auto roll_duration = std::abs(start_rot.roll) / kAttitudeRate;
@@ -897,10 +897,10 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok()) {
     // Check whether the mission can continue.
-    if (!handleExternalRequest(gh, res)) {
+    if (!handleExternalRequest(_gh, _res)) {
       return false;
     }
-    if (!ensureNavigationHealth(false, false, "land", gh, res)) {
+    if (!ensureNavigationHealth(false, false, "land", _gh, _res)) {
       return false;
     }
 
@@ -951,9 +951,9 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
     if (landed_->landed || time_from_last_high_speed > 1s || z_error < -10.0) {
       TOBAS_INFO("Landing detected. Stopping motors.");
       if (!armRotors(false)) {
-        res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-        res->error_message = "Failed to disarm rotors.";
-        gh->abort(res);
+        _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+        _res->error_message = "Failed to disarm rotors.";
+        _gh->abort(_res);
         return false;
       }
       return true;
@@ -965,19 +965,22 @@ bool MulticopterMissionExecutorNode::executeLand(const Land& goal, const GoalHan
   return false;
 }
 
-bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, const GoalHandlePtr& gh, const ResultPtr& res)
+bool MulticopterMissionExecutorNode::executeRTL(
+  const ReturnToLaunch& _goal,
+  const GoalHandlePtr& _gh,
+  const ResultPtr& _res)
 {
   // Ref: [Return Mode | PX4](https://docs.px4.io/main/en/flight_modes/return)
 
   if (!launch_point_) {
-    res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-    res->error_message = "The RTL mission cannot be started because the launch point is not set.";
-    gh->abort(res);
+    _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
+    _res->error_message = "The RTL mission cannot be started because the launch point is not set.";
+    _gh->abort(_res);
     return false;
   }
 
   // RTL requires GNSS for global navigation and accurate horizontal position to return to the launch point.
-  if (!ensureNavigationHealth(true, true, "RTL", gh, res)) {
+  if (!ensureNavigationHealth(true, true, "RTL", _gh, _res)) {
     return false;
   }
 
@@ -987,23 +990,23 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   // Create a waypoint goal.
   Waypoint wp;
   wp.altitude_frame = AltitudeFrame::kRelativeToLaunch;
-  wp.max_horizontal_velocity = goal.max_horizontal_velocity;
-  wp.max_horizontal_accel = goal.max_horizontal_accel;
-  wp.max_vertical_velocity = goal.max_vertical_velocity;
-  wp.max_horizontal_jerk = goal.max_horizontal_jerk;
-  wp.max_vertical_accel = goal.max_vertical_accel;
-  wp.max_vertical_jerk = goal.max_vertical_jerk;
-  wp.max_heading_rate = goal.max_heading_rate;
-  wp.max_heading_accel = goal.max_heading_accel;
-  wp.acceptance_radius = goal.acceptance_radius;
-  wp.altitude_tolerance = goal.altitude_tolerance;
-  wp.timeout = goal.timeout;
+  wp.max_horizontal_velocity = _goal.max_horizontal_velocity;
+  wp.max_horizontal_accel = _goal.max_horizontal_accel;
+  wp.max_vertical_velocity = _goal.max_vertical_velocity;
+  wp.max_horizontal_jerk = _goal.max_horizontal_jerk;
+  wp.max_vertical_accel = _goal.max_vertical_accel;
+  wp.max_vertical_jerk = _goal.max_vertical_jerk;
+  wp.max_heading_rate = _goal.max_heading_rate;
+  wp.max_heading_accel = _goal.max_heading_accel;
+  wp.acceptance_radius = _goal.acceptance_radius;
+  wp.altitude_tolerance = _goal.altitude_tolerance;
+  wp.timeout = _goal.timeout;
 
   // Determine the target altitude.
   const auto& cur_pos = odom_->odom.odom.frame.p;
   const auto cur_alt = cur_pos.z() - launch_point_->z();
   const auto xy_dist = std::hypot(launch_point_->x() - cur_pos.x(), launch_point_->y() - cur_pos.y());
-  const auto min_alt_goal = goal.min_altitude > 0.0 ? goal.min_altitude : rtl_cfg_.min_alt;
+  const auto min_alt_goal = _goal.min_altitude > 0.0 ? _goal.min_altitude : rtl_cfg_.min_alt;
   const auto min_alt = std::min<double>(min_alt_goal, xy_dist);  // 45-degree inverted cone rule.
   wp.altitude = std::max(cur_alt, min_alt);
 
@@ -1014,7 +1017,7 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
     wp.latitude = tar_coord.latitude;
     wp.longitude = tar_coord.longitude;
     wp.auto_heading = false;
-    if (!executeWaypoints(std::span<const Waypoint>(&wp, 1), gh, res)) {
+    if (!executeWaypoints(std::span<const Waypoint>(&wp, 1), _gh, _res)) {
       return false;
     }
   }
@@ -1025,73 +1028,74 @@ bool MulticopterMissionExecutorNode::executeRTL(const ReturnToLaunch& goal, cons
   wp.latitude = tar_coord.latitude;
   wp.longitude = tar_coord.longitude;
   wp.auto_heading = true;
-  if (!executeWaypoints(std::span<const Waypoint>(&wp, 1), gh, res)) {
+  if (!executeWaypoints(std::span<const Waypoint>(&wp, 1), _gh, _res)) {
     return false;
   }
 
   // Land.
   Land land;
-  land.timeout = goal.timeout;
-  if (!executeLand(land, gh, res)) {
+  land.timeout = _goal.timeout;
+  if (!executeLand(land, _gh, _res)) {
     return false;
   }
 
   return true;
 }
 
-void MulticopterMissionExecutorNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
+void MulticopterMissionExecutorNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom)
 {
-  odom_ = odom;
+  odom_ = _odom;
 }
 
-void MulticopterMissionExecutorNode::setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& setpoint)
+void MulticopterMissionExecutorNode::setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& _setpoint)
 {
-  setpoint_ = setpoint;
+  setpoint_ = _setpoint;
 }
 
-void MulticopterMissionExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void MulticopterMissionExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming)
 {
   // Initialize.
   if (!arming_) {
-    arming_ = arming;
+    arming_ = _arming;
     set_arm_sc_.emplace(shared_from_this(), service::kSetArm);
     return;
   }
 
   // Save the arming point.
-  if (!arming_->data && arming->data) {
+  if (!arming_->data && _arming->data) {
     if (odom_) {
       launch_point_.emplace(odom_->odom.odom.frame.p);
     }
   }
 
   // Reset the arming point and setpoint when disarmed.
-  if (arming_->data && !arming->data) {
+  if (arming_->data && !_arming->data) {
     launch_point_.reset();
     setpoint_.reset();
   }
 
-  arming_ = arming;
+  arming_ = _arming;
 }
 
-void MulticopterMissionExecutorNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
+void MulticopterMissionExecutorNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& _landed)
 {
-  landed_ = landed;
+  landed_ = _landed;
 }
 
-void MulticopterMissionExecutorNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
+void MulticopterMissionExecutorNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health)
 {
-  health_ = health;
+  health_ = _health;
 }
 
-void MulticopterMissionExecutorNode::gnssOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gnss_origin)
+void MulticopterMissionExecutorNode::gnssOriginCb(
+  const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& _gnss_origin)
 {
-  gnss_origin_ = gnss_origin;
+  gnss_origin_ = _gnss_origin;
 }
 
-void MulticopterMissionExecutorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
+void MulticopterMissionExecutorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin)
 {
-  is_manual_ctrl_enabled_ = (rcin->status == tobas_msgs::msg::RCInput::STATUS_OK && rcin->enable);
+  is_manual_ctrl_enabled_ = (_rcin->status == tobas_msgs::msg::RCInput::STATUS_OK && _rcin->enable);
 
   if (is_executing_ && is_manual_ctrl_enabled_) {
     status_ = kManualOverride;
@@ -1099,12 +1103,12 @@ void MulticopterMissionExecutorNode::rcInputCb(const tobas_msgs::RCInput::ConstS
 }
 
 rclcpp_action::GoalResponse
-MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const GoalPtr& goal)
+MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const GoalPtr& _goal)
 {
   TOBAS_INFO("A new mission has been uploaded.");
 
   // Check mission priority.
-  const auto& new_priority = goal->priority.data;
+  const auto& new_priority = _goal->priority.data;
   if (new_priority > tobas_mission_msgs::msg::Priority::DEFENSIVE) {
     TOBAS_WARN("Invalid mission priority: ", (int)new_priority);
     return rclcpp_action::GoalResponse::REJECT;
@@ -1145,7 +1149,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
   const auto horizontal_position_accurate = (health_->horizontal_position_accuracy == VH::PASSED);
   const auto vertical_position_accurate = (health_->vertical_position_accuracy == VH::PASSED);
   auto armed = arming_->data;
-  for (const auto& [idx, item] : std::views::enumerate(goal->mission.items)) {
+  for (const auto& [idx, item] : std::views::enumerate(_goal->mission.items)) {
     const auto cmd_number = idx + 1;
 
     switch (item.type) {
@@ -1307,7 +1311,7 @@ rclcpp_action::CancelResponse MulticopterMissionExecutorNode::handleCancel(const
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
-void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
+void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& _gh)
 {
   // Wait until the previous mission is finished.
   rclcpp::Rate rate(kCommandRate);
@@ -1326,7 +1330,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
   const auto res = std::make_shared<Result>();
 
   // Get goal.
-  const auto goal = gh->get_goal();
+  const auto goal = _gh->get_goal();
 
   // Execute mission.
   const auto& items = goal->mission.items;
@@ -1338,7 +1342,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
     // Publish the current mission number.
     const auto feedback = std::make_shared<Action::Feedback>();
     feedback->current_command_index = idx;
-    gh->publish_feedback(feedback);
+    _gh->publish_feedback(feedback);
 
     res->last_command_index = idx;
 
@@ -1354,7 +1358,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
           }
         }
         res->last_command_index = idx - 1;
-        if (!executeWaypoints(std::span<const Waypoint>(waypoints.data(), waypoints.size()), gh, res)) {
+        if (!executeWaypoints(std::span<const Waypoint>(waypoints.data(), waypoints.size()), _gh, res)) {
           is_executing_ = false;
           return;
         }
@@ -1362,7 +1366,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
       }
       case kTakeoff: {
         const auto takeoff = st::fromBytes<Takeoff>(item.data);
-        if (!executeTakeoff(takeoff, gh, res)) {
+        if (!executeTakeoff(takeoff, _gh, res)) {
           is_executing_ = false;
           return;
         }
@@ -1371,7 +1375,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
       }
       case kLand: {
         const auto land = st::fromBytes<Land>(item.data);
-        if (!executeLand(land, gh, res)) {
+        if (!executeLand(land, _gh, res)) {
           is_executing_ = false;
           return;
         }
@@ -1380,7 +1384,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
       }
       case kReturnToLaunch: {
         const auto rtl = st::fromBytes<ReturnToLaunch>(item.data);
-        if (!executeRTL(rtl, gh, res)) {
+        if (!executeRTL(rtl, _gh, res)) {
           is_executing_ = false;
           return;
         }
@@ -1390,7 +1394,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
       default: {
         res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
         res->error_message = "Invalid mission type: " + std::to_string(item.type);
-        gh->abort(res);
+        _gh->abort(res);
         is_executing_ = false;
         return;
       }
@@ -1399,7 +1403,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& gh)
 
   res->error_code.data = tobas_mission_msgs::msg::ErrorCode::NO_ERROR;
   res->error_message.clear();
-  gh->succeed(res);
+  _gh->succeed(res);
   is_executing_ = false;
 }
 }  // namespace mission

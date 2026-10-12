@@ -7,10 +7,10 @@ namespace tobas
 {
 namespace ros2
 {
-RateManager::RateManager(double update_rate)
-  : interval_(rclcpp::Duration::from_nanoseconds(1'000'000'000 / update_rate))
+RateManager::RateManager(double _update_rate)
+  : interval_(rclcpp::Duration::from_nanoseconds(1'000'000'000 / _update_rate))
 {
-  assert(update_rate > 0.);
+  assert(_update_rate > 0.);
 }
 
 void RateManager::reset()
@@ -18,15 +18,15 @@ void RateManager::reset()
   is_first_update_ = true;
 }
 
-bool RateManager::update(const rclcpp::Time& time)
+bool RateManager::update(const rclcpp::Time& _time)
 {
   if (is_first_update_) {
     is_first_update_ = false;
-    t_next_ = time + interval_;
+    t_next_ = _time + interval_;
     return true;
   }
 
-  if (time < t_next_) {
+  if (_time < t_next_) {
     return false;
   }
   else {

@@ -32,7 +32,7 @@ constexpr char kTargetNameLabel[] = "Target";
 constexpr char kBidirectionalLabel[] = "Bidirectional";
 }  // namespace
 
-DShotWidget::DShotWidget(const uadf::Model& uadf, const Signals& sig) : super(0, kNumCols), uadf_(uadf)
+DShotWidget::DShotWidget(const uadf::Model& _uadf, const Signals& _sig) : super(0, kNumCols), uadf_(_uadf)
 {
   setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
   setHorizontalHeaderLabels({ kTargetNameLabel, kBidirectionalLabel });
@@ -42,7 +42,7 @@ DShotWidget::DShotWidget(const uadf::Model& uadf, const Signals& sig) : super(0,
   hor_header->setSectionResizeMode(QHeaderView::ResizeToContents);
   hor_header->setMinimumSectionSize(kTableHeaderSectionSize);
 
-  connect(&sig, &Signals::propulsionTypeChanged, this, &self::onPropulsionTypeChanged);
+  connect(&_sig, &Signals::propulsionTypeChanged, this, &self::onPropulsionTypeChanged);
 }
 
 void DShotWidget::updateInternalDataStructures()
@@ -94,21 +94,21 @@ YAML::Node DShotWidget::dump() const
   return node;
 }
 
-void DShotWidget::load(const YAML::Node& node)
+void DShotWidget::load(const YAML::Node& _node)
 {
-  for (const auto& [channel, sub_node] : std::views::enumerate(node)) {
+  for (const auto& [channel, sub_node] : std::views::enumerate(_node)) {
     targetNameWidget(channel)->setCurrentText(sub_node[kTargetNameLabel].as<QString>());
     bidirectionalWidget(channel)->setChecked(sub_node[kBidirectionalLabel].as<bool>());
   }
 }
 
-void DShotWidget::setNumChannels(int num)
+void DShotWidget::setNumChannels(int _num)
 {
   while (true) {
-    if (num > rowCount()) {
+    if (_num > rowCount()) {
       addLastChannel();
     }
-    else if (num < rowCount()) {
+    else if (_num < rowCount()) {
       removeLastChannel();
     }
     else {
@@ -117,20 +117,20 @@ void DShotWidget::setNumChannels(int num)
   }
 }
 
-QString DShotWidget::targetName(int channel) const
+QString DShotWidget::targetName(int _channel) const
 {
-  return targetNameWidget(channel)->currentText();
+  return targetNameWidget(_channel)->currentText();
 }
 
-bool DShotWidget::bidirectional(int channel) const
+bool DShotWidget::bidirectional(int _channel) const
 {
-  return bidirectionalWidget(channel)->isChecked();
+  return bidirectionalWidget(_channel)->isChecked();
 }
 
-bool DShotWidget::contains(const QString& target_name) const
+bool DShotWidget::contains(const QString& _target_name) const
 {
   for (int channel = 0; channel < rowCount(); ++channel) {
-    if (targetName(channel) == target_name) {
+    if (targetName(channel) == _target_name) {
       return true;
     }
   }
@@ -138,36 +138,36 @@ bool DShotWidget::contains(const QString& target_name) const
   return false;
 }
 
-int DShotWidget::channel(const QString& target_name) const
+int DShotWidget::channel(const QString& _target_name) const
 {
   for (int channel = 0; channel < rowCount(); ++channel) {
-    if (targetName(channel) == target_name) {
+    if (targetName(channel) == _target_name) {
       return channel;
     }
   }
 
-  qWarning() << target_name << "not found.";
+  qWarning() << _target_name << "not found.";
   return -1;
 }
 
-qt::ComboBox* DShotWidget::targetNameWidget(int row)
+qt::ComboBox* DShotWidget::targetNameWidget(int _row)
 {
-  return qt::qPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
+  return qt::qPointerCast<qt::ComboBox>(cellWidget(_row, kTargetNameCol));
 }
 
-QPushButton* DShotWidget::bidirectionalWidget(int row)
+QPushButton* DShotWidget::bidirectionalWidget(int _row)
 {
-  return qt::qPointerCast<QPushButton>(cellWidget(row, kBidirectionalCol));
+  return qt::qPointerCast<QPushButton>(cellWidget(_row, kBidirectionalCol));
 }
 
-const qt::ComboBox* DShotWidget::targetNameWidget(int row) const
+const qt::ComboBox* DShotWidget::targetNameWidget(int _row) const
 {
-  return qt::qConstPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
+  return qt::qConstPointerCast<qt::ComboBox>(cellWidget(_row, kTargetNameCol));
 }
 
-const QPushButton* DShotWidget::bidirectionalWidget(int row) const
+const QPushButton* DShotWidget::bidirectionalWidget(int _row) const
 {
-  return qt::qConstPointerCast<QPushButton>(cellWidget(row, kBidirectionalCol));
+  return qt::qConstPointerCast<QPushButton>(cellWidget(_row, kBidirectionalCol));
 }
 
 void DShotWidget::addLastChannel()
@@ -225,25 +225,25 @@ void DShotWidget::removeLastChannel()
   }
 }
 
-void DShotWidget::setBidirectionalButtonChecked(QPushButton* button, bool checked)
+void DShotWidget::setBidirectionalButtonChecked(QPushButton* _button, bool _checked)
 {
-  button->setChecked(checked);
-  setBidirectionalButtonText(button, checked);
+  _button->setChecked(_checked);
+  setBidirectionalButtonText(_button, _checked);
 }
 
-void DShotWidget::setBidirectionalButtonText(QPushButton* button, bool checked)
+void DShotWidget::setBidirectionalButtonText(QPushButton* _button, bool _checked)
 {
-  if (checked) {
-    button->setText("Enabled");
+  if (_checked) {
+    _button->setText("Enabled");
   }
   else {
-    button->setText("Disabled");
+    _button->setText("Disabled");
   }
 }
 
-void DShotWidget::onPropulsionTypeChanged(PropulsionSystem new_prop_type)
+void DShotWidget::onPropulsionTypeChanged(PropulsionSystem _new_prop_type)
 {
-  if (new_prop_type == prop_type_) {
+  if (_new_prop_type == prop_type_) {
     return;
   }
 
@@ -270,7 +270,7 @@ void DShotWidget::onPropulsionTypeChanged(PropulsionSystem new_prop_type)
   }
 
   // Add choices for the new propulsion system.
-  switch (new_prop_type) {
+  switch (_new_prop_type) {
     case PropulsionSystem::kElectric: {
       for (int channel = 0; channel < rowCount(); ++channel) {
         const auto target_name = targetNameWidget(channel);
@@ -288,12 +288,12 @@ void DShotWidget::onPropulsionTypeChanged(PropulsionSystem new_prop_type)
       throw;
   }
 
-  prop_type_ = new_prop_type;
+  prop_type_ = _new_prop_type;
 }
 
-void DShotWidget::onBidirectionalButtonToggled(QPushButton* button, bool checked)
+void DShotWidget::onBidirectionalButtonToggled(QPushButton* _button, bool _checked)
 {
-  setBidirectionalButtonText(button, checked);
+  setBidirectionalButtonText(_button, _checked);
 }
 }  // namespace hw
 }  // namespace sa

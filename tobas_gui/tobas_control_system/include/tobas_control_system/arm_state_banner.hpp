@@ -22,10 +22,10 @@ class ArmStateBanner : public QLabel
   using self = ArmStateBanner;
 
 public:
-  explicit ArmStateBanner(const rqt::RosQtBridge& bridge);
+  explicit ArmStateBanner(const rqt::RosQtBridge& _bridge);
 
   void reset();
-  void setConnected(bool connected);
+  void setConnected(bool _connected);
 
 private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
@@ -34,11 +34,11 @@ private:
 
   QString armReadinessIssueText() const;
   void updateState();
-  void setStateText(const QString& text, const QColor& background, const QColor& foreground);
+  void setStateText(const QString& _text, const QColor& _background, const QColor& _foreground);
 
 private Q_SLOTS:
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
+  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health);
 };
 }  // namespace ctrl
 }  // namespace gui

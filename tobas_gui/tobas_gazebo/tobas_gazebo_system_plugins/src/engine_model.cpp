@@ -12,13 +12,13 @@ namespace tobas
 {
 namespace gazebo
 {
-EngineModel::EngineModel(const IceRotorModelMap& rotors) : rotors_(rotors), rnd_gen_(rnd_dev_())
+EngineModel::EngineModel(const IceRotorModelMap& _rotors) : rotors_(_rotors), rnd_gen_(rnd_dev_())
 {
 }
 
-bool EngineModel::initialize(const sdf::ElementConstPtr& sdf)
+bool EngineModel::initialize(const sdf::ElementConstPtr& _sdf)
 {
-  if (!getSdfParams(sdf)) {
+  if (!getSdfParams(_sdf)) {
     return false;
   }
 
@@ -52,24 +52,24 @@ double EngineModel::getVibrationForce()
   return amp * (std::sin(position_) + vibration_double_freq_coef_ * std::sin(position_ * 2)) * rice_(rnd_gen_);
 }
 
-void EngineModel::setThrottle(double throttle)
+void EngineModel::setThrottle(double _throttle)
 {
-  throttle_ = std::clamp(throttle, 0.0, 1.0);
+  throttle_ = std::clamp(_throttle, 0.0, 1.0);
 }
 
-void EngineModel::step(double dt)
+void EngineModel::step(double _dt)
 {
-  assert(dt >= 0.0);
+  assert(_dt >= 0.0);
 
-  position_ += getSpeed() * dt;
+  position_ += getSpeed() * _dt;
 
   const auto steady_speed = computeSteadySpeed();
-  speed_filter_.update(steady_speed, dt);
+  speed_filter_.update(steady_speed, _dt);
 }
 
-bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
+bool EngineModel::getSdfParams(const sdf::ElementConstPtr& _sdf)
 {
-  if (!getSdfParam(sdf, "engineConstant", engine_const_)) {
+  if (!getSdfParam(_sdf, "engineConstant", engine_const_)) {
     return false;
   }
   if (engine_const_.first <= 0.0 || engine_const_.second <= 0.0) {
@@ -77,10 +77,10 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  if (!getSdfParam(sdf, "timeConstUp", time_const_up_)) {
+  if (!getSdfParam(_sdf, "timeConstUp", time_const_up_)) {
     return false;
   }
-  if (!getSdfParam(sdf, "timeConstDown", time_const_down_)) {
+  if (!getSdfParam(_sdf, "timeConstDown", time_const_down_)) {
     return false;
   }
   if (time_const_up_ <= 0.0 || time_const_down_ <= 0.0) {
@@ -88,19 +88,19 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  getSdfParam(sdf, "vibrationForceCoefficient", vibration_force_coef_, 0.0015);
+  getSdfParam(_sdf, "vibrationForceCoefficient", vibration_force_coef_, 0.0015);
   if (vibration_force_coef_ < 0.0) {
     gzerr << "The vibration force coefficient must be non-negative." << std::endl;
     return false;
   }
 
-  getSdfParam(sdf, "vibrationForceVariationRate", vibration_force_variation_rate_, 0.2);
+  getSdfParam(_sdf, "vibrationForceVariationRate", vibration_force_variation_rate_, 0.2);
   if (vibration_force_variation_rate_ < 0.0) {
     gzerr << "The vibration force variation rate must be non-negative." << std::endl;
     return false;
   }
 
-  getSdfParam(sdf, "vibrationDoubleFrequencyCoefficient", vibration_double_freq_coef_, 1.0);
+  getSdfParam(_sdf, "vibrationDoubleFrequencyCoefficient", vibration_double_freq_coef_, 1.0);
   if (vibration_double_freq_coef_ < 0.0) {
     gzerr << "The vibration double frequency coefficient must be non-negative." << std::endl;
     return false;
@@ -125,19 +125,19 @@ double EngineModel::computeSteadySpeed()
   return *speed;
 }
 
-double EngineModel::speedFunc(double omega) const
+double EngineModel::speedFunc(double _omega) const
 {
   const auto& B = engine_const_.second;
   const auto f = calc_f();
   const auto k = calc_k();
-  return f * math::sqr(k) * math::quar(omega) + k * omega - B;
+  return f * math::sqr(k) * math::quar(_omega) + k * _omega - B;
 }
 
-double EngineModel::speedFuncDeriv(double omega) const
+double EngineModel::speedFuncDeriv(double _omega) const
 {
   const auto f = calc_f();
   const auto k = calc_k();
-  return 4 * f * math::sqr(k) * math::cube(omega) + k;
+  return 4 * f * math::sqr(k) * math::cube(_omega) + k;
 }
 
 double EngineModel::calc_phi() const

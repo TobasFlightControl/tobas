@@ -42,13 +42,13 @@ void BatteryPlotWidget::clear()
   current_plot_->replot();
 }
 
-void BatteryPlotWidget::setTimeScale(double t_start, double t_stop)
+void BatteryPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
-  voltage_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  current_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+  voltage_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  current_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
 }
 
-void BatteryPlotWidget::setData(const QVector<tobas_msgs::msg::Battery>& batt_msgs)
+void BatteryPlotWidget::setData(const QVector<tobas_msgs::msg::Battery>& _batt_msgs)
 {
   QVector<double> t_data;
   QVector<double> voltage_data;
@@ -56,7 +56,7 @@ void BatteryPlotWidget::setData(const QVector<tobas_msgs::msg::Battery>& batt_ms
   VerticalScaleRange voltage_range;
   VerticalScaleRange current_range;
 
-  for (const auto& batt : batt_msgs) {
+  for (const auto& batt : _batt_msgs) {
     t_data.push_back(ros2::seconds(batt.header.stamp));
 
     voltage_data.push_back(batt.voltage);

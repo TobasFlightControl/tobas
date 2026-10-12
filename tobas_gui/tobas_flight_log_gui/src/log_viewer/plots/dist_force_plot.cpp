@@ -37,20 +37,20 @@ void DisturbanceForcePlotWidget::clear()
   }
 }
 
-void DisturbanceForcePlotWidget::setTimeScale(double t_start, double t_stop)
+void DisturbanceForcePlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
   for (auto& plot : plots_) {
-    plot->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+    plot->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
   }
 }
 
-void DisturbanceForcePlotWidget::setData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& msgs)
+void DisturbanceForcePlotWidget::setData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
   std::array<VerticalScaleRange, kNumGroups> ranges;
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
 
     const auto& force = msg.wrench.force;

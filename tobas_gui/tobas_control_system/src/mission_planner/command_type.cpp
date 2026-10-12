@@ -19,9 +19,9 @@ constexpr char kLandLabel[] = "Land";
 constexpr char kRtlLabel[] = "Return to Launch";
 }  // namespace
 
-QString commandToText(mission::Type cmd)
+QString commandToText(mission::Type _cmd)
 {
-  switch (cmd) {
+  switch (_cmd) {
     case mission::Type::kWaypoint:
       return kWaypointLabel;
     case mission::Type::kTakeoff:
@@ -31,26 +31,26 @@ QString commandToText(mission::Type cmd)
     case mission::Type::kReturnToLaunch:
       return kRtlLabel;
     default:
-      throw std::runtime_error("Invalid command type: " + std::to_string(cmd));
+      throw std::runtime_error("Invalid command type: " + std::to_string(_cmd));
   }
 }
 
-mission::Type textToCommand(const QString& text)
+mission::Type textToCommand(const QString& _text)
 {
-  if (text == kWaypointLabel) {
+  if (_text == kWaypointLabel) {
     return mission::Type::kWaypoint;
   }
-  else if (text == kTakeoffLabel) {
+  else if (_text == kTakeoffLabel) {
     return mission::Type::kTakeoff;
   }
-  else if (text == kLandLabel) {
+  else if (_text == kLandLabel) {
     return mission::Type::kLand;
   }
-  else if (text == kRtlLabel) {
+  else if (_text == kRtlLabel) {
     return mission::Type::kReturnToLaunch;
   }
   else {
-    throw std::runtime_error("Invalid command text: " + text.toStdString());
+    throw std::runtime_error("Invalid command text: " + _text.toStdString());
   }
 }
 }  // namespace ctrl

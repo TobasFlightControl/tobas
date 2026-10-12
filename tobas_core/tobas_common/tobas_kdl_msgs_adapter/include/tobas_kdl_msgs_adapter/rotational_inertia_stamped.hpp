@@ -32,16 +32,16 @@ struct rclcpp::TypeAdapter<tobas_kdl_msgs::RotationalInertiaStamped, tobas_kdl_m
   using custom_type = tobas_kdl_msgs::RotationalInertiaStamped;
   using ros_message_type = tobas_kdl_msgs::msg::RotationalInertiaStamped;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
-    tobas_kdl_msgs::RotationalInertiaAdapter::convert_to_ros_message(src.inertia, dst.inertia);
+    _dst.header = _src.header;
+    tobas_kdl_msgs::RotationalInertiaAdapter::convert_to_ros_message(_src.inertia, _dst.inertia);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
-    tobas_kdl_msgs::RotationalInertiaAdapter::convert_to_custom(src.inertia, dst.inertia);
+    _dst.header = _src.header;
+    tobas_kdl_msgs::RotationalInertiaAdapter::convert_to_custom(_src.inertia, _dst.inertia);
   }
 };
 

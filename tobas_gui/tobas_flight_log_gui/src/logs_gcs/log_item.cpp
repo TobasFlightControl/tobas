@@ -15,9 +15,9 @@ namespace gui
 {
 namespace log
 {
-FlightLogItemWidgetGCS::FlightLogItemWidgetGCS(const QString& log_name)
+FlightLogItemWidgetGCS::FlightLogItemWidgetGCS(const QString& _log_name)
 {
-  log_name_ = new QLabel(log_name);
+  log_name_ = new QLabel(_log_name);
   log_name_->setFont(qt::DefaultFont(kPSize3));
 
   export_button_ = new QPushButton("Export");

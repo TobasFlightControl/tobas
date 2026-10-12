@@ -30,7 +30,7 @@ public:
   bool isValid();
 
   YAML::Node dump() const;
-  void load(const YAML::Node& node);
+  void load(const YAML::Node& _node);
 
   double nominalVoltage();
   double maxVoltage();
@@ -43,8 +43,8 @@ private:
   qt::ComboBox* type_;
   qt::StackedWidget* batteries_;
 
-  BatteryWidget_Base* widget(int index);
-  const BatteryWidget_Base* widget(int index) const;
+  BatteryWidget_Base* widget(int _index);
+  const BatteryWidget_Base* widget(int _index) const;
 
   BatteryWidget_Base* selected();
   const BatteryWidget_Base* selected() const;

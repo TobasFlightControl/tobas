@@ -13,17 +13,17 @@ public:
   explicit AngleAxisPDD2();
 
   kdl::Vector update(
-    const kdl::Rotation& cur_rot,
-    const kdl::Vector& cur_gyro,
-    const kdl::Vector& cur_dgyro,
-    const kdl::Rotation& tar_rot,
-    const kdl::Vector& tar_gyro,
-    const kdl::Vector& tar_dgyro,
-    double dt);
+    const kdl::Rotation& _cur_rot,
+    const kdl::Vector& _cur_gyro,
+    const kdl::Vector& _cur_dgyro,
+    const kdl::Rotation& _tar_rot,
+    const kdl::Vector& _tar_gyro,
+    const kdl::Vector& _tar_dgyro,
+    double _dt);
 
-  void setNaturalFreq(int idx, double value);
-  void setInertiaRatio(int idx, double value);
-  void setDampingRatio(int idx, double value);
+  void setNaturalFreq(int _idx, double _value);
+  void setInertiaRatio(int _idx, double _value);
+  void setDampingRatio(int _idx, double _value);
 
 private:
   // Config

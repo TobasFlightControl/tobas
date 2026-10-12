@@ -14,11 +14,11 @@ namespace math
 {
 /** Compute the L2 norm of a variable number of arguments. */
 template <typename... T>
-double norm(T... args)
+double norm(T... _args)
 {
   // The number of arguments is expected to be small, so Kahan summation is not used.
   double squared_sum = 0.0;
-  for (const auto& x : std::initializer_list<double>{ args... }) {
+  for (const auto& x : std::initializer_list<double>{ _args... }) {
     squared_sum += sqr(x);
   }
   return std::sqrt(squared_sum);

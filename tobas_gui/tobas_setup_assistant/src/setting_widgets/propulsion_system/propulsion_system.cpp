@@ -27,7 +27,7 @@ namespace
 constexpr char kTypeKey[] = "propulsion_system_type";
 }  // namespace
 
-PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& uadf, Signals& sig) : sig_(sig)
+PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& _uadf, Signals& _sig) : sig_(_sig)
 {
   type_btn_group_ = new QButtonGroup(this);
   type_btn_group_->setExclusive(true);
@@ -35,8 +35,8 @@ PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& uadf, Signals&
   propulsion_stack_ = new qt::StackedWidget();
 
   int id = 0;
-  addPropulsionSystemWidget(new electric::PropulsionSystemWidget(uadf), id++);
-  addPropulsionSystemWidget(new ice::PropulsionSystemWidget(uadf), id++);
+  addPropulsionSystemWidget(new electric::PropulsionSystemWidget(_uadf), id++);
+  addPropulsionSystemWidget(new ice::PropulsionSystemWidget(_uadf), id++);
 
   addSpacing(50);
   addWidget(propulsion_stack_);
@@ -107,10 +107,10 @@ YAML::Node PropulsionSystemWidget::dump() const
   return node;
 }
 
-void PropulsionSystemWidget::load(const YAML::Node& node)
+void PropulsionSystemWidget::load(const YAML::Node& _node)
 {
   // Select and notify the propulsion-system type the same way as when the user operates it.
-  const auto type_text = node[kTypeKey].as<QString>();
+  const auto type_text = _node[kTypeKey].as<QString>();
   for (const auto& [idx, button] : std::views::enumerate(type_btn_group_->buttons())) {
     if (button->text() == type_text) {
       setCurrentIndex(idx);
@@ -121,7 +121,7 @@ void PropulsionSystemWidget::load(const YAML::Node& node)
 
   for (int i = 0; i < propulsion_stack_->count(); ++i) {
     const auto propulsion = widget(i);
-    propulsion->load(node[propulsion->name()]);
+    propulsion->load(_node[propulsion->name()]);
   }
 }
 
@@ -135,19 +135,19 @@ int PropulsionSystemWidget::numUnits() const
   return selected()->numUnits();
 }
 
-QString PropulsionSystemWidget::linkName(int index) const
+QString PropulsionSystemWidget::linkName(int _index) const
 {
-  return selected()->linkName(index);
+  return selected()->linkName(_index);
 }
 
-BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int index)
+BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int _index)
 {
-  return qt::qPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(index));
+  return qt::qPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(_index));
 }
 
-const BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int index) const
+const BasePropulsionSystemWidget* PropulsionSystemWidget::widget(int _index) const
 {
-  return qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(index));
+  return qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->widget(_index));
 }
 
 BasePropulsionSystemWidget* PropulsionSystemWidget::selected()
@@ -160,24 +160,24 @@ const BasePropulsionSystemWidget* PropulsionSystemWidget::selected() const
   return qt::qConstPointerCast<BasePropulsionSystemWidget>(propulsion_stack_->currentWidget());
 }
 
-void PropulsionSystemWidget::addPropulsionSystemWidget(BasePropulsionSystemWidget* widget, int id)
+void PropulsionSystemWidget::addPropulsionSystemWidget(BasePropulsionSystemWidget* _widget, int _id)
 {
-  const auto btn = new QRadioButton(widget->name());
-  type_btn_group_->addButton(btn, id);
+  const auto btn = new QRadioButton(_widget->name());
+  type_btn_group_->addButton(btn, _id);
   addWidget(btn);
-  propulsion_stack_->addWidget(widget);
+  propulsion_stack_->addWidget(_widget);
 }
 
-void PropulsionSystemWidget::setCurrentButtonIndex(int index)
+void PropulsionSystemWidget::setCurrentButtonIndex(int _index)
 {
   // Do nothing if the checked button does not change.
-  if (type_btn_group_->checkedId() == index) {
+  if (type_btn_group_->checkedId() == _index) {
     return;
   }
 
   // Get the buttons before and after switching.
   const auto old_btn = type_btn_group_->checkedButton();
-  const auto new_btn = type_btn_group_->button(index);
+  const auto new_btn = type_btn_group_->button(_index);
 
   // Block all signals; passing nullptr is okay.
   const QSignalBlocker block_group(type_btn_group_);
@@ -188,18 +188,18 @@ void PropulsionSystemWidget::setCurrentButtonIndex(int index)
   new_btn->setChecked(true);
 }
 
-void PropulsionSystemWidget::setCurrentIndex(int index)
+void PropulsionSystemWidget::setCurrentIndex(int _index)
 {
-  setCurrentButtonIndex(index);
-  propulsion_stack_->setCurrentIndex(index);
-  cur_idx_ = index;
+  setCurrentButtonIndex(_index);
+  propulsion_stack_->setCurrentIndex(_index);
+  cur_idx_ = _index;
 }
 
-void PropulsionSystemWidget::onPropulsionTypeClicked(int new_idx)
+void PropulsionSystemWidget::onPropulsionTypeClicked(int _new_idx)
 {
-  qDebug().nospace() << "PropulsionSystemWidget::onPropulsionTypeChanged(" << new_idx << ")";
+  qDebug().nospace() << "PropulsionSystemWidget::onPropulsionTypeChanged(" << _new_idx << ")";
 
-  if (new_idx == cur_idx_) {
+  if (_new_idx == cur_idx_) {
     return;
   }
 
@@ -210,11 +210,11 @@ void PropulsionSystemWidget::onPropulsionTypeClicked(int new_idx)
   }
 
   // Switch propulsion-system widgets.
-  propulsion_stack_->setCurrentIndex(new_idx);
-  cur_idx_ = new_idx;
+  propulsion_stack_->setCurrentIndex(_new_idx);
+  cur_idx_ = _new_idx;
 
   // Notify other widgets that the propulsion-system type changed.
-  Q_EMIT sig_.propulsionTypeChanged(widget(new_idx)->type());
+  Q_EMIT sig_.propulsionTypeChanged(widget(_new_idx)->type());
 }
 }  // namespace propulsion
 }  // namespace sa

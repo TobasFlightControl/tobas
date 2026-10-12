@@ -18,21 +18,21 @@ class IntGetter : public QWidget
   using self = IntGetter;
 
 Q_SIGNALS:
-  void valueChanged(int value);
+  void valueChanged(int _value);
 
 public:
-  explicit IntGetter(const QString& name);
+  explicit IntGetter(const QString& _name);
 
   int getValue() const;
-  bool setValue(int value);
+  bool setValue(int _value);
 
-  void setMinimum(int minimum);
-  void setMaximum(int maximum);
-  void setSingleStep(int single_step);
-  void setSuffix(const QString& suffix);
+  void setMinimum(int _minimum);
+  void setMaximum(int _maximum);
+  void setSingleStep(int _single_step);
+  void setSuffix(const QString& _suffix);
 
 private Q_SLOTS:
-  void onValueChanged(int value);
+  void onValueChanged(int _value);
 
 private:
   qt::SpinBox* data_;

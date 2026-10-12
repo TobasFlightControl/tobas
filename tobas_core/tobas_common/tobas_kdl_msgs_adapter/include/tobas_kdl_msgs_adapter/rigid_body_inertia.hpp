@@ -19,24 +19,24 @@ struct rclcpp::TypeAdapter<tobas::kdl::RigidBodyInertia, tobas_kdl_msgs::msg::Ri
   using custom_type = tobas::kdl::RigidBodyInertia;
   using ros_message_type = tobas_kdl_msgs::msg::RigidBodyInertia;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.mass = src.getMass();
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.getCOG(), dst.cog);
-    tobas_kdl_msgs::RotationalInertiaAdapter::convert_to_ros_message(src.getRotationalInertiaCoG(), dst.i_cog);
+    _dst.mass = _src.getMass();
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.getCOG(), _dst.cog);
+    tobas_kdl_msgs::RotationalInertiaAdapter::convert_to_ros_message(_src.getRotationalInertiaCoG(), _dst.i_cog);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
     double mass;
     tobas::kdl::Vector cog;
     tobas::kdl::RotationalInertia i_cog;
 
-    mass = src.mass;
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.cog, cog);
-    tobas_kdl_msgs::RotationalInertiaAdapter::convert_to_custom(src.i_cog, i_cog);
+    mass = _src.mass;
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.cog, cog);
+    tobas_kdl_msgs::RotationalInertiaAdapter::convert_to_custom(_src.i_cog, i_cog);
 
-    dst = custom_type(mass, cog, i_cog);
+    _dst = custom_type(mass, cog, i_cog);
   }
 };
 

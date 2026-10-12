@@ -14,19 +14,19 @@ namespace tobas
 {
 namespace linux
 {
-int writeFile(const char* path, const char* fmt, ...)
+int writeFile(const char* _path, const char* _fmt, ...)
 {
   errno = 0;
 
-  const auto fd = ::open(path, O_WRONLY | O_CLOEXEC);
+  const auto fd = ::open(_path, O_WRONLY | O_CLOEXEC);
   if (fd < 0) {
     return -errno;
   }
 
   va_list args;
-  va_start(args, fmt);
+  va_start(args, _fmt);
 
-  const auto ret = ::vdprintf(fd, fmt, args);
+  const auto ret = ::vdprintf(fd, _fmt, args);
   const auto errno_bkp = errno;
   ::close(fd);
 
@@ -39,19 +39,19 @@ int writeFile(const char* path, const char* fmt, ...)
   return ret;
 }
 
-int readFile(const char* path, const char* fmt, ...)
+int readFile(const char* _path, const char* _fmt, ...)
 {
   errno = 0;
 
-  FILE* file = ::fopen(path, "re");
+  FILE* file = ::fopen(_path, "re");
   if (!file) {
     return -errno;
   }
 
   va_list args;
-  va_start(args, fmt);
+  va_start(args, _fmt);
 
-  const auto ret = ::vfscanf(file, fmt, args);
+  const auto ret = ::vfscanf(file, _fmt, args);
   const auto errno_bkp = errno;
   ::fclose(file);
 

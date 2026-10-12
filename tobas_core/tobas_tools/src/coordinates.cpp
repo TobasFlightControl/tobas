@@ -7,52 +7,52 @@
 
 namespace tobas
 {
-void odometryFrdToFlu(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& dst)
+void odometryFrdToFlu(const tobas_msgs::Odometry& _src, tobas_msgs::Odometry& _dst)
 {
-  kdl::frameFrdToFlu(src.frame, dst.frame);
-  kdl::twistFrdToFlu(src.twist, dst.twist);
-  kdl::accelFrdToFlu(src.accel, dst.accel);
+  kdl::frameFrdToFlu(_src.frame, _dst.frame);
+  kdl::twistFrdToFlu(_src.twist, _dst.twist);
+  kdl::accelFrdToFlu(_src.accel, _dst.accel);
 }
 
-void odometryFluToFrd(const tobas_msgs::Odometry& src, tobas_msgs::Odometry& dst)
+void odometryFluToFrd(const tobas_msgs::Odometry& _src, tobas_msgs::Odometry& _dst)
 {
-  odometryFrdToFlu(src, dst);
+  odometryFrdToFlu(_src, _dst);
 }
 
-void odometryFrdToFlu(tobas_msgs::Odometry& arg)
+void odometryFrdToFlu(tobas_msgs::Odometry& _arg)
 {
-  odometryFrdToFlu(arg, arg);
+  odometryFrdToFlu(_arg, _arg);
 }
 
-void odometryFluToFrd(tobas_msgs::Odometry& arg)
+void odometryFluToFrd(tobas_msgs::Odometry& _arg)
 {
-  odometryFluToFrd(arg, arg);
+  odometryFluToFrd(_arg, _arg);
 }
 
 void speedRollDeltaPitchFrdToFlu(
-  const tobas_command_msgs::msg::SpeedRollDeltaPitch src,
-  tobas_command_msgs::msg::SpeedRollDeltaPitch& dst)
+  const tobas_command_msgs::msg::SpeedRollDeltaPitch _src,
+  tobas_command_msgs::msg::SpeedRollDeltaPitch& _dst)
 {
-  dst.header = src.header;
-  dst.speed = src.speed;
-  dst.roll = src.roll;
-  dst.delta_pitch = -src.delta_pitch;
+  _dst.header = _src.header;
+  _dst.speed = _src.speed;
+  _dst.roll = _src.roll;
+  _dst.delta_pitch = -_src.delta_pitch;
 }
 
 void speedRollDeltaPitchFluToFrd(
-  const tobas_command_msgs::msg::SpeedRollDeltaPitch src,
-  tobas_command_msgs::msg::SpeedRollDeltaPitch& dst)
+  const tobas_command_msgs::msg::SpeedRollDeltaPitch _src,
+  tobas_command_msgs::msg::SpeedRollDeltaPitch& _dst)
 {
-  speedRollDeltaPitchFrdToFlu(src, dst);
+  speedRollDeltaPitchFrdToFlu(_src, _dst);
 }
 
-void speedRollDeltaPitchFrdToFlu(tobas_command_msgs::msg::SpeedRollDeltaPitch& arg)
+void speedRollDeltaPitchFrdToFlu(tobas_command_msgs::msg::SpeedRollDeltaPitch& _arg)
 {
-  speedRollDeltaPitchFrdToFlu(arg, arg);
+  speedRollDeltaPitchFrdToFlu(_arg, _arg);
 }
 
-void speedRollDeltaPitchFluToFrd(tobas_command_msgs::msg::SpeedRollDeltaPitch& arg)
+void speedRollDeltaPitchFluToFrd(tobas_command_msgs::msg::SpeedRollDeltaPitch& _arg)
 {
-  speedRollDeltaPitchFluToFrd(arg, arg);
+  speedRollDeltaPitchFluToFrd(_arg, _arg);
 }
 }  // namespace tobas

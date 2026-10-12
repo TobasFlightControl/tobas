@@ -75,21 +75,21 @@ std::expected<void, std::string> Drone::validate() const
   return {};
 }
 
-std::expected<void, std::string> Drone::load(const YAML::Node& root_node)
+std::expected<void, std::string> Drone::load(const YAML::Node& _root_node)
 {
-  if (!root_node.IsDefined() || !root_node.IsMap()) {
+  if (!_root_node.IsDefined() || !_root_node.IsMap()) {
     return std::unexpected("Drone node must be a map.");
   }
 
   clear();
 
   // Name
-  if (const auto result = yaml::load(kNameKey, root_node, name); !result) {
+  if (const auto result = yaml::load(kNameKey, _root_node, name); !result) {
     return result;
   }
 
   // Joints
-  const auto joints_node = root_node[kJointsKey];
+  const auto joints_node = _root_node[kJointsKey];
   if (!joints_node.IsDefined()) {
     return std::unexpected(std::string("'") + kJointsKey + "' is not defined.");
   }
@@ -105,7 +105,7 @@ std::expected<void, std::string> Drone::load(const YAML::Node& root_node)
   }
 
   // PWM
-  const auto pwms_node = root_node[kPwmsKey];
+  const auto pwms_node = _root_node[kPwmsKey];
   if (!pwms_node.IsDefined()) {
     return std::unexpected(std::string("'") + kPwmsKey + "' is not defined.");
   }
@@ -122,11 +122,11 @@ std::expected<void, std::string> Drone::load(const YAML::Node& root_node)
 
   // Propulsion System
   PropulsionSystem prop_type;
-  if (const auto result = yaml::load(kPropulsionSystemTypeKey, root_node, prop_type); !result) {
+  if (const auto result = yaml::load(kPropulsionSystemTypeKey, _root_node, prop_type); !result) {
     return result;
   }
 
-  const auto prop_node = root_node[kPropulsionSystemKey];
+  const auto prop_node = _root_node[kPropulsionSystemKey];
   if (!prop_node.IsDefined()) {
     return std::unexpected(std::string("'") + kPropulsionSystemKey + "' is not defined.");
   }
@@ -154,7 +154,7 @@ std::expected<void, std::string> Drone::load(const YAML::Node& root_node)
   }
 
   // Fixed Wing
-  const auto fw_node = root_node[kFixedWingKey];
+  const auto fw_node = _root_node[kFixedWingKey];
   if (fw_node.IsDefined()) {
     fixed_wing = std::make_shared<FixedWingConfig>();
     if (const auto result = fixed_wing->load(fw_node); !result) {
@@ -166,7 +166,7 @@ std::expected<void, std::string> Drone::load(const YAML::Node& root_node)
   }
 
   // S.BUS Channels
-  if (const auto result = yaml::load(kNumSbusChannelsKey, root_node, num_sbus_channels); !result) {
+  if (const auto result = yaml::load(kNumSbusChannelsKey, _root_node, num_sbus_channels); !result) {
     return result;
   }
 
@@ -207,25 +207,25 @@ YAML::Node Drone::dump() const
   return node;
 }
 
-std::expected<void, std::string> Drone::load(const fs::path& path)
+std::expected<void, std::string> Drone::load(const fs::path& _path)
 {
-  const auto node = yaml::load(path);
+  const auto node = yaml::load(_path);
   if (!node) {
     return std::unexpected(node.error());
   }
 
   if (const auto result = load(*node); !result) {
-    return std::unexpected("Failed to load drone from '" + path.string() + "': " + result.error());
+    return std::unexpected("Failed to load drone from '" + _path.string() + "': " + result.error());
   }
 
   return {};
 }
 
-bool Drone::save(const fs::path& path) const
+bool Drone::save(const fs::path& _path) const
 {
   const auto node = dump();
 
-  if (!yaml::save(path, node)) {
+  if (!yaml::save(_path, node)) {
     return false;
   }
 

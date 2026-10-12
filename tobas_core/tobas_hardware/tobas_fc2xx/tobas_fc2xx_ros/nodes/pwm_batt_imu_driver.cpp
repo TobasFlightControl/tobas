@@ -36,7 +36,7 @@ class PwmBattImuDriverNode : public BaseNode
   using clock = std::chrono::steady_clock;
 
 public:
-  explicit PwmBattImuDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit PwmBattImuDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   PwmBattImu driver_;
@@ -58,21 +58,21 @@ private:
   bool initialize();
   std::expected<void, std::string> transfer();
 
-  void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms);
+  void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& _pwms);
 
   void configureImuLowPassFilterCb(
-    const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
-    const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res);
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& _req,
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& _res);
   void configureImuRpmFilter(
-    const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& req,
-    const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& res);
+    const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& _req,
+    const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& _res);
 
   void initializeTimerCb();
   void mainTimerCb();
 };
 
-PwmBattImuDriverNode::PwmBattImuDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc2xx_pwm_batt_imu_driver", nodeOptions_Default(options)), sampling_time_pub_(this)
+PwmBattImuDriverNode::PwmBattImuDriverNode(const rclcpp::NodeOptions& _options)
+  : super("fc2xx_pwm_batt_imu_driver", nodeOptions_Default(_options)), sampling_time_pub_(this)
 {
   if (!initialize()) {
     initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
@@ -113,9 +113,9 @@ std::expected<void, std::string> PwmBattImuDriverNode::transfer()
   return res;
 }
 
-void PwmBattImuDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms)
+void PwmBattImuDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& _pwms)
 {
-  for (const auto& elem : pwms->pwms) {
+  for (const auto& elem : _pwms->pwms) {
     if (elem.channel >= PwmBattImu::kPwmChannels) {
       TOBAS_ERROR("PWM channel ", elem.channel, " is out of range.");
       continue;
@@ -127,35 +127,35 @@ void PwmBattImuDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPt
 }
 
 void PwmBattImuDriverNode::configureImuLowPassFilterCb(
-  const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
-  const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res)
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& _req,
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& _res)
 {
-  driver_.configureLowPassFilter(req->accel_cutoff, req->gyro_cutoff, req->dgyro_cutoff);
+  driver_.configureLowPassFilter(_req->accel_cutoff, _req->gyro_cutoff, _req->dgyro_cutoff);
 
   if (const auto result = transfer(); !result) {
-    res->success = false;
-    res->message = "Failed to communicate with the MCU: " + result.error();
+    _res->success = false;
+    _res->message = "Failed to communicate with the MCU: " + result.error();
     return;
   }
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
 
 void PwmBattImuDriverNode::configureImuRpmFilter(
-  const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& req,
-  const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& res)
+  const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& _req,
+  const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& _res)
 {
-  driver_.configureRpmFilter(req->quality_factor, req->min_center_freq, req->fade_range, req->lpf_cutoff);
+  driver_.configureRpmFilter(_req->quality_factor, _req->min_center_freq, _req->fade_range, _req->lpf_cutoff);
 
   if (const auto result = transfer(); !result) {
-    res->success = false;
-    res->message = "Failed to communicate with the MCU: " + result.error();
+    _res->success = false;
+    _res->message = "Failed to communicate with the MCU: " + result.error();
     return;
   }
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
 
 void PwmBattImuDriverNode::initializeTimerCb()

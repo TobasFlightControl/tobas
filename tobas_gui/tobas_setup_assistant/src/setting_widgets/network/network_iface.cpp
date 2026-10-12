@@ -92,9 +92,9 @@ YAML::Node NetworkIfaceWidget::dump() const
   return node;
 }
 
-void NetworkIfaceWidget::load(const YAML::Node& node)
+void NetworkIfaceWidget::load(const YAML::Node& _node)
 {
-  const auto nic_type_text = node[kNicTypeKey].as<QString>();
+  const auto nic_type_text = _node[kNicTypeKey].as<QString>();
   for (const auto& [idx, btn] : std::views::enumerate(nic_btn_group_->buttons())) {
     if (btn->text() == nic_type_text) {
       nic_btn_group_->button(idx)->setChecked(true);
@@ -102,7 +102,7 @@ void NetworkIfaceWidget::load(const YAML::Node& node)
     }
   }
 
-  other_nic_name_->setText(node[kOtherNicNameKey].as<QString>());
+  other_nic_name_->setText(_node[kOtherNicNameKey].as<QString>());
 }
 
 QString NetworkIfaceWidget::networkInterface() const
@@ -122,18 +122,18 @@ QString NetworkIfaceWidget::networkInterface() const
   }
 }
 
-QRadioButton* NetworkIfaceWidget::addNicTypeButton(const QString& text, int id)
+QRadioButton* NetworkIfaceWidget::addNicTypeButton(const QString& _text, int _id)
 {
-  const auto btn = new QRadioButton(text);
-  nic_btn_group_->addButton(btn, id);
+  const auto btn = new QRadioButton(_text);
+  nic_btn_group_->addButton(btn, _id);
   return btn;
 }
 
-void NetworkIfaceWidget::onOtherButtonToggled(bool checked)
+void NetworkIfaceWidget::onOtherButtonToggled(bool _checked)
 {
-  other_nic_name_->setEnabled(checked);
+  other_nic_name_->setEnabled(_checked);
 
-  if (checked) {
+  if (_checked) {
     other_nic_name_->setFocus();
     other_nic_name_->selectAll();
   }

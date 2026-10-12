@@ -37,7 +37,7 @@ public:
   virtual YAML::Node staticParams() const = 0;
 
   virtual YAML::Node dump() const = 0;
-  virtual void load(const YAML::Node& node) = 0;
+  virtual void load(const YAML::Node& _node) = 0;
 
   /** Return true when user settings are valid. */
   virtual bool isValid() = 0;

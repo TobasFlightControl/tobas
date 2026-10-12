@@ -24,10 +24,10 @@ public:
     min_ = std::numeric_limits<T>::max();
   }
 
-  inline void update(const T& x)
+  inline void update(const T& _x)
   {
-    if (x < min_) {
-      min_ = x;
+    if (_x < min_) {
+      min_ = _x;
     }
   }
 
@@ -56,10 +56,10 @@ public:
     max_ = std::numeric_limits<T>::lowest();
   }
 
-  inline void update(const T& x)
+  inline void update(const T& _x)
   {
-    if (x > max_) {
-      max_ = x;
+    if (_x > max_) {
+      max_ = _x;
     }
   }
 
@@ -89,10 +89,10 @@ public:
     max_.reset();
   }
 
-  inline void update(const T& x)
+  inline void update(const T& _x)
   {
-    min_.update(x);
-    max_.update(x);
+    min_.update(_x);
+    max_.update(_x);
   }
 
   inline const T& min() const

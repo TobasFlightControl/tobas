@@ -91,11 +91,11 @@ YAML::Node PlanarMulticopterWidget::dump() const
   return node;
 }
 
-void PlanarMulticopterWidget::load(const YAML::Node& node)
+void PlanarMulticopterWidget::load(const YAML::Node& _node)
 {
-  do_object_avoidance_->setChecked(node[do_object_avoidance_->text()].as<bool>());
-  do_dist_comp_trans_->setChecked(node[do_dist_comp_trans_->text()].as<bool>());
-  do_dist_comp_rot_->setChecked(node[do_dist_comp_rot_->text()].as<bool>());
+  do_object_avoidance_->setChecked(_node[do_object_avoidance_->text()].as<bool>());
+  do_dist_comp_trans_->setChecked(_node[do_dist_comp_trans_->text()].as<bool>());
+  do_dist_comp_rot_->setChecked(_node[do_dist_comp_rot_->text()].as<bool>());
 }
 
 bool PlanarMulticopterWidget::isValid()

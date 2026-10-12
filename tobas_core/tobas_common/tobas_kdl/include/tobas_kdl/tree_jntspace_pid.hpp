@@ -17,21 +17,21 @@ public:
   static constexpr double kDefaultStiffness = 25.0;
   static constexpr double kDefaultDamping = 10.0;
 
-  explicit TreeJntSpacePID(const Tree& tree, const Vector& grav = Vector(0, 0, -st::kGravity));
+  explicit TreeJntSpacePID(const Tree& _tree, const Vector& _grav = Vector(0, 0, -st::kGravity));
 
   void updateInternalDataStructures() override;
 
   const JntArray& cartToJnt(
-    const JntArray& cur_q,
-    const JntArray& cur_qd,
-    const JntArray& tar_q,
-    const JntArray& tar_qd,
-    const JntArray& qdd_ff);
+    const JntArray& _cur_q,
+    const JntArray& _cur_qd,
+    const JntArray& _tar_q,
+    const JntArray& _tar_qd,
+    const JntArray& _qdd_ff);
   const JntArray&
-  cartToJnt(const JntArray& cur_q, const JntArray& cur_qd, const JntArray& tar_q, const JntArray& tar_qd);
+  cartToJnt(const JntArray& _cur_q, const JntArray& _cur_qd, const JntArray& _tar_q, const JntArray& _tar_qd);
 
-  void setStiffness(double kp);
-  void setDamping(double kd);
+  void setStiffness(double _kp);
+  void setDamping(double _kd);
 
 private:
   TreeIdSolver rne_;

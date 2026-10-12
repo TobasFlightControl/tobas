@@ -24,7 +24,7 @@ public:
   const char* label() const override;
 
   mission::AltitudeFrame getValue() const override;
-  void setValue(mission::AltitudeFrame value) override;
+  void setValue(mission::AltitudeFrame _value) override;
 
 private:
   qt::ComboBox* combobox_;

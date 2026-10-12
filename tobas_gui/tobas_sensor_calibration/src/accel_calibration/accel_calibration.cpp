@@ -15,8 +15,8 @@ namespace gui
 {
 namespace sc
 {
-AccelCalibrationWidget::AccelCalibrationWidget(const rqt::RosQtBridge& bridge)
-  : spinner_(Qt::WindowModal, this), thread_(bridge)
+AccelCalibrationWidget::AccelCalibrationWidget(const rqt::RosQtBridge& _bridge)
+  : spinner_(Qt::WindowModal, this), thread_(_bridge)
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Place the flight controller on a level surface. The yellow Raw marker is a rough guide before calibration.\n\n"
@@ -37,9 +37,9 @@ AccelCalibrationWidget::AccelCalibrationWidget(const rqt::RosQtBridge& bridge)
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
-  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
-  connect(&bridge, &rqt::RosQtBridge::rawImuReceived, this, &self::rawImuCb, Qt::QueuedConnection);
-  connect(&bridge, &rqt::RosQtBridge::imuReceived, this, &self::calibratedImuCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::rawImuReceived, this, &self::rawImuCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::imuReceived, this, &self::calibratedImuCb, Qt::QueuedConnection);
 }
 
 const char* AccelCalibrationWidget::title() const
@@ -61,9 +61,9 @@ void AccelCalibrationWidget::updateInternalDataStructures()
 {
 }
 
-void AccelCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void AccelCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  thread_.initializeRosInterfaces(std::move(node), ns);
+  thread_.initializeRosInterfaces(std::move(_node), _ns);
 }
 
 void AccelCalibrationWidget::clearRosInterfaces()
@@ -95,23 +95,23 @@ void AccelCalibrationWidget::onStartButtonClicked()
   }
 }
 
-void AccelCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void AccelCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming)
 {
-  arming_ = arming;
+  arming_ = _arming;
 }
 
-void AccelCalibrationWidget::rawImuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw)
+void AccelCalibrationWidget::rawImuCb(const tobas_msgs::Imu::ConstSharedPtr& _imu_raw)
 {
-  const auto dt = imu_raw_ ? (imu_raw->header.stamp - imu_raw_->header.stamp).seconds() : 0.0;
-  imu_raw_ = imu_raw;
-  level_indicator_->setRawAccel(imu_raw->accel, dt);
+  const auto dt = imu_raw_ ? (_imu_raw->header.stamp - imu_raw_->header.stamp).seconds() : 0.0;
+  imu_raw_ = _imu_raw;
+  level_indicator_->setRawAccel(_imu_raw->accel, dt);
 }
 
-void AccelCalibrationWidget::calibratedImuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_calib)
+void AccelCalibrationWidget::calibratedImuCb(const tobas_msgs::Imu::ConstSharedPtr& _imu_calib)
 {
-  const auto dt = imu_calib_ ? (imu_calib->header.stamp - imu_calib_->header.stamp).seconds() : 0.0;
-  imu_calib_ = imu_calib;
-  level_indicator_->setCalibratedAccel(imu_calib->accel, dt);
+  const auto dt = imu_calib_ ? (_imu_calib->header.stamp - imu_calib_->header.stamp).seconds() : 0.0;
+  imu_calib_ = _imu_calib;
+  level_indicator_->setCalibratedAccel(_imu_calib->accel, dt);
 }
 }  // namespace sc
 }  // namespace gui

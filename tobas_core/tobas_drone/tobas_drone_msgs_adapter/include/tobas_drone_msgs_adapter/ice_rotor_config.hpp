@@ -22,28 +22,28 @@ struct rclcpp::TypeAdapter<tobas::IceRotorConfig, tobas_drone_msgs::msg::IceRoto
   using custom_type = tobas::IceRotorConfig;
   using ros_message_type = tobas_drone_msgs::msg::IceRotorConfig;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    tobas_drone_msgs::RotorConfigAdapter::convert_to_ros_message(src, dst.rotor);
+    tobas_drone_msgs::RotorConfigAdapter::convert_to_ros_message(_src, _dst.rotor);
 
-    dst.gear_ratio = src.gear_ratio;
-    tobas_std_msgs::RangeFloat64Adapter::convert_to_ros_message(src.pitch_limit, dst.pitch_limit);
-    dst.center_pitch = src.center_pitch;
-    tobas_drone_msgs::VppMotorConstantAdapter::convert_to_ros_message(src.motor_const, dst.motor_const);
-    tobas_drone_msgs::VppMomentConstantAdapter::convert_to_ros_message(src.moment_const, dst.moment_const);
-    dst.hw_iface = static_cast<uint8_t>(src.hw_iface);
+    _dst.gear_ratio = _src.gear_ratio;
+    tobas_std_msgs::RangeFloat64Adapter::convert_to_ros_message(_src.pitch_limit, _dst.pitch_limit);
+    _dst.center_pitch = _src.center_pitch;
+    tobas_drone_msgs::VppMotorConstantAdapter::convert_to_ros_message(_src.motor_const, _dst.motor_const);
+    tobas_drone_msgs::VppMomentConstantAdapter::convert_to_ros_message(_src.moment_const, _dst.moment_const);
+    _dst.hw_iface = static_cast<uint8_t>(_src.hw_iface);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas_drone_msgs::RotorConfigAdapter::convert_to_custom(src.rotor, dst);
+    tobas_drone_msgs::RotorConfigAdapter::convert_to_custom(_src.rotor, _dst);
 
-    dst.gear_ratio = src.gear_ratio;
-    tobas_std_msgs::RangeFloat64Adapter::convert_to_custom(src.pitch_limit, dst.pitch_limit);
-    dst.center_pitch = src.center_pitch;
-    tobas_drone_msgs::VppMotorConstantAdapter::convert_to_custom(src.motor_const, dst.motor_const);
-    tobas_drone_msgs::VppMomentConstantAdapter::convert_to_custom(src.moment_const, dst.moment_const);
-    dst.hw_iface = static_cast<tobas::HardwareInterface>(src.hw_iface);
+    _dst.gear_ratio = _src.gear_ratio;
+    tobas_std_msgs::RangeFloat64Adapter::convert_to_custom(_src.pitch_limit, _dst.pitch_limit);
+    _dst.center_pitch = _src.center_pitch;
+    tobas_drone_msgs::VppMotorConstantAdapter::convert_to_custom(_src.motor_const, _dst.motor_const);
+    tobas_drone_msgs::VppMomentConstantAdapter::convert_to_custom(_src.moment_const, _dst.moment_const);
+    _dst.hw_iface = static_cast<tobas::HardwareInterface>(_src.hw_iface);
   }
 };
 

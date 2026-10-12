@@ -11,18 +11,18 @@ namespace YAML
 template <>
 struct convert<QString>
 {
-  static Node encode(const QString& rhs)
+  static Node encode(const QString& _rhs)
   {
-    return Node(rhs.toStdString());
+    return Node(_rhs.toStdString());
   }
 
-  static bool decode(const Node& node, QString& rhs)
+  static bool decode(const Node& _node, QString& _rhs)
   {
-    if (!node.IsScalar()) {
+    if (!_node.IsScalar()) {
       return false;
     }
 
-    rhs = QString::fromStdString(node.as<std::string>());
+    _rhs = QString::fromStdString(_node.as<std::string>());
     return true;
   }
 };

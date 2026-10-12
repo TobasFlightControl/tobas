@@ -15,9 +15,9 @@ namespace ssh
 {
 namespace ak
 {
-std::expected<Data, std::string> parseLine(const std::string& line);
+std::expected<Data, std::string> parseLine(const std::string& _line);
 
-std::expected<std::vector<Data>, std::string> parseFile(const std::filesystem::path& path);
+std::expected<std::vector<Data>, std::string> parseFile(const std::filesystem::path& _path);
 }  // namespace ak
 }  // namespace ssh
 }  // namespace tobas

@@ -12,12 +12,12 @@ namespace st
 {
 /** Return the minimum element. */
 template <typename T>
-T min(const std::unordered_set<T>& set)
+T min(const std::unordered_set<T>& _set)
 {
-  assert(!set.empty());
+  assert(!_set.empty());
 
-  T res = *set.begin();
-  for (const T& elem : set) {
+  T res = *_set.begin();
+  for (const T& elem : _set) {
     res = min(res, elem);
   }
   return res;
@@ -25,12 +25,12 @@ T min(const std::unordered_set<T>& set)
 
 /** Return the maximum element. */
 template <typename T>
-T max(const std::unordered_set<T>& set)
+T max(const std::unordered_set<T>& _set)
 {
-  assert(!set.empty());
+  assert(!_set.empty());
 
-  T res = *set.begin();
-  for (const T& elem : set) {
+  T res = *_set.begin();
+  for (const T& elem : _set) {
     res = max(res, elem);
   }
   return res;

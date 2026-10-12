@@ -16,9 +16,9 @@ namespace traj
 class JerkLimitedTrajectory : public TrajectoryGenerator
 {
 public:
-  explicit JerkLimitedTrajectory(double p0, double pf, double max_jerk, double max_acc, double max_vel);
+  explicit JerkLimitedTrajectory(double _p0, double _pf, double _max_jerk, double _max_acc, double _max_vel);
 
-  TrajectoryPoint get(double t) const noexcept override;
+  TrajectoryPoint get(double _t) const noexcept override;
   double duration() const noexcept override;
 
 private:
@@ -29,11 +29,11 @@ private:
   double t1_, t2_, t3_, t4_;  ///< Times
 
   /** Relative position with respect to p0 when pd is positive. */
-  double p(double t) const noexcept;
+  double p(double _t) const noexcept;
   /** Velocity when pd is positive. */
-  double v(double t) const noexcept;
+  double v(double _t) const noexcept;
   /** Acceleration when pd is positive. */
-  double a(double t) const noexcept;
+  double a(double _t) const noexcept;
 };
 }  // namespace traj
 }  // namespace tobas

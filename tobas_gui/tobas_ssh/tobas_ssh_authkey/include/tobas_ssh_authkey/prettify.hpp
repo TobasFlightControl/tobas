@@ -14,7 +14,7 @@ namespace ssh
 namespace ak
 {
 /** Convert an SSH public key to a display string. */
-std::expected<std::string, std::string> prettify(const Data& src);
+std::expected<std::string, std::string> prettify(const Data& _src);
 }  // namespace ak
 }  // namespace ssh
 }  // namespace tobas

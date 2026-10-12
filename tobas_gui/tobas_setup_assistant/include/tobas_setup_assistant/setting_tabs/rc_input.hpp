@@ -29,7 +29,7 @@ public:
   bool isValid() override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   int numOfSbusChannels() const;
   double armDuration() const;

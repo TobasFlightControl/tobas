@@ -22,12 +22,12 @@ class SensorCalibrationWidget : public qt::VerticalTabWidget
   using self = SensorCalibrationWidget;
 
 public:
-  explicit SensorCalibrationWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
+  explicit SensorCalibrationWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone);
 
   void reset();
   void updateInternalDataStructures();
   void clearRosInterfaces();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
 
 private:
   const Drone& drone_;
@@ -36,20 +36,20 @@ private:
   MagCalibrationWidget* mag_calib_;
   RCInputCalibrationWidget* rcin_calib_;
 
-  BaseWidget* getWidget(int index);
-  const BaseWidget* getWidget(int index) const;
+  BaseWidget* getWidget(int _index);
+  const BaseWidget* getWidget(int _index) const;
 
-  void setTabsEnabled(bool enabled);
+  void setTabsEnabled(bool _enabled);
 
-  void setCompleted(int index);
-  void setCompleted(BaseWidget* widget);
-  void setIncompleted(int index);
-  void setIncompleted(BaseWidget* widget);
+  void setCompleted(int _index);
+  void setCompleted(BaseWidget* _widget);
+  void setIncompleted(int _index);
+  void setIncompleted(BaseWidget* _widget);
 
 private Q_SLOTS:
-  void imuCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
-  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
-  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& msg);
+  void imuCb(const tobas_msgs::Imu::ConstSharedPtr& _msg);
+  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& _msg);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _msg);
 };
 }  // namespace sc
 }  // namespace gui

@@ -14,7 +14,8 @@ namespace tobas
 {
 namespace y_axis_tilt_multicopter
 {
-Mixer::Mixer(const Drone& drone, const kdl::Tree& tree) : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
+Mixer::Mixer(const Drone& _drone, const kdl::Tree& _tree)
+  : super(_drone, _tree), fk_solver_(_tree), inertia_solver_(_tree)
 {
 }
 
@@ -69,18 +70,18 @@ void Mixer::updateInternalDataStructures()
 }
 
 std::expected<MixerSolution, std::string> Mixer::solve(
-  const kdl::JntArray& cur_q,
-  const kdl::Vector& cur_gyro_B,
-  const kdl::Vector& tar_dgyro_B,
-  double ux,
-  double uz,
-  const kdl::Vector& ext_torque_B)
+  const kdl::JntArray& _cur_q,
+  const kdl::Vector& _cur_gyro_b,
+  const kdl::Vector& _tar_dgyro_b,
+  double _ux,
+  double _uz,
+  const kdl::Vector& _ext_torque_b)
 {
   // Compute forward kinematics.
-  const auto& frames = fk_solver_.jntToCart(cur_q);
+  const auto& frames = fk_solver_.jntToCart(_cur_q);
 
   // Compute mass properties.
-  const auto inertia = inertia_solver_.jntToCart(cur_q);
+  const auto inertia = inertia_solver_.jntToCart(_cur_q);
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
@@ -151,12 +152,12 @@ std::expected<MixerSolution, std::string> Mixer::solve(
   }
 
   // Right-hand side of the equations of motion.
-  const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
+  const auto eom_rot_right_B = I_B * _tar_dgyro_b + _cur_gyro_b * (I_B * _cur_gyro_b) - _ext_torque_b;  // [Nm]
   f_.head<3>() = eom_rot_right_B.data;
 
   // Thrust-sum condition.
-  f_(3) = ux;
-  f_(4) = uz;
+  f_(3) = _ux;
+  f_(4) = _uz;
 
   // Least-squares solution of `Ex = f`; minimize the L2 norm of `x` when redundant degrees of freedom exist.
   // TODO: Consider constraints on the absolute thrust value; a convex optimization problem may work well.

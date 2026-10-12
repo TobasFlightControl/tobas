@@ -25,9 +25,9 @@ BMM150::BMM150()
 {
 }
 
-bool BMM150::initialize(const char* i2c_device)
+bool BMM150::initialize(const char* _i2c_device)
 {
-  if (!i2c_.initialize(i2c_device, 0x10)) {
+  if (!i2c_.initialize(_i2c_device, 0x10)) {
     std::cerr << "Failed to initialize I2C device." << std::endl;
     return false;
   }
@@ -65,7 +65,7 @@ bool BMM150::initialize(const char* i2c_device)
   return true;
 }
 
-bool BMM150::readMag(double& mx, double& my, double& mz)
+bool BMM150::readMag(double& _mx, double& _my, double& _mz)
 {
   if (!i2c_.readBytes(OUTX_LSB_REG, sizeof(mag_buf_), mag_buf_)) {
     return false;
@@ -97,9 +97,9 @@ bool BMM150::readMag(double& mx, double& my, double& mz)
   // Ref: https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c compensate_x
   // (int16_t)raw_data * kResolution is approximately microteslas.
   constexpr double kResolution = 1.0 / 16.0;
-  mx = static_cast<double>(compensateX(raw_data_x, r_hall)) * kResolution;
-  my = static_cast<double>(compensateY(raw_data_y, r_hall)) * kResolution;
-  mz = static_cast<double>(compensateZ(raw_data_z, r_hall)) * kResolution;
+  _mx = static_cast<double>(compensateX(raw_data_x, r_hall)) * kResolution;
+  _my = static_cast<double>(compensateY(raw_data_y, r_hall)) * kResolution;
+  _mz = static_cast<double>(compensateZ(raw_data_z, r_hall)) * kResolution;
 
   return true;
 }
@@ -217,15 +217,15 @@ bool BMM150::readTrimRegisters()
   return true;
 }
 
-int16_t BMM150::compensateX(int16_t mag_data_x, uint16_t data_r_hall)
+int16_t BMM150::compensateX(int16_t _mag_data_x, uint16_t _data_r_hall)
 {
   uint16_t process_comp_x0 = 0;
 
   // Overflow condition check
-  if (mag_data_x != kXyaxesFlipOverflowAdcval) {
-    if (data_r_hall != 0) {
+  if (_mag_data_x != kXyaxesFlipOverflowAdcval) {
+    if (_data_r_hall != 0) {
       // Availability of valid data
-      process_comp_x0 = data_r_hall;
+      process_comp_x0 = _data_r_hall;
     }
     else if (trim_data_.dig_xyz1 != 0) {
       process_comp_x0 = trim_data_.dig_xyz1;
@@ -245,7 +245,7 @@ int16_t BMM150::compensateX(int16_t mag_data_x, uint16_t data_r_hall)
       const int32_t process_comp_x7 = (((process_comp_x4 + process_comp_x6) / 512) + ((int32_t)0x100000));
       const int32_t process_comp_x8 = ((int32_t)(((int16_t)trim_data_.dig_x2) + ((int16_t)0xA0)));
       const int32_t process_comp_x9 = ((process_comp_x7 * process_comp_x8) / 4096);
-      const int32_t process_comp_x10 = ((int32_t)mag_data_x) * process_comp_x9;
+      const int32_t process_comp_x10 = ((int32_t)_mag_data_x) * process_comp_x9;
       retval = ((int16_t)(process_comp_x10 / 8192));
       return (retval + (((int16_t)trim_data_.dig_x1) * 8)) / 16;
     }
@@ -259,15 +259,15 @@ int16_t BMM150::compensateX(int16_t mag_data_x, uint16_t data_r_hall)
   }
 }
 
-int16_t BMM150::compensateY(int16_t mag_data_y, uint16_t data_r_hall)
+int16_t BMM150::compensateY(int16_t _mag_data_y, uint16_t _data_r_hall)
 {
   uint16_t process_comp_y0 = 0;
 
   // Overflow condition check
-  if (mag_data_y != kXyaxesFlipOverflowAdcval) {
-    if (data_r_hall != 0) {
+  if (_mag_data_y != kXyaxesFlipOverflowAdcval) {
+    if (_data_r_hall != 0) {
       // Availability of valid data
-      process_comp_y0 = data_r_hall;
+      process_comp_y0 = _data_r_hall;
     }
     else if (trim_data_.dig_xyz1 != 0) {
       process_comp_y0 = trim_data_.dig_xyz1;
@@ -286,7 +286,7 @@ int16_t BMM150::compensateY(int16_t mag_data_y, uint16_t data_r_hall)
       const int32_t process_comp_y6 = ((process_comp_y4 + (((int32_t)retval) * process_comp_y5)) / 512);
       const int32_t process_comp_y7 = ((int32_t)(((int16_t)trim_data_.dig_y2) + ((int16_t)0xA0)));
       const int32_t process_comp_y8 = (((process_comp_y6 + ((int32_t)0x100000)) * process_comp_y7) / 4096);
-      const int32_t process_comp_y9 = (((int32_t)mag_data_y) * process_comp_y8);
+      const int32_t process_comp_y9 = (((int32_t)_mag_data_y) * process_comp_y8);
       retval = (int16_t)(process_comp_y9 / 8192);
       return (retval + (((int16_t)trim_data_.dig_y1) * 8)) / 16;
     }
@@ -300,15 +300,15 @@ int16_t BMM150::compensateY(int16_t mag_data_y, uint16_t data_r_hall)
   }
 }
 
-int16_t BMM150::compensateZ(int16_t mag_data_z, uint16_t data_r_hall)
+int16_t BMM150::compensateZ(int16_t _mag_data_z, uint16_t _data_r_hall)
 {
-  if (mag_data_z != kZaxisHallOverflowAdcval) {
-    if ((trim_data_.dig_z2 != 0) && (trim_data_.dig_z1 != 0) && (data_r_hall != 0) && (trim_data_.dig_xyz1 != 0)) {
+  if (_mag_data_z != kZaxisHallOverflowAdcval) {
+    if ((trim_data_.dig_z2 != 0) && (trim_data_.dig_z1 != 0) && (_data_r_hall != 0) && (trim_data_.dig_xyz1 != 0)) {
       // Processing compensation equations
-      const int16_t process_comp_z0 = ((int16_t)data_r_hall) - ((int16_t)trim_data_.dig_xyz1);
+      const int16_t process_comp_z0 = ((int16_t)_data_r_hall) - ((int16_t)trim_data_.dig_xyz1);
       const int32_t process_comp_z1 = (((int32_t)trim_data_.dig_z3) * ((int32_t)(process_comp_z0))) / 4;
-      const int32_t process_comp_z2 = (((int32_t)(mag_data_z - trim_data_.dig_z4)) * 32768);
-      const int32_t process_comp_z3 = ((int32_t)trim_data_.dig_z1) * (((int16_t)data_r_hall) * 2);
+      const int32_t process_comp_z2 = (((int32_t)(_mag_data_z - trim_data_.dig_z4)) * 32768);
+      const int32_t process_comp_z3 = ((int32_t)trim_data_.dig_z1) * (((int16_t)_data_r_hall) * 2);
       const int16_t process_comp_z4 = (int16_t)((process_comp_z3 + 32768) / 65536);
       const int32_t retval = ((process_comp_z2 - process_comp_z1) / (trim_data_.dig_z2 + process_comp_z4));
 

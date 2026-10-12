@@ -33,22 +33,22 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::AngleThrottleVector, tobas_comman
   using custom_type = tobas_command_msgs::AngleThrottleVector;
   using ros_message_type = tobas_command_msgs::msg::AngleThrottleVector;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
-    dst.priority = src.priority;
-    tobas_kdl_msgs::EulerAdapter::convert_to_ros_message(src.angle, dst.angle);
-    dst.throttle = src.throttle;
-    dst.thrust_angle = src.thrust_angle;
+    _dst.header = _src.header;
+    _dst.priority = _src.priority;
+    tobas_kdl_msgs::EulerAdapter::convert_to_ros_message(_src.angle, _dst.angle);
+    _dst.throttle = _src.throttle;
+    _dst.thrust_angle = _src.thrust_angle;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
-    dst.priority = src.priority;
-    tobas_kdl_msgs::EulerAdapter::convert_to_custom(src.angle, dst.angle);
-    dst.throttle = src.throttle;
-    dst.thrust_angle = src.thrust_angle;
+    _dst.header = _src.header;
+    _dst.priority = _src.priority;
+    tobas_kdl_msgs::EulerAdapter::convert_to_custom(_src.angle, _dst.angle);
+    _dst.throttle = _src.throttle;
+    _dst.thrust_angle = _src.thrust_angle;
   }
 };
 

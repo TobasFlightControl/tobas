@@ -11,10 +11,10 @@ namespace tobas
 namespace math
 {
 /** Solve: a x + b = 0 (a != 0) */
-double solveLinearEquation(double a, double b);
+double solveLinearEquation(double _a, double _b);
 
 /** Solve: a x^2 + b x + c = 0 (a != 0) */
-std::pair<std::complex<double>, std::complex<double>> solveQuadraticEquation(double a, double b, double c);
+std::pair<std::complex<double>, std::complex<double>> solveQuadraticEquation(double _a, double _b, double _c);
 
 /**
  * Solve: a x^3 + b x^2 + c x + d = 0 (a != 0)
@@ -22,6 +22,6 @@ std::pair<std::complex<double>, std::complex<double>> solveQuadraticEquation(dou
  * @see https://oshima-gakushujuku.com/blog/math/formula-qubic-equation/
  */
 std::tuple<std::complex<double>, std::complex<double>, std::complex<double>>
-solveCubicEquation(double a, double b, double c, double d);
+solveCubicEquation(double _a, double _b, double _c, double _d);
 }  // namespace math
 }  // namespace tobas

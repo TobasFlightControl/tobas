@@ -9,13 +9,13 @@
 using namespace std;
 using namespace std::chrono_literals;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
-  if (argc != 2) {
-    cerr << "Usage: " << argv[0] << " <I2C Device>" << endl;
+  if (_argc != 2) {
+    cerr << "Usage: " << _argv[0] << " <I2C Device>" << endl;
     return EXIT_FAILURE;
   }
-  const auto device = argv[1];
+  const auto device = _argv[1];
 
   tobas::stm::IIS2MDC mag;
   double mx, my, mz;

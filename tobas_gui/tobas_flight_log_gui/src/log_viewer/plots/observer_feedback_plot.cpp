@@ -102,17 +102,17 @@ void ObserverFeedbackPlotWidget::clear()
   gravity_plot_->replot();
 }
 
-void ObserverFeedbackPlotWidget::setTimeScale(double t_start, double t_stop)
+void ObserverFeedbackPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
-  acc_bias_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  gyro_bias_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  mag_hard_bias_plot_->setAxisScale(QwtPlot2::xBottom, t_start, t_stop);
-  mag_soft_bias_plot_->setAxisScale(QwtPlot2::xBottom, t_start, t_stop);
-  baro_alt_bias_plot_->setAxisScale(QwtPlot2::xBottom, t_start, t_stop);
-  gravity_plot_->setAxisScale(QwtPlot2::xBottom, t_start, t_stop);
+  acc_bias_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  gyro_bias_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  mag_hard_bias_plot_->setAxisScale(QwtPlot2::xBottom, _t_start, _t_stop);
+  mag_soft_bias_plot_->setAxisScale(QwtPlot2::xBottom, _t_start, _t_stop);
+  baro_alt_bias_plot_->setAxisScale(QwtPlot2::xBottom, _t_start, _t_stop);
+  gravity_plot_->setAxisScale(QwtPlot2::xBottom, _t_start, _t_stop);
 }
 
-void ObserverFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::ObserverFeedback>& msgs)
+void ObserverFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kAccelBiasSize> acc_bias_data;
@@ -122,7 +122,7 @@ void ObserverFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::Ob
   QVector<double> baro_alt_bias_data;
   QVector<double> gravity_data;
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
 
     for (size_t i = 0; i < kAccelBiasSize; ++i) {

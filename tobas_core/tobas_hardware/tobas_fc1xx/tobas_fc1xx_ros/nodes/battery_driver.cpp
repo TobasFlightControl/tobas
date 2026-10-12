@@ -21,7 +21,7 @@ class BatteryDriverNode : public hardware::BaseSensorNode
   using super = hardware::BaseSensorNode;
 
 public:
-  explicit BatteryDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit BatteryDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   Battery battery_;
@@ -34,8 +34,8 @@ private:
   void mainTimerCb();
 };
 
-BatteryDriverNode::BatteryDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc1xx_battery_driver", nodeOptions_Default(options))
+BatteryDriverNode::BatteryDriverNode(const rclcpp::NodeOptions& _options)
+  : super("fc1xx_battery_driver", nodeOptions_Default(_options))
 {
   initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
 }

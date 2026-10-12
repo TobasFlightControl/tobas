@@ -13,52 +13,53 @@ namespace qt
 {
 namespace
 {
-int lineCountDistanceFromPrimary(int current, int primary, int total_num_lines)
+int lineCountDistanceFromPrimary(int _current, int _primary, int _total_num_lines)
 {
-  auto distance = primary - current;
+  auto distance = _primary - _current;
   if (distance < 0) {
-    distance += total_num_lines;
+    distance += _total_num_lines;
   }
   return distance;
 }
 
-QColor currentLineColor(int count_dist, int total_num_lines, double trail_fade_perc, double min_opacity, QColor color)
+QColor
+currentLineColor(int _count_dist, int _total_num_lines, double _trail_fade_perc, double _min_opacity, QColor _color)
 {
-  if (count_dist == 0) {
-    return color;
+  if (_count_dist == 0) {
+    return _color;
   }
 
-  const auto min_alpha = min_opacity / 100.0;
-  const auto dist_thresh = static_cast<int>(std::ceil((total_num_lines - 1) * trail_fade_perc / 100.0));
+  const auto min_alpha = _min_opacity / 100.0;
+  const auto dist_thresh = static_cast<int>(std::ceil((_total_num_lines - 1) * _trail_fade_perc / 100.0));
 
-  if (count_dist > dist_thresh) {
-    color.setAlphaF(min_alpha);
+  if (_count_dist > dist_thresh) {
+    _color.setAlphaF(min_alpha);
   }
   else {
-    const auto alpha_diff = color.alphaF() - min_alpha;
+    const auto alpha_diff = _color.alphaF() - min_alpha;
     const auto gradient = alpha_diff / static_cast<double>(dist_thresh + 1);
-    const auto result_alpha = std::clamp(color.alphaF() - gradient * count_dist, 0.0, 1.0);
-    color.setAlphaF(result_alpha);
+    const auto result_alpha = std::clamp(_color.alphaF() - gradient * _count_dist, 0.0, 1.0);
+    _color.setAlphaF(result_alpha);
   }
 
-  return color;
+  return _color;
 }
 }  // namespace
 
-WaitSpinnerWidget::WaitSpinnerWidget(QWidget* parent, bool center_on_parent)
-  : super(parent), center_on_parent_(center_on_parent)
+WaitSpinnerWidget::WaitSpinnerWidget(QWidget* _parent, bool _center_on_parent)
+  : super(_parent), center_on_parent_(_center_on_parent)
 {
   initialize();
 }
 
-WaitSpinnerWidget::WaitSpinnerWidget(Qt::WindowModality modality, QWidget* parent, bool center_on_parent)
-  : super(parent, Qt::Dialog | Qt::FramelessWindowHint), center_on_parent_(center_on_parent)
+WaitSpinnerWidget::WaitSpinnerWidget(Qt::WindowModality _modality, QWidget* _parent, bool _center_on_parent)
+  : super(_parent, Qt::Dialog | Qt::FramelessWindowHint), center_on_parent_(_center_on_parent)
 {
   initialize();
 
   // We need to set the window modality AFTER we've hidden the widget for the first time
   // since changing this property while the widget is visible has no effect.
-  setWindowModality(modality);
+  setWindowModality(_modality);
   setAttribute(Qt::WA_TranslucentBackground);
 }
 
@@ -127,54 +128,54 @@ void WaitSpinnerWidget::stop()
   is_spinning_ = false;
 }
 
-void WaitSpinnerWidget::setColor(QColor color)
+void WaitSpinnerWidget::setColor(QColor _color)
 {
-  color_ = color;
+  color_ = _color;
 }
 
-void WaitSpinnerWidget::setRoundness(double roundness)
+void WaitSpinnerWidget::setRoundness(double _roundness)
 {
-  roundness_ = std::max(0.0, std::min(100.0, roundness));
+  roundness_ = std::max(0.0, std::min(100.0, _roundness));
 }
 
-void WaitSpinnerWidget::setMinimumTrailOpacity(double min_trail_opacity)
+void WaitSpinnerWidget::setMinimumTrailOpacity(double _min_trail_opacity)
 {
-  min_trail_opacity_ = min_trail_opacity;
+  min_trail_opacity_ = _min_trail_opacity;
 }
 
-void WaitSpinnerWidget::setTrailFadePercentage(double trail)
+void WaitSpinnerWidget::setTrailFadePercentage(double _trail)
 {
-  trail_fade_perc_ = trail;
+  trail_fade_perc_ = _trail;
 }
 
-void WaitSpinnerWidget::setRevolutionsPerSecond(double revolution_per_sec)
+void WaitSpinnerWidget::setRevolutionsPerSecond(double _revolution_per_sec)
 {
-  revolutions_per_sec_ = revolution_per_sec;
+  revolutions_per_sec_ = _revolution_per_sec;
   updateTimer();
 }
 
-void WaitSpinnerWidget::setNumberOfLines(int lines)
+void WaitSpinnerWidget::setNumberOfLines(int _lines)
 {
-  num_lines_ = lines;
+  num_lines_ = _lines;
   cur_counter_ = 0;
   updateTimer();
 }
 
-void WaitSpinnerWidget::setLineLength(int length)
+void WaitSpinnerWidget::setLineLength(int _length)
 {
-  line_length_ = length;
+  line_length_ = _length;
   updateSize();
 }
 
-void WaitSpinnerWidget::setLineWidth(int width)
+void WaitSpinnerWidget::setLineWidth(int _width)
 {
-  line_width_ = width;
+  line_width_ = _width;
   updateSize();
 }
 
-void WaitSpinnerWidget::setInnerRadius(int radius)
+void WaitSpinnerWidget::setInnerRadius(int _radius)
 {
-  inner_radius_ = radius;
+  inner_radius_ = _radius;
   updateSize();
 }
 

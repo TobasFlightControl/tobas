@@ -22,7 +22,7 @@ namespace YAML
 template <>
 struct convert<tobas::mission::AltitudeFrame>
 {
-  static Node encode(tobas::mission::AltitudeFrame rhs);
-  static bool decode(const Node& node, tobas::mission::AltitudeFrame& rhs);
+  static Node encode(tobas::mission::AltitudeFrame _rhs);
+  static bool decode(const Node& _node, tobas::mission::AltitudeFrame& _rhs);
 };
 }  // namespace YAML

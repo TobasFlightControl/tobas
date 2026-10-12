@@ -17,19 +17,19 @@ namespace tobas
 {
 namespace tf
 {
-void vectorEigenToMsg(const Eigen::Vector3d& e, geometry_msgs::msg::Vector3& m);
-void vectorMsgToEigen(const geometry_msgs::msg::Vector3& m, Eigen::Vector3d& e);
+void vectorEigenToMsg(const Eigen::Vector3d& _e, geometry_msgs::msg::Vector3& _m);
+void vectorMsgToEigen(const geometry_msgs::msg::Vector3& _m, Eigen::Vector3d& _e);
 
-void pointEigenToMsg(const Eigen::Vector3d& e, geometry_msgs::msg::Point& m);
-void pointMsgToEigen(const geometry_msgs::msg::Point& m, Eigen::Vector3d& e);
+void pointEigenToMsg(const Eigen::Vector3d& _e, geometry_msgs::msg::Point& _m);
+void pointMsgToEigen(const geometry_msgs::msg::Point& _m, Eigen::Vector3d& _e);
 
-void point32EigenToMsg(const Eigen::Vector3f& e, geometry_msgs::msg::Point32& m);
-void point32MsgToEigen(const geometry_msgs::msg::Point32& m, Eigen::Vector3f& e);
+void point32EigenToMsg(const Eigen::Vector3f& _e, geometry_msgs::msg::Point32& _m);
+void point32MsgToEigen(const geometry_msgs::msg::Point32& _m, Eigen::Vector3f& _e);
 
-void quaternionEigenToMsg(const Eigen::Quaterniond& e, geometry_msgs::msg::Quaternion& m);
-void quaternionMsgToEigen(const geometry_msgs::msg::Quaternion& m, Eigen::Quaterniond& e);
+void quaternionEigenToMsg(const Eigen::Quaterniond& _e, geometry_msgs::msg::Quaternion& _m);
+void quaternionMsgToEigen(const geometry_msgs::msg::Quaternion& _m, Eigen::Quaterniond& _e);
 
-void matrix3EigenToMsg(const Eigen::Matrix3d& e, std::array<double, 9>& m);
-void matrix3MsgToEigen(const std::array<double, 9>& m, Eigen::Matrix3d& e);
+void matrix3EigenToMsg(const Eigen::Matrix3d& _e, std::array<double, 9>& _m);
+void matrix3MsgToEigen(const std::array<double, 9>& _m, Eigen::Matrix3d& _e);
 }  // namespace tf
 }  // namespace tobas

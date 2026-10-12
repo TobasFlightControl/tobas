@@ -19,22 +19,22 @@ class QpMixer : public MixerI
   using super = MixerI;
 
 public:
-  explicit QpMixer(const Drone& drone, const kdl::Tree& tree);
+  explicit QpMixer(const Drone& _drone, const kdl::Tree& _tree);
 
   void updateInternalDataStructures() override;
 
   std::expected<Eigen::VectorXd, std::string> solve(
-    const kdl::JntArray& cur_q,
-    const kdl::Rotation& cur_rot,
-    const kdl::Vector& cur_gyro_B,
-    const kdl::Vector& tar_acc_W,
-    const kdl::Vector& tar_dgyro_B,
-    const kdl::Vector& ext_force_W = kdl::Vector::Zero(),
-    const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
+    const kdl::JntArray& _cur_q,
+    const kdl::Rotation& _cur_rot,
+    const kdl::Vector& _cur_gyro_b,
+    const kdl::Vector& _tar_acc_w,
+    const kdl::Vector& _tar_dgyro_b,
+    const kdl::Vector& _ext_force_w = kdl::Vector::Zero(),
+    const kdl::Vector& _ext_torque_b = kdl::Vector::Zero());
 
-  void setLinearWeight(double p);
-  void setAngularWeight(double p);
-  void setThrustWeight(double p);
+  void setLinearWeight(double _p);
+  void setAngularWeight(double _p);
+  void setThrustWeight(double _p);
 
 private:
   struct Config

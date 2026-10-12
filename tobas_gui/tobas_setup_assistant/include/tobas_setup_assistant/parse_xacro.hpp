@@ -13,7 +13,7 @@ namespace gui
 {
 namespace sa
 {
-std::expected<QString, QString> parseXacroFromPath(const QString& xacro_path);
+std::expected<QString, QString> parseXacroFromPath(const QString& _xacro_path);
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas

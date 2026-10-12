@@ -26,15 +26,15 @@ namespace gui
 namespace sa
 {
 ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
-  const QString& param_name,
-  const QString& title,
-  const QStringList& labels,
-  const QString& description_text)
-  : super(param_name, description_text)
-  , last_opened_dir_key_("double_table/last_opened_dir/" + QString(param_name).replace(' ', '_'))
-  , title_(title)
-  , labels_(labels)
-  , num_entry_(labels.size())
+  const QString& _param_name,
+  const QString& _title,
+  const QStringList& _labels,
+  const QString& _description_text)
+  : super(_param_name, _description_text)
+  , last_opened_dir_key_("double_table/last_opened_dir/" + QString(_param_name).replace(' ', '_'))
+  , title_(_title)
+  , labels_(_labels)
+  , num_entry_(_labels.size())
 {
   TOBAS_CHECK(num_entry_ > 0);
 
@@ -57,7 +57,7 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
 
   table_ = new qt::TableWidget(0, num_entry_);
   table_->verticalHeader()->setVisible(true);  // Show row numbers.
-  table_->setHorizontalHeaderLabels(labels);
+  table_->setHorizontalHeaderLabels(_labels);
 
   // Layout
   const auto cols = new QHBoxLayout();
@@ -92,19 +92,19 @@ Eigen::MatrixXd ParamGetterWidget_DoubleTable::getValue() const
   return res;
 }
 
-bool ParamGetterWidget_DoubleTable::setValue(const Eigen::MatrixXd& src)
+bool ParamGetterWidget_DoubleTable::setValue(const Eigen::MatrixXd& _src)
 {
-  if (!isValidData(src)) {
+  if (!isValidData(_src)) {
     return false;
   }
 
   table_->removeAll();
 
-  for (int row = 0; row < src.rows(); ++row) {
+  for (int row = 0; row < _src.rows(); ++row) {
     addRow();
-    for (int col = 0; col < src.cols(); ++col) {
+    for (int col = 0; col < _src.cols(); ++col) {
       const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(table_->cellWidget(row, col));
-      cell->setValue(src(row, col));
+      cell->setValue(_src(row, col));
     }
   }
 
@@ -116,22 +116,22 @@ qt::TableWidget* ParamGetterWidget_DoubleTable::table()
   return table_;
 }
 
-void ParamGetterWidget_DoubleTable::setDecimals(const QVector<int>& decimals)
+void ParamGetterWidget_DoubleTable::setDecimals(const QVector<int>& _decimals)
 {
-  TOBAS_CHECK(decimals.size() == num_entry_);
-  decimals_ = decimals;
+  TOBAS_CHECK(_decimals.size() == num_entry_);
+  decimals_ = _decimals;
 }
 
-void ParamGetterWidget_DoubleTable::setMinimum(const QVector<double>& minimum)
+void ParamGetterWidget_DoubleTable::setMinimum(const QVector<double>& _minimum)
 {
-  TOBAS_CHECK(minimum.size() == num_entry_);
-  minimum_ = minimum;
+  TOBAS_CHECK(_minimum.size() == num_entry_);
+  minimum_ = _minimum;
 }
 
-void ParamGetterWidget_DoubleTable::setMaximum(const QVector<double>& maximum)
+void ParamGetterWidget_DoubleTable::setMaximum(const QVector<double>& _maximum)
 {
-  TOBAS_CHECK(maximum.size() == num_entry_);
-  maximum_ = maximum;
+  TOBAS_CHECK(_maximum.size() == num_entry_);
+  maximum_ = _maximum;
 }
 
 void ParamGetterWidget_DoubleTable::setDefault(const QVector<double>& _default)
@@ -236,15 +236,15 @@ QString ParamGetterWidget_DoubleTable::getCsvPath()
   return file_path;
 }
 
-bool ParamGetterWidget_DoubleTable::isValidData(const Eigen::MatrixXd& src)
+bool ParamGetterWidget_DoubleTable::isValidData(const Eigen::MatrixXd& _src)
 {
-  if (src.cols() != num_entry_) {
+  if (_src.cols() != num_entry_) {
     qt::qErrorBox(this, "Column size mismatch.");
     return false;
   }
 
   for (int col = 0; col < num_entry_; ++col) {
-    const auto column = src.col(col).array().eval();
+    const auto column = _src.col(col).array().eval();
     if ((column < minimum_.at(col)).any() || (maximum_.at(col) < column).any()) {
       qt::qErrorBox(this, "Some values of field '" + labels_.at(col) + "' are out of limits.");
       return false;

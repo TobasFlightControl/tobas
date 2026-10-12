@@ -18,16 +18,16 @@ struct rclcpp::TypeAdapter<tobas::kdl::Accel, tobas_kdl_msgs::msg::Accel>
   using custom_type = tobas::kdl::Accel;
   using ros_message_type = tobas_kdl_msgs::msg::Accel;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.linear, dst.linear);
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.angular, dst.angular);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.linear, _dst.linear);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.angular, _dst.angular);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.linear, dst.linear);
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.angular, dst.angular);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.linear, _dst.linear);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.angular, _dst.angular);
   }
 };
 

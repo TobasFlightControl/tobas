@@ -32,16 +32,16 @@ struct rclcpp::TypeAdapter<tobas_kdl_msgs::JntArrayAccStamped, tobas_kdl_msgs::m
   using custom_type = tobas_kdl_msgs::JntArrayAccStamped;
   using ros_message_type = tobas_kdl_msgs::msg::JntArrayAccStamped;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
-    tobas_kdl_msgs::JntArrayAccAdapter::convert_to_ros_message(src.q, dst.q);
+    _dst.header = _src.header;
+    tobas_kdl_msgs::JntArrayAccAdapter::convert_to_ros_message(_src.q, _dst.q);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
-    tobas_kdl_msgs::JntArrayAccAdapter::convert_to_custom(src.q, dst.q);
+    _dst.header = _src.header;
+    tobas_kdl_msgs::JntArrayAccAdapter::convert_to_custom(_src.q, _dst.q);
   }
 };
 

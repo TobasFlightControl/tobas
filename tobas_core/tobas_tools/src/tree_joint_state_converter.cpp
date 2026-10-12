@@ -7,7 +7,7 @@
 
 namespace tobas
 {
-TreeJointStateConverter::TreeJointStateConverter(const kdl::Tree& tree) : super(tree), jnt_parser_(tree_)
+TreeJointStateConverter::TreeJointStateConverter(const kdl::Tree& _tree) : super(_tree), jnt_parser_(tree_)
 {
   resize();
   setZero();
@@ -21,9 +21,9 @@ void TreeJointStateConverter::updateInternalDataStructures()
   setZero();
 }
 
-std::expected<void, std::string> TreeJointStateConverter::convert(const tobas_msgs::msg::JointStateArray& msg)
+std::expected<void, std::string> TreeJointStateConverter::convert(const tobas_msgs::msg::JointStateArray& _msg)
 {
-  for (const auto& state : msg.states) {
+  for (const auto& state : _msg.states) {
     try {
       const auto& kdl_idx = jnt_parser_.jointIndex(state.name);  // Index in the tree
       q_out_(kdl_idx) = state.position;

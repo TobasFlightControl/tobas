@@ -42,9 +42,9 @@ bool StopAtWaypointWidget::getValue() const
   return combobox_->currentText() == kStopAtWaypointLabel;
 }
 
-void StopAtWaypointWidget::setValue(bool value)
+void StopAtWaypointWidget::setValue(bool _value)
 {
-  combobox_->setCurrentText(value ? kStopAtWaypointLabel : kPassThroughLabel);
+  combobox_->setCurrentText(_value ? kStopAtWaypointLabel : kPassThroughLabel);
 }
 }  // namespace field
 }  // namespace ctrl

@@ -21,7 +21,7 @@ namespace
 constexpr int kDefaultIndex = 0;
 }  // namespace
 
-MagCalibrationWidget::MagCalibrationWidget(const rqt::RosQtBridge& bridge)
+MagCalibrationWidget::MagCalibrationWidget(const rqt::RosQtBridge& _bridge)
 {
   btn_group_ = new QButtonGroup(this);
   btn_group_->setExclusive(true);
@@ -29,8 +29,8 @@ MagCalibrationWidget::MagCalibrationWidget(const rqt::RosQtBridge& bridge)
   stack_ = new qt::StackedWidget();
 
   int id = 0;
-  addMagCalibWidget(new CompleteMagCalibWidget(bridge), "Complete Calibration (Recommended)", id++);
-  addMagCalibWidget(new LargeVehicleMagCalibWidget(bridge), "Large Vehicle Calibration", id++);
+  addMagCalibWidget(new CompleteMagCalibWidget(_bridge), "Complete Calibration (Recommended)", id++);
+  addMagCalibWidget(new LargeVehicleMagCalibWidget(_bridge), "Large Vehicle Calibration", id++);
 
   setCurrentIndex(kDefaultIndex);
 
@@ -57,12 +57,12 @@ void MagCalibrationWidget::updateInternalDataStructures()
 {
 }
 
-void MagCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void MagCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
   for (int i = 0; i < stack_->count(); ++i) {
     const auto widget = getWidget(i);
     widget->reset();
-    widget->initializeRosInterfaces(node, ns);
+    widget->initializeRosInterfaces(_node, _ns);
   }
 
   setCurrentIndex(kDefaultIndex);
@@ -75,23 +75,23 @@ void MagCalibrationWidget::clearRosInterfaces()
   }
 }
 
-void MagCalibrationWidget::addMagCalibWidget(BaseMagCalibWidget* widget, const QString& label, int id)
+void MagCalibrationWidget::addMagCalibWidget(BaseMagCalibWidget* _widget, const QString& _label, int _id)
 {
-  const auto btn = new QRadioButton(label);
-  btn_group_->addButton(btn, id++);
+  const auto btn = new QRadioButton(_label);
+  btn_group_->addButton(btn, _id++);
   rows_->addWidget(btn);
-  stack_->addWidget(widget);
+  stack_->addWidget(_widget);
 }
 
-BaseMagCalibWidget* MagCalibrationWidget::getWidget(int index)
+BaseMagCalibWidget* MagCalibrationWidget::getWidget(int _index)
 {
-  return qt::qPointerCast<BaseMagCalibWidget>(stack_->widget(index));
+  return qt::qPointerCast<BaseMagCalibWidget>(stack_->widget(_index));
 }
 
-void MagCalibrationWidget::setCurrentIndex(int index)
+void MagCalibrationWidget::setCurrentIndex(int _index)
 {
-  btn_group_->button(index)->setChecked(true);
-  stack_->setCurrentIndex(index);
+  btn_group_->button(_index)->setChecked(true);
+  stack_->setCurrentIndex(_index);
 }
 }  // namespace sc
 }  // namespace gui

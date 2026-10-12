@@ -18,12 +18,12 @@ class QwtPlot2 : public QwtPlot
   using super = QwtPlot;
 
 public:
-  explicit QwtPlot2(QWidget* parent = nullptr);
+  explicit QwtPlot2(QWidget* _parent = nullptr);
 
-  void setAxisNoLabel(QwtPlot::Axis axis);
-  void setAxisLabelUnit(QwtPlot::Axis axis, const QString& unit);
+  void setAxisNoLabel(QwtPlot::Axis _axis);
+  void setAxisLabelUnit(QwtPlot::Axis _axis, const QString& _unit);
 
-  void setupIndexedLabelPlot(const QStringList& labels);
+  void setupIndexedLabelPlot(const QStringList& _labels);
 };
 }  // namespace log
 }  // namespace gui

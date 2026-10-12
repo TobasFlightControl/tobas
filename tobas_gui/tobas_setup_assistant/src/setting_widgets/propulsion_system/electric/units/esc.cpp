@@ -47,9 +47,9 @@ bool ESCWidget::isValid()
   return true;
 }
 
-void ESCWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
+void ESCWidget::copyFrom(const BaseSelectedLinkSettingWidget* _src)
 {
-  const auto derived = qt::qConstPointerCast<ESCWidget>(src);
+  const auto derived = qt::qConstPointerCast<ESCWidget>(_src);
   max_cont_current_->setValue(derived->max_cont_current_->getValue());
 }
 
@@ -62,9 +62,9 @@ YAML::Node ESCWidget::dump() const
   return node;
 }
 
-void ESCWidget::load(const YAML::Node& node)
+void ESCWidget::load(const YAML::Node& _node)
 {
-  max_cont_current_->setValue(node[max_cont_current_->name()].as<int>());
+  max_cont_current_->setValue(_node[max_cont_current_->name()].as<int>());
 }
 
 double ESCWidget::maxContinuousCurrent() const

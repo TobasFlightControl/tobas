@@ -32,18 +32,18 @@ struct rclcpp::
   using custom_type = tobas_debug_msgs::MulticopterControllerFeedback;
   using ros_message_type = tobas_debug_msgs::msg::MulticopterControllerFeedback;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.position_integral_error, dst.position_integral_error);
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.angle_integral_error, dst.angle_integral_error);
+    _dst.header = _src.header;
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.position_integral_error, _dst.position_integral_error);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.angle_integral_error, _dst.angle_integral_error);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.position_integral_error, dst.position_integral_error);
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.angle_integral_error, dst.angle_integral_error);
+    _dst.header = _src.header;
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.position_integral_error, _dst.position_integral_error);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.angle_integral_error, _dst.angle_integral_error);
   }
 };
 

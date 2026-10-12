@@ -15,7 +15,7 @@ namespace gui
 {
 namespace sim
 {
-CommandersWidget::CommandersWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
+CommandersWidget::CommandersWidget(const rqt::RosQtBridge& _bridge, const kdl::Tree& _tree, const Drone& _drone)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -25,10 +25,10 @@ CommandersWidget::CommandersWidget(const rqt::RosQtBridge& bridge, const kdl::Tr
 
   const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
 
-  base_pose_commander_ = new BasePoseCommanderWidget(bridge);
+  base_pose_commander_ = new BasePoseCommanderWidget(_bridge);
   scroll_rows->addWidget(base_pose_commander_);
 
-  joint_commander_ = new JointCommanderWidget(tree, drone);
+  joint_commander_ = new JointCommanderWidget(_tree, _drone);
   scroll_rows->addWidget(joint_commander_);
 
   scroll_rows->addStretch();
@@ -46,10 +46,10 @@ void CommandersWidget::updateInternalDataStructures()
   joint_commander_->updateInternalDataStructures();
 }
 
-void CommandersWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void CommandersWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  base_pose_commander_->initializeRosInterfaces(node, ns);
-  joint_commander_->initializeRosInterfaces(node, ns);
+  base_pose_commander_->initializeRosInterfaces(_node, _ns);
+  joint_commander_->initializeRosInterfaces(_node, _ns);
 }
 
 void CommandersWidget::clearRosInterfaces()

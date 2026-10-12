@@ -41,17 +41,17 @@ std::expected<fs::path, std::string> homeDir() noexcept
   }
 }
 
-std::expected<fs::path, std::string> expandUser(const std::string& path) noexcept
+std::expected<fs::path, std::string> expandUser(const std::string& _path) noexcept
 {
-  if (path.substr(0, 2) == "~/") {
+  if (_path.substr(0, 2) == "~/") {
     const auto home = homeDir();
     if (!home) {
       return std::unexpected(home.error());
     }
-    return *home / path.substr(2);
+    return *home / _path.substr(2);
   }
   else {
-    return path;
+    return _path;
   }
 }
 

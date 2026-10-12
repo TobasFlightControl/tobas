@@ -13,10 +13,10 @@ namespace sa
 {
 namespace csv
 {
-rapidcsv::Document load(const fs::path& path)
+rapidcsv::Document load(const fs::path& _path)
 {
-  if (!fs::is_regular_file(path)) {
-    throw std::runtime_error(path.string() + " does not exist.");
+  if (!fs::is_regular_file(_path)) {
+    throw std::runtime_error(_path.string() + " does not exist.");
   }
 
   const rapidcsv::LabelParams label_params;
@@ -28,7 +28,7 @@ rapidcsv::Document load(const fs::path& path)
   // Skip comment and blank lines.
   const rapidcsv::LineReaderParams line_reader_params(true, '#', true);
 
-  return rapidcsv::Document(path, label_params, separator_params, converter_params, line_reader_params);
+  return rapidcsv::Document(_path, label_params, separator_params, converter_params, line_reader_params);
 }
 }  // namespace csv
 }  // namespace sa

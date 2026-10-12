@@ -25,11 +25,11 @@ class ControlSystemWidget : public QWidget
   Q_OBJECT
 
 public:
-  explicit ControlSystemWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
+  explicit ControlSystemWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone);
 
   void reset();
   void updateInternalDataStructures();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:

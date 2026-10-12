@@ -22,23 +22,25 @@ namespace ogre
 class StaticLinkUpdater : public rviz_default_plugins::robot::LinkUpdater
 {
 public:
-  explicit StaticLinkUpdater(::urdf::ModelSharedPtr urdfPtr);
+  explicit StaticLinkUpdater(::urdf::ModelSharedPtr _urdf_ptr);
 
   bool getLinkTransforms(
-    const std::string& link_name,
-    Ogre::Vector3& visual_position,
-    Ogre::Quaternion& visual_orientation,
-    Ogre::Vector3& collision_position,
-    Ogre::Quaternion& collision_orientation) const override;
+    const std::string& _link_name,
+    Ogre::Vector3& _visual_position,
+    Ogre::Quaternion& _visual_orientation,
+    Ogre::Vector3& _collision_position,
+    Ogre::Quaternion& _collision_orientation) const override;
 
-  void setLinkStatus(rviz_common::properties::StatusLevel level, const std::string& link_name, const std::string& text)
-    const override;
+  void setLinkStatus(
+    rviz_common::properties::StatusLevel _level,
+    const std::string& _link_name,
+    const std::string& _text) const override;
 
 private:
   ::urdf::ModelSharedPtr urdf_;
   std::unordered_map<std::string, Ogre::Matrix4> transforms_;
 
-  Ogre::Matrix4 findTransform(const ::urdf::LinkConstSharedPtr& link);
+  Ogre::Matrix4 findTransform(const ::urdf::LinkConstSharedPtr& _link);
 };
 }  // namespace ogre
 }  // namespace ub

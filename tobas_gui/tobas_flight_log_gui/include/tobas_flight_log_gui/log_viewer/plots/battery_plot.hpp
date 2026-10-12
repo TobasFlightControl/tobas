@@ -23,9 +23,9 @@ public:
   explicit BatteryPlotWidget();
 
   void clear() override;
-  void setTimeScale(double t_start, double t_stop) override;
+  void setTimeScale(double _t_start, double _t_stop) override;
 
-  void setData(const QVector<tobas_msgs::msg::Battery>& batt_msgs);
+  void setData(const QVector<tobas_msgs::msg::Battery>& _batt_msgs);
 
 private:
   QwtPlot2* voltage_plot_;

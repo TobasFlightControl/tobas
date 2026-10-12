@@ -64,14 +64,14 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS() : spinner_(Qt::WindowModal, this)
   connect(log_list_, &QListWidget::currentItemChanged, this, &self::onListItemChanged);
 }
 
-void FlightLogsWidgetGCS::addLog(const QString& log_name)
+void FlightLogsWidgetGCS::addLog(const QString& _log_name)
 {
   const auto list_item = new qt::ListWidgetItem();
   list_item->setSizeHint(QSize(0, 40));
-  list_item->setData(Qt::UserRole, log_name);
+  list_item->setData(Qt::UserRole, _log_name);
   log_list_->addItem(list_item);
 
-  const auto widget = new FlightLogItemWidgetGCS(log_name);
+  const auto widget = new FlightLogItemWidgetGCS(_log_name);
   connect(widget, &FlightLogItemWidgetGCS::exportButtonClicked, this, &self::onExportButtonClicked);
   connect(widget, &FlightLogItemWidgetGCS::deleteButtonClicked, this, &self::onDeleteButtonClicked);
   log_list_->setItemWidget(list_item, widget);
@@ -79,20 +79,20 @@ void FlightLogsWidgetGCS::addLog(const QString& log_name)
   sortLogs();
 }
 
-void FlightLogsWidgetGCS::removeLog(const QString& log_name)
+void FlightLogsWidgetGCS::removeLog(const QString& _log_name)
 {
-  const auto list_item = findLog(log_name);
+  const auto list_item = findLog(_log_name);
   TOBAS_CHECK(list_item);
   log_list_->remove(list_item);
 }
 
-QListWidgetItem* FlightLogsWidgetGCS::findLog(const QString& log_name)
+QListWidgetItem* FlightLogsWidgetGCS::findLog(const QString& _log_name)
 {
   for (int row = 0; row < log_list_->count(); ++row) {
     const auto list_item = log_list_->item(row);
     const auto log_widget = qt::qConstPointerCast<FlightLogItemWidgetGCS>(log_list_->itemWidget(list_item));
 
-    if (log_widget->logName() == log_name) {
+    if (log_widget->logName() == _log_name) {
       return list_item;
     }
   }
@@ -116,17 +116,17 @@ QString FlightLogsWidgetGCS::currentLogName() const
   return cur_item->data(Qt::UserRole).toString();
 }
 
-void FlightLogsWidgetGCS::setCurrentLogName(const QString& log_name)
+void FlightLogsWidgetGCS::setCurrentLogName(const QString& _log_name)
 {
   for (int i = 0; i < log_list_->count(); ++i) {
     const auto item = log_list_->item(i);
-    if (item->data(Qt::UserRole).toString() == log_name) {
+    if (item->data(Qt::UserRole).toString() == _log_name) {
       log_list_->setCurrentItem(item);
       return;
     }
   }
 
-  qWarning() << log_name << "not found.";
+  qWarning() << _log_name << "not found.";
 }
 
 void FlightLogsWidgetGCS::sortLogs()
@@ -209,9 +209,9 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
   clearLogs();
 }
 
-void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
+void FlightLogsWidgetGCS::onExportButtonClicked(const QString& _log_name)
 {
-  qDebug().nospace() << "FlightLogsWidgetGCS::onExportButtonClicked(" << log_name << ")";
+  qDebug().nospace() << "FlightLogsWidgetGCS::onExportButtonClicked(" << _log_name << ")";
 
   constexpr char kFilterTextCsv[] = "CSV Files (*.csv)";
   constexpr char kFilterTextRosbag[] = "ROS bag Archive (*.zip)";
@@ -221,7 +221,7 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
   const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey, QDir::homePath()).toString();
 
   // Set the default output file path.
-  const auto default_filename = log_name + ".csv";
+  const auto default_filename = _log_name + ".csv";
   const auto default_path = QDir(last_opened_dir).filePath(default_filename);
 
   // Get the save file path.
@@ -246,10 +246,10 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
   // Create an export thread.
   ExportThread* thread = nullptr;
   if (selected_filter == kFilterTextCsv) {
-    thread = new ExportThreadCsv(log_name, save_path);
+    thread = new ExportThreadCsv(_log_name, save_path);
   }
   else if (selected_filter == kFilterTextRosbag) {
-    thread = new ExportThreadRosbag(log_name, save_path);
+    thread = new ExportThreadRosbag(_log_name, save_path);
   }
   else {
     throw std::runtime_error("Unexpected filter: " + selected_filter.toStdString());
@@ -269,13 +269,13 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
   }
 }
 
-void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
+void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& _log_name)
 {
-  qDebug().nospace() << "FlightLogsWidgetGCS::onDeleteButtonClicked(" << log_name << ")";
+  qDebug().nospace() << "FlightLogsWidgetGCS::onDeleteButtonClicked(" << _log_name << ")";
 
-  const auto log_path = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
+  const auto log_path = ros2::expandUser(kRosbagDirHome) / _log_name.toStdString();
 
-  if (!qt::yesOrNo(this, "Do you want to delete flight log '" + log_name + "'?", qt::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to delete flight log '" + _log_name + "'?", qt::WARN)) {
     return;
   }
 
@@ -284,23 +284,23 @@ void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
     return;
   }
 
-  if (currentLogName() == log_name) {
+  if (currentLogName() == _log_name) {
     log_list_->deselect();
     Q_EMIT logDeselected();
   }
 
-  removeLog(log_name);
+  removeLog(_log_name);
 }
 
-void FlightLogsWidgetGCS::onListItemChanged(QListWidgetItem* item)
+void FlightLogsWidgetGCS::onListItemChanged(QListWidgetItem* _item)
 {
   qDebug() << "FlightLogsWidgetGCS::onListItemChanged";
 
-  if (!item) {
+  if (!_item) {
     return;
   }
 
-  const auto log_widget = qt::qConstPointerCast<FlightLogItemWidgetGCS>(log_list_->itemWidget(item));
+  const auto log_widget = qt::qConstPointerCast<FlightLogItemWidgetGCS>(log_list_->itemWidget(_item));
   Q_EMIT logSelected(log_widget->logName());
 }
 }  // namespace log

@@ -18,7 +18,7 @@ class ImuFilterConfigServer : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit ImuFilterConfigServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit ImuFilterConfigServer(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   struct LowPassFilterConfig
@@ -44,22 +44,22 @@ private:
   void sendLowPassFilterConfigRequest();
   void sendRpmFilterConfigRequest();
 
-  void lowPassFilterConfigResponseCb(rclcpp::Client<tobas_msgs::srv::ConfigureImuLowPassFilter>::SharedFuture future);
-  void rpmFilterConfigResponseCb(rclcpp::Client<tobas_msgs::srv::ConfigureImuRpmFilter>::SharedFuture future);
+  void lowPassFilterConfigResponseCb(rclcpp::Client<tobas_msgs::srv::ConfigureImuLowPassFilter>::SharedFuture _future);
+  void rpmFilterConfigResponseCb(rclcpp::Client<tobas_msgs::srv::ConfigureImuRpmFilter>::SharedFuture _future);
 
-  void lowPassFilterAccelCutoffCb(long p);
-  void lowPassFilterGyroCutoffCb(long p);
-  void lowPassFilterDGyroCutoffCb(long p);
-  void rpmFilterQualityFactorCb(long p);
-  void rpmFilterMinCenterFreqCb(long p);
-  void rpmFilterFadeRangeCb(long p);
-  void rpmFilterLpfCutoffCb(long p);
+  void lowPassFilterAccelCutoffCb(long _p);
+  void lowPassFilterGyroCutoffCb(long _p);
+  void lowPassFilterDGyroCutoffCb(long _p);
+  void rpmFilterQualityFactorCb(long _p);
+  void rpmFilterMinCenterFreqCb(long _p);
+  void rpmFilterFadeRangeCb(long _p);
+  void rpmFilterLpfCutoffCb(long _p);
 
-  void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
+  void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& _msg);
 };
 
-ImuFilterConfigServer::ImuFilterConfigServer(const rclcpp::NodeOptions& options)
-  : super(node::kImuFilterConfigServer, nodeOptions_DParam(options))
+ImuFilterConfigServer::ImuFilterConfigServer(const rclcpp::NodeOptions& _options)
+  : super(node::kImuFilterConfigServer, nodeOptions_DParam(_options))
 {
   const auto has_rpm_filter = getBoolParam("has_rpm_filter");
 
@@ -116,9 +116,9 @@ void ImuFilterConfigServer::sendRpmFilterConfigRequest()
 }
 
 void ImuFilterConfigServer::lowPassFilterConfigResponseCb(
-  rclcpp::Client<tobas_msgs::srv::ConfigureImuLowPassFilter>::SharedFuture future)
+  rclcpp::Client<tobas_msgs::srv::ConfigureImuLowPassFilter>::SharedFuture _future)
 {
-  const auto res = future.get();
+  const auto res = _future.get();
   if (!res->success) {
     TOBAS_ERROR("Failed to configure the IMU low-pass filter: ", res->message, " Retrying...");
     sendLowPassFilterConfigRequest();
@@ -126,72 +126,72 @@ void ImuFilterConfigServer::lowPassFilterConfigResponseCb(
 }
 
 void ImuFilterConfigServer::rpmFilterConfigResponseCb(
-  rclcpp::Client<tobas_msgs::srv::ConfigureImuRpmFilter>::SharedFuture future)
+  rclcpp::Client<tobas_msgs::srv::ConfigureImuRpmFilter>::SharedFuture _future)
 {
-  const auto res = future.get();
+  const auto res = _future.get();
   if (!res->success) {
     TOBAS_ERROR("Failed to configure the IMU RPM filter: ", res->message, " Retrying...");
     sendRpmFilterConfigRequest();
   }
 }
 
-void ImuFilterConfigServer::lowPassFilterAccelCutoffCb(long p)
+void ImuFilterConfigServer::lowPassFilterAccelCutoffCb(long _p)
 {
-  lowpass_cfg_.accel_cutoff = p;
+  lowpass_cfg_.accel_cutoff = _p;
 
   if (lowPassFilterConfigReady()) {
     sendLowPassFilterConfigRequest();
   }
 }
 
-void ImuFilterConfigServer::lowPassFilterGyroCutoffCb(long p)
+void ImuFilterConfigServer::lowPassFilterGyroCutoffCb(long _p)
 {
-  lowpass_cfg_.gyro_cutoff = p;
+  lowpass_cfg_.gyro_cutoff = _p;
 
   if (lowPassFilterConfigReady()) {
     sendLowPassFilterConfigRequest();
   }
 }
 
-void ImuFilterConfigServer::lowPassFilterDGyroCutoffCb(long p)
+void ImuFilterConfigServer::lowPassFilterDGyroCutoffCb(long _p)
 {
-  lowpass_cfg_.dgyro_cutoff = p;
+  lowpass_cfg_.dgyro_cutoff = _p;
 
   if (lowPassFilterConfigReady()) {
     sendLowPassFilterConfigRequest();
   }
 }
 
-void ImuFilterConfigServer::rpmFilterQualityFactorCb(long p)
+void ImuFilterConfigServer::rpmFilterQualityFactorCb(long _p)
 {
-  notch_cfg_.quality_factor = p;
+  notch_cfg_.quality_factor = _p;
 
   if (notchFilterConfigReady()) {
     sendRpmFilterConfigRequest();
   }
 }
 
-void ImuFilterConfigServer::rpmFilterMinCenterFreqCb(long p)
+void ImuFilterConfigServer::rpmFilterMinCenterFreqCb(long _p)
 {
-  notch_cfg_.min_center_freq = p;
+  notch_cfg_.min_center_freq = _p;
 
   if (notchFilterConfigReady()) {
     sendRpmFilterConfigRequest();
   }
 }
 
-void ImuFilterConfigServer::rpmFilterFadeRangeCb(long p)
+void ImuFilterConfigServer::rpmFilterFadeRangeCb(long _p)
 {
-  notch_cfg_.fade_range = p;
+  notch_cfg_.fade_range = _p;
 
   if (notchFilterConfigReady()) {
     sendRpmFilterConfigRequest();
   }
 }
 
-void ImuFilterConfigServer::rpmFilterLpfCutoffCb(long p)
+void ImuFilterConfigServer::rpmFilterLpfCutoffCb(long _p)
 {
-  notch_cfg_.lpf_cutoff = p;
+  notch_cfg_.lpf_cutoff = _p;
 
   if (notchFilterConfigReady()) {
     sendRpmFilterConfigRequest();

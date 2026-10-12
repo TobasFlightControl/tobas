@@ -45,34 +45,34 @@ class PlotTabWidget : public qt::TabWidget
 
 public:
   explicit PlotTabWidget(
-    const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_data,
-    const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_data,
-    const QVector<tobas_msgs::msg::Imu>& imu_raw_data,
-    const QVector<tobas_msgs::msg::Imu>& imu_filt_data,
-    const QVector<tobas_msgs::msg::MagneticField>& mag_data,
-    const QVector<tobas_msgs::msg::FluidPressure>& pressure_data,
-    const QVector<tobas_msgs::msg::Gnss>& gnss_data,
-    const QVector<tobas_msgs::msg::RCInput>& rcin_data,
-    const QVector<tobas_msgs::msg::Battery>& battery_data,
-    const QVector<tobas_msgs::msg::Cpu>& cpu_data,
-    const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data,
-    const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_rotor_speeds_data,
-    const QVector<tobas_msgs::msg::JointStateArray>& cur_joint_states_data,
-    const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_positions_data,
-    const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_velocities_data,
-    const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_efforts_data,
-    const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data,
-    const QVector<tobas_msgs::msg::PwmArray>& pwm_data,
-    const QVector<tobas_msgs::msg::Latency>& sampling_time_data,
-    const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data,
-    const QVector<tobas_msgs::msg::VibrationLevel>& vibe_data,
-    const QVector<tobas_msgs::msg::RepulsiveAcceleration>& repulsive_accel_data,
-    const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_data,
-    const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data,
-    const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& mr_ctrl_fb_data);
+    const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& _odom_data,
+    const QVector<tobas_msgs::msg::OdometryStamped>& _setpoint_data,
+    const QVector<tobas_msgs::msg::Imu>& _imu_raw_data,
+    const QVector<tobas_msgs::msg::Imu>& _imu_filt_data,
+    const QVector<tobas_msgs::msg::MagneticField>& _mag_data,
+    const QVector<tobas_msgs::msg::FluidPressure>& _pressure_data,
+    const QVector<tobas_msgs::msg::Gnss>& _gnss_data,
+    const QVector<tobas_msgs::msg::RCInput>& _rcin_data,
+    const QVector<tobas_msgs::msg::Battery>& _battery_data,
+    const QVector<tobas_msgs::msg::Cpu>& _cpu_data,
+    const QVector<tobas_msgs::msg::RotorStateArray>& _cur_rotor_states_data,
+    const QVector<tobas_msgs::msg::RotorSpeedArray>& _tar_rotor_speeds_data,
+    const QVector<tobas_msgs::msg::JointStateArray>& _cur_joint_states_data,
+    const QVector<tobas_msgs::msg::JointCommandArray>& _tar_joint_positions_data,
+    const QVector<tobas_msgs::msg::JointCommandArray>& _tar_joint_velocities_data,
+    const QVector<tobas_msgs::msg::JointCommandArray>& _tar_joint_efforts_data,
+    const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& _ice_cmd_data,
+    const QVector<tobas_msgs::msg::PwmArray>& _pwm_data,
+    const QVector<tobas_msgs::msg::Latency>& _sampling_time_data,
+    const QVector<tobas_msgs::msg::Latency>& _ctrl_latency_data,
+    const QVector<tobas_msgs::msg::VibrationLevel>& _vibe_data,
+    const QVector<tobas_msgs::msg::RepulsiveAcceleration>& _repulsive_accel_data,
+    const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _dist_force_data,
+    const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _obsv_fb_data,
+    const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& _mr_ctrl_fb_data);
 
   void clear();
-  void setTimeScale(double t_start, double t_stop);
+  void setTimeScale(double _t_start, double _t_stop);
   void plot();
 
 private:
@@ -128,10 +128,10 @@ private:
   ObserverFeedbackPlotWidget* obsv_fb_plot_;
   MRControllerFeedbackPlotWidget* mr_ctrl_fb_plot_;
 
-  void plot(int index);
+  void plot(int _index);
 
 private Q_SLOTS:
-  void onCurrentWidgetChanged(int index);
+  void onCurrentWidgetChanged(int _index);
 };
 }  // namespace log
 }  // namespace gui

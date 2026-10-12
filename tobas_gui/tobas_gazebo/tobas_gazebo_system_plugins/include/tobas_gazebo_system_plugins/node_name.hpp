@@ -10,6 +10,6 @@ namespace tobas
 namespace gazebo
 {
 /** Sanitize a string so it can be used as a ROS node name. */
-std::string sanitizeNodeName(std::string str);
+std::string sanitizeNodeName(std::string _str);
 }  // namespace gazebo
 }  // namespace tobas

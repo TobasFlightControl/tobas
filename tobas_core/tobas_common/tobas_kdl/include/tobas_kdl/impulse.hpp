@@ -17,9 +17,9 @@ public:
   Vector angular;  ///< [Nms]
 
   inline explicit Impulse();
-  inline explicit Impulse(const Vector& linear, const Vector& angular);
+  inline explicit Impulse(const Vector& _linear, const Vector& _angular);
 
-  inline friend Wrench operator*(const Twist& t, const Impulse& P);
+  inline friend Wrench operator*(const Twist& _t, const Impulse& _p);
 };
 
 inline Impulse::Impulse()
@@ -30,9 +30,9 @@ inline Impulse::Impulse(const Vector& _linear, const Vector& _angular) : linear(
 {
 }
 
-inline Wrench operator*(const Twist& t, const Impulse& P)
+inline Wrench operator*(const Twist& _t, const Impulse& _p)
 {
-  return Wrench(t.rot * P.linear, t.rot * P.angular + t.vel * P.linear);
+  return Wrench(_t.rot * _p.linear, _t.rot * _p.angular + _t.vel * _p.linear);
 }
 }  // namespace kdl
 }  // namespace tobas

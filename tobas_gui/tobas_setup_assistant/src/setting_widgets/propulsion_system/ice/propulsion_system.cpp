@@ -26,10 +26,10 @@ constexpr char kEngineTitle[] = "Engine";
 constexpr char kPropulsionUnitTitle[] = "Propulsion Units";
 }  // namespace
 
-PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& uadf)
+PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& _uadf)
 {
   engine = new EngineWidget();
-  units = new PropulsionUnitsWidget(uadf);
+  units = new PropulsionUnitsWidget(_uadf);
 
   // Layout
   const auto battery_rows = new QVBoxLayout();
@@ -86,10 +86,10 @@ YAML::Node PropulsionSystemWidget::dump() const
   return node;
 }
 
-void PropulsionSystemWidget::load(const YAML::Node& node)
+void PropulsionSystemWidget::load(const YAML::Node& _node)
 {
-  engine->load(node[kEngineTitle]);
-  units->load(node[kPropulsionUnitTitle]);
+  engine->load(_node[kEngineTitle]);
+  units->load(_node[kPropulsionUnitTitle]);
 }
 
 PropulsionSystem PropulsionSystemWidget::type() const
@@ -102,9 +102,9 @@ int PropulsionSystemWidget::numUnits() const
   return units->count();
 }
 
-QString PropulsionSystemWidget::linkName(int index) const
+QString PropulsionSystemWidget::linkName(int _index) const
 {
-  return units->linkName(index);
+  return units->linkName(_index);
 }
 }  // namespace ice
 }  // namespace propulsion

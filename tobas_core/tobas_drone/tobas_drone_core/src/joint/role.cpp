@@ -13,9 +13,9 @@ constexpr char kUserActive[] = "user_active";
 constexpr char kUserPassive[] = "user_passive";
 }  // namespace
 
-std::string textFromEnum(JointRole role)
+std::string textFromEnum(JointRole _role)
 {
-  switch (role) {
+  switch (_role) {
     case JointRole::kTiltJoint:
       return kTiltJoint;
     case JointRole::kControlSurface:
@@ -29,22 +29,22 @@ std::string textFromEnum(JointRole role)
   }
 }
 
-bool enumFromText(const std::string& text, JointRole& dst)
+bool enumFromText(const std::string& _text, JointRole& _dst)
 {
-  if (text == kTiltJoint) {
-    dst = JointRole::kTiltJoint;
+  if (_text == kTiltJoint) {
+    _dst = JointRole::kTiltJoint;
     return true;
   }
-  else if (text == kControlSurface) {
-    dst = JointRole::kControlSurface;
+  else if (_text == kControlSurface) {
+    _dst = JointRole::kControlSurface;
     return true;
   }
-  else if (text == kUserActive) {
-    dst = JointRole::kUserActive;
+  else if (_text == kUserActive) {
+    _dst = JointRole::kUserActive;
     return true;
   }
-  else if (text == kUserPassive) {
-    dst = JointRole::kUserPassive;
+  else if (_text == kUserPassive) {
+    _dst = JointRole::kUserPassive;
     return true;
   }
   else {
@@ -52,9 +52,9 @@ bool enumFromText(const std::string& text, JointRole& dst)
   }
 }
 
-bool isServoJoint(JointRole role)
+bool isServoJoint(JointRole _role)
 {
-  switch (role) {
+  switch (_role) {
     case JointRole::kTiltJoint:
       return true;
     case JointRole::kControlSurface:
@@ -71,19 +71,19 @@ bool isServoJoint(JointRole role)
 
 namespace YAML
 {
-Node convert<tobas::JointRole>::encode(tobas::JointRole rhs)
+Node convert<tobas::JointRole>::encode(tobas::JointRole _rhs)
 {
   Node node;
-  node = tobas::textFromEnum(rhs);
-  return Node(tobas::textFromEnum(rhs));
+  node = tobas::textFromEnum(_rhs);
+  return Node(tobas::textFromEnum(_rhs));
 }
 
-bool convert<tobas::JointRole>::decode(const Node& node, tobas::JointRole& rhs)
+bool convert<tobas::JointRole>::decode(const Node& _node, tobas::JointRole& _rhs)
 {
-  if (!node.IsScalar()) {
+  if (!_node.IsScalar()) {
     return false;
   }
 
-  return tobas::enumFromText(node.as<std::string>(), rhs);
+  return tobas::enumFromText(_node.as<std::string>(), _rhs);
 }
 }  // namespace YAML

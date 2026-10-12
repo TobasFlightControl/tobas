@@ -12,10 +12,10 @@ namespace tobas
 {
 namespace qt
 {
-void colorMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
+void colorMessageHandler(QtMsgType _type, const QMessageLogContext& _context, const QString& _msg)
 {
   QString color, label;
-  switch (type) {
+  switch (_type) {
     case QtDebugMsg:
       color = st::kCyanPrefix;
       label = "DEBUG";
@@ -43,10 +43,10 @@ void colorMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
   }
 
   QTextStream ts(stderr);
-  ts << color << '[' << label << "] " << msg << st::kColorReset;
+  ts << color << '[' << label << "] " << _msg << st::kColorReset;
 
-  if (context.file && context.line > 0) {
-    ts << " (" << context.file << ':' << context.line << ')';
+  if (_context.file && _context.line > 0) {
+    ts << " (" << _context.file << ':' << _context.line << ')';
   }
   ts << '\n';
   ts.flush();

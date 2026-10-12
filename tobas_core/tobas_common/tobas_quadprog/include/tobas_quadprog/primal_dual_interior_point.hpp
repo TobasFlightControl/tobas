@@ -17,9 +17,9 @@ public:
 
   std::expected<Eigen::VectorXd, std::string> solve() override;
 
-  void setNumberOfIterations(size_t num_iter);
-  void setSigma(double sigma);
-  void setAlphaTolerance(double alpha_tol);
+  void setNumberOfIterations(size_t _num_iter);
+  void setSigma(double _sigma);
+  void setAlphaTolerance(double _alpha_tol);
 
 private:
   size_t num_iter_ = 10;  // TODO
@@ -40,8 +40,8 @@ private:
   Eigen::MatrixXd A_;
   Eigen::VectorXd b_;
 
-  std::expected<void, std::string> initialize(const QuadProgProblem& scaled);
-  double findAlpha(const Eigen::VectorXd& dlam, const Eigen::VectorXd& ds) const;
+  std::expected<void, std::string> initialize(const QuadProgProblem& _scaled);
+  double findAlpha(const Eigen::VectorXd& _dlam, const Eigen::VectorXd& _ds) const;
 };
 }  // namespace quadprog
 }  // namespace tobas

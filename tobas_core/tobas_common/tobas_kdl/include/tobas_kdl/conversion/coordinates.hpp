@@ -11,47 +11,47 @@ namespace tobas
 {
 namespace kdl
 {
-void vectorFrdToFlu(const Vector& src, Vector& dst);
-void vectorFluToFrd(const Vector& src, Vector& dst);
-void vectorFrdToFlu(Vector& arg);
-void vectorFluToFrd(Vector& arg);
+void vectorFrdToFlu(const Vector& _src, Vector& _dst);
+void vectorFluToFrd(const Vector& _src, Vector& _dst);
+void vectorFrdToFlu(Vector& _arg);
+void vectorFluToFrd(Vector& _arg);
 
-void twistFrdToFlu(const Twist& src, Twist& dst);
-void twistFluToFrd(const Twist& src, Twist& dst);
-void twistFrdToFlu(Twist& arg);
-void twistFluToFrd(Twist& arg);
+void twistFrdToFlu(const Twist& _src, Twist& _dst);
+void twistFluToFrd(const Twist& _src, Twist& _dst);
+void twistFrdToFlu(Twist& _arg);
+void twistFluToFrd(Twist& _arg);
 
-void accelFrdToFlu(const Accel& src, Accel& dst);
-void accelFluToFrd(const Accel& src, Accel& dst);
-void accelFrdToFlu(Accel& arg);
-void accelFluToFrd(Accel& arg);
+void accelFrdToFlu(const Accel& _src, Accel& _dst);
+void accelFluToFrd(const Accel& _src, Accel& _dst);
+void accelFrdToFlu(Accel& _arg);
+void accelFluToFrd(Accel& _arg);
 
 /**
  * Convert an inertia tensor from the FRD (Front-Right-Down) coordinate system
  * to the FLU (Front-Left-Up) coordinate system. (memo: 2-23)
  */
-void rotInertiaFrdToFlu(const RotationalInertia& src, RotationalInertia& dst);
-void rotInertiaFluToFrd(const RotationalInertia& src, RotationalInertia& dst);
-void rotInertiaFrdToFlu(RotationalInertia& arg);
-void rotInertiaFluToFrd(RotationalInertia& arg);
+void rotInertiaFrdToFlu(const RotationalInertia& _src, RotationalInertia& _dst);
+void rotInertiaFluToFrd(const RotationalInertia& _src, RotationalInertia& _dst);
+void rotInertiaFrdToFlu(RotationalInertia& _arg);
+void rotInertiaFluToFrd(RotationalInertia& _arg);
 
 /**
  * Compute the Euler angle change when both frames connected by a rotation are converted
  * from the FRD coordinate system to the FLU coordinate system.
  */
-void eulerFrdToFlu(const Euler& src, Euler& dst);
-void eulerFluToFrd(const Euler& src, Euler& dst);
-void eulerFrdToFlu(Euler& arg);
-void eulerFluToFrd(Euler& arg);
+void eulerFrdToFlu(const Euler& _src, Euler& _dst);
+void eulerFluToFrd(const Euler& _src, Euler& _dst);
+void eulerFrdToFlu(Euler& _arg);
+void eulerFluToFrd(Euler& _arg);
 
-void rotationFrdToFlu(const kdl::Rotation& src, kdl::Rotation& dst);
-void rotationFluToFrd(const kdl::Rotation& src, kdl::Rotation& dst);
-void rotationFrdToFlu(kdl::Rotation& arg);
-void rotationFluToFrd(kdl::Rotation& arg);
+void rotationFrdToFlu(const kdl::Rotation& _src, kdl::Rotation& _dst);
+void rotationFluToFrd(const kdl::Rotation& _src, kdl::Rotation& _dst);
+void rotationFrdToFlu(kdl::Rotation& _arg);
+void rotationFluToFrd(kdl::Rotation& _arg);
 
-void frameFrdToFlu(const kdl::Frame& src, kdl::Frame& dst);
-void frameFluToFrd(const kdl::Frame& src, kdl::Frame& dst);
-void frameFrdToFlu(kdl::Frame& arg);
-void frameFluToFrd(kdl::Frame& arg);
+void frameFrdToFlu(const kdl::Frame& _src, kdl::Frame& _dst);
+void frameFluToFrd(const kdl::Frame& _src, kdl::Frame& _dst);
+void frameFrdToFlu(kdl::Frame& _arg);
+void frameFluToFrd(kdl::Frame& _arg);
 }  // namespace kdl
 }  // namespace tobas

@@ -23,7 +23,7 @@ class BatteryViewerWidget : public QWidget
   using self = BatteryViewerWidget;
 
 public:
-  explicit BatteryViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
+  explicit BatteryViewerWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone);
 
   void reset();
   void updateInternalDataStructures();
@@ -35,11 +35,11 @@ private:
   qt::ProgressBar* voltage_;
   qt::ProgressBar* current_;
 
-  void updateVoltage(double voltage);
-  void updateCurrent(double current);
+  void updateVoltage(double _voltage);
+  void updateCurrent(double _current);
 
 private Q_SLOTS:
-  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
+  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& _battery);
 };
 }  // namespace ctrl
 }  // namespace gui

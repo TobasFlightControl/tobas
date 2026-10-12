@@ -62,14 +62,14 @@ const BootMedia& MediaManagerWidget::currentBootMedia() const
   return medias_.at(media_name);
 }
 
-std::pair<std::string, std::string> MediaManagerWidget::getVendorAndModel(udev_device* dev)
+std::pair<std::string, std::string> MediaManagerWidget::getVendorAndModel(udev_device* _dev)
 {
-  auto vendor = udv::getPropertyValue(dev, "ID_VENDOR");
-  auto model = udv::getPropertyValue(dev, "ID_MODEL");
+  auto vendor = udv::getPropertyValue(_dev, "ID_VENDOR");
+  auto model = udv::getPropertyValue(_dev, "ID_MODEL");
 
   // If this cannot be obtained, fill it from the USB device.
   if (vendor.empty() || model.empty()) {
-    const auto usb = udev_device_get_parent_with_subsystem_devtype(dev, "usb", "usb_device");
+    const auto usb = udev_device_get_parent_with_subsystem_devtype(_dev, "usb", "usb_device");
     if (!usb) {
       return {};
     }

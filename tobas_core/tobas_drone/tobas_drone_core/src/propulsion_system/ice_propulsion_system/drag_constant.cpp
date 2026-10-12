@@ -23,17 +23,17 @@ std::expected<void, std::string> VppDragConstant::validate() const
   return {};
 }
 
-std::expected<void, std::string> VppDragConstant::load(const YAML::Node& node)
+std::expected<void, std::string> VppDragConstant::load(const YAML::Node& _node)
 {
-  if (!node.IsDefined() || !node.IsMap()) {
+  if (!_node.IsDefined() || !_node.IsMap()) {
     return std::unexpected("Configuration node must be a map.");
   }
 
-  if (const auto result = yaml::load(kC0Key, node, c0); !result) {
+  if (const auto result = yaml::load(kC0Key, _node, c0); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kC1Key, node, c1); !result) {
+  if (const auto result = yaml::load(kC1Key, _node, c1); !result) {
     return result;
   }
 

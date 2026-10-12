@@ -5,8 +5,8 @@
 
 namespace tobas
 {
-RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& options)
-  : super("ros_interface", nodeOptions_Default(options))
+RosInterfaceNode::RosInterfaceNode(const rclcpp::NodeOptions& _options)
+  : super("ros_interface", nodeOptions_Default(_options))
 {
   // Avoid deadlock when service callbacks are called recursively.
   // Ref: https://answers.ros.org/question/343279/ros2-how-to-implement-a-sync-service-client-in-a-node/

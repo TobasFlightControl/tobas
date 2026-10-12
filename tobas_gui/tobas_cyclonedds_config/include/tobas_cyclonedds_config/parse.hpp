@@ -12,6 +12,6 @@ namespace tobas
 {
 namespace cyclonedds
 {
-std::expected<Data, std::string> parseFromText(const std::string& text);
+std::expected<Data, std::string> parseFromText(const std::string& _text);
 }  // namespace cyclonedds
 }  // namespace tobas

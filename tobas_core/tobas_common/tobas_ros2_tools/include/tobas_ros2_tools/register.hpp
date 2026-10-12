@@ -14,46 +14,49 @@ namespace ros2
 {
 template <typename MsgType>
 PublisherPtr<MsgType> createPublisher(
-  rclcpp::Node::SharedPtr node,
-  const std::string& topic_name,
-  bool latch = qos::kDefaultLatch,
-  bool reliable = qos::kDefaultReliable,
-  size_t queue_size = qos::kDefaultQueueSize)
+  rclcpp::Node::SharedPtr _node,
+  const std::string& _topic_name,
+  bool _latch = qos::kDefaultLatch,
+  bool _reliable = qos::kDefaultReliable,
+  size_t _queue_size = qos::kDefaultQueueSize)
 {
-  return node->create_publisher<MsgType>(topic_name, qos::QoS(latch, reliable, queue_size));
+  return _node->create_publisher<MsgType>(_topic_name, qos::QoS(_latch, _reliable, _queue_size));
 }
 
 template <typename MsgType, typename Obj>
 SubscriberPtr<MsgType> createSubscriber(
-  rclcpp::Node::SharedPtr node,
-  const std::string& topic_name,
-  void (Obj::*fp)(const std::shared_ptr<const MsgType>&),
-  Obj* obj,
-  bool latch = qos::kDefaultLatch,
-  bool reliable = qos::kDefaultReliable,
-  size_t queue_size = qos::kDefaultQueueSize)
+  rclcpp::Node::SharedPtr _node,
+  const std::string& _topic_name,
+  void (Obj::*_fp)(const std::shared_ptr<const MsgType>&),
+  Obj* _obj,
+  bool _latch = qos::kDefaultLatch,
+  bool _reliable = qos::kDefaultReliable,
+  size_t _queue_size = qos::kDefaultQueueSize)
 {
-  return node->create_subscription<MsgType>(
-    topic_name, qos::QoS(latch, reliable, queue_size), std::bind(fp, obj, std::placeholders::_1));
+  return _node->create_subscription<MsgType>(
+    _topic_name, qos::QoS(_latch, _reliable, _queue_size), std::bind(_fp, _obj, std::placeholders::_1));
 }
 
 template <typename SrvType, typename Obj>
 ServiceServerPtr<SrvType> createService(
-  rclcpp::Node::SharedPtr node,
-  const std::string& srv_name,
-  void (Obj::*fp)(
+  rclcpp::Node::SharedPtr _node,
+  const std::string& _srv_name,
+  void (Obj::*_fp)(
     const std::shared_ptr<const typename SrvType::Request>&,
     const std::shared_ptr<typename SrvType::Response>&),
-  Obj* obj)
+  Obj* _obj)
 {
-  return node->create_service<SrvType>(srv_name, std::bind(fp, obj, std::placeholders::_1, std::placeholders::_2));
+  return _node->create_service<SrvType>(_srv_name, std::bind(_fp, _obj, std::placeholders::_1, std::placeholders::_2));
 }
 
 template <typename RepType, typename DurType, typename Obj>
-ros2::TimerPtr
-createTimer(rclcpp::Node::SharedPtr node, std::chrono::duration<RepType, DurType> period, void (Obj::*fp)(void), Obj* obj)
+ros2::TimerPtr createTimer(
+  rclcpp::Node::SharedPtr _node,
+  std::chrono::duration<RepType, DurType> _period,
+  void (Obj::*_fp)(void),
+  Obj* _obj)
 {
-  return node->create_timer(period, std::bind(fp, obj));
+  return _node->create_timer(_period, std::bind(_fp, _obj));
 }
 }  // namespace ros2
 }  // namespace tobas

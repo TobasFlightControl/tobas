@@ -12,13 +12,13 @@ namespace tobas
 {
 namespace xml
 {
-std::string xmlDocumentToString(const tinyxml2::XMLDocument* doc);
+std::string xmlDocumentToString(const tinyxml2::XMLDocument* _doc);
 
 template <typename T>
-std::optional<T> getAttribute(tinyxml2::XMLElement* elem, const char* name)
+std::optional<T> getAttribute(tinyxml2::XMLElement* _elem, const char* _name)
 {
   T res;
-  if (elem->QueryAttribute(name, &res) == tinyxml2::XMLError::XML_SUCCESS) {
+  if (_elem->QueryAttribute(_name, &res) == tinyxml2::XMLError::XML_SUCCESS) {
     return res;
   }
   else {
@@ -27,10 +27,10 @@ std::optional<T> getAttribute(tinyxml2::XMLElement* elem, const char* name)
 }
 
 template <typename T>
-void setAttribute(tinyxml2::XMLElement* elem, const char* name, const std::optional<T>& value)
+void setAttribute(tinyxml2::XMLElement* _elem, const char* _name, const std::optional<T>& _value)
 {
-  if (value) {
-    elem->SetAttribute(name, *value);
+  if (_value) {
+    _elem->SetAttribute(_name, *_value);
   }
 }
 }  // namespace xml

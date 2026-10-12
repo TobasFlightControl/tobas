@@ -11,7 +11,7 @@ namespace gui
 {
 namespace ctrl
 {
-SystemInfo::SystemInfo(QObject* parent) : QObject(parent)
+SystemInfo::SystemInfo(QObject* _parent) : QObject(_parent)
 {
   home_dir_ = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
 }

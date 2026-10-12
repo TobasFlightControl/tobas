@@ -13,10 +13,10 @@
 #include "tobas_gcs/gcs.hpp"
 #include "tobas_gcs/util.hpp"
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
   // Force X11.
-  tobas::gui::cmn::NonRosArgumentParser arg_parser(argc, argv);
+  tobas::gui::cmn::NonRosArgumentParser arg_parser(_argc, _argv);
   if (!arg_parser.setPlatformXcb()) {
     std::cerr << "Failed to set display platform." << std::endl;
     return EXIT_FAILURE;
@@ -31,7 +31,7 @@ int main(int argc, char** argv)
   QApplication::setApplicationName("gcs");
   const auto title = "Tobas (" + tobas::gui::cmn::Version::Current().toString() + ")";
   const auto icon_path = tobas::gui::gcs::getPkgShareDir() / "resources/icon.png";
-  const auto widget = new tobas::gui::gcs::GroundControlStationWidget(argc, argv);
+  const auto widget = new tobas::gui::gcs::GroundControlStationWidget(_argc, _argv);
   tobas::qt::MainWidget main(title, QString::fromStdString(icon_path), widget);
   main.show();
 

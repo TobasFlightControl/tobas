@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace qt
 {
-ProgressBar::ProgressBar(QWidget* parent) : super(parent)
+ProgressBar::ProgressBar(QWidget* _parent) : super(_parent)
 {
   setTextVisible(true);
   setAlignment(Qt::AlignCenter);
@@ -25,16 +25,16 @@ void ProgressBar::reset()
   setFormat("");
 }
 
-void ProgressBar::setFillColor(const QColor& color)
+void ProgressBar::setFillColor(const QColor& _color)
 {
   auto pal = palette();
-  pal.setColor(QPalette::Highlight, color);
+  pal.setColor(QPalette::Highlight, _color);
   setPalette(pal);
 }
 
-void ProgressBar::setPercentage(double percentage)
+void ProgressBar::setPercentage(double _percentage)
 {
-  const auto clamped = std::clamp(percentage, static_cast<double>(minimum()), static_cast<double>(maximum()));
+  const auto clamped = std::clamp(_percentage, static_cast<double>(minimum()), static_cast<double>(maximum()));
   setValue(static_cast<int>(std::lround(clamped)));
 }
 }  // namespace qt

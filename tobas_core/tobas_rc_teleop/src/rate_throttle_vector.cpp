@@ -35,73 +35,75 @@ bool RateThrottleVectorController::requireHeading()
   return false;
 }
 
-void RateThrottleVectorController::initialize(BaseNode* node, FlightMode mode)
+void RateThrottleVectorController::initialize(BaseNode* _node, FlightMode _mode)
 {
-  node->addDynamicDoubleParam(
-    addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 45.0, 8, 1, 16, " dps");
-  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 45.0, 8, 1, 16, " dps");
-  node->addDynamicDoubleParam(addMode("max_thrust_angle", mode), &self::maxThrustAngleCb, this, 15.0, 6, 1, 12, " deg");
-  node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5.0, -6, -20, 20);
-  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
-  node->addDynamicDoubleParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 5.0, 0, 0, 20);
+  _node->addDynamicDoubleParam(
+    addMode("max_attitude_rate", _mode), &self::maxAttitudeRateCb, this, 45.0, 8, 1, 16, " dps");
+  _node->addDynamicDoubleParam(
+    addMode("max_heading_rate", _mode), &self::maxHeadingRateCb, this, 45.0, 8, 1, 16, " dps");
+  _node->addDynamicDoubleParam(
+    addMode("max_thrust_angle", _mode), &self::maxThrustAngleCb, this, 15.0, 6, 1, 12, " deg");
+  _node->addDynamicDoubleParam(addMode("attitude_expo", _mode), &self::attitudeExpoCb, this, 5.0, -6, -20, 20);
+  _node->addDynamicDoubleParam(addMode("heading_expo", _mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
+  _node->addDynamicDoubleParam(addMode("throttle_expo", _mode), &self::throttleExpoCb, this, 5.0, 0, 0, 20);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottleVector>(topic::kRateThrotVectorCmd);
+  cmd_pub_ = _node->createPublisher<tobas_command_msgs::RateThrottleVector>(topic::kRateThrotVectorCmd);
 }
 
 void RateThrottleVectorController::reset(const builtin_interfaces::msg::Time&, const tobas_msgs::Odometry&, bool)
 {
 }
 
-void RateThrottleVectorController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
+void RateThrottleVectorController::update(const tobas_msgs::RCInput& _rcin, const tobas_msgs::Odometry&, bool)
 {
   auto cmd = std::make_unique<tobas_command_msgs::RateThrottleVector>();
-  cmd->header = rcin.header;
+  cmd->header = _rcin.header;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
 
-  if (rcin.sub_mode) {  // Translation mode
+  if (_rcin.sub_mode) {  // Translation mode
     cmd->rate.y(0.0);
-    cmd->thrust_angle = remapDead(rcin.pitch, -max_thrust_angle_, max_thrust_angle_);
+    cmd->thrust_angle = remapDead(_rcin.pitch, -max_thrust_angle_, max_thrust_angle_);
   }
   else {  // Rotation mode
-    cmd->rate.y(expoRemap(rcin.pitch, atti_expo_, -max_atti_rate_, max_atti_rate_));
+    cmd->rate.y(expoRemap(_rcin.pitch, atti_expo_, -max_atti_rate_, max_atti_rate_));
     cmd->thrust_angle = 0.0;
   }
 
-  cmd->rate.x(expoRemap(rcin.roll, atti_expo_, -max_atti_rate_, max_atti_rate_));
-  cmd->rate.z(expoRemap(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_));
-  cmd->throttle = expo(remap(rcin.throttle, kMinThrot, kMaxThrot), throt_expo_);
+  cmd->rate.x(expoRemap(_rcin.roll, atti_expo_, -max_atti_rate_, max_atti_rate_));
+  cmd->rate.z(expoRemap(_rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_));
+  cmd->throttle = expo(remap(_rcin.throttle, kMinThrot, kMaxThrot), throt_expo_);
 
   cmd_pub_->publish(std::move(cmd));
 }
 
-void RateThrottleVectorController::maxAttitudeRateCb(double p)
+void RateThrottleVectorController::maxAttitudeRateCb(double _p)
 {
-  max_atti_rate_ = st::deg2rad(p);
+  max_atti_rate_ = st::deg2rad(_p);
 }
 
-void RateThrottleVectorController::maxHeadingRateCb(double p)
+void RateThrottleVectorController::maxHeadingRateCb(double _p)
 {
-  max_head_rate_ = st::deg2rad(p);
+  max_head_rate_ = st::deg2rad(_p);
 }
 
-void RateThrottleVectorController::maxThrustAngleCb(double p)
+void RateThrottleVectorController::maxThrustAngleCb(double _p)
 {
-  max_thrust_angle_ = st::deg2rad(p);
+  max_thrust_angle_ = st::deg2rad(_p);
 }
 
-void RateThrottleVectorController::attitudeExpoCb(double p)
+void RateThrottleVectorController::attitudeExpoCb(double _p)
 {
-  atti_expo_ = p / kExpoScale;
+  atti_expo_ = _p / kExpoScale;
 }
 
-void RateThrottleVectorController::headingExpoCb(double p)
+void RateThrottleVectorController::headingExpoCb(double _p)
 {
-  head_expo_ = p / kExpoScale;
+  head_expo_ = _p / kExpoScale;
 }
 
-void RateThrottleVectorController::throttleExpoCb(double p)
+void RateThrottleVectorController::throttleExpoCb(double _p)
 {
-  throt_expo_ = p / kExpoScale;
+  throt_expo_ = _p / kExpoScale;
 }
 }  // namespace rc
 }  // namespace tobas

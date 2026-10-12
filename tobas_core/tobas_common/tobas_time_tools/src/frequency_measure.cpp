@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace tim
 {
-FrequencyMeasure::FrequencyMeasure(const ch::nanoseconds& period) : period_(period)
+FrequencyMeasure::FrequencyMeasure(const ch::nanoseconds& _period) : period_(_period)
 {
 }
 

@@ -16,12 +16,12 @@ namespace tobas
 class MultiComponentManagers
 {
 public:
-  explicit MultiComponentManagers(size_t num_managers);
+  explicit MultiComponentManagers(size_t _num_managers);
 
-  void setPolicy(size_t idx, linux::sched_t policy);
-  void setPriority(size_t idx, size_t priority);
-  void setCpuAffinity(size_t idx, uint32_t affinity);
-  void setNumThreads(size_t idx, size_t num_threads);
+  void setPolicy(size_t _idx, linux::sched_t _policy);
+  void setPriority(size_t _idx, size_t _priority);
+  void setCpuAffinity(size_t _idx, uint32_t _affinity);
+  void setNumThreads(size_t _idx, size_t _num_threads);
 
   void spin();
 

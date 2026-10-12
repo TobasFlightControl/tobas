@@ -22,18 +22,18 @@ class FlightLogsWidgetFC : public QWidget
   using self = FlightLogsWidgetFC;
 
 Q_SIGNALS:
-  void logDownloaded(const QString& log_name);
+  void logDownloaded(const QString& _log_name);
 
 public:
   explicit FlightLogsWidgetFC();
 
   void reset();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
-  void addLog(const QString& log_name);
-  void removeLog(const QString& log_name);
-  QListWidgetItem* findLog(const QString& log_name);
+  void addLog(const QString& _log_name);
+  void removeLog(const QString& _log_name);
+  QListWidgetItem* findLog(const QString& _log_name);
 
   void clearLogs();
 
@@ -54,8 +54,8 @@ private:
 private Q_SLOTS:
   void onReadButtonClicked();
   void onCleanButtonClicked();
-  void onDownloadButtonClicked(const QString& log_name);
-  void onDeleteButtonClicked(const QString& log_name);
+  void onDownloadButtonClicked(const QString& _log_name);
+  void onDeleteButtonClicked(const QString& _log_name);
 };
 }  // namespace log
 }  // namespace gui

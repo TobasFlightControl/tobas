@@ -18,10 +18,10 @@ class HistoryLineEdit : public QLineEdit
 public:
   using QLineEdit::QLineEdit;
 
-  void addHistory(const QString& text);
+  void addHistory(const QString& _text);
 
 protected:
-  void keyPressEvent(QKeyEvent* event) override;
+  void keyPressEvent(QKeyEvent* _event) override;
 
 private:
   void showPreviousHistory();

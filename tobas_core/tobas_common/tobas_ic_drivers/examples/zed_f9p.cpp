@@ -9,20 +9,20 @@
 
 using namespace std;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
   unique_ptr<tobas::ublox::UbxTransport> transport;
 
-  switch (argc) {
+  switch (_argc) {
     case 2:
-      transport = make_unique<tobas::ublox::UbxTransportSpi>(argv[1]);
+      transport = make_unique<tobas::ublox::UbxTransportSpi>(_argv[1]);
       break;
     case 3:
-      transport = make_unique<tobas::ublox::UbxTransportUart>(argv[1], stoi(argv[2]));
+      transport = make_unique<tobas::ublox::UbxTransportUart>(_argv[1], stoi(_argv[2]));
       break;
     default:
-      cerr << "Usage 1: " << argv[0] << " <SPI Device>" << endl;
-      cerr << "Usage 2: " << argv[0] << " <UART Device> <Baud Rate>" << endl;
+      cerr << "Usage 1: " << _argv[0] << " <SPI Device>" << endl;
+      cerr << "Usage 2: " << _argv[0] << " <UART Device> <Baud Rate>" << endl;
       return EXIT_FAILURE;
   }
 

@@ -13,10 +13,10 @@ namespace
 {
 /** Promote cached non-owning references for callers, omitting objects whose owners have released them. */
 template <typename T>
-std::vector<std::shared_ptr<const T>> lockAll(const std::vector<std::weak_ptr<const T>>& weak_ptrs)
+std::vector<std::shared_ptr<const T>> lockAll(const std::vector<std::weak_ptr<const T>>& _weak_ptrs)
 {
   std::vector<std::shared_ptr<const T>> shared_ptrs;
-  for (const auto& weak_ptr : weak_ptrs) {
+  for (const auto& weak_ptr : _weak_ptrs) {
     if (const auto shared_ptr = weak_ptr.lock()) {
       shared_ptrs.push_back(shared_ptr);
     }
@@ -25,8 +25,8 @@ std::vector<std::shared_ptr<const T>> lockAll(const std::vector<std::weak_ptr<co
 }
 }  // namespace
 
-JointModel::JointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
-  : name_(name), joint_index_(joint_index), first_variable_index_(first_variable_index)
+JointModel::JointModel(const std::string& _name, size_t _joint_index, size_t _first_variable_index)
+  : name_(_name), joint_index_(_joint_index), first_variable_index_(_first_variable_index)
 {
 }
 
@@ -47,9 +47,9 @@ LinkModel::ConstSharedPtr JointModel::getChildLinkModel() const
   return child_link_model_;
 }
 
-void JointModel::setChildLinkModel(const LinkModel::ConstSharedPtr& link)
+void JointModel::setChildLinkModel(const LinkModel::ConstSharedPtr& _link)
 {
-  child_link_model_ = link;
+  child_link_model_ = _link;
 }
 
 const std::vector<std::string>& JointModel::getVariableNames() const
@@ -87,11 +87,11 @@ double JointModel::getMimicFactor() const
   return mimic_factor_;
 }
 
-void JointModel::setMimic(const ConstSharedPtr& mimic, double factor, double offset)
+void JointModel::setMimic(const ConstSharedPtr& _mimic, double _factor, double _offset)
 {
-  mimic_ = mimic;
-  mimic_factor_ = factor;
-  mimic_offset_ = offset;
+  mimic_ = _mimic;
+  mimic_factor_ = _factor;
+  mimic_offset_ = _offset;
 }
 
 std::vector<JointModel::ConstSharedPtr> JointModel::getMimicRequests() const
@@ -99,19 +99,19 @@ std::vector<JointModel::ConstSharedPtr> JointModel::getMimicRequests() const
   return lockAll(mimic_requests_);
 }
 
-void JointModel::addMimicRequest(const ConstSharedPtr& joint)
+void JointModel::addMimicRequest(const ConstSharedPtr& _joint)
 {
-  mimic_requests_.push_back(joint);
+  mimic_requests_.push_back(_joint);
 }
 
-void JointModel::addDescendantJointModel(const ConstSharedPtr& joint)
+void JointModel::addDescendantJointModel(const ConstSharedPtr& _joint)
 {
-  descendant_joint_models_.push_back(joint);
+  descendant_joint_models_.push_back(_joint);
 }
 
-void JointModel::addDescendantLinkModel(const LinkModel::ConstSharedPtr& link)
+void JointModel::addDescendantLinkModel(const LinkModel::ConstSharedPtr& _link)
 {
-  descendant_link_models_.push_back(link);
+  descendant_link_models_.push_back(_link);
 }
 
 std::vector<LinkModel::ConstSharedPtr> JointModel::getDescendantLinkModels() const

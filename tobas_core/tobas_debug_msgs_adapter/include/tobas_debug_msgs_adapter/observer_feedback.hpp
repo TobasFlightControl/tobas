@@ -51,58 +51,58 @@ struct rclcpp::TypeAdapter<tobas_debug_msgs::ObserverFeedback, tobas_debug_msgs:
   using custom_type = tobas_debug_msgs::ObserverFeedback;
   using ros_message_type = tobas_debug_msgs::msg::ObserverFeedback;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
+    _dst.header = _src.header;
 
-    tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(src.position, dst.position);
-    tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(src.velocity, dst.velocity);
-    tobas_eigen_msgs::Vector4dAdapter::convert_to_ros_message(src.hamilton, dst.hamilton);
-    tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(src.accel_bias, dst.accel_bias);
-    tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(src.gyro_bias, dst.gyro_bias);
-    tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(src.mag_hard_bias, dst.mag_hard_bias);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.mag_soft_bias, dst.mag_soft_bias);
-    dst.baro_alt_bias = src.baro_alt_bias;
-    dst.gravity = src.gravity;
+    tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(_src.position, _dst.position);
+    tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(_src.velocity, _dst.velocity);
+    tobas_eigen_msgs::Vector4dAdapter::convert_to_ros_message(_src.hamilton, _dst.hamilton);
+    tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(_src.accel_bias, _dst.accel_bias);
+    tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(_src.gyro_bias, _dst.gyro_bias);
+    tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(_src.mag_hard_bias, _dst.mag_hard_bias);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(_src.mag_soft_bias, _dst.mag_soft_bias);
+    _dst.baro_alt_bias = _src.baro_alt_bias;
+    _dst.gravity = _src.gravity;
 
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.position_cov, dst.position_cov);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.velocity_cov, dst.velocity_cov);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.rotation_cov, dst.rotation_cov);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.accel_bias_cov, dst.accel_bias_cov);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.gyro_bias_cov, dst.gyro_bias_cov);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.mag_hard_bias_cov, dst.mag_hard_bias_cov);
-    tobas_eigen_msgs::Matrix6dAdapter::convert_to_ros_message(src.mag_soft_bias_cov, dst.mag_soft_bias_cov);
-    dst.baro_alt_bias_var = src.baro_alt_bias_var;
-    dst.gravity_var = src.gravity_var;
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(_src.position_cov, _dst.position_cov);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(_src.velocity_cov, _dst.velocity_cov);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(_src.rotation_cov, _dst.rotation_cov);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(_src.accel_bias_cov, _dst.accel_bias_cov);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(_src.gyro_bias_cov, _dst.gyro_bias_cov);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(_src.mag_hard_bias_cov, _dst.mag_hard_bias_cov);
+    tobas_eigen_msgs::Matrix6dAdapter::convert_to_ros_message(_src.mag_soft_bias_cov, _dst.mag_soft_bias_cov);
+    _dst.baro_alt_bias_var = _src.baro_alt_bias_var;
+    _dst.gravity_var = _src.gravity_var;
 
-    dst.gnss_anomaly_score = src.gnss_anomaly_score;
+    _dst.gnss_anomaly_score = _src.gnss_anomaly_score;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
+    _dst.header = _src.header;
 
-    tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(src.position, dst.position);
-    tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(src.velocity, dst.velocity);
-    tobas_eigen_msgs::Vector4dAdapter::convert_to_custom(src.hamilton, dst.hamilton);
-    tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(src.accel_bias, dst.accel_bias);
-    tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(src.gyro_bias, dst.gyro_bias);
-    tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(src.mag_hard_bias, dst.mag_hard_bias);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.mag_soft_bias, dst.mag_soft_bias);
-    dst.baro_alt_bias = src.baro_alt_bias;
-    dst.gravity = src.gravity;
+    tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(_src.position, _dst.position);
+    tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(_src.velocity, _dst.velocity);
+    tobas_eigen_msgs::Vector4dAdapter::convert_to_custom(_src.hamilton, _dst.hamilton);
+    tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(_src.accel_bias, _dst.accel_bias);
+    tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(_src.gyro_bias, _dst.gyro_bias);
+    tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(_src.mag_hard_bias, _dst.mag_hard_bias);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(_src.mag_soft_bias, _dst.mag_soft_bias);
+    _dst.baro_alt_bias = _src.baro_alt_bias;
+    _dst.gravity = _src.gravity;
 
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.position_cov, dst.position_cov);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.velocity_cov, dst.velocity_cov);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.rotation_cov, dst.rotation_cov);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.accel_bias_cov, dst.accel_bias_cov);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.gyro_bias_cov, dst.gyro_bias_cov);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.mag_hard_bias_cov, dst.mag_hard_bias_cov);
-    tobas_eigen_msgs::Matrix6dAdapter::convert_to_custom(src.mag_soft_bias_cov, dst.mag_soft_bias_cov);
-    dst.baro_alt_bias_var = src.baro_alt_bias_var;
-    dst.gravity_var = src.gravity_var;
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(_src.position_cov, _dst.position_cov);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(_src.velocity_cov, _dst.velocity_cov);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(_src.rotation_cov, _dst.rotation_cov);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(_src.accel_bias_cov, _dst.accel_bias_cov);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(_src.gyro_bias_cov, _dst.gyro_bias_cov);
+    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(_src.mag_hard_bias_cov, _dst.mag_hard_bias_cov);
+    tobas_eigen_msgs::Matrix6dAdapter::convert_to_custom(_src.mag_soft_bias_cov, _dst.mag_soft_bias_cov);
+    _dst.baro_alt_bias_var = _src.baro_alt_bias_var;
+    _dst.gravity_var = _src.gravity_var;
 
-    dst.gnss_anomaly_score = src.gnss_anomaly_score;
+    _dst.gnss_anomaly_score = _src.gnss_anomaly_score;
   }
 };
 

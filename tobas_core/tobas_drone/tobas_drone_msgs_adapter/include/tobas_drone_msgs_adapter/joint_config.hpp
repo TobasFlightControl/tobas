@@ -16,22 +16,22 @@ struct rclcpp::TypeAdapter<tobas::JointConfig, tobas_drone_msgs::msg::JointConfi
   using custom_type = tobas::JointConfig;
   using ros_message_type = tobas_drone_msgs::msg::JointConfig;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.name = src.name;
-    dst.role = static_cast<uint8_t>(src.role);
-    dst.cmd_iface = static_cast<uint8_t>(src.cmd_iface);
-    dst.hw_iface = static_cast<uint8_t>(src.hw_iface);
-    dst.home_pos = src.home_pos;
+    _dst.name = _src.name;
+    _dst.role = static_cast<uint8_t>(_src.role);
+    _dst.cmd_iface = static_cast<uint8_t>(_src.cmd_iface);
+    _dst.hw_iface = static_cast<uint8_t>(_src.hw_iface);
+    _dst.home_pos = _src.home_pos;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.name = src.name;
-    dst.role = static_cast<tobas::JointRole>(src.role);
-    dst.cmd_iface = static_cast<tobas::JointCommandInterface>(src.cmd_iface);
-    dst.hw_iface = static_cast<tobas::HardwareInterface>(src.hw_iface);
-    dst.home_pos = src.home_pos;
+    _dst.name = _src.name;
+    _dst.role = static_cast<tobas::JointRole>(_src.role);
+    _dst.cmd_iface = static_cast<tobas::JointCommandInterface>(_src.cmd_iface);
+    _dst.hw_iface = static_cast<tobas::HardwareInterface>(_src.hw_iface);
+    _dst.home_pos = _src.home_pos;
   }
 };
 

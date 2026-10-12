@@ -16,7 +16,7 @@ class FakeBattPublisherNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit FakeBattPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit FakeBattPublisherNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   double voltage_;  ///< [V]
@@ -28,8 +28,8 @@ private:
   void timerCb();
 };
 
-FakeBattPublisherNode::FakeBattPublisherNode(const rclcpp::NodeOptions& options)
-  : super("fake_batt_publisher", nodeOptions_Default(options))
+FakeBattPublisherNode::FakeBattPublisherNode(const rclcpp::NodeOptions& _options)
+  : super("fake_batt_publisher", nodeOptions_Default(_options))
 {
   voltage_ = getDoubleParam("voltage", 14.8);
   current_ = getDoubleParam("current", 20.0);

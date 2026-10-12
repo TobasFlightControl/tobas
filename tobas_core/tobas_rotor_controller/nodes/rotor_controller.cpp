@@ -32,7 +32,7 @@ class RotorControllerNode : public BaseNode
   static constexpr auto kAutoDisarmAfterCmdTimeout = 500ms;
 
 public:
-  explicit RotorControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit RotorControllerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   Drone::ConstSharedPtr drone_;
@@ -58,18 +58,18 @@ private:
   void publishZeroThrottle();
   void disarm();
 
-  void droneCb(const Drone::ConstSharedPtr& drone);
-  void thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::ConstSharedPtr& tar_thrusts_msg);
-  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
+  void droneCb(const Drone::ConstSharedPtr& _drone);
+  void thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::ConstSharedPtr& _tar_thrusts_msg);
+  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health);
 
-  void setArmCb(const SetArm::Request::ConstSharedPtr& req, const SetArm::Response::SharedPtr& res);
+  void setArmCb(const SetArm::Request::ConstSharedPtr& _req, const SetArm::Response::SharedPtr& _res);
 
   void autoDisarmBeforeCmdTimerCb();
   void autoDisarmAfterCmdTimerCb();
 };
 
-RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options)
-  : super("rotor_controller", nodeOptions_Default(options))
+RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& _options)
+  : super("rotor_controller", nodeOptions_Default(_options))
 {
   rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(topic::kRotorSpeedsCmd);
   ice_cmd_pub_ = createPublisher<tobas_msgs::msg::IcePropulsionSystemCommand>(topic::kIcePropulsionSystemCmd);
@@ -148,12 +148,12 @@ void RotorControllerNode::disarm()
   auto_disarm_timer_.reset();
 }
 
-void RotorControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
+void RotorControllerNode::droneCb(const Drone::ConstSharedPtr& _drone)
 {
-  drone_ = drone;
+  drone_ = _drone;
 }
 
-void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::ConstSharedPtr& tar_thrusts_msg)
+void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::ConstSharedPtr& _tar_thrusts_msg)
 {
   if (!drone_) {
     return;
@@ -170,10 +170,10 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
 
       // Create target speeds message.
       auto tar_speeds_msg = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
-      tar_speeds_msg->header = tar_thrusts_msg->header;
+      tar_speeds_msg->header = _tar_thrusts_msg->header;
 
       // Convert target thrusts to target speeds.
-      for (const auto& elem : tar_thrusts_msg->thrusts) {
+      for (const auto& elem : _tar_thrusts_msg->thrusts) {
         const auto erotor = eprop->getRotor(elem.link_name);
         if (!erotor) {
           TOBAS_ERROR("Electric rotor '" + elem.link_name + "' does not exist.");
@@ -198,7 +198,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       double thrust_sum = 0.0;
       double torque_sum = 0.0;
       double K = 0.0;
-      for (const auto& elem : tar_thrusts_msg->thrusts) {
+      for (const auto& elem : _tar_thrusts_msg->thrusts) {
         const auto irotor = iprop->getRotor(elem.link_name);
         if (!irotor) {
           TOBAS_ERROR("ICE Rotor '" + elem.link_name + "' does not exist.");
@@ -214,12 +214,12 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
 
       // Create command.
       auto ice_cmd_msg = std::make_unique<tobas_msgs::msg::IcePropulsionSystemCommand>();
-      ice_cmd_msg->header = tar_thrusts_msg->header;
+      ice_cmd_msg->header = _tar_thrusts_msg->header;
 
       // Determine the engine throttle and propeller pitch angles.
       if (thrust_sum <= 0.0) {
         ice_cmd_msg->engine_throttle = 0.0;
-        for (const auto& elem : tar_thrusts_msg->thrusts) {
+        for (const auto& elem : _tar_thrusts_msg->thrusts) {
           const auto irotor = iprop->getRotor(elem.link_name);
           ice_cmd_msg->pitch_angles.emplace_back();
           ice_cmd_msg->pitch_angles.back().link_name = elem.link_name;
@@ -229,7 +229,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       else {
         const auto engine_speed = std::sqrt(torque_sum / K);
         ice_cmd_msg->engine_throttle = iprop->engine.computeThrottle(torque_sum, engine_speed);
-        for (const auto& elem : tar_thrusts_msg->thrusts) {
+        for (const auto& elem : _tar_thrusts_msg->thrusts) {
           const auto irotor = iprop->getRotor(elem.link_name);
           const auto tar_thrust = std::max(elem.thrust, 0.0);
           ice_cmd_msg->pitch_angles.emplace_back();
@@ -259,23 +259,23 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
   }
 }
 
-void RotorControllerNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
+void RotorControllerNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health)
 {
-  health_ = health;
+  health_ = _health;
 }
 
-void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, const SetArm::Response::SharedPtr& res)
+void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& _req, const SetArm::Response::SharedPtr& _res)
 {
-  if (!is_armed_ && req->arming) {
+  if (!is_armed_ && _req->arming) {
     if (!health_) {
-      res->success = false;
-      res->message = "Vehicle health status has not been received yet.";
+      _res->success = false;
+      _res->message = "Vehicle health status has not been received yet.";
       return;
     }
 
     if (!health_->ok) {
-      res->success = false;
-      res->message = "Pre-arm check failed.";
+      _res->success = false;
+      _res->message = "Pre-arm check failed.";
       return;
     }
 
@@ -284,13 +284,13 @@ void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, c
     auto_disarm_timer_ = createTimer(kAutoDisarmBeforeCmdTimeout, &self::autoDisarmBeforeCmdTimerCb, this);
     TOBAS_INFO("Arming request has been accepted.");
   }
-  else if (is_armed_ && !req->arming) {
+  else if (is_armed_ && !_req->arming) {
     disarm();
     TOBAS_INFO("Disarming request has been accepted.");
   }
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
 
 void RotorControllerNode::autoDisarmBeforeCmdTimerCb()

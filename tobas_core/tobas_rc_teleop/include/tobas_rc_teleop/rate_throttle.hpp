@@ -23,9 +23,9 @@ public:
   bool requireAttitude() override;
   bool requireHeading() override;
 
-  void initialize(BaseNode* node, FlightMode mode) override;
-  void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) override;
-  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
+  void initialize(BaseNode* _node, FlightMode _mode) override;
+  void reset(const builtin_interfaces::msg::Time& _stamp, const tobas_msgs::Odometry& _setpoint, bool _landed) override;
+  void update(const tobas_msgs::RCInput& _rcin, const tobas_msgs::Odometry& _odom, bool _landed) override;
 
 private:
   // ROS parameters
@@ -38,11 +38,11 @@ private:
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::RateThrottle> cmd_pub_;
 
-  void maxAttitudeRateCb(double p);
-  void maxHeadingRateCb(double p);
-  void attitudeExpoCb(double p);
-  void headingExpoCb(double p);
-  void throttleExpoCb(double p);
+  void maxAttitudeRateCb(double _p);
+  void maxHeadingRateCb(double _p);
+  void attitudeExpoCb(double _p);
+  void headingExpoCb(double _p);
+  void throttleExpoCb(double _p);
 };
 }  // namespace rc
 }  // namespace tobas

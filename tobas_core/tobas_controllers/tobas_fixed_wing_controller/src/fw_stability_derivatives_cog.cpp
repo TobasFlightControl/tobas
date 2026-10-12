@@ -9,8 +9,8 @@ namespace tobas
 {
 namespace fixed_wing
 {
-StabilityDerivativesCG::StabilityDerivativesCG(const Drone& drone, const kdl::Tree& tree)
-  : drone_(drone), tree_(tree), inertia_solver_(tree)
+StabilityDerivativesCG::StabilityDerivativesCG(const Drone& _drone, const kdl::Tree& _tree)
+  : drone_(_drone), tree_(_tree), inertia_solver_(_tree)
 {
 }
 
@@ -24,7 +24,7 @@ void StabilityDerivativesCG::updateInternalDataStructures()
   c_yaw_delta_cg_.clear();
 }
 
-int StabilityDerivativesCG::update(const kdl::JntArray& q)
+int StabilityDerivativesCG::update(const kdl::JntArray& _q)
 {
   error_code_ = kNoError;
 
@@ -32,7 +32,7 @@ int StabilityDerivativesCG::update(const kdl::JntArray& q)
   const auto& aero = drone_.fixed_wing->aerodynamics;
 
   // Update CoG.
-  const auto inertia = inertia_solver_.jntToCart(q);
+  const auto inertia = inertia_solver_.jntToCart(_q);
   const auto cog = inertia.getCOG();
 
   // Update stability derivatives: (2.2-40), (3.2-23).

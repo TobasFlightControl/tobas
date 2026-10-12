@@ -28,13 +28,13 @@ class FlightLogRecorderWidget : public QWidget
   using self = FlightLogRecorderWidget;
 
 Q_SIGNALS:
-  void recordFinished(const QString& log_name, bool is_real);
+  void recordFinished(const QString& _log_name, bool _is_real);
 
 public:
-  explicit FlightLogRecorderWidget(const rqt::RosQtBridge& bridge);
+  explicit FlightLogRecorderWidget(const rqt::RosQtBridge& _bridge);
 
   void reset();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:
@@ -57,7 +57,7 @@ private Q_SLOTS:
   void onStartRequested();
   void onStopRequested();
 
-  void rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& rosbag_state);
+  void rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& _rosbag_state);
 };
 }  // namespace log
 }  // namespace gui

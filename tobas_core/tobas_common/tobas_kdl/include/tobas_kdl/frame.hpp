@@ -35,11 +35,11 @@ public:
   Vector p;    ///< Origin of the frame
   Rotation M;  ///< Orientation of the frame
 
-  inline explicit Frame(const Rotation& R, const Vector& V);
+  inline explicit Frame(const Rotation& _r, const Vector& _v);
   /** The rotation matrix defaults to identity. */
-  inline explicit Frame(const Vector& V);
+  inline explicit Frame(const Vector& _v);
   /** The position defaults to zero. */
-  inline explicit Frame(const Rotation& R);
+  inline explicit Frame(const Rotation& _r);
   /** The position defaults to zero and the rotation matrix defaults to identity. */
   inline explicit Frame();
 
@@ -78,7 +78,7 @@ public:
    * d(i)       = distance from X(i-1) to X(i) along Z(i)
    * theta(i)   = angle between X(i-1) to X(i) along X(i)
    */
-  static inline Frame DH_Craig1989(double a, double alpha, double d, double theta);
+  static inline Frame DH_Craig1989(double _a, double _alpha, double _d, double _theta);
 
   /**
    * Constructs a transformationmatrix T_link(i-1)_link(i) with the Denavit-Hartenberg convention
@@ -87,9 +87,9 @@ public:
    * A kinematic notation for lower-pair mechanisms based on matrices,
    * ASME Journal of Applied Mechanics, 23:215-221, 1955.
    */
-  static inline Frame DH(double a, double alpha, double d, double theta);
+  static inline Frame DH(double _a, double _alpha, double _d, double _theta);
 
-  static inline Frame XYZRPY(double x, double y, double z, double roll, double pitch, double yaw);
+  static inline Frame XYZRPY(double _x, double _y, double _z, double _roll, double _pitch, double _yaw);
 
   inline std::expected<void, std::string> validate() const;
 
@@ -102,52 +102,52 @@ public:
    * Treats a frame as a 4x4 matrix and returns element i,j.
    * Access to elements 0..3,0..3, bounds are checked when NDEBUG is not set.
    */
-  inline double operator()(int i, int j);
+  inline double operator()(int _i, int _j);
   /**
    * Treats a frame as a 4x4 matrix and returns element i,j.
    * Access to elements 0..3,0..3, bounds are checked when NDEBUG is not set.
    */
-  inline double operator()(int i, int j) const;
+  inline double operator()(int _i, int _j) const;
 
   /**
    * The twist <t_this> is expressed wrt the current frame.
    * This frame is integrated into an updated frame with <samplefrequency>.
    * Very simple first order integration rule.
    */
-  inline void integrate(const Twist& t_this, double frequency);
+  inline void integrate(const Twist& _t_this, double _frequency);
 
   /** Convert the `Frame` to a 6D `Twist`. */
   inline Twist toTwist() const;
 
   inline Frame inverse() const;
-  inline Vector inverse(const Vector& arg) const;
-  inline Twist inverse(const Twist& arg) const;
-  inline Accel inverse(const Accel& arg) const;
-  inline Wrench inverse(const Wrench& arg) const;
+  inline Vector inverse(const Vector& _arg) const;
+  inline Twist inverse(const Twist& _arg) const;
+  inline Accel inverse(const Accel& _arg) const;
+  inline Wrench inverse(const Wrench& _arg) const;
 
-  inline Vector operator*(const Vector& arg) const;
-  inline Wrench operator*(const Wrench& arg) const;
-  inline SegmentInertia operator*(const SegmentInertia& arg) const;
-  inline Twist operator*(const Twist& arg) const;
-  inline Accel operator*(const Accel& arg) const;
-  inline SegmentJacobian operator*(const SegmentJacobian& arg) const;
-  inline Frame operator*(const Frame& rhs) const;
+  inline Vector operator*(const Vector& _arg) const;
+  inline Wrench operator*(const Wrench& _arg) const;
+  inline SegmentInertia operator*(const SegmentInertia& _arg) const;
+  inline Twist operator*(const Twist& _arg) const;
+  inline Accel operator*(const Accel& _arg) const;
+  inline SegmentJacobian operator*(const SegmentJacobian& _arg) const;
+  inline Frame operator*(const Frame& _rhs) const;
 
   /** Compute the difference of two frames wrt. the same frame. */
-  inline Frame operator-(const Frame& rhs) const;
+  inline Frame operator-(const Frame& _rhs) const;
 
-  inline friend std::ostream& operator<<(std::ostream& os, const Frame& arg);
+  inline friend std::ostream& operator<<(std::ostream& _os, const Frame& _arg);
 };
 
-inline Frame::Frame(const Rotation& R, const Vector& V) : p(V), M(R)
+inline Frame::Frame(const Rotation& _r, const Vector& _v) : p(_v), M(_r)
 {
 }
 
-inline Frame::Frame(const Rotation& R) : p(Vector::Zero()), M(R)
+inline Frame::Frame(const Rotation& _r) : p(Vector::Zero()), M(_r)
 {
 }
 
-inline Frame::Frame(const Vector& V) : p(V), M(Rotation::Identity())
+inline Frame::Frame(const Vector& _v) : p(_v), M(Rotation::Identity())
 {
 }
 
@@ -160,27 +160,27 @@ inline Frame Frame::Identity()
   return Frame(Rotation::Identity(), Vector::Zero());
 }
 
-inline Frame Frame::DH_Craig1989(double a, double alpha, double d, double theta)
+inline Frame Frame::DH_Craig1989(double _a, double _alpha, double _d, double _theta)
 {
-  const auto ct = std::cos(theta);
-  const auto st = std::sin(theta);
-  const auto sa = std::sin(alpha);
-  const auto ca = std::cos(alpha);
-  return Frame(Rotation(ct, -st, 0, st * ca, ct * ca, -sa, st * sa, ct * sa, ca), Vector(a, -sa * d, ca * d));
+  const auto ct = std::cos(_theta);
+  const auto st = std::sin(_theta);
+  const auto sa = std::sin(_alpha);
+  const auto ca = std::cos(_alpha);
+  return Frame(Rotation(ct, -st, 0, st * ca, ct * ca, -sa, st * sa, ct * sa, ca), Vector(_a, -sa * _d, ca * _d));
 }
 
-inline Frame Frame::DH(double a, double alpha, double d, double theta)
+inline Frame Frame::DH(double _a, double _alpha, double _d, double _theta)
 {
-  const auto ct = std::cos(theta);
-  const auto st = std::sin(theta);
-  const auto sa = std::sin(alpha);
-  const auto ca = std::cos(alpha);
-  return Frame(Rotation(ct, -st * ca, st * sa, st, ct * ca, -ct * sa, 0, sa, ca), Vector(a * ct, a * st, d));
+  const auto ct = std::cos(_theta);
+  const auto st = std::sin(_theta);
+  const auto sa = std::sin(_alpha);
+  const auto ca = std::cos(_alpha);
+  return Frame(Rotation(ct, -st * ca, st * sa, st, ct * ca, -ct * sa, 0, sa, ca), Vector(_a * ct, _a * st, _d));
 }
 
-inline Frame Frame::XYZRPY(double x, double y, double z, double roll, double pitch, double yaw)
+inline Frame Frame::XYZRPY(double _x, double _y, double _z, double _roll, double _pitch, double _yaw)
 {
-  return Frame(Rotation::RPY(roll, pitch, yaw), Vector(x, y, z));
+  return Frame(Rotation::RPY(_roll, _pitch, _yaw), Vector(_x, _y, _z));
 }
 
 inline std::expected<void, std::string> Frame::validate() const
@@ -210,11 +210,11 @@ inline void Frame::setNaN()
   M.setNaN();
 }
 
-inline double Frame::operator()(int i, int j)
+inline double Frame::operator()(int _i, int _j)
 {
-  assert((0 <= i) && (i <= 3) && (0 <= j) && (j <= 3));
-  if (i == 3) {
-    if (j == 3) {
+  assert((0 <= _i) && (_i <= 3) && (0 <= _j) && (_j <= 3));
+  if (_i == 3) {
+    if (_j == 3) {
       return 1.0;
     }
     else {
@@ -222,20 +222,20 @@ inline double Frame::operator()(int i, int j)
     }
   }
   else {
-    if (j == 3) {
-      return p(i);
+    if (_j == 3) {
+      return p(_i);
     }
     else {
-      return M(i, j);
+      return M(_i, _j);
     }
   }
 }
 
-inline double Frame::operator()(int i, int j) const
+inline double Frame::operator()(int _i, int _j) const
 {
-  assert((0 <= i) && (i <= 3) && (0 <= j) && (j <= 3));
-  if (i == 3) {
-    if (j == 3) {
+  assert((0 <= _i) && (_i <= 3) && (0 <= _j) && (_j <= 3));
+  if (_i == 3) {
+    if (_j == 3) {
       return 1.0;
     }
     else {
@@ -243,25 +243,25 @@ inline double Frame::operator()(int i, int j) const
     }
   }
   else {
-    if (j == 3) {
-      return p(i);
+    if (_j == 3) {
+      return p(_i);
     }
     else {
-      return M(i, j);
+      return M(_i, _j);
     }
   }
 }
 
-inline void Frame::integrate(const Twist& t_this, double sampling_freq)
+inline void Frame::integrate(const Twist& _t_this, double _sampling_freq)
 {
-  assert(sampling_freq > 0);
+  assert(_sampling_freq > 0);
 
-  const auto n = t_this.rot.norm() / sampling_freq;
+  const auto n = _t_this.rot.norm() / _sampling_freq;
   if (n < std::numeric_limits<double>::epsilon()) {
-    p += M * (t_this.vel / sampling_freq);
+    p += M * (_t_this.vel / _sampling_freq);
   }
   else {
-    (*this) = (*this) * Frame(Rotation::Rot(t_this.rot, n), t_this.vel / sampling_freq);
+    (*this) = (*this) * Frame(Rotation::Rot(_t_this.rot, n), _t_this.vel / _sampling_freq);
   }
 }
 
@@ -275,94 +275,94 @@ inline Frame Frame::inverse() const
   return Frame(M.inverse(), -M.inverse(p));
 }
 
-inline Vector Frame::inverse(const Vector& arg) const
+inline Vector Frame::inverse(const Vector& _arg) const
 {
-  return M.inverse(arg - p);
+  return M.inverse(_arg - p);
 }
 
-inline Twist Frame::inverse(const Twist& arg) const
+inline Twist Frame::inverse(const Twist& _arg) const
 {
   Twist tmp;
-  tmp.vel = M.inverse(arg.vel - p * arg.rot);
-  tmp.rot = M.inverse(arg.rot);
+  tmp.vel = M.inverse(_arg.vel - p * _arg.rot);
+  tmp.rot = M.inverse(_arg.rot);
   return tmp;
 }
 
-inline Accel Frame::inverse(const Accel& arg) const
+inline Accel Frame::inverse(const Accel& _arg) const
 {
   Accel tmp;
-  tmp.linear = M.inverse(arg.linear - p * arg.angular);
-  tmp.angular = M.inverse(arg.angular);
+  tmp.linear = M.inverse(_arg.linear - p * _arg.angular);
+  tmp.angular = M.inverse(_arg.angular);
   return tmp;
 }
 
-inline Wrench Frame::inverse(const Wrench& arg) const
+inline Wrench Frame::inverse(const Wrench& _arg) const
 {
   Wrench tmp;
-  tmp.force = M.inverse(arg.force);
-  tmp.torque = M.inverse(arg.torque - p * arg.force);
+  tmp.force = M.inverse(_arg.force);
+  tmp.torque = M.inverse(_arg.torque - p * _arg.force);
   return tmp;
 }
 
-inline Vector Frame::operator*(const Vector& arg) const
+inline Vector Frame::operator*(const Vector& _arg) const
 {
-  return M * arg + p;
+  return M * _arg + p;
 }
 
-inline Wrench Frame::operator*(const Wrench& arg) const
+inline Wrench Frame::operator*(const Wrench& _arg) const
 {
   Wrench tmp;
-  tmp.force = M * arg.force;
-  tmp.torque = M * arg.torque + p * tmp.force;
+  tmp.force = M * _arg.force;
+  tmp.torque = M * _arg.torque + p * tmp.force;
   return tmp;
 }
 
-inline SegmentInertia Frame::operator*(const SegmentInertia& arg) const
+inline SegmentInertia Frame::operator*(const SegmentInertia& _arg) const
 {
   SegmentInertia tmp;
-  tmp.linear = M * arg.linear;
-  tmp.angular = M * arg.angular + p * tmp.linear;
+  tmp.linear = M * _arg.linear;
+  tmp.angular = M * _arg.angular + p * tmp.linear;
   return tmp;
 }
 
-inline Twist Frame::operator*(const Twist& arg) const
+inline Twist Frame::operator*(const Twist& _arg) const
 {
   Twist tmp;
-  tmp.rot = M * arg.rot;
-  tmp.vel = M * arg.vel + p * tmp.rot;
+  tmp.rot = M * _arg.rot;
+  tmp.vel = M * _arg.vel + p * tmp.rot;
   return tmp;
 }
 
-inline Accel Frame::operator*(const Accel& arg) const
+inline Accel Frame::operator*(const Accel& _arg) const
 {
   Accel tmp;
-  tmp.angular = M * arg.angular;
-  tmp.linear = M * arg.linear + p * tmp.angular;
+  tmp.angular = M * _arg.angular;
+  tmp.linear = M * _arg.linear + p * tmp.angular;
   return tmp;
 }
 
-inline SegmentJacobian Frame::operator*(const SegmentJacobian& arg) const
+inline SegmentJacobian Frame::operator*(const SegmentJacobian& _arg) const
 {
   SegmentJacobian tmp;
-  tmp.angular = M * arg.angular;
-  tmp.linear = M * arg.linear + p * tmp.angular;
+  tmp.angular = M * _arg.angular;
+  tmp.linear = M * _arg.linear + p * tmp.angular;
   return tmp;
 }
 
-inline Frame Frame::operator*(const Frame& rhs) const
+inline Frame Frame::operator*(const Frame& _rhs) const
 {
-  return Frame(M * rhs.M, M * rhs.p + p);
+  return Frame(M * _rhs.M, M * _rhs.p + p);
 }
 
-inline Frame Frame::operator-(const Frame& rhs) const
+inline Frame Frame::operator-(const Frame& _rhs) const
 {
-  return Frame(M - rhs.M, p - rhs.p);
+  return Frame(M - _rhs.M, p - _rhs.p);
 }
 
-inline std::ostream& operator<<(std::ostream& os, const Frame& arg)
+inline std::ostream& operator<<(std::ostream& _os, const Frame& _arg)
 {
-  os << "Translation: " << arg.p << ", Rotation: " << arg.M;
-  return os;
+  _os << "Translation: " << _arg.p << ", Rotation: " << _arg.M;
+  return _os;
 }
 }  // namespace kdl
 }  // namespace tobas

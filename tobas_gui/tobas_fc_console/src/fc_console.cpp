@@ -28,7 +28,7 @@ namespace gui
 {
 namespace console
 {
-FcConsoleWidget::FcConsoleWidget(QWidget* parent) : QWidget(parent)
+FcConsoleWidget::FcConsoleWidget(QWidget* _parent) : QWidget(_parent)
 {
   constexpr char kRealtimeService[] = "tobas_real_realtime.service";
   constexpr char kInterfaceService[] = "tobas_real_interface.service";
@@ -98,9 +98,9 @@ FcConsoleWidget::~FcConsoleWidget()
   }
 }
 
-void FcConsoleWidget::setEndpoint(const QString& host, const QString& user)
+void FcConsoleWidget::setEndpoint(const QString& _host, const QString& _user)
 {
-  if (host_ == host && user_ == user) {
+  if (host_ == _host && user_ == _user) {
     return;
   }
 
@@ -109,8 +109,8 @@ void FcConsoleWidget::setEndpoint(const QString& host, const QString& user)
     qt::qWarnBox(this, "System log retrieval was stopped because the endpoint changed during retrieval.");
   }
 
-  host_ = host;
-  user_ = user;
+  host_ = _host;
+  user_ = _user;
 
   updateActions();
 }
@@ -170,9 +170,9 @@ void FcConsoleWidget::clear()
   output_->clear();
 }
 
-void FcConsoleWidget::setStatus(Status status)
+void FcConsoleWidget::setStatus(Status _status)
 {
-  switch (status) {
+  switch (_status) {
     case kStopped:
       status_text_.clear();
       break;
@@ -192,14 +192,14 @@ void FcConsoleWidget::setStatus(Status status)
       throw;
   }
 
-  if (status != kError) {
+  if (_status != kError) {
     status_label_->setToolTip({});
   }
 
   const auto old_running = isRunning();
-  if (status != status_) {
-    qInfo() << "FC console status changed:" << status_ << "->" << status;
-    status_ = status;
+  if (_status != status_) {
+    qInfo() << "FC console status changed:" << status_ << "->" << _status;
+    status_ = _status;
   }
   const auto new_running = isRunning();
 
@@ -256,12 +256,12 @@ void FcConsoleWidget::updateActions()
   service_->setEnabled(!running);
 }
 
-void FcConsoleWidget::queueOutput(const QString& text)
+void FcConsoleWidget::queueOutput(const QString& _text)
 {
   // Buffer SSH chunks so `flushOutput()` can batch display updates.
   // Updating the widget on every receive event would repeatedly lay out text and scroll,
   // making the UI less responsive when fetching a large journal history at startup.
-  pending_output_ += text;
+  pending_output_ += _text;
 
   // Bound bursts as well as the document, without inserting annotations into the journal text.
   constexpr int kMaximumPendingCharacters = 2 * 1024 * 1024;
@@ -358,11 +358,11 @@ void FcConsoleWidget::onSaveButtonClicked()
   }
 }
 
-void FcConsoleWidget::onWrapToggled(bool checked)
+void FcConsoleWidget::onWrapToggled(bool _checked)
 {
-  qDebug().nospace() << "FcConsoleWidget::onWrapToggled(" << checked << ")";
+  qDebug().nospace() << "FcConsoleWidget::onWrapToggled(" << _checked << ")";
 
-  output_->setLineWrapMode(checked ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap);
+  output_->setLineWrapMode(_checked ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap);
 }
 
 void FcConsoleWidget::onStatusAnimationTimeout()
@@ -371,59 +371,59 @@ void FcConsoleWidget::onStatusAnimationTimeout()
   updateStatusLabel();
 }
 
-void FcConsoleWidget::onProcessFinished(int code, QProcess::ExitStatus status)
+void FcConsoleWidget::onProcessFinished(int _code, QProcess::ExitStatus _status)
 {
-  qDebug().nospace() << "FcConsoleWidget::onProcessFinished(" << code << ", " << status << ")";
+  qDebug().nospace() << "FcConsoleWidget::onProcessFinished(" << _code << ", " << _status << ")";
 
   readOutput();
   flushOutput();
 
   flush_timer_.stop();
-  const auto failed = status_ != kStopping && (status_ == kError || status == QProcess::CrashExit || code != 0);
+  const auto failed = status_ != kStopping && (status_ == kError || _status == QProcess::CrashExit || _code != 0);
   setStatus(failed ? kError : kStopped);
 }
 
-void FcConsoleWidget::onProcessErrorOccurred(QProcess::ProcessError error)
+void FcConsoleWidget::onProcessErrorOccurred(QProcess::ProcessError _error)
 {
-  qDebug().nospace() << "FcConsoleWidget::onProcessErrorOccurred(" << error << ")";
+  qDebug().nospace() << "FcConsoleWidget::onProcessErrorOccurred(" << _error << ")";
 
-  if (status_ == kStopping && error != QProcess::FailedToStart) {
+  if (status_ == kStopping && _error != QProcess::FailedToStart) {
     return;
   }
 
   setStatus(kError);
   status_label_->setToolTip(process_.errorString());
 
-  if (error == QProcess::FailedToStart) {
+  if (_error == QProcess::FailedToStart) {
     flush_timer_.stop();
   }
 }
 
-QDebug operator<<(QDebug debug, FcConsoleWidget::Status status)
+QDebug operator<<(QDebug _debug, FcConsoleWidget::Status _status)
 {
-  const QDebugStateSaver saver(debug);
+  const QDebugStateSaver saver(_debug);
 
-  switch (status) {
+  switch (_status) {
     case FcConsoleWidget::kStopped:
-      debug << "Stopped";
+      _debug << "Stopped";
       break;
     case FcConsoleWidget::kWaiting:
-      debug << "Waiting";
+      _debug << "Waiting";
       break;
     case FcConsoleWidget::kReceiving:
-      debug << "Receiving";
+      _debug << "Receiving";
       break;
     case FcConsoleWidget::kStopping:
-      debug << "Stopping";
+      _debug << "Stopping";
       break;
     case FcConsoleWidget::kError:
-      debug << "Error";
+      _debug << "Error";
       break;
     default:
       throw;
   }
 
-  return debug;
+  return _debug;
 }
 }  // namespace console
 }  // namespace gui

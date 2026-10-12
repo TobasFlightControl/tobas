@@ -13,9 +13,9 @@ namespace traj
 class AccelLimitedTrajectory : public TrajectoryGenerator
 {
 public:
-  explicit AccelLimitedTrajectory(double p0, double v0, double pf, double vf, double max_acc);
+  explicit AccelLimitedTrajectory(double _p0, double _v0, double _pf, double _vf, double _max_acc);
 
-  TrajectoryPoint get(double t) const noexcept override;
+  TrajectoryPoint get(double _t) const noexcept override;
   double duration() const noexcept override;
 
 private:

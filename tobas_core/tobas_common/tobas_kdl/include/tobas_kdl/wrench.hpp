@@ -32,23 +32,23 @@ public:
    * The vector p is expressed in the same base as the wrench.
    * The vector p is a vector from the old point to the new point.
    */
-  inline Wrench refPoint(const Vector& p) const;
+  inline Wrench refPoint(const Vector& _p) const;
 
   /** Index-based access to components, first force(0..2), then torque(3..5) */
-  inline double operator()(size_t index) const;
-  inline double& operator()(size_t index);
+  inline double operator()(size_t _index) const;
+  inline double& operator()(size_t _index);
 
-  inline Wrench& operator+=(const Wrench& arg);
-  inline Wrench& operator-=(const Wrench& arg);
+  inline Wrench& operator+=(const Wrench& _arg);
+  inline Wrench& operator-=(const Wrench& _arg);
 
-  inline friend Wrench operator-(const Wrench& arg);
-  inline friend Wrench operator*(const Wrench& lhs, double rhs);
-  inline friend Wrench operator*(double lhs, const Wrench& rhs);
-  inline friend Wrench operator/(const Wrench& lhs, double rhs);
-  inline friend Wrench operator+(const Wrench& lhs, const Wrench& rhs);
-  inline friend Wrench operator-(const Wrench& lhs, const Wrench& rhs);
+  inline friend Wrench operator-(const Wrench& _arg);
+  inline friend Wrench operator*(const Wrench& _lhs, double _rhs);
+  inline friend Wrench operator*(double _lhs, const Wrench& _rhs);
+  inline friend Wrench operator/(const Wrench& _lhs, double _rhs);
+  inline friend Wrench operator+(const Wrench& _lhs, const Wrench& _rhs);
+  inline friend Wrench operator-(const Wrench& _lhs, const Wrench& _rhs);
 
-  inline friend std::ostream& operator<<(std::ostream& os, const Wrench& arg);
+  inline friend std::ostream& operator<<(std::ostream& _os, const Wrench& _arg);
 };
 
 inline Wrench::Wrench()
@@ -76,71 +76,71 @@ inline void Wrench::setNaN()
   torque.setNaN();
 }
 
-inline Wrench Wrench::refPoint(const Vector& p) const
+inline Wrench Wrench::refPoint(const Vector& _p) const
 {
-  return Wrench(force, torque + force * p);
+  return Wrench(force, torque + force * _p);
 }
 
-inline double Wrench::operator()(size_t index) const
+inline double Wrench::operator()(size_t _index) const
 {
-  assert(index < 6);
-  return index < 3 ? force(index) : torque(index - 3);
+  assert(_index < 6);
+  return _index < 3 ? force(_index) : torque(_index - 3);
 }
 
-inline double& Wrench::operator()(size_t index)
+inline double& Wrench::operator()(size_t _index)
 {
-  assert(index < 6);
-  return index < 3 ? force(index) : torque(index - 3);
+  assert(_index < 6);
+  return _index < 3 ? force(_index) : torque(_index - 3);
 }
 
-inline Wrench& Wrench::operator+=(const Wrench& arg)
+inline Wrench& Wrench::operator+=(const Wrench& _arg)
 {
-  force += arg.force;
-  torque += arg.torque;
+  force += _arg.force;
+  torque += _arg.torque;
   return *this;
 }
 
-inline Wrench& Wrench::operator-=(const Wrench& arg)
+inline Wrench& Wrench::operator-=(const Wrench& _arg)
 {
-  force -= arg.force;
-  torque -= arg.torque;
+  force -= _arg.force;
+  torque -= _arg.torque;
   return *this;
 }
 
-inline Wrench operator-(const Wrench& arg)
+inline Wrench operator-(const Wrench& _arg)
 {
-  return Wrench(-arg.force, -arg.torque);
+  return Wrench(-_arg.force, -_arg.torque);
 }
 
-inline Wrench operator*(const Wrench& lhs, double rhs)
+inline Wrench operator*(const Wrench& _lhs, double _rhs)
 {
-  return Wrench(lhs.force * rhs, lhs.torque * rhs);
+  return Wrench(_lhs.force * _rhs, _lhs.torque * _rhs);
 }
 
-inline Wrench operator*(double lhs, const Wrench& rhs)
+inline Wrench operator*(double _lhs, const Wrench& _rhs)
 {
-  return Wrench(lhs * rhs.force, lhs * rhs.torque);
+  return Wrench(_lhs * _rhs.force, _lhs * _rhs.torque);
 }
 
-inline Wrench operator/(const Wrench& lhs, double rhs)
+inline Wrench operator/(const Wrench& _lhs, double _rhs)
 {
-  return Wrench(lhs.force / rhs, lhs.torque / rhs);
+  return Wrench(_lhs.force / _rhs, _lhs.torque / _rhs);
 }
 
-inline Wrench operator+(const Wrench& lhs, const Wrench& rhs)
+inline Wrench operator+(const Wrench& _lhs, const Wrench& _rhs)
 {
-  return Wrench(lhs.force + rhs.force, lhs.torque + rhs.torque);
+  return Wrench(_lhs.force + _rhs.force, _lhs.torque + _rhs.torque);
 }
 
-inline Wrench operator-(const Wrench& lhs, const Wrench& rhs)
+inline Wrench operator-(const Wrench& _lhs, const Wrench& _rhs)
 {
-  return Wrench(lhs.force - rhs.force, lhs.torque - rhs.torque);
+  return Wrench(_lhs.force - _rhs.force, _lhs.torque - _rhs.torque);
 }
 
-inline std::ostream& operator<<(std::ostream& os, const Wrench& arg)
+inline std::ostream& operator<<(std::ostream& _os, const Wrench& _arg)
 {
-  os << "Force: " << arg.force << ", Torque: " << arg.torque;
-  return os;
+  _os << "Force: " << _arg.force << ", Torque: " << _arg.torque;
+  return _os;
 }
 }  // namespace kdl
 }  // namespace tobas

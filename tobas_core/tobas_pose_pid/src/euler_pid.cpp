@@ -16,20 +16,20 @@ EulerPID::EulerPID()
 }
 
 kdl::Vector EulerPID::update(
-  const kdl::Euler& cur_rpy,
-  const kdl::Vector& cur_gyro,
-  const kdl::Euler& tar_rpy,
-  const kdl::Vector& tar_gyro,
-  double dt)
+  const kdl::Euler& _cur_rpy,
+  const kdl::Vector& _cur_gyro,
+  const kdl::Euler& _tar_rpy,
+  const kdl::Vector& _tar_gyro,
+  double _dt)
 {
   // Calculate errors.
-  const auto ep = computeProportionalError(cur_rpy, tar_rpy);
-  const auto ed = computeDerivativeError(cur_rpy, cur_gyro, tar_gyro);
+  const auto ep = computeProportionalError(_cur_rpy, _tar_rpy);
+  const auto ed = computeDerivativeError(_cur_rpy, _cur_gyro, _tar_gyro);
 
   // Accumulate integral error when using integral control.
   for (size_t i = 0; i < 3; ++i) {
     if (ki_(i) > 0.0) {
-      ei_(i) += ep(i) * dt;
+      ei_(i) += ep(i) * _dt;
     }
   }
 
@@ -37,35 +37,35 @@ kdl::Vector EulerPID::update(
   const auto tar_ddrpy = kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
 
   // Convert Euler angle acceleration to differential gyro.
-  const auto cur_drpy = eigen::eulerrateFromAngvelLocal(cur_gyro.data, cur_rpy.roll, cur_rpy.pitch);
-  return eigen::angaccFromEuleraccLocal(cur_rpy.roll, cur_rpy.pitch, cur_drpy, tar_ddrpy.data);
+  const auto cur_drpy = eigen::eulerrateFromAngvelLocal(_cur_gyro.data, _cur_rpy.roll, _cur_rpy.pitch);
+  return eigen::angaccFromEuleraccLocal(_cur_rpy.roll, _cur_rpy.pitch, cur_drpy, tar_ddrpy.data);
 }
 
-void EulerPID::setNaturalFreq(int idx, double value)
+void EulerPID::setNaturalFreq(int _idx, double _value)
 {
-  assert(0 <= idx && idx < 3);
-  assert(value >= 0.0);
+  assert(0 <= _idx && _idx < 3);
+  assert(_value >= 0.0);
 
-  natural_freq_(idx) = value;
+  natural_freq_(_idx) = _value;
   updateGain();
 }
 
-void EulerPID::setDampingRatio(int idx, double value)
+void EulerPID::setDampingRatio(int _idx, double _value)
 {
-  assert(0 <= idx && idx < 3);
-  assert(value >= 0.0);
+  assert(0 <= _idx && _idx < 3);
+  assert(_value >= 0.0);
 
-  damp_ratio_(idx) = value;
+  damp_ratio_(_idx) = _value;
   updateGain();
 }
 
-void EulerPID::setIntegralGain(int idx, double value)
+void EulerPID::setIntegralGain(int _idx, double _value)
 {
-  assert(0 <= idx && idx < 3);
-  assert(value >= 0.0);
+  assert(0 <= _idx && _idx < 3);
+  assert(_value >= 0.0);
 
-  ki_(idx) = value;
-  ei_(idx) = 0.0;
+  ki_(_idx) = _value;
+  ei_(_idx) = 0.0;
 }
 
 void EulerPID::updateGain()
@@ -74,19 +74,19 @@ void EulerPID::updateGain()
   kd_ = 2 * damp_ratio_.hadamard(natural_freq_);
 }
 
-kdl::Vector EulerPID::computeProportionalError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy)
+kdl::Vector EulerPID::computeProportionalError(const kdl::Euler& _cur_rpy, const kdl::Euler& _tar_rpy)
 {
   // Note that a straight line between two Euler angles is not the shortest rotation path.
-  const auto roll_err = algo::wrapPi(tar_rpy.roll - cur_rpy.roll);
-  const auto pitch_err = algo::wrapPi(tar_rpy.pitch - cur_rpy.pitch);
-  const auto yaw_err = algo::wrapPi(tar_rpy.yaw - cur_rpy.yaw);
+  const auto roll_err = algo::wrapPi(_tar_rpy.roll - _cur_rpy.roll);
+  const auto pitch_err = algo::wrapPi(_tar_rpy.pitch - _cur_rpy.pitch);
+  const auto yaw_err = algo::wrapPi(_tar_rpy.yaw - _cur_rpy.yaw);
   return { roll_err, pitch_err, yaw_err };
 }
 
 kdl::Vector
-EulerPID::computeDerivativeError(const kdl::Euler& cur_rpy, const kdl::Vector& cur_gyro, const kdl::Vector& tar_gyro)
+EulerPID::computeDerivativeError(const kdl::Euler& _cur_rpy, const kdl::Vector& _cur_gyro, const kdl::Vector& _tar_gyro)
 {
-  const auto gyro_error = tar_gyro - cur_gyro;
-  return eigen::eulerrateFromAngvelLocal(gyro_error.data, cur_rpy.roll, cur_rpy.pitch);
+  const auto gyro_error = _tar_gyro - _cur_gyro;
+  return eigen::eulerrateFromAngvelLocal(gyro_error.data, _cur_rpy.roll, _cur_rpy.pitch);
 }
 }  // namespace tobas

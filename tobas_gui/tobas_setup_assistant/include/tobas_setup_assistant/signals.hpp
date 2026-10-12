@@ -23,7 +23,7 @@ class Signals : public QObject
   Q_OBJECT
 
 Q_SIGNALS:
-  void propulsionTypeChanged(PropulsionSystem type);
+  void propulsionTypeChanged(PropulsionSystem _type);
 };
 }  // namespace sa
 }  // namespace gui

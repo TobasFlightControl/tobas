@@ -7,7 +7,7 @@ namespace tobas
 {
 namespace linux
 {
-int writeFile(const char* path, const char* fmt, ...);
-int readFile(const char* path, const char* fmt, ...);
+int writeFile(const char* _path, const char* _fmt, ...);
+int readFile(const char* _path, const char* _fmt, ...);
 }  // namespace linux
 }  // namespace tobas

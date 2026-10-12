@@ -20,7 +20,7 @@ namespace propulsion
 {
 namespace electric
 {
-AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(const PropellerWidget* propeller) : propeller_(propeller)
+AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(const PropellerWidget* _propeller) : propeller_(_propeller)
 {
   data_ = new ParamGetterWidget_DoubleTable(
     "Measurements in static condition", "Select UIUC Data", { kRpmColName, kUiucCtColName, kUiucCpColName });
@@ -58,9 +58,9 @@ bool AerodynamicsWidget_UIUC::isValid()
   return true;
 }
 
-void AerodynamicsWidget_UIUC::copyFrom(const AerodynamicsWidget_Base* src)
+void AerodynamicsWidget_UIUC::copyFrom(const AerodynamicsWidget_Base* _src)
 {
-  const auto derived = qt::qConstPointerCast<AerodynamicsWidget_UIUC>(src);
+  const auto derived = qt::qConstPointerCast<AerodynamicsWidget_UIUC>(_src);
   data_->setValue(derived->data_->getValue());
 }
 
@@ -73,9 +73,9 @@ YAML::Node AerodynamicsWidget_UIUC::dump() const
   return node;
 }
 
-void AerodynamicsWidget_UIUC::load(const YAML::Node& node)
+void AerodynamicsWidget_UIUC::load(const YAML::Node& _node)
 {
-  data_->setValue(node[data_->name()].as<Eigen::MatrixXd>());
+  data_->setValue(_node[data_->name()].as<Eigen::MatrixXd>());
 }
 
 double AerodynamicsWidget_UIUC::motorConst() const

@@ -17,15 +17,15 @@ namespace view_model
 class CollisionViewModel : public BaseViewModel<::urdf::Collision, CollisionViewModel>
 {
 public:
-  explicit CollisionViewModel(const ::urdf::CollisionSharedPtr& model);
+  explicit CollisionViewModel(const ::urdf::CollisionSharedPtr& _model);
 
   void sync() override;
 
   const ::urdf::Pose& origin() const;
-  void origin(const ::urdf::Pose& origin);
+  void origin(const ::urdf::Pose& _origin);
 
   QString name() const;
-  void name(const QString& name);
+  void name(const QString& _name);
 
   const GeometryViewModelPtr& geometry();
 

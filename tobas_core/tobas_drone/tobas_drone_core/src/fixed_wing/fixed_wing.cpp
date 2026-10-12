@@ -38,16 +38,16 @@ std::expected<void, std::string> FixedWingConfig::validate() const
   return {};
 }
 
-std::expected<void, std::string> FixedWingConfig::load(const YAML::Node& root_node)
+std::expected<void, std::string> FixedWingConfig::load(const YAML::Node& _root_node)
 {
-  if (!root_node.IsDefined() || !root_node.IsMap()) {
+  if (!_root_node.IsDefined() || !_root_node.IsMap()) {
     return std::unexpected("Fixed wing node must be a map.");
   }
 
   clear();
 
   // Vehicle
-  const auto vehicle_node = root_node[kVehicleKey];
+  const auto vehicle_node = _root_node[kVehicleKey];
   if (!vehicle_node.IsDefined()) {
     return std::unexpected(std::string("'") + kVehicleKey + "' is not defined.");
   }
@@ -56,7 +56,7 @@ std::expected<void, std::string> FixedWingConfig::load(const YAML::Node& root_no
   }
 
   // Aerodynamics
-  const auto aero_node = root_node[kAerodynamicsKey];
+  const auto aero_node = _root_node[kAerodynamicsKey];
   if (!aero_node.IsDefined()) {
     return std::unexpected(std::string("'") + kAerodynamicsKey + "' is not defined.");
   }
@@ -65,7 +65,7 @@ std::expected<void, std::string> FixedWingConfig::load(const YAML::Node& root_no
   }
 
   // Control surfaces
-  const auto css_node = root_node[kControlSurfacesKey];
+  const auto css_node = _root_node[kControlSurfacesKey];
   if (!css_node.IsDefined() || !css_node.IsSequence()) {
     return std::unexpected(std::string("'") + kControlSurfacesKey + "' must be a sequence.");
   }

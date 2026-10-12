@@ -455,10 +455,10 @@ bool DualActiveSetSolver::addConstraint()
   return true;
 }
 
-void DualActiveSetSolver::deleteConstraint(Eigen::Index l)
+void DualActiveSetSolver::deleteConstraint(Eigen::Index _l)
 {
 #ifdef TRACE_SOLVER
-  cout << "Delete constraint " << l << " " << iq_;
+  cout << "Delete constraint " << _l << " " << iq_;
 #endif
 
   Eigen::Index qq = 0;  // Initialize qq just to prevent warnings from smart compilers.
@@ -466,7 +466,7 @@ void DualActiveSetSolver::deleteConstraint(Eigen::Index l)
 
   // Find the index qq for active constraint l to be removed.
   for (Eigen::Index i = p_; i < iq_; ++i) {
-    if (A_(i) == l) {
+    if (A_(i) == _l) {
       qq = i;
       found = true;
       break;
@@ -529,10 +529,10 @@ void DualActiveSetSolver::deleteConstraint(Eigen::Index l)
   }
 }
 
-double DualActiveSetSolver::distance(double a, double b)
+double DualActiveSetSolver::distance(double _a, double _b)
 {
-  const auto a1 = std::abs(a);
-  const auto b1 = std::abs(b);
+  const auto a1 = std::abs(_a);
+  const auto b1 = std::abs(_b);
   if (a1 > b1) {
     const auto t = b1 / a1;
     return a1 * std::sqrt(1.0 + math::sqr(t));

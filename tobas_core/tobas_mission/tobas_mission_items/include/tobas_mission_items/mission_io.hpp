@@ -14,7 +14,7 @@ namespace tobas
 {
 namespace mission
 {
-YAML::Node dumpMission(const Mission& mission);
-std::expected<Mission, std::string> loadMission(const YAML::Node& node);
+YAML::Node dumpMission(const Mission& _mission);
+std::expected<Mission, std::string> loadMission(const YAML::Node& _node);
 }  // namespace mission
 }  // namespace tobas

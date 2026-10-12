@@ -34,29 +34,29 @@ public:
 
   std::expected<void, std::string> validate() const override;
 
-  std::expected<void, std::string> load(const YAML::Node& node) override;
+  std::expected<void, std::string> load(const YAML::Node& _node) override;
   YAML::Node dump() const override;
 
   inline double momentConst() const override;
   inline double effortWeight() const override;
 
   /** Compute the thrust constant [kg*m/rad^2] from pitch angle [rad]. */
-  inline double motorConst(double pitch_angle) const;
+  inline double motorConst(double _pitch_angle) const;
 
   /** Compute the reaction torque constant [m] from pitch angle [rad]. */
-  inline double momentConst(double pitch_angle) const;
+  inline double momentConst(double _pitch_angle) const;
 
   /** Compute rotor speed [rad/s] from engine speed [rad/s]. */
-  inline double speedEngineToRotor(double engine_speed) const;
+  inline double speedEngineToRotor(double _engine_speed) const;
 
   /** Compute engine speed [rad/s] from rotor speed [rad/s]. */
-  inline double speedRotorToEngine(double rotor_speed) const;
+  inline double speedRotorToEngine(double _rotor_speed) const;
 
   /** Compute thrust [N] from pitch angle [rad]. */
-  inline double thrustFromPitch(double engine_speed, double pitch_angle) const;
+  inline double thrustFromPitch(double _engine_speed, double _pitch_angle) const;
 
   /** Compute pitch angle [rad] from thrust [N]. */
-  inline double pitchFromThrust(double engine_speed, double thrust) const;
+  inline double pitchFromThrust(double _engine_speed, double _thrust) const;
 };
 
 inline double IceRotorConfig::momentConst() const
@@ -69,39 +69,39 @@ inline double IceRotorConfig::effortWeight() const
   return momentConst();  // Propeller efficiency is used as-is.
 }
 
-inline double IceRotorConfig::motorConst(double pitch_angle) const
+inline double IceRotorConfig::motorConst(double _pitch_angle) const
 {
-  return motor_const.compute(pitch_angle);
+  return motor_const.compute(_pitch_angle);
 }
 
-inline double IceRotorConfig::momentConst(double pitch_angle) const
+inline double IceRotorConfig::momentConst(double _pitch_angle) const
 {
-  return moment_const.compute(pitch_angle);
+  return moment_const.compute(_pitch_angle);
 }
 
-inline double IceRotorConfig::speedEngineToRotor(double engine_speed) const
+inline double IceRotorConfig::speedEngineToRotor(double _engine_speed) const
 {
-  return engine_speed / gear_ratio;
+  return _engine_speed / gear_ratio;
 }
 
-inline double IceRotorConfig::speedRotorToEngine(double rotor_speed) const
+inline double IceRotorConfig::speedRotorToEngine(double _rotor_speed) const
 {
-  return rotor_speed * gear_ratio;
+  return _rotor_speed * gear_ratio;
 }
 
-inline double IceRotorConfig::thrustFromPitch(double engine_speed, double pitch_angle) const
+inline double IceRotorConfig::thrustFromPitch(double _engine_speed, double _pitch_angle) const
 {
-  assert(engine_speed >= 0.0);
+  assert(_engine_speed >= 0.0);
 
-  const auto rot_speed = speedEngineToRotor(engine_speed);
-  return motorConst(pitch_angle) * math::sqr(rot_speed);
+  const auto rot_speed = speedEngineToRotor(_engine_speed);
+  return motorConst(_pitch_angle) * math::sqr(rot_speed);
 }
 
-inline double IceRotorConfig::pitchFromThrust(double engine_speed, double thrust) const
+inline double IceRotorConfig::pitchFromThrust(double _engine_speed, double _thrust) const
 {
-  assert(engine_speed > 0.0);
+  assert(_engine_speed > 0.0);
 
-  const auto rot_speed = speedEngineToRotor(engine_speed);
-  return pitch_limit.clamp((thrust / math::sqr(rot_speed) - motor_const.c0) / motor_const.c1);
+  const auto rot_speed = speedEngineToRotor(_engine_speed);
+  return pitch_limit.clamp((_thrust / math::sqr(rot_speed) - motor_const.c0) / motor_const.c1);
 }
 }  // namespace tobas

@@ -34,9 +34,9 @@ public:
   bool isValid() override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
-  void setFrameType(FrameType type);
+  void setFrameType(FrameType _type);
 
   QString executorPackage() const;
   QString pluginName() const;
@@ -49,8 +49,8 @@ private:
   NoneWidget* none_;
   MulticopterWidget* multicopter_;
 
-  BaseExecutorWidget* widget(int index);
-  const BaseExecutorWidget* widget(int index) const;
+  BaseExecutorWidget* widget(int _index);
+  const BaseExecutorWidget* widget(int _index) const;
 
   BaseExecutorWidget* selected();
   const BaseExecutorWidget* selected() const;

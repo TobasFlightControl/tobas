@@ -39,11 +39,11 @@ private:
 
   QString getHostname() const;
 
-  bool writeHostnameFile(const QString& hostname);
-  bool writeHostsFile(const QString& hostname);
+  bool writeHostnameFile(const QString& _hostname);
+  bool writeHostsFile(const QString& _hostname);
 
 private Q_SLOTS:
-  void onHostnameChanged(const QString& hostname);
+  void onHostnameChanged(const QString& _hostname);
   void onWriteButtonClicked();
 };
 }  // namespace bm

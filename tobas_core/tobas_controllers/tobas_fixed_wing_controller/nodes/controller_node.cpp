@@ -36,7 +36,7 @@ class ControllerNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit ControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit ControllerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   struct DynamicParameters
@@ -91,9 +91,9 @@ private:
   void initialize();
   void updateCurrentStateVector();
   void updateSetStateVector();
-  void publishThrusts(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& thrusts);
-  void publishDeflections(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& deflections);
-  bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
+  void publishThrusts(const builtin_interfaces::msg::Time& _stamp, const Eigen::VectorXd& _thrusts);
+  void publishDeflections(const builtin_interfaces::msg::Time& _stamp, const Eigen::VectorXd& _deflections);
+  bool isCommandAccepted(const tobas_command_msgs::msg::Priority& _priority);
 
   void updateForwardSpeedWeight();
   void updateAlphaWeight();
@@ -106,28 +106,28 @@ private:
   void updateDeflectionRateWeightLog10();
   void updateParameters();
 
-  void forwardSpeedWeightCb(long p);
-  void alphaWeightCb(long p);
-  void betaWeightCb(long p);
-  void attitudeWeightCb(long p);
-  void angularVelicityWeightCb(long p);
-  void thrustWeightLog10Cb(long p);
-  void thrustRateWeightLog10Cb(long p);
-  void deflectionWeightLog10Cb(long p);
-  void deflectionRateWeightLog10Cb(long p);
+  void forwardSpeedWeightCb(long _p);
+  void alphaWeightCb(long _p);
+  void betaWeightCb(long _p);
+  void attitudeWeightCb(long _p);
+  void angularVelicityWeightCb(long _p);
+  void thrustWeightLog10Cb(long _p);
+  void thrustRateWeightLog10Cb(long _p);
+  void deflectionWeightLog10Cb(long _p);
+  void deflectionRateWeightLog10Cb(long _p);
 
-  void droneCb(const Drone::ConstSharedPtr& drone);
-  void treeCb(const kdl::Tree::ConstSharedPtr& tree);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
-  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom_flu);
-  void commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_flu);
+  void droneCb(const Drone::ConstSharedPtr& _drone);
+  void treeCb(const kdl::Tree::ConstSharedPtr& _tree);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
+  void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& _pressure);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom_flu);
+  void commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& _cmd_flu);
 
   void checkTopicsTimerCb();
 };
 
-ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(node::kController, nodeOptions_DParam(options)), mass_holder_(tree_), eom_(drone_, tree_)
+ControllerNode::ControllerNode(const rclcpp::NodeOptions& _options)
+  : super(node::kController, nodeOptions_DParam(_options)), mass_holder_(tree_), eom_(drone_, tree_)
 {
   // Register dynamic parameters.
   addDynamicIntParam("forward_speed_weight", &self::forwardSpeedWeightCb, this, 5, 1, 1, 20);
@@ -228,28 +228,28 @@ void ControllerNode::updateSetStateVector()
   lqd_.target_state(eom_.kStateIdx_r) = 0.0;
 }
 
-void ControllerNode::publishThrusts(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& thrusts)
+void ControllerNode::publishThrusts(const builtin_interfaces::msg::Time& _stamp, const Eigen::VectorXd& _thrusts)
 {
-  assert(static_cast<size_t>(thrusts.size()) == drone_.prop->numRotors());
+  assert(static_cast<size_t>(_thrusts.size()) == drone_.prop->numRotors());
 
   auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
-  thrusts_msg->header.stamp = stamp;
+  thrusts_msg->header.stamp = _stamp;
 
   for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
     thrusts_msg->thrusts.emplace_back();
     thrusts_msg->thrusts.back().link_name = elem.first;
-    thrusts_msg->thrusts.back().thrust = std::max(thrusts(idx), 0.0);
+    thrusts_msg->thrusts.back().thrust = std::max(_thrusts(idx), 0.0);
   }
 
   tar_thrusts_pub_->publish(std::move(thrusts_msg));
 }
 
-void ControllerNode::publishDeflections(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& deflections)
+void ControllerNode::publishDeflections(const builtin_interfaces::msg::Time& _stamp, const Eigen::VectorXd& _deflections)
 {
-  assert(static_cast<size_t>(deflections.size()) == drone_.fixed_wing->numControlSurfaces());
+  assert(static_cast<size_t>(_deflections.size()) == drone_.fixed_wing->numControlSurfaces());
 
   auto tar_angles_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
-  tar_angles_msg->header.stamp = stamp;
+  tar_angles_msg->header.stamp = _stamp;
 
   for (const auto& [idx, cs_item] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
     const auto& link_name = cs_item.first;
@@ -257,13 +257,13 @@ void ControllerNode::publishDeflections(const builtin_interfaces::msg::Time& sta
 
     tar_angles_msg->commands.emplace_back();
     tar_angles_msg->commands.back().name = joint.name;
-    tar_angles_msg->commands.back().data = deflections(idx);
+    tar_angles_msg->commands.back().data = _deflections(idx);
   }
 
   tar_angles_pub_->publish(std::move(tar_angles_msg));
 }
 
-bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& priority)
+bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& _priority)
 {
   if (!topics_received_) {
     TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because some topics have not been received yet.");
@@ -275,7 +275,7 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& 
     return false;
   }
 
-  if (!cmd_priority_handler_.update(priority.data, now())) {
+  if (!cmd_priority_handler_.update(_priority.data, now())) {
     TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return false;
   }
@@ -348,121 +348,121 @@ void ControllerNode::updateParameters()
   updateDeflectionRateWeightLog10();
 }
 
-void ControllerNode::forwardSpeedWeightCb(long p)
+void ControllerNode::forwardSpeedWeightCb(long _p)
 {
-  params_.forward_speed_weight = p;
+  params_.forward_speed_weight = _p;
   if (is_initialized_) {
     updateForwardSpeedWeight();
   }
 }
 
-void ControllerNode::alphaWeightCb(long p)
+void ControllerNode::alphaWeightCb(long _p)
 {
-  params_.alpha_weight = p;
+  params_.alpha_weight = _p;
   if (is_initialized_) {
     updateAlphaWeight();
   }
 }
 
-void ControllerNode::betaWeightCb(long p)
+void ControllerNode::betaWeightCb(long _p)
 {
-  params_.beta_weight = p;
+  params_.beta_weight = _p;
   if (is_initialized_) {
     updateBetaWeight();
   }
 }
 
-void ControllerNode::attitudeWeightCb(long p)
+void ControllerNode::attitudeWeightCb(long _p)
 {
-  params_.attitude_weight = p;
+  params_.attitude_weight = _p;
   if (is_initialized_) {
     updateAttitudeWeight();
   }
 }
 
-void ControllerNode::angularVelicityWeightCb(long p)
+void ControllerNode::angularVelicityWeightCb(long _p)
 {
-  params_.angular_velocity_weight = p;
+  params_.angular_velocity_weight = _p;
   if (is_initialized_) {
     updateAngularVelicityWeight();
   }
 }
 
-void ControllerNode::thrustWeightLog10Cb(long p)
+void ControllerNode::thrustWeightLog10Cb(long _p)
 {
-  params_.thrust_weight_log10 = p;
+  params_.thrust_weight_log10 = _p;
   if (is_initialized_) {
     updateThrustWeightLog10();
   }
 }
 
-void ControllerNode::thrustRateWeightLog10Cb(long p)
+void ControllerNode::thrustRateWeightLog10Cb(long _p)
 {
-  params_.thrust_rate_weight_log10 = p;
+  params_.thrust_rate_weight_log10 = _p;
   if (is_initialized_) {
     updateThrustRateWeightLog10();
   }
 }
 
-void ControllerNode::deflectionWeightLog10Cb(long p)
+void ControllerNode::deflectionWeightLog10Cb(long _p)
 {
-  params_.deflection_weight_log10 = p;
+  params_.deflection_weight_log10 = _p;
   if (is_initialized_) {
     updateDeflectionWeightLog10();
   }
 }
 
-void ControllerNode::deflectionRateWeightLog10Cb(long p)
+void ControllerNode::deflectionRateWeightLog10Cb(long _p)
 {
-  params_.deflection_rate_weight_log10 = p;
+  params_.deflection_rate_weight_log10 = _p;
   if (is_initialized_) {
     updateDeflectionRateWeightLog10();
   }
 }
 
-void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
+void ControllerNode::droneCb(const Drone::ConstSharedPtr& _drone)
 {
-  drone_ = *drone;
+  drone_ = *_drone;
 
   if (!tree_.empty()) {
     initialize();
   }
 }
 
-void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
+void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& _tree)
 {
-  tree_ = *tree;
+  tree_ = *_tree;
 
   if (!drone_.empty()) {
     initialize();
   }
 }
 
-void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming)
 {
-  arming_ = arming;
+  arming_ = _arming;
 
-  if (!arming->data) {
+  if (!_arming->data) {
     cmd_flu_.reset();
     lqd_.last_input.setZero();
   }
 }
 
-void ControllerNode::airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure)
+void ControllerNode::airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& _pressure)
 {
-  air_pressure_ = pressure;
+  air_pressure_ = _pressure;
 }
 
-void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom_flu)
+void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom_flu)
 {
   if (!odom_flu_) {
-    odom_flu_ = odom_flu;
+    odom_flu_ = _odom_flu;
     return;
   }
 
   // Compute elapsed time and update odometry.
-  const auto dt = (odom_flu->header.stamp - odom_flu_->header.stamp).seconds();
-  odom_flu_ = odom_flu;
+  const auto dt = (_odom_flu->header.stamp - odom_flu_->header.stamp).seconds();
+  odom_flu_ = _odom_flu;
 
   // Skip if no command is available.
   if (!cmd_flu_) {
@@ -507,17 +507,17 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   const Eigen::VectorXd deflections = u.tail(drone_.fixed_wing->numControlSurfaces());
 
   // Publish commands.
-  publishThrusts(odom_flu->header.stamp, thrusts);
-  publishDeflections(odom_flu->header.stamp, deflections);
+  publishThrusts(_odom_flu->header.stamp, thrusts);
+  publishDeflections(_odom_flu->header.stamp, deflections);
 }
 
-void ControllerNode::commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_flu)
+void ControllerNode::commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& _cmd_flu)
 {
-  if (!isCommandAccepted(cmd_flu->priority)) {
+  if (!isCommandAccepted(_cmd_flu->priority)) {
     return;
   }
 
-  cmd_flu_ = cmd_flu;
+  cmd_flu_ = _cmd_flu;
 }
 
 void ControllerNode::checkTopicsTimerCb()

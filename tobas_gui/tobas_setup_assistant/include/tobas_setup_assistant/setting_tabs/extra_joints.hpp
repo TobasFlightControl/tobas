@@ -26,7 +26,7 @@ class ExtraJointsWidget : public BaseSettingWidget
   Q_OBJECT
 
 public:
-  explicit ExtraJointsWidget(const uadf::Model& uadf, const kdl::Tree& tree);
+  explicit ExtraJointsWidget(const uadf::Model& _uadf, const kdl::Tree& _tree);
 
   const char* name() const override;
   const char* title() const override;
@@ -37,27 +37,27 @@ public:
   bool isValid() override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   // Getters
-  QString getLinkName(int row) const;
-  QString getJointName(int row) const;
-  JointRole getRole(int row) const;
-  JointCommandInterface getCommandInterface(int row) const;
-  double getHomePosition(int row) const;  // [rad]
+  QString getLinkName(int _row) const;
+  QString getJointName(int _row) const;
+  JointRole getRole(int _row) const;
+  JointCommandInterface getCommandInterface(int _row) const;
+  double getHomePosition(int _row) const;  // [rad]
 
   // Setters
-  void setCommandInterface(int row, JointCommandInterface value);
-  void setHomePosition(int row, double value);  // [rad]
+  void setCommandInterface(int _row, JointCommandInterface _value);
+  void setHomePosition(int _row, double _value);  // [rad]
 
   /** Number of registered joints. */
   int numJoints() const;
 
   /** Return the table row for the link name, or -1 if it does not exist. */
-  int findLink(const QString& link_name) const;
+  int findLink(const QString& _link_name) const;
 
   /** Return the table row for the joint name, or -1 if it does not exist. */
-  int findJoint(const QString& joint_name) const;
+  int findJoint(const QString& _joint_name) const;
 
 private:
   const uadf::Model& uadf_;
@@ -65,21 +65,21 @@ private:
 
   qt::TableWidget* table_;
 
-  QLabel* linkNameWidget(int row);
-  const QLabel* linkNameWidget(int row) const;
+  QLabel* linkNameWidget(int _row);
+  const QLabel* linkNameWidget(int _row) const;
 
-  QLabel* jointNameWidget(int row);
-  const QLabel* jointNameWidget(int row) const;
+  QLabel* jointNameWidget(int _row);
+  const QLabel* jointNameWidget(int _row) const;
 
-  qt::ComboBox* commandIfaceWidget(int row);
-  const qt::ComboBox* commandIfaceWidget(int row) const;
+  qt::ComboBox* commandIfaceWidget(int _row);
+  const qt::ComboBox* commandIfaceWidget(int _row) const;
 
-  qt::SpinBox* homePositionWidget(int row);
-  const qt::SpinBox* homePositionWidget(int row) const;
+  qt::SpinBox* homePositionWidget(int _row);
+  const qt::SpinBox* homePositionWidget(int _row) const;
 
   void clear();
-  void reset(int row);
-  void addLink(const std::string& link_name);
+  void reset(int _row);
+  void addLink(const std::string& _link_name);
 };
 }  // namespace sa
 }  // namespace gui

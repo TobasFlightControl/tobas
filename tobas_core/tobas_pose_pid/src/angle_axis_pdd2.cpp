@@ -13,51 +13,51 @@ AngleAxisPDD2::AngleAxisPDD2()
 }
 
 kdl::Vector AngleAxisPDD2::update(
-  const kdl::Rotation& cur_rot,
-  const kdl::Vector& cur_gyro,
-  const kdl::Vector& cur_dgyro,
-  const kdl::Rotation& tar_rot,
-  const kdl::Vector& tar_gyro,
-  const kdl::Vector& tar_dgyro,
-  double dt)
+  const kdl::Rotation& _cur_rot,
+  const kdl::Vector& _cur_gyro,
+  const kdl::Vector& _cur_dgyro,
+  const kdl::Rotation& _tar_rot,
+  const kdl::Vector& _tar_gyro,
+  const kdl::Vector& _tar_dgyro,
+  double _dt)
 {
   // Compute error in angle-axis form wrt. the local frame.
-  const auto ep = (cur_rot.inverse() * tar_rot).getRot();
-  const auto ev = tar_gyro - cur_gyro;
-  const auto ea = tar_dgyro - cur_dgyro;
+  const auto ep = (_cur_rot.inverse() * _tar_rot).getRot();
+  const auto ev = _tar_gyro - _cur_gyro;
+  const auto ea = _tar_dgyro - _cur_dgyro;
 
   // Compute command ddgyro.
   const auto cmd_ddgyro = kp_.hadamard(ep) + kv_.hadamard(ev) + ka_.hadamard(ea);
 
   // Integrate command ddgyro.
-  cmd_dgyro_ += cmd_ddgyro * dt;
+  cmd_dgyro_ += cmd_ddgyro * _dt;
   return cmd_dgyro_;
 }
 
-void AngleAxisPDD2::setNaturalFreq(int idx, double value)
+void AngleAxisPDD2::setNaturalFreq(int _idx, double _value)
 {
-  assert(0 <= idx && idx < 3);
-  assert(value >= 0.0);
+  assert(0 <= _idx && _idx < 3);
+  assert(_value >= 0.0);
 
-  wn_(idx) = value;
+  wn_(_idx) = _value;
   updateGain();
 }
 
-void AngleAxisPDD2::setInertiaRatio(int idx, double value)
+void AngleAxisPDD2::setInertiaRatio(int _idx, double _value)
 {
-  assert(0 <= idx && idx < 3);
-  assert(value >= 0.0);
+  assert(0 <= _idx && _idx < 3);
+  assert(_value >= 0.0);
 
-  zeta_(idx) = value;
+  zeta_(_idx) = _value;
   updateGain();
 }
 
-void AngleAxisPDD2::setDampingRatio(int idx, double value)
+void AngleAxisPDD2::setDampingRatio(int _idx, double _value)
 {
-  assert(0 <= idx && idx < 3);
-  assert(value >= 0.0);
+  assert(0 <= _idx && _idx < 3);
+  assert(_value >= 0.0);
 
-  xi_(idx) = value;
+  xi_(_idx) = _value;
   updateGain();
 }
 

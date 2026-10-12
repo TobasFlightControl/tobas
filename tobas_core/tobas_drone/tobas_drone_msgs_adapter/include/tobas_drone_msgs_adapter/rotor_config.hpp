@@ -16,18 +16,18 @@ struct rclcpp::TypeAdapter<tobas::RotorConfig, tobas_drone_msgs::msg::RotorConfi
   using custom_type = tobas::RotorConfig;
   using ros_message_type = tobas_drone_msgs::msg::RotorConfig;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.link_name = src.link_name;
-    dst.direction = static_cast<uint8_t>(src.direction);
-    dst.tilt_joint_name = src.tilt_joint_name;
+    _dst.link_name = _src.link_name;
+    _dst.direction = static_cast<uint8_t>(_src.direction);
+    _dst.tilt_joint_name = _src.tilt_joint_name;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.link_name = src.link_name;
-    dst.direction = static_cast<tobas::TurningDirection>(src.direction);
-    dst.tilt_joint_name = src.tilt_joint_name;
+    _dst.link_name = _src.link_name;
+    _dst.direction = static_cast<tobas::TurningDirection>(_src.direction);
+    _dst.tilt_joint_name = _src.tilt_joint_name;
   }
 };
 

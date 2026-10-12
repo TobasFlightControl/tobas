@@ -743,25 +743,25 @@ std::expected<CountryCode, std::string> parseCountryCode(const std::string& _src
   }
 }
 
-std::expected<int, std::string> parseInteger(const std::string& text, const std::string& field)
+std::expected<int, std::string> parseInteger(const std::string& _text, const std::string& _field)
 {
   try {
-    return std::stoi(text);
+    return std::stoi(_text);
   }
   catch (const std::invalid_argument&) {
-    return std::unexpected("Invalid integer for " + field + ".");
+    return std::unexpected("Invalid integer for " + _field + ".");
   }
   catch (const std::out_of_range&) {
-    return std::unexpected("Integer out of range for " + field + ".");
+    return std::unexpected("Integer out of range for " + _field + ".");
   }
 }
 }  // namespace
 
-std::expected<Data, std::string> parseFromText(const std::string& text)
+std::expected<Data, std::string> parseFromText(const std::string& _text)
 {
   Data res;
 
-  const auto lines = str::splitLines(text);
+  const auto lines = str::splitLines(_text);
   Network network;
   bool in_network_block = false;
 

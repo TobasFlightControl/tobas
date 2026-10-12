@@ -15,7 +15,7 @@ class TreeMassHolder : public TreeSolverI
   using super = TreeSolverI;
 
 public:
-  explicit TreeMassHolder(const Tree& tree);
+  explicit TreeMassHolder(const Tree& _tree);
 
   void updateInternalDataStructures() override;
 
@@ -27,7 +27,7 @@ private:
   void updateTotalMass();
 
   /** Return the mass under the specified segment. */
-  double computeMass(const SegmentMap::const_iterator& cur_it) const;
+  double computeMass(const SegmentMap::const_iterator& _cur_it) const;
 };
 
 inline const double& TreeMassHolder::getMass() const

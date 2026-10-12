@@ -7,12 +7,12 @@ namespace tobas
 {
 namespace qt
 {
-QValidator::State IntValidator::validate(QString& input, int& pos) const
+QValidator::State IntValidator::validate(QString& _input, int& _pos) const
 {
-  const auto original_res = super::validate(input, pos);
+  const auto original_res = super::validate(_input, _pos);
 
   if (original_res == Intermediate) {
-    const auto extracted = locale().toInt(input);
+    const auto extracted = locale().toInt(_input);
     if (extracted > 0) {
       if (extracted > top() && -extracted < bottom()) {
         return Invalid;

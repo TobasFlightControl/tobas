@@ -11,22 +11,22 @@ namespace tobas
 {
 namespace gazebo
 {
-gz::math::MassMatrix3d boxInertia(double sx, double sy, double sz, double mass)
+gz::math::MassMatrix3d boxInertia(double _sx, double _sy, double _sz, double _mass)
 {
-  assert(sx > 0.0);
-  assert(sy > 0.0);
-  assert(sz > 0.0);
-  assert(mass > 0.0);
+  assert(_sx > 0.0);
+  assert(_sy > 0.0);
+  assert(_sz > 0.0);
+  assert(_mass > 0.0);
 
-  const auto sx2 = math::sqr(sx);
-  const auto sy2 = math::sqr(sy);
-  const auto sz2 = math::sqr(sz);
-  const auto c = mass / 12;
+  const auto sx2 = math::sqr(_sx);
+  const auto sy2 = math::sqr(_sy);
+  const auto sz2 = math::sqr(_sz);
+  const auto c = _mass / 12;
   const double ixx = c * (sy2 + sz2);
   const double iyy = c * (sz2 + sx2);
   const double izz = c * (sx2 + sy2);
 
-  return { mass, { ixx, iyy, izz }, gz::math::Vector3d::Zero };
+  return { _mass, { ixx, iyy, izz }, gz::math::Vector3d::Zero };
 }
 }  // namespace gazebo
 }  // namespace tobas

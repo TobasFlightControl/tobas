@@ -35,15 +35,15 @@ public:
   virtual const char* name() const = 0;
 
 protected:
-  void addField(field::BaseFieldWidget* widget, bool overridable = false);
+  void addField(field::BaseFieldWidget* _widget, bool _overridable = false);
 
-  bool isChecked(field::BaseFieldWidget* widget) const;
-  void setChecked(field::BaseFieldWidget* widget, bool checked);
+  bool isChecked(field::BaseFieldWidget* _widget) const;
+  void setChecked(field::BaseFieldWidget* _widget, bool _checked);
 
   /** Return the configured value if checked; otherwise return NaN. */
-  double getValueOrDefault(field::FieldWidget<double>* widget) const;
+  double getValueOrDefault(field::FieldWidget<double>* _widget) const;
   /** Set a valid value as-is; use the default value if it is NaN. */
-  void setValueOrDefault(field::FieldWidget<double>* widget, double value);
+  void setValueOrDefault(field::FieldWidget<double>* _widget, double _value);
 
 private:
   QLabel* label_;

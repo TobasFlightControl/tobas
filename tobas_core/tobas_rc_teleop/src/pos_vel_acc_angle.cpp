@@ -35,51 +35,52 @@ bool PosVelAccAngleController::requireHeading()
   return true;
 }
 
-void PosVelAccAngleController::initialize(BaseNode* node, FlightMode mode)
+void PosVelAccAngleController::initialize(BaseNode* _node, FlightMode _mode)
 {
-  node->addDynamicDoubleParam(
-    addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
-  node->addDynamicDoubleParam(
-    addMode("max_horizontal_jerk", mode), &self::maxHorizontalJerkCb, this, 5.0, 8, 1, 20, " m/s^3");
-  node->addDynamicDoubleParam(
-    addMode("max_vertical_velocity", mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20, " m/s");
-  node->addDynamicDoubleParam(
-    addMode("max_vertical_jerk", mode), &self::maxVerticalJerkCb, this, 5.0, 8, 1, 20, " m/s^3");
-  node->addDynamicDoubleParam(addMode("max_attitude", mode), &self::maxAttitudeCb, this, 15.0, 6, 1, 12, " deg");
-  node->addDynamicDoubleParam(
-    addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 15.0, 6, 1, 12, " dps");
-  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 15.0, 6, 1, 12, " dps");
-  node->addDynamicDoubleParam(
-    addMode("max_position_error_down", mode), &self::maxPositionErrorDown, this, 0.5, 4, 0, 20, " m");
-  node->addDynamicDoubleParam(
-    addMode("horizontal_velocity_expo", mode), &self::horizontalVelocityExpoCb, this, 5.0, -6, -20, 20);
-  node->addDynamicDoubleParam(
-    addMode("vertical_velocity_expo", mode), &self::verticalVelocityExpoCb, this, 5.0, 0, -20, 20);
-  node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5.0, 0, -20, 20);
-  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
+  _node->addDynamicDoubleParam(
+    addMode("max_horizontal_velocity", _mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
+  _node->addDynamicDoubleParam(
+    addMode("max_horizontal_jerk", _mode), &self::maxHorizontalJerkCb, this, 5.0, 8, 1, 20, " m/s^3");
+  _node->addDynamicDoubleParam(
+    addMode("max_vertical_velocity", _mode), &self::maxVerticalVelocityCb, this, 0.5, 8, 0, 20, " m/s");
+  _node->addDynamicDoubleParam(
+    addMode("max_vertical_jerk", _mode), &self::maxVerticalJerkCb, this, 5.0, 8, 1, 20, " m/s^3");
+  _node->addDynamicDoubleParam(addMode("max_attitude", _mode), &self::maxAttitudeCb, this, 15.0, 6, 1, 12, " deg");
+  _node->addDynamicDoubleParam(
+    addMode("max_attitude_rate", _mode), &self::maxAttitudeRateCb, this, 15.0, 6, 1, 12, " dps");
+  _node->addDynamicDoubleParam(
+    addMode("max_heading_rate", _mode), &self::maxHeadingRateCb, this, 15.0, 6, 1, 12, " dps");
+  _node->addDynamicDoubleParam(
+    addMode("max_position_error_down", _mode), &self::maxPositionErrorDown, this, 0.5, 4, 0, 20, " m");
+  _node->addDynamicDoubleParam(
+    addMode("horizontal_velocity_expo", _mode), &self::horizontalVelocityExpoCb, this, 5.0, -6, -20, 20);
+  _node->addDynamicDoubleParam(
+    addMode("vertical_velocity_expo", _mode), &self::verticalVelocityExpoCb, this, 5.0, 0, -20, 20);
+  _node->addDynamicDoubleParam(addMode("attitude_expo", _mode), &self::attitudeExpoCb, this, 5.0, 0, -20, 20);
+  _node->addDynamicDoubleParam(addMode("heading_expo", _mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
 
-  pos_vel_acc_pub_ = node->createPublisher<tobas_command_msgs::PosVelAcc>(topic::kPosVelAccCmd);
-  angle_pub_ = node->createPublisher<tobas_command_msgs::Angle>(topic::kAngleCmd);
+  pos_vel_acc_pub_ = _node->createPublisher<tobas_command_msgs::PosVelAcc>(topic::kPosVelAccCmd);
+  angle_pub_ = _node->createPublisher<tobas_command_msgs::Angle>(topic::kAngleCmd);
 }
 
 void PosVelAccAngleController::reset(
-  const builtin_interfaces::msg::Time& stamp,
-  const tobas_msgs::Odometry& setpoint,
-  bool landed)
+  const builtin_interfaces::msg::Time& _stamp,
+  const tobas_msgs::Odometry& _setpoint,
+  bool _landed)
 {
-  t_last_rcin_ = stamp;
+  t_last_rcin_ = _stamp;
 
-  const auto [roll, pitch, yaw] = setpoint.frame.M.getRPY();
+  const auto [roll, pitch, yaw] = _setpoint.frame.M.getRPY();
 
   const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.0);
-  const auto tar_vel_G = R_G_B * setpoint.twist.vel;
+  const auto tar_vel_G = R_G_B * _setpoint.twist.vel;
   vx_filt_.resetCurrentTrajectoryPoint(tar_vel_G.x(), 0.0);
   vy_filt_.resetCurrentTrajectoryPoint(tar_vel_G.y(), 0.0);
   vz_filt_.resetCurrentTrajectoryPoint(tar_vel_G.z(), 0.0);
 
-  tar_pos_W_ = setpoint.frame.p;
+  tar_pos_W_ = _setpoint.frame.p;
 
-  if (landed) {
+  if (_landed) {
     vz_filt_.resetCurrentTrajectoryPoint(-max_ver_vel_, 0.0);
     tar_pos_W_.z() -= max_ep_down_;
   }
@@ -89,33 +90,33 @@ void PosVelAccAngleController::reset(
   tar_yaw_ = yaw;
 }
 
-void PosVelAccAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed)
+void PosVelAccAngleController::update(const tobas_msgs::RCInput& _rcin, const tobas_msgs::Odometry& _odom, bool _landed)
 {
   // Update timestamp.
-  const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
-  t_last_rcin_ = rcin.header.stamp;
+  const auto dt = (_rcin.header.stamp - t_last_rcin_).seconds();
+  t_last_rcin_ = _rcin.header.stamp;
 
   // Horizontal velocity & Attitude
-  if (rcin.sub_mode)  // Translation mode
+  if (_rcin.sub_mode)  // Translation mode
   {
-    vx_filt_.update(expoRemap(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
-    vy_filt_.update(-expoRemap(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
+    vx_filt_.update(expoRemap(_rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
+    vy_filt_.update(-expoRemap(_rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
     roll_filt_.setTargetPointAndUpdate(0.0, dt);
     pitch_filt_.setTargetPointAndUpdate(0.0, dt);
   }
   else  // Rotation mode
   {
-    roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, atti_expo_, -max_attitude_, max_attitude_), dt);
-    pitch_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, atti_expo_, -max_attitude_, max_attitude_), dt);
+    roll_filt_.setTargetPointAndUpdate(expoRemapDead(_rcin.roll, atti_expo_, -max_attitude_, max_attitude_), dt);
+    pitch_filt_.setTargetPointAndUpdate(expoRemapDead(_rcin.pitch, atti_expo_, -max_attitude_, max_attitude_), dt);
     vx_filt_.update(0.0, dt);
     vy_filt_.update(0.0, dt);
   }
 
   // Vertical velocity
-  vz_filt_.update(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
+  vz_filt_.update(expoRemapDead(_rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
 
   // Yaw
-  const auto yawrate = expoRemapDead(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);
+  const auto yawrate = expoRemapDead(_rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_);
   tar_yaw_ += yawrate * dt;
 
   // Compute the velocity and acceleration wrt. the world frame.
@@ -131,8 +132,8 @@ void PosVelAccAngleController::update(const tobas_msgs::RCInput& rcin, const tob
   tar_pos_W_ += tar_vel_W * dt;
 
   // Do not perform horizontal position control while landed.
-  const auto& cur_pos_W = odom.frame.p;
-  if (landed) {
+  const auto& cur_pos_W = _odom.frame.p;
+  if (_landed) {
     tar_pos_W_.x() = cur_pos_W.x();
     tar_pos_W_.y() = cur_pos_W.y();
   }
@@ -142,104 +143,104 @@ void PosVelAccAngleController::update(const tobas_msgs::RCInput& rcin, const tob
   tar_pos_W_.z() = std::max(tar_pos_W_.z(), cur_z - max_ep_down_);
 
   // Publish commands.
-  publishPosVelAcc(rcin.header.stamp, tar_pos_W_, tar_vel_W, tar_acc_W);
-  publishAngle(rcin.header.stamp, roll_filt_.getTrajectoryPosition(), pitch_filt_.getTrajectoryPosition(), tar_yaw_);
+  publishPosVelAcc(_rcin.header.stamp, tar_pos_W_, tar_vel_W, tar_acc_W);
+  publishAngle(_rcin.header.stamp, roll_filt_.getTrajectoryPosition(), pitch_filt_.getTrajectoryPosition(), tar_yaw_);
 }
 
 void PosVelAccAngleController::publishPosVelAcc(
-  const builtin_interfaces::msg::Time& stamp,
-  const kdl::Vector& pos,
-  const kdl::Vector& vel,
-  const kdl::Vector& acc)
+  const builtin_interfaces::msg::Time& _stamp,
+  const kdl::Vector& _pos,
+  const kdl::Vector& _vel,
+  const kdl::Vector& _acc)
 {
   auto cmd = std::make_unique<tobas_command_msgs::PosVelAcc>();
-  cmd->header.stamp = stamp;
+  cmd->header.stamp = _stamp;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
-  cmd->pos = pos;
-  cmd->vel = vel;
-  cmd->acc = acc;
+  cmd->pos = _pos;
+  cmd->vel = _vel;
+  cmd->acc = _acc;
 
   pos_vel_acc_pub_->publish(std::move(cmd));
 }
 
 void PosVelAccAngleController::publishAngle(
-  const builtin_interfaces::msg::Time& stamp,
-  double roll,
-  double pitch,
-  double yaw)
+  const builtin_interfaces::msg::Time& _stamp,
+  double _roll,
+  double _pitch,
+  double _yaw)
 {
   auto cmd = std::make_unique<tobas_command_msgs::Angle>();
-  cmd->header.stamp = stamp;
+  cmd->header.stamp = _stamp;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
-  cmd->angle.set(roll, pitch, yaw);
+  cmd->angle.set(_roll, _pitch, _yaw);
 
   angle_pub_->publish(std::move(cmd));
 }
 
-void PosVelAccAngleController::maxHorizontalVelocityCb(double p)
+void PosVelAccAngleController::maxHorizontalVelocityCb(double _p)
 {
-  max_hor_vel_ = p;
-  vx_filt_.setMaxVelocity(p);
-  vy_filt_.setMaxVelocity(p);
+  max_hor_vel_ = _p;
+  vx_filt_.setMaxVelocity(_p);
+  vy_filt_.setMaxVelocity(_p);
 }
 
-void PosVelAccAngleController::maxHorizontalJerkCb(double p)
+void PosVelAccAngleController::maxHorizontalJerkCb(double _p)
 {
-  vx_filt_.setMaxJerk(p);
-  vy_filt_.setMaxJerk(p);
+  vx_filt_.setMaxJerk(_p);
+  vy_filt_.setMaxJerk(_p);
 }
 
-void PosVelAccAngleController::maxVerticalVelocityCb(double p)
+void PosVelAccAngleController::maxVerticalVelocityCb(double _p)
 {
-  max_ver_vel_ = p;
-  vz_filt_.setMaxVelocity(p);
+  max_ver_vel_ = _p;
+  vz_filt_.setMaxVelocity(_p);
 }
 
-void PosVelAccAngleController::maxVerticalJerkCb(double p)
+void PosVelAccAngleController::maxVerticalJerkCb(double _p)
 {
-  vz_filt_.setMaxJerk(p);
+  vz_filt_.setMaxJerk(_p);
 }
 
-void PosVelAccAngleController::maxAttitudeCb(double p)
+void PosVelAccAngleController::maxAttitudeCb(double _p)
 {
-  max_attitude_ = st::deg2rad(p);
+  max_attitude_ = st::deg2rad(_p);
 }
 
-void PosVelAccAngleController::maxAttitudeRateCb(double p)
+void PosVelAccAngleController::maxAttitudeRateCb(double _p)
 {
-  const auto max_atti_rate = st::deg2rad(p);  // [rad/s]
+  const auto max_atti_rate = st::deg2rad(_p);  // [rad/s]
   roll_filt_.setMaxVelocity(max_atti_rate);
   pitch_filt_.setMaxVelocity(max_atti_rate);
 }
 
-void PosVelAccAngleController::maxHeadingRateCb(double p)
+void PosVelAccAngleController::maxHeadingRateCb(double _p)
 {
-  max_head_rate_ = st::deg2rad(p);
+  max_head_rate_ = st::deg2rad(_p);
 }
 
-void PosVelAccAngleController::maxPositionErrorDown(double p)
+void PosVelAccAngleController::maxPositionErrorDown(double _p)
 {
-  max_ep_down_ = p;
+  max_ep_down_ = _p;
 }
 
-void PosVelAccAngleController::horizontalVelocityExpoCb(double p)
+void PosVelAccAngleController::horizontalVelocityExpoCb(double _p)
 {
-  hor_vel_expo_ = p / kExpoScale;
+  hor_vel_expo_ = _p / kExpoScale;
 }
 
-void PosVelAccAngleController::verticalVelocityExpoCb(double p)
+void PosVelAccAngleController::verticalVelocityExpoCb(double _p)
 {
-  ver_vel_expo_ = p / kExpoScale;
+  ver_vel_expo_ = _p / kExpoScale;
 }
 
-void PosVelAccAngleController::attitudeExpoCb(double p)
+void PosVelAccAngleController::attitudeExpoCb(double _p)
 {
-  atti_expo_ = p / kExpoScale;
+  atti_expo_ = _p / kExpoScale;
 }
 
-void PosVelAccAngleController::headingExpoCb(double p)
+void PosVelAccAngleController::headingExpoCb(double _p)
 {
-  head_expo_ = p / kExpoScale;
+  head_expo_ = _p / kExpoScale;
 }
 }  // namespace rc
 }  // namespace tobas

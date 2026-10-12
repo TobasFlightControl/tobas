@@ -32,16 +32,16 @@ std::expected<void, std::string> IcePropulsionSystemConfig::validate() const
   return engine.validate();
 }
 
-std::expected<void, std::string> IcePropulsionSystemConfig::load(const YAML::Node& root_node)
+std::expected<void, std::string> IcePropulsionSystemConfig::load(const YAML::Node& _root_node)
 {
-  if (!root_node.IsDefined() || !root_node.IsMap()) {
+  if (!_root_node.IsDefined() || !_root_node.IsMap()) {
     return std::unexpected("ICE propulsion system node must be a map.");
   }
 
   clear();
 
   // Rotors
-  const auto rotors_node = root_node[kRotorsKey];
+  const auto rotors_node = _root_node[kRotorsKey];
   if (!rotors_node.IsDefined()) {
     return std::unexpected(std::string("'") + kRotorsKey + "' is not defined.");
   }
@@ -57,7 +57,7 @@ std::expected<void, std::string> IcePropulsionSystemConfig::load(const YAML::Nod
   }
 
   // Engine
-  const auto engine_node = root_node[kEngineKey];
+  const auto engine_node = _root_node[kEngineKey];
   if (!engine_node.IsDefined()) {
     return std::unexpected(std::string("'") + kEngineKey + "' is not defined.");
   }
@@ -97,9 +97,9 @@ double IcePropulsionSystemConfig::minSpeed(const std::string&)
   return 0.0;
 }
 
-double IcePropulsionSystemConfig::maxSpeed(const std::string& link_name)
+double IcePropulsionSystemConfig::maxSpeed(const std::string& _link_name)
 {
-  return maxEngineSpeed() / getRotor(link_name)->gear_ratio;
+  return maxEngineSpeed() / getRotor(_link_name)->gear_ratio;
 }
 
 double IcePropulsionSystemConfig::minThrust(const std::string&)
@@ -107,18 +107,18 @@ double IcePropulsionSystemConfig::minThrust(const std::string&)
   return 0.0;
 }
 
-double IcePropulsionSystemConfig::maxThrust(const std::string& link_name)
+double IcePropulsionSystemConfig::maxThrust(const std::string& _link_name)
 {
-  const auto irotor = getRotor(link_name);
+  const auto irotor = getRotor(_link_name);
   const auto max_motor_const = irotor->motorConst(irotor->pitch_limit.upper);
   const auto max_speed = maxEngineSpeed() / irotor->gear_ratio;
   return max_motor_const * math::sqr(max_speed);
 }
 
-double IcePropulsionSystemConfig::thrustFromThrottle(const std::string& link_name, double throttle)
+double IcePropulsionSystemConfig::thrustFromThrottle(const std::string& _link_name, double _throttle)
 {
-  const auto irotor = getRotor(link_name);
-  const auto engine_speed = computeEngineSpeed(throttle);
+  const auto irotor = getRotor(_link_name);
+  const auto engine_speed = computeEngineSpeed(_throttle);
   return irotor->thrustFromPitch(engine_speed, irotor->center_pitch);  // Return thrust at the center pitch angle.
 }
 
@@ -132,18 +132,18 @@ double IcePropulsionSystemConfig::maxEngineSpeed()
   return *max_engine_speed_;
 }
 
-double IcePropulsionSystemConfig::computeEngineSpeed(double throttle) const
+double IcePropulsionSystemConfig::computeEngineSpeed(double _throttle) const
 {
   // FIXME: Torque is actually generated even at zero throttle due to idling.
-  if (throttle <= std::numeric_limits<double>::epsilon()) {
+  if (_throttle <= std::numeric_limits<double>::epsilon()) {
     return 0.0;
   }
 
   nlp::NewtonSolver1d newton;
 
   newton.initialize(
-    std::bind(&self::speedFunc, this, throttle, std::placeholders::_1),
-    std::bind(&self::speedFuncDeriv, this, throttle, std::placeholders::_1));
+    std::bind(&self::speedFunc, this, _throttle, std::placeholders::_1),
+    std::bind(&self::speedFuncDeriv, this, _throttle, std::placeholders::_1));
 
   const auto engine_speed = newton.solve(0.0);
   assert(engine_speed.has_value());
@@ -151,30 +151,30 @@ double IcePropulsionSystemConfig::computeEngineSpeed(double throttle) const
   return *engine_speed;
 }
 
-double IcePropulsionSystemConfig::speedFunc(double throttle, double omega) const
+double IcePropulsionSystemConfig::speedFunc(double _throttle, double _omega) const
 {
   const auto& B = engine.engine_const.second;
-  const auto f = calc_f(throttle);
+  const auto f = calc_f(_throttle);
   const auto k = calc_k();
-  return f * math::sqr(k) * math::quar(omega) + k * omega - B;
+  return f * math::sqr(k) * math::quar(_omega) + k * _omega - B;
 }
 
-double IcePropulsionSystemConfig::speedFuncDeriv(double throttle, double omega) const
+double IcePropulsionSystemConfig::speedFuncDeriv(double _throttle, double _omega) const
 {
-  const auto f = calc_f(throttle);
+  const auto f = calc_f(_throttle);
   const auto k = calc_k();
-  return 4 * f * math::sqr(k) * math::cube(omega) + k;
+  return 4 * f * math::sqr(k) * math::cube(_omega) + k;
 }
 
-double IcePropulsionSystemConfig::calc_phi(double throttle) const
+double IcePropulsionSystemConfig::calc_phi(double _throttle) const
 {
-  return M_PI_2 * throttle;
+  return M_PI_2 * _throttle;
 }
 
-double IcePropulsionSystemConfig::calc_f(double throttle) const
+double IcePropulsionSystemConfig::calc_f(double _throttle) const
 {
   const auto& A = engine.engine_const.first;
-  const auto phi = calc_phi(throttle);
+  const auto phi = calc_phi(_throttle);
   return math::sqr(A / (1 - std::cos(phi)));
 }
 
@@ -190,18 +190,18 @@ double IcePropulsionSystemConfig::calc_k() const
   return res;
 }
 
-IceRotorConfig::SharedPtr IcePropulsionSystemConfig::getRotor(const std::string& link_name)
+IceRotorConfig::SharedPtr IcePropulsionSystemConfig::getRotor(const std::string& _link_name)
 {
-  const auto it = rotors.find(link_name);
+  const auto it = rotors.find(_link_name);
   if (it == rotors.end()) {
     return nullptr;
   }
   return std::static_pointer_cast<IceRotorConfig>(it->second);
 }
 
-IceRotorConfig::ConstSharedPtr IcePropulsionSystemConfig::getRotor(const std::string& link_name) const
+IceRotorConfig::ConstSharedPtr IcePropulsionSystemConfig::getRotor(const std::string& _link_name) const
 {
-  const auto it = rotors.find(link_name);
+  const auto it = rotors.find(_link_name);
   if (it == rotors.end()) {
     return nullptr;
   }

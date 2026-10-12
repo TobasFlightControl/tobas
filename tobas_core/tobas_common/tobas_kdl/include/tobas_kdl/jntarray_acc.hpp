@@ -20,12 +20,12 @@ public:
   JntArray qdd;
 
   inline explicit JntArrayAcc();
-  inline explicit JntArrayAcc(size_t nj);
-  inline explicit JntArrayAcc(const JntArray& q, const JntArray& qd, const JntArray& qdd);
-  inline explicit JntArrayAcc(const JntArray& q, const JntArray& qd);
-  inline explicit JntArrayAcc(const JntArray& q);
+  inline explicit JntArrayAcc(size_t _nj);
+  inline explicit JntArrayAcc(const JntArray& _q, const JntArray& _qd, const JntArray& _qdd);
+  inline explicit JntArrayAcc(const JntArray& _q, const JntArray& _qd);
+  inline explicit JntArrayAcc(const JntArray& _q);
 
-  inline void resize(size_t nj);
+  inline void resize(size_t _nj);
   inline void setZero();
 
   // TODO: operators
@@ -35,7 +35,7 @@ inline JntArrayAcc::JntArrayAcc()
 {
 }
 
-inline JntArrayAcc::JntArrayAcc(size_t nj) : q(nj), qd(nj), qdd(nj)
+inline JntArrayAcc::JntArrayAcc(size_t _nj) : q(_nj), qd(_nj), qdd(_nj)
 {
 }
 
@@ -54,11 +54,11 @@ inline JntArrayAcc::JntArrayAcc(const JntArray& _q) : q(_q), qd(q.size()), qdd(q
 {
 }
 
-inline void JntArrayAcc::resize(size_t nj)
+inline void JntArrayAcc::resize(size_t _nj)
 {
-  q.resize(nj);
-  qd.resize(nj);
-  qdd.resize(nj);
+  q.resize(_nj);
+  qd.resize(_nj);
+  qdd.resize(_nj);
 }
 
 inline void JntArrayAcc::setZero()

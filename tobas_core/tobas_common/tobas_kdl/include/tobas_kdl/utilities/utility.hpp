@@ -36,9 +36,9 @@ public:
   typedef int Arg;
 };
 
-inline constexpr double sqr(double arg)
+inline constexpr double sqr(double _arg)
 {
-  return arg * arg;
+  return _arg * _arg;
 }
 }  // namespace kdl
 }  // namespace tobas

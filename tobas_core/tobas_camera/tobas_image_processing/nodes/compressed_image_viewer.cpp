@@ -39,10 +39,10 @@ CompressedImageViewer::~CompressedImageViewer()
   cv::destroyWindow("view");
 }
 
-void CompressedImageViewer::msgCb(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& msg)
+void CompressedImageViewer::msgCb(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& _msg)
 {
   try {
-    cv::Mat image = cv::imdecode(cv::Mat(msg->data), 1);  // Convert the compressed image data to cv::Mat.
+    cv::Mat image = cv::imdecode(cv::Mat(_msg->data), 1);  // Convert the compressed image data to cv::Mat.
     cv::imshow("view", image);
     cv::waitKey(10);
   }

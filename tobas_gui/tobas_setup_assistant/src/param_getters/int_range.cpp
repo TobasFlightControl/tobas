@@ -9,8 +9,8 @@ namespace gui
 {
 namespace sa
 {
-ParamGetterWidget_IntRange::ParamGetterWidget_IntRange(const QString& param_name, const QString& description_text)
-  : super(param_name, description_text)
+ParamGetterWidget_IntRange::ParamGetterWidget_IntRange(const QString& _param_name, const QString& _description_text)
+  : super(_param_name, _description_text)
 {
   const auto cols = new QHBoxLayout();
   rows_->addLayout(cols);
@@ -30,35 +30,35 @@ ParamGetterWidget_IntRange::ValueType ParamGetterWidget_IntRange::getValue() con
   return { min(), max() };
 }
 
-bool ParamGetterWidget_IntRange::setValue(const ValueType& src)
+bool ParamGetterWidget_IntRange::setValue(const ValueType& _src)
 {
-  min_->setValue(src.lower);
-  max_->setValue(src.upper);
+  min_->setValue(_src.lower);
+  max_->setValue(_src.upper);
   return true;
 }
 
-void ParamGetterWidget_IntRange::setMinimum(int minimum)
+void ParamGetterWidget_IntRange::setMinimum(int _minimum)
 {
-  min_->setMinimum(minimum);
-  max_->setMinimum(minimum);
+  min_->setMinimum(_minimum);
+  max_->setMinimum(_minimum);
 }
 
-void ParamGetterWidget_IntRange::setMaximum(int maximum)
+void ParamGetterWidget_IntRange::setMaximum(int _maximum)
 {
-  min_->setMaximum(maximum);
-  max_->setMaximum(maximum);
+  min_->setMaximum(_maximum);
+  max_->setMaximum(_maximum);
 }
 
-void ParamGetterWidget_IntRange::setSingleStep(int single_step)
+void ParamGetterWidget_IntRange::setSingleStep(int _single_step)
 {
-  min_->setSingleStep(single_step);
-  max_->setSingleStep(single_step);
+  min_->setSingleStep(_single_step);
+  max_->setSingleStep(_single_step);
 }
 
-void ParamGetterWidget_IntRange::setSuffix(const QString& suffix)
+void ParamGetterWidget_IntRange::setSuffix(const QString& _suffix)
 {
-  min_->setSuffix(suffix);
-  max_->setSuffix(suffix);
+  min_->setSuffix(_suffix);
+  max_->setSuffix(_suffix);
 }
 
 int ParamGetterWidget_IntRange::min() const

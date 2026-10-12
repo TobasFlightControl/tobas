@@ -10,12 +10,12 @@ namespace tobas
 {
 namespace qt
 {
-LabeledDoubleSpinBox::LabeledDoubleSpinBox(const QString& label_text)
+LabeledDoubleSpinBox::LabeledDoubleSpinBox(const QString& _label_text)
 {
   const auto cols = new QHBoxLayout();
   setLayout(cols);
 
-  const auto label = new QLabel(label_text + ":");
+  const auto label = new QLabel(_label_text + ":");
   cols->addWidget(label);
 
   data_ = new qt::DoubleSpinBox();
@@ -30,44 +30,44 @@ double LabeledDoubleSpinBox::getValue() const
   return data_->value();
 }
 
-bool LabeledDoubleSpinBox::setValue(double value)
+bool LabeledDoubleSpinBox::setValue(double _value)
 {
-  if (value < data_->minimum() || data_->maximum() < value) {
+  if (_value < data_->minimum() || data_->maximum() < _value) {
     return false;
   }
 
-  data_->setValue(value);
+  data_->setValue(_value);
   return true;
 }
 
-void LabeledDoubleSpinBox::setDecimals(int decimals)
+void LabeledDoubleSpinBox::setDecimals(int _decimals)
 {
-  data_->setDecimals(decimals);
+  data_->setDecimals(_decimals);
 }
 
-void LabeledDoubleSpinBox::setMinimum(double minimum)
+void LabeledDoubleSpinBox::setMinimum(double _minimum)
 {
-  data_->setMinimum(minimum);
+  data_->setMinimum(_minimum);
 }
 
-void LabeledDoubleSpinBox::setMaximum(double maximum)
+void LabeledDoubleSpinBox::setMaximum(double _maximum)
 {
-  data_->setMaximum(maximum);
+  data_->setMaximum(_maximum);
 }
 
-void LabeledDoubleSpinBox::setSingleStep(double single_step)
+void LabeledDoubleSpinBox::setSingleStep(double _single_step)
 {
-  data_->setSingleStep(single_step);
+  data_->setSingleStep(_single_step);
 }
 
-void LabeledDoubleSpinBox::setSuffix(const QString& suffix)
+void LabeledDoubleSpinBox::setSuffix(const QString& _suffix)
 {
-  data_->setSuffix(suffix);
+  data_->setSuffix(_suffix);
 }
 
-void LabeledDoubleSpinBox::onValueChanged(double value)
+void LabeledDoubleSpinBox::onValueChanged(double _value)
 {
-  Q_EMIT valueChanged(value);
+  Q_EMIT valueChanged(_value);
 }
 }  // namespace qt
 }  // namespace tobas

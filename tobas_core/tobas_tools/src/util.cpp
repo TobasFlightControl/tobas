@@ -8,13 +8,13 @@
 
 namespace tobas
 {
-std::string addThrotNS(const std::string& topic)
+std::string addThrotNS(const std::string& _topic)
 {
-  return path::join(kThrottledNS, topic);
+  return path::join(kThrottledNS, _topic);
 }
 
-std::string addIfaceNS(const std::string& topic)
+std::string addIfaceNS(const std::string& _topic)
 {
-  return path::join(kRemoteIfaceNS, topic);
+  return path::join(kRemoteIfaceNS, _topic);
 }
 }  // namespace tobas

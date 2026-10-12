@@ -27,25 +27,25 @@ std::expected<void, std::string> VppMomentConstant::validate() const
   return {};
 }
 
-std::expected<void, std::string> VppMomentConstant::load(const YAML::Node& node)
+std::expected<void, std::string> VppMomentConstant::load(const YAML::Node& _node)
 {
-  if (!node.IsDefined() || !node.IsMap()) {
+  if (!_node.IsDefined() || !_node.IsMap()) {
     return std::unexpected("Configuration node must be a map.");
   }
 
-  if (const auto result = yaml::load(kAKey, node, a); !result) {
+  if (const auto result = yaml::load(kAKey, _node, a); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kBKey, node, b); !result) {
+  if (const auto result = yaml::load(kBKey, _node, b); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCKey, node, c); !result) {
+  if (const auto result = yaml::load(kCKey, _node, c); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kPhi0Key, node, phi0); !result) {
+  if (const auto result = yaml::load(kPhi0Key, _node, phi0); !result) {
     return result;
   }
 
@@ -64,11 +64,11 @@ YAML::Node VppMomentConstant::dump() const
   return node;
 }
 
-double VppMomentConstant::compute(double phi) const
+double VppMomentConstant::compute(double _phi) const
 {
-  assert(phi > phi0);
+  assert(_phi > phi0);
 
-  const auto x = phi - phi0;
+  const auto x = _phi - phi0;
   return a * x + b + c / x;
 }
 }  // namespace tobas

@@ -7,54 +7,54 @@ namespace tobas
 {
 namespace ctrl
 {
-LinearDynamics LinearDynamics::scale(const Eigen::VectorXd& x_scale, const Eigen::VectorXd& u_scale) const
+LinearDynamics LinearDynamics::scale(const Eigen::VectorXd& _x_scale, const Eigen::VectorXd& _u_scale) const
 {
-  assert(x_scale.rows() == stateSize());
-  assert(u_scale.rows() == inputSize());
-  assert(eigen::isFinite(x_scale));
-  assert(eigen::isFinite(u_scale));
-  assert((x_scale.array() > 0).all());
-  assert((u_scale.array() > 0).all());
+  assert(_x_scale.rows() == stateSize());
+  assert(_u_scale.rows() == inputSize());
+  assert(eigen::isFinite(_x_scale));
+  assert(eigen::isFinite(_u_scale));
+  assert((_x_scale.array() > 0).all());
+  assert((_u_scale.array() > 0).all());
 
   auto res = *this;
 
   // memo: 2-20
   for (Eigen::Index c = 0; c < stateSize(); ++c) {
-    res.A.col(c) *= x_scale(c);
+    res.A.col(c) *= _x_scale(c);
   }
   for (Eigen::Index r = 0; r < stateSize(); ++r) {
-    res.A.row(r) /= x_scale(r);
+    res.A.row(r) /= _x_scale(r);
   }
   for (Eigen::Index c = 0; c < inputSize(); ++c) {
-    res.B.col(c) *= u_scale(c);
+    res.B.col(c) *= _u_scale(c);
   }
   for (Eigen::Index r = 0; r < stateSize(); ++r) {
-    res.B.row(r) /= x_scale(r);
+    res.B.row(r) /= _x_scale(r);
   }
 
   return res;
 }
 
-std::ostream& operator<<(std::ostream& os, const LinearDynamics& arg)
+std::ostream& operator<<(std::ostream& _os, const LinearDynamics& _arg)
 {
-  os << "A:" << std::endl;
-  os << arg.A << std::endl;
-  os << "B:" << std::endl;
-  os << arg.B << std::endl;
+  _os << "A:" << std::endl;
+  _os << _arg.A << std::endl;
+  _os << "B:" << std::endl;
+  _os << _arg.B << std::endl;
 
-  return os;
+  return _os;
 }
 
-std::ostream& operator<<(std::ostream& os, const LinearStateSpace& arg)
+std::ostream& operator<<(std::ostream& _os, const LinearStateSpace& _arg)
 {
-  os << "A:" << std::endl;
-  os << arg.A << std::endl;
-  os << "B:" << std::endl;
-  os << arg.B << std::endl;
-  os << "C:" << std::endl;
-  os << arg.C << std::endl;
+  _os << "A:" << std::endl;
+  _os << _arg.A << std::endl;
+  _os << "B:" << std::endl;
+  _os << _arg.B << std::endl;
+  _os << "C:" << std::endl;
+  _os << _arg.C << std::endl;
 
-  return os;
+  return _os;
 }
 }  // namespace ctrl
 }  // namespace tobas

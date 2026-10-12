@@ -16,7 +16,7 @@ class ExportThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(bool success, const QString& message);
+  void finished(bool _success, const QString& _message);
 };
 }  // namespace log
 }  // namespace gui

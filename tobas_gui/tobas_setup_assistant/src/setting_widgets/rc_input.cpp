@@ -84,11 +84,11 @@ YAML::Node RcInputWidget::dump() const
   return node;
 }
 
-void RcInputWidget::load(const YAML::Node& node)
+void RcInputWidget::load(const YAML::Node& _node)
 {
-  num_sbus_channels_->setValue(node[num_sbus_channels_->name()].as<int>());
-  arm_duration_->setValue(node[arm_duration_->name()].as<double>());
-  disarm_duration_->setValue(node[disarm_duration_->name()].as<double>());
+  num_sbus_channels_->setValue(_node[num_sbus_channels_->name()].as<int>());
+  arm_duration_->setValue(_node[arm_duration_->name()].as<double>());
+  disarm_duration_->setValue(_node[disarm_duration_->name()].as<double>());
 }
 
 int RcInputWidget::numOfSbusChannels() const

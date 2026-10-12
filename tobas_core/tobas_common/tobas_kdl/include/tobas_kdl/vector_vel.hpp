@@ -28,28 +28,28 @@ public:
 
   inline doubleVel norm() const;
 
-  inline VectorVel& operator+=(const VectorVel& rhs);
-  inline VectorVel& operator-=(const VectorVel& rhs);
+  inline VectorVel& operator+=(const VectorVel& _rhs);
+  inline VectorVel& operator-=(const VectorVel& _rhs);
 
-  inline friend VectorVel operator+(const VectorVel& r1, const VectorVel& r2);
-  inline friend VectorVel operator-(const VectorVel& r1, const VectorVel& r2);
-  inline friend VectorVel operator+(const Vector& r1, const VectorVel& r2);
-  inline friend VectorVel operator-(const Vector& r1, const VectorVel& r2);
-  inline friend VectorVel operator+(const VectorVel& r1, const Vector& r2);
-  inline friend VectorVel operator-(const VectorVel& r1, const Vector& r2);
-  inline friend VectorVel operator*(const VectorVel& r1, const VectorVel& r2);
-  inline friend VectorVel operator*(const VectorVel& r1, const Vector& r2);
-  inline friend VectorVel operator*(const Vector& r1, const VectorVel& r2);
-  inline friend VectorVel operator*(const VectorVel& r1, double r2);
-  inline friend VectorVel operator*(double r1, const VectorVel& r2);
-  inline friend VectorVel operator*(const doubleVel& r1, const VectorVel& r2);
-  inline friend VectorVel operator*(const VectorVel& r2, const doubleVel& r1);
-  inline friend VectorVel operator*(const Rotation& R, const VectorVel& x);
+  inline friend VectorVel operator+(const VectorVel& _r1, const VectorVel& _r2);
+  inline friend VectorVel operator-(const VectorVel& _r1, const VectorVel& _r2);
+  inline friend VectorVel operator+(const Vector& _r1, const VectorVel& _r2);
+  inline friend VectorVel operator-(const Vector& _r1, const VectorVel& _r2);
+  inline friend VectorVel operator+(const VectorVel& _r1, const Vector& _r2);
+  inline friend VectorVel operator-(const VectorVel& _r1, const Vector& _r2);
+  inline friend VectorVel operator*(const VectorVel& _r1, const VectorVel& _r2);
+  inline friend VectorVel operator*(const VectorVel& _r1, const Vector& _r2);
+  inline friend VectorVel operator*(const Vector& _r1, const VectorVel& _r2);
+  inline friend VectorVel operator*(const VectorVel& _r1, double _r2);
+  inline friend VectorVel operator*(double _r1, const VectorVel& _r2);
+  inline friend VectorVel operator*(const doubleVel& _r1, const VectorVel& _r2);
+  inline friend VectorVel operator*(const VectorVel& _r2, const doubleVel& _r1);
+  inline friend VectorVel operator*(const Rotation& _r, const VectorVel& _x);
 
-  inline friend VectorVel operator/(const VectorVel& r1, double r2);
-  inline friend VectorVel operator/(const VectorVel& r2, const doubleVel& r1);
+  inline friend VectorVel operator/(const VectorVel& _r1, double _r2);
+  inline friend VectorVel operator/(const VectorVel& _r2, const doubleVel& _r1);
 
-  inline friend VectorVel operator-(const VectorVel& r);
+  inline friend VectorVel operator-(const VectorVel& _r);
 };
 
 inline VectorVel::VectorVel()
@@ -90,106 +90,106 @@ inline doubleVel VectorVel::norm() const
   return doubleVel(n, p.dot(v) / n);
 }
 
-inline VectorVel& VectorVel::operator+=(const VectorVel& rhs)
+inline VectorVel& VectorVel::operator+=(const VectorVel& _rhs)
 {
-  p += rhs.p;
-  v += rhs.v;
+  p += _rhs.p;
+  v += _rhs.v;
   return *this;
 }
 
-inline VectorVel& VectorVel::operator-=(const VectorVel& rhs)
+inline VectorVel& VectorVel::operator-=(const VectorVel& _rhs)
 {
-  p -= rhs.p;
-  v -= rhs.v;
+  p -= _rhs.p;
+  v -= _rhs.v;
   return *this;
 }
 
-inline VectorVel operator+(const VectorVel& r1, const VectorVel& r2)
+inline VectorVel operator+(const VectorVel& _r1, const VectorVel& _r2)
 {
-  return VectorVel(r1.p + r2.p, r1.v + r2.v);
+  return VectorVel(_r1.p + _r2.p, _r1.v + _r2.v);
 }
 
-inline VectorVel operator-(const VectorVel& r1, const VectorVel& r2)
+inline VectorVel operator-(const VectorVel& _r1, const VectorVel& _r2)
 {
-  return VectorVel(r1.p - r2.p, r1.v - r2.v);
+  return VectorVel(_r1.p - _r2.p, _r1.v - _r2.v);
 }
 
-inline VectorVel operator+(const VectorVel& r1, const Vector& r2)
+inline VectorVel operator+(const VectorVel& _r1, const Vector& _r2)
 {
-  return VectorVel(r1.p + r2, r1.v);
+  return VectorVel(_r1.p + _r2, _r1.v);
 }
 
-inline VectorVel operator-(const VectorVel& r1, const Vector& r2)
+inline VectorVel operator-(const VectorVel& _r1, const Vector& _r2)
 {
-  return VectorVel(r1.p - r2, r1.v);
+  return VectorVel(_r1.p - _r2, _r1.v);
 }
 
-inline VectorVel operator+(const Vector& r1, const VectorVel& r2)
+inline VectorVel operator+(const Vector& _r1, const VectorVel& _r2)
 {
-  return VectorVel(r1 + r2.p, r2.v);
+  return VectorVel(_r1 + _r2.p, _r2.v);
 }
 
-inline VectorVel operator-(const Vector& r1, const VectorVel& r2)
+inline VectorVel operator-(const Vector& _r1, const VectorVel& _r2)
 {
-  return VectorVel(r1 - r2.p, -r2.v);
+  return VectorVel(_r1 - _r2.p, -_r2.v);
 }
 
-inline VectorVel operator-(const VectorVel& r)
+inline VectorVel operator-(const VectorVel& _r)
 {
-  return VectorVel(-r.p, -r.v);
+  return VectorVel(-_r.p, -_r.v);
 }
 
-inline VectorVel operator*(const VectorVel& r1, const VectorVel& r2)
+inline VectorVel operator*(const VectorVel& _r1, const VectorVel& _r2)
 {
-  return VectorVel(r1.p * r2.p, r1.p * r2.v + r1.v * r2.p);
+  return VectorVel(_r1.p * _r2.p, _r1.p * _r2.v + _r1.v * _r2.p);
 }
 
-inline VectorVel operator*(const VectorVel& r1, const Vector& r2)
+inline VectorVel operator*(const VectorVel& _r1, const Vector& _r2)
 {
-  return VectorVel(r1.p * r2, r1.v * r2);
+  return VectorVel(_r1.p * _r2, _r1.v * _r2);
 }
 
-inline VectorVel operator*(const Vector& r1, const VectorVel& r2)
+inline VectorVel operator*(const Vector& _r1, const VectorVel& _r2)
 {
-  return VectorVel(r1 * r2.p, r1 * r2.v);
+  return VectorVel(_r1 * _r2.p, _r1 * _r2.v);
 }
 
-inline VectorVel operator*(double r1, const VectorVel& r2)
+inline VectorVel operator*(double _r1, const VectorVel& _r2)
 {
-  return VectorVel(r1 * r2.p, r1 * r2.v);
+  return VectorVel(_r1 * _r2.p, _r1 * _r2.v);
 }
 
-inline VectorVel operator*(const VectorVel& r1, double r2)
+inline VectorVel operator*(const VectorVel& _r1, double _r2)
 {
-  return VectorVel(r1.p * r2, r1.v * r2);
+  return VectorVel(_r1.p * _r2, _r1.v * _r2);
 }
 
-inline VectorVel operator*(const doubleVel& r1, const VectorVel& r2)
+inline VectorVel operator*(const doubleVel& _r1, const VectorVel& _r2)
 {
-  return VectorVel(r1.t * r2.p, r1.t * r2.v + r1.grad * r2.p);
+  return VectorVel(_r1.t * _r2.p, _r1.t * _r2.v + _r1.grad * _r2.p);
 }
 
-inline VectorVel operator*(const VectorVel& r2, const doubleVel& r1)
+inline VectorVel operator*(const VectorVel& _r2, const doubleVel& _r1)
 {
-  return VectorVel(r1.t * r2.p, r1.t * r2.v + r1.grad * r2.p);
+  return VectorVel(_r1.t * _r2.p, _r1.t * _r2.v + _r1.grad * _r2.p);
 }
 
-inline VectorVel operator/(const VectorVel& r1, double r2)
+inline VectorVel operator/(const VectorVel& _r1, double _r2)
 {
-  assert(r2 != 0);
-  return VectorVel(r1.p / r2, r1.v / r2);
+  assert(_r2 != 0);
+  return VectorVel(_r1.p / _r2, _r1.v / _r2);
 }
 
-inline VectorVel operator/(const VectorVel& r2, const doubleVel& r1)
+inline VectorVel operator/(const VectorVel& _r2, const doubleVel& _r1)
 {
-  assert(r1.t != 0);
-  assert(r1.grad != 0);
-  return VectorVel(r2.p / r1.t, r2.v / r1.t - r2.p * r1.grad / r1.t / r1.t);
+  assert(_r1.t != 0);
+  assert(_r1.grad != 0);
+  return VectorVel(_r2.p / _r1.t, _r2.v / _r1.t - _r2.p * _r1.grad / _r1.t / _r1.t);
 }
 
-inline VectorVel operator*(const Rotation& R, const VectorVel& x)
+inline VectorVel operator*(const Rotation& _r, const VectorVel& _x)
 {
-  return VectorVel(R * x.p, R * x.v);
+  return VectorVel(_r * _x.p, _r * _x.v);
 }
 }  // namespace kdl
 }  // namespace tobas

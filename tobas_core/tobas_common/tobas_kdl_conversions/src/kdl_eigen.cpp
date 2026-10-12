@@ -7,20 +7,20 @@ namespace tobas
 {
 namespace kdl
 {
-void quaternionKDLToEigen(const Quaternion& k, Eigen::Quaterniond& e)
+void quaternionKDLToEigen(const Quaternion& _k, Eigen::Quaterniond& _e)
 {
-  e.x() = k.x;
-  e.y() = k.y;
-  e.z() = k.z;
-  e.w() = k.w;
+  _e.x() = _k.x;
+  _e.y() = _k.y;
+  _e.z() = _k.z;
+  _e.w() = _k.w;
 }
 
-void quaternionEigenToKDL(const Eigen::Quaterniond& e, Quaternion& k)
+void quaternionEigenToKDL(const Eigen::Quaterniond& _e, Quaternion& _k)
 {
-  k.x = e.x();
-  k.y = e.y();
-  k.z = e.z();
-  k.w = e.w();
+  _k.x = _e.x();
+  _k.y = _e.y();
+  _k.z = _e.z();
+  _k.w = _e.w();
 }
 }  // namespace kdl
 }  // namespace tobas

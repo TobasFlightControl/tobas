@@ -9,8 +9,8 @@ namespace tobas
 {
 namespace rviz
 {
-PlanarJointModel::PlanarJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
-  : JointModel(name, joint_index, first_variable_index)
+PlanarJointModel::PlanarJointModel(const std::string& _name, size_t _joint_index, size_t _first_variable_index)
+  : JointModel(_name, _joint_index, _first_variable_index)
 {
   type_ = kPlanar;
 
@@ -19,36 +19,36 @@ PlanarJointModel::PlanarJointModel(const std::string& name, size_t joint_index, 
   }
 }
 
-void PlanarJointModel::getVariableDefaultPositions(double* values) const
+void PlanarJointModel::getVariableDefaultPositions(double* _values) const
 {
   for (size_t i = 0; i < 2; ++i) {
-    values[i] = 0.0;
+    _values[i] = 0.0;
   }
-  values[2] = 0.0;
+  _values[2] = 0.0;
 }
 
-void PlanarJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const
+void PlanarJointModel::computeTransform(const double* _joint_values, Eigen::Isometry3d& _transform) const
 {
-  transform = Eigen::Isometry3d(
-    Eigen::Translation3d(joint_values[0], joint_values[1], 0.0) *
-    Eigen::AngleAxisd(joint_values[2], Eigen::Vector3d::UnitZ()));
+  _transform = Eigen::Isometry3d(
+    Eigen::Translation3d(_joint_values[0], _joint_values[1], 0.0) *
+    Eigen::AngleAxisd(_joint_values[2], Eigen::Vector3d::UnitZ()));
 }
 
-void PlanarJointModel::computeVariablePositions(const Eigen::Isometry3d& transform, double* joint_values) const
+void PlanarJointModel::computeVariablePositions(const Eigen::Isometry3d& _transform, double* _joint_values) const
 {
-  joint_values[0] = transform.translation().x();
-  joint_values[1] = transform.translation().y();
+  _joint_values[0] = _transform.translation().x();
+  _joint_values[1] = _transform.translation().y();
 
-  const Eigen::Quaterniond q(transform.linear());
+  const Eigen::Quaterniond q(_transform.linear());
 
   // Taken from Bullet
   const auto s_squared = 1.0 - (q.w() * q.w());
   if (s_squared < 10.0 * std::numeric_limits<double>::epsilon()) {
-    joint_values[2] = 0.0;
+    _joint_values[2] = 0.0;
   }
   else {
     const auto s = 1.0 / std::sqrt(s_squared);
-    joint_values[2] = (std::acos(q.w()) * 2.0f) * (q.z() * s);
+    _joint_values[2] = (std::acos(q.w()) * 2.0f) * (q.z() * s);
   }
 }
 }  // namespace rviz

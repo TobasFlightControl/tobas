@@ -176,18 +176,18 @@ public:
   explicit CxGb400();
 
   bool initialize(
-    const char* video_dev,
-    CameraPosition camera_position = CameraPosition::kAuto,
-    bool disable_full_hd = true,
-    bool disable_video_streaming = false);
+    const char* _video_dev,
+    CameraPosition _camera_position = CameraPosition::kAuto,
+    bool _disable_full_hd = true,
+    bool _disable_video_streaming = false);
 
-  bool sendCopterAttitude(double q_w, double q_x, double q_y, double q_z);
+  bool sendCopterAttitude(double _q_w, double _q_x, double _q_y, double _q_z);
 
   /**
    * Send gimbal attitude control command.
    * Specify angles in degrees satisfying -115.0 < pitch_deg < 45.0, -85.0 < yaw_deg < 85.0.
    */
-  bool sendGimbalCtrl(double pitch_deg, double yaw_deg);
+  bool sendGimbalCtrl(double _pitch_deg, double _yaw_deg);
 
   /** Factory reset. */
   bool fullReset();
@@ -200,53 +200,53 @@ public:
   /** Take a still image using the current image quality setting. The image is saved to the built-in SD card. */
   bool takePictureToSd();
   /** Set still image quality. Choose from superfine, fine, and normal. */
-  bool setPhotoQuality(PhotoQuality photo_quality);
+  bool setPhotoQuality(PhotoQuality _photo_quality);
   /** Start video recording. Videos are saved to the SD card. */
   bool startRecording();
   /** Stop video recording. Videos are saved to the SD card. */
   bool stopRecording();
   /** Set the video quality for recording. */
-  bool setVideoResolution(VideoQuality video_quality);
+  bool setVideoResolution(VideoQuality _video_quality);
   /** Set the video frame rate for recording. */
-  bool setVideoFrameRate(VideoFrameRate video_frame_rate);
+  bool setVideoFrameRate(VideoFrameRate _video_frame_rate);
   /** Get the exposure mode and update the given variable from the result. */
-  bool getExposureMode(uint8_t& exposure_mode);
+  bool getExposureMode(uint8_t& _exposure_mode);
   /** Set the exposure mode. */
-  bool setExposureMode(ExposureMode exposure_mode);
+  bool setExposureMode(ExposureMode _exposure_mode);
   /** Get the exposure time and update the given variable from the result. */
-  bool getExposureTime(uint8_t& exposure_time);
+  bool getExposureTime(uint8_t& _exposure_time);
   /** Set the exposure time. */
-  bool setExposureTime(ExposureTime exposure_time);
+  bool setExposureTime(ExposureTime _exposure_time);
   /** Get ISO sensitivity and update the variable given as an argument from the result. */
-  bool getIsoSensitivity(uint8_t& iso_sensitivity);
+  bool getIsoSensitivity(uint8_t& _iso_sensitivity);
   /** Set ISO sensitivity. */
-  bool setIsoSensitivity(IsoSensitivity iso_sensitivity);
+  bool setIsoSensitivity(IsoSensitivity _iso_sensitivity);
   /** Get exposure compensation and update the variable given as an argument from the result. */
-  bool getExposureCompensation(uint8_t& exposure_compenstation);
+  bool getExposureCompensation(uint8_t& _exposure_compenstation);
   /** Set exposure compensation. */
-  bool setExposureCompensation(ExposureCompensation exposure_compensation);
+  bool setExposureCompensation(ExposureCompensation _exposure_compensation);
   /** Get photometry mode and update the variable given as an argument from the result. */
-  bool getPhotometry(uint8_t& photometry);
+  bool getPhotometry(uint8_t& _photometry);
   /** Set photometry mode. */
-  bool setPhotometry(Photometry photometry);
+  bool setPhotometry(Photometry _photometry);
   /** Set white balance. */
-  bool setWhiteBalance(WhiteBalance white_balance);
+  bool setWhiteBalance(WhiteBalance _white_balance);
   /** Get camera status and update variables given as arguments from the result. */
   bool getCameraStatus(
-    bool& sd_full,
-    bool& time_not_set,
-    bool& media_error,  // The SD card is not inserted or is full.
-    bool& lens_error,
-    bool& gimbal_error,
-    bool& gimbal_motor_error,
-    bool& gimbal_control_error,
-    bool& thermal_error,
-    uint32_t& video_remain_time,
-    uint32_t& photo_remain_count,
-    uint32_t& card_full_size,
-    uint32_t& card_free_mem,
-    double& aperture,
-    uint16_t& iso);
+    bool& _sd_full,
+    bool& _time_not_set,
+    bool& _media_error,  // The SD card is not inserted or is full.
+    bool& _lens_error,
+    bool& _gimbal_error,
+    bool& _gimbal_motor_error,
+    bool& _gimbal_control_error,
+    bool& _thermal_error,
+    uint32_t& _video_remain_time,
+    uint32_t& _photo_remain_count,
+    uint32_t& _card_full_size,
+    uint32_t& _card_free_mem,
+    double& _aperture,
+    uint16_t& _iso);
 
 private:
   enum UnitId : uint8_t
@@ -310,7 +310,7 @@ private:
   };
   static_assert(sizeof(CameraStatusMsg) == 48, "CameraStatusMsg size is strange!");
 
-  bool interpretCameraError(uint32_t error_status, CameraErrorStatusDigit digit);
+  bool interpretCameraError(uint32_t _error_status, CameraErrorStatusDigit _digit);
 };
 }  // namespace driver
 }  // namespace tobas

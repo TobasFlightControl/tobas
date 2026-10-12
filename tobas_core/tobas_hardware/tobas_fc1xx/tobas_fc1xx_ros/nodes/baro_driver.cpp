@@ -20,7 +20,7 @@ class BaroDriverNode : public hardware::BaseSensorNode
   using super = hardware::BaseSensorNode;
 
 public:
-  explicit BaroDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit BaroDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   stm::ILPS22QS baro_;
@@ -31,8 +31,8 @@ private:
   void mainTimerCb();
 };
 
-BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc1xx_baro_driver", nodeOptions_Default(options))
+BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& _options)
+  : super("fc1xx_baro_driver", nodeOptions_Default(_options))
 {
   initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
 }

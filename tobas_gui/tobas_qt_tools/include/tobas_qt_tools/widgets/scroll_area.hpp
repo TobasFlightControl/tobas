@@ -19,10 +19,10 @@ class ScrollArea : public QScrollArea
   Q_OBJECT
 
 public:
-  explicit ScrollArea(QWidget* parent = nullptr);
+  explicit ScrollArea(QWidget* _parent = nullptr);
 
   /** Set a layout inside the widget. */
-  void setLayout(QLayout* layout);
+  void setLayout(QLayout* _layout);
 
   /** Make the background transparent. */
   void setBackgroundTransparent();

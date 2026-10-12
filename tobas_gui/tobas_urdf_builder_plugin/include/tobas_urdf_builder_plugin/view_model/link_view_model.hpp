@@ -26,12 +26,12 @@ using V_LinkViewModelPtr = std::vector<LinkViewModelPtr>;
 class LinkViewModel : public BaseViewModel<::urdf::Link, LinkViewModel>
 {
 public:
-  explicit LinkViewModel(const ::urdf::LinkSharedPtr& model = nullptr);
+  explicit LinkViewModel(const ::urdf::LinkSharedPtr& _model = nullptr);
 
   void sync() override;
 
   QString name() const;
-  void name(const QString& name);
+  void name(const QString& _name);
 
   const InertialViewModelPtr& inertial();
   const V_VisualViewModelPtr& visuals();
@@ -39,11 +39,11 @@ public:
   const JointViewModelPtr& joint();
   V_LinkViewModelPtr children() const;
 
-  void add(const VisualViewModelPtr& visual);
-  void remove(const VisualViewModelPtr& visual);
+  void add(const VisualViewModelPtr& _visual);
+  void remove(const VisualViewModelPtr& _visual);
 
-  void add(const CollisionViewModelPtr& collision);
-  void remove(const CollisionViewModelPtr& collision);
+  void add(const CollisionViewModelPtr& _collision);
+  void remove(const CollisionViewModelPtr& _collision);
 
 private:
   InertialViewModelPtr inertial_;

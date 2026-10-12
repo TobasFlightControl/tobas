@@ -13,19 +13,19 @@ public:
   explicit PositionPID();
 
   kdl::Vector update(
-    const kdl::Vector& cur_pos,
-    const kdl::Vector& cur_vel,
-    const kdl::Vector& tar_pos,
-    const kdl::Vector& tar_vel,
-    double dt);
+    const kdl::Vector& _cur_pos,
+    const kdl::Vector& _cur_vel,
+    const kdl::Vector& _tar_pos,
+    const kdl::Vector& _tar_vel,
+    double _dt);
 
-  void setProportionalGain(int idx, double value);
-  void setIntegralGain(int idx, double value);
-  void setDerivativeGain(int idx, double value);
+  void setProportionalGain(int _idx, double _value);
+  void setIntegralGain(int _idx, double _value);
+  void setDerivativeGain(int _idx, double _value);
 
-  void setNaturalFreq(int idx, double value);
-  void setDampingRatio(int idx, double value);
-  void setMaxIntegralAccel(int idx, double value);
+  void setNaturalFreq(int _idx, double _value);
+  void setDampingRatio(int _idx, double _value);
+  void setMaxIntegralAccel(int _idx, double _value);
 
   inline const kdl::Vector& getIntegralError() const;
   inline void resetIntegralError();

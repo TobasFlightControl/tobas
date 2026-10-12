@@ -24,21 +24,21 @@ public:
 
   std::expected<void, std::string> validate() const override;
 
-  std::expected<void, std::string> load(const YAML::Node& node) override;
+  std::expected<void, std::string> load(const YAML::Node& _node) override;
   YAML::Node dump() const override;
 
   PropulsionSystem type() const override;
 
-  double minSpeed(const std::string& link_name) override;
-  double maxSpeed(const std::string& link_name) override;
+  double minSpeed(const std::string& _link_name) override;
+  double maxSpeed(const std::string& _link_name) override;
 
-  double minThrust(const std::string& link_name) override;
-  double maxThrust(const std::string& link_name) override;
+  double minThrust(const std::string& _link_name) override;
+  double maxThrust(const std::string& _link_name) override;
 
-  double thrustFromThrottle(const std::string& link_name, double throttle) override;
+  double thrustFromThrottle(const std::string& _link_name, double _throttle) override;
 
-  IceRotorConfig::SharedPtr getRotor(const std::string& link_name);
-  IceRotorConfig::ConstSharedPtr getRotor(const std::string& link_name) const;
+  IceRotorConfig::SharedPtr getRotor(const std::string& _link_name);
+  IceRotorConfig::ConstSharedPtr getRotor(const std::string& _link_name) const;
 
 private:
   std::optional<double> max_engine_speed_;
@@ -47,14 +47,14 @@ private:
   double maxEngineSpeed();
 
   /** Compute steady-state speed from engine throttle with the average propeller pitch angle fixed (memo: 3-29). */
-  double computeEngineSpeed(double throttle) const;
+  double computeEngineSpeed(double _throttle) const;
 
   /** Function passed to the Newton-method solver (memo: 3-29). */
-  double speedFunc(double throttle, double omega) const;
-  double speedFuncDeriv(double throttle, double omega) const;
+  double speedFunc(double _throttle, double _omega) const;
+  double speedFuncDeriv(double _throttle, double _omega) const;
 
-  double calc_phi(double throttle) const;
-  double calc_f(double throttle) const;
+  double calc_phi(double _throttle) const;
+  double calc_f(double _throttle) const;
   double calc_k() const;
 };
 }  // namespace tobas

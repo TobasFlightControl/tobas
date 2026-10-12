@@ -9,6 +9,6 @@ namespace tobas
 {
 namespace gazebo
 {
-bool getXmlParam(const tinyxml2::XMLElement* elem, const char* name, double& param);
+bool getXmlParam(const tinyxml2::XMLElement* _elem, const char* _name, double& _param);
 }  // namespace gazebo
 }  // namespace tobas

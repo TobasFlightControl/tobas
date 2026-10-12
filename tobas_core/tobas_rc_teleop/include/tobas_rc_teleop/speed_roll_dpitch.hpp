@@ -23,9 +23,9 @@ public:
   bool requireAttitude() override;
   bool requireHeading() override;
 
-  void initialize(BaseNode* node, FlightMode mode) override;
-  void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) override;
-  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
+  void initialize(BaseNode* _node, FlightMode _mode) override;
+  void reset(const builtin_interfaces::msg::Time& _stamp, const tobas_msgs::Odometry& _setpoint, bool _landed) override;
+  void update(const tobas_msgs::RCInput& _rcin, const tobas_msgs::Odometry& _odom, bool _landed) override;
 
 private:
   // ROS parameters
@@ -40,13 +40,13 @@ private:
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::msg::SpeedRollDeltaPitch> cmd_pub_;
 
-  void minSpeedCb(double p);
-  void maxSpeedCb(double p);
-  void maxRollCb(double p);
-  void maxDeltaPitchCb(double p);
-  void speedExpoCb(double p);
-  void rollExpoCb(double p);
-  void pitchExpoCb(double p);
+  void minSpeedCb(double _p);
+  void maxSpeedCb(double _p);
+  void maxRollCb(double _p);
+  void maxDeltaPitchCb(double _p);
+  void speedExpoCb(double _p);
+  void rollExpoCb(double _p);
+  void pitchExpoCb(double _p);
 };
 }  // namespace rc
 }  // namespace tobas

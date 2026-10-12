@@ -30,16 +30,16 @@ struct rclcpp::TypeAdapter<tobas_msgs::OdometryWithCovarianceStamped, tobas_msgs
   using custom_type = tobas_msgs::OdometryWithCovarianceStamped;
   using ros_message_type = tobas_msgs::msg::OdometryWithCovarianceStamped;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
-    tobas_msgs::OdometryWithCovarianceAdapter::convert_to_ros_message(src.odom, dst.odom);
+    _dst.header = _src.header;
+    tobas_msgs::OdometryWithCovarianceAdapter::convert_to_ros_message(_src.odom, _dst.odom);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
-    tobas_msgs::OdometryWithCovarianceAdapter::convert_to_custom(src.odom, dst.odom);
+    _dst.header = _src.header;
+    tobas_msgs::OdometryWithCovarianceAdapter::convert_to_custom(_src.odom, _dst.odom);
   }
 };
 

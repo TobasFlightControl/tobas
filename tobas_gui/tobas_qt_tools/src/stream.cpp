@@ -3,8 +3,8 @@
 
 #include "tobas_qt_tools/stream.hpp"
 
-std::ostream& operator<<(std::ostream& os, const QString& arg)
+std::ostream& operator<<(std::ostream& _os, const QString& _arg)
 {
-  os << arg.toStdString();
-  return os;
+  _os << _arg.toStdString();
+  return _os;
 }

@@ -124,64 +124,69 @@ bool WifiClientWidget::onConnected()
   return true;
 }
 
-void WifiClientWidget::changeEvent(QEvent* event)
+void WifiClientWidget::changeEvent(QEvent* _event)
 {
-  super::changeEvent(event);
+  super::changeEvent(_event);
 
   // Apply the enabled-state palette to each cell.
-  if (event->type() == QEvent::EnabledChange && isEnabled()) {
+  if (_event->type() == QEvent::EnabledChange && isEnabled()) {
     updateTableCellStyles();
   }
 }
 
-QString WifiClientWidget::getKeyMgmt(int row) const
+QString WifiClientWidget::getKeyMgmt(int _row) const
 {
-  return table_->item(row, kKeyMgmtCol)->text();
+  return table_->item(_row, kKeyMgmtCol)->text();
 }
 
-QString WifiClientWidget::getSsid(int row) const
+QString WifiClientWidget::getSsid(int _row) const
 {
-  return table_->item(row, kSsidCol)->text();
+  return table_->item(_row, kSsidCol)->text();
 }
 
-QString WifiClientWidget::getPsk(int row) const
+QString WifiClientWidget::getPsk(int _row) const
 {
-  const auto psk_edit = qt::qConstPointerCast<qt::PasswordEdit>(table_->cellWidget(row, kPskCol));
+  const auto psk_edit = qt::qConstPointerCast<qt::PasswordEdit>(table_->cellWidget(_row, kPskCol));
   return psk_edit->text();
 }
 
-int WifiClientWidget::getPriority(int row) const
+int WifiClientWidget::getPriority(int _row) const
 {
-  return table_->item(row, kPriorityCol)->data(Qt::DisplayRole).toInt();
+  return table_->item(_row, kPriorityCol)->data(Qt::DisplayRole).toInt();
 }
 
-bool WifiClientWidget::getHidden(int row) const
+bool WifiClientWidget::getHidden(int _row) const
 {
-  return table_->item(row, kHiddenCol)->data(Qt::UserRole).toBool();
+  return table_->item(_row, kHiddenCol)->data(Qt::UserRole).toBool();
 }
 
-void WifiClientWidget::addRow(const QString& key_mgmt, const QString& ssid, const QString& psk, int priority, bool hidden)
+void WifiClientWidget::addRow(
+  const QString& _key_mgmt,
+  const QString& _ssid,
+  const QString& _psk,
+  int _priority,
+  bool _hidden)
 {
   const auto row = table_->rowCount();
   table_->insertRow(row);
 
-  table_->setItem(row, kKeyMgmtCol, new QTableWidgetItem(key_mgmt));
+  table_->setItem(row, kKeyMgmtCol, new QTableWidgetItem(_key_mgmt));
 
-  table_->setItem(row, kSsidCol, new QTableWidgetItem(ssid));
+  table_->setItem(row, kSsidCol, new QTableWidgetItem(_ssid));
 
   const auto psk_edit = new qt::PasswordEdit();
-  psk_edit->setText(psk);
+  psk_edit->setText(_psk);
   psk_edit->setReadOnly(true);
   psk_edit->setFrame(false);  // Blend in with surrounding cells.
   table_->setCellWidget(row, kPskCol, psk_edit);
 
   const auto priority_it = new QTableWidgetItem();
-  priority_it->setData(Qt::DisplayRole, priority);
+  priority_it->setData(Qt::DisplayRole, _priority);
   table_->setItem(row, kPriorityCol, priority_it);
 
   const auto hidden_it = new QTableWidgetItem();
-  hidden_it->setData(Qt::UserRole, hidden);
-  hidden_it->setData(Qt::DisplayRole, hidden ? "Yes" : "No");
+  hidden_it->setData(Qt::UserRole, _hidden);
+  hidden_it->setData(Qt::DisplayRole, _hidden ? "Yes" : "No");
   table_->setItem(row, kHiddenCol, hidden_it);
 
   if (isEnabled()) {

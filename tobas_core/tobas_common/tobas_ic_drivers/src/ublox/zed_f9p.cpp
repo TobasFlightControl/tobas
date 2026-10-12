@@ -26,11 +26,11 @@ bool ZEDF9P::initialize()
   return transport_->initialize();
 }
 
-bool ZEDF9P::update(bool blocking)
+bool ZEDF9P::update(bool _blocking)
 {
   scanner_.reset();
 
-  if (!blocking) {
+  if (!_blocking) {
     // Check the start byte.
     const auto first_byte = transport_->receiveByte();
     if (!first_byte) {
@@ -62,14 +62,14 @@ bool ZEDF9P::update(bool blocking)
   return true;
 }
 
-bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
+bool ZEDF9P::enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable)
 {
   constexpr char kNotImplemented[] = "Not implemented.";
   constexpr char kNotReceivable[] = "Not receivable.";
 
   CfgValSet<uint8_t, 1> cfg;
 
-  switch (cls) {
+  switch (_cls) {
     case CLASS_ACK: {
       std::cerr << kNotReceivable << std::endl;
       return false;
@@ -95,7 +95,7 @@ bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
       return false;
     }
     case CLASS_NAV: {
-      switch (id) {
+      switch (_id) {
         case NAV_CLOCK:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x69);  // CFG-MSGOUT-UBX_NAV_CLOCK_SPI
           break;
@@ -213,24 +213,24 @@ bool ZEDF9P::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
       return false;
     }
     default: {
-      std::cerr << "Invalid UBX class type: " << std::hex << cls << std::endl;
+      std::cerr << "Invalid UBX class type: " << std::hex << _cls << std::endl;
       return false;
     }
   }
 
-  cfg.data[0].value = enable ? 1 : 0;  // Maximum rate if enabled.
+  cfg.data[0].value = _enable ? 1 : 0;  // Maximum rate if enabled.
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::configureDynamicsModel(DynamicsModel model)
+bool ZEDF9P::configureDynamicsModel(DynamicsModel _model)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BYTE, CFG_NAVSPG, 0x21, model);  // CFG-NAVSPG-DYNMODEL
+  return cfgValSetSingle<uint8_t>(ONE_BYTE, CFG_NAVSPG, 0x21, _model);  // CFG-NAVSPG-DYNMODEL
 }
 
-bool ZEDF9P::configureMeasurementRate(uint16_t period_ms)
+bool ZEDF9P::configureMeasurementRate(uint16_t _period_ms)
 {
-  return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_RATE, 0x01, period_ms);  // CFG-RATE-MEAS
+  return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_RATE, 0x01, _period_ms);  // CFG-RATE-MEAS
 }
 
 bool ZEDF9P::enableGps()
@@ -447,51 +447,51 @@ bool ZEDF9P::disableNavIc()
   return enableNavIc(false);
 }
 
-bool ZEDF9P::enableSpiProtocol_UBX(bool enable_input, bool enable_output)
+bool ZEDF9P::enableSpiProtocol_UBX(bool _enable_input, bool _enable_output)
 {
-  return enableSpiInputProtocol(UBX, enable_input) && enableSpiOutputProtocol(UBX, enable_output);
+  return enableSpiInputProtocol(UBX, _enable_input) && enableSpiOutputProtocol(UBX, _enable_output);
 }
 
-bool ZEDF9P::enableSpiProtocol_NMEA(bool enable_input, bool enable_output)
+bool ZEDF9P::enableSpiProtocol_NMEA(bool _enable_input, bool _enable_output)
 {
-  return enableSpiInputProtocol(NMEA, enable_input) && enableSpiOutputProtocol(NMEA, enable_output);
+  return enableSpiInputProtocol(NMEA, _enable_input) && enableSpiOutputProtocol(NMEA, _enable_output);
 }
 
-bool ZEDF9P::enableSpiProtocol_RTCM3X(bool enable_input, bool enable_output)
+bool ZEDF9P::enableSpiProtocol_RTCM3X(bool _enable_input, bool _enable_output)
 {
-  return enableSpiInputProtocol(RTCM3X, enable_input) && enableSpiOutputProtocol(RTCM3X, enable_output);
+  return enableSpiInputProtocol(RTCM3X, _enable_input) && enableSpiOutputProtocol(RTCM3X, _enable_output);
 }
 
-bool ZEDF9P::enableSpiProtocol_SPARTN(bool enable_input)
+bool ZEDF9P::enableSpiProtocol_SPARTN(bool _enable_input)
 {
-  return enableSpiInputProtocol(SPARTN, enable_input);
+  return enableSpiInputProtocol(SPARTN, _enable_input);
 }
 
-bool ZEDF9P::setAntennaLength(uint8_t length_m)
+bool ZEDF9P::setAntennaLength(uint8_t _length_m)
 {
   constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] Coaxial cable delay.
-  return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_TP, 0x01, length_m * kRG174CableDelay);  // CFG-TP-ANT_CABLEDELAY
+  return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_TP, 0x01, _length_m * kRG174CableDelay);  // CFG-TP-ANT_CABLEDELAY
 }
 
-bool ZEDF9P::enableUsb(bool enable)
+bool ZEDF9P::enableUsb(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_USB, 0x01, enable);  // CFG-USB-ENABLED
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_USB, 0x01, _enable);  // CFG-USB-ENABLED
 }
 
-bool ZEDF9P::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t size)
+bool ZEDF9P::sendMessage(UbxClass _cls, uint8_t _id, const void* _msg, uint16_t _size)
 {
   // Allocate space for the header, payload, and checksum of this message.
-  std::vector<uint8_t> tx_buf(sizeof(UbxHeader) + size + sizeof(CheckSum));
+  std::vector<uint8_t> tx_buf(sizeof(UbxHeader) + _size + sizeof(CheckSum));
 
   UbxHeader header;
   header.sync1 = kUbxSync1;
   header.sync2 = kUbxSync2;
-  header.cls = cls;
-  header.id = id;
-  header.length = size;
+  header.cls = _cls;
+  header.id = _id;
+  header.length = _size;
 
   const auto payload_pos = spliceMemory(tx_buf.data(), &header, sizeof(UbxHeader), 0);
-  const auto checksum_pos = spliceMemory(tx_buf.data(), msg, size, payload_pos);
+  const auto checksum_pos = spliceMemory(tx_buf.data(), _msg, _size, payload_pos);
 
   const auto ck = computeChecksum(tx_buf.data(), checksum_pos);
   const auto message_length = spliceMemory(tx_buf.data(), &ck, sizeof(CheckSum), checksum_pos);
@@ -499,13 +499,13 @@ bool ZEDF9P::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t siz
   return transport_->send(tx_buf.data(), message_length);
 }
 
-bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
+bool ZEDF9P::waitForAcknowledge(UbxClass _cls, uint8_t _id)
 {
   payload::ACK_ACK ack;
   payload::ACK_NAK nak;
 
-  const auto cls_str = std::to_string(static_cast<int>(cls));
-  const auto id_str = std::to_string(static_cast<int>(id));
+  const auto cls_str = std::to_string(static_cast<int>(_cls));
+  const auto id_str = std::to_string(static_cast<int>(_id));
 
   constexpr auto kWaitForGnssAck = 1s;
   const auto deadline = ch::steady_clock::now() + kWaitForGnssAck;
@@ -523,7 +523,7 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
       case ACK_ACK:
         ack.decode(payload());
 
-        if (ack.clsID == cls && ack.msgID == id) {
+        if (ack.clsID == _cls && ack.msgID == _id) {
           return true;
         }
         else {
@@ -536,7 +536,7 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
       case ACK_NAK:
         nak.decode(payload());
 
-        if (nak.clsID == cls && nak.msgID == id) {
+        if (nak.clsID == _cls && nak.msgID == _id) {
           std::cerr << "Configuration was rejected: (class, id) = (" << cls_str << ", " << id_str << ")" << std::endl;
           return false;
         }
@@ -557,9 +557,9 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
   return false;
 }
 
-bool ZEDF9P::configure(UbxCfgId cfg_id, const void* msg, uint16_t size)
+bool ZEDF9P::configure(UbxCfgId _cfg_id, const void* _msg, uint16_t _size)
 {
-  return sendMessage(CLASS_CFG, cfg_id, msg, size) && waitForAcknowledge(CLASS_CFG, cfg_id);
+  return sendMessage(CLASS_CFG, _cfg_id, _msg, _size) && waitForAcknowledge(CLASS_CFG, _cfg_id);
 }
 
 bool ZEDF9P::verifyMessage() const
@@ -584,9 +584,9 @@ bool ZEDF9P::verifyMessage() const
   return true;
 }
 
-bool ZEDF9P::enableGps(bool enable)
+bool ZEDF9P::enableGps(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1F, enable);  // CFG-SIGNAL-GPS_ENA
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1F, _enable);  // CFG-SIGNAL-GPS_ENA
 }
 
 bool ZEDF9P::enableGpsL1()
@@ -604,9 +604,9 @@ bool ZEDF9P::enableGpsL5()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x04, true);  // CFG-SIGNAL-GPS_L5_ENA
 }
 
-bool ZEDF9P::enableSbas(bool enable)
+bool ZEDF9P::enableSbas(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x20, enable);  // CFG-SIGNAL-SBAS_ENA
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x20, _enable);  // CFG-SIGNAL-SBAS_ENA
 }
 
 bool ZEDF9P::enableSbasL1()
@@ -614,9 +614,9 @@ bool ZEDF9P::enableSbasL1()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x05, true);  // CFG-SIGNAL-SBAS_L1CA_ENA
 }
 
-bool ZEDF9P::enableGalileo(bool enable)
+bool ZEDF9P::enableGalileo(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x21, enable);  // CFG-SIGNAL-GAL_ENA
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x21, _enable);  // CFG-SIGNAL-GAL_ENA
 }
 
 bool ZEDF9P::enableGalileoL1()
@@ -634,9 +634,9 @@ bool ZEDF9P::enableGalileoL5()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x09, true);  // CFG-SIGNAL-GAL_E5A_ENA
 }
 
-bool ZEDF9P::enableBeiDou(bool enable)
+bool ZEDF9P::enableBeiDou(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x22, enable);  // CFG-SIGNAL-BDS_ENA
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x22, _enable);  // CFG-SIGNAL-BDS_ENA
 }
 
 bool ZEDF9P::enableBeiDouL1()
@@ -654,9 +654,9 @@ bool ZEDF9P::enableBeiDouL5()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x28, true);  // CFG-SIGNAL-BDS_B2A_ENA
 }
 
-bool ZEDF9P::enableQzss(bool enable)
+bool ZEDF9P::enableQzss(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x24, enable);  // CFG-SIGNAL-QZSS_ENA
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x24, _enable);  // CFG-SIGNAL-QZSS_ENA
 }
 
 bool ZEDF9P::enableQzssL1()
@@ -684,9 +684,9 @@ bool ZEDF9P::enableQzssL5()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x17, true);  // CFG-SIGNAL-QZSS_L5_ENA
 }
 
-bool ZEDF9P::enableGlonass(bool enable)
+bool ZEDF9P::enableGlonass(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x25, enable);  // CFG-SIGNAL-GLO_ENA
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x25, _enable);  // CFG-SIGNAL-GLO_ENA
 }
 
 bool ZEDF9P::enableGlonassL1()
@@ -699,9 +699,9 @@ bool ZEDF9P::enableGlonassL2()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1A, true);  // CFG-SIGNAL-GLO_L2_ENA
 }
 
-bool ZEDF9P::enableNavIc(bool enable)
+bool ZEDF9P::enableNavIc(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x26, enable);  // CFG-SIGNAL-NAVIC_ENA
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x26, _enable);  // CFG-SIGNAL-NAVIC_ENA
 }
 
 bool ZEDF9P::enableNavIcL5()
@@ -709,38 +709,38 @@ bool ZEDF9P::enableNavIcL5()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1D, true);  // CFG-SIGNAL-NAVIC_L5_ENA
 }
 
-bool ZEDF9P::enableSpiInputProtocol(CfgProtocol prot, bool enable)
+bool ZEDF9P::enableSpiInputProtocol(CfgProtocol _prot, bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIINPROT, prot, enable);  // CFG-SPIINPROT-XXX
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIINPROT, _prot, _enable);  // CFG-SPIINPROT-XXX
 }
 
-bool ZEDF9P::enableSpiOutputProtocol(CfgProtocol prot, bool enable)
+bool ZEDF9P::enableSpiOutputProtocol(CfgProtocol _prot, bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIOUTPROT, prot, enable);  // CFG-SPIOUTPROT-XXX
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIOUTPROT, _prot, _enable);  // CFG-SPIOUTPROT-XXX
 }
 
-ZEDF9P::CheckSum ZEDF9P::computeChecksum(const uint8_t* message, size_t checksum_pos)
+ZEDF9P::CheckSum ZEDF9P::computeChecksum(const uint8_t* _message, size_t _checksum_pos)
 {
   CheckSum ck;
   ck.CK_A = ck.CK_B = 0;
 
-  for (size_t i = kUbxSyncLength; i < checksum_pos; ++i) {
-    ck.CK_A += message[i];
+  for (size_t i = kUbxSyncLength; i < _checksum_pos; ++i) {
+    ck.CK_A += _message[i];
     ck.CK_B += ck.CK_A;
   }
 
   return ck;
 }
 
-size_t ZEDF9P::spliceMemory(uint8_t* dest, const void* src, size_t size, size_t dest_offset)
+size_t ZEDF9P::spliceMemory(uint8_t* _dest, const void* _src, size_t _size, size_t _dest_offset)
 {
-  std::memmove(dest + dest_offset, src, size);
-  return dest_offset + size;
+  std::memmove(_dest + _dest_offset, _src, _size);
+  return _dest_offset + _size;
 }
 
-uint32_t ZEDF9P::configKeyID(CfgSize size, CfgGroup group, uint8_t id)
+uint32_t ZEDF9P::configKeyID(CfgSize _size, CfgGroup _group, uint8_t _id)
 {
-  return (size << 28) | (group << 16) | id;
+  return (_size << 28) | (_group << 16) | _id;
 }
 }  // namespace ublox
 }  // namespace tobas

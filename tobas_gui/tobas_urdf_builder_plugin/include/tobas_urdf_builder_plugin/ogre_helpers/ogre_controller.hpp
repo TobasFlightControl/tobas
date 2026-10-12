@@ -21,23 +21,23 @@ namespace ogre
 class OgreController
 {
 public:
-  explicit OgreController(rviz_common::DisplayContext* context);
+  explicit OgreController(rviz_common::DisplayContext* _context);
   ~OgreController();
 
   void update();
 
-  void reload(const view_model::URDFViewModel& vm);
-  void reloadRobot(const view_model::URDFViewModel& vm);
-  void reloadAxes(const view_model::URDFViewModel& vm);
+  void reload(const view_model::URDFViewModel& _vm);
+  void reloadRobot(const view_model::URDFViewModel& _vm);
+  void reloadAxes(const view_model::URDFViewModel& _vm);
 
-  void highlight(const std::string& link_name);
-  void unhighlight(const std::string& link_name);
+  void highlight(const std::string& _link_name);
+  void unhighlight(const std::string& _link_name);
   void unhighlightAll();
-  void show(const std::string& link_name);
-  void hide(const std::string& link_name);
-  void setVisualVisible(bool visible);
-  void setCollisionVisible(bool visible);
-  void setInertiaVisible(bool visible);
+  void show(const std::string& _link_name);
+  void hide(const std::string& _link_name);
+  void setVisualVisible(bool _visible);
+  void setCollisionVisible(bool _visible);
+  void setInertiaVisible(bool _visible);
 
 private:
   struct PImpl;

@@ -33,11 +33,11 @@ class BasePoseCommanderWidget : public QWidget
   using self = BasePoseCommanderWidget;
 
 public:
-  explicit BasePoseCommanderWidget(const rqt::RosQtBridge& bridge);
+  explicit BasePoseCommanderWidget(const rqt::RosQtBridge& _bridge);
 
   void reset();
   void updateInternalDataStructures();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:
@@ -62,7 +62,7 @@ private:
   bool isRunning() const;
 
   void publishCurrentCommand();
-  bool armRotors(bool arming);
+  bool armRotors(bool _arming);
 
 private Q_SLOTS:
   void onArmRequested();
@@ -72,9 +72,9 @@ private Q_SLOTS:
 
   void onHomeButtonClicked();
 
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
-  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin);
 };
 }  // namespace sim
 }  // namespace gui

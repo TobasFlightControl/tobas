@@ -14,10 +14,10 @@ namespace cmn
 class ProjectPaths
 {
 public:
-  explicit ProjectPaths(const QString& proj_path = "");
+  explicit ProjectPaths(const QString& _proj_path = "");
 
   const QString& getProjPath() const;
-  void setProjPath(const QString& proj_path);
+  void setProjPath(const QString& _proj_path);
 
   /** Return the path of the Tobas package on the FC side. */
   QString remoteProjPath() const;

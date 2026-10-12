@@ -16,9 +16,9 @@ class LinkWorldPoseSolver
 public:
   explicit LinkWorldPoseSolver();
 
-  bool initialize(const gz::sim::Entity& model, const gz::sim::EntityComponentManager& ecm);
+  bool initialize(const gz::sim::Entity& _model, const gz::sim::EntityComponentManager& _ecm);
 
-  bool solve(const gz::sim::Entity& link, const gz::sim::EntityComponentManager& ecm);
+  bool solve(const gz::sim::Entity& _link, const gz::sim::EntityComponentManager& _ecm);
 
   const gz::math::Pose3d& getWorldPose() const
   {

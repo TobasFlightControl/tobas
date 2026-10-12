@@ -11,41 +11,41 @@
 using namespace std;
 using namespace Eigen;
 
-double f(const VectorXd& x)
+double f(const VectorXd& _x)
 {
-  return tobas::math::sqr(x(0)) + x(0) * x(1);
+  return tobas::math::sqr(_x(0)) + _x(0) * _x(1);
 }
 
-VectorXd g(const VectorXd& x)
+VectorXd g(const VectorXd& _x)
 {
   VectorXd res(5);
-  res(0) = 50 - tobas::math::sqr(x(0)) - 4 * x(1);
-  res(1) = -x(0) - 100;
-  res(2) = -x(1) - 100;
-  res(3) = x(0) - 100;
-  res(4) = x(1) - 100;
+  res(0) = 50 - tobas::math::sqr(_x(0)) - 4 * _x(1);
+  res(1) = -_x(0) - 100;
+  res(2) = -_x(1) - 100;
+  res(3) = _x(0) - 100;
+  res(4) = _x(1) - 100;
   return res;
 }
 
-VectorXd h(const VectorXd& x)
+VectorXd h(const VectorXd& _x)
 {
   VectorXd res(1);
-  res(0) = tobas::math::cube(x(0)) + x(0) * x(1) - 100;
+  res(0) = tobas::math::cube(_x(0)) + _x(0) * _x(1) - 100;
   return res;
 }
 
-RowVectorXd dfdx(const VectorXd& x)
+RowVectorXd dfdx(const VectorXd& _x)
 {
   RowVectorXd res(2);
-  res(0) = 2 * x(0) + x(1);
-  res(1) = x(0);
+  res(0) = 2 * _x(0) + _x(1);
+  res(1) = _x(0);
   return res;
 }
 
-MatrixXd dgdx(const VectorXd& x)
+MatrixXd dgdx(const VectorXd& _x)
 {
   MatrixXd res(5, 2);
-  res(0, 0) = -2 * x(0);
+  res(0, 0) = -2 * _x(0);
   res(0, 1) = -4;
   res(1, 0) = -1;
   res(1, 1) = 0;
@@ -58,11 +58,11 @@ MatrixXd dgdx(const VectorXd& x)
   return res;
 }
 
-MatrixXd dhdx(const VectorXd& x)
+MatrixXd dhdx(const VectorXd& _x)
 {
   MatrixXd res(1, 2);
-  res(0, 0) = 3 * tobas::math::sqr(x(0)) + x(1);
-  res(0, 1) = x(0);
+  res(0, 0) = 3 * tobas::math::sqr(_x(0)) + _x(1);
+  res(0, 1) = _x(0);
   return res;
 }
 
@@ -84,10 +84,10 @@ Tensor3Xd dGdx(const VectorXd&)
   return res;
 }
 
-Tensor3Xd dHdx(const VectorXd& x)
+Tensor3Xd dHdx(const VectorXd& _x)
 {
   Tensor3Xd res(1, 2, 2);
-  res(0, 0, 0) = 6 * x(0);
+  res(0, 0, 0) = 6 * _x(0);
   res(0, 0, 1) = 1;
   res(0, 1, 0) = 1;
   res(0, 1, 1) = 0;

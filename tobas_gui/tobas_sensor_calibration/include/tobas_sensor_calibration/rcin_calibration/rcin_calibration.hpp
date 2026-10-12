@@ -31,12 +31,12 @@ class RCInputCalibrationWidget : public BaseWidget
   using self = RCInputCalibrationWidget;
 
 public:
-  explicit RCInputCalibrationWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
+  explicit RCInputCalibrationWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone);
 
   const char* title() const override;
   void reset() override;
   void updateInternalDataStructures() override;
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) override;
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns) override;
   void clearRosInterfaces() override;
 
 private:
@@ -75,8 +75,8 @@ private Q_SLOTS:
   void onCancelButtonClicked();
   void onFinishButtonClicked();
 
-  void sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& _sbus);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
 };
 }  // namespace sc
 }  // namespace gui

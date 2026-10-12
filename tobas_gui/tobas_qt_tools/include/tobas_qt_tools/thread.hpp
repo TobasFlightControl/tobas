@@ -41,7 +41,7 @@ void ensureMetaTypesRegistered()
 
 /** Wait for a thread to finish without stopping the GUI. */
 template <typename Thread, typename... SigArgs>
-auto startThreadAndWait(Thread& thread, void (Thread::*signal)(SigArgs...)) -> std::tuple<std::decay_t<SigArgs>...>
+auto startThreadAndWait(Thread& _thread, void (Thread::*_signal)(SigArgs...)) -> std::tuple<std::decay_t<SigArgs>...>
 {
   static_assert(std::is_base_of_v<QThread, Thread>, "Thread must derive from QThread.");
 
@@ -54,20 +54,20 @@ auto startThreadAndWait(Thread& thread, void (Thread::*signal)(SigArgs...)) -> s
   // Catch results from another thread.
   std::tuple<std::decay_t<SigArgs>...> result;
   const auto result_conn = QObject::connect(
-    &thread,
-    signal,
+    &_thread,
+    _signal,
     &loop,
-    [&result](SigArgs... args) { result = std::make_tuple(std::forward<SigArgs>(args)...); },
+    [&result](SigArgs... _args) { result = std::make_tuple(std::forward<SigArgs>(_args)...); },
     Qt::QueuedConnection);
 
   // End the event loop when the other thread finishes.
   const auto finished_conn =
-    QObject::connect(&thread, &QThread::finished, &loop, &QEventLoop::quit, Qt::QueuedConnection);
+    QObject::connect(&_thread, &QThread::finished, &loop, &QEventLoop::quit, Qt::QueuedConnection);
 
   // Wait for the thread to finish while running the event loop.
-  thread.start();
+  _thread.start();
   loop.exec(QEventLoop::AllEvents);
-  thread.wait();
+  _thread.wait();
 
   QObject::disconnect(result_conn);
   QObject::disconnect(finished_conn);
@@ -76,13 +76,13 @@ auto startThreadAndWait(Thread& thread, void (Thread::*signal)(SigArgs...)) -> s
 }
 
 /** Create a thread that runs a function and wait for it to finish without stopping the GUI. */
-void startThreadAndWait(std::function<void()> func);
+void startThreadAndWait(std::function<void()> _func);
 
 /** Sleep for the specified time without stopping the GUI. */
 template <typename RepType, typename DurType>
-void spinFor(std::chrono::duration<RepType, DurType> time)
+void spinFor(std::chrono::duration<RepType, DurType> _time)
 {
-  const auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(time).count();
+  const auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(_time).count();
   startThreadAndWait([msec]() { QThread::msleep(msec); });
 }
 }  // namespace qt

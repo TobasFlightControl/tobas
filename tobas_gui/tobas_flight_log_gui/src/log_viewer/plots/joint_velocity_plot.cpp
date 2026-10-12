@@ -28,19 +28,19 @@ void JointVelocityPlotWidget::clear()
   name2idx_.clear();
 }
 
-void JointVelocityPlotWidget::setTimeScale(double t_start, double t_stop)
+void JointVelocityPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
   for (auto& plot : plots_) {
-    plot->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+    plot->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
   }
 }
 
 void JointVelocityPlotWidget::setData(
-  const QVector<tobas_msgs::msg::JointStateArray>& cur_msgs,
-  const QVector<tobas_msgs::msg::JointCommandArray>& tar_msgs)
+  const QVector<tobas_msgs::msg::JointStateArray>& _cur_msgs,
+  const QVector<tobas_msgs::msg::JointCommandArray>& _tar_msgs)
 {
-  updateCurrentSamples(cur_msgs);
-  updateTargetSamples(tar_msgs);
+  updateCurrentSamples(_cur_msgs);
+  updateTargetSamples(_tar_msgs);
 
   for (auto& plot : plots_) {
     plot->replot();
@@ -52,12 +52,12 @@ size_t JointVelocityPlotWidget::numJoints() const
   return name2idx_.size();
 }
 
-void JointVelocityPlotWidget::addJoint(const std::string& name)
+void JointVelocityPlotWidget::addJoint(const std::string& _name)
 {
   const auto idx = numJoints();
 
-  if (!name2idx_.insert({ name, idx }).second) {
-    qWarning() << "Joint" << QString::fromStdString(name) << "already exists.";
+  if (!name2idx_.insert({ _name, idx }).second) {
+    qWarning() << "Joint" << QString::fromStdString(_name) << "already exists.";
     return;
   }
 
@@ -71,11 +71,11 @@ void JointVelocityPlotWidget::addJoint(const std::string& name)
   grid_->setRowStretch(row, 1);
   grid_->setColumnStretch(col, 1);
 
-  qwt::QwtPlotCurveWrapper cur_curve("Current Velocity (" + QString::fromStdString(name) + ")");
+  qwt::QwtPlotCurveWrapper cur_curve("Current Velocity (" + QString::fromStdString(_name) + ")");
   cur_curve.setPen(kCurrentValueColor, kLineWidth);
   cur_curve.attach(plot);
 
-  qwt::QwtPlotCurveWrapper tar_curve("Target Velocity (" + QString::fromStdString(name) + ")");
+  qwt::QwtPlotCurveWrapper tar_curve("Target Velocity (" + QString::fromStdString(_name) + ")");
   tar_curve.setPen(kTargetValueColor, kLineWidth);
   tar_curve.attach(plot);
 
@@ -84,12 +84,12 @@ void JointVelocityPlotWidget::addJoint(const std::string& name)
   tar_curves_.append(tar_curve);
 }
 
-void JointVelocityPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::JointStateArray>& msgs)
+void JointVelocityPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::JointStateArray>& _msgs)
 {
   QVector<QVector<double>> times(numJoints());
   QVector<QVector<double>> values(numJoints());
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     for (const auto& elem : msg.states) {
       if (!name2idx_.contains(elem.name)) {
         addJoint(elem.name);
@@ -109,12 +109,12 @@ void JointVelocityPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg
   }
 }
 
-void JointVelocityPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::JointCommandArray>& msgs)
+void JointVelocityPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::JointCommandArray>& _msgs)
 {
   QVector<QVector<double>> times(numJoints());
   QVector<QVector<double>> values(numJoints());
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     for (const auto& elem : msg.commands) {
       if (!name2idx_.contains(elem.name)) {
         addJoint(elem.name);

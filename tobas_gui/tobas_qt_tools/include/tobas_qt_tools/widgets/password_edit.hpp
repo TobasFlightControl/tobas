@@ -18,7 +18,7 @@ class PasswordEdit : public QLineEdit
   using super = QLineEdit;
 
 public:
-  explicit PasswordEdit(QWidget* parent = nullptr);
+  explicit PasswordEdit(QWidget* _parent = nullptr);
 
   void showText();
   void hideText();
@@ -32,10 +32,10 @@ private:
 
   QAction* toggle_;
 
-  void setMode(bool on);
+  void setMode(bool _on);
 
 private Q_SLOTS:
-  void onIconToggled(bool on);
+  void onIconToggled(bool _on);
 };
 }  // namespace qt
 }  // namespace tobas

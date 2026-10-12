@@ -26,13 +26,13 @@ enum FixType : uint8_t
 
 struct Payload
 {
-  virtual void decode(const uint8_t* p) = 0;
-  virtual void print(std::ostream& os) const = 0;
+  virtual void decode(const uint8_t* _p) = 0;
+  virtual void print(std::ostream& _os) const = 0;
 
-  friend std::ostream& operator<<(std::ostream& os, const Payload& arg)
+  friend std::ostream& operator<<(std::ostream& _os, const Payload& _arg)
   {
-    arg.print(os);
-    return os;
+    _arg.print(_os);
+    return _os;
   }
 };
 
@@ -41,8 +41,8 @@ struct ACK_NAK : public Payload
   uint8_t clsID;  ///< Class ID of the Not-Acknowledged Message
   uint8_t msgID;  ///< Message ID of the Not-Acknowledged Message
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct ACK_ACK : public Payload
@@ -50,16 +50,16 @@ struct ACK_ACK : public Payload
   uint8_t clsID;  ///< Class ID of the Acknowledged Message
   uint8_t msgID;  ///< Message ID of the Acknowledged Message
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_CLOCK : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_COV : public Payload
@@ -82,40 +82,40 @@ struct NAV_COV : public Payload
   float velCovED;  ///< Velocity covariance matrix value v_ED [m^2/s^2]
   float velCovDD;  ///< Velocity covariance matrix value v_DD [m^2/s^2]
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_DOP : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_EOE : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_GEOFENCE : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_HPPOSECEF : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_HPPOSLLH : public Payload
@@ -140,40 +140,40 @@ struct NAV_HPPOSLLH : public Payload
   uint32_t hAcc;  ///< Horizontal accuracy estimate [mm]
   uint32_t vAcc;  ///< Vertical accuracy estimate [mm]
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_ODO : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_ORB : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_PL : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_POSECEF : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_POSLLH : public Payload
@@ -188,8 +188,8 @@ struct NAV_POSLLH : public Payload
   uint32_t hAcc;  ///< Horizontal accuracy estimate [mm]
   uint32_t vAcc;  ///< Vertical accuracy estimate [mm]
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_PVT : public Payload
@@ -265,24 +265,24 @@ struct NAV_PVT : public Payload
   double magDec;   ///< Magnetic declination [deg]
   double magAcc;   ///< Magnetic declination accuracy [deg]
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_RELPOSNED : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_RESETODO : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_SAT : public Payload
@@ -342,32 +342,32 @@ struct NAV_SAT : public Payload
 
   std::vector<Satellite> satellites;
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_SBAS : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_SIG : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_SLAS : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_STATUS : public Payload
@@ -418,40 +418,40 @@ struct NAV_STATUS : public Payload
   uint32_t ttff;  ///< Time to first fix [ms]
   uint32_t msss;  ///< Milliseconds since Startup / Reset [ms]
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_SVIN : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_TIMEBDS : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_TIMEGAL : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_TIMEGLO : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_TIMEGPS : public Payload
@@ -468,40 +468,40 @@ struct NAV_TIMEGPS : public Payload
 
   uint32_t tAcc;  ///< Time Accuracy Estimate [ns]
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_TIMELS : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_TIMEQZSS : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_TIMEUTC : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_VELECEF : public Payload
 {
   // TODO
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 
 struct NAV_VELNED : public Payload
@@ -519,8 +519,8 @@ struct NAV_VELNED : public Payload
   uint32_t sAcc;  ///< Speed accuracy estimate [cm/s]
   double cAcc;    ///< Course / Heading accuracy estimate [deg]
 
-  void decode(const uint8_t* p) override;
-  void print(std::ostream& os) const override;
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
 };
 }  // namespace payload
 }  // namespace ublox

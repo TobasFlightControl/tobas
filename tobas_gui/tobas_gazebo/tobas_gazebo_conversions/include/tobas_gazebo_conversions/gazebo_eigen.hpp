@@ -11,37 +11,37 @@ namespace tobas
 namespace gazebo
 {
 template <typename T>
-void vector3GazeboToEigen(const gz::math::Vector3<T>& g, Eigen::Matrix<T, 3, 1>& e)
+void vector3GazeboToEigen(const gz::math::Vector3<T>& _g, Eigen::Matrix<T, 3, 1>& _e)
 {
-  e.x() = g.X();
-  e.y() = g.Y();
-  e.z() = g.Z();
+  _e.x() = _g.X();
+  _e.y() = _g.Y();
+  _e.z() = _g.Z();
 }
 
 template <typename T>
-void vector3EigenToGazebo(const Eigen::Matrix<T, 3, 1>& e, gz::math::Vector3<T>& g)
+void vector3EigenToGazebo(const Eigen::Matrix<T, 3, 1>& _e, gz::math::Vector3<T>& _g)
 {
-  g.X() = e.x();
-  g.Y() = e.y();
-  g.Z() = e.z();
+  _g.X() = _e.x();
+  _g.Y() = _e.y();
+  _g.Z() = _e.z();
 }
 
 template <typename T>
-void matrix3EigenToGazebo(const Eigen::Matrix<T, 3, 3>& e, gz::math::Matrix3<T>& g)
+void matrix3EigenToGazebo(const Eigen::Matrix<T, 3, 3>& _e, gz::math::Matrix3<T>& _g)
 {
   for (size_t r = 0; r < 3; ++r) {
     for (size_t c = 0; c < 3; ++c) {
-      g(r, c) = e(r, c);
+      _g(r, c) = _e(r, c);
     }
   }
 }
 
 template <typename T>
-void matrix3EigenToGazebo(const gz::math::Matrix3<T>& g, Eigen::Matrix<T, 3, 3>& e)
+void matrix3EigenToGazebo(const gz::math::Matrix3<T>& _g, Eigen::Matrix<T, 3, 3>& _e)
 {
   for (size_t r = 0; r < 3; ++r) {
     for (size_t c = 0; c < 3; ++c) {
-      e(r, c) = g(r, c);
+      _e(r, c) = _g(r, c);
     }
   }
 }

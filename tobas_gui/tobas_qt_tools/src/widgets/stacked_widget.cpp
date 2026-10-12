@@ -18,10 +18,10 @@ void StackedWidget::clear()
   }
 }
 
-void StackedWidget::setCurrentIndex(int index)
+void StackedWidget::setCurrentIndex(int _index)
 {
   // Update the index.
-  super::setCurrentIndex(index);
+  super::setCurrentIndex(_index);
 
   // Update the Qt event loop.
   QApplication::processEvents();

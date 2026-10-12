@@ -9,6 +9,6 @@ namespace tobas
 {
 namespace gazebo
 {
-gz::math::MassMatrix3d boxInertia(double sx, double sy, double sz, double mass);
+gz::math::MassMatrix3d boxInertia(double _sx, double _sy, double _sz, double _mass);
 }  // namespace gazebo
 }  // namespace tobas

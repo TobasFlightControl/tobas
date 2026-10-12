@@ -66,14 +66,18 @@ void MapWidget::clear()
   line_->clear();
 }
 
-void MapWidget::addWaypoint(int index, const QGeoCoordinate& coord, double acceptance_radius, const QString& marker_color)
+void MapWidget::addWaypoint(
+  int _index,
+  const QGeoCoordinate& _coord,
+  double _acceptance_radius,
+  const QString& _marker_color)
 {
-  waypoint_->add(index, coord, acceptance_radius, marker_color);
+  waypoint_->add(_index, _coord, _acceptance_radius, _marker_color);
 }
 
-void MapWidget::addLine(double latitude_1, double longitude_1, double latitude_2, double longitude_2)
+void MapWidget::addLine(double _latitude_1, double _longitude_1, double _latitude_2, double _longitude_2)
 {
-  line_->add(latitude_1, longitude_1, latitude_2, longitude_2);
+  line_->add(_latitude_1, _longitude_1, _latitude_2, _longitude_2);
 }
 
 QGeoCoordinate MapWidget::getCenter() const
@@ -96,24 +100,24 @@ double MapWidget::getArrowRotation() const
   return getArrowRotationObject()->property("angle").value<double>();
 }
 
-void MapWidget::setMapCenter(double latitude, double longitude)
+void MapWidget::setMapCenter(double _latitude, double _longitude)
 {
-  QMetaObject::invokeMethod(rootObject(), "setMapCenter", Q_ARG(double, latitude), Q_ARG(double, longitude));
+  QMetaObject::invokeMethod(rootObject(), "setMapCenter", Q_ARG(double, _latitude), Q_ARG(double, _longitude));
 }
 
-void MapWidget::setZoomLevel(double zoom_level)
+void MapWidget::setZoomLevel(double _zoom_level)
 {
-  QMetaObject::invokeMethod(rootObject(), "setZoomLevel", Q_ARG(double, zoom_level));
+  QMetaObject::invokeMethod(rootObject(), "setZoomLevel", Q_ARG(double, _zoom_level));
 }
 
-void MapWidget::setArrowPosition(double latitude, double longitude)
+void MapWidget::setArrowPosition(double _latitude, double _longitude)
 {
-  QMetaObject::invokeMethod(rootObject(), "setArrowPosition", Q_ARG(double, latitude), Q_ARG(double, longitude));
+  QMetaObject::invokeMethod(rootObject(), "setArrowPosition", Q_ARG(double, _latitude), Q_ARG(double, _longitude));
 }
 
-void MapWidget::setArrowRotation(double angle_deg)
+void MapWidget::setArrowRotation(double _angle_deg)
 {
-  QMetaObject::invokeMethod(rootObject(), "setArrowRotation", Q_ARG(double, angle_deg));
+  QMetaObject::invokeMethod(rootObject(), "setArrowRotation", Q_ARG(double, _angle_deg));
 }
 
 void MapWidget::restoreView()
@@ -175,9 +179,9 @@ QObject* MapWidget::getArrowRotationObject() const
   return res;
 }
 
-void MapWidget::onWaypointMoved(int index, double latitude, double longitude)
+void MapWidget::onWaypointMoved(int _index, double _latitude, double _longitude)
 {
-  Q_EMIT waypointMoved(index, latitude, longitude);
+  Q_EMIT waypointMoved(_index, _latitude, _longitude);
 }
 }  // namespace ctrl
 }  // namespace gui

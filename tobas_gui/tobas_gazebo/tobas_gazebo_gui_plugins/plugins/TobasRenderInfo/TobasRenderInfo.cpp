@@ -34,13 +34,13 @@ void TobasRenderInfo::LoadConfig(const tinyxml2::XMLElement*)
   gz::gui::App()->findChild<gz::gui::MainWindow*>()->installEventFilter(this);
 }
 
-bool TobasRenderInfo::eventFilter(QObject* obj, QEvent* event)
+bool TobasRenderInfo::eventFilter(QObject* _obj, QEvent* _event)
 {
-  if (event->type() == gz::gui::events::Render::kType) {
+  if (_event->type() == gz::gui::events::Render::kType) {
     onRender();
   }
 
-  return super::eventFilter(obj, event);
+  return super::eventFilter(_obj, _event);
 }
 
 void TobasRenderInfo::onRender()

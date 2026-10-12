@@ -39,14 +39,14 @@ bool Version::isValid() const
   return major >= 0 && minor >= 0 && patch >= 0;
 }
 
-bool Version::isCompatible(const Version& other) const
+bool Version::isCompatible(const Version& _other) const
 {
-  if (!isValid() || !other.isValid()) {
+  if (!isValid() || !_other.isValid()) {
     qWarning() << "Invalid versions cannot be compared.";
     return false;
   }
 
-  return major == other.major && minor == other.minor;
+  return major == _other.major && minor == _other.minor;
 }
 
 QString Version::toString() const
@@ -55,17 +55,17 @@ QString Version::toString() const
   return res.arg(major).arg(minor).arg(patch);
 }
 
-bool Version::fromString(QString str)
+bool Version::fromString(QString _str)
 {
   // Remove the prefix.
-  if (str.startsWith('v', Qt::CaseInsensitive)) {
-    str.remove(0, 1);
+  if (_str.startsWith('v', Qt::CaseInsensitive)) {
+    _str.remove(0, 1);
   }
 
   // Split into three parts.
-  const auto parts = str.split('.');
+  const auto parts = _str.split('.');
   if (parts.size() != 3) {
-    qWarning().noquote().nospace() << "Invalid version format: " << str
+    qWarning().noquote().nospace() << "Invalid version format: " << _str
                                    << ". Expected major.minor.patch (e.g., 1.2.3).";
     return false;
   }
@@ -77,7 +77,7 @@ bool Version::fromString(QString str)
   patch = parts[2].toInt(&ok3);
   if (!ok1 || !ok2 || !ok3) {
     qWarning().noquote().nospace()
-      << "Invalid version number: " << str
+      << "Invalid version number: " << _str
       << ". Each component must be an integer in the form major.minor.patch (e.g., 1.2.3).";
     return false;
   }
@@ -85,9 +85,9 @@ bool Version::fromString(QString str)
   return true;
 }
 
-bool Version::load(const QString& path)
+bool Version::load(const QString& _path)
 {
-  const auto node = yaml::load(path.toStdString());
+  const auto node = yaml::load(_path.toStdString());
   if (!node) {
     qWarning() << node.error().c_str();
     return false;
@@ -106,7 +106,7 @@ bool Version::load(const QString& path)
   return true;
 }
 
-bool Version::save(const QString& path) const
+bool Version::save(const QString& _path) const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -114,7 +114,7 @@ bool Version::save(const QString& path) const
   node[kMinorKey] = minor;
   node[kPatchKey] = patch;
 
-  if (!yaml::save(path.toStdString(), node)) {
+  if (!yaml::save(_path.toStdString(), node)) {
     return false;
   }
 

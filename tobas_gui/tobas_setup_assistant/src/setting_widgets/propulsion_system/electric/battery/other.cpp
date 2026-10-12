@@ -98,14 +98,14 @@ YAML::Node BatteryWidget_Other::dump() const
   return node;
 }
 
-void BatteryWidget_Other::load(const YAML::Node& node)
+void BatteryWidget_Other::load(const YAML::Node& _node)
 {
-  nominal_voltage_->setValue(node[nominal_voltage_->name()].as<double>());
-  max_voltage_->setValue(node[max_voltage_->name()].as<double>());
-  sag_voltage_->setValue(node[sag_voltage_->name()].as<double>());
-  max_current_->setValue(node[max_current_->name()].as<double>());
-  capacity_->setValue(node[capacity_->name()].as<int>());
-  registance_->setValue(node[registance_->name()].as<int>());
+  nominal_voltage_->setValue(_node[nominal_voltage_->name()].as<double>());
+  max_voltage_->setValue(_node[max_voltage_->name()].as<double>());
+  sag_voltage_->setValue(_node[sag_voltage_->name()].as<double>());
+  max_current_->setValue(_node[max_current_->name()].as<double>());
+  capacity_->setValue(_node[capacity_->name()].as<int>());
+  registance_->setValue(_node[registance_->name()].as<int>());
 }
 
 double BatteryWidget_Other::nominalVoltage()

@@ -16,22 +16,22 @@ struct rclcpp::TypeAdapter<tobas::BatteryConfig, tobas_drone_msgs::msg::BatteryC
   using custom_type = tobas::BatteryConfig;
   using ros_message_type = tobas_drone_msgs::msg::BatteryConfig;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.nominal_voltage = src.nominal_voltage;
-    dst.max_voltage = src.max_voltage;
-    dst.sag_voltage = src.sag_voltage;
-    dst.max_current = src.max_current;
-    dst.internal_resistance = src.internal_resistance;
+    _dst.nominal_voltage = _src.nominal_voltage;
+    _dst.max_voltage = _src.max_voltage;
+    _dst.sag_voltage = _src.sag_voltage;
+    _dst.max_current = _src.max_current;
+    _dst.internal_resistance = _src.internal_resistance;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.nominal_voltage = src.nominal_voltage;
-    dst.max_voltage = src.max_voltage;
-    dst.sag_voltage = src.sag_voltage;
-    dst.max_current = src.max_current;
-    dst.internal_resistance = src.internal_resistance;
+    _dst.nominal_voltage = _src.nominal_voltage;
+    _dst.max_voltage = _src.max_voltage;
+    _dst.sag_voltage = _src.sag_voltage;
+    _dst.max_current = _src.max_current;
+    _dst.internal_resistance = _src.internal_resistance;
   }
 };
 

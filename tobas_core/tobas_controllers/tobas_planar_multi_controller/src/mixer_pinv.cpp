@@ -9,8 +9,8 @@ namespace tobas
 {
 namespace planar_multicopter
 {
-PinvMixer::PinvMixer(const Drone& drone, const kdl::Tree& tree)
-  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
+PinvMixer::PinvMixer(const Drone& _drone, const kdl::Tree& _tree)
+  : super(_drone, _tree), fk_solver_(_tree), inertia_solver_(_tree)
 {
 }
 
@@ -26,19 +26,19 @@ void PinvMixer::updateInternalDataStructures()
 }
 
 std::expected<Eigen::VectorXd, std::string> PinvMixer::solve(
-  const kdl::JntArray& cur_q,
-  const kdl::Vector& cur_gyro_B,
-  const kdl::Vector& tar_dgyro_B,
-  double tar_thrusts_sum,
-  const kdl::Vector& ext_torque_B)
+  const kdl::JntArray& _cur_q,
+  const kdl::Vector& _cur_gyro_b,
+  const kdl::Vector& _tar_dgyro_b,
+  double _tar_thrusts_sum,
+  const kdl::Vector& _ext_torque_b)
 {
-  assert(tar_thrusts_sum > 0);
+  assert(_tar_thrusts_sum > 0);
 
   // Compute forward kinematics.
-  const auto& frames = fk_solver_.jntToCart(cur_q);
+  const auto& frames = fk_solver_.jntToCart(_cur_q);
 
   // Compute mass properties.
-  const auto inertia = inertia_solver_.jntToCart(cur_q);
+  const auto inertia = inertia_solver_.jntToCart(_cur_q);
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
@@ -65,10 +65,10 @@ std::expected<Eigen::VectorXd, std::string> PinvMixer::solve(
   }
 
   // Right-hand side of the EoM matrix equality.
-  f_.head<3>() = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
+  f_.head<3>() = (I_B * _tar_dgyro_b + _cur_gyro_b * (I_B * _cur_gyro_b) - _ext_torque_b).data;  // [Nm]
 
   // Right-hand side of the thrust-sum equality.
-  f_(3) = tar_thrusts_sum;
+  f_(3) = _tar_thrusts_sum;
 
   // Solve `Ex = f`.
   // TODO: Assign per-row priorities (`atti > thrust > yaw`) when `Rank(E) < 4` and the equation cannot be solved.

@@ -23,7 +23,7 @@ Q_SIGNALS:
   void homeDirectoryChanged();
 
 public:
-  explicit SystemInfo(QObject* parent = nullptr);
+  explicit SystemInfo(QObject* _parent = nullptr);
 
   QString modelName() const;
 

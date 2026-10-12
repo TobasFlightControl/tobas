@@ -21,8 +21,8 @@ namespace
 const Eigen::Vector3d kXAxis(1, 0, 0);
 }  // namespace
 
-MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, const kdl::Tree& tree)
-  : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree), trim_(drone, tree)
+MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& _drone, const kdl::Tree& _tree)
+  : drone_(_drone), tree_(_tree), fk_solver_(_tree), inertia_solver_(_tree), trim_(_drone, _tree)
 {
 }
 
@@ -38,16 +38,16 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   setInputLimits();
 }
 
-int MicroDisturbanceEoM::update(double V, double rho, const kdl::JntArray& q)
+int MicroDisturbanceEoM::update(double _v, double _rho, const kdl::JntArray& _q)
 {
-  assert(V > 0.0);
-  assert(rho > 0.0);
-  assert(q.size() == tree_.getNrOfJoints());
+  assert(_v > 0.0);
+  assert(_rho > 0.0);
+  assert(_q.size() == tree_.getNrOfJoints());
 
   error_code_ = kNoError;
 
   // Update the trim state.
-  trim_.update(V, rho, q);
+  trim_.update(_v, _rho, _q);
   if (updateError(trim_) <= kError) {
     return error_code_;
   }
@@ -59,7 +59,7 @@ int MicroDisturbanceEoM::update(double V, double rho, const kdl::JntArray& q)
   const auto& asd_cog = trim_.stabilityDerivativesCG();
 
   // Center of gravity and inertia tensor.
-  const auto& I_base = inertia_solver_.jntToCart(q);
+  const auto& I_base = inertia_solver_.jntToCart(_q);
   mass_ = I_base.getMass();
   const auto P_base_cog = I_base.getCOG();
   const auto I_cog = I_base.getRotationalInertiaCoG();
@@ -75,14 +75,14 @@ int MicroDisturbanceEoM::update(double V, double rho, const kdl::JntArray& q)
   const auto I_z_tilde = I_z * tmp;
 
   // Constants that depend on arguments.
-  const auto q_bar = dynamicPressure(rho, V);
+  const auto q_bar = dynamicPressure(_rho, _v);
   const auto q_S = q_bar * vehicle.wing_surface;
   const auto q_S_b = q_S * vehicle.wing_span;
   const auto q_S_c = q_S * vehicle.mac;
-  const auto rho_V_S = rho * V * vehicle.wing_surface;
+  const auto rho_V_S = _rho * _v * vehicle.wing_surface;
   const auto rho_V_S_b2 = rho_V_S * math::sqr(vehicle.wing_span);
   const auto rho_V_S_c2 = rho_V_S * math::sqr(vehicle.mac);
-  const auto P = I_base.getMass() * V;  // Momentum.
+  const auto P = I_base.getMass() * _v;  // Momentum.
 
   // (2.2-45)
   const auto X_u = -rho_V_S / I_base.getMass() * trim_.c_D();
@@ -92,7 +92,7 @@ int MicroDisturbanceEoM::update(double V, double rho, const kdl::JntArray& q)
   const auto Y_beta_bar = q_S / P * aero.c_side_beta;
 
   // (2.2-46)
-  const auto Z_u_bar = -rho * vehicle.wing_surface / I_base.getMass() * trim_.c_L();
+  const auto Z_u_bar = -_rho * vehicle.wing_surface / I_base.getMass() * trim_.c_L();
   const auto Z_alpha_bar = -q_S / P * (aero.c_lift_alpha + 2 * trim_.c_L() * std::tan(trim_.alpha()));
 
   // (3.2-21)
@@ -110,7 +110,7 @@ int MicroDisturbanceEoM::update(double V, double rho, const kdl::JntArray& q)
   const auto M_u_dash = M_u + M_alpha_rate * Z_u_bar;
   const auto M_alpha_dash = M_alpha + M_alpha_rate * Z_alpha_bar;
   const auto M_q_dash = M_q + M_alpha_rate;
-  const auto M_theta_dash = -st::kGravity * std::sin(trim_.theta()) / V * M_alpha_rate;
+  const auto M_theta_dash = -st::kGravity * std::sin(trim_.theta()) / _v * M_alpha_rate;
 
   // (3.2-22)
   const auto N_beta_dash = q_S_b / I_z_tilde * (asd_cog.cYawBeta() + I_xz / I_x * aero.c_roll_beta);
@@ -124,11 +124,11 @@ int MicroDisturbanceEoM::update(double V, double rho, const kdl::JntArray& q)
 
   A_(kStateIdx_alpha, kStateIdx_u) = Z_u_bar;
   A_(kStateIdx_alpha, kStateIdx_alpha) = Z_alpha_bar;
-  A_(kStateIdx_alpha, kStateIdx_theta) = -st::kGravity * std::sin(trim_.theta()) / V;
+  A_(kStateIdx_alpha, kStateIdx_theta) = -st::kGravity * std::sin(trim_.theta()) / _v;
   A_(kStateIdx_alpha, kStateIdx_q) = 1;
 
   A_(kStateIdx_beta, kStateIdx_beta) = Y_beta_bar;
-  A_(kStateIdx_beta, kStateIdx_phi) = st::kGravity * std::cos(trim_.theta()) / V;
+  A_(kStateIdx_beta, kStateIdx_phi) = st::kGravity * std::cos(trim_.theta()) / _v;
   A_(kStateIdx_beta, kStateIdx_p) = trim_.alpha();
   A_(kStateIdx_beta, kStateIdx_r) = -1;
 
@@ -160,7 +160,7 @@ int MicroDisturbanceEoM::update(double V, double rho, const kdl::JntArray& q)
   const auto I_cog_inv = I_cog.data.inverse();
   for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = elem.second;
-    const auto P_base_rotor = fk_solver_.jntToCart(q, rotor->link_name);
+    const auto P_base_rotor = fk_solver_.jntToCart(_q, rotor->link_name);
     const auto P_cog_rotor = P_base_rotor.p - P_base_cog;
     const auto d = rotor->sign();
     const auto cm = rotor->momentConst();

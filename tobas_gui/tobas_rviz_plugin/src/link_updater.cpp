@@ -7,18 +7,18 @@ namespace tobas
 {
 namespace rviz
 {
-LinkUpdater::LinkUpdater(const RobotState& state) : robot_state_(state)
+LinkUpdater::LinkUpdater(const RobotState& _state) : robot_state_(_state)
 {
 }
 
 bool LinkUpdater::getLinkTransforms(
-  const std::string& link_name,
-  Ogre::Vector3& visual_position,
-  Ogre::Quaternion& visual_orientation,
-  Ogre::Vector3& collision_position,
-  Ogre::Quaternion& collision_orientation) const
+  const std::string& _link_name,
+  Ogre::Vector3& _visual_position,
+  Ogre::Quaternion& _visual_orientation,
+  Ogre::Vector3& _collision_position,
+  Ogre::Quaternion& _collision_orientation) const
 {
-  const auto link_model = robot_state_.getRobotModel().getLinkModel(link_name);
+  const auto link_model = robot_state_.getRobotModel().getLinkModel(_link_name);
   if (!link_model) {
     return false;
   }
@@ -27,11 +27,11 @@ bool LinkUpdater::getLinkTransforms(
   const Eigen::Vector3d pos = transform.translation();
   const Eigen::Quaterniond rot(transform.linear());
 
-  visual_position = Ogre::Vector3(pos.x(), pos.y(), pos.z());
-  visual_orientation = Ogre::Quaternion(rot.w(), rot.x(), rot.y(), rot.z());
+  _visual_position = Ogre::Vector3(pos.x(), pos.y(), pos.z());
+  _visual_orientation = Ogre::Quaternion(rot.w(), rot.x(), rot.y(), rot.z());
 
-  collision_position = visual_position;
-  collision_orientation = visual_orientation;
+  _collision_position = _visual_position;
+  _collision_orientation = _visual_orientation;
 
   return true;
 }

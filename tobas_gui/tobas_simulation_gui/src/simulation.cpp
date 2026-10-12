@@ -30,14 +30,14 @@ namespace gui
 {
 namespace sim
 {
-SimulationWidget::SimulationWidget(const rqt::RosQtBridge& bridge) : spinner_(Qt::WindowModal, this)
+SimulationWidget::SimulationWidget(const rqt::RosQtBridge& _bridge) : spinner_(Qt::WindowModal, this)
 {
   start_stop_button_ = new qt::ToggleButton("Start", "Terminate");
   start_stop_button_->setFixedSize(100, 40);
 
   sim_settings_ = new SimulationSettingsWidget();
   dynamic_config_ = new DynamicConfigWidget();
-  commanders_ = new CommandersWidget(bridge, tree_, drone_);
+  commanders_ = new CommandersWidget(_bridge, tree_, drone_);
 
   // Layout
   const auto config_rows = new QVBoxLayout();
@@ -84,10 +84,10 @@ void SimulationWidget::reset()
   commanders_->setEnabled(false);
 }
 
-void SimulationWidget::setProjectPath(const QString& proj_path)
+void SimulationWidget::setProjectPath(const QString& _proj_path)
 {
   // Update project path.
-  proj_paths_.setProjPath(proj_path);
+  proj_paths_.setProjPath(_proj_path);
 
   // Load UADF.
   const auto uadf_path = proj_paths_.originalUadfPath();
@@ -108,12 +108,12 @@ void SimulationWidget::setProjectPath(const QString& proj_path)
   reset();
 }
 
-void SimulationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void SimulationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  dynamic_config_->initializeRosInterfaces(node, ns);
+  dynamic_config_->initializeRosInterfaces(_node, _ns);
   dynamic_config_->setEnabled(true);
 
-  commanders_->initializeRosInterfaces(node, ns);
+  commanders_->initializeRosInterfaces(_node, _ns);
   commanders_->setEnabled(true);
 }
 
@@ -213,19 +213,19 @@ void SimulationWidget::terminateSimulation()
   state_ = kStopping;
 }
 
-void SimulationWidget::finalizeLaunchProcess(QProcess* process, int code, QProcess::ExitStatus status)
+void SimulationWidget::finalizeLaunchProcess(QProcess* _process, int _code, QProcess::ExitStatus _status)
 {
-  TOBAS_CHECK(process == launch_proc_);
+  TOBAS_CHECK(_process == launch_proc_);
 
   spinner_.stop();
 
   const bool expected = (state_ == kStopping);
-  const auto error_string = process->errorString();
-  const auto std_out = QString::fromLocal8Bit(process->readAllStandardOutput());
-  const auto std_err = QString::fromLocal8Bit(process->readAllStandardError());
+  const auto error_string = _process->errorString();
+  const auto std_out = QString::fromLocal8Bit(_process->readAllStandardOutput());
+  const auto std_err = QString::fromLocal8Bit(_process->readAllStandardError());
 
   // Clear the guarded pointer before resetting the widget to prevent duplicate termination requests.
-  process->deleteLater();
+  _process->deleteLater();
   launch_proc_ = nullptr;
   state_ = kIdle;
 
@@ -244,11 +244,11 @@ void SimulationWidget::finalizeLaunchProcess(QProcess* process, int code, QProce
     const auto log_path = qt::writeTimestampedFile(out_msg + '\n', qt::expandUser(kGuiLogDir), "", "simulation_crash");
 
     QString error_msg = "Simulation process was terminated unexpectedly";
-    if (status == QProcess::CrashExit) {
+    if (_status == QProcess::CrashExit) {
       error_msg += ":\n\n" + error_string;
     }
     else {
-      error_msg += " with exit code " + QString::number(code) + ".";
+      error_msg += " with exit code " + QString::number(_code) + ".";
     }
     if (log_path) {
       error_msg += "\n\nThe output has been saved to:\n" + *log_path;
@@ -339,19 +339,19 @@ void SimulationWidget::onTerminateRequested()
   spinner_.start();
 }
 
-void SimulationWidget::onLaunchProcessFinished(int code, QProcess::ExitStatus status)
+void SimulationWidget::onLaunchProcessFinished(int _code, QProcess::ExitStatus _status)
 {
-  qDebug().nospace() << "SimulationWidget::onLaunchProcessFinished(" << code << ", " << status << ")";
+  qDebug().nospace() << "SimulationWidget::onLaunchProcessFinished(" << _code << ", " << _status << ")";
 
   const auto process = qt::qPointerCast<QProcess>(sender());
-  finalizeLaunchProcess(process, code, status);
+  finalizeLaunchProcess(process, _code, _status);
 }
 
-void SimulationWidget::onLaunchProcessErrorOccurred(QProcess::ProcessError error)
+void SimulationWidget::onLaunchProcessErrorOccurred(QProcess::ProcessError _error)
 {
-  qDebug().nospace() << "SimulationWidget::onLaunchProcessErrorOccurred(" << error << ")";
+  qDebug().nospace() << "SimulationWidget::onLaunchProcessErrorOccurred(" << _error << ")";
 
-  if (error != QProcess::FailedToStart) {
+  if (_error != QProcess::FailedToStart) {
     return;
   }
 

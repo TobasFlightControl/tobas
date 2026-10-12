@@ -19,9 +19,9 @@ public:
   RotationAcc M;  ///< Rotation,angular velocity, and angular acceleration of frame.
 
   inline explicit FrameAcc();
-  inline explicit FrameAcc(const Frame& _T);
-  inline explicit FrameAcc(const Frame& _T, const Twist& _t, const Twist& _dt);
-  inline explicit FrameAcc(const RotationAcc& _M, const VectorAcc& _p);
+  inline explicit FrameAcc(const Frame& _t);
+  inline explicit FrameAcc(const Frame& _frame, const Twist& _twist, const Twist& _dt);
+  inline explicit FrameAcc(const RotationAcc& _m, const VectorAcc& _p);
 
   static inline FrameAcc Identity();
 
@@ -33,35 +33,35 @@ public:
   inline Accel getAccel() const;
 
   inline FrameAcc inverse() const;
-  inline VectorAcc inverse(const Vector& arg) const;
-  inline VectorAcc inverse(const VectorAcc& arg) const;
-  inline TwistAcc inverse(const Twist& arg) const;
-  inline TwistAcc inverse(const TwistAcc& arg) const;
+  inline VectorAcc inverse(const Vector& _arg) const;
+  inline VectorAcc inverse(const VectorAcc& _arg) const;
+  inline TwistAcc inverse(const Twist& _arg) const;
+  inline TwistAcc inverse(const TwistAcc& _arg) const;
 
-  inline VectorAcc operator*(const Vector& rhs) const;
-  inline VectorAcc operator*(const VectorAcc& rhs) const;
-  inline TwistAcc operator*(const Twist& rhs) const;
-  inline TwistAcc operator*(const TwistAcc& rhs) const;
-  inline FrameAcc operator*(const Frame& rhs) const;
-  inline FrameAcc operator*(const FrameAcc& rhs) const;
+  inline VectorAcc operator*(const Vector& _rhs) const;
+  inline VectorAcc operator*(const VectorAcc& _rhs) const;
+  inline TwistAcc operator*(const Twist& _rhs) const;
+  inline TwistAcc operator*(const TwistAcc& _rhs) const;
+  inline FrameAcc operator*(const Frame& _rhs) const;
+  inline FrameAcc operator*(const FrameAcc& _rhs) const;
 
-  inline friend FrameAcc operator*(const Frame& lhs, const FrameAcc& rhs);
+  inline friend FrameAcc operator*(const Frame& _lhs, const FrameAcc& _rhs);
 };
 
 inline FrameAcc::FrameAcc()
 {
 }
 
-inline FrameAcc::FrameAcc(const Frame& _T) : p(_T.p), M(_T.M)
+inline FrameAcc::FrameAcc(const Frame& _t) : p(_t.p), M(_t.M)
 {
 }
 
-inline FrameAcc::FrameAcc(const Frame& _T, const Twist& _t, const Twist& _dt)
-  : p(_T.p, _t.vel, _dt.vel), M(_T.M, _t.rot, _dt.rot)
+inline FrameAcc::FrameAcc(const Frame& _frame, const Twist& _twist, const Twist& _dt)
+  : p(_frame.p, _twist.vel, _dt.vel), M(_frame.M, _twist.rot, _dt.rot)
 {
 }
 
-inline FrameAcc::FrameAcc(const RotationAcc& _M, const VectorAcc& _p) : p(_p), M(_M)
+inline FrameAcc::FrameAcc(const RotationAcc& _m, const VectorAcc& _p) : p(_p), M(_m)
 {
 }
 
@@ -102,71 +102,71 @@ inline FrameAcc FrameAcc::inverse() const
   return FrameAcc(M.inverse(), -M.inverse(p));
 }
 
-inline VectorAcc FrameAcc::inverse(const Vector& arg) const
+inline VectorAcc FrameAcc::inverse(const Vector& _arg) const
 {
-  return M.inverse(arg - p);
+  return M.inverse(_arg - p);
 }
 
-inline VectorAcc FrameAcc::inverse(const VectorAcc& arg) const
+inline VectorAcc FrameAcc::inverse(const VectorAcc& _arg) const
 {
-  return M.inverse(arg - p);
+  return M.inverse(_arg - p);
 }
 
-inline TwistAcc FrameAcc::inverse(const Twist& arg) const
+inline TwistAcc FrameAcc::inverse(const Twist& _arg) const
 {
   TwistAcc tmp;
-  tmp.rot = M.inverse(arg.rot);
-  tmp.vel = M.inverse(arg.vel - p * arg.rot);
+  tmp.rot = M.inverse(_arg.rot);
+  tmp.vel = M.inverse(_arg.vel - p * _arg.rot);
   return tmp;
 }
 
-inline TwistAcc FrameAcc::inverse(const TwistAcc& arg) const
+inline TwistAcc FrameAcc::inverse(const TwistAcc& _arg) const
 {
   TwistAcc tmp;
-  tmp.rot = M.inverse(arg.rot);
-  tmp.vel = M.inverse(arg.vel - p * arg.rot);
+  tmp.rot = M.inverse(_arg.rot);
+  tmp.vel = M.inverse(_arg.vel - p * _arg.rot);
   return tmp;
 }
 
-inline VectorAcc FrameAcc::operator*(const Vector& rhs) const
+inline VectorAcc FrameAcc::operator*(const Vector& _rhs) const
 {
-  return M * rhs + p;
+  return M * _rhs + p;
 }
 
-inline VectorAcc FrameAcc::operator*(const VectorAcc& rhs) const
+inline VectorAcc FrameAcc::operator*(const VectorAcc& _rhs) const
 {
-  return M * rhs + p;
+  return M * _rhs + p;
 }
 
-inline TwistAcc FrameAcc::operator*(const Twist& rhs) const
+inline TwistAcc FrameAcc::operator*(const Twist& _rhs) const
 {
   TwistAcc tmp;
-  tmp.rot = M * rhs.rot;
-  tmp.vel = M * rhs.vel + p * tmp.rot;
+  tmp.rot = M * _rhs.rot;
+  tmp.vel = M * _rhs.vel + p * tmp.rot;
   return tmp;
 }
 
-inline TwistAcc FrameAcc::operator*(const TwistAcc& rhs) const
+inline TwistAcc FrameAcc::operator*(const TwistAcc& _rhs) const
 {
   TwistAcc tmp;
-  tmp.rot = M * rhs.rot;
-  tmp.vel = M * rhs.vel + p * tmp.rot;
+  tmp.rot = M * _rhs.rot;
+  tmp.vel = M * _rhs.vel + p * tmp.rot;
   return tmp;
 }
 
-inline FrameAcc FrameAcc::operator*(const Frame& rhs) const
+inline FrameAcc FrameAcc::operator*(const Frame& _rhs) const
 {
-  return FrameAcc(M * rhs.M, M * rhs.p + p);
+  return FrameAcc(M * _rhs.M, M * _rhs.p + p);
 }
 
-inline FrameAcc FrameAcc::operator*(const FrameAcc& rhs) const
+inline FrameAcc FrameAcc::operator*(const FrameAcc& _rhs) const
 {
-  return FrameAcc(M * rhs.M, M * rhs.p + p);
+  return FrameAcc(M * _rhs.M, M * _rhs.p + p);
 }
 
-inline FrameAcc operator*(const Frame& lhs, const FrameAcc& rhs)
+inline FrameAcc operator*(const Frame& _lhs, const FrameAcc& _rhs)
 {
-  return FrameAcc(lhs.M * rhs.M, lhs.M * rhs.p + lhs.p);
+  return FrameAcc(_lhs.M * _rhs.M, _lhs.M * _rhs.p + _lhs.p);
 }
 }  // namespace kdl
 }  // namespace tobas

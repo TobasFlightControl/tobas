@@ -12,23 +12,23 @@ class GnssStateCheckerNode : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit GnssStateCheckerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit GnssStateCheckerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   tobas::ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
 
-  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
+  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss);
 };
 
-GnssStateCheckerNode::GnssStateCheckerNode(const rclcpp::NodeOptions& options)
-  : super("gnss_state_checker", nodeOptions_Default(options))
+GnssStateCheckerNode::GnssStateCheckerNode(const rclcpp::NodeOptions& _options)
+  : super("gnss_state_checker", nodeOptions_Default(_options))
 {
   gnss_sub_ = createSubscriber<tobas_msgs::Gnss>(tobas::topic::kGnss, &self::gnssCb, this);
 }
 
-void GnssStateCheckerNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
+void GnssStateCheckerNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss)
 {
-  if (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
+  if (_gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
     TOBAS_INFO_THROTTLE(1.0, "GNSS 3D Fix");
   }
 }

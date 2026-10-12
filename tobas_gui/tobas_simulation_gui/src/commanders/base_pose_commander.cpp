@@ -21,7 +21,7 @@ namespace gui
 {
 namespace sim
 {
-BasePoseCommanderWidget::BasePoseCommanderWidget(const rqt::RosQtBridge& bridge)
+BasePoseCommanderWidget::BasePoseCommanderWidget(const rqt::RosQtBridge& _bridge)
 {
   const auto root_rows = new QVBoxLayout();
   setLayout(root_rows);
@@ -70,9 +70,9 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(const rqt::RosQtBridge& bridge)
   button_cols->addWidget(home_button_);
   connect(home_button_, &QPushButton::clicked, this, &self::onHomeButtonClicked);
 
-  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
-  connect(&bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
-  connect(&bridge, &rqt::RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
 
   reset();
 }
@@ -100,15 +100,15 @@ void BasePoseCommanderWidget::updateInternalDataStructures()
 {
 }
 
-void BasePoseCommanderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void BasePoseCommanderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node, path::join(ns, topic::kAngleCmd));
-  pva_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAcc>(node, path::join(ns, topic::kPosVelAccCmd));
-  pvay_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node, path::join(ns, topic::kPosVelAccYawCmd));
+  angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(_node, path::join(_ns, topic::kAngleCmd));
+  pva_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAcc>(_node, path::join(_ns, topic::kPosVelAccCmd));
+  pvay_pub_ = ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(_node, path::join(_ns, topic::kPosVelAccYawCmd));
   pvapy_pub_ =
-    ros2::createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(node, path::join(ns, topic::kPosVelAccPitchYawCmd));
+    ros2::createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(_node, path::join(_ns, topic::kPosVelAccPitchYawCmd));
 
-  set_arm_sc_.emplace(node, path::join(ns, service::kSetArm));
+  set_arm_sc_.emplace(_node, path::join(_ns, service::kSetArm));
 }
 
 void BasePoseCommanderWidget::clearRosInterfaces()
@@ -181,10 +181,10 @@ void BasePoseCommanderWidget::publishCurrentCommand()
   }
 }
 
-bool BasePoseCommanderWidget::armRotors(bool arming)
+bool BasePoseCommanderWidget::armRotors(bool _arming)
 {
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
-  req->arming = arming;
+  req->arming = _arming;
 
   const auto res = set_arm_sc_->sendRequestAndWait(req);
   if (!res) {
@@ -284,29 +284,29 @@ void BasePoseCommanderWidget::onHomeButtonClicked()
   cmd_rpy_[2]->setValue(0);
 }
 
-void BasePoseCommanderWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void BasePoseCommanderWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming)
 {
   // Stop commanding if the vehicle is disarmed externally.
-  if (isRunning() && !arming->data) {
+  if (isRunning() && !_arming->data) {
     reset();
   }
 
-  arming_ = arming;
+  arming_ = _arming;
 }
 
-void BasePoseCommanderWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
+void BasePoseCommanderWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom)
 {
-  odom_ = odom;
+  odom_ = _odom;
 }
 
-void BasePoseCommanderWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
+void BasePoseCommanderWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin)
 {
   // Stop commanding if manual control is enabled.
-  if (isRunning() && rcin->status == tobas_msgs::msg::RCInput::STATUS_OK && rcin->enable) {
+  if (isRunning() && _rcin->status == tobas_msgs::msg::RCInput::STATUS_OK && _rcin->enable) {
     reset();
   }
 
-  rcin_ = rcin;
+  rcin_ = _rcin;
 }
 }  // namespace sim
 }  // namespace gui

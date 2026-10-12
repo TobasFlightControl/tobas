@@ -17,15 +17,15 @@ Rate::Rate()
 {
 }
 
-Rate::Rate(const ch::microseconds& period)
+Rate::Rate(const ch::microseconds& _period)
 {
-  setInterval(period);
+  setInterval(_period);
   start();
 }
 
-Rate::Rate(double freq) : period_(static_cast<uint64_t>(1e+6 / freq))
+Rate::Rate(double _freq) : period_(static_cast<uint64_t>(1e+6 / _freq))
 {
-  assert(freq > 0.0);
+  assert(_freq > 0.0);
   start();
 }
 

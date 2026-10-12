@@ -22,13 +22,13 @@ class ADS1220
 public:
   explicit ADS1220();
 
-  bool initialize(const char* spi_device);
+  bool initialize(const char* _spi_device);
 
   /** Read the current value of the voltage channel [-1, 1] */
-  bool readVoltage(double& dst);
+  bool readVoltage(double& _dst);
 
   /** Read the current value of the current channel [-1, 1] */
-  bool readCurrent(double& dst);
+  bool readCurrent(double& _dst);
 
 private:
   /** 8.5.3: Commands */
@@ -99,8 +99,8 @@ private:
   bool reset();
   bool start();
   bool powerDown();
-  bool sendStandAloneCommand(uint8_t cmd);
-  bool configure(uint8_t rr, uint8_t tar_cfg);
+  bool sendStandAloneCommand(uint8_t _cmd);
+  bool configure(uint8_t _rr, uint8_t _tar_cfg);
 };
 }  // namespace driver
 }  // namespace tobas

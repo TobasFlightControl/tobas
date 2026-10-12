@@ -137,11 +137,11 @@ YAML::Node CustomFrameWidget::dump() const
   return node;
 }
 
-void CustomFrameWidget::load(const YAML::Node& node)
+void CustomFrameWidget::load(const YAML::Node& _node)
 {
-  acrobat_mode_->setCurrentText(node[kAcrobatLabel].as<QString>());
-  stabilize_mode_->setCurrentText(node[kStabilizeLabel].as<QString>());
-  loiter_mode_->setCurrentText(node[kLoiterLabel].as<QString>());
+  acrobat_mode_->setCurrentText(_node[kAcrobatLabel].as<QString>());
+  stabilize_mode_->setCurrentText(_node[kStabilizeLabel].as<QString>());
+  loiter_mode_->setCurrentText(_node[kLoiterLabel].as<QString>());
 }
 
 bool CustomFrameWidget::isValid()

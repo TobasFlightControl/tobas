@@ -22,16 +22,16 @@ namespace log
 namespace
 {
 /** Maps an angle to the closest equivalent value on the previous sample's continuous branch. */
-double unwrapAngle(double angle, std::optional<double>& previous_angle)
+double unwrapAngle(double _angle, std::optional<double>& _previous_angle)
 {
-  if (!std::isfinite(angle)) {
-    return angle;
+  if (!std::isfinite(_angle)) {
+    return _angle;
   }
-  if (previous_angle) {
-    angle += 360.0 * std::round((*previous_angle - angle) / 360.0);
+  if (_previous_angle) {
+    _angle += 360.0 * std::round((*_previous_angle - _angle) / 360.0);
   }
-  previous_angle = angle;
-  return angle;
+  _previous_angle = _angle;
+  return _angle;
 }
 }  // namespace
 
@@ -66,19 +66,19 @@ void PosePlotWidget::clear()
   }
 }
 
-void PosePlotWidget::setTimeScale(double t_start, double t_stop)
+void PosePlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
   for (auto& plot : plots_) {
-    plot->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+    plot->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
   }
 }
 
 void PosePlotWidget::setData(
-  const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs,
-  const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs)
+  const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& _odom_msgs,
+  const QVector<tobas_msgs::msg::OdometryStamped>& _setpoint_msgs)
 {
-  const auto ranges = updateCurrentSamples(odom_msgs);
-  const auto tar_ranges = updateTargetSamples(setpoint_msgs, ranges);
+  const auto ranges = updateCurrentSamples(_odom_msgs);
+  const auto tar_ranges = updateTargetSamples(_setpoint_msgs, ranges);
 
   constexpr double kMinPositionScale = 1.0;  // [m]
   constexpr double kMinAngleScale = 4.0;     // [deg]
@@ -93,7 +93,7 @@ void PosePlotWidget::setData(
 }
 
 PosePlotWidget::VerticalScaleRanges
-PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_msgs)
+PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& _odom_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
@@ -101,7 +101,7 @@ PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWith
   std::array<std::optional<double>, 3> previous_angles;
   double roll, pitch, yaw;  // [rad]
 
-  for (const auto& odom : odom_msgs) {
+  for (const auto& odom : _odom_msgs) {
     t_data.push_back(ros2::seconds(odom.header.stamp));
 
     const auto& pos = odom.odom.odom.frame.trans;
@@ -129,8 +129,8 @@ PosePlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg::OdometryWith
 }
 
 PosePlotWidget::VerticalScaleRanges PosePlotWidget::updateTargetSamples(
-  const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_msgs,
-  const VerticalScaleRanges& current_ranges)
+  const QVector<tobas_msgs::msg::OdometryStamped>& _setpoint_msgs,
+  const VerticalScaleRanges& _current_ranges)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
@@ -139,13 +139,13 @@ PosePlotWidget::VerticalScaleRanges PosePlotWidget::updateTargetSamples(
   double roll, pitch, yaw;  // [rad]
 
   for (size_t i = 0; i < 3; ++i) {
-    const auto& current_range = current_ranges[kRollAxis + i];
+    const auto& current_range = _current_ranges[kRollAxis + i];
     if (!current_range.empty()) {
       previous_angles[i] = current_range.center();
     }
   }
 
-  for (const auto& setpoint : setpoint_msgs) {
+  for (const auto& setpoint : _setpoint_msgs) {
     t_data.push_back(ros2::seconds(setpoint.header.stamp));
 
     const auto& pos = setpoint.odom.frame.trans;

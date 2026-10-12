@@ -13,7 +13,7 @@ namespace YAML
 template <int Rows, int Cols>  // `Rows` and `Cols` must be `int`, not `Eigen::Index`.
 struct convert<Eigen::Matrix<double, Rows, Cols>>
 {
-  static Node encode(const Eigen::Matrix<double, Rows, Cols>& rhs)
+  static Node encode(const Eigen::Matrix<double, Rows, Cols>& _rhs)
   {
     static_assert(Rows > 0);
     static_assert(Cols > 0);
@@ -22,28 +22,28 @@ struct convert<Eigen::Matrix<double, Rows, Cols>>
 
     for (int r = 0; r < Rows; ++r) {
       for (int c = 0; c < Cols; ++c) {
-        node.push_back(tobas::yaml::format(rhs(r, c)));
+        node.push_back(tobas::yaml::format(_rhs(r, c)));
       }
     }
 
     return node;
   }
 
-  static bool decode(const Node& node, Eigen::Matrix<double, Rows, Cols>& rhs)
+  static bool decode(const Node& _node, Eigen::Matrix<double, Rows, Cols>& _rhs)
   {
     static_assert(Rows > 0);
     static_assert(Cols > 0);
 
-    if (!node.IsSequence()) {
+    if (!_node.IsSequence()) {
       return false;
     }
-    if (node.size() != Rows * Cols) {
+    if (_node.size() != Rows * Cols) {
       return false;
     }
 
     for (int r = 0; r < Rows; ++r) {
       for (int c = 0; c < Cols; ++c) {
-        rhs(r, c) = node[r * Cols + c].as<double>();
+        _rhs(r, c) = _node[r * Cols + c].as<double>();
       }
     }
 
@@ -58,10 +58,10 @@ struct convert<Eigen::MatrixXd>
   static constexpr char kColsKey[] = "cols";
   static constexpr char kDataKey[] = "data";
 
-  static Node encode(const Eigen::MatrixXd& rhs)
+  static Node encode(const Eigen::MatrixXd& _rhs)
   {
-    const int rows = rhs.rows();
-    const int cols = rhs.cols();
+    const int rows = _rhs.rows();
+    const int cols = _rhs.cols();
 
     Node node(NodeType::Map);
 
@@ -71,7 +71,7 @@ struct convert<Eigen::MatrixXd>
     Node data(NodeType::Sequence);
     for (int r = 0; r < rows; ++r) {
       for (int c = 0; c < cols; ++c) {
-        data.push_back(tobas::yaml::format(rhs(r, c)));
+        data.push_back(tobas::yaml::format(_rhs(r, c)));
       }
     }
     node[kDataKey] = data;
@@ -79,28 +79,28 @@ struct convert<Eigen::MatrixXd>
     return node;
   }
 
-  static bool decode(const Node& node, Eigen::MatrixXd& rhs)
+  static bool decode(const Node& _node, Eigen::MatrixXd& _rhs)
   {
-    if (!node.IsMap()) {
+    if (!_node.IsMap()) {
       return false;
     }
 
-    if (!node[kRowsKey] || !node[kColsKey] || !node[kDataKey]) {
+    if (!_node[kRowsKey] || !_node[kColsKey] || !_node[kDataKey]) {
       return false;
     }
 
-    const auto rows = node[kRowsKey].as<int>();
-    const auto cols = node[kColsKey].as<int>();
-    const auto data = node[kDataKey];
+    const auto rows = _node[kRowsKey].as<int>();
+    const auto cols = _node[kColsKey].as<int>();
+    const auto data = _node[kDataKey];
 
     if (data.size() != rows * cols) {
       return false;
     }
 
-    rhs.conservativeResize(rows, cols);
+    _rhs.conservativeResize(rows, cols);
     for (int r = 0; r < rows; ++r) {
       for (int c = 0; c < cols; ++c) {
-        rhs(r, c) = data[r * cols + c].as<double>();
+        _rhs(r, c) = data[r * cols + c].as<double>();
       }
     }
 

@@ -24,12 +24,12 @@ class DoubleMapInputDialog : public QDialog
   using super = QDialog;
 
 public:
-  explicit DoubleMapInputDialog(QWidget* parent, const QString& title, const QStringList& field_names);
+  explicit DoubleMapInputDialog(QWidget* _parent, const QString& _title, const QStringList& _field_names);
 
-  const double& getValue(const QString& field) const;
+  const double& getValue(const QString& _field) const;
 
 private Q_SLOTS:
-  void onSpinBoxValueChanged(double value);
+  void onSpinBoxValueChanged(double _value);
 
 private:
   std::map<QString, double> field2value_;

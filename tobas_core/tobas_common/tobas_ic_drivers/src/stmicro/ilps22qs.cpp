@@ -13,9 +13,9 @@ ILPS22QS::ILPS22QS()
 {
 }
 
-bool ILPS22QS::initialize(const char* i2c_device)
+bool ILPS22QS::initialize(const char* _i2c_device)
 {
-  if (!i2c_.initialize(i2c_device, 0b1011100)) {
+  if (!i2c_.initialize(_i2c_device, 0b1011100)) {
     return false;
   }
 
@@ -30,25 +30,25 @@ bool ILPS22QS::initialize(const char* i2c_device)
   return true;
 }
 
-bool ILPS22QS::readPressure(double& pressure)
+bool ILPS22QS::readPressure(double& _pressure)
 {
   if (!i2c_.readBytes(PRESSURE_OUT_XL, 3, &pres_lsb_)) {
     return false;
   }
 
-  pressure = static_cast<double>(pres_lsb_) / pres_scale_;
+  _pressure = static_cast<double>(pres_lsb_) / pres_scale_;
 
   return true;
 }
 
-bool ILPS22QS::readTemperature(double& temperature)
+bool ILPS22QS::readTemperature(double& _temperature)
 {
   if (!i2c_.readBytes(TEMP_OUT_L, 2, &temp_lsb_)) {
     return false;
   }
 
   constexpr double kTempScale = 100.0;  // [LSB/degC]
-  temperature = static_cast<double>(temp_lsb_) / kTempScale;
+  _temperature = static_cast<double>(temp_lsb_) / kTempScale;
 
   return true;
 }
@@ -94,9 +94,9 @@ bool ILPS22QS::configure()
   return true;
 }
 
-void ILPS22QS::setPressureScale(uint8_t fs_mode)
+void ILPS22QS::setPressureScale(uint8_t _fs_mode)
 {
-  switch (fs_mode) {
+  switch (_fs_mode) {
     case FS_MODE_1260HPA:
       pres_scale_ = 40.96;
       break;

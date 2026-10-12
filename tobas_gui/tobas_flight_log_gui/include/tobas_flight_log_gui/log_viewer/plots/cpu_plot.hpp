@@ -23,9 +23,9 @@ public:
   explicit CpuPlotWidget();
 
   void clear() override;
-  void setTimeScale(double t_start, double t_stop) override;
+  void setTimeScale(double _t_start, double _t_stop) override;
 
-  void setData(const QVector<tobas_msgs::msg::Cpu>& msgs);
+  void setData(const QVector<tobas_msgs::msg::Cpu>& _msgs);
 
 private:
   QwtPlot2* freq_plot_;

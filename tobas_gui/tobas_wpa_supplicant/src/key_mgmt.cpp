@@ -18,9 +18,9 @@ constexpr char kWpaPskLabel[] = "WPA2-Personal";
 constexpr char kSaeLabel[] = "WPA3-Personal";
 }  // namespace
 
-std::string tokenFromEnum(KeyMgmt key_mgmt)
+std::string tokenFromEnum(KeyMgmt _key_mgmt)
 {
-  switch (key_mgmt) {
+  switch (_key_mgmt) {
     case KeyMgmt::NONE:
       return kNoneToken;
     case KeyMgmt::WPA_PSK:
@@ -32,18 +32,18 @@ std::string tokenFromEnum(KeyMgmt key_mgmt)
   }
 }
 
-bool enumFromToken(const std::string& token, KeyMgmt& dst)
+bool enumFromToken(const std::string& _token, KeyMgmt& _dst)
 {
-  if (token == kNoneToken) {
-    dst = KeyMgmt::NONE;
+  if (_token == kNoneToken) {
+    _dst = KeyMgmt::NONE;
     return true;
   }
-  else if (token == kWpaPskToken) {
-    dst = KeyMgmt::WPA_PSK;
+  else if (_token == kWpaPskToken) {
+    _dst = KeyMgmt::WPA_PSK;
     return true;
   }
-  else if (token == kSaeToken) {
-    dst = KeyMgmt::SAE;
+  else if (_token == kSaeToken) {
+    _dst = KeyMgmt::SAE;
     return true;
   }
   else {
@@ -51,9 +51,9 @@ bool enumFromToken(const std::string& token, KeyMgmt& dst)
   }
 }
 
-std::string labelFromEnum(KeyMgmt key_mgmt)
+std::string labelFromEnum(KeyMgmt _key_mgmt)
 {
-  switch (key_mgmt) {
+  switch (_key_mgmt) {
     case KeyMgmt::NONE:
       return kNoneLabel;
     case KeyMgmt::WPA_PSK:
@@ -65,18 +65,18 @@ std::string labelFromEnum(KeyMgmt key_mgmt)
   }
 }
 
-bool enumFromLabel(const std::string& label, KeyMgmt& dst)
+bool enumFromLabel(const std::string& _label, KeyMgmt& _dst)
 {
-  if (label == kNoneLabel) {
-    dst = KeyMgmt::NONE;
+  if (_label == kNoneLabel) {
+    _dst = KeyMgmt::NONE;
     return true;
   }
-  else if (label == kWpaPskLabel) {
-    dst = KeyMgmt::WPA_PSK;
+  else if (_label == kWpaPskLabel) {
+    _dst = KeyMgmt::WPA_PSK;
     return true;
   }
-  else if (label == kSaeLabel) {
-    dst = KeyMgmt::SAE;
+  else if (_label == kSaeLabel) {
+    _dst = KeyMgmt::SAE;
     return true;
   }
   else {

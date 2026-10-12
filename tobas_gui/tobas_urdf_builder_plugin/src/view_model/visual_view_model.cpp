@@ -13,8 +13,8 @@ namespace ub
 {
 namespace view_model
 {
-VisualViewModel::VisualViewModel(const ::urdf::VisualSharedPtr& model)
-  : BaseViewModel<::urdf::Visual, VisualViewModel>(model)
+VisualViewModel::VisualViewModel(const ::urdf::VisualSharedPtr& _model)
+  : BaseViewModel<::urdf::Visual, VisualViewModel>(_model)
   , geometry_vm_(std::make_shared<GeometryViewModel>(model_->geometry))
   , material_vm_(std::make_shared<MaterialViewModel>(model_->material))
 {
@@ -35,9 +35,9 @@ QString VisualViewModel::name() const
   return QString::fromStdString(model_->name);
 }
 
-void VisualViewModel::name(const QString& name)
+void VisualViewModel::name(const QString& _name)
 {
-  model_->name = name.toStdString();
+  model_->name = _name.toStdString();
 }
 
 const ::urdf::Pose& VisualViewModel::origin() const
@@ -45,9 +45,9 @@ const ::urdf::Pose& VisualViewModel::origin() const
   return model_->origin;
 }
 
-void VisualViewModel::origin(const ::urdf::Pose& origin)
+void VisualViewModel::origin(const ::urdf::Pose& _origin)
 {
-  model_->origin = origin;
+  model_->origin = _origin;
 }
 
 const GeometryViewModelPtr& VisualViewModel::geometry()

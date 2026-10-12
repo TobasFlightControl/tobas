@@ -24,7 +24,7 @@ class DisturbanceObserverNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit DisturbanceObserverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit DisturbanceObserverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   kdl::Tree tree_;
@@ -46,16 +46,16 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> joint_states_sub_;
   ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
 
-  void treeCb(const kdl::Tree::ConstSharedPtr& tree);
-  void droneCb(const Drone::ConstSharedPtr& drone);
-  void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states);
-  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
-  void jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& joint_states);
-  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
+  void treeCb(const kdl::Tree::ConstSharedPtr& _tree);
+  void droneCb(const Drone::ConstSharedPtr& _drone);
+  void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& _rotor_states);
+  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& _rotor_liveliness);
+  void jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _joint_states);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom);
 };
 
-DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& options)
-  : super("disturbance_observer", nodeOptions_Default(options))
+DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& _options)
+  : super("disturbance_observer", nodeOptions_Default(_options))
   , fk_solver_(tree_)
   , inertia_solver_(tree_)
   , js_converter_(tree_)
@@ -69,23 +69,23 @@ DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& opti
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
 }
 
-void DisturbanceObserverNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
+void DisturbanceObserverNode::treeCb(const kdl::Tree::ConstSharedPtr& _tree)
 {
-  tree_ = *tree;
+  tree_ = *_tree;
 
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
   js_converter_.updateInternalDataStructures();
 }
 
-void DisturbanceObserverNode::droneCb(const Drone::ConstSharedPtr& drone)
+void DisturbanceObserverNode::droneCb(const Drone::ConstSharedPtr& _drone)
 {
-  drone_ = drone;
+  drone_ = _drone;
 
   rotor_thrusts_.clear();
   js_received_ = false;
 
-  if (drone->hasServoJoint()) {
+  if (_drone->hasServoJoint()) {
     joint_states_sub_ = createSubscriber(topic::kJointStates, &self::jointStatesCb, this);
   }
   else {
@@ -93,7 +93,7 @@ void DisturbanceObserverNode::droneCb(const Drone::ConstSharedPtr& drone)
   }
 }
 
-void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states)
+void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& _rotor_states)
 {
   if (tree_.empty()) {
     return;
@@ -103,7 +103,7 @@ void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArr
     return;
   }
 
-  for (const auto& elem : rotor_states->states) {
+  for (const auto& elem : _rotor_states->states) {
     const auto thrust_it = rotor_thrusts_.find(elem.link_name);
     if (thrust_it == rotor_thrusts_.end()) {
       // Add this rotor if the link name is included in the vehicle model.
@@ -124,9 +124,9 @@ void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArr
 }
 
 void DisturbanceObserverNode::rotorLivelinessCb(
-  const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness)
+  const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& _rotor_liveliness)
 {
-  for (const auto& elem : rotor_liveliness->data) {
+  for (const auto& elem : _rotor_liveliness->data) {
     const auto thrust_it = rotor_thrusts_.find(elem.link_name);
     if (thrust_it == rotor_thrusts_.end()) {
       continue;
@@ -139,9 +139,9 @@ void DisturbanceObserverNode::rotorLivelinessCb(
   }
 }
 
-void DisturbanceObserverNode::jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& joint_states)
+void DisturbanceObserverNode::jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _joint_states)
 {
-  if (const auto result = js_converter_.convert(*joint_states); !result) {
+  if (const auto result = js_converter_.convert(*_joint_states); !result) {
     TOBAS_ERROR("Joint state converter failed: ", result.error());
     return;
   }
@@ -149,7 +149,7 @@ void DisturbanceObserverNode::jointStatesCb(const tobas_msgs::msg::JointStateArr
   js_received_ = true;
 }
 
-void DisturbanceObserverNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
+void DisturbanceObserverNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom)
 {
   if (tree_.empty()) {
     return;
@@ -196,16 +196,16 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::OdometryWithCovarianceSta
   // Calculate external force.
   // TODO: Also consider fixed-wing forces.
   // FIXME: DGyro numerical errors reduce external torque accuracy.
-  const auto& W_Rot_B = odom->odom.odom.frame.M;
-  const auto& gyro_B = odom->odom.odom.twist.rot;
-  const auto& acc_B = odom->odom.odom.accel.linear;
-  const auto& dgyro_B = odom->odom.odom.accel.angular;
+  const auto& W_Rot_B = _odom->odom.odom.frame.M;
+  const auto& gyro_B = _odom->odom.odom.twist.rot;
+  const auto& acc_B = _odom->odom.odom.accel.linear;
+  const auto& dgyro_B = _odom->odom.odom.accel.angular;
   const auto force_W = kdl::Vector(0, 0, weight) + W_Rot_B * (mass * acc_B - trans_sum);
   const auto torque_B = I_B * dgyro_B + gyro_B * (I_B * gyro_B) - rot_sum;
 
   // Create external force message.
   auto dist_force_msg = std::make_unique<tobas_kdl_msgs::WrenchStamped>();
-  dist_force_msg->header.stamp = odom->header.stamp;
+  dist_force_msg->header.stamp = _odom->header.stamp;
   dist_force_msg->wrench.force = force_W;
   dist_force_msg->wrench.torque = torque_B;
 

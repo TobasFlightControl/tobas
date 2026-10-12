@@ -16,17 +16,17 @@ template <typename T>
 class Buffer
 {
 public:
-  explicit Buffer(size_t max_size = 1);
+  explicit Buffer(size_t _max_size = 1);
 
-  void resize(size_t max_size);
-  void add(T item);
-  void fill(T item);
+  void resize(size_t _max_size);
+  void add(T _item);
+  void fill(T _item);
 
   inline size_t size() const;
   inline size_t maxSize() const;
   inline bool isFull() const;
   inline bool isEmpty() const;
-  inline const T& get(size_t idx) const;
+  inline const T& get(size_t _idx) const;
   inline const T& getLatest() const;
   inline const T& getOldest() const;
 
@@ -37,33 +37,33 @@ private:
 };
 
 template <typename T>
-Buffer<T>::Buffer(size_t max_size)
+Buffer<T>::Buffer(size_t _max_size)
 {
-  resize(max_size);
+  resize(_max_size);
 }
 
 template <typename T>
-void Buffer<T>::resize(size_t max_size)
+void Buffer<T>::resize(size_t _max_size)
 {
-  assert(max_size > 0);
+  assert(_max_size > 0);
 
-  max_size_ = max_size;
+  max_size_ = _max_size;
   cur_ = 0;
-  data_.resize(max_size);
+  data_.resize(_max_size);
 }
 
 template <typename T>
-void Buffer<T>::add(T item)
+void Buffer<T>::add(T _item)
 {
-  data_[cur_ % max_size_] = item;
+  data_[cur_ % max_size_] = _item;
   ++cur_;
 }
 
 template <typename T>
-void Buffer<T>::fill(T item)
+void Buffer<T>::fill(T _item)
 {
   for (int i = 0; i < max_size_; ++i) {
-    data_[i] = item;
+    data_[i] = _item;
   }
   cur_ = max_size_;
 }
@@ -93,10 +93,10 @@ inline bool Buffer<T>::isEmpty() const
 }
 
 template <typename T>
-inline const T& Buffer<T>::get(size_t idx) const
+inline const T& Buffer<T>::get(size_t _idx) const
 {
-  assert(idx < std::min(max_size_, cur_));
-  return data_[idx];
+  assert(_idx < std::min(max_size_, cur_));
+  return data_[_idx];
 }
 
 template <typename T>

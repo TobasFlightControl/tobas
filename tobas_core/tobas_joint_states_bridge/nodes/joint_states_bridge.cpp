@@ -17,28 +17,28 @@ class JointStatesBridgeNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit JointStatesBridgeNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit JointStatesBridgeNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   ros2::PublisherPtr<sensor_msgs::msg::JointState> js_pub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
 
-  void jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js_in);
+  void jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _js_in);
 };
 
-JointStatesBridgeNode::JointStatesBridgeNode(const rclcpp::NodeOptions& options)
-  : super("joint_states_bridge", nodeOptions_Default(options))
+JointStatesBridgeNode::JointStatesBridgeNode(const rclcpp::NodeOptions& _options)
+  : super("joint_states_bridge", nodeOptions_Default(_options))
 {
   js_pub_ = createPublisher<sensor_msgs::msg::JointState>("joint_states");
   js_sub_ = createSubscriber<tobas_msgs::msg::JointStateArray>(topic::kJointStates, &self::jointStatesCb, this);
 }
 
-void JointStatesBridgeNode::jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js_in)
+void JointStatesBridgeNode::jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _js_in)
 {
   auto js_out = std::make_unique<sensor_msgs::msg::JointState>();
-  js_out->header = js_in->header;
+  js_out->header = _js_in->header;
 
-  for (const auto& state : js_in->states) {
+  for (const auto& state : _js_in->states) {
     js_out->name.push_back(state.name);
     js_out->position.push_back(state.position);
     js_out->velocity.push_back(state.velocity);

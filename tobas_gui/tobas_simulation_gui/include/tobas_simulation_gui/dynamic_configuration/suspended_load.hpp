@@ -32,7 +32,7 @@ public:
   explicit SuspendedLoadWidget();
 
   void reset();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:

@@ -16,10 +16,10 @@ namespace gui
 {
 namespace sc
 {
-AccelCalibrationThread::AccelCalibrationThread(const rqt::RosQtBridge& bridge)
+AccelCalibrationThread::AccelCalibrationThread(const rqt::RosQtBridge& _bridge)
 {
-  connect(&bridge, &rqt::RosQtBridge::rawImuReceived, this, &self::imuCb, Qt::QueuedConnection);
-  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::rawImuReceived, this, &self::imuCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 AccelCalibrationThread::~AccelCalibrationThread()
@@ -125,10 +125,10 @@ void AccelCalibrationThread::reset()
   }
 }
 
-void AccelCalibrationThread::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void AccelCalibrationThread::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  node_ = std::move(node);
-  set_params_sc_.emplace(node_, path::join(ns, kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
+  node_ = std::move(_node);
+  set_params_sc_.emplace(node_, path::join(_ns, kRemoteIfaceNS, real::handler::imu::kSetParamSrv));
 }
 
 void AccelCalibrationThread::clearRosInterfaces()
@@ -137,9 +137,9 @@ void AccelCalibrationThread::clearRosInterfaces()
   set_params_sc_.reset();
 }
 
-void AccelCalibrationThread::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw)
+void AccelCalibrationThread::imuCb(const tobas_msgs::Imu::ConstSharedPtr& _imu_raw)
 {
-  imu_raw_ = imu_raw;
+  imu_raw_ = _imu_raw;
 
   if (!get_data_) {
     return;
@@ -147,13 +147,13 @@ void AccelCalibrationThread::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_ra
 
   ++cnt_;
   for (size_t i = 0; i < 3; ++i) {
-    acc_sum_.at(i).add(imu_raw->accel(i));
+    acc_sum_.at(i).add(_imu_raw->accel(i));
   }
 }
 
-void AccelCalibrationThread::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void AccelCalibrationThread::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming)
 {
-  arming_ = arming;
+  arming_ = _arming;
 }
 }  // namespace sc
 }  // namespace gui

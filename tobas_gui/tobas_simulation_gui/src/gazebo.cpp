@@ -27,7 +27,7 @@ class WaitUntilGazeboServerReadyThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(bool success);
+  void finished(bool _success);
 
 public:
   void run() override
@@ -44,7 +44,7 @@ class WaitUntilGazeboRenderingReadyThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(bool success);
+  void finished(bool _success);
 
 public:
   void run() override

@@ -22,7 +22,7 @@ public:
   Vector angular;  ///< [rad/s^2]
 
   inline explicit Accel();
-  inline explicit Accel(const Vector& linear, const Vector& angular);
+  inline explicit Accel(const Vector& _linear, const Vector& _angular);
 
   static inline Accel Zero();
 
@@ -31,17 +31,17 @@ public:
 
   inline Eigen::Vector6d ravel() const;
 
-  inline Accel& operator+=(const Accel& arg);
-  inline Accel& operator-=(const Accel& arg);
+  inline Accel& operator+=(const Accel& _arg);
+  inline Accel& operator-=(const Accel& _arg);
 
-  inline friend Accel operator-(const Accel& arg);
-  inline friend Accel operator*(const Accel& lhs, double rhs);
-  inline friend Accel operator*(double lhs, const Accel& rhs);
-  inline friend Accel operator/(const Accel& lhs, double rhs);
-  inline friend Accel operator+(const Accel& lhs, const Accel& rhs);
-  inline friend Accel operator-(const Accel& lhs, const Accel& rhs);
+  inline friend Accel operator-(const Accel& _arg);
+  inline friend Accel operator*(const Accel& _lhs, double _rhs);
+  inline friend Accel operator*(double _lhs, const Accel& _rhs);
+  inline friend Accel operator/(const Accel& _lhs, double _rhs);
+  inline friend Accel operator+(const Accel& _lhs, const Accel& _rhs);
+  inline friend Accel operator-(const Accel& _lhs, const Accel& _rhs);
 
-  inline friend std::ostream& operator<<(std::ostream& os, const Accel& arg);
+  inline friend std::ostream& operator<<(std::ostream& _os, const Accel& _arg);
 };
 
 inline Accel::Accel()
@@ -74,54 +74,54 @@ inline Eigen::Vector6d Accel::ravel() const
   return (Eigen::Vector6d() << linear.data, angular.data).finished();
 }
 
-inline Accel& Accel::operator+=(const Accel& arg)
+inline Accel& Accel::operator+=(const Accel& _arg)
 {
-  linear += arg.linear;
-  angular += arg.angular;
+  linear += _arg.linear;
+  angular += _arg.angular;
   return *this;
 }
 
-inline Accel& Accel::operator-=(const Accel& arg)
+inline Accel& Accel::operator-=(const Accel& _arg)
 {
-  linear -= arg.linear;
-  angular -= arg.angular;
+  linear -= _arg.linear;
+  angular -= _arg.angular;
   return *this;
 }
 
-inline Accel operator-(const Accel& arg)
+inline Accel operator-(const Accel& _arg)
 {
-  return Accel(-arg.linear, -arg.angular);
+  return Accel(-_arg.linear, -_arg.angular);
 }
 
-inline Accel operator*(const Accel& lhs, double rhs)
+inline Accel operator*(const Accel& _lhs, double _rhs)
 {
-  return Accel(lhs.linear * rhs, lhs.angular * rhs);
+  return Accel(_lhs.linear * _rhs, _lhs.angular * _rhs);
 }
 
-inline Accel operator*(double lhs, const Accel& rhs)
+inline Accel operator*(double _lhs, const Accel& _rhs)
 {
-  return Accel(lhs * rhs.linear, lhs * rhs.angular);
+  return Accel(_lhs * _rhs.linear, _lhs * _rhs.angular);
 }
 
-inline Accel operator/(const Accel& lhs, double rhs)
+inline Accel operator/(const Accel& _lhs, double _rhs)
 {
-  return Accel(lhs.linear / rhs, lhs.angular / rhs);
+  return Accel(_lhs.linear / _rhs, _lhs.angular / _rhs);
 }
 
-inline Accel operator+(const Accel& lhs, const Accel& rhs)
+inline Accel operator+(const Accel& _lhs, const Accel& _rhs)
 {
-  return Accel(lhs.linear + rhs.linear, lhs.angular + rhs.angular);
+  return Accel(_lhs.linear + _rhs.linear, _lhs.angular + _rhs.angular);
 }
 
-inline Accel operator-(const Accel& lhs, const Accel& rhs)
+inline Accel operator-(const Accel& _lhs, const Accel& _rhs)
 {
-  return Accel(lhs.linear - rhs.linear, lhs.angular - rhs.angular);
+  return Accel(_lhs.linear - _rhs.linear, _lhs.angular - _rhs.angular);
 }
 
-inline std::ostream& operator<<(std::ostream& os, const Accel& arg)
+inline std::ostream& operator<<(std::ostream& _os, const Accel& _arg)
 {
-  os << "Linear: " << arg.linear << ", Angular: " << arg.angular;
-  return os;
+  _os << "Linear: " << _arg.linear << ", Angular: " << _arg.angular;
+  return _os;
 }
 }  // namespace kdl
 }  // namespace tobas

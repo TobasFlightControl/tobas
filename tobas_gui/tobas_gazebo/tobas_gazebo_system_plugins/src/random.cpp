@@ -8,18 +8,18 @@ namespace tobas
 namespace gazebo
 {
 NormalDistribution3d::NormalDistribution3d(
-  std::random_device& rnd_dev,
-  const gz::math::Vector3d& mean,
-  const gz::math::Vector3d& stddev)
-  : rnd_gen_(rnd_dev())
+  std::random_device& _rnd_dev,
+  const gz::math::Vector3d& _mean,
+  const gz::math::Vector3d& _stddev)
+  : rnd_gen_(_rnd_dev())
 {
   for (size_t i = 0; i < 3; ++i) {
-    noise_[i] = NormalDistribution(mean[i], stddev[i]);
+    noise_[i] = NormalDistribution(_mean[i], _stddev[i]);
   }
 }
 
-NormalDistribution3d::NormalDistribution3d(std::random_device& rnd_dev, double mean, double stddev)
-  : NormalDistribution3d(rnd_dev, mean * gz::math::Vector3d::One, stddev * gz::math::Vector3d::One)
+NormalDistribution3d::NormalDistribution3d(std::random_device& _rnd_dev, double _mean, double _stddev)
+  : NormalDistribution3d(_rnd_dev, _mean * gz::math::Vector3d::One, _stddev * gz::math::Vector3d::One)
 {
 }
 
@@ -32,18 +32,18 @@ gz::math::Vector3d NormalDistribution3d::get()
 }
 
 UniformDistribution3d::UniformDistribution3d(
-  std::random_device& rnd_dev,
-  const gz::math::Vector3d& lb,
-  const gz::math::Vector3d& ub)
-  : rnd_gen_(rnd_dev())
+  std::random_device& _rnd_dev,
+  const gz::math::Vector3d& _lb,
+  const gz::math::Vector3d& _ub)
+  : rnd_gen_(_rnd_dev())
 {
   for (size_t i = 0; i < 3; ++i) {
-    noise_[i] = UniformDistribution(lb[i], ub[i]);
+    noise_[i] = UniformDistribution(_lb[i], _ub[i]);
   }
 }
 
-UniformDistribution3d::UniformDistribution3d(std::random_device& rnd_dev, double lb, double ub)
-  : UniformDistribution3d(rnd_dev, lb * gz::math::Vector3d::One, ub * gz::math::Vector3d::One)
+UniformDistribution3d::UniformDistribution3d(std::random_device& _rnd_dev, double _lb, double _ub)
+  : UniformDistribution3d(_rnd_dev, _lb * gz::math::Vector3d::One, _ub * gz::math::Vector3d::One)
 {
 }
 
@@ -55,12 +55,12 @@ gz::math::Vector3d UniformDistribution3d::get()
   return values_;
 }
 
-gz::math::Vector3d createUnitSpherePoint(std::random_device& rnd_dev)
+gz::math::Vector3d createUnitSpherePoint(std::random_device& _rnd_dev)
 {
   UniformDistribution angle_dist(-M_PI, M_PI);
 
-  const auto phi = angle_dist(rnd_dev);
-  const auto theta = angle_dist(rnd_dev);
+  const auto phi = angle_dist(_rnd_dev);
+  const auto theta = angle_dist(_rnd_dev);
 
   return gz::math::Vector3d(std::sin(phi) * std::cos(theta), std::sin(phi) * std::sin(theta), std::cos(phi));
 }

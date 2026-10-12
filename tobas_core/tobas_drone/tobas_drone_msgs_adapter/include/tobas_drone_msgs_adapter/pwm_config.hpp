@@ -16,24 +16,24 @@ struct rclcpp::TypeAdapter<tobas::PwmConfig, tobas_drone_msgs::msg::PwmConfig>
   using custom_type = tobas::PwmConfig;
   using ros_message_type = tobas_drone_msgs::msg::PwmConfig;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.channel = src.channel;
-    dst.name = src.name;
-    dst.min_period = src.period_range.first;
-    dst.max_period = src.period_range.second;
-    dst.min_value = src.value_range.first;
-    dst.max_value = src.value_range.second;
+    _dst.channel = _src.channel;
+    _dst.name = _src.name;
+    _dst.min_period = _src.period_range.first;
+    _dst.max_period = _src.period_range.second;
+    _dst.min_value = _src.value_range.first;
+    _dst.max_value = _src.value_range.second;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.channel = src.channel;
-    dst.name = src.name;
-    dst.period_range.first = src.min_period;
-    dst.period_range.second = src.max_period;
-    dst.value_range.first = src.min_value;
-    dst.value_range.second = src.max_value;
+    _dst.channel = _src.channel;
+    _dst.name = _src.name;
+    _dst.period_range.first = _src.min_period;
+    _dst.period_range.second = _src.max_period;
+    _dst.value_range.first = _src.min_value;
+    _dst.value_range.second = _src.max_value;
   }
 };
 

@@ -8,14 +8,14 @@
 
 using namespace std;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
-  if (argc != 3) {
-    cerr << "Usage: " << argv[0] << " <Channel> <Period>" << endl;
+  if (_argc != 3) {
+    cerr << "Usage: " << _argv[0] << " <Channel> <Period>" << endl;
     return EXIT_FAILURE;
   }
-  const size_t channel = stoul(argv[1]);
-  const uint16_t period = stoi(argv[2]);
+  const size_t channel = stoul(_argv[1]);
+  const uint16_t period = stoi(_argv[2]);
 
   tobas::fc2xx::PwmBattImu driver;
 

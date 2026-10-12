@@ -34,120 +34,121 @@ bool AccelRateController::requireHeading()
   return false;
 }
 
-void AccelRateController::initialize(BaseNode* node, FlightMode mode)
+void AccelRateController::initialize(BaseNode* _node, FlightMode _mode)
 {
-  node->addDynamicDoubleParam(
-    addMode("max_horizontal_accel", mode), &self::maxHorizontalAccelCb, this, 0.5, 10, 1, 20, " m/s^2");
-  node->addDynamicDoubleParam(
-    addMode("max_vertical_accel", mode), &self::maxVerticalAccelCb, this, 0.5, 16, 1, 20, " m/s^2");
-  node->addDynamicDoubleParam(
-    addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 45.0, 8, 1, 16, " dps");
-  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 45.0, 8, 1, 16, " dps");
-  node->addDynamicDoubleParam(
-    addMode("horizontal_accel_expo", mode), &self::horizontalAccelExpoCb, this, 5.0, -6, -20, 20);
-  node->addDynamicDoubleParam(addMode("vertical_accel_expo", mode), &self::verticalAccelExpoCb, this, 5.0, 0, -20, 20);
-  node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5.0, 0, -20, 20);
-  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
+  _node->addDynamicDoubleParam(
+    addMode("max_horizontal_accel", _mode), &self::maxHorizontalAccelCb, this, 0.5, 10, 1, 20, " m/s^2");
+  _node->addDynamicDoubleParam(
+    addMode("max_vertical_accel", _mode), &self::maxVerticalAccelCb, this, 0.5, 16, 1, 20, " m/s^2");
+  _node->addDynamicDoubleParam(
+    addMode("max_attitude_rate", _mode), &self::maxAttitudeRateCb, this, 45.0, 8, 1, 16, " dps");
+  _node->addDynamicDoubleParam(
+    addMode("max_heading_rate", _mode), &self::maxHeadingRateCb, this, 45.0, 8, 1, 16, " dps");
+  _node->addDynamicDoubleParam(
+    addMode("horizontal_accel_expo", _mode), &self::horizontalAccelExpoCb, this, 5.0, -6, -20, 20);
+  _node->addDynamicDoubleParam(addMode("vertical_accel_expo", _mode), &self::verticalAccelExpoCb, this, 5.0, 0, -20, 20);
+  _node->addDynamicDoubleParam(addMode("attitude_expo", _mode), &self::attitudeExpoCb, this, 5.0, 0, -20, 20);
+  _node->addDynamicDoubleParam(addMode("heading_expo", _mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
 
-  accel_pub_ = node->createPublisher<tobas_command_msgs::Accel>(topic::kAccelCmd);
-  rate_pub_ = node->createPublisher<tobas_command_msgs::Rate>(topic::kRateCmd);
+  accel_pub_ = _node->createPublisher<tobas_command_msgs::Accel>(topic::kAccelCmd);
+  rate_pub_ = _node->createPublisher<tobas_command_msgs::Rate>(topic::kRateCmd);
 }
 
 void AccelRateController::reset(const builtin_interfaces::msg::Time&, const tobas_msgs::Odometry&, bool)
 {
 }
 
-void AccelRateController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& setpoint, bool)
+void AccelRateController::update(const tobas_msgs::RCInput& _rcin, const tobas_msgs::Odometry& _setpoint, bool)
 {
   // Horizontal acceleration & Attitude rate
-  if (rcin.sub_mode)  // Translation mode
+  if (_rcin.sub_mode)  // Translation mode
   {
-    tar_acc_G_.x(expoRemap(rcin.pitch, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
-    tar_acc_G_.y(-expoRemap(rcin.roll, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
+    tar_acc_G_.x(expoRemap(_rcin.pitch, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
+    tar_acc_G_.y(-expoRemap(_rcin.roll, hor_acc_expo_, -max_hor_acc_, max_hor_acc_));
     tar_gyro_B_.x(0.0);
     tar_gyro_B_.y(0.0);
   }
   else  // Rotation mode
   {
-    tar_gyro_B_.x(expoRemap(rcin.roll, atti_expo_, -max_atti_rate_, max_atti_rate_));
-    tar_gyro_B_.y(expoRemap(rcin.pitch, atti_expo_, -max_atti_rate_, max_atti_rate_));
+    tar_gyro_B_.x(expoRemap(_rcin.roll, atti_expo_, -max_atti_rate_, max_atti_rate_));
+    tar_gyro_B_.y(expoRemap(_rcin.pitch, atti_expo_, -max_atti_rate_, max_atti_rate_));
     tar_acc_G_.x(0.0);
     tar_acc_G_.y(0.0);
   }
 
   // Vertical acceleration
-  tar_acc_G_.z(expoRemap(rcin.throttle, ver_acc_expo_, -max_ver_acc_, max_ver_acc_));
+  tar_acc_G_.z(expoRemap(_rcin.throttle, ver_acc_expo_, -max_ver_acc_, max_ver_acc_));
 
   // Heading rate
-  tar_gyro_B_.z(expoRemap(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_));
+  tar_gyro_B_.z(expoRemap(_rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_));
 
   // Compute the acceleration wrt. the world frame.
-  const auto cur_yaw = setpoint.frame.M.getYaw();
+  const auto cur_yaw = _setpoint.frame.M.getYaw();
   const auto tar_acc_W = kdl::Rotation::RotZ(cur_yaw) * tar_acc_G_;
 
   // Publish commands.
-  publishAccel(rcin.header.stamp, tar_acc_W);
-  publishRate(rcin.header.stamp, tar_gyro_B_);
+  publishAccel(_rcin.header.stamp, tar_acc_W);
+  publishRate(_rcin.header.stamp, tar_gyro_B_);
 }
 
-void AccelRateController::publishAccel(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& acc)
+void AccelRateController::publishAccel(const builtin_interfaces::msg::Time& _stamp, const kdl::Vector& _acc)
 {
   auto cmd = std::make_unique<tobas_command_msgs::Accel>();
-  cmd->header.stamp = stamp;
+  cmd->header.stamp = _stamp;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
-  cmd->accel = acc;
+  cmd->accel = _acc;
 
   accel_pub_->publish(std::move(cmd));
 }
 
-void AccelRateController::publishRate(const builtin_interfaces::msg::Time& stamp, const kdl::Vector& rate)
+void AccelRateController::publishRate(const builtin_interfaces::msg::Time& _stamp, const kdl::Vector& _rate)
 {
   auto cmd = std::make_unique<tobas_command_msgs::Rate>();
-  cmd->header.stamp = stamp;
+  cmd->header.stamp = _stamp;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
-  cmd->rate = rate;
+  cmd->rate = _rate;
 
   rate_pub_->publish(std::move(cmd));
 }
 
-void AccelRateController::maxHorizontalAccelCb(double p)
+void AccelRateController::maxHorizontalAccelCb(double _p)
 {
-  max_hor_acc_ = p;
+  max_hor_acc_ = _p;
 }
 
-void AccelRateController::maxVerticalAccelCb(double p)
+void AccelRateController::maxVerticalAccelCb(double _p)
 {
-  max_ver_acc_ = p;
+  max_ver_acc_ = _p;
 }
 
-void AccelRateController::maxAttitudeRateCb(double p)
+void AccelRateController::maxAttitudeRateCb(double _p)
 {
-  max_atti_rate_ = st::deg2rad(p);
+  max_atti_rate_ = st::deg2rad(_p);
 }
 
-void AccelRateController::maxHeadingRateCb(double p)
+void AccelRateController::maxHeadingRateCb(double _p)
 {
-  max_head_rate_ = st::deg2rad(p);
+  max_head_rate_ = st::deg2rad(_p);
 }
 
-void AccelRateController::horizontalAccelExpoCb(double p)
+void AccelRateController::horizontalAccelExpoCb(double _p)
 {
-  hor_acc_expo_ = p / kExpoScale;
+  hor_acc_expo_ = _p / kExpoScale;
 }
 
-void AccelRateController::verticalAccelExpoCb(double p)
+void AccelRateController::verticalAccelExpoCb(double _p)
 {
-  ver_acc_expo_ = p / kExpoScale;
+  ver_acc_expo_ = _p / kExpoScale;
 }
 
-void AccelRateController::attitudeExpoCb(double p)
+void AccelRateController::attitudeExpoCb(double _p)
 {
-  atti_expo_ = p / kExpoScale;
+  atti_expo_ = _p / kExpoScale;
 }
 
-void AccelRateController::headingExpoCb(double p)
+void AccelRateController::headingExpoCb(double _p)
 {
-  head_expo_ = p / kExpoScale;
+  head_expo_ = _p / kExpoScale;
 }
 }  // namespace rc
 }  // namespace tobas

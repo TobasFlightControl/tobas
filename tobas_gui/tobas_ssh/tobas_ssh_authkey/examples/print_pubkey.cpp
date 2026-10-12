@@ -9,14 +9,14 @@
 #include <tobas_string_tools/core.hpp>
 #include <tobas_string_tools/stream.hpp>
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
-  if (argc != 2) {
-    std::cerr << "Usage: " << argv[0] << " <Path>" << std::endl;
+  if (_argc != 2) {
+    std::cerr << "Usage: " << _argv[0] << " <Path>" << std::endl;
     return EXIT_FAILURE;
   }
 
-  const auto path = argv[1];
+  const auto path = _argv[1];
 
   std::string raw_text;
   if (!tobas::str::readText(path, raw_text)) {

@@ -18,17 +18,17 @@ class RDFLoader
 
 public:
   explicit RDFLoader(
-    const rclcpp::Node::SharedPtr& node,
-    const std::string& ros_name = "robot_description",
-    bool default_continuous_value = false,
-    double default_timeout = 10.0);
+    const rclcpp::Node::SharedPtr& _node,
+    const std::string& _ros_name = "robot_description",
+    bool _default_continuous_value = false,
+    double _default_timeout = 10.0);
 
   const urdf::ModelInterfaceSharedPtr& getURDF() const;
-  void setNewModelCallback(const NewModelCallback& cb);
+  void setNewModelCallback(const NewModelCallback& _cb);
 
 private:
   bool loadFromStrings();
-  void urdfUpdateCallback(const std::string& new_urdf_string);
+  void urdfUpdateCallback(const std::string& _new_urdf_string);
 
   std::string ros_name_;
   std::string urdf_string_;

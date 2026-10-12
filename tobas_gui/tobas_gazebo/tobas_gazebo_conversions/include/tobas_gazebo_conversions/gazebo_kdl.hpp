@@ -16,16 +16,16 @@ namespace tobas
 {
 namespace gazebo
 {
-void vectorGazeboToKDL(const gz::math::Vector3d& g, kdl::Vector& k);
-void vectorKDLToGazebo(const kdl::Vector& k, gz::math::Vector3d& g);
+void vectorGazeboToKDL(const gz::math::Vector3d& _g, kdl::Vector& _k);
+void vectorKDLToGazebo(const kdl::Vector& _k, gz::math::Vector3d& _g);
 
-void rotationGazeboToKDL(const gz::math::Quaterniond& g, kdl::Rotation& k);
-void rotationKDLToGazebo(const kdl::Rotation& k, gz::math::Quaterniond& g);
+void rotationGazeboToKDL(const gz::math::Quaterniond& _g, kdl::Rotation& _k);
+void rotationKDLToGazebo(const kdl::Rotation& _k, gz::math::Quaterniond& _g);
 
-void quaternionGazeboToKDL(const gz::math::Quaterniond& g, kdl::Quaternion& k);
-void quaternionKDLToGazebo(const kdl::Quaternion& k, gz::math::Quaterniond& g);
+void quaternionGazeboToKDL(const gz::math::Quaterniond& _g, kdl::Quaternion& _k);
+void quaternionKDLToGazebo(const kdl::Quaternion& _k, gz::math::Quaterniond& _g);
 
-void poseGazeboToKDL(const gz::math::Pose3d& g, kdl::Frame& k);
-void poseKDLToGazebo(const kdl::Frame& k, gz::math::Pose3d& g);
+void poseGazeboToKDL(const gz::math::Pose3d& _g, kdl::Frame& _k);
+void poseKDLToGazebo(const kdl::Frame& _k, gz::math::Pose3d& _g);
 }  // namespace gazebo
 }  // namespace tobas

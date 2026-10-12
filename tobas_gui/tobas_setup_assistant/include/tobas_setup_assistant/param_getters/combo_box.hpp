@@ -21,23 +21,23 @@ class ParamGetterWidget_ComboBox : public ParamGetterWidget<QString>
   using super = ParamGetterWidget<QString>;
 
 Q_SIGNALS:
-  void indexChanged(int index);
-  void textChanged(const QString& text);
+  void indexChanged(int _index);
+  void textChanged(const QString& _text);
 
 public:
-  explicit ParamGetterWidget_ComboBox(const QString& param_name, const QString& description_text = "");
+  explicit ParamGetterWidget_ComboBox(const QString& _param_name, const QString& _description_text = "");
 
   QString getValue() const override;
-  bool setValue(const QString& src) override;
+  bool setValue(const QString& _src) override;
 
   int currentIndex() const;
-  void addChoice(const QString& item);
-  void addChoices(const QStringList& items);
-  void setChoices(const QStringList& items);
+  void addChoice(const QString& _item);
+  void addChoices(const QStringList& _items);
+  void setChoices(const QStringList& _items);
 
 private Q_SLOTS:
-  void onIndexChanged(int index);
-  void onTextChanged(const QString& text);
+  void onIndexChanged(int _index);
+  void onTextChanged(const QString& _text);
 
 private:
   qt::ComboBox* box_;

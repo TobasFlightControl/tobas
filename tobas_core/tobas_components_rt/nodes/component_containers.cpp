@@ -10,12 +10,12 @@
 
 #include <rclcpp/utilities.hpp>
 
-int main(int argc, char* argv[])
+int main(int _argc, char* _argv[])
 {
   constexpr size_t kNumManagers = 3;
 
   // Initialize ROS nodes.
-  rclcpp::init(argc, argv);
+  rclcpp::init(_argc, _argv);
 
   // Exit immediately on Ctrl+C.
   signal(SIGINT, [](int) { rclcpp::shutdown(); });

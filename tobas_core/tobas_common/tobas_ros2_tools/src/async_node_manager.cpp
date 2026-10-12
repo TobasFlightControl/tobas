@@ -12,18 +12,18 @@ namespace tobas
 {
 namespace ros2
 {
-AsyncNodeManager::AsyncNodeManager(int argc, char** argv, const std::string& node_name)
+AsyncNodeManager::AsyncNodeManager(int _argc, char** _argv, const std::string& _node_name)
 {
   if (!rclcpp::ok()) {
-    rclcpp::init(argc, argv);
+    rclcpp::init(_argc, _argv);
   }
 
-  initialize(rclcpp::contexts::get_global_default_context(), node_name);
+  initialize(rclcpp::contexts::get_global_default_context(), _node_name);
 }
 
-AsyncNodeManager::AsyncNodeManager(rclcpp::Context::SharedPtr context, const std::string& node_name)
+AsyncNodeManager::AsyncNodeManager(rclcpp::Context::SharedPtr _context, const std::string& _node_name)
 {
-  initialize(context, node_name);
+  initialize(_context, _node_name);
 }
 
 AsyncNodeManager::~AsyncNodeManager()
@@ -51,13 +51,13 @@ void AsyncNodeManager::shutdown()
   executor_thread_.reset();
 }
 
-void AsyncNodeManager::initialize(rclcpp::Context::SharedPtr context, const std::string& node_name)
+void AsyncNodeManager::initialize(rclcpp::Context::SharedPtr _context, const std::string& _node_name)
 {
-  context_ = std::move(context);
+  context_ = std::move(_context);
 
   rclcpp::NodeOptions node_options;
   node_options.context(context_);
-  node_ = rclcpp::Node::make_shared(node_name, node_options);
+  node_ = rclcpp::Node::make_shared(_node_name, node_options);
 
   rclcpp::ExecutorOptions executor_options;
   executor_options.context = context_;

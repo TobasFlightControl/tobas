@@ -25,15 +25,15 @@ class AerodynamicsWidget : public BaseSelectedLinkSettingWidget
   Q_OBJECT
 
 public:
-  explicit AerodynamicsWidget(const PropellerWidget* propeller);
+  explicit AerodynamicsWidget(const PropellerWidget* _propeller);
 
   void setToDefaults() override;
   const char* name() const override;
   bool isValid() override;
-  void copyFrom(const BaseSelectedLinkSettingWidget* src) override;
+  void copyFrom(const BaseSelectedLinkSettingWidget* _src) override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   /** [kg*m/rad^2] */
   double motorConst() const;

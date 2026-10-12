@@ -25,12 +25,12 @@ class AccelCalibrationWidget : public BaseWidget
   using self = AccelCalibrationWidget;
 
 public:
-  explicit AccelCalibrationWidget(const rqt::RosQtBridge& bridge);
+  explicit AccelCalibrationWidget(const rqt::RosQtBridge& _bridge);
 
   const char* title() const override;
   void reset() override;
   void updateInternalDataStructures() override;
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) override;
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns) override;
   void clearRosInterfaces() override;
 
 private:
@@ -46,9 +46,9 @@ private:
 private Q_SLOTS:
   void onStartButtonClicked();
 
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void rawImuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw);
-  void calibratedImuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_calib);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
+  void rawImuCb(const tobas_msgs::Imu::ConstSharedPtr& _imu_raw);
+  void calibratedImuCb(const tobas_msgs::Imu::ConstSharedPtr& _imu_calib);
 };
 }  // namespace sc
 }  // namespace gui

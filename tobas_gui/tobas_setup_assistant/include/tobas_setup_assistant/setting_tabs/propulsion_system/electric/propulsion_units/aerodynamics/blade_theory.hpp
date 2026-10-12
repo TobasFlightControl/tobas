@@ -20,11 +20,11 @@ class BladeTheory
 {
 public:
   explicit BladeTheory(
-    int num_blades,
-    double radius,
-    double blade_chord,
-    double pitch_angle,
-    double air_density = st::kStandardAirDensity);
+    int _num_blades,
+    double _radius,
+    double _blade_chord,
+    double _pitch_angle,
+    double _air_density = st::kStandardAirDensity);
 
   double motorConst() const;
   double momentConst() const;

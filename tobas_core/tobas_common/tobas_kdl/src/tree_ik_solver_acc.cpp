@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace kdl
 {
-TreeIkSolverAcc::TreeIkSolverAcc(const Tree& tree) : super(tree), jnt2jac_(tree_), jnt2jdqd_(tree_), jntparser_(tree_)
+TreeIkSolverAcc::TreeIkSolverAcc(const Tree& _tree) : super(_tree), jnt2jac_(tree_), jnt2jdqd_(tree_), jntparser_(tree_)
 {
   resize();
 }
@@ -27,24 +27,24 @@ void TreeIkSolverAcc::updateInternalDataStructures()
 }
 
 std::expected<JntArray, std::string>
-TreeIkSolverAcc::cartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in)
+TreeIkSolverAcc::cartToJnt(const JntArray& _q_in, const JntArray& _qd_in, const AccelMap& _acc_in)
 {
-  assert(q_in.size() == tree_.getNrOfJoints());
-  assert(qd_in.size() == tree_.getNrOfJoints());
+  assert(_q_in.size() == tree_.getNrOfJoints());
+  assert(_qd_in.size() == tree_.getNrOfJoints());
 
-  const auto num_points = acc_in.size();
+  const auto num_points = _acc_in.size();
   const auto eq_dim = 6 * num_points;
 
   // Update Jdqd.
-  const auto& jdqd = jnt2jdqd_.jntToCart(q_in, qd_in);
+  const auto& jdqd = jnt2jdqd_.jntToCart(_q_in, _qd_in);
 
   // Create big jacobian and acceleration.
   J_.conservativeResize(eq_dim, tree_.getNrOfJoints());
   a_.conservativeResize(eq_dim);
   size_t i = 0;
-  for (const auto& [seg_name, accel] : acc_in) {
+  for (const auto& [seg_name, accel] : _acc_in) {
     // Update big jacobian.
-    const auto& jacob = jnt2jac_.jntToJac(q_in, seg_name);
+    const auto& jacob = jnt2jac_.jntToJac(_q_in, seg_name);
     J_.block(6 * i, 0, 6, tree_.getNrOfJoints()) = jacob.data;
 
     // Update big acceleration.
@@ -69,10 +69,10 @@ TreeIkSolverAcc::cartToJnt(const JntArray& q_in, const JntArray& qd_in, const Ac
   for (size_t j = 0; j < tree_.getNrOfJoints(); ++j) {
     // If the joint angle limit is already exceeded,
     // constrain the acceleration so the violation does not increase further.
-    if (q_in(j) < jntparser_.lowerLimit(j)) {
+    if (_q_in(j) < jntparser_.lowerLimit(j)) {
       qdd_min_(j) = 0.0;
     }
-    else if (q_in(j) > jntparser_.upperLimit(j)) {
+    else if (_q_in(j) > jntparser_.upperLimit(j)) {
       qdd_max_(j) = 0.0;
     }
   }
@@ -86,11 +86,11 @@ TreeIkSolverAcc::cartToJnt(const JntArray& q_in, const JntArray& qd_in, const Ac
   return JntArray(*qdd_out);
 }
 
-void TreeIkSolverAcc::setWeightTS(const Eigen::Vector6d& Wt)
+void TreeIkSolverAcc::setWeightTS(const Eigen::Vector6d& _wt)
 {
-  assert((Wt.array() >= 0.0).all());
+  assert((_wt.array() >= 0.0).all());
 
-  Wt_ = Wt;
+  Wt_ = _wt;
 }
 
 const Eigen::Vector6d& TreeIkSolverAcc::getWeightTS() const
@@ -98,12 +98,12 @@ const Eigen::Vector6d& TreeIkSolverAcc::getWeightTS() const
   return Wt_;
 }
 
-void TreeIkSolverAcc::setWeightJS(double Wj)
+void TreeIkSolverAcc::setWeightJS(double _wj)
 {
   // Always include a regularization term to prevent numerical errors.
-  assert(Wj > 0.0);
+  assert(_wj > 0.0);
 
-  Wj_ = Wj;
+  Wj_ = _wj;
 }
 
 const double& TreeIkSolverAcc::getWeightJS() const

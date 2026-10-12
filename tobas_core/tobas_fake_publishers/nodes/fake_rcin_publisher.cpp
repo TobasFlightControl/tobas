@@ -16,7 +16,7 @@ class FakeRcInputPublisherNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit FakeRcInputPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit FakeRcInputPublisherNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   ros2::PublisherPtr<tobas_msgs::RCInput> pub_;
@@ -25,8 +25,8 @@ private:
   void timerCb();
 };
 
-FakeRcInputPublisherNode::FakeRcInputPublisherNode(const rclcpp::NodeOptions& options)
-  : super("fake_rcin_publisher", nodeOptions_Default(options))
+FakeRcInputPublisherNode::FakeRcInputPublisherNode(const rclcpp::NodeOptions& _options)
+  : super("fake_rcin_publisher", nodeOptions_Default(_options))
 {
   pub_ = createPublisher<tobas_msgs::RCInput>(topic::kRcInput);
   timer_ = createTimer(10ms, &self::timerCb, this);

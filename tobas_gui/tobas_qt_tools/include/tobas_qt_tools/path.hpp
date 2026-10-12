@@ -15,26 +15,26 @@ namespace qt
 QString getResourcePath();
 
 /** e.g. hoge/fuga/piyo.ext -> piyo */
-QString getBaseName(const QString& path);
+QString getBaseName(const QString& _path);
 
 /** e.g. ~/hoge/fuga -> /home/user/hoge/fuga */
-QString expandUser(const QString& path);
+QString expandUser(const QString& _path);
 
 /**
  * Write text to a timestamped file.
  *
- * @param content Text to write.
- * @param dir_path Directory where the file is saved.
- * @param prefix Filename prefix.
- * @param suffix Filename suffix.
- * @param ext File extension.
+ * @param _content Text to write.
+ * @param _dir_path Directory where the file is saved.
+ * @param _prefix Filename prefix.
+ * @param _suffix Filename suffix.
+ * @param _ext File extension.
  * @return Full path of the created file.
  */
 std::expected<QString, QString> writeTimestampedFile(
-  const QString& content,
-  const QString& dir_path,
-  const QString& prefix = "",
-  const QString& suffix = "",
-  const QString& ext = "txt");
+  const QString& _content,
+  const QString& _dir_path,
+  const QString& _prefix = "",
+  const QString& _suffix = "",
+  const QString& _ext = "txt");
 }  // namespace qt
 }  // namespace tobas

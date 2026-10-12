@@ -20,16 +20,16 @@ struct rclcpp::TypeAdapter<tobas_std_msgs::PairFloat64, tobas_std_msgs::msg::Pai
   using custom_type = tobas_std_msgs::PairFloat64;
   using ros_message_type = tobas_std_msgs::msg::PairFloat64;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.first = src.first;
-    dst.second = src.second;
+    _dst.first = _src.first;
+    _dst.second = _src.second;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.first = src.first;
-    dst.second = src.second;
+    _dst.first = _src.first;
+    _dst.second = _src.second;
   }
 };
 

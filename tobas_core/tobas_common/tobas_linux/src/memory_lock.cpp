@@ -95,7 +95,7 @@ bool lockAndPrefaultDynamic()
   return true;
 }
 
-bool lockAndPrefaultDynamic(size_t process_max_dynamic_memory)
+bool lockAndPrefaultDynamic(size_t _process_max_dynamic_memory)
 {
   if (!lockMemory()) {
     return false;
@@ -103,12 +103,12 @@ bool lockAndPrefaultDynamic(size_t process_max_dynamic_memory)
 
   void* buf = nullptr;
   const auto pg_sz = sysconf(_SC_PAGESIZE);
-  if (posix_memalign(&buf, pg_sz, process_max_dynamic_memory) != 0) {
+  if (posix_memalign(&buf, pg_sz, _process_max_dynamic_memory) != 0) {
     std::cerr << "proc rt init mem aligning failed: " << st::strError() << std::endl;
     return false;
   }
 
-  std::memset(buf, 0, process_max_dynamic_memory);
+  std::memset(buf, 0, _process_max_dynamic_memory);
   std::free(buf);
 
   return true;

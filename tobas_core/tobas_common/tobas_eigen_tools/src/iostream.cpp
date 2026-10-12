@@ -3,8 +3,8 @@
 
 #include "tobas_eigen_tools/iostream.hpp"
 
-std::ostream& operator<<(std::ostream& os, const Eigen::Quaterniond& arg)
+std::ostream& operator<<(std::ostream& _os, const Eigen::Quaterniond& _arg)
 {
-  os << "x: " << arg.x() << ", y: " << arg.y() << ", z: " << arg.z() << ", w: " << arg.w();
-  return os;
+  _os << "x: " << _arg.x() << ", y: " << _arg.y() << ", z: " << _arg.z() << ", w: " << _arg.w();
+  return _os;
 }

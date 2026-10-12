@@ -17,8 +17,8 @@ namespace ub
 {
 namespace ui
 {
-SaveUrdfDialog::SaveUrdfDialog(QWidget* parent, const QString& dir)
-  : QFileDialog(parent, "Save URDF", dir, "URDF (*.urdf);;All Files (*)")
+SaveUrdfDialog::SaveUrdfDialog(QWidget* _parent, const QString& _dir)
+  : QFileDialog(_parent, "Save URDF", _dir, "URDF (*.urdf);;All Files (*)")
 {
   setAcceptMode(QFileDialog::AcceptSave);
   setDefaultSuffix("urdf");
@@ -32,10 +32,10 @@ SaveUrdfDialog::SaveUrdfDialog(QWidget* parent, const QString& dir)
   connect(line_edit_, &QLineEdit::textChanged, this, &SaveUrdfDialog::onLineEditTextChanged);
 }
 
-bool SaveUrdfDialog::eventFilter(QObject* obj, QEvent* event)
+bool SaveUrdfDialog::eventFilter(QObject* _obj, QEvent* _event)
 {
-  if (obj == line_edit_ && event->type() == QEvent::KeyPress) {
-    const auto key_event = static_cast<QKeyEvent*>(event);
+  if (_obj == line_edit_ && _event->type() == QEvent::KeyPress) {
+    const auto key_event = static_cast<QKeyEvent*>(_event);
     if (key_event->key() == Qt::Key_Return || key_event->key() == Qt::Key_Enter) {
       // Only accept if the save button is enabled.
       if (save_button_->isEnabled()) {
@@ -47,7 +47,7 @@ bool SaveUrdfDialog::eventFilter(QObject* obj, QEvent* event)
     }
   }
 
-  return QFileDialog::eventFilter(obj, event);
+  return QFileDialog::eventFilter(_obj, _event);
 }
 
 void SaveUrdfDialog::onLineEditTextChanged()

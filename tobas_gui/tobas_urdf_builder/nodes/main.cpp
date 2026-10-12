@@ -13,10 +13,10 @@
 #include "tobas_urdf_builder/urdf_builder.hpp"
 #include "tobas_urdf_builder/util.hpp"
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
   // Force X11.
-  tobas::gui::cmn::NonRosArgumentParser arg_parser(argc, argv);
+  tobas::gui::cmn::NonRosArgumentParser arg_parser(_argc, _argv);
   if (!arg_parser.setPlatformXcb()) {
     std::cerr << "Failed to set display platform." << std::endl;
     return EXIT_FAILURE;
@@ -26,7 +26,7 @@ int main(int argc, char** argv)
   qInstallMessageHandler(tobas::qt::colorMessageHandler);
 
   // Start the node so that RViz-related nodes receive the namespace and other arguments.
-  rclcpp::init(argc, argv);
+  rclcpp::init(_argc, _argv);
 
   // Show the GUI.
   QApplication qapp(arg_parser.argc(), arg_parser.argv());

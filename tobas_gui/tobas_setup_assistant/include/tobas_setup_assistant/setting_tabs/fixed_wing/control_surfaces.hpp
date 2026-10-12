@@ -23,14 +23,14 @@ class ControlSurfacesWidget : public qt::TableWidget
   using super = qt::TableWidget;
 
 public:
-  explicit ControlSurfacesWidget(const uadf::Model& uadf);
+  explicit ControlSurfacesWidget(const uadf::Model& _uadf);
 
   void updateInternalDataStructures();
   void setToDefaults();
   bool isValid();
 
   YAML::Node dump() const;
-  void load(const YAML::Node& node);
+  void load(const YAML::Node& _node);
 
   /** Number of registered control surfaces. */
   int numUnits() const;
@@ -39,35 +39,35 @@ public:
   QString selected() const;
 
   /** Return the table row for the link name, or -1 if it does not exist. */
-  int find(const QString& link_name) const;
+  int find(const QString& _link_name) const;
 
-  void add(const QString& link_name);
-  void remove(const QString& link_name);
+  void add(const QString& _link_name);
+  void remove(const QString& _link_name);
 
   // Getters
-  QString linkName(int row) const;
-  QString jointName(int row) const;
-  double liftCoef(int row) const;
-  double dragCoef(int row) const;
-  double sideCoef(int row) const;
-  double rollCoef(int row) const;
-  double pitchCoef(int row) const;
-  double yawCoef(int row) const;
+  QString linkName(int _row) const;
+  QString jointName(int _row) const;
+  double liftCoef(int _row) const;
+  double dragCoef(int _row) const;
+  double sideCoef(int _row) const;
+  double rollCoef(int _row) const;
+  double pitchCoef(int _row) const;
+  double yawCoef(int _row) const;
 
   // Setters
-  void linkName(int row, const QString& text);
-  void jointName(int row, const QString& text);
-  void liftCoef(int row, double value);
-  void dragCoef(int row, double value);
-  void sideCoef(int row, double value);
-  void rollCoef(int row, double value);
-  void pitchCoef(int row, double value);
-  void yawCoef(int row, double value);
+  void linkName(int _row, const QString& _text);
+  void jointName(int _row, const QString& _text);
+  void liftCoef(int _row, double _value);
+  void dragCoef(int _row, double _value);
+  void sideCoef(int _row, double _value);
+  void rollCoef(int _row, double _value);
+  void pitchCoef(int _row, double _value);
+  void yawCoef(int _row, double _value);
 
 private:
   const uadf::Model& uadf_;
 
-  void setToDefault(int row);
+  void setToDefault(int _row);
 };
 }  // namespace fw
 }  // namespace sa

@@ -28,7 +28,7 @@ public:
   bool isValid();
 
   YAML::Node dump() const;
-  void load(const YAML::Node& node);
+  void load(const YAML::Node& _node);
 
   std::pair<double, double> engineConstant() const;
 

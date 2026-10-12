@@ -25,19 +25,20 @@ public:
 
   std::expected<void, std::string> transfer();
 
-  void setPwmPeriod(uint16_t* period_us);
-  void configureLowPassFilter(uint16_t acc_cutoff, uint16_t gyro_cutoff, uint16_t dgyro_cutoff);
-  void configureRpmFilter(uint16_t quality_factor, uint16_t min_center_freq, uint16_t fade_range, uint16_t lpf_cutoff);
+  void setPwmPeriod(uint16_t* _period_us);
+  void configureLowPassFilter(uint16_t _acc_cutoff, uint16_t _gyro_cutoff, uint16_t _dgyro_cutoff);
+  void
+  configureRpmFilter(uint16_t _quality_factor, uint16_t _min_center_freq, uint16_t _fade_range, uint16_t _lpf_cutoff);
 
-  inline void getBattVoltage(double& voltage) const;
-  inline void getBattCurrent(double& current) const;
+  inline void getBattVoltage(double& _voltage) const;
+  inline void getBattCurrent(double& _current) const;
 
-  inline void getRawAccel(double& x, double& y, double& z) const;
-  inline void getRawGyro(double& x, double& y, double& z) const;
-  inline void getRawDGyro(double& x, double& y, double& z) const;
-  inline void getFilteredAccel(double& x, double& y, double& z) const;
-  inline void getFilteredGyro(double& x, double& y, double& z) const;
-  inline void getFilteredDGyro(double& x, double& y, double& z) const;
+  inline void getRawAccel(double& _x, double& _y, double& _z) const;
+  inline void getRawGyro(double& _x, double& _y, double& _z) const;
+  inline void getRawDGyro(double& _x, double& _y, double& _z) const;
+  inline void getFilteredAccel(double& _x, double& _y, double& _z) const;
+  inline void getFilteredGyro(double& _x, double& _y, double& _z) const;
+  inline void getFilteredDGyro(double& _x, double& _y, double& _z) const;
 
 private:
   static constexpr size_t kPacketLength = 22;  ///< uint16
@@ -58,56 +59,56 @@ private:
   void setTxCrc();
 };
 
-inline void PwmBattImu::getBattVoltage(double& voltage) const
+inline void PwmBattImu::getBattVoltage(double& _voltage) const
 {
-  voltage = rx_buf_[0] / 771.0;
+  _voltage = rx_buf_[0] / 771.0;
 }
 
-inline void PwmBattImu::getBattCurrent(double& current) const
+inline void PwmBattImu::getBattCurrent(double& _current) const
 {
-  current = rx_buf_[1] / 218.45;
+  _current = rx_buf_[1] / 218.45;
 }
 
-inline void PwmBattImu::getRawAccel(double& x, double& y, double& z) const
+inline void PwmBattImu::getRawAccel(double& _x, double& _y, double& _z) const
 {
-  x = -static_cast<int16_t>(rx_buf_[3]) * kAccelScale;
-  y = -static_cast<int16_t>(rx_buf_[2]) * kAccelScale;
-  z = -static_cast<int16_t>(rx_buf_[4]) * kAccelScale;
+  _x = -static_cast<int16_t>(rx_buf_[3]) * kAccelScale;
+  _y = -static_cast<int16_t>(rx_buf_[2]) * kAccelScale;
+  _z = -static_cast<int16_t>(rx_buf_[4]) * kAccelScale;
 }
 
-inline void PwmBattImu::getRawGyro(double& x, double& y, double& z) const
+inline void PwmBattImu::getRawGyro(double& _x, double& _y, double& _z) const
 {
-  x = -static_cast<int16_t>(rx_buf_[6]) * kGyroScale;
-  y = -static_cast<int16_t>(rx_buf_[5]) * kGyroScale;
-  z = -static_cast<int16_t>(rx_buf_[7]) * kGyroScale;
+  _x = -static_cast<int16_t>(rx_buf_[6]) * kGyroScale;
+  _y = -static_cast<int16_t>(rx_buf_[5]) * kGyroScale;
+  _z = -static_cast<int16_t>(rx_buf_[7]) * kGyroScale;
 }
 
-inline void PwmBattImu::getRawDGyro(double& x, double& y, double& z) const
+inline void PwmBattImu::getRawDGyro(double& _x, double& _y, double& _z) const
 {
-  x = -static_cast<int16_t>(rx_buf_[9]) * kDGyroScale;
-  y = -static_cast<int16_t>(rx_buf_[8]) * kDGyroScale;
-  z = -static_cast<int16_t>(rx_buf_[10]) * kDGyroScale;
+  _x = -static_cast<int16_t>(rx_buf_[9]) * kDGyroScale;
+  _y = -static_cast<int16_t>(rx_buf_[8]) * kDGyroScale;
+  _z = -static_cast<int16_t>(rx_buf_[10]) * kDGyroScale;
 }
 
-inline void PwmBattImu::getFilteredAccel(double& x, double& y, double& z) const
+inline void PwmBattImu::getFilteredAccel(double& _x, double& _y, double& _z) const
 {
-  x = -static_cast<int16_t>(rx_buf_[12]) * kAccelScale;
-  y = -static_cast<int16_t>(rx_buf_[11]) * kAccelScale;
-  z = -static_cast<int16_t>(rx_buf_[13]) * kAccelScale;
+  _x = -static_cast<int16_t>(rx_buf_[12]) * kAccelScale;
+  _y = -static_cast<int16_t>(rx_buf_[11]) * kAccelScale;
+  _z = -static_cast<int16_t>(rx_buf_[13]) * kAccelScale;
 }
 
-inline void PwmBattImu::getFilteredGyro(double& x, double& y, double& z) const
+inline void PwmBattImu::getFilteredGyro(double& _x, double& _y, double& _z) const
 {
-  x = -static_cast<int16_t>(rx_buf_[15]) * kGyroScale;
-  y = -static_cast<int16_t>(rx_buf_[14]) * kGyroScale;
-  z = -static_cast<int16_t>(rx_buf_[16]) * kGyroScale;
+  _x = -static_cast<int16_t>(rx_buf_[15]) * kGyroScale;
+  _y = -static_cast<int16_t>(rx_buf_[14]) * kGyroScale;
+  _z = -static_cast<int16_t>(rx_buf_[16]) * kGyroScale;
 }
 
-inline void PwmBattImu::getFilteredDGyro(double& x, double& y, double& z) const
+inline void PwmBattImu::getFilteredDGyro(double& _x, double& _y, double& _z) const
 {
-  x = -static_cast<int16_t>(rx_buf_[18]) * kDGyroScale;
-  y = -static_cast<int16_t>(rx_buf_[17]) * kDGyroScale;
-  z = -static_cast<int16_t>(rx_buf_[19]) * kDGyroScale;
+  _x = -static_cast<int16_t>(rx_buf_[18]) * kDGyroScale;
+  _y = -static_cast<int16_t>(rx_buf_[17]) * kDGyroScale;
+  _z = -static_cast<int16_t>(rx_buf_[19]) * kDGyroScale;
 }
 }  // namespace fc2xx
 }  // namespace tobas

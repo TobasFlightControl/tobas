@@ -15,14 +15,14 @@
 using namespace std;
 using namespace Eigen;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
-  if (argc != 2) {
-    cerr << "Usage: " << argv[0] << " <Steps>" << endl;
+  if (_argc != 2) {
+    cerr << "Usage: " << _argv[0] << " <Steps>" << endl;
     return EXIT_FAILURE;
   }
 
-  const auto steps = stoul(argv[1]);
+  const auto steps = stoul(_argv[1]);
 
   // Define random generator.
   random_device rnd_dev;

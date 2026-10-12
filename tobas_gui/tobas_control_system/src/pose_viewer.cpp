@@ -31,12 +31,12 @@ constexpr int kAltitudeTextY = kYawLineY + 40;
 constexpr int kAltitudeTickMaxY = kAltitudeTextY + 10;
 }  // namespace
 
-PoseViewerWidget::PoseViewerWidget(const rqt::RosQtBridge& bridge)
+PoseViewerWidget::PoseViewerWidget(const rqt::RosQtBridge& _bridge)
 {
   reset();
 
-  connect(&bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
-  connect(&bridge, &rqt::RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
 }
 
 void PoseViewerWidget::reset()
@@ -68,25 +68,25 @@ void PoseViewerWidget::paintEvent(QPaintEvent*)
   drawMslAltitude(painter);
 }
 
-void PoseViewerWidget::scale(QPainter& painter, bool keep_aspect)
+void PoseViewerWidget::scale(QPainter& _painter, bool _keep_aspect)
 {
-  if (keep_aspect) {
+  if (_keep_aspect) {
     const auto scale = static_cast<double>(std::min(width(), height())) / kOriginalSize;
-    painter.scale(scale, scale);
+    _painter.scale(scale, scale);
   }
   else {
     const auto x_scale = static_cast<double>(width()) / kOriginalSize;
     const auto y_scale = static_cast<double>(height()) / kOriginalSize;
-    painter.scale(x_scale, y_scale);
+    _painter.scale(x_scale, y_scale);
   }
 }
 
-void PoseViewerWidget::drawGround(QPainter& painter)
+void PoseViewerWidget::drawGround(QPainter& _painter)
 {
-  painter.fillRect(rect(), QColor(169, 110, 45));
+  _painter.fillRect(rect(), QColor(169, 110, 45));
 }
 
-void PoseViewerWidget::drawSky(QPainter& painter)
+void PoseViewerWidget::drawSky(QPainter& _painter)
 {
   const auto w = width();
   const auto h = height();
@@ -197,68 +197,68 @@ void PoseViewerWidget::drawSky(QPainter& painter)
 
   // Draw.
   QPolygon polygon(points);
-  painter.save();
-  painter.setBrush(QColor(36, 139, 255));
-  painter.drawPolygon(polygon);
-  painter.restore();
+  _painter.save();
+  _painter.setBrush(QColor(36, 139, 255));
+  _painter.drawPolygon(polygon);
+  _painter.restore();
 }
 
-void PoseViewerWidget::drawRoll(QPainter& painter)
+void PoseViewerWidget::drawRoll(QPainter& _painter)
 {
   constexpr int kRollRadius = 200;  // Roll circle radius.
   constexpr int kRollTickLength = 10;
 
-  painter.save();
+  _painter.save();
 
   // Move to the circle center as seen from the vehicle.
-  painter.translate(width() / 2, height() / 2);
-  painter.rotate(-st::rad2deg(roll_));
+  _painter.translate(width() / 2, height() / 2);
+  _painter.rotate(-st::rad2deg(roll_));
 
   // Scale to the widget size.
-  scale(painter, true);
+  scale(_painter, true);
 
   // Draw the circle.
-  painter.setPen(QPen(Qt::white, kLineWidth));
-  painter.drawEllipse(QPoint(0, 0), kRollRadius, kRollRadius);
+  _painter.setPen(QPen(Qt::white, kLineWidth));
+  _painter.drawEllipse(QPoint(0, 0), kRollRadius, kRollRadius);
 
   // Draw each value.
   const auto outer_radius = kRollRadius + kRollTickLength;
   const auto text_radius = outer_radius + 20;
   for (int deg = 0; deg < 360; deg += kScaleInterval) {
     // Draw ticks.
-    painter.drawLine(0, -kRollRadius, 0, -outer_radius);
+    _painter.drawLine(0, -kRollRadius, 0, -outer_radius);
 
     // Draw numbers.
-    painter.drawText(-10, -text_radius, std::format("{}°", math::wrap(deg, 180)).c_str());
+    _painter.drawText(-10, -text_radius, std::format("{}°", math::wrap(deg, 180)).c_str());
 
     // Advance by the tick interval.
-    painter.rotate(kScaleInterval);
+    _painter.rotate(kScaleInterval);
   }
 
-  painter.restore();
+  _painter.restore();
 
   // Draw a marker at the current position.
-  painter.save();
-  painter.translate(width() / 2, height() / 2);
-  scale(painter, true);
-  painter.setPen(QPen(Qt::red, kLineWidth));
-  painter.drawLine(0, -kRollRadius - kRollTickLength * 2, 0, -kRollRadius);
-  painter.restore();
+  _painter.save();
+  _painter.translate(width() / 2, height() / 2);
+  scale(_painter, true);
+  _painter.setPen(QPen(Qt::red, kLineWidth));
+  _painter.drawLine(0, -kRollRadius - kRollTickLength * 2, 0, -kRollRadius);
+  _painter.restore();
 }
 
-void PoseViewerWidget::drawPitch(QPainter& painter)
+void PoseViewerWidget::drawPitch(QPainter& _painter)
 {
   constexpr int kPitchVisualRange = 25;  // [deg] Pitch angle range to draw.
   constexpr int kPitchLineLength = 100;
 
-  painter.save();
+  _painter.save();
 
   // Move to the center position as seen from the vehicle.
-  painter.translate(width() / 2, height() / 2);
-  painter.rotate(-st::rad2deg(roll_));
+  _painter.translate(width() / 2, height() / 2);
+  _painter.rotate(-st::rad2deg(roll_));
 
   // Scale to the widget size.
-  scale(painter, true);
+  scale(_painter, true);
 
   // Determine the value range to draw.
   const auto pitch_deg = st::rad2deg(pitch_);
@@ -266,53 +266,53 @@ void PoseViewerWidget::drawPitch(QPainter& painter)
   const auto pitch_max = math::ceil(pitch_deg + kPitchVisualRange, kScaleInterval);
 
   // Move to the initial position.
-  painter.translate(0, pitchToHeight(st::deg2rad(pitch_min - pitch_deg)));
+  _painter.translate(0, pitchToHeight(st::deg2rad(pitch_min - pitch_deg)));
 
   // Draw each value.
   const auto line_half = kPitchLineLength / 2;
   const auto text_x = -line_half - 30;
   const auto text_y = 5;
   const auto y_interval = pitchToHeight(st::deg2rad(kScaleInterval));
-  painter.setPen(QPen(Qt::white, kLineWidth));
+  _painter.setPen(QPen(Qt::white, kLineWidth));
   for (int deg = pitch_min; deg <= pitch_max; deg += kScaleInterval) {
     // Draw ticks.
-    painter.drawLine(-line_half, 0, line_half, 0);
+    _painter.drawLine(-line_half, 0, line_half, 0);
 
     // Draw numbers.
-    painter.drawText(text_x, text_y, std::format("{}°", math::wrap(deg, 180)).c_str());
+    _painter.drawText(text_x, text_y, std::format("{}°", math::wrap(deg, 180)).c_str());
 
     // Advance by the tick interval.
-    painter.translate(0, y_interval);
+    _painter.translate(0, y_interval);
   }
 
-  painter.restore();
+  _painter.restore();
 
   // Draw a marker at the current position.
-  painter.save();
-  painter.translate(width() / 2, height() / 2);
-  painter.rotate(-st::rad2deg(roll_));
-  scale(painter, true);
-  painter.setPen(QPen(Qt::red, kLineWidth));
-  painter.drawLine(-line_half, 0, line_half, 0);
-  painter.restore();
+  _painter.save();
+  _painter.translate(width() / 2, height() / 2);
+  _painter.rotate(-st::rad2deg(roll_));
+  scale(_painter, true);
+  _painter.setPen(QPen(Qt::red, kLineWidth));
+  _painter.drawLine(-line_half, 0, line_half, 0);
+  _painter.restore();
 }
 
-void PoseViewerWidget::drawYaw(QPainter& painter)
+void PoseViewerWidget::drawYaw(QPainter& _painter)
 {
   constexpr int kYawTickLength = 10;
 
-  painter.save();
+  _painter.save();
 
   // Scale to the widget size.
-  scale(painter, false);
+  scale(_painter, false);
 
   // Move to the center position.
   const auto beta = kYawAngleOfView / 2;  // [rad]
-  painter.translate(yawToWidth(beta), kYawLineY);
+  _painter.translate(yawToWidth(beta), kYawLineY);
 
   // Draw the number line.
-  painter.setPen(QPen(Qt::white, kLineWidth));
-  painter.drawLine(-kOriginalSize / 2, 0, kOriginalSize / 2, 0);
+  _painter.setPen(QPen(Qt::white, kLineWidth));
+  _painter.drawLine(-kOriginalSize / 2, 0, kOriginalSize / 2, 0);
 
   // Determine the value range to draw.
   const auto yaw_deg = st::rad2deg(yaw_);
@@ -320,7 +320,7 @@ void PoseViewerWidget::drawYaw(QPainter& painter)
   const auto yaw_max = math::ceil(st::rad2deg(yaw_ + beta), kScaleInterval);
 
   // Move to the initial position.
-  painter.translate(yawToWidth(st::deg2rad(yaw_deg - yaw_min)), 0);
+  _painter.translate(yawToWidth(st::deg2rad(yaw_deg - yaw_min)), 0);
 
   // Draw each value.
   const auto text_x = -10;
@@ -328,39 +328,39 @@ void PoseViewerWidget::drawYaw(QPainter& painter)
   const auto x_interval = yawToWidth(st::deg2rad(kScaleInterval));
   for (int deg = yaw_min; deg <= yaw_max; deg += kScaleInterval) {
     // Draw ticks.
-    painter.drawLine(0, 0, 0, -kYawTickLength);
+    _painter.drawLine(0, 0, 0, -kYawTickLength);
 
     // Draw numbers.
-    painter.drawText(text_x, text_y, std::format("{}°", math::wrap(deg, 180)).c_str());
+    _painter.drawText(text_x, text_y, std::format("{}°", math::wrap(deg, 180)).c_str());
 
     // Advance by the tick interval.
-    painter.translate(-x_interval, 0);
+    _painter.translate(-x_interval, 0);
   }
 
-  painter.restore();
+  _painter.restore();
 
   // Draw a marker at the current position.
-  painter.save();
-  scale(painter, false);
-  painter.translate(yawToWidth(beta), kYawLineY);
-  painter.setPen(QPen(Qt::red, kLineWidth));
-  painter.drawLine(0, 0, 0, -kYawTickLength * 2);
-  painter.restore();
+  _painter.save();
+  scale(_painter, false);
+  _painter.translate(yawToWidth(beta), kYawLineY);
+  _painter.setPen(QPen(Qt::red, kLineWidth));
+  _painter.drawLine(0, 0, 0, -kYawTickLength * 2);
+  _painter.restore();
 }
 
-void PoseViewerWidget::drawRelativeAltitude(QPainter& painter)
+void PoseViewerWidget::drawRelativeAltitude(QPainter& _painter)
 {
-  painter.save();
+  _painter.save();
 
-  scale(painter, false);
+  scale(_painter, false);
 
   const auto center_y = kOriginalSize / 2;
   const auto alt_min = math::floor(alt_rel_ - kAltitudeVisualRange, kAltitudeScaleInterval);
   const auto alt_max = math::ceil(alt_rel_ + kAltitudeVisualRange, kAltitudeScaleInterval);
   const auto x = kAltitudeTickX;
 
-  painter.setPen(QPen(Qt::white, kLineWidth));
-  painter.drawText(x - 2, kAltitudeTextY, "REL ALT");
+  _painter.setPen(QPen(Qt::white, kLineWidth));
+  _painter.drawText(x - 2, kAltitudeTextY, "REL ALT");
 
   for (int alt = alt_min; alt <= alt_max; alt += kAltitudeScaleInterval) {
     const auto y = center_y - altitudeToHeight(alt - alt_rel_);
@@ -368,30 +368,30 @@ void PoseViewerWidget::drawRelativeAltitude(QPainter& painter)
       continue;
     }
 
-    painter.drawLine(x, y, x + kAltitudeTickLength, y);
-    painter.drawText(x + kAltitudeTickLength + 10, y + 5, std::format("{}m", alt).c_str());
+    _painter.drawLine(x, y, x + kAltitudeTickLength, y);
+    _painter.drawText(x + kAltitudeTickLength + 10, y + 5, std::format("{}m", alt).c_str());
   }
 
-  painter.setPen(QPen(Qt::red, kLineWidth));
-  painter.drawLine(x - kAltitudeTickLength, center_y, x + kAltitudeTickLength * 2, center_y);
-  painter.drawText(x + kAltitudeTickLength + 10, center_y - 12, std::format("{:.1f}m", alt_rel_).c_str());
+  _painter.setPen(QPen(Qt::red, kLineWidth));
+  _painter.drawLine(x - kAltitudeTickLength, center_y, x + kAltitudeTickLength * 2, center_y);
+  _painter.drawText(x + kAltitudeTickLength + 10, center_y - 12, std::format("{:.1f}m", alt_rel_).c_str());
 
-  painter.restore();
+  _painter.restore();
 }
 
-void PoseViewerWidget::drawMslAltitude(QPainter& painter)
+void PoseViewerWidget::drawMslAltitude(QPainter& _painter)
 {
-  painter.save();
+  _painter.save();
 
-  scale(painter, false);
+  scale(_painter, false);
 
   const auto center_y = kOriginalSize / 2;
   const auto alt_min = math::floor(alt_msl_ - kAltitudeVisualRange, kAltitudeScaleInterval);
   const auto alt_max = math::ceil(alt_msl_ + kAltitudeVisualRange, kAltitudeScaleInterval);
   const auto x = kOriginalSize - kAltitudeTickX;
 
-  painter.setPen(QPen(Qt::white, kLineWidth));
-  painter.drawText(x - 55, kAltitudeTextY, "MSL ALT");
+  _painter.setPen(QPen(Qt::white, kLineWidth));
+  _painter.drawText(x - 55, kAltitudeTextY, "MSL ALT");
 
   if (alt_msl_valid_) {
     for (int alt = alt_min; alt <= alt_max; alt += kAltitudeScaleInterval) {
@@ -400,23 +400,23 @@ void PoseViewerWidget::drawMslAltitude(QPainter& painter)
         continue;
       }
 
-      painter.drawLine(x, y, x - kAltitudeTickLength, y);
-      painter.drawText(x - kAltitudeTickLength - 45, y + 5, std::format("{}m", alt).c_str());
+      _painter.drawLine(x, y, x - kAltitudeTickLength, y);
+      _painter.drawText(x - kAltitudeTickLength - 45, y + 5, std::format("{}m", alt).c_str());
     }
   }
 
-  painter.setPen(QPen(Qt::red, kLineWidth));
-  painter.drawLine(x + kAltitudeTickLength, center_y, x - kAltitudeTickLength * 2, center_y);
+  _painter.setPen(QPen(Qt::red, kLineWidth));
+  _painter.drawLine(x + kAltitudeTickLength, center_y, x - kAltitudeTickLength * 2, center_y);
 
   const QString text = alt_msl_valid_ ? std::format("{:.1f}m", alt_msl_).c_str() : "---m";
-  painter.drawText(x - kAltitudeTickLength - 45, center_y - 12, text);
+  _painter.drawText(x - kAltitudeTickLength - 45, center_y - 12, text);
 
-  painter.restore();
+  _painter.restore();
 }
 
-void PoseViewerWidget::addGradation(QPainter& painter)
+void PoseViewerWidget::addGradation(QPainter& _painter)
 {
-  painter.save();
+  _painter.save();
 
   // Gradient settings to brighten the center.
   QRadialGradient grad(getCenter(), width() / 2);
@@ -425,19 +425,19 @@ void PoseViewerWidget::addGradation(QPainter& painter)
   grad.setColorAt(1, QColor(255, 255, 255, 0));    // The outside is transparent.
 
   // Set the gradient on the brush.
-  painter.setBrush(grad);
-  painter.setPen(Qt::NoPen);  // Fill without a pen.
+  _painter.setBrush(grad);
+  _painter.setPen(Qt::NoPen);  // Fill without a pen.
 
   // Overlay brightness.
-  painter.drawRect(0, 0, width(), height());  // Apply a radial gradient to the entire widget.
+  _painter.drawRect(0, 0, width(), height());  // Apply a radial gradient to the entire widget.
 
-  painter.restore();
+  _painter.restore();
 }
 
-bool PoseViewerWidget::isSky(const QPoint& p, double a, double b) const
+bool PoseViewerWidget::isSky(const QPoint& _p, double _a, double _b) const
 {
-  const auto left = p.y();
-  const auto right = a * p.x() + b;
+  const auto left = _p.y();
+  const auto right = _a * _p.x() + _b;
 
   // Branch by roll angle. If the roll angle exceeds 90 degrees, up and down are inverted.
   if (std::abs(roll_) < M_PI_2) {
@@ -448,33 +448,33 @@ bool PoseViewerWidget::isSky(const QPoint& p, double a, double b) const
   }
 }
 
-double PoseViewerWidget::pitchToHeight(double pitch)
+double PoseViewerWidget::pitchToHeight(double _pitch)
 {
-  return kOriginalSize * pitch / kPitchAngleOfView;
+  return kOriginalSize * _pitch / kPitchAngleOfView;
 }
 
-double PoseViewerWidget::yawToWidth(double yaw)
+double PoseViewerWidget::yawToWidth(double _yaw)
 {
-  return kOriginalSize * yaw / kYawAngleOfView;
+  return kOriginalSize * _yaw / kYawAngleOfView;
 }
 
-double PoseViewerWidget::altitudeToHeight(double altitude)
+double PoseViewerWidget::altitudeToHeight(double _altitude)
 {
-  return (kOriginalSize / 2) * altitude / kAltitudeVisualRange;
+  return (kOriginalSize / 2) * _altitude / kAltitudeVisualRange;
 }
 
-void PoseViewerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
+void PoseViewerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom)
 {
-  odom->odom.odom.frame.M.getRPY(roll_, pitch_, yaw_);
-  alt_rel_ = odom->odom.odom.frame.p.z();
+  _odom->odom.odom.frame.M.getRPY(roll_, pitch_, yaw_);
+  alt_rel_ = _odom->odom.odom.frame.p.z();
 
   update();
 }
 
-void PoseViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
+void PoseViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss)
 {
-  alt_msl_ = gnss->height_msl;
-  alt_msl_valid_ = (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
+  alt_msl_ = _gnss->height_msl;
+  alt_msl_valid_ = (_gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
 
   update();
 }

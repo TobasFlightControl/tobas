@@ -18,10 +18,10 @@ namespace ctrl
  * @see Arimoto-Potter method: https://qiita.com/trgkpc/items/8210927d5b035912a153
  */
 std::expected<Eigen::MatrixXd, std::string> care_ArimotoPotter(
-  const Eigen::MatrixXd& A,
-  const Eigen::MatrixXd& B,
-  const Eigen::MatrixXd& Q,
-  const Eigen::MatrixXd& R) noexcept;
+  const Eigen::MatrixXd& _a,
+  const Eigen::MatrixXd& _b,
+  const Eigen::MatrixXd& _q,
+  const Eigen::MatrixXd& _r) noexcept;
 
 /**
  * Solve the continuous-time algebraic Riccati equation.
@@ -29,6 +29,6 @@ std::expected<Eigen::MatrixXd, std::string> care_ArimotoPotter(
  * @note Does not work correctly (2023/5/24).
  */
 Eigen::MatrixXd
-care_Schur(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B, const Eigen::MatrixXd& Q, const Eigen::MatrixXd& R);
+care_Schur(const Eigen::MatrixXd& _a, const Eigen::MatrixXd& _b, const Eigen::MatrixXd& _q, const Eigen::MatrixXd& _r);
 }  // namespace ctrl
 }  // namespace tobas

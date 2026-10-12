@@ -5,14 +5,14 @@
 
 namespace console_bridge
 {
-OutputHandlerText::OutputHandlerText(LogLevel level) : level_(level)
+OutputHandlerText::OutputHandlerText(LogLevel _level) : level_(_level)
 {
 }
 
-void OutputHandlerText::log(const std::string& text, LogLevel level, const char*, int)
+void OutputHandlerText::log(const std::string& _text, LogLevel _level, const char*, int)
 {
-  if (level >= level_) {
-    msg_ += text;
+  if (_level >= level_) {
+    msg_ += _text;
     msg_ += '\n';
   }
 }

@@ -12,46 +12,46 @@ namespace tobas
 namespace gazebo
 {
 template <typename T>
-bool getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param)
+bool getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name, T& _param)
 {
-  if (!sdf->HasElement(name)) {
-    gzerr << "Please specify '" << name << "'." << std::endl;
+  if (!_sdf->HasElement(_name)) {
+    gzerr << "Please specify '" << _name << "'." << std::endl;
     return false;
   }
 
-  param = sdf->Get<T>(name);
+  _param = _sdf->Get<T>(_name);
   return true;
 }
 
 template <typename T>
-void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const T& dflt)
+void getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name, T& _param, const T& _dflt)
 {
-  if (!sdf->Get(name, param, dflt)) {
-    gzwarn << "SDF parameter '" << name << "' is not specified. The default value '" << dflt << "' is used."
+  if (!_sdf->Get(_name, _param, _dflt)) {
+    gzwarn << "SDF parameter '" << _name << "' is not specified. The default value '" << _dflt << "' is used."
            << std::endl;
   }
 }
 
 template <typename T>
-bool getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::pair<T, T>& param)
+bool getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name, std::pair<T, T>& _param)
 {
   gz::math::Vector2<T> tmp;
-  if (!getSdfParam(sdf, name, tmp)) {
+  if (!getSdfParam(_sdf, _name, tmp)) {
     return false;
   }
 
-  param.first = tmp.X();
-  param.second = tmp.Y();
+  _param.first = tmp.X();
+  _param.second = tmp.Y();
 
   return true;
 }
 
 template <typename T>
-bool getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, gz::math::Vector4<T>& param)
+bool getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name, gz::math::Vector4<T>& _param)
 {
   // Get as a string (e.g. "1.0 2.0 3.0 0.5").
   std::string str;
-  if (!getSdfParam(sdf, name, str)) {
+  if (!getSdfParam(_sdf, _name, str)) {
     return false;
   }
 
@@ -62,14 +62,14 @@ bool getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, gz::m
     return false;
   }
 
-  param.X(x);
-  param.Y(y);
-  param.Z(z);
-  param.W(w);
+  _param.X(x);
+  _param.Y(y);
+  _param.Z(z);
+  _param.W(w);
 
   return true;
 }
 
-bool getTurningDirection(const sdf::ElementConstPtr& sdf, int& dst);
+bool getTurningDirection(const sdf::ElementConstPtr& _sdf, int& _dst);
 }  // namespace gazebo
 }  // namespace tobas

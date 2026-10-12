@@ -20,18 +20,18 @@ namespace ctrl
 {
 namespace
 {
-void appendArmReadinessIssue(QStringList& issues, const QString& label, uint8_t status)
+void appendArmReadinessIssue(QStringList& _issues, const QString& _label, uint8_t _status)
 {
-  if (status == tobas_msgs::msg::VehicleHealth::FAILED) {
-    issues << label;
+  if (_status == tobas_msgs::msg::VehicleHealth::FAILED) {
+    _issues << _label;
   }
-  else if (status == tobas_msgs::msg::VehicleHealth::UNKNOWN) {
-    issues << label + " Unknown";
+  else if (_status == tobas_msgs::msg::VehicleHealth::UNKNOWN) {
+    _issues << _label + " Unknown";
   }
 }
 }  // namespace
 
-ArmStateBanner::ArmStateBanner(const rqt::RosQtBridge& bridge)
+ArmStateBanner::ArmStateBanner(const rqt::RosQtBridge& _bridge)
 {
   setAlignment(Qt::AlignCenter);
   setAutoFillBackground(true);
@@ -39,8 +39,8 @@ ArmStateBanner::ArmStateBanner(const rqt::RosQtBridge& bridge)
   setFont(qt::DefaultFont(14, QFont::Bold));
   setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
 
-  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
-  connect(&bridge, &rqt::RosQtBridge::vehicleHealthReceived, this, &self::healthCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::vehicleHealthReceived, this, &self::healthCb, Qt::QueuedConnection);
 }
 
 void ArmStateBanner::reset()
@@ -51,9 +51,9 @@ void ArmStateBanner::reset()
   updateState();
 }
 
-void ArmStateBanner::setConnected(bool connected)
+void ArmStateBanner::setConnected(bool _connected)
 {
-  connected_ = connected;
+  connected_ = _connected;
   updateState();
 }
 
@@ -114,26 +114,26 @@ void ArmStateBanner::updateState()
   }
 }
 
-void ArmStateBanner::setStateText(const QString& text, const QColor& background, const QColor& foreground)
+void ArmStateBanner::setStateText(const QString& _text, const QColor& _background, const QColor& _foreground)
 {
-  setText(text);
-  setToolTip(text);
+  setText(_text);
+  setToolTip(_text);
 
   auto pal = palette();
-  pal.setColor(QPalette::Window, background);
-  pal.setColor(QPalette::WindowText, foreground);
+  pal.setColor(QPalette::Window, _background);
+  pal.setColor(QPalette::WindowText, _foreground);
   setPalette(pal);
 }
 
-void ArmStateBanner::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void ArmStateBanner::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming)
 {
-  arming_ = arming;
+  arming_ = _arming;
   updateState();
 }
 
-void ArmStateBanner::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
+void ArmStateBanner::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health)
 {
-  health_ = health;
+  health_ = _health;
   updateState();
 }
 }  // namespace ctrl

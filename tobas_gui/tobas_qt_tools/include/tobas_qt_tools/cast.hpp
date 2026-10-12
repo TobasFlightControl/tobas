@@ -14,15 +14,15 @@ namespace tobas
 namespace qt
 {
 template <typename T>
-T* qPointerCast(QObject* obj)
+T* qPointerCast(QObject* _obj)
 {
-  if (!obj) {
+  if (!_obj) {
     throw std::invalid_argument("Object must not be nullptr.");
   }
 
-  T* casted = qobject_cast<T*>(obj);
+  T* casted = qobject_cast<T*>(_obj);
   if (!casted) {
-    qCritical() << "Failed to cast " << obj->objectName() << " to " << st::getClassName<T>();
+    qCritical() << "Failed to cast " << _obj->objectName() << " to " << st::getClassName<T>();
     throw std::bad_cast();
   }
 
@@ -30,15 +30,15 @@ T* qPointerCast(QObject* obj)
 }
 
 template <typename T>
-const T* qConstPointerCast(const QObject* obj)
+const T* qConstPointerCast(const QObject* _obj)
 {
-  if (!obj) {
+  if (!_obj) {
     throw std::invalid_argument("Object must not be nullptr.");
   }
 
-  const T* casted = qobject_cast<const T*>(obj);
+  const T* casted = qobject_cast<const T*>(_obj);
   if (!casted) {
-    qCritical() << "Failed to cast " << obj->objectName() << " to " << st::getClassName<T>();
+    qCritical() << "Failed to cast " << _obj->objectName() << " to " << st::getClassName<T>();
     throw std::bad_cast();
   }
 

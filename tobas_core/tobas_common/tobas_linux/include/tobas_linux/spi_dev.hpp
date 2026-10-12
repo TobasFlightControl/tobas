@@ -18,10 +18,10 @@ public:
   ~SPIdev() noexcept;
 
   bool
-  initialize(const char* spi_dev, void* tx_buf, void* rx_buf, uint32_t speed_hz, uint8_t bits_per_word = 8) noexcept;
+  initialize(const char* _spi_dev, void* _tx_buf, void* _rx_buf, uint32_t _speed_hz, uint8_t _bits_per_word = 8) noexcept;
 
   /** Transmit and receive the number of bytes specified by the argument. */
-  bool transfer(uint32_t length) noexcept;
+  bool transfer(uint32_t _length) noexcept;
 
 private:
   spi_ioc_transfer spi_transfer_;
