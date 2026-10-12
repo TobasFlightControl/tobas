@@ -81,7 +81,7 @@ double firstOrderPos(double x0, double xd, double tau, double t)
 
 double firstOrderVel(double x0, double v0, double vd, double tau, double t)
 {
-  return x0 + vd * t - tau * (1 - std::exp(-t / (tau + kEps))) * (vd - v0);
+  return x0 + vd * t + tau * std::expm1(-t / (tau + kEps)) * (vd - v0);
 }
 }  // namespace ctrl
 }  // namespace tobas

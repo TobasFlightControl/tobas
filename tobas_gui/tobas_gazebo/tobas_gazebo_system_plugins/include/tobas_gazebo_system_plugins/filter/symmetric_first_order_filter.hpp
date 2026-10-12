@@ -13,11 +13,11 @@ template <typename T>
 class SymmetricFirstOrderFilter : public AsymmetricFirstOrderFilter<T>
 {
   using super = AsymmetricFirstOrderFilter<T>;
+  using super::initialize;
 
 public:
   explicit SymmetricFirstOrderFilter();
 
-  using super::initialize;
   virtual void initialize(double time_const, const T& init_value);
 };
 
