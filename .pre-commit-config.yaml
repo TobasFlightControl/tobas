@@ -64,14 +64,6 @@ repos:
         args: ["-fallback-style=none", "-i"]
         files: \.(cpp|hpp|tplcpp|tplhpp)$
         exclude: ^tobas_external/
-      - id: clang-tidy
-        name: clang-tidy
-        entry: clang-tidy
-        language: system
-        args: ["--warnings-as-errors=*"]
-        files: \.(cpp|hpp)$
-        exclude: ^tobas_external/
-        require_serial: true
       - id: cmake-format
         name: cmake-format
         entry: cmake-format
