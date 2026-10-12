@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+script_dir=$(dirname "$(realpath "$0")")
+cd "$script_dir/../.."
+
+gcc_library=$(g++ -print-libgcc-file-name)
+source_filter=$(python3 -c 'import re, sys; print(re.escape(sys.argv[1]) + r"/(?!tobas_external/).*\.cpp$")' "$PWD")
+
+exec env PYTHONUNBUFFERED=1 run-clang-tidy-20 \
+  -p ../../build \
+  -j "$(nproc)" \
+  -config-file "$PWD/.clang-tidy" \
+  -quiet \
+  -warnings-as-errors='*' \
+  "-extra-arg=--gcc-install-dir=$(dirname "$gcc_library")" \
+  -source-filter "$source_filter" \
+  "$@"

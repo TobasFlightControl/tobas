@@ -1,18 +1,21 @@
 # Clang-Tidy: https://clang.llvm.org/extra/clang-tidy/
 # Naming rules: tobas_examples/tobas_code_style/CPP_CODE_STYLE.md
 
-HeaderFilterRegex: ""
+# Report diagnostics in included non-system headers, except vendored code.
+HeaderFilterRegex: ".*"
+ExcludeHeaderFilterRegex: '(^|/)tobas_external/'
 
 Checks: >
   -*,
 
   bugprone-*,
+  -bugprone-easily-swappable-parameters,
 
   clang-analyzer-*,
 
   cppcoreguidelines-*,
-  -cppcoreguidelines-narrowing-conversions,
   -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-narrowing-conversions,
 
   modernize-*,
 
@@ -20,6 +23,7 @@ Checks: >
   -performance-enum-size,
 
   readability-*,
+  -readability-else-after-return,
   -readability-identifier-length,
   -readability-magic-numbers,
 
