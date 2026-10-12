@@ -250,6 +250,10 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   const auto torque = param_.moment_const * thrust;
   const auto kt = 1.0 / param_.kv;
   const auto current = torque / kt;
+  if (current > param_.max_cont_current) {
+    TOBAS_WARN_THROTTLE(
+      kWarnPeriod, "The ESC current of rotor '", link_name_, "' exceeds its continuous current rating.");
+  }
 
   // Allow brief overloads and account for cooling before advancing the motor.
   // A failed ESC is no longer energized, so its thermal load only decays.
@@ -258,7 +262,7 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   const auto thermal_load = esc_thermal_model_.getValue();
   if (is_intact_ && thermal_load > 1.0) {
     failRotor();
-    TOBAS_WARN("The ESC of rotor '", link_name_, "' has been severely damaged by overcurrent.");
+    TOBAS_FATAL("The ESC of rotor '", link_name_, "' has been severely damaged by overcurrent.");
   }
 
   // Match the acceleration reaction to the velocity command for this physics step.
