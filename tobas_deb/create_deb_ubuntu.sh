@@ -3,29 +3,29 @@
 set -e
 
 # Set paths.
-TOBAS_DEB=$(realpath $(dirname "$0"))
-UBUNTU_WORKSPACE=${TOBAS_DEB}/ubuntu
-TMP_BUILD_DIR=${ROS2_WORKSPACE}/tmp # Temporal build directory
-INSTALL_BASE=${UBUNTU_WORKSPACE}/opt/ros/jazzy
-BUILD_BASE=${TMP_BUILD_DIR}/build
+tobas_deb=$(realpath $(dirname "$0"))
+ubuntu_workspace=${tobas_deb}/ubuntu
+tmp_build_dir=${ROS2_WORKSPACE}/tmp # Temporal build directory
+install_base=${ubuntu_workspace}/opt/ros/jazzy
+build_base=${tmp_build_dir}/build
 
 # Navigate to the colcon workspace.
 cd ${ROS2_WORKSPACE}
 
 # Set log path.
-export COLCON_LOG_PATH=${TMP_BUILD_DIR}/log
+export COLCON_LOG_PATH=${tmp_build_dir}/log
 
 # Build in the temporal build directory.
 colcon build \
   --merge-install \
   --packages-up-to tobas \
   --parallel-workers $(nproc) \
-  --install-base ${INSTALL_BASE} \
-  --build-base ${BUILD_BASE} \
+  --install-base ${install_base} \
+  --build-base ${build_base} \
   --cmake-args -DCMAKE_BUILD_TYPE=Release
 
 # Remove colcon-generated prefix-level files and directories that are not package installation destinations.
-find "${INSTALL_BASE}" -mindepth 1 -maxdepth 1 \
+find "${install_base}" -mindepth 1 -maxdepth 1 \
   ! -name bin \
   ! -name etc \
   ! -name include \
@@ -34,7 +34,7 @@ find "${INSTALL_BASE}" -mindepth 1 -maxdepth 1 \
   -exec rm -rf -- {} +
 
 # Create deb package.
-fakeroot dpkg-deb --build ${UBUNTU_WORKSPACE} ${TOBAS_DEB}
+fakeroot dpkg-deb --build ${ubuntu_workspace} ${tobas_deb}
 
 # Remove generated objects.
-rm -rf ${TMP_BUILD_DIR} ${UBUNTU_WORKSPACE}/opt/ros/jazzy
+rm -rf ${tmp_build_dir} ${ubuntu_workspace}/opt/ros/jazzy

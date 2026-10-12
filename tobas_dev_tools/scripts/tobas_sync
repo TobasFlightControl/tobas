@@ -14,16 +14,17 @@ if [ "$(id -un)" = "pi" ]; then
   exit 1
 fi
 
-# Navigate to Tobas root path
-cd $(realpath $(dirname "$0"))/../../
+# Navigate to the repository root
+script_dir=$(realpath $(dirname "$0"))
+cd "${script_dir}/../.."
 
 # Sync
-DEST_DIR="/home/pi/colcon_ws/src/tobas"
+dest_dir="/home/pi/colcon_ws/src/tobas"
 rsync -rcmv --delete \
-  --rsync-path="mkdir -p ${DEST_DIR} && rsync" \
+  --rsync-path="mkdir -p ${dest_dir} && rsync" \
   tobas tobas_core tobas_dev_tools \
   --exclude-from .gitignore \
   --exclude .git/ \
   --exclude tobas_cui/ \
   --exclude tobas_description/ \
-  pi@$1:${DEST_DIR}/
+  pi@$1:${dest_dir}/

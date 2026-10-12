@@ -2,6 +2,6 @@
 
 set -e
 
-TOBAS_DEB=$(realpath $(dirname "$0"))
-bash ${TOBAS_DEB}/create_deb_ubuntu.sh
-bash ${TOBAS_DEB}/create_deb_fc1xx.sh
+tobas_deb=$(realpath $(dirname "$0"))
+bash ${tobas_deb}/create_deb_ubuntu.sh
+bash ${tobas_deb}/create_deb_fc1xx.sh

@@ -2,6 +2,6 @@
 
 set -e
 
-TOBAS_DEB=$(realpath $(dirname "$0"))
-WORKSPACE=$(realpath ${TOBAS_DEB}/raspbian)
-fakeroot dpkg-deb --build ${WORKSPACE} ${TOBAS_DEB}
+tobas_deb=$(realpath $(dirname "$0"))
+workspace=$(realpath ${tobas_deb}/raspbian)
+fakeroot dpkg-deb --build ${workspace} ${tobas_deb}
