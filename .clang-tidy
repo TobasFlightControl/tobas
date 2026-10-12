@@ -1,36 +1,36 @@
+# Clang-Tidy: https://clang.llvm.org/extra/clang-tidy/
 # Naming rules: tobas_examples/tobas_code_style/CPP_CODE_STYLE.md
-# Formatting is handled by clang-format; checks overlapping build warnings are excluded.
 
----
-Checks: "-*,
-  bugprone-integer-division,
-  bugprone-use-after-move,
+HeaderFilterRegex: ""
+
+Checks: >
+  -*,
+
+  bugprone-*,
+
+  clang-analyzer-*,
+
+  cppcoreguidelines-*,
+  -cppcoreguidelines-narrowing-conversions,
+  -cppcoreguidelines-avoid-magic-numbers,
+
+  modernize-*,
+
   performance-*,
   -performance-enum-size,
-  -performance-for-range-copy,
-  -performance-move-const-arg,
-  -performance-no-int-to-ptr,
-  google-explicit-constructor,
-  google-readability-casting,
-  modernize-redundant-void-arg,
-  modernize-use-nullptr,
-  modernize-use-equals-default,
-  modernize-use-override,
-  modernize-loop-convert,
-  modernize-make-shared,
-  modernize-make-unique,
-  modernize-avoid-bind,
-  modernize-deprecated-headers,
-  readability-named-parameter,
-  readability-redundant-smartptr-get,
-  readability-redundant-string-cstr,
-  readability-simplify-boolean-expr,
-  readability-container-size-empty,
-  readability-identifier-naming,
-  readability-static-definition-in-anonymous-namespace,
-  "
-HeaderFilterRegex: ""
+
+  readability-*,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+
 CheckOptions:
+  # Keep parameter names consistent between declarations and definitions.
+  - key: readability-inconsistent-declaration-parameter-name.Strict
+    value: "true"
+  # Allow public data types, including those with constructors.
+  - key: cppcoreguidelines-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value: "true"
+
   # type names
   - key: readability-identifier-naming.ClassCase
     value: CamelCase
@@ -89,4 +89,3 @@ CheckOptions:
   # macro names
   - key: readability-identifier-naming.MacroDefinitionCase
     value: UPPER_CASE
-...

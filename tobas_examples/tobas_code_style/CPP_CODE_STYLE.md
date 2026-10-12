@@ -90,6 +90,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 - Do not call virtual methods from a base class constructor,
   because overridden implementations are not available while the base class constructor is running.
 - Prefer marking constructors as `explicit` to prevent implicit type conversions.
+- When a constructor stores its own copy of a non-primitive input, prefer taking that input by value
+  and moving it into the member with `std::move`, as recommended by `modernize-pass-by-value`.
+  Keep parameters that are moved from non-const. Use const references for inputs that are only read.
 - Define copy constructors and move constructors, and make it explicit whether each operation is allowed.
 - Use `struct` when the type contains only `public` data. Otherwise, generally use `class`.
 - Use `struct` instead of `std::pair` or `std::tuple` when doing so makes the meaning clearer.
@@ -117,7 +120,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 - For readability and performance, prefer return values over output arguments.
 - Input arguments: pass primitive types, enums, and raw pointers by value, without top-level `const`.
-  Preserve `const` on pointed-to types. Pass other types, including smart pointers, by const reference.
+  Preserve `const` on pointed-to types. Pass other types, including smart pointers, by const reference,
+  except for constructor inputs copied into owned members as described under [Classes](#classes).
 - Output arguments: pass by non-const reference.
 - Put input arguments before output arguments.
 - Keep each function focused. One function should do one thing.
