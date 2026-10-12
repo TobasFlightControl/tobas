@@ -12,7 +12,8 @@ gcc_library_dir=$(dirname "${gcc_library}")
 colcon build \
   --symlink-install \
   --parallel-workers $(nproc) \
+  --cmake-clean-first
+  --packages-up-to tobas
   --cmake-args \
     -DCMAKE_BUILD_TYPE=Release \
     "-DCMAKE_CXX_CLANG_TIDY=clang-tidy-20;--extra-arg=--gcc-install-dir=${gcc_library_dir}" \
-  --packages-up-to tobas
