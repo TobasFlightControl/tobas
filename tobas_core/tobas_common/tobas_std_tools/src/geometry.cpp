@@ -12,8 +12,7 @@ namespace tobas
 {
 namespace st
 {
-std::tuple<double, double, double, double>
-quaternionFromEuler(const double& roll, const double& pitch, const double& yaw)
+std::tuple<double, double, double, double> quaternionFromEuler(double roll, double pitch, double yaw)
 {
   const auto cx = std::cos(0.5 * roll);
   const auto sx = std::sin(0.5 * roll);
@@ -30,8 +29,7 @@ quaternionFromEuler(const double& roll, const double& pitch, const double& yaw)
   return { x, y, z, w };
 }
 
-std::tuple<double, double, double>
-eulerFromQuaternion(const double& x, const double& y, const double& z, const double& w)
+std::tuple<double, double, double> eulerFromQuaternion(double x, double y, double z, double w)
 {
   assert(math::isClose(math::sqr(x) + math::sqr(y) + math::sqr(z) + math::sqr(w), 1.0));
 

@@ -14,7 +14,8 @@ namespace tobas
 namespace ros2
 {
 /**
- * @brief Synchronous parameter client.
+ * Synchronous parameter client.
+ *
  * @note Service calls block the calling thread. Do not use this client where real-time behavior is required.
  */
 class SyncParamClient
@@ -46,8 +47,7 @@ public:
   inline const char* errorMessage() const;
 
 private:
-  // Asynchronous parameter client.
-  // The synchronous version spins, so it cannot be used on an executor.
+  /** Asynchronous parameter client. The synchronous version spins, so it cannot be used on an executor. */
   rclcpp::AsyncParametersClient client_;
 
   ErrorCode error_code_ = kNoError;

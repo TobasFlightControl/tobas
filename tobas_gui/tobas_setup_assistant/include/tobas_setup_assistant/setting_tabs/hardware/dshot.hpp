@@ -62,7 +62,7 @@ private:
   void setBidirectionalButtonText(QPushButton* button, bool checked);
 
 private Q_SLOTS:
-  void onPropulsionTypeChanged(const PropulsionSystem& new_prop_type);
+  void onPropulsionTypeChanged(PropulsionSystem new_prop_type);
   void onBidirectionalButtonToggled(QPushButton* button, bool checked);
 };
 }  // namespace hw

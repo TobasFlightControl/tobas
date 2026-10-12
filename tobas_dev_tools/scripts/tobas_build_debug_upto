@@ -1,6 +1,0 @@
-#!/bin/bash
-
-set -e
-
-PARDIR=$(realpath $(dirname "$0"))
-bash ${PARDIR}/tobas_build_debug --packages-up-to $1

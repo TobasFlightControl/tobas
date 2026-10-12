@@ -37,7 +37,8 @@ int main()
 
   tobas::ptree::PropertyTree pt;
 
-  if (!pt.initialize("/tmp/example.json")) {
+  if (const auto result = pt.initialize("/tmp/example.json"); !result) {
+    cerr << result.error() << endl;
     return EXIT_FAILURE;
   }
 
@@ -48,7 +49,8 @@ int main()
   pt.set<double>(kDoubleListKey, { 1.1, 2.2, 3.3, 4.4, 5.5 });
   pt.set<string>(kStringListKey, { "apple", "orange", "banana" });
 
-  if (!pt.save()) {
+  if (const auto result = pt.save(); !result) {
+    cerr << result.error() << endl;
     return EXIT_FAILURE;
   }
 
@@ -60,31 +62,37 @@ int main()
   vector<string> string_list;
 
   if (!pt.get(kIntKey, int_value)) {
+    cerr << "Failed to get " << kIntKey << "." << endl;
     return EXIT_FAILURE;
   }
   cout << kIntKey << ": " << int_value << endl;
 
   if (!pt.get(kDoubleKey, double_value)) {
+    cerr << "Failed to get " << kDoubleKey << "." << endl;
     return EXIT_FAILURE;
   }
   cout << kDoubleKey << ": " << double_value << endl;
 
   if (!pt.get(kStringKey, string_value)) {
+    cerr << "Failed to get " << kStringKey << "." << endl;
     return EXIT_FAILURE;
   }
   cout << kStringKey << ": " << string_value << endl;
 
   if (!pt.get(kIntListKey, int_list)) {
+    cerr << "Failed to get " << kIntListKey << "." << endl;
     return EXIT_FAILURE;
   }
   cout << kIntListKey << ": " << int_list << endl;
 
   if (!pt.get(kDoubleListKey, dobule_list)) {
+    cerr << "Failed to get " << kDoubleListKey << "." << endl;
     return EXIT_FAILURE;
   }
   cout << kDoubleListKey << ": " << dobule_list << endl;
 
   if (!pt.get(kStringListKey, string_list)) {
+    cerr << "Failed to get " << kStringListKey << "." << endl;
     return EXIT_FAILURE;
   }
   cout << kStringListKey << ": " << string_list << endl;

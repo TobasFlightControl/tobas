@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <expected>
+
 #include <QString>
 
 namespace tobas
@@ -11,15 +13,14 @@ namespace gui
 {
 namespace cmn
 {
-class SshConfig
+struct SshConfig
 {
-public:
   QString host;
   QString user;
-
-  bool load(const QString& path);
-  bool save(const QString& path) const;
 };
+
+std::expected<SshConfig, QString> loadSshConfig(const QString& path);
+std::expected<void, QString> saveSshConfig(const QString& path, const SshConfig& config);
 }  // namespace cmn
 }  // namespace gui
 }  // namespace tobas

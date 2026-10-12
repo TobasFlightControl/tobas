@@ -3,10 +3,6 @@
 
 #include "tobas_drone_core/joint/role.hpp"
 
-#include <iostream>
-
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -17,7 +13,7 @@ constexpr char kUserActive[] = "user_active";
 constexpr char kUserPassive[] = "user_passive";
 }  // namespace
 
-string textFromEnum(JointRole role)
+std::string textFromEnum(JointRole role)
 {
   switch (role) {
     case JointRole::kTiltJoint:
@@ -33,7 +29,7 @@ string textFromEnum(JointRole role)
   }
 }
 
-bool enumFromText(const string& text, JointRole& dst)
+bool enumFromText(const std::string& text, JointRole& dst)
 {
   if (text == kTiltJoint) {
     dst = JointRole::kTiltJoint;
@@ -52,7 +48,6 @@ bool enumFromText(const string& text, JointRole& dst)
     return true;
   }
   else {
-    cerr << "Invalid joint role: " << text << endl;
     return false;
   }
 }
@@ -76,7 +71,7 @@ bool isServoJoint(JointRole role)
 
 namespace YAML
 {
-Node convert<tobas::JointRole>::encode(const tobas::JointRole& rhs)
+Node convert<tobas::JointRole>::encode(tobas::JointRole rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);
@@ -89,6 +84,6 @@ bool convert<tobas::JointRole>::decode(const Node& node, tobas::JointRole& rhs)
     return false;
   }
 
-  return tobas::enumFromText(node.as<string>(), rhs);
+  return tobas::enumFromText(node.as<std::string>(), rhs);
 }
 }  // namespace YAML

@@ -3,6 +3,7 @@
 
 #include "tobas_tools/command_priority_handler.hpp"
 
+#include <chrono>
 #include <iostream>
 
 using namespace std::chrono_literals;
@@ -13,7 +14,7 @@ CommandPriorityHandler::CommandPriorityHandler()
 {
 }
 
-bool CommandPriorityHandler::update(const uint8_t& new_priority, const rclcpp::Time& cur_time)
+bool CommandPriorityHandler::update(uint8_t new_priority, const rclcpp::Time& cur_time)
 {
   constexpr auto kHighestLevelTimeout = 500ms;
 

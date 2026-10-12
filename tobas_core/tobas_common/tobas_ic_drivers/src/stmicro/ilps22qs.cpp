@@ -94,7 +94,7 @@ bool ILPS22QS::configure()
   return true;
 }
 
-void ILPS22QS::setPressureScale(const uint8_t& fs_mode)
+void ILPS22QS::setPressureScale(uint8_t fs_mode)
 {
   switch (fs_mode) {
     case FS_MODE_1260HPA:

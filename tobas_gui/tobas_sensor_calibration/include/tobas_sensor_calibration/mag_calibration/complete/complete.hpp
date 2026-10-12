@@ -7,7 +7,6 @@
 
 #include <QProgressBar>
 #include <QPushButton>
-#include <QVBoxLayout>
 #include <rviz_common/properties/property.hpp>
 
 #include <tobas_eigen_tools/ellipsoid.hpp>
@@ -35,9 +34,8 @@ class CompleteMagCalibWidget : public BaseMagCalibWidget
   Q_OBJECT
 
   using self = CompleteMagCalibWidget;
-  using super = BaseMagCalibWidget;
 
-  static constexpr int kMaxDataSize = 10000;  // RViz limits the maximum to 100000.
+  static constexpr int kMaxDataSize = 10000;  ///< RViz limits the maximum to 100000.
 
   static constexpr size_t kTopIdx = 0;
   static constexpr size_t kBottomIdx = kTopIdx + 1;
@@ -95,36 +93,36 @@ private:
 
   void initializeRviz();
 
-  /* Reset to the state before calibration starts. */
+  /** Reset to the state before calibration starts. */
   void resetToPreStart();
 
-  /* Clear the point cloud on the screen. */
+  /** Clear the point cloud on the screen. */
   void clearDisplayPoints();
 
   int numActiveSamples() const;
   size_t computeFaceIndex() const;
 
-  /* Equalize density: https://www.jstage.jst.go.jp/article/pscjspe/2011A/0/2011A_0_277/_pdf/-char/ja */
+  /** Equalize density: https://www.jstage.jst.go.jp/article/pscjspe/2011A/0/2011A_0_277/_pdf/-char/ja */
   void subsample();
 
-  /* Remove outliers: https://www.codexa.net/python-outlier/ */
+  /** Remove outliers: https://www.codexa.net/python-outlier/ */
   void removeOutliers();
 
-  /* Find the offset using sphere approximation. */
+  /** Find the offset using sphere approximation. */
   bool
   computeHardBias(const Eigen::VectorXd& x, const Eigen::VectorXd& y, const Eigen::VectorXd& z, Eigen::Vector3d& dst);
 
-  /* Find distortion using ellipsoid approximation. */
+  /** Find distortion using ellipsoid approximation. */
   bool
   computeSoftBias(const Eigen::VectorXd& x, const Eigen::VectorXd& y, const Eigen::VectorXd& z, Eigen::Vector6d& dst);
 
-  /* Update FC parameters. */
+  /** Update FC parameters. */
   bool updateRemoteParameters(const Eigen::Vector3d& hard_bias, const Eigen::Vector6d& soft_bias);
 
-  /* Display the result point cloud. */
+  /** Display the result point cloud. */
   void displayPointClouds(const eigen::Ellipsoid& ellipsoid);
 
-  /* Display the estimated ellipsoid. */
+  /** Display the estimated ellipsoid. */
   void displayEllipsoidWireFrame(const eigen::Ellipsoid& ellipsoid);
   void addEllipsoidPoint(
     double theta,

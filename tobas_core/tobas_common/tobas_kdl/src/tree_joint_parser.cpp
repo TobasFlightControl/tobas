@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/tree_joint_parser.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -15,27 +13,23 @@ TreeJointParser::TreeJointParser(const Tree& tree) : super(tree)
   parseJntNames();
 }
 
-bool TreeJointParser::updateInternalDataStructures()
+void TreeJointParser::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
-
   resize();
   parseJntNames();
-
-  return true;
 }
 
 void TreeJointParser::resize()
 {
-  jnt_names_.resize(nj_);
+  const auto nj = tree_.getNrOfJoints();
+
+  jnt_names_.resize(nj);
   jnt_indexes_.clear();
   seg_names_.clear();
-  lower_limits_.resize(nj_);
-  upper_limits_.resize(nj_);
-  max_velocities_.resize(nj_);
-  max_efforts_.resize(nj_);
+  lower_limits_.resize(nj);
+  upper_limits_.resize(nj);
+  max_velocities_.resize(nj);
+  max_efforts_.resize(nj);
 }
 
 void TreeJointParser::parseJntNames()

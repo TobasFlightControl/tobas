@@ -4,7 +4,6 @@
 #pragma once
 
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/aerodynamics.hpp>
-#include <tobas_math/definitions.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
 namespace tobas
@@ -17,7 +16,7 @@ namespace propulsion
 {
 namespace ice
 {
-/* Approximate variable-pitch propeller aerodynamic parameters with blade theory and Taylor expansion (memo: 3-36). */
+/** Approximate variable-pitch propeller aerodynamic parameters with blade theory and Taylor expansion (memo: 3-36). */
 class BladeTheory
 {
 public:
@@ -39,13 +38,13 @@ private:
   const double theta_;
   const double rho_;
 
-  /* Solidity */
+  /** Solidity */
   double sigma() const;
 
-  /* Inflow ratio */
+  /** Inflow ratio */
   double lambda() const;
 
-  /* dlam / dtheta */
+  /** dlam / dtheta */
   double lambdaDeriv() const;
 };
 }  // namespace ice

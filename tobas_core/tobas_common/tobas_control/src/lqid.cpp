@@ -3,20 +3,15 @@
 
 #include "tobas_control/lqid.hpp"
 
-#include <iostream>
-
 #include <tobas_eigen_tools/core.hpp>
 
 #include "tobas_control/care.hpp"
-
-using namespace std;
-using namespace Eigen;
 
 namespace tobas
 {
 namespace ctrl
 {
-LQID::LQID(const Index& state_size, const Index& input_size, const Index& integrate_size)
+LQID::LQID(Eigen::Index state_size, Eigen::Index input_size, Eigen::Index integrate_size)
   : dynamics(state_size, input_size)
   , C(integrate_size, state_size)
   , state_weight(state_size)
@@ -65,7 +60,7 @@ LQID::LQID(const Index& state_size, const Index& input_size, const Index& integr
   R_tilde_.setZero();
 }
 
-VectorXd LQID::solve(const double& dt, const bool& update_gain)
+std::expected<Eigen::VectorXd, std::string> LQID::solve(double dt, bool update_gain)
 {
   assert(dt >= 0);
 
@@ -80,12 +75,14 @@ VectorXd LQID::solve(const double& dt, const bool& update_gain)
   assert((max_integrated_error.array() >= 0).all());
 
   if (update_gain) {
-    updateGain();
+    if (const auto result = updateGainMatrix(); !result) {
+      return std::unexpected("Failed to update gain matrix: " + result.error());
+    }
   }
 
   // Update the integrated error.
-  const VectorXd y = C * current_state;
-  const VectorXd r = C * target_state;
+  const Eigen::VectorXd y = C * current_state;
+  const Eigen::VectorXd r = C * target_state;
   eps_ += (r - y) * dt;
   eps_ = eps_.cwiseMax(-max_integrated_error).cwiseMin(max_integrated_error);
   // cout << "Integrated error: " << eps_ << endl;
@@ -103,7 +100,7 @@ VectorXd LQID::solve(const double& dt, const bool& update_gain)
   return last_u_;
 }
 
-void LQID::updateGain()
+std::expected<void, std::string> LQID::updateGainMatrix()
 {
   assert(dynamics.stateSize() == x_size_ && dynamics.inputSize() == u_size_);
   assert(dynamics.isFinite());
@@ -140,20 +137,24 @@ void LQID::updateGain()
   R_tilde_.diagonal() = input_rate_weight;
 
   // Solve CARE.
-  P_inf_ = care_ArimotoPotter(A_tilde_, B_tilde_, Q_tilde_, R_tilde_);
+  const auto P_inf = care_ArimotoPotter(A_tilde_, B_tilde_, Q_tilde_, R_tilde_);
+  if (!P_inf) {
+    return std::unexpected("Failed to solve CARE: " + P_inf.error());
+  }
 
   // Compute the LQR solution.
-  K_ = R_tilde_.diagonal().cwiseInverse().asDiagonal() * B_tilde_.transpose() * P_inf_;
+  K_ = R_tilde_.diagonal().cwiseInverse().asDiagonal() * B_tilde_.transpose() * *P_inf;
+
+  return {};
 }
 
-ostream& operator<<(ostream& os, const LQID& arg)
+std::ostream& operator<<(std::ostream& os, const LQID& arg)
 {
-  os << "Dynamics:\n" << arg.dynamics << endl;
-  os << "Current state:\n" << arg.current_state << endl;
-  os << "Target state:\n" << arg.target_state << endl;
-  os << "State error:\n" << arg.target_state - arg.current_state << endl;
-  os << "Covariance matrix:\n" << arg.P_inf_ << endl;
-  os << "Gain:\n" << arg.K_ << endl;
+  os << "Dynamics:\n" << arg.dynamics << std::endl;
+  os << "Current state:\n" << arg.current_state << std::endl;
+  os << "Target state:\n" << arg.target_state << std::endl;
+  os << "State error:\n" << arg.target_state - arg.current_state << std::endl;
+  os << "Gain:\n" << arg.K_ << std::endl;
 
   return os;
 }

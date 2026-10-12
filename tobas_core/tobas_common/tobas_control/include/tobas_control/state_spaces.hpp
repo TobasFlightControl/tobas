@@ -17,24 +17,24 @@ public:
   Eigen::MatrixXd A;
   Eigen::MatrixXd B;
 
-  inline explicit LinearDynamics(const Eigen::Index& x_size, const Eigen::Index& u_size);
+  inline explicit LinearDynamics(Eigen::Index x_size, Eigen::Index u_size);
   inline explicit LinearDynamics(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B);
   explicit LinearDynamics();
 
   inline Eigen::Index stateSize() const;
   inline Eigen::Index inputSize() const;
 
-  inline void resize(const Eigen::Index& x_size, const Eigen::Index& u_size);
+  inline void resize(Eigen::Index x_size, Eigen::Index u_size);
   inline void setZero();
 
-  /* Compute A x + B u. */
+  /** Compute A x + B u. */
   inline Eigen::VectorXd dynamics(const Eigen::VectorXd& x, const Eigen::VectorXd& u) const;
 
   inline bool isSizeMatch() const;
   inline bool isFinite() const;
   inline bool isControllable() const;
 
-  /* Create state equations for scaled states and inputs. */
+  /** Create state equations for scaled states and inputs. */
   LinearDynamics scale(const Eigen::VectorXd& x_scale, const Eigen::VectorXd& u_scale) const;
 
   friend std::ostream& operator<<(std::ostream& os, const LinearDynamics& arg);
@@ -47,21 +47,21 @@ public:
   Eigen::MatrixXd B;
   Eigen::MatrixXd C;
 
-  inline explicit LinearStateSpace(const Eigen::Index& x_size, const Eigen::Index& u_size, const Eigen::Index& y_size);
+  inline explicit LinearStateSpace(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size);
   inline explicit LinearStateSpace(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B, const Eigen::MatrixXd& C);
   inline explicit LinearStateSpace(const LinearDynamics& dyn, const Eigen::MatrixXd& C);
   inline explicit LinearStateSpace();
 
   inline LinearDynamics getDynamics() const;
 
-  /* Update `A` and `B`. */
+  /** Update `A` and `B`. */
   inline void updateDynamics(const LinearDynamics& dyn);
 
   inline Eigen::Index stateSize() const;
   inline Eigen::Index inputSize() const;
   inline Eigen::Index outputSize() const;
 
-  inline void resize(const Eigen::Index& x_size, const Eigen::Index& u_size, const Eigen::Index& y_size);
+  inline void resize(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size);
   inline void setZero();
 
   inline bool isSizeMatch() const;
@@ -72,8 +72,7 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const LinearStateSpace& arg);
 };
 
-inline LinearDynamics::LinearDynamics(const Eigen::Index& x_size, const Eigen::Index& u_size)
-  : A(x_size, x_size), B(x_size, u_size)
+inline LinearDynamics::LinearDynamics(Eigen::Index x_size, Eigen::Index u_size) : A(x_size, x_size), B(x_size, u_size)
 {
 }
 
@@ -97,7 +96,7 @@ inline Eigen::Index LinearDynamics::inputSize() const
   return B.cols();
 }
 
-inline void LinearDynamics::resize(const Eigen::Index& x_size, const Eigen::Index& u_size)
+inline void LinearDynamics::resize(Eigen::Index x_size, Eigen::Index u_size)
 {
   A.conservativeResize(x_size, x_size);
   B.conservativeResize(x_size, u_size);
@@ -132,10 +131,7 @@ inline bool LinearDynamics::isControllable() const
   return ctrl::isControllable(A, B);
 }
 
-inline LinearStateSpace::LinearStateSpace(
-  const Eigen::Index& x_size,
-  const Eigen::Index& u_size,
-  const Eigen::Index& y_size)
+inline LinearStateSpace::LinearStateSpace(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size)
   : A(x_size, x_size), B(x_size, u_size), C(y_size, x_size)
 {
 }
@@ -187,7 +183,7 @@ inline Eigen::Index LinearStateSpace::outputSize() const
   return C.rows();
 }
 
-inline void LinearStateSpace::resize(const Eigen::Index& x_size, const Eigen::Index& u_size, const Eigen::Index& y_size)
+inline void LinearStateSpace::resize(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size)
 {
   A.conservativeResize(x_size, x_size);
   B.conservativeResize(x_size, u_size);

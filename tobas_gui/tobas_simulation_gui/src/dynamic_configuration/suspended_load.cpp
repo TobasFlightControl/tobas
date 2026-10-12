@@ -3,7 +3,6 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/suspended_load.hpp"
 
-#include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -17,8 +16,6 @@
 #include <tobas_string_tools/core.hpp>
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
-
-namespace ch = std::chrono;
 
 namespace tobas
 {
@@ -81,8 +78,8 @@ SuspendedLoadWidget::SuspendedLoadWidget()
   setLayout(rows);
 
   // Connection
-  connect(attach_detach_btn_, &qt::ToggleButton::checked, this, &self::onAttachRequested);
-  connect(attach_detach_btn_, &qt::ToggleButton::unchecked, this, &self::onDetachRequested);
+  connect(attach_detach_btn_, &qt::ToggleButton::checked, this, &self::onAttachButtonClicked);
+  connect(attach_detach_btn_, &qt::ToggleButton::unchecked, this, &self::onDetachButtonClicked);
 
   reset();
 }
@@ -116,13 +113,11 @@ void SuspendedLoadWidget::setParamsToDefault()
   cable_csa_->setValue(50);
 }
 
-void SuspendedLoadWidget::onAttachRequested()
+void SuspendedLoadWidget::onAttachButtonClicked()
 {
   const auto req = std::make_shared<AttachSrv::Request>();
   tf::vectorEigenToMsg(attach_point_->vector(), req->attachment_point);
-  req->load_sx = load_size_->x();
-  req->load_sy = load_size_->y();
-  req->load_sz = load_size_->z();
+  tf::vectorEigenToMsg(load_size_->vector(), req->load_size);
   req->load_mass = load_mass_->value();
   req->cable_length = cable_length_->value();
   req->cable_young_modulus = cable_young_->value() * 1e+6;
@@ -131,31 +126,31 @@ void SuspendedLoadWidget::onAttachRequested()
   const auto res = attach_sc_->sendRequestAndWait(req);
   if (!res) {
     qt::qErrorBox(this, "Failed to call '" + QString(gazebo::kAttachSuspenedLoadSrv) + "' service.");
-    reset();
+    attach_detach_btn_->setChecked(false);
     return;
   }
 
   if (!res->success) {
-    qt::qErrorBox(this, "Failed to attach a load: " + QString::fromStdString(res->message));
-    reset();
+    qt::qErrorBox(this, "Failed to attach a suspended load: " + QString::fromStdString(res->message));
+    attach_detach_btn_->setChecked(false);
     return;
   }
 }
 
-void SuspendedLoadWidget::onDetachRequested()
+void SuspendedLoadWidget::onDetachButtonClicked()
 {
   const auto req = std::make_shared<DetachSrv::Request>();
 
   const auto res = detach_sc_->sendRequestAndWait(req);
   if (!res) {
     qt::qErrorBox(this, "Failed to call '" + QString(gazebo::kDetachSuspenedLoadSrv) + "' service.");
-    reset();
+    attach_detach_btn_->setChecked(true);
     return;
   }
 
   if (!res->success) {
-    qt::qErrorBox(this, "Failed to detach the load: " + QString::fromStdString(res->message));
-    reset();
+    qt::qErrorBox(this, "Failed to detach the suspended load: " + QString::fromStdString(res->message));
+    attach_detach_btn_->setChecked(true);
     return;
   }
 }

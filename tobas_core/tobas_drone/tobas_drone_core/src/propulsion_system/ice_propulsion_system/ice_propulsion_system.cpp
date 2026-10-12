@@ -3,9 +3,9 @@
 
 #include "tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp"
 
-#include <iostream>
-
-#include <boost/polymorphic_pointer_cast.hpp>
+#include <cassert>
+#include <memory>
+#include <ranges>
 
 #include <tobas_constants/throttle.hpp>
 #include <tobas_nlp/newton_1d.hpp>
@@ -18,43 +18,40 @@ constexpr char kEngineKey[] = "engine";
 constexpr char kRotorsKey[] = "rotors";
 }  // namespace
 
-bool IcePropulsionSystemConfig::isValid() const
+std::expected<void, std::string> IcePropulsionSystemConfig::validate() const
 {
-  // Rotors
-  for (const auto& [_, rotor] : rotors) {
-    if (!rotor->isValid()) {
-      std::cerr << "The configuration of rotor \"" << rotor->link_name << "\" is invalid." << std::endl;
-      return false;
+  for (const auto& [link_name, rotor] : rotors) {
+    if (!rotor) {
+      return std::unexpected("Rotor '" + link_name + "': configuration is missing.");
+    }
+    if (const auto result = rotor->validate(); !result) {
+      return std::unexpected("Rotor '" + link_name + "': " + result.error());
     }
   }
 
-  // Engine
-  if (!engine.isValid()) {
-    return false;
-  }
-
-  return true;
+  return engine.validate();
 }
 
-bool IcePropulsionSystemConfig::load(const YAML::Node& root_node)
+std::expected<void, std::string> IcePropulsionSystemConfig::load(const YAML::Node& root_node)
 {
+  if (!root_node.IsDefined() || !root_node.IsMap()) {
+    return std::unexpected("ICE propulsion system node must be a map.");
+  }
+
   clear();
 
   // Rotors
   const auto rotors_node = root_node[kRotorsKey];
   if (!rotors_node.IsDefined()) {
-    std::cerr << "\"" << kRotorsKey << "\" is not defined." << std::endl;
-    return false;
+    return std::unexpected(std::string("'") + kRotorsKey + "' is not defined.");
   }
   if (!rotors_node.IsSequence()) {
-    std::cerr << "\"" << kRotorsKey << "\" must be a sequence." << std::endl;
-    return false;
+    return std::unexpected(std::string("'") + kRotorsKey + "' must be a sequence.");
   }
-  for (const auto& rotor_node : rotors_node) {
+  for (const auto& [idx, rotor_node] : std::views::enumerate(rotors_node)) {
     const auto irotor = std::make_shared<IceRotorConfig>();
-    if (!irotor->load(rotor_node)) {
-      std::cerr << "Failed to load the configuration of rotors." << std::endl;
-      return false;
+    if (const auto result = irotor->load(rotor_node); !result) {
+      return std::unexpected("Rotors[" + std::to_string(idx) + "]: " + result.error());
     }
     rotors[irotor->link_name] = irotor;
   }
@@ -62,18 +59,16 @@ bool IcePropulsionSystemConfig::load(const YAML::Node& root_node)
   // Engine
   const auto engine_node = root_node[kEngineKey];
   if (!engine_node.IsDefined()) {
-    std::cerr << "\"" << kEngineKey << "\" is not defined." << std::endl;
-    return false;
+    return std::unexpected(std::string("'") + kEngineKey + "' is not defined.");
   }
-  if (!engine.load(engine_node)) {
-    std::cerr << "Failed to load the configuration of engine." << std::endl;
-    return false;
+  if (const auto result = engine.load(engine_node); !result) {
+    return std::unexpected("Engine: " + result.error());
   }
 
   // Maximum engine speed
   max_engine_speed_ = computeEngineSpeed(kMaxThrot);
 
-  return true;
+  return {};
 }
 
 YAML::Node IcePropulsionSystemConfig::dump() const
@@ -147,16 +142,13 @@ double IcePropulsionSystemConfig::computeEngineSpeed(double throttle) const
   nlp::NewtonSolver1d newton;
 
   newton.initialize(
-    bind(&self::speedFunc, this, throttle, std::placeholders::_1),
-    bind(&self::speedFuncDeriv, this, throttle, std::placeholders::_1));
+    std::bind(&self::speedFunc, this, throttle, std::placeholders::_1),
+    std::bind(&self::speedFuncDeriv, this, throttle, std::placeholders::_1));
 
-  double engine_speed = 0.0;
-  if (newton.solve(engine_speed) < 0) {
-    std::cerr << "Failed to solve the engine dynamics equation: " << newton.errorMessage() << std::endl;
-    return 0.0;
-  }
+  const auto engine_speed = newton.solve(0.0);
+  assert(engine_speed.has_value());
 
-  return engine_speed;
+  return *engine_speed;
 }
 
 double IcePropulsionSystemConfig::speedFunc(double throttle, double omega) const
@@ -190,7 +182,7 @@ double IcePropulsionSystemConfig::calc_k() const
 {
   double res = 0.0;
   for (const auto& [_, rotor] : rotors) {
-    const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
+    const auto irotor = std::static_pointer_cast<IceRotorConfig>(rotor);
     const auto& phi_r = irotor->center_pitch;
     const auto& n = irotor->gear_ratio;
     res += irotor->motorConst(phi_r) * irotor->momentConst(phi_r) / math::cube(n);
@@ -202,19 +194,17 @@ IceRotorConfig::SharedPtr IcePropulsionSystemConfig::getRotor(const std::string&
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    std::cerr << "ICE rotor link \"" << link_name << "\" is not found." << std::endl;
     return nullptr;
   }
-  return boost::polymorphic_pointer_downcast<IceRotorConfig>(it->second);
+  return std::static_pointer_cast<IceRotorConfig>(it->second);
 }
 
 IceRotorConfig::ConstSharedPtr IcePropulsionSystemConfig::getRotor(const std::string& link_name) const
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    std::cerr << "ICE rotor link \"" << link_name << "\" is not found." << std::endl;
     return nullptr;
   }
-  return boost::polymorphic_pointer_downcast<IceRotorConfig>(it->second);
+  return std::static_pointer_cast<IceRotorConfig>(it->second);
 }
 }  // namespace tobas

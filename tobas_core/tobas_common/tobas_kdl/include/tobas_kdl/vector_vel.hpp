@@ -14,8 +14,8 @@ namespace kdl
 class VectorVel
 {
 public:
-  Vector p;  // position vector
-  Vector v;  // velocity vector
+  Vector p;  ///< position vector
+  Vector v;  ///< velocity vector
 
   inline explicit VectorVel();
   inline explicit VectorVel(const Vector& _p, const Vector& _v);

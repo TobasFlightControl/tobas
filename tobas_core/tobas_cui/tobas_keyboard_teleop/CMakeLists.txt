@@ -16,7 +16,6 @@ set(AMENT_DEPENDENCIES tobas_keyboard tobas_node tobas_msgs_adapter tobas_comman
 )
 
 find_package(ament_cmake REQUIRED)
-
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()

@@ -6,7 +6,7 @@
 namespace tobas
 {
 // Resource Path
-// cf. XDG Base Directory Specification: https://specifications.freedesktop.org/basedir/
+// Ref: [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/)
 static constexpr char kConfigDirHome[] = "~/.local/share/tobas/config";
 static constexpr char kConfigDirRoot[] = "/etc/tobas/config";
 static constexpr char kColconWSPathHome[] = "~/.local/share/tobas/colcon_ws";

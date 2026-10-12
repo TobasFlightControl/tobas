@@ -3,6 +3,7 @@
 
 #include "tobas_gcs/flight_controller_scanner.hpp"
 
+#include <QMap>
 #include <QSet>
 
 namespace tobas
@@ -15,33 +16,87 @@ namespace
 {
 constexpr char kServiceType[] = "_tobas-fc._tcp";
 
-QVector<DiscoveredFlightController> parse(const QString& output)
+QMap<QString, QString> parseTxtField(const QString& txt)
+{
+  QMap<QString, QString> res;
+
+  for (const auto& record : txt.split('"', Qt::SkipEmptyParts)) {
+    const auto separator = record.indexOf('=');
+    if (separator < 0) {
+      continue;
+    }
+    const auto key = record.left(separator).toLower();
+    const auto value = record.mid(separator + 1);
+    res.insert(key, value);
+  }
+
+  return res;
+}
+
+std::optional<QString> getOptionalValue(const QMap<QString, QString>& map, const QString& key)
+{
+  const auto it = map.find(key);
+  if (it == map.end()) {
+    return std::nullopt;
+  }
+  else {
+    const auto& value = it.value();
+    if (value.isEmpty()) {
+      return std::nullopt;
+    }
+    else {
+      return value;
+    }
+  }
+}
+
+QVector<DiscoveredFlightController> parseAvahiBrowseResult(const QString& output)
 {
   QVector<DiscoveredFlightController> flight_controllers;
   QSet<QString> addresses;
 
   for (const auto& line : output.split('\n', Qt::SkipEmptyParts)) {
     const auto fields = line.split(';');
-    if (fields.size() < 9 || fields.at(0) != "=" || fields.at(2) != "IPv4" || fields.at(4) != kServiceType) {
+    if (fields.size() < 10) {
+      continue;
+    }
+
+    const auto& event_type = fields.at(0);
+    if (event_type != "=") {
+      continue;
+    }
+
+    const auto& protocol = fields.at(2);
+    if (protocol != "IPv4") {
+      continue;
+    }
+
+    const auto& service_type = fields.at(4);
+    if (service_type != kServiceType) {
       continue;
     }
 
     const auto& hostname = fields.at(6);
-    const auto& address = fields.at(7);
-
-    if (hostname.isEmpty() || address.isEmpty() || addresses.contains(address)) {
+    if (hostname.isEmpty()) {
       continue;
     }
 
+    const auto& address = fields.at(7);
+    if (address.isEmpty() || addresses.contains(address)) {
+      continue;
+    }
+
+    const auto txt = parseTxtField(fields.at(9));
+    flight_controllers.append({ hostname, address, getOptionalValue(txt, "drone"), getOptionalValue(txt, "id") });
+
     addresses.insert(address);
-    flight_controllers.append({ hostname, address });
   }
 
   return flight_controllers;
 }
 }  // namespace
 
-FlightControllerScanner::FlightControllerScanner(QObject* parent) : super(parent), process_(this)
+FlightControllerScanner::FlightControllerScanner(QObject* parent) : super(parent)
 {
   constexpr int kScanInterval = 5000;  // [ms]
   scan_timer_.setInterval(kScanInterval);
@@ -87,7 +142,7 @@ void FlightControllerScanner::onFinished(int exit_code, QProcess::ExitStatus exi
     return;
   }
 
-  Q_EMIT finished(parse(QString::fromUtf8(process_.readAllStandardOutput())));
+  Q_EMIT finished(parseAvahiBrowseResult(QString::fromUtf8(process_.readAllStandardOutput())));
 }
 
 void FlightControllerScanner::onErrorOccurred(QProcess::ProcessError)

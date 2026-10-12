@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace math
 {
-/* Compute the L2 norm of a variable number of arguments. */
+/** Compute the L2 norm of a variable number of arguments. */
 template <typename... T>
 double norm(T... args)
 {

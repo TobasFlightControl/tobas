@@ -21,7 +21,6 @@ class IpAddressWidget : public BaseConfigWidget
   Q_OBJECT
 
   using self = IpAddressWidget;
-  using super = BaseConfigWidget;
 
 public:
   explicit IpAddressWidget();

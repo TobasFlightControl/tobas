@@ -22,7 +22,6 @@ class ParameterTuningWidget : public QWidget
   Q_OBJECT
 
   using self = ParameterTuningWidget;
-  using super = QWidget;
 
   static constexpr size_t kNumBlocks = 4;
 
@@ -30,7 +29,7 @@ public:
   explicit ParameterTuningWidget();
 
   void reset();
-  void updateProject(const QString& proj_path);
+  void setProjectPath(const QString& proj_path);
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
 
@@ -43,14 +42,19 @@ private:
 
   QPushButton* load_button_;
   QPushButton* save_button_;
-  QPushButton* dflt_button_;
+  QPushButton* reset_button_;
+  QPushButton* default_button_;
 
   bool project_loaded_ = false;
   bool ros_initialized_ = false;
+  bool params_loaded_ = false;
+
+  void updateActionAvailability();
 
 private Q_SLOTS:
   void onLoadButtonClicked();
   void onSaveButtonClicked();
+  void onResetButtonClicked();
   void onDefaultButtonClicked();
 };
 }  // namespace param

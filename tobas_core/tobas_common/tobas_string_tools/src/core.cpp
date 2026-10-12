@@ -4,16 +4,15 @@
 #include "tobas_string_tools/core.hpp"
 
 #include <algorithm>
-#include <cstdint>
-#include <iostream>
 #include <map>
 #include <regex>
+#include <sstream>
 
 namespace tobas
 {
 namespace str
 {
-std::vector<std::string> split(const std::string& s, const char& c)
+std::vector<std::string> split(const std::string& s, char c)
 {
   std::vector<std::string> res;
   if (s.find(c) == std::string::npos) {
@@ -35,19 +34,18 @@ std::vector<std::string> split(const std::string& s, const char& c)
   return res;
 }
 
-std::pair<std::string, std::string> rsplit(const std::string& s, const char& c)
+std::expected<std::pair<std::string, std::string>, std::string> rsplit(const std::string& s, char c)
 {
   // Find the last specified character.
-  size_t pos = s.rfind(c);
+  const auto pos = s.rfind(c);
 
   if (pos != std::string::npos) {
     std::string before = s.substr(0, pos);
     std::string after = s.substr(pos + 1);
-    return { before, after };
+    return std::pair{ before, after };
   }
   else {
-    std::cerr << "String \"" << s << "\" does not contain '" << c << "'" << std::endl;
-    return { s, "" };
+    return std::unexpected("String '" + s + "' does not contain '" + c + "'.");
   }
 }
 
@@ -176,24 +174,20 @@ std::string sanitize(const char* s)
   return std::string(first, last);
 }
 
-bool contains(const std::string& s, const std::string& sub)
-{
-  return s.find(sub) != std::string::npos;
-}
-
-bool contains(const std::string& s, const char& sub)
-{
-  return s.find(sub) != std::string::npos;
-}
-
 bool isValidFileName(const std::string& file_name)
 {
-  if (file_name.empty()) {
+  if (file_name.empty() || file_name == "." || file_name == "..") {
     return false;
   }
 
-  std::regex invalid_chars(R"([<>:\"/\\|?*])");
-  return !std::regex_search(file_name, invalid_chars);
+  // Reject path separators and reserved punctuation.
+  constexpr char kInvalidChars[] = R"(<>:"/\|?*)";
+  if (file_name.find_first_of(kInvalidChars) != std::string::npos) {
+    return false;
+  }
+
+  // Check ASCII control bytes, including NUL, without rejecting UTF-8 bytes.
+  return std::none_of(file_name.begin(), file_name.end(), [](unsigned char ch) { return ch < 0x20 || ch == 0x7F; });
 }
 
 bool isValidEmail(const std::string& email)

@@ -39,7 +39,7 @@ public:
 
   QString linkName(int index) const;
 
-  /* Return the tab index, or -1 if it does not exist. */
+  /** Return the tab index, or -1 if it does not exist. */
   int index(const QString& link_name) const;
 
   PropulsionUnitWidget* widget(int index);

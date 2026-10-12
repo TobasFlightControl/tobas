@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <QPointF>
 #include <QWidget>
 
 #include <tobas_dsp/low_pass_filter.hpp>

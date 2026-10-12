@@ -24,17 +24,14 @@ namespace kdl
  * derivatives. (e.g. Rall1d< Rall1d<double>, Rall1d<double>, double> ).
  *
  * S is always passed by value.
- *
- * \par Class Type
- * Concrete implementation
  */
 template <class T, class V = T, class S = T>
 class Rall2d
 {
 public:
-  T t;   // value
-  V d;   // 1st derivative
-  V dd;  // 2nd derivative
+  T t;   ///< value
+  V d;   ///< 1st derivative
+  V dd;  ///< 2nd derivative
 
   // = Constructors
   inline explicit Rall2d() : t(), d(), dd(){};
@@ -55,7 +52,6 @@ public:
   {
   }
 
-  /* Copy constructor. */
   inline Rall2d(const Rall2d<T, V, S>& r) : t(r.t), d(r.d), dd(r.dd)
   {
   }
@@ -350,7 +346,7 @@ inline Rall2d<T, V, S> pow(const Rall2d<T, V, S>& arg, double m)
 template <class T, class V, class S>
 inline Rall2d<T, V, S> sqrt(const Rall2d<T, V, S>& arg)
 {
-  /* By inversion of sqr(x) :*/
+  // By inversion of sqr(x)
   Rall2d<T, V, S> tmp;
   tmp.t = sqrt(arg.t);
   tmp.d = (S(0.5) / tmp.t) * arg.d;
@@ -361,7 +357,7 @@ inline Rall2d<T, V, S> sqrt(const Rall2d<T, V, S>& arg)
 template <class T, class V, class S>
 inline Rall2d<T, V, S> asin(const Rall2d<T, V, S>& arg)
 {
-  /* By inversion of sin(x) */
+  // By inversion of sin(x)
   Rall2d<T, V, S> tmp;
   tmp.t = asin(arg.t);
   T v = cos(tmp.t);
@@ -373,7 +369,7 @@ inline Rall2d<T, V, S> asin(const Rall2d<T, V, S>& arg)
 template <class T, class V, class S>
 inline Rall2d<T, V, S> acos(const Rall2d<T, V, S>& arg)
 {
-  /* By inversion of cos(x) */
+  // By inversion of cos(x)
   Rall2d<T, V, S> tmp;
   tmp.t = acos(arg.t);
   T v = -sin(tmp.t);
@@ -385,7 +381,7 @@ inline Rall2d<T, V, S> acos(const Rall2d<T, V, S>& arg)
 template <class T, class V, class S>
 inline Rall2d<T, V, S> atan(const Rall2d<T, V, S>& x)
 {
-  /* By inversion of tan(x) */
+  // By inversion of tan(x)
   Rall2d<T, V, S> tmp;
   tmp.t = atan(x.t);
   T v = S(1) + sqr(x.t);

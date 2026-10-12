@@ -4,9 +4,9 @@
 #pragma once
 
 #include <array>
+#include <cassert>
 #include <cinttypes>
 #include <cstring>
-#include <iostream>
 #include <vector>
 
 namespace tobas
@@ -14,7 +14,7 @@ namespace tobas
 namespace st
 {
 template <typename T>
-std::vector<uint8_t> toBytes(const T& src)
+inline std::vector<uint8_t> toBytes(const T& src)
 {
   std::vector<uint8_t> res;
   res.resize(sizeof(T));
@@ -23,22 +23,33 @@ std::vector<uint8_t> toBytes(const T& src)
 }
 
 template <typename T>
-bool fromBytes(const std::vector<uint8_t>& src, T& dst)
+inline void fromBytes(const std::vector<uint8_t>& src, T& dst)
 {
-  if (src.size() != sizeof(T)) {
-    std::cerr << "Size mismatch" << std::endl;
-    return false;
-  }
-
+  assert(src.size() >= sizeof(T));
   std::memcpy(&dst, src.data(), sizeof(T));
-  return true;
+}
+
+template <typename T>
+inline T fromBytes(const std::vector<uint8_t>& src)
+{
+  T res;
+  fromBytes(src, res);
+  return res;
 }
 
 template <typename T, size_t N>
-void fromBytes(const std::array<uint8_t, N>& src, T& dst)
+inline void fromBytes(const std::array<uint8_t, N>& src, T& dst)
 {
-  static_assert(src.size() == sizeof(T));
+  static_assert(src.size() >= sizeof(T));
   std::memcpy(&dst, src.data(), sizeof(T));
+}
+
+template <typename T, size_t N>
+inline T fromBytes(const std::array<uint8_t, N>& src)
+{
+  T res;
+  fromBytes(src, res);
+  return res;
 }
 }  // namespace st
 }  // namespace tobas

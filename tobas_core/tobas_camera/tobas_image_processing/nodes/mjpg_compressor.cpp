@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <fcntl.h>
-#include <linux/videodev2.h>
-#include <unistd.h>
-
 #include <cv_bridge/cv_bridge.hpp>
 #include <ffmpeg_encoder_decoder/encoder.hpp>
 #include <ffmpeg_image_transport_msgs/msg/ffmpeg_packet.hpp>
@@ -12,9 +8,7 @@
 #include <opencv2/core/types.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
-#include <sensor_msgs/image_encodings.hpp>
 
-#include <tobas_linux/video_dev.hpp>
 #include <tobas_node/node.hpp>
 
 #include <sensor_msgs/msg/compressed_image.hpp>
@@ -26,9 +20,7 @@ namespace tobas
 {
 namespace camera
 {
-/**
- * @brief Subscribe to sensor_msgs/msg/CompressedImage images, reduce their data size, and publish the result.
- */
+/** Subscribe to sensor_msgs/msg/CompressedImage images, reduce their data size, and publish the result. */
 class MjpgCompressor : public BaseNode
 {
 public:
@@ -48,11 +40,11 @@ private:
     size_t sz);
   void callback(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& msg);
 
-  std::string encoding_;      // Encoding of the published image, either MJPG or H.264.
-  double resize_rate_ = 1.0;  // Resize ratio
+  std::string encoding_;      ///< Encoding of the published image, either MJPG or H.264.
+  double resize_rate_ = 1.0;  ///< Resize ratio
 
   bool initialized_ = false;
-  ffmpeg_encoder_decoder::Encoder encoder_;  // H.264 encoder
+  ffmpeg_encoder_decoder::Encoder encoder_;  ///< H.264 encoder
 
   ros2::PublisherPtr<sensor_msgs::msg::CompressedImage> mjpg_resized_pub_;
   ros2::PublisherPtr<ffmpeg_image_transport_msgs::msg::FFMPEGPacket> ffmpeg_packet_pub_;

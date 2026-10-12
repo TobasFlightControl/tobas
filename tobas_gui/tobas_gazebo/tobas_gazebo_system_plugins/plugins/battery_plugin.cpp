@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
 #include <optional>
 
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_gazebo_common/constants.hpp>
-#include <tobas_gazebo_conversions/gazebo_ros.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
@@ -45,17 +45,17 @@ public:
 private:
   // SDF parameters
   int update_rate_;
-  double max_voltage_;  // [V] Voltage at full charge
-  double sag_voltage_;  // [V] Voltage where discharge characteristics change abruptly. For LiPo, about 3.4 V per cell.
-  double max_current_;  // [A] Maximum current
-  double capacity_;     // [As] Electrical capacity
-  double registance_;   // [Ω] Internal resistance
-  double voltage_noise_stddev_;  // [V] Standard deviation of voltage observation noise
-  double current_noise_stddev_;  // [A] Standard deviation of current observation noise
+  double max_voltage_;           ///< [V] Voltage at full charge
+  double sag_voltage_;           ///< [V] Voltage where discharge characteristics change abruptly
+  double max_current_;           ///< [A] Maximum current
+  double capacity_;              ///< [As] Electrical capacity
+  double registance_;            ///< [Ω] Internal resistance
+  double voltage_noise_stddev_;  ///< [V] Standard deviation of voltage observation noise
+  double current_noise_stddev_;  ///< [A] Standard deviation of current observation noise
   std::vector<std::string> rotor_link_names_;
 
-  std::map<std::string, double> rotor_currents_;  // [A] Current flowing through each motor
-  double q_;                                      // [As] Current charge amount
+  std::map<std::string, double> rotor_currents_;  ///< [A] Current flowing through each motor
+  double q_;                                      ///< [As] Current charge amount
   std::optional<RateManager> rate_manager_;
 
   // Noise generator
@@ -124,6 +124,10 @@ void GazeboBatteryPlugin::Configure(
 
 void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
+  if (info.paused || info.dt <= ch::steady_clock::duration::zero()) {
+    return;
+  }
+
   if (!rate_manager_->update(info.simTime)) {
     return;
   }
@@ -171,15 +175,15 @@ void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::
 
 void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
-  getSdfParam(sdf, "maxVoltage", max_voltage_, kPositive);
-  getSdfParam(sdf, "sagVoltage", sag_voltage_, kNonNegative);
-  getSdfParam(sdf, "maxCurrent", max_current_, kPositive);
-  getSdfParam(sdf, "currentCapacity", capacity_, kPositive);
-  getSdfParam(sdf, "internalRegistance", registance_, kNonNegative);
-  getSdfParam(sdf, "voltageNoiseStddev", voltage_noise_stddev_, 0.01, kNonNegative);
-  getSdfParam(sdf, "currentNoiseStddev", current_noise_stddev_, 0.01, kNonNegative);
-  getSdfParam(sdf, "rotorLinkNames", rotor_link_names_);
+  update_rate_ = getSdfParam<int>(sdf, "updateRate", kNonNegative);
+  max_voltage_ = getSdfParam<double>(sdf, "maxVoltage", kPositive);
+  sag_voltage_ = getSdfParam<double>(sdf, "sagVoltage", kNonNegative);
+  max_current_ = getSdfParam<double>(sdf, "maxCurrent", kPositive);
+  capacity_ = getSdfParam<double>(sdf, "currentCapacity", kPositive);
+  registance_ = getSdfParam<double>(sdf, "internalRegistance", kNonNegative);
+  voltage_noise_stddev_ = getSdfParam<double>(sdf, "voltageNoiseStddev", 0.01, kNonNegative);
+  current_noise_stddev_ = getSdfParam<double>(sdf, "currentNoiseStddev", 0.01, kNonNegative);
+  rotor_link_names_ = getSdfParam<std::vector<std::string>>(sdf, "rotorLinkNames");
 }
 
 double GazeboBatteryPlugin::currentVoltage()

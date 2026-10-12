@@ -10,7 +10,7 @@ namespace tobas
 namespace dsp
 {
 /**
- * @brief Sequential mean and variance calculation using Welford's algorithm (memo: 2-65).
+ * Sequential mean and variance calculation using Welford's algorithm (memo: 2-65).
  *
  * @note Numerical error is small, but it stores the product of variance and sample count.
  * It diverges if the sample count becomes too large.
@@ -24,25 +24,25 @@ class Welford
 public:
   explicit Welford();
 
-  /* Reset internal variables. */
+  /** Reset internal variables. */
   void reset();
 
-  /* Add new data. */
+  /** Add new data. */
   inline void add(const DataType& x);
 
-  /* Get the mean. */
+  /** Get the mean. */
   inline const DataType& mean() const;
 
-  /* Get the variance. */
+  /** Get the variance. */
   inline CovType variance() const;
 
-  /* Get the number of samples. */
+  /** Get the number of samples. */
   inline size_t count() const;
 
 private:
-  size_t n_;       // Number of samples.
-  DataType mean_;  // Mean.
-  CovType var_n_;  // Product of variance and sample count.
+  size_t n_;  ///< Number of samples.
+  DataType mean_;
+  CovType var_n_;  ///< Product of variance and sample count.
 };
 
 template <typename Scalar, int Size>

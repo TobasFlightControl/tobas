@@ -3,16 +3,14 @@
 
 #include "tobas_eigen_tools/spline.hpp"
 
-using namespace Eigen;
-
 namespace tobas
 {
 namespace eigen
 {
-SplineFunction::SplineFunction(const VectorXd& x_vec, const VectorXd& y_vec, const size_t& degree)
+SplineFunction::SplineFunction(const Eigen::VectorXd& x_vec, const Eigen::VectorXd& y_vec, size_t degree)
   : x_min_(x_vec.minCoeff())
   , x_max_(x_vec.maxCoeff())
-  , spline_(SplineFitting<Spline<double, 1>>::Interpolate(
+  , spline_(Eigen::SplineFitting<Eigen::Spline<double, 1>>::Interpolate(
       y_vec.transpose(),
       std::min<int>(x_vec.rows() - 1, degree),
       scaledValues(x_vec)))
@@ -23,20 +21,20 @@ SplineFunction::SplineFunction(const VectorXd& x_vec, const VectorXd& y_vec, con
   assert(degree <= 3);
 }
 
-double SplineFunction::operator()(const double& x) const
+double SplineFunction::operator()(double x) const
 {
   // x values need to be scaled down in extraction as well.
   return spline_(scaledValue(x))(0);
 }
 
-double SplineFunction::scaledValue(const double& x) const
+double SplineFunction::scaledValue(double x) const
 {
   return (x - x_min_) / (x_max_ - x_min_);
 }
 
-RowVectorXd SplineFunction::scaledValues(const VectorXd& x_vec) const
+Eigen::RowVectorXd SplineFunction::scaledValues(const Eigen::VectorXd& x_vec) const
 {
-  return x_vec.unaryExpr([this](const double& x) { return scaledValue(x); }).transpose();
+  return x_vec.unaryExpr([this](double x) { return scaledValue(x); }).transpose();
 }
 }  // namespace eigen
 }  // namespace tobas

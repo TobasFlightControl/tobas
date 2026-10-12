@@ -31,16 +31,16 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  /* Number of poles [-] */
+  /** Number of poles [-] */
   int numPoles() const;
 
-  /* Kv [rad/s/V] */
+  /** Kv [rad/s/V] */
   double kv() const;
 
-  /* Internal resistance [Ω] */
+  /** Internal resistance [Ω] */
   double internalResistance() const;
 
-  /* Minimum rotation speed [rad/s] */
+  /** Minimum rotation speed [rad/s] */
   double minimumSpeed() const;
 
 private:

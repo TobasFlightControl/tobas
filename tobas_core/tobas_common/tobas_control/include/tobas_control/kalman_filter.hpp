@@ -10,28 +10,24 @@ namespace tobas
 namespace ctrl
 {
 /**
- * @brief Linear Kalman filter.
- * cf. https://www.tdupress.jp/book/b349390.html
+ * Linear Kalman filter.
+ *
+ * @see https://www.tdupress.jp/book/b349390.html
  */
 class KalmanFilter
 {
 public:
-  LinearStateSpace ss;  // x(k+1) = A x(k) + B u(k), y(k) = C x(k): discrete-time state equation
-  Eigen::MatrixXd Bv;   // Process noise matrix
-  Eigen::MatrixXd Q;    // Process noise covariance
-  Eigen::MatrixXd R;    // Observation noise covariance
-  Eigen::VectorXd y;    // Observation
-  Eigen::VectorXd u;    // Control input, if any
+  LinearStateSpace ss;  ///< x(k+1) = A x(k) + B u(k), y(k) = C x(k): discrete-time state equation
+  Eigen::MatrixXd Bv;   ///< Process noise matrix
+  Eigen::MatrixXd Q;    ///< Process noise covariance
+  Eigen::MatrixXd R;    ///< Observation noise covariance
+  Eigen::VectorXd y;    ///< Observation
+  Eigen::VectorXd u;    ///< Control input, if any
 
   explicit KalmanFilter();
-  explicit KalmanFilter(
-    const Eigen::Index& x_size,
-    const Eigen::Index& u_size,
-    const Eigen::Index& y_size,
-    const Eigen::Index& v_size);
+  explicit KalmanFilter(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size, Eigen::Index v_size);
 
-  void
-  resize(const Eigen::Index& x_size, const Eigen::Index& u_size, const Eigen::Index& y_size, const Eigen::Index& v_size);
+  void resize(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size, Eigen::Index v_size);
   void setZero();
   void initialize(const Eigen::VectorXd& init_x, const Eigen::MatrixXd& init_P);
   void update();
@@ -51,17 +47,17 @@ private:
   void verify() const;
 };
 
-/* Estimate a constant value that includes white noise. */
+/** Estimate a constant value that includes white noise. */
 class IdentityKalmanFilter
 {
 public:
-  Eigen::MatrixXd Q;  // Process noise covariance
-  Eigen::MatrixXd R;  // Observation noise covariance
-  Eigen::VectorXd y;  // Observation
+  Eigen::MatrixXd Q;  ///< Process noise covariance
+  Eigen::MatrixXd R;  ///< Observation noise covariance
+  Eigen::VectorXd y;  ///< Observation
 
-  explicit IdentityKalmanFilter(const Eigen::Index& size = 0);
+  explicit IdentityKalmanFilter(Eigen::Index size = 0);
 
-  void resize(const Eigen::Index& size);
+  void resize(Eigen::Index size);
   void setZero();
   void initialize(const Eigen::VectorXd& init_x, const Eigen::MatrixXd& init_P);
   void update();

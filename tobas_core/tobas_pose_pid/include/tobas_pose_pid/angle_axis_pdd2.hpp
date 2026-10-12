@@ -19,17 +19,17 @@ public:
     const kdl::Rotation& tar_rot,
     const kdl::Vector& tar_gyro,
     const kdl::Vector& tar_dgyro,
-    const double& dt);
+    double dt);
 
-  bool setNaturalFreq(int idx, double value);
-  bool setInertiaRatio(int idx, double value);
-  bool setDampingRatio(int idx, double value);
+  void setNaturalFreq(int idx, double value);
+  void setInertiaRatio(int idx, double value);
+  void setDampingRatio(int idx, double value);
 
 private:
   // Config
-  kdl::Vector wn_ = { 10.0, 10.0, 10.0 };  // [rad/s]
-  kdl::Vector zeta_ = { 1.0, 1.0, 1.0 };   // [-]
-  kdl::Vector xi_ = { 1.0, 1.0, 1.0 };     // [-]
+  kdl::Vector wn_ = { 10.0, 10.0, 10.0 };  ///< [rad/s]
+  kdl::Vector zeta_ = { 1.0, 1.0, 1.0 };   ///< [-]
+  kdl::Vector xi_ = { 1.0, 1.0, 1.0 };     ///< [-]
 
   // Gain
   kdl::Vector kp_;

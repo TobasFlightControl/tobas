@@ -58,7 +58,7 @@ bool yesOrNo(QWidget* parent, const QString& text, QMessageLevel level)
 
   // Set buttons.
   // Layout is determined automatically. There is no clear rule, but consistent rules across the app are important:
-  // https://nanika.design/blog/1162/
+  // Ref: https://nanika.design/blog/1162/
   msg_box.setStandardButtons(QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No);
   msg_box.setDefaultButton(QMessageBox::StandardButton::No);
 

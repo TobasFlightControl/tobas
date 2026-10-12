@@ -9,7 +9,9 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 	<buildtool_depend>pkg-config</buildtool_depend>
 
-	<depend>tobas_linux</depend>
+	<depend>libcrypt-dev</depend>
+
+	<depend>tobas_std_tools</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

@@ -25,7 +25,6 @@ class LargeVehicleMagCalibThread : public QThread
   Q_OBJECT
 
   using self = LargeVehicleMagCalibThread;
-  using super = QThread;
 
 Q_SIGNALS:
   void finished(bool success, const QString& message);

@@ -7,15 +7,13 @@
 
 #include <tobas_math/core.hpp>
 
-#include "tobas_qt_tools/event.hpp"
-
 using namespace std::chrono_literals;
 
 namespace tobas
 {
 namespace qt
 {
-ProgressDialog::ProgressDialog(const QString& title, const int num_steps, QWidget* parent)
+ProgressDialog::ProgressDialog(const QString& title, int num_steps, QWidget* parent)
   : super(parent), num_steps_(num_steps), timer_(this)
 {
   assert(num_steps > 0);
@@ -46,7 +44,7 @@ void ProgressDialog::setLabelText(const QString& text)
   text_ = text;
 }
 
-void ProgressDialog::setStep(const int step)
+void ProgressDialog::setStep(int step)
 {
   if (step < 0) {
     qWarning().nospace() << "The given progress step (" << step << ") is negative.";

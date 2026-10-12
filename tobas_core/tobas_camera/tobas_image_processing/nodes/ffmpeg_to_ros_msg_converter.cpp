@@ -4,8 +4,6 @@
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
-#include <libavutil/opt.h>
-#include <libavutil/time.h>
 #include <libswscale/swscale.h>
 
 #include <tobas_node/node.hpp>
@@ -60,7 +58,7 @@ FFmpegToROSMsgConverter::FFmpegToROSMsgConverter(const rclcpp::NodeOptions& opti
   input_url_ = protocol + "://" + port_uri + "?mode=listener&listen_timeout=5000000";
 
   // Map ROS image encodings to AV pixel formats.
-  // Reference: https://github.com/ros-misc-utilities/ffmpeg_encoder_decoder/blob/master/src/utils.cpp
+  // Ref: https://github.com/ros-misc-utilities/ffmpeg_encoder_decoder/blob/master/src/utils.cpp
   const std::unordered_map<std::string, AVPixelFormat> ros_to_av_pix_map = {
     { "bayer_rggb8", AV_PIX_FMT_BAYER_RGGB8 },
     { "bayer_bggr8", AV_PIX_FMT_BAYER_BGGR8 },

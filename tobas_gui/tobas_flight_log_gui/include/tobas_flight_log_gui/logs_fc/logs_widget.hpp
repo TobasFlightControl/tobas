@@ -20,7 +20,6 @@ class FlightLogsWidgetFC : public QWidget
   Q_OBJECT
 
   using self = FlightLogsWidgetFC;
-  using super = QWidget;
 
 Q_SIGNALS:
   void logDownloaded(const QString& log_name);
@@ -29,7 +28,6 @@ public:
   explicit FlightLogsWidgetFC();
 
   void reset();
-  void onProjectLoaded();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
 
@@ -49,7 +47,6 @@ private:
 
   qt::ListWidget* log_list_;
 
-  bool project_loaded_ = false;
   bool ros_initialized_ = false;
 
   void sortLogs();

@@ -9,8 +9,6 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace ch = std::chrono;
-
 namespace tobas
 {
 namespace gui

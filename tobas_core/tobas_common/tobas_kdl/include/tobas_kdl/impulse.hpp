@@ -13,8 +13,8 @@ namespace kdl
 class Impulse
 {
 public:
-  Vector linear;   // [Ns]
-  Vector angular;  // [Nms]
+  Vector linear;   ///< [Ns]
+  Vector angular;  ///< [Nms]
 
   inline explicit Impulse();
   inline explicit Impulse(const Vector& linear, const Vector& angular);

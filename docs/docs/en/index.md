@@ -27,7 +27,7 @@ For example, it considers the following information:
 
 - Dynamic parameters of each rigid-body link: mass, center of mass, and inertia tensor
 - Battery specifications: cell count, discharge capacity, and discharge rate
-- Motor specifications: KV rating, internal resistance, and pole count
+- Motor specifications: Kv rating, internal resistance, and pole count
 - Propeller specifications: diameter, pitch, thrust constant, and reaction torque constant
 
 ### Greater Aircraft Design Freedom

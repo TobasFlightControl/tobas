@@ -5,7 +5,6 @@
 
 #include <QPointer>
 #include <QProcess>
-#include <QPushButton>
 #include <QString>
 #include <QWidget>
 
@@ -32,7 +31,6 @@ class SimulationWidget : public QWidget
   Q_OBJECT
 
   using self = SimulationWidget;
-  using super = QWidget;
 
 Q_SIGNALS:
   void started();
@@ -43,16 +41,14 @@ public:
   static constexpr int kDroneId = 0;
 
   explicit SimulationWidget(const rqt::RosQtBridge& bridge);
+  ~SimulationWidget();
 
   void reset();
-  void updateProject(const QString& proj_path);
+  void setProjectPath(const QString& proj_path);
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
 
   bool isRunning() const;
-
-protected:
-  void closeEvent(QCloseEvent* event) override;
 
 private:
   uadf::Parser uadf_parser_;
@@ -91,8 +87,8 @@ private:
 private Q_SLOTS:
   void onStartRequested();
   void onTerminateRequested();
-  void onLaunchProcessErrorOccurred(QProcess::ProcessError error);
   void onLaunchProcessFinished(int code, QProcess::ExitStatus status);
+  void onLaunchProcessErrorOccurred(QProcess::ProcessError error);
 };
 }  // namespace sim
 }  // namespace gui

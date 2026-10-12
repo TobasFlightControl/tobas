@@ -18,15 +18,13 @@ class ScrollArea : public QScrollArea
 {
   Q_OBJECT
 
-  using super = QScrollArea;
-
 public:
   explicit ScrollArea(QWidget* parent = nullptr);
 
-  /* Set a layout inside the widget. */
+  /** Set a layout inside the widget. */
   void setLayout(QLayout* layout);
 
-  /* Make the background transparent. */
+  /** Make the background transparent. */
   void setBackgroundTransparent();
 };
 }  // namespace qt

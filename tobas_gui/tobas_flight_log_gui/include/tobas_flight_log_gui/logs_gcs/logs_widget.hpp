@@ -20,7 +20,6 @@ class FlightLogsWidgetGCS : public QWidget
   Q_OBJECT
 
   using self = FlightLogsWidgetGCS;
-  using super = QWidget;
 
 Q_SIGNALS:
   void logSelected(const QString& log_name);

@@ -15,7 +15,6 @@ class CommandButton : public QPushButton
 {
   Q_OBJECT
 
-  using self = CommandButton;
   using super = QPushButton;
 
 public:

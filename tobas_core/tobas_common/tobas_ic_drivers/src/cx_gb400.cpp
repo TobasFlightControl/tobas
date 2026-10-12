@@ -15,9 +15,9 @@ CxGb400::CxGb400() : linux::VideoDev::VideoDev()
 
 bool CxGb400::initialize(
   const char* video_dev,
-  const CameraPosition& camera_position,
-  const bool disable_full_hd,
-  const bool disable_video_streaming)
+  CameraPosition camera_position,
+  bool disable_full_hd,
+  bool disable_video_streaming)
 {
   if (!linux::VideoDev::initialize(video_dev, "MJPG", disable_video_streaming, 1280, 720)) {
     std::cerr << "Failed to initialize video device." << std::endl;
@@ -56,7 +56,7 @@ bool CxGb400::initialize(
   return true;
 }
 
-bool CxGb400::sendCopterAttitude(const double& q_w, const double& q_x, const double& q_y, const double& q_z)
+bool CxGb400::sendCopterAttitude(double q_w, double q_x, double q_y, double q_z)
 {
   AttitudeMsg msg;
   msg.q_w = static_cast<int16_t>(q_w * 1.0e4);
@@ -101,7 +101,7 @@ bool CxGb400::turnOffUavcan()
   return true;
 }
 
-bool CxGb400::sendGimbalCtrl(const double& pitch_deg, const double& yaw_deg)
+bool CxGb400::sendGimbalCtrl(double pitch_deg, double yaw_deg)
 {
   if (pitch_deg > kPitchCmdMax) {
     std::cerr << "Pitch command is larger than the maximum value." << std::endl;
@@ -164,7 +164,7 @@ bool CxGb400::takePictureToSd()
   return true;
 }
 
-bool CxGb400::setPhotoQuality(const PhotoQuality& photo_quality)
+bool CxGb400::setPhotoQuality(PhotoQuality photo_quality)
 {
   uint8_t photo_quality_data = static_cast<uint8_t>(photo_quality);
   const uvc_xu_control_query set_photo_quality_query = { kUnit1, 0x0B, UVC_SET_CUR, 1, &photo_quality_data };
@@ -197,7 +197,7 @@ bool CxGb400::stopRecording()
   return true;
 }
 
-bool CxGb400::setVideoResolution(const VideoQuality& video_quality)
+bool CxGb400::setVideoResolution(VideoQuality video_quality)
 {
   uint8_t video_quality_data = static_cast<uint8_t>(video_quality);
   const uvc_xu_control_query set_video_resolution = { kUnit1, 0x0F, UVC_SET_CUR, 1, &video_quality_data };
@@ -208,7 +208,7 @@ bool CxGb400::setVideoResolution(const VideoQuality& video_quality)
   return true;
 }
 
-bool CxGb400::setVideoFrameRate(const VideoFrameRate& video_frame_rate)
+bool CxGb400::setVideoFrameRate(VideoFrameRate video_frame_rate)
 {
   uint8_t video_frame_rate_data = static_cast<uint8_t>(video_frame_rate);
   const uvc_xu_control_query set_video_frame_rate = { kUnit1, 0x10, UVC_SET_CUR, 1, &video_frame_rate_data };
@@ -229,7 +229,7 @@ bool CxGb400::getExposureMode(uint8_t& exposure_mode)
   return true;
 }
 
-bool CxGb400::setExposureMode(const ExposureMode& exposure_mode)
+bool CxGb400::setExposureMode(ExposureMode exposure_mode)
 {
   uint8_t exposure_mode_data = static_cast<uint8_t>(exposure_mode);
   const uvc_xu_control_query set_exposure_mode = { kUnit1, 0x14, UVC_SET_CUR, 1, &exposure_mode_data };
@@ -250,7 +250,7 @@ bool CxGb400::getExposureTime(uint8_t& exposure_time)
   return true;
 }
 
-bool CxGb400::setExposureTime(const ExposureTime& exposure_time)
+bool CxGb400::setExposureTime(ExposureTime exposure_time)
 {
   uint8_t exposure_time_data = static_cast<uint8_t>(exposure_time);
   const uvc_xu_control_query set_exposure_time = { kUnit1, 0x15, UVC_SET_CUR, 1, &exposure_time_data };
@@ -271,7 +271,7 @@ bool CxGb400::getIsoSensitivity(uint8_t& iso_sensitivity)
   return true;
 }
 
-bool CxGb400::setIsoSensitivity(const IsoSensitivity& iso_sensitivity)
+bool CxGb400::setIsoSensitivity(IsoSensitivity iso_sensitivity)
 {
   uint8_t iso_sensitivity_data = static_cast<uint8_t>(iso_sensitivity);
   const uvc_xu_control_query set_iso_sensivitity = { kUnit1, 0x16, UVC_SET_CUR, 1, &iso_sensitivity_data };
@@ -292,7 +292,7 @@ bool CxGb400::getExposureCompensation(uint8_t& exposure_compensation)
   return true;
 }
 
-bool CxGb400::setExposureCompensation(const ExposureCompensation& exposure_compensation)
+bool CxGb400::setExposureCompensation(ExposureCompensation exposure_compensation)
 {
   uint8_t exposure_compensation_data = static_cast<uint8_t>(exposure_compensation);
   const uvc_xu_control_query set_exposure_compensation = { kUnit1, 0x17, UVC_SET_CUR, 1, &exposure_compensation_data };
@@ -313,7 +313,7 @@ bool CxGb400::getPhotometry(uint8_t& photometry)
   return true;
 }
 
-bool CxGb400::setPhotometry(const Photometry& photometry)
+bool CxGb400::setPhotometry(Photometry photometry)
 {
   uint8_t photometry_data = static_cast<uint8_t>(photometry);
   const uvc_xu_control_query set_photometry = { kUnit1, 0x18, UVC_SET_CUR, 1, &photometry_data };
@@ -324,7 +324,7 @@ bool CxGb400::setPhotometry(const Photometry& photometry)
   return true;
 }
 
-bool CxGb400::setWhiteBalance(const WhiteBalance& white_balance)
+bool CxGb400::setWhiteBalance(WhiteBalance white_balance)
 {
   uint8_t white_balance_data = static_cast<uint8_t>(white_balance);
   const uvc_xu_control_query set_white_balance = { kUnit1, 0x19, UVC_SET_CUR, 1, &white_balance_data };
@@ -385,7 +385,7 @@ bool CxGb400::getCameraStatus(
   return true;
 }
 
-bool CxGb400::interpretCameraError(const uint32_t& error_status, const CameraErrorStatusDigit& digit)
+bool CxGb400::interpretCameraError(uint32_t error_status, CameraErrorStatusDigit digit)
 {
   // If the `digit`-th bit of `error_status` is 1, the corresponding error is active.
   return (error_status >> digit) & 1;

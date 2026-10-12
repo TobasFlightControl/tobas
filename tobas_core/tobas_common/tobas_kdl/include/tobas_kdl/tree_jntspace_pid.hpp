@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "./tree_id_solver_rne.hpp"
+#include "./tree_id_solver.hpp"
 
 namespace tobas
 {
@@ -19,34 +19,28 @@ public:
 
   explicit TreeJntSpacePID(const Tree& tree, const Vector& grav = Vector(0, 0, -st::kGravity));
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
-  int cartToJnt(
+  const JntArray& cartToJnt(
     const JntArray& cur_q,
     const JntArray& cur_qd,
     const JntArray& tar_q,
     const JntArray& tar_qd,
     const JntArray& qdd_ff);
-  int cartToJnt(const JntArray& cur_q, const JntArray& cur_qd, const JntArray& tar_q, const JntArray& tar_qd);
+  const JntArray&
+  cartToJnt(const JntArray& cur_q, const JntArray& cur_qd, const JntArray& tar_q, const JntArray& tar_qd);
 
-  bool setStiffness(const double& kp);
-  bool setDamping(const double& kd);
-
-  inline const JntArray& getEfforts() const;
+  void setStiffness(double kp);
+  void setDamping(double kd);
 
 private:
-  TreeIdSolver_RNE rne_;
-  JntArray zeros_;
+  TreeIdSolver rne_;
+  JntArray q_zero_;
 
   double kp_ = kDefaultStiffness;
   double kd_ = kDefaultDamping;
 
   void resize();
 };
-
-inline const JntArray& TreeJntSpacePID::getEfforts() const
-{
-  return rne_.getEfforts();
-}
 }  // namespace kdl
 }  // namespace tobas

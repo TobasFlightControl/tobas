@@ -8,8 +8,6 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -21,54 +19,54 @@ constexpr char kAeroCenterKey[] = "aerodynamic_center";
 constexpr char kAlphaLimitLKey[] = "alpha_limit";
 }  // namespace
 
-bool VehicleParameters::isValid() const
+std::expected<void, std::string> VehicleParameters::validate() const
 {
   if (wing_surface <= 0) {
-    cerr << "Wing surface must be positive." << endl;
-    return false;
+    return std::unexpected("Wing surface must be positive.");
   }
 
   if (wing_span <= 0) {
-    cerr << "Wing span must be positive." << endl;
-    return false;
+    return std::unexpected("Wing span must be positive.");
   }
 
   if (mac <= 0) {
-    cerr << "Mean aerodynamic chord must be positive." << endl;
-    return false;
+    return std::unexpected("Mean aerodynamic chord must be positive.");
   }
 
   if (!alpha_limit.isValid()) {
-    cerr << "Invalid stall angles." << endl;
-    return false;
+    return std::unexpected("Invalid stall angles.");
   }
 
-  return true;
+  return {};
 }
 
-bool VehicleParameters::load(const YAML::Node& node)
+std::expected<void, std::string> VehicleParameters::load(const YAML::Node& node)
 {
-  if (!yaml::load(kWingSurfaceKey, node, wing_surface)) {
-    return false;
+  if (!node.IsDefined() || !node.IsMap()) {
+    return std::unexpected("Configuration node must be a map.");
   }
 
-  if (!yaml::load(kWingSpanKey, node, wing_span)) {
-    return false;
+  if (const auto result = yaml::load(kWingSurfaceKey, node, wing_surface); !result) {
+    return result;
   }
 
-  if (!yaml::load(kMACKey, node, mac)) {
-    return false;
+  if (const auto result = yaml::load(kWingSpanKey, node, wing_span); !result) {
+    return result;
   }
 
-  if (!yaml::load(kAeroCenterKey, node, ac.data)) {
-    return false;
+  if (const auto result = yaml::load(kMACKey, node, mac); !result) {
+    return result;
   }
 
-  if (!yaml::load(kAlphaLimitLKey, node, alpha_limit)) {
-    return false;
+  if (const auto result = yaml::load(kAeroCenterKey, node, ac.data); !result) {
+    return result;
   }
 
-  return true;
+  if (const auto result = yaml::load(kAlphaLimitLKey, node, alpha_limit); !result) {
+    return result;
+  }
+
+  return {};
 }
 
 YAML::Node VehicleParameters::dump() const

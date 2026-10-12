@@ -5,8 +5,6 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include <tobas_qt_tools/layouts/form_layout.hpp>
-
 #include "tobas_setup_assistant/param_getters/double_range.hpp"
 #include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
 #include "tobas_setup_assistant/param_getters/vector3d.hpp"
@@ -22,9 +20,6 @@ namespace fw
 class VehicleParametersWidget : public QWidget
 {
   Q_OBJECT
-
-  using self = VehicleParametersWidget;
-  using super = QWidget;
 
 public:
   explicit VehicleParametersWidget();

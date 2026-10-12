@@ -5,13 +5,11 @@
 
 #include <algorithm>
 #include <format>
-
-#include <boost/polymorphic_pointer_cast.hpp>
+#include <memory>
 
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
-#include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
 namespace tobas
@@ -51,14 +49,14 @@ void BatteryViewerWidget::updateInternalDataStructures()
   reset();
 
   if (drone_.prop->type() == PropulsionSystem::kElectric) {
-    eprop_ = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_.prop);
+    eprop_ = std::static_pointer_cast<ElectricPropulsionSystemConfig>(drone_.prop);
   }
   else {
     eprop_.reset();
   }
 }
 
-void BatteryViewerWidget::updateVoltage(const double& voltage)
+void BatteryViewerWidget::updateVoltage(double voltage)
 {
   const auto volt_rate = math::remap(voltage, eprop_->battery.sag_voltage, eprop_->battery.max_voltage, 0.0, 100.0);
   voltage_->setPercentage(volt_rate);
@@ -75,7 +73,7 @@ void BatteryViewerWidget::updateVoltage(const double& voltage)
   }
 }
 
-void BatteryViewerWidget::updateCurrent(const double& current)
+void BatteryViewerWidget::updateCurrent(double current)
 {
   const auto current_rate = math::remap(current, 0.0, eprop_->battery.max_current, 0.0, 100.0);
   current_->setPercentage(current_rate);

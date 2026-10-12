@@ -21,9 +21,6 @@ class BatteryWidget_Other : public BatteryWidget_Base
 {
   Q_OBJECT
 
-  using self = BatteryWidget_Other;
-  using super = BatteryWidget_Base;
-
 public:
   explicit BatteryWidget_Other();
 

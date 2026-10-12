@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <tobas_mission_items/mission_items.hpp>
+
 #include "../fields/altitude.hpp"
 #include "../fields/altitude_frame.hpp"
 #include "../fields/altitude_tolerance.hpp"
@@ -20,9 +22,6 @@ namespace ctrl
 class TakeoffWidget : public BaseCommandWidget
 {
   Q_OBJECT
-
-  using self = TakeoffWidget;
-  using super = BaseCommandWidget;
 
 public:
   explicit TakeoffWidget();

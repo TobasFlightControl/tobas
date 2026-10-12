@@ -9,13 +9,13 @@ namespace tobas
 {
 namespace planar_multicopter
 {
-/* Compute thrust and attitude angles from acceleration using the translational equations of motion. */
+/** Compute thrust and attitude angles from acceleration using the translational equations of motion. */
 class TranslationalEoM
 {
 public:
   explicit TranslationalEoM(const kdl::Tree& tree);
 
-  bool updateInternalDataStructures();
+  void updateInternalDataStructures();
 
   bool solve(
     const kdl::Rotation& cur_rot,

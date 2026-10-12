@@ -7,7 +7,7 @@ namespace tobas
 {
 namespace linux
 {
-bool setRealtimePriorityFIFO(const int& priority);
-bool setRealtimePriorityRR(const int& priority);
+bool setRealtimePriorityFIFO(int priority);
+bool setRealtimePriorityRR(int priority);
 }  // namespace linux
 }  // namespace tobas

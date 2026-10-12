@@ -12,7 +12,7 @@ namespace tobas
 namespace driver
 {
 /**
- * @brief A linux driver of 3-axis magnetometer bmm350.
+ * A linux driver of 3-axis magnetometer bmm350.
  *
  * Datasheet: https://www.bosch-sensortec.com/products/motion-sensors/magnetometers/bmm350/
  */
@@ -33,19 +33,20 @@ public:
     AVG_4 = 0x04,
   };
 
-  /* Initialize the sensor. */
+  /** Initialize the sensor. */
   bool initialize(const char* i2c_device = "/dev/i2c-1");
 
   /**
-   * @brief Set the `ODR` and averaging values applied during initialization.
+   * Set the `ODR` and averaging values applied during initialization.
    *
    * @param _odr `ODR` setting value.
    * @param _averaging Averaging setting value.
+   *
    * @note The settings are applied to the device in `applyConfiguration()` inside `initialize()`.
    */
-  bool configure(ODR odr = ODR_100Hz, Averaging averaging = AVG_4);
+  void configure(ODR odr = ODR_100Hz, Averaging averaging = AVG_4);
 
-  /* Read the current magnetic field data [uT]. */
+  /** Read the current magnetic field data [uT]. */
   bool readMag(float& _mx, float& _my, float& _mz);
 
 private:
@@ -123,17 +124,17 @@ private:
     SIGNED_24_BIT = 24,
   };
 
-  /* Matches the wait times in `bmm350_defs.h` from the Bosch BMM350 SensorAPI. */
+  /** Matches the wait times in `bmm350_defs.h` from the Bosch BMM350 SensorAPI. */
   enum TimingUs : uint32_t
   {
-    STARTUP_DELAY_US = 3000,             // POR startup time
-    SOFT_RESET_DELAY_US = 24000,         // Wait after a CMD soft reset.
-    SUSPEND_TO_NORMAL_DELAY_US = 38000,  // PMU suspend -> normal
-    GOTO_SUSPEND_DELAY_US = 6000,        // PMU transition into suspend
-    UPD_OAE_DELAY_US = 1000,             // Wait after PMU_UPD_OAE.
-    OTP_POLL_DELAY_US = 300,             // OTP status polling interval
-    BR_DELAY_US = 14000,                 // Wait after a PMU BR command.
-    FGR_DELAY_US = 18000,                // Wait after a PMU FGR command.
+    STARTUP_DELAY_US = 3000,             ///< POR startup time
+    SOFT_RESET_DELAY_US = 24000,         ///< Wait after a CMD soft reset.
+    SUSPEND_TO_NORMAL_DELAY_US = 38000,  ///< PMU suspend -> normal
+    GOTO_SUSPEND_DELAY_US = 6000,        ///< PMU transition into suspend
+    UPD_OAE_DELAY_US = 1000,             ///< Wait after PMU_UPD_OAE.
+    OTP_POLL_DELAY_US = 300,             ///< OTP status polling interval
+    BR_DELAY_US = 14000,                 ///< Wait after a PMU BR command.
+    FGR_DELAY_US = 18000,                ///< Wait after a PMU FGR command.
   };
 
   enum DataLength : uint8_t
@@ -220,24 +221,25 @@ private:
   bool configure();
   bool magneticResetAndWait();
   bool getPmuCmdStatus0(PmuCmdStatus0& _status);
-  /* Read all `OTP` registers and apply them to the internal compensation coefficients. */
+  /** Read all `OTP` registers and apply them to the internal compensation coefficients. */
   bool readOtpRegisters();
-  /* Read one specified `OTP` word. */
+  /** Read one specified `OTP` word. */
   bool readOtpWord(uint8_t _addr, uint16_t& _word);
-  /* Update compensation parameters from raw `OTP` data. */
+  /** Update compensation parameters from raw `OTP` data. */
   void updateCompensationFromOtp();
   bool setOdrPerformance(uint8_t _odr = ODR_100Hz, uint8_t _avg = AVG_4);
   bool readRawMagData(RawMagData& _raw);
   /**
-   * @brief The first two bytes returned by `BMM350` during register reads are `0x00`,
+   * The first two bytes returned by `BMM350` during register reads are `0x00`,
    * so always read two extra bytes and discard the first two bytes.
+   *
    * @note Datasheet 9.2.3 Dummy bites in I2C mode
    * Datasheet: https://www.bosch-sensortec.com/products/motion-sensors/magnetometers/bmm350/
    */
   bool readBytesWithDummy(uint8_t reg_addr, size_t length, uint8_t* rx);
 
   /**
-   * @brief Compute compensated magnetic field data on the X-axis [uT].
+   * Compute compensated magnetic field data on the X-axis [uT].
    *
    * @param x Uncompensated X-axis data [uT].
    * @param y Uncompensated Y-axis data [uT].
@@ -248,7 +250,7 @@ private:
   float compensateX(float _x, float _y, float _z, float _temperature) const;
 
   /**
-   * @brief Compute compensated magnetic field data on the Y-axis [uT].
+   * Compute compensated magnetic field data on the Y-axis [uT].
    *
    * @param x Uncompensated X-axis data [uT].
    * @param y Uncompensated Y-axis data [uT].
@@ -259,7 +261,7 @@ private:
   float compensateY(float _x, float _y, float _z, float _temperature) const;
 
   /**
-   * @brief Compute compensated magnetic field data on the Z-axis [uT].
+   * Compute compensated magnetic field data on the Z-axis [uT].
    *
    * @param x Uncompensated X-axis data [uT].
    * @param y Uncompensated Y-axis data [uT].
@@ -269,9 +271,9 @@ private:
    */
   float compensateZ(float _x, float _y, float _z, float _temperature) const;
 
-  /* Sign-extend as an `n`-bit signed value. */
+  /** Sign-extend as an `n`-bit signed value. */
   static int32_t fixSign(uint32_t _raw, int _bits);
-  /* Wait in microseconds. */
+  /** Wait in microseconds. */
   static void delayUs(uint32_t _period_us);
 
   linux::I2Cdev i2c_;

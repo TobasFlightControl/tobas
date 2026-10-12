@@ -6,7 +6,7 @@
 #include <rclcpp/client.hpp>
 #include <rclcpp/node.hpp>
 
-/* For development. */
+/* For development */
 // #include <std_srvs/srv/empty.hpp>
 // using SrvType = std_srvs::srv::Empty;
 
@@ -17,7 +17,8 @@ namespace tobas
 namespace ros2
 {
 /**
- * @brief Synchronous service client.
+ * Synchronous service client.
+ *
  * @note Service calls block the calling thread. Do not use this client where real-time behavior is required.
  */
 template <typename SrvType>
@@ -30,7 +31,7 @@ public:
     rclcpp::CallbackGroup::SharedPtr group = nullptr);
 
   /**
-   * @brief Call the service and wait for a response.
+   * Call the service and wait for a response.
    *
    * @param req Service request.
    * @param timeout Maximum time to wait for a response. Waits indefinitely when non-positive.
@@ -70,14 +71,14 @@ typename SrvType::Response::ConstSharedPtr SyncServiceClient<SrvType>::sendReque
 {
   // The service may not be ready immediately after client creation because DDS discovery may still be in progress.
   if (!client_->service_is_ready()) {
-    RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << client_->get_service_name() << "\" service is not ready.");
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "'" << client_->get_service_name() << "' service is not ready.");
     return nullptr;
   }
 
   // Send the request and wait for the response.
   auto future = client_->async_send_request(req);
   if (waitForFuture(future, timeout) != std::future_status::ready) {
-    RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before \"" << client_->get_service_name() << "\" response.");
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before '" << client_->get_service_name() << "' response.");
     return nullptr;
   }
 

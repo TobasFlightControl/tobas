@@ -3,11 +3,14 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <yaml-cpp/yaml.h>
 
 namespace tobas
 {
-/* ct = c0 + c1 φ */
+/** ct = c0 + c1 φ */
 class VppMotorConstant
 {
 public:
@@ -22,9 +25,9 @@ public:
   {
   }
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
-  bool load(const YAML::Node& node);
+  std::expected<void, std::string> load(const YAML::Node& node);
   YAML::Node dump() const;
 
   inline double compute(double phi) const

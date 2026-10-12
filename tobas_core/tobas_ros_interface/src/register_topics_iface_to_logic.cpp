@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <tobas_real_common/ros_interface.hpp>
-
 #include <tobas_command_msgs/msg/accel.hpp>
 #include <tobas_command_msgs/msg/accel_pitch_yaw.hpp>
 #include <tobas_command_msgs/msg/accel_yaw.hpp>

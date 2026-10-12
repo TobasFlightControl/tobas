@@ -4,7 +4,6 @@
 #include "tobas_setup_assistant/robot_properties.hpp"
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
-#include <tobas_std_tools/check.hpp>
 
 namespace tobas
 {
@@ -31,11 +30,11 @@ void RobotPropertiesWidget::updateInternalDataStructures()
 {
   robot_name_->setText(QString::fromStdString(uadf_.urdf->getName()));
 
-  TOBAS_CHECK(mass_holder_.updateInternalDataStructures());
+  mass_holder_.updateInternalDataStructures();
   mass_->setText(QString::number(mass_holder_.getMass()) + " kg");
 }
 
-void RobotPropertiesWidget::setFrameType(const FrameType& type)
+void RobotPropertiesWidget::setFrameType(FrameType type)
 {
   const auto text = QString::fromStdString(textFromEnum(type));
   frame_type_->setText(text);

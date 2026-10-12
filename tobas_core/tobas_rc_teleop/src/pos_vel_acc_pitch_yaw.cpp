@@ -149,80 +149,68 @@ void PosVelAccPitchYawController::update(const tobas_msgs::RCInput& rcin, const 
   cmd_pub_->publish(std::move(cmd));
 }
 
-bool PosVelAccPitchYawController::maxHorizontalVelocityCb(const double& p)
+void PosVelAccPitchYawController::maxHorizontalVelocityCb(double p)
 {
   max_hor_vel_ = p;
   vx_filt_.setMaxVelocity(p);
   vy_filt_.setMaxVelocity(p);
-  return true;
 }
 
-bool PosVelAccPitchYawController::maxHorizontalJerkCb(const double& p)
+void PosVelAccPitchYawController::maxHorizontalJerkCb(double p)
 {
   vx_filt_.setMaxJerk(p);
   vy_filt_.setMaxJerk(p);
-  return true;
 }
 
-bool PosVelAccPitchYawController::maxVerticalVelocityCb(const double& p)
+void PosVelAccPitchYawController::maxVerticalVelocityCb(double p)
 {
   max_ver_vel_ = p;
   vz_filt_.setMaxVelocity(p);
-  return true;
 }
 
-bool PosVelAccPitchYawController::maxVerticalJerkCb(const double& p)
+void PosVelAccPitchYawController::maxVerticalJerkCb(double p)
 {
   vz_filt_.setMaxJerk(p);
-  return true;
 }
 
-bool PosVelAccPitchYawController::maxPitchCb(const double& p)
+void PosVelAccPitchYawController::maxPitchCb(double p)
 {
   max_pitch_ = st::deg2rad(p);
-  return true;
 }
 
-bool PosVelAccPitchYawController::maxPitchRateCb(const double& p)
+void PosVelAccPitchYawController::maxPitchRateCb(double p)
 {
   pitch_filt_.setMaxVelocity(st::deg2rad(p));
-  return true;
 }
 
-bool PosVelAccPitchYawController::maxYawRateCb(const double& p)
+void PosVelAccPitchYawController::maxYawRateCb(double p)
 {
   max_yaw_rate_ = st::deg2rad(p);
-  return true;
 }
 
-bool PosVelAccPitchYawController::maxPositionErrorDown(const double& p)
+void PosVelAccPitchYawController::maxPositionErrorDown(double p)
 {
   max_ep_down_ = p;
-  return true;
 }
 
-bool PosVelAccPitchYawController::horizontalVelocityExpoCb(const double& p)
+void PosVelAccPitchYawController::horizontalVelocityExpoCb(double p)
 {
   hor_vel_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool PosVelAccPitchYawController::verticalVelocityExpoCb(const double& p)
+void PosVelAccPitchYawController::verticalVelocityExpoCb(double p)
 {
   ver_vel_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool PosVelAccPitchYawController::pitchExpoCb(const double& p)
+void PosVelAccPitchYawController::pitchExpoCb(double p)
 {
   pitch_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool PosVelAccPitchYawController::yawExpoCb(const double& p)
+void PosVelAccPitchYawController::yawExpoCb(double p)
 {
   yaw_expo_ = p / kExpoScale;
-  return true;
 }
 }  // namespace rc
 }  // namespace tobas

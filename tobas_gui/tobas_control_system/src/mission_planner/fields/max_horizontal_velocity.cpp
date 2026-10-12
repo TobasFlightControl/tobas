@@ -15,7 +15,7 @@ namespace field
 {
 MaxHorizontalVelocityWidget::MaxHorizontalVelocityWidget()
 {
-  // https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_XY_CRUISE
+  // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_XY_CRUISE
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);
   spin_box_->setMinimum(1.0);  // 3 m/s -> 1 m/s

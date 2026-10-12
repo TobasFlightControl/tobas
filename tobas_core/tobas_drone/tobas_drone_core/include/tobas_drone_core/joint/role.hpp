@@ -26,7 +26,7 @@ namespace YAML
 template <>
 struct convert<tobas::JointRole>
 {
-  static Node encode(const tobas::JointRole& rhs);
+  static Node encode(tobas::JointRole rhs);
   static bool decode(const Node& node, tobas::JointRole& rhs);
 };
 }  // namespace YAML

@@ -9,24 +9,24 @@ namespace tobas
 {
 namespace y_axis_tilt_multicopter
 {
-/* memo: 3-38 */
+/** memo: 3-38 */
 class TranslationalEoM
 {
 public:
   explicit TranslationalEoM(const kdl::Tree& tree);
 
-  bool updateInternalDataStructures();
+  void updateInternalDataStructures();
 
   /**
-   * @brief Solve the translational equations of motion and convert target acceleration into two-axis thrust and roll angle.
+   * Solve the translational equations of motion and convert target acceleration into two-axis thrust and roll angle.
    *
    * To separate the roll system from the other systems, the current pitch and yaw should be used,
    * but their target values are used instead because gimbal lock may make the yaw angle unstable.
    */
   bool solve(
     const kdl::Vector& tar_acc_W,
-    const double& tar_pitch,
-    const double& tar_yaw,
+    double tar_pitch,
+    double tar_yaw,
     const kdl::Vector& ext_force_W,
     double& ux_out,
     double& uz_out,

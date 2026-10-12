@@ -7,7 +7,7 @@ namespace tobas
 {
 namespace algo
 {
-/* Kahan Summation. The worst-case round-off error scales with O(nε^2). */
+/** Kahan Summation. The worst-case round-off error scales with O(nε^2). */
 template <typename T>
 class Kahan
 {
@@ -17,7 +17,7 @@ public:
   inline void add(const T& x);
   inline void reset();
 
-  /* Request the summation. */
+  /** Request the summation. */
   inline const T& get() const;
 
 private:

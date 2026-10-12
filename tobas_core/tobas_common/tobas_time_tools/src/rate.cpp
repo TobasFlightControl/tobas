@@ -3,29 +3,29 @@
 
 #include "tobas_time_tools/rate.hpp"
 
+#include <cassert>
 #include <thread>
 
+using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
 namespace tobas
 {
 namespace tim
 {
-Rate::Rate(const ch::microseconds& period) : period_(period)
+Rate::Rate()
 {
-  if (period.count() <= 0) {
-    throw std::runtime_error("Period must be positive.");
-  }
+}
 
+Rate::Rate(const ch::microseconds& period)
+{
+  setInterval(period);
   start();
 }
 
-Rate::Rate(const double& freq) : period_(static_cast<uint64_t>(1e+6 / freq))
+Rate::Rate(double freq) : period_(static_cast<uint64_t>(1e+6 / freq))
 {
-  if (freq <= 0) {
-    throw std::runtime_error("Frequency must be positive.");
-  }
-
+  assert(freq > 0.0);
   start();
 }
 
@@ -36,11 +36,14 @@ void Rate::start()
 
 void Rate::sleep()
 {
-  const auto cur_time = ch::steady_clock::now();
-  const auto elapsed_time = cur_time - last_time_;
-  const auto wait_time = std::max(period_ - elapsed_time, ch::nanoseconds(0));
-  std::this_thread::sleep_for(wait_time);
-  last_time_ = cur_time + wait_time;
+  const auto next_time = last_time_ + period_;
+  std::this_thread::sleep_until(next_time);
+  last_time_ = next_time;
+}
+
+void Rate::setInterval(const ch::microseconds& _period)
+{
+  period_ = std::max(_period, 0us);
 }
 }  // namespace tim
 }  // namespace tobas

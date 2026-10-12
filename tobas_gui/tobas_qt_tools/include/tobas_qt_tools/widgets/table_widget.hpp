@@ -22,13 +22,13 @@ class TableWidget : public QTableWidget
 public:
   using super::QTableWidget;
 
-  /* Delete all rows. Unlike `clear`, this deletes cells as well as content. */
+  /** Delete all rows. Unlike `clear`, this deletes cells as well as content. */
   void removeAll();
 
-  /* Fix all column widths uniformly. */
+  /** Fix all column widths uniformly. */
   void setColumnsWidth(int width);
 
-  /* Set clickability in bulk. */
+  /** Set clickability in bulk. */
   void setHeaderSectionsClickable(bool clickable);
 };
 }  // namespace qt

@@ -10,7 +10,7 @@
 
 namespace tobas
 {
-/* Read S.BUS through UART after inverting the signal with an inverter. */
+/** Read S.BUS through UART after inverting the signal with an inverter. */
 class SBUS
 {
 public:

@@ -3,14 +3,11 @@
 
 #include "tobas_nlp/sqp.hpp"
 
-#include <iostream>
+#include <cassert>
 
 #include <tobas_eigen_tools/linalg.hpp>
 
 // #define TRACE_SOLVER
-
-using namespace std;
-using namespace Eigen;
 
 namespace tobas
 {
@@ -21,24 +18,24 @@ SQP::SQP()
 }
 
 void SQP::initialize(
-  const VectorXd& x0,
-  function<double(const VectorXd&)> f,
-  function<VectorXd(const VectorXd&)> g,
-  function<VectorXd(const VectorXd&)> h,
-  function<RowVectorXd(const VectorXd&)> dfdx,
-  function<MatrixXd(const VectorXd&)> dgdx,
-  function<MatrixXd(const VectorXd&)> dhdx,
-  function<MatrixXd(const VectorXd&)> dFdx,
-  function<Tensor3Xd(const VectorXd&)> dGdx,
-  function<Tensor3Xd(const VectorXd&)> dHdx)
+  const Eigen::VectorXd& x0,
+  std::function<double(const Eigen::VectorXd&)> f,
+  std::function<Eigen::VectorXd(const Eigen::VectorXd&)> g,
+  std::function<Eigen::VectorXd(const Eigen::VectorXd&)> h,
+  std::function<Eigen::RowVectorXd(const Eigen::VectorXd&)> dfdx,
+  std::function<Eigen::MatrixXd(const Eigen::VectorXd&)> dgdx,
+  std::function<Eigen::MatrixXd(const Eigen::VectorXd&)> dhdx,
+  std::function<Eigen::MatrixXd(const Eigen::VectorXd&)> dFdx,
+  std::function<Eigen::Tensor3Xd(const Eigen::VectorXd&)> dGdx,
+  std::function<Eigen::Tensor3Xd(const Eigen::VectorXd&)> dHdx)
 {
   n_ = x0.size();
   m_ = g(x0).size();
   p_ = h(x0).size();
 
   x_ = x0;
-  lam_ = VectorXd::Zero(m_);
-  mu_ = VectorXd::Zero(p_);
+  lam_ = Eigen::VectorXd::Zero(m_);
+  mu_ = Eigen::VectorXd::Zero(p_);
 
   f_ = f;
   g_ = g;
@@ -51,18 +48,18 @@ void SQP::initialize(
   dHdx_ = dHdx;
 
   if (qp_.x_scale.size() != n_) {
-    qp_.x_scale = VectorXd::Ones(n_);
+    qp_.x_scale = Eigen::VectorXd::Ones(n_);
   }
 }
 
-SQP::Error SQP::solve()
+std::expected<Eigen::VectorXd, std::string> SQP::solve()
 {
   iter_ = 0;
 
   while (true) {
     // Check the iteration limit.
-    if (++iter_ > max_iter_) {
-      return error_code_ = kMaxIterationExceeded;
+    if (max_iter_ > 0 && ++iter_ > max_iter_) {
+      return std::unexpected("The number of iterations exceeded the limit.");
     }
 
     // Calculate the Hessian matrix of the Lagrangian.
@@ -82,36 +79,30 @@ SQP::Error SQP::solve()
     qp_.problem.G = dhdx_(x_);
     qp_.problem.h = -h_(x_);
 
-    if (!qp_.solve()) {
-      return error_code_ = kQpFailed;
+    const auto dx = qp_.solve();
+    if (!dx) {
+      return dx;
     }
 
-    const auto& dx = qp_.solution();
-
     // Update optimization variables.
-    x_ += dx;
+    x_ += *dx;
     lam_ = qp_.getLagrangeMultipliersIneq();
     mu_ = qp_.getLagrangeMultipliersEq();
 
 #ifdef TRACE_SOLVER
-    cout << "Iteration: " << iter_ << endl;
-    cout << "x = " << x_.transpose() << endl;
-    cout << "lambda = " << lam_.transpose() << endl;
-    cout << "mu = " << mu_.transpose() << endl;
-    cout << "----------" << endl;
+    std::cout << "Iteration: " << iter_ << std::endl;
+    std::cout << "x = " << x_.transpose() << std::endl;
+    std::cout << "lambda = " << lam_.transpose() << std::endl;
+    std::cout << "mu = " << mu_.transpose() << std::endl;
+    std::cout << "----------" << std::endl;
 #endif
 
     // Termination check.
-    // cf. https://kotakku.github.io/cpp_robotics/tech_note/optimize/tolerances_and_stopping/
-    if ((dx.cwiseAbs().array() < (rel_tol_ * qp_.x_scale).array()).all()) {
-      return error_code_ = kNoError;
+    // Ref: https://kotakku.github.io/cpp_robotics/tech_note/optimize/tolerances_and_stopping/
+    if ((dx->cwiseAbs().array() < (rel_tol_ * qp_.x_scale).array()).all()) {
+      return x_;
     }
   }
-}
-
-const VectorXd& SQP::optimal() const
-{
-  return x_;
 }
 
 size_t SQP::iterations() const
@@ -119,56 +110,22 @@ size_t SQP::iterations() const
   return iter_;
 }
 
-SQP::Error SQP::errorCode() const
-{
-  return error_code_;
-}
-
-const char* SQP::errorMessage() const
-{
-  switch (error_code_) {
-    case kNoError:
-      return "No error.";
-    case kMaxIterationExceeded:
-      return "The number of iterations exceeded the limit.";
-    case kQpFailed:
-      return qp_.errorMessage().c_str();
-    default:
-      return "Unknown error.";
-  }
-}
-
-bool SQP::setMaximumIterations(size_t max_iter)
+void SQP::setMaximumIterations(size_t max_iter)
 {
   max_iter_ = max_iter;
-  return true;
 }
 
-bool SQP::setRelativeTolerance(double rel_tol)
+void SQP::setRelativeTolerance(double rel_tol)
 {
-  if (rel_tol <= 0.0) {
-    cerr << "Relative tolerance must be positive." << endl;
-    return false;
-  }
-
+  assert(rel_tol > 0.0);
   rel_tol_ = rel_tol;
-  return true;
 }
 
-bool SQP::setVariableScales(const Eigen::VectorXd& x_scale)
+void SQP::setVariableScales(const Eigen::VectorXd& x_scale)
 {
-  if (x_scale.size() != n_) {
-    cerr << "The size of scale vector does not match that of variables." << endl;
-    return false;
-  }
-
-  if ((x_scale.array() <= 0).any()) {
-    cerr << "The scale of variables must be positive." << endl;
-    return false;
-  }
-
+  assert(x_scale.size() == n_);
+  assert((x_scale.array() > 0.0).all());
   qp_.x_scale = x_scale;
-  return true;
 }
 }  // namespace nlp
 }  // namespace tobas

@@ -18,22 +18,14 @@ class TreeJacobianSolver : public TreeSolverI
 public:
   explicit TreeJacobianSolver(const Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
-  int jntToJac(const JntArray& q, const std::string& seg_name);
-
-  inline const Jacobian& getJacobian() const;
+  const Jacobian& jntToJac(const JntArray& q, const std::string& seg_name);
 
 private:
-  Jacobian J_out_;
-  Frame T_total_;
+  Jacobian jac_out_;
 
   void resize();
 };
-
-inline const Jacobian& TreeJacobianSolver::getJacobian() const
-{
-  return J_out_;
-}
 }  // namespace kdl
 }  // namespace tobas

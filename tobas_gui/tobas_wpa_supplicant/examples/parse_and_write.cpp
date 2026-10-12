@@ -31,14 +31,14 @@ int main()
 
   constexpr char output_path[] = "/tmp/wpa_supplicant.conf";
 
-  tobas::wpa::Parser parser;
-  tobas::wpa::Data data;
-  if (!parser.parseFromText(input_text, data)) {
+  const auto data = tobas::wpa::parseFromText(input_text);
+  if (!data) {
+    std::cerr << data.error() << std::endl;
     return EXIT_FAILURE;
   }
 
   tobas::wpa::Exporter exporter;
-  const auto text = exporter.exportText(data);
+  const auto text = exporter.exportText(*data);
   if (!tobas::str::writeText(output_path, text)) {
     return EXIT_FAILURE;
   }

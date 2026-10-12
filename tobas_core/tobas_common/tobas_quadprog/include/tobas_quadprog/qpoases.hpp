@@ -9,17 +9,13 @@ namespace tobas
 {
 namespace quadprog
 {
-/**
- * @brief An Eigen wrapper of [qpOASES](https://github.com/coin-or/qpOASES)
- */
+/** An Eigen wrapper of [qpOASES](https://github.com/coin-or/qpOASES). */
 class QpOasesSolver : public QuadProgSolver
 {
-  using super = QuadProgSolver;
-
 public:
   explicit QpOasesSolver();
 
-  bool solve() override;
+  std::expected<Eigen::VectorXd, std::string> solve() override;
 
 private:
   int nWSR_ = 10;

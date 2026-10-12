@@ -30,16 +30,16 @@ Q_SIGNALS:
 public:
   explicit SettingsNavigationWidget();
 
-  /* Add a non-selectable section heading. */
+  /** Add a non-selectable section heading. */
   void addSection(const QString& title);
 
-  /* Add a selectable entry. IDs must be unique within the widget. */
+  /** Add a selectable entry. IDs must be unique within the widget. */
   void addEntry(const QString& title, int id);
 
-  /* Select the entry corresponding to `id`. */
+  /** Select the entry corresponding to `id`. */
   void setCurrentEntry(int id);
 
-  /* Enable or disable an entry, displaying `disabled_reason` as a tooltip while disabled. */
+  /** Enable or disable an entry, displaying `disabled_reason` as a tooltip while disabled. */
   void setEntryEnabled(int id, bool enabled, const QString& disabled_reason = {});
 
 protected:

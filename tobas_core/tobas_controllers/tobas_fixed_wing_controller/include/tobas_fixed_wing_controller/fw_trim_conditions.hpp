@@ -14,61 +14,59 @@ namespace tobas
 {
 namespace fixed_wing
 {
-/**
- * @brief Compute the longitudinal trim state.
- */
+/** Compute the longitudinal trim state. */
 class TrimConditions : public SolverI
 {
 public:
   explicit TrimConditions(const Drone& drone, const kdl::Tree& tree);
 
-  bool updateInternalDataStructures() override;
+  void updateInternalDataStructures() override;
 
   /**
-   * @brief Update the internal state.
+   * Update the internal state.
    *
    * @param V Magnitude of aircraft velocity relative to wind speed [m/s].
    * @param rho Air density [kg/m^3].
    * @param q Joint angles [rad].
-   *
    * @return Error Error code
    */
-  int update(double V, const double& rho, const kdl::JntArray& q);
+  int update(double V, double rho, const kdl::JntArray& q);
 
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
 
-  /* Index of the control surface used for pitch trim. */
+  /** Index of the control surface used for pitch trim. */
   inline const std::string& elevatorLinkName() const;
 
-  /* Angle of attack [rad]. */
+  /** Angle of attack [rad]. */
   inline const double& alpha() const;
-  /* Pitch angle [rad]. */
+  /** Pitch angle [rad]. */
   inline const double& theta() const;
-  /* Elevator deflection angle [rad]. */
+  /** Elevator deflection angle [rad]. */
   inline const double& elevator() const;
-  /* Lift coefficient [-]. */
+  /** Lift coefficient [-]. */
   inline const double& c_L() const;
-  /* Drag coefficient [-]. */
+  /** Drag coefficient [-]. */
   inline const double& c_D() const;
-  /* Thrust coefficient [-]. */
+  /** Thrust coefficient [-]. */
   inline const double& c_T() const;
-  /* Speed in the X-axis direction [m/s]. */
+  /** Speed in the X-axis direction [m/s]. */
   inline const double& u() const;
 
-  inline double minimumSpeed(const double& rho) const;
-  inline double maximumSpeed(const double& rho) const;
+  inline double minimumSpeed(double rho) const;
+  inline double maximumSpeed(double rho) const;
 
   /**
-   * @brief Range of velocity magnitudes that avoid stall.
-   * cf. Blue book, p.85, (2.9-47, 2.9-49)
+   * Range of velocity magnitudes that avoid stall.
    *
    * @param rho Air density [kg/m^3].
    * @return st::Range<double> Range of velocity magnitudes.
+   *
+   * @see Blue book, p.85, (2.9-47, 2.9-49)
    */
-  st::Range<double> speedLimit(const double& rho) const;
+  st::Range<double> speedLimit(double rho) const;
 
-  /* Velocity at which enough lift to raise the aircraft is generated even when the angle of attack is zero. */
-  double takeOffSpeed(const double& rho) const;
+  /** Velocity at which enough lift to raise the aircraft is generated even when the angle of attack is zero. */
+  double takeOffSpeed(double rho) const;
 
 private:
   const Drone& drone_;
@@ -78,16 +76,16 @@ private:
   StabilityDerivativesCG asd_cog_;
 
   // Fixed values.
-  double W_;                    // Aircraft weight [N].
-  std::string elev_link_name_;  // Control surface used to balance pitch rotation.
-  double a_, b_;                // Constant parts of (2.9-49).
+  double W_;                    ///< Aircraft weight [N].
+  std::string elev_link_name_;  ///< Control surface used to balance pitch rotation.
+  double a_, b_;                ///< Constant parts of (2.9-49).
 
-  double alpha_;     // Angle of attack at trim [rad].
-  double elevator_;  // Elevator deflection at trim [rad].
-  double c_L_;       // Lift coefficient at trim [-].
-  double c_D_;       // Drag coefficient at trim [-].
-  double c_T_;       // Thrust coefficient at trim [-].
-  double u_;         // Speed in the X-axis direction at trim [m/s].
+  double alpha_;     ///< Angle of attack at trim [rad].
+  double elevator_;  ///< Elevator deflection at trim [rad].
+  double c_L_;       ///< Lift coefficient at trim [-].
+  double c_D_;       ///< Drag coefficient at trim [-].
+  double c_T_;       ///< Thrust coefficient at trim [-].
+  double u_;         ///< Speed in the X-axis direction at trim [m/s].
 };
 
 inline const StabilityDerivativesCG& TrimConditions::stabilityDerivativesCG() const
@@ -135,12 +133,12 @@ inline const double& TrimConditions::u() const
   return u_;
 }
 
-inline double TrimConditions::minimumSpeed(const double& rho) const
+inline double TrimConditions::minimumSpeed(double rho) const
 {
   return speedLimit(rho).lower;
 }
 
-inline double TrimConditions::maximumSpeed(const double& rho) const
+inline double TrimConditions::maximumSpeed(double rho) const
 {
   return speedLimit(rho).upper;
 }

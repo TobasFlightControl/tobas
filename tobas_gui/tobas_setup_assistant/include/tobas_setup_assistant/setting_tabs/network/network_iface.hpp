@@ -21,7 +21,6 @@ class NetworkIfaceWidget : public QWidget
   Q_OBJECT
 
   using self = NetworkIfaceWidget;
-  using super = QWidget;
 
 public:
   explicit NetworkIfaceWidget();

@@ -4,7 +4,6 @@
 #pragma once
 
 #include <chrono>
-#include <memory>
 
 namespace tobas
 {
@@ -15,7 +14,7 @@ class RateManager
 public:
   explicit RateManager(int update_rate);
 
-  /* True if the cycle can be executed. */
+  /** True if the cycle can be executed. */
   bool update(const std::chrono::steady_clock::duration& cur_time);
 
 private:

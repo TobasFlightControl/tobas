@@ -7,8 +7,6 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -22,50 +20,53 @@ constexpr char kCPitchDeltaKey[] = "c_pitch_delta";
 constexpr char kCYawDeltaKey[] = "c_yaw_delta";
 }  // namespace
 
-bool ControlSurface::isValid() const
+std::expected<void, std::string> ControlSurface::validate() const
 {
   if (link_name.empty()) {
-    cerr << "Link name is empty." << endl;
-    return false;
+    return std::unexpected("Link name is empty.");
   }
 
   // TODO: Check the joint range.
   // TODO: Check the signs of stability derivatives.
 
-  return true;
+  return {};
 }
 
-bool ControlSurface::load(const YAML::Node& node)
+std::expected<void, std::string> ControlSurface::load(const YAML::Node& node)
 {
-  if (!yaml::load(kLinkNameKey, node, link_name)) {
-    return false;
+  if (!node.IsDefined() || !node.IsMap()) {
+    return std::unexpected("Configuration node must be a map.");
   }
 
-  if (!yaml::load(kCLiftDeltaKey, node, c_lift_delta)) {
-    return false;
+  if (const auto result = yaml::load(kLinkNameKey, node, link_name); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCDragAbsDeltaKey, node, c_drag_abs_delta)) {
-    return false;
+  if (const auto result = yaml::load(kCLiftDeltaKey, node, c_lift_delta); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCSideDeltaKey, node, c_side_delta)) {
-    return false;
+  if (const auto result = yaml::load(kCDragAbsDeltaKey, node, c_drag_abs_delta); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCRollDeltaKey, node, c_roll_delta)) {
-    return false;
+  if (const auto result = yaml::load(kCSideDeltaKey, node, c_side_delta); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCPitchDeltaKey, node, c_pitch_delta)) {
-    return false;
+  if (const auto result = yaml::load(kCRollDeltaKey, node, c_roll_delta); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCYawDeltaKey, node, c_yaw_delta)) {
-    return false;
+  if (const auto result = yaml::load(kCPitchDeltaKey, node, c_pitch_delta); !result) {
+    return result;
   }
 
-  return true;
+  if (const auto result = yaml::load(kCYawDeltaKey, node, c_yaw_delta); !result) {
+    return result;
+  }
+
+  return {};
 }
 
 YAML::Node ControlSurface::dump() const

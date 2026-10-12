@@ -3,9 +3,6 @@
 
 #include "tobas_control/pid/p3.hpp"
 
-using namespace std;
-using namespace Eigen;
-
 namespace tobas
 {
 namespace ctrl

@@ -12,7 +12,7 @@ namespace tobas
 namespace rviz
 {
 /**
- * @brief SynchronizedStringParameter is a way to load a string from the ROS environment.
+ * SynchronizedStringParameter is a way to load a string from the ROS environment.
  *
  * First it tries to load the string from a parameter.
  * If that fails, it subscribes to a std_msgs::String topic of the same name to get the value.

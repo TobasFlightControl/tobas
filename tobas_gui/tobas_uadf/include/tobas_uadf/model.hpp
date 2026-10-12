@@ -3,7 +3,9 @@
 
 #pragma once
 
+#include <expected>
 #include <map>
+#include <string>
 
 #include <urdf/model.h>
 
@@ -28,7 +30,7 @@ public:
 
   void clear();
 
-  bool valid() const;
+  std::expected<void, std::string> validate() const;
 };
 }  // namespace uadf
 }  // namespace tobas

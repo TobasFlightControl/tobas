@@ -3,15 +3,13 @@
 
 #include "tobas_random_axis_tilt_multi_controller/mixer_pinv.hpp"
 
+#include <cassert>
 #include <ranges>
+#include <utility>
 
-#include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/operators.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
-
-using namespace std;
-using namespace Eigen;
 
 namespace tobas
 {
@@ -22,11 +20,9 @@ PinvMixer::PinvMixer(const Drone& drone, const kdl::Tree& tree)
 {
 }
 
-bool PinvMixer::updateInternalDataStructures()
+void PinvMixer::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
@@ -34,10 +30,9 @@ bool PinvMixer::updateInternalDataStructures()
   const auto nr = drone_.prop->numRotors();
   info_.resize(nr);
   state_.resize(nr);
-  E_.conservativeResize(NoChange, 2 * nr);
-  x_.conservativeResize(2 * nr);
+  E_.conservativeResize(Eigen::NoChange, 2 * nr);
 
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     auto& info = info_[idx];
 
@@ -62,11 +57,9 @@ bool PinvMixer::updateInternalDataStructures()
       info.A.col(1).setZero();
     }
   }
-
-  return true;
 }
 
-bool PinvMixer::solve(
+std::expected<MixerSolution, std::string> PinvMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro_B,
@@ -76,22 +69,15 @@ bool PinvMixer::solve(
   const kdl::Vector& ext_torque_B)
 {
   // Compute forward kinematics.
-  if (fk_solver_.jntToCart(cur_q) < 0) {
-    cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
-    return false;
-  }
+  const auto& frames = fk_solver_.jntToCart(cur_q);
 
   // Compute mass properties.
-  if (inertia_solver_.jntToCart(cur_q) < 0) {
-    cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
-    return false;
-  }
-  const auto& inertia = inertia_solver_.getInertia();
+  const auto inertia = inertia_solver_.jntToCart(cur_q);
   const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     const auto& info = info_[idx];
     auto& state = state_[idx];
@@ -105,7 +91,7 @@ bool PinvMixer::solve(
     const auto& gpar_seg = gpar_elem.segment;
 
     // Get the grandparent frame.
-    const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
+    const auto& B_T_gpar = frames.at(gpar_seg.name());
 
     if (info.is_tilt) {
       // Compute the deviation angle between the tilt axis and vertical direction.
@@ -143,8 +129,8 @@ bool PinvMixer::solve(
       const auto d = rotor->sign();
       const auto cm = rotor->momentConst();
 
-      const Matrix<double, 3, 2> B = B_T_gpar.M.data * info.A;
-      const Matrix3d C = eigen::skew(B_Pos_G2P.data) - (d * cm) * Diagonal3d(1, 1, 1);
+      const Eigen::Matrix<double, 3, 2> B = B_T_gpar.M.data * info.A;
+      const Eigen::Matrix3d C = eigen::skew(B_Pos_G2P.data) - (d * cm) * Eigen::Diagonal3d(1, 1, 1);
       const auto D = C * B;
 
       E_.block<3, 2>(0, col) = B;
@@ -165,7 +151,7 @@ bool PinvMixer::solve(
   // The mixer ignores delay in tilt-angle tracking, so large tilt-angle displacement should be avoided.
   // Therefore, at minimum, ensure that thrust is generated vertically upward.
   constexpr double kMinVerticalForcePerMass = 1.0;  // [m/s^2]
-  eom_trans_right_W.z(max(eom_trans_right_W.z(), mass * kMinVerticalForcePerMass));
+  eom_trans_right_W.z(std::max(eom_trans_right_W.z(), mass * kMinVerticalForcePerMass));
   f_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
 
   // Right-hand side of the rotational EoM.
@@ -174,53 +160,44 @@ bool PinvMixer::solve(
 
   // Least-squares solution of `Ex = f`; minimize the L2 norm of `x` when redundant degrees of freedom exist.
   // TODO: Consider constraints on the absolute thrust value; a convex optimization problem may work well.
-  x_ = E_.jacobiSvd(ComputeThinU | ComputeThinV).solve(f_);
+  Eigen::VectorXd x = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
 
   // Fix to the minimum value because the thrust solution corresponding to the singular state has become zero.
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     const auto& state = state_[idx];
     if (state.is_singular) {
-      x_(2 * idx) = drone_.prop->minThrust(rotor->link_name);
-      x_(2 * idx + 1) = 0.0;
+      const auto col = 2 * idx;
+      x(col) = drone_.prop->minThrust(rotor->link_name);
+      x(col + 1) = 0.0;
     }
   }
 
-  return true;
-}
-
-double PinvMixer::getThrust(size_t idx) const
-{
-  return thrustDeadband(x_.segment<2>(2 * idx).norm());
-}
-
-double PinvMixer::getTiltAngle(size_t idx) const
-{
-  const auto tx = thrustDeadband(x_(2 * idx));
-  const auto ty = thrustDeadband(x_(2 * idx + 1));
-  return std::atan2(ty, tx);
-}
-
-bool PinvMixer::setTiltAxisSingularDeclinationLB(double lb_rad)
-{
-  if (lb_rad < 0.0) {
-    cerr << "The lower bind of singular tilt axis declination must be non-negative." << endl;
-    return false;
+  // Convert the solver variables to independently owned rotor commands.
+  const auto nr = drone_.prop->numRotors();
+  Eigen::VectorXd thrusts(nr);
+  Eigen::VectorXd tilt_angles(nr);
+  for (size_t idx = 0; idx < nr; ++idx) {
+    const auto col = 2 * idx;
+    thrusts(idx) = thrustDeadband(x.segment<2>(col).norm());
+    const auto tx = thrustDeadband(x(col));
+    const auto ty = thrustDeadband(x(col + 1));
+    tilt_angles(idx) = std::atan2(ty, tx);
   }
 
+  return MixerSolution{ std::move(thrusts), std::move(tilt_angles) };
+}
+
+void PinvMixer::setTiltAxisSingularDeclinationLB(double lb_rad)
+{
+  assert(lb_rad >= 0.0);
   cfg_.singular_declination_lb = lb_rad;
-  return true;
 }
 
-bool PinvMixer::setTiltAxisSingularDeclinationUB(double ub_rad)
+void PinvMixer::setTiltAxisSingularDeclinationUB(double ub_rad)
 {
-  if (ub_rad < 0.0) {
-    cerr << "The upper bind of singular tilt axis declination must be non-negative." << endl;
-    return false;
-  }
-
+  assert(ub_rad >= 0.0);
   cfg_.singular_declination_ub = ub_rad;
-  return true;
 }
 }  // namespace random_axis_tilt_multicopter
 }  // namespace tobas

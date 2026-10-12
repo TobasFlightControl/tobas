@@ -10,44 +10,42 @@
 
 #include "tobas_linux/core.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace linux
 {
-bool checkRealtimePriority(const pthread_t& thread, const int& tar_policy, const int& tar_priority)
+bool checkRealtimePriority(pthread_t thread, int tar_policy, int tar_priority)
 {
   int cur_policy;
   sched_param cur_param;
 
   if (pthread_getschedparam(thread, &cur_policy, &cur_param) != 0) {
-    cerr << "Failed to get scheduling parameters." << endl;
+    std::cerr << "Failed to get scheduling parameters." << std::endl;
     return false;
   }
 
   if (cur_policy != tar_policy) {
-    cerr << "Scheduling policy is not reflected." << endl;
+    std::cerr << "Scheduling policy is not reflected." << std::endl;
     return false;
   }
 
   if (cur_param.sched_priority != tar_priority) {
-    cerr << "Scheduling priority is not reflected." << endl;
+    std::cerr << "Scheduling priority is not reflected." << std::endl;
     return false;
   }
 
   return true;
 }
 
-bool setRealtimePriority(const int& tar_policy, const int& tar_priority)
+bool setRealtimePriority(int tar_policy, int tar_priority)
 {
   if (!isSuperUser()) {
-    cerr << "Root privileges are required to set real-time priority." << endl;
+    std::cerr << "Root privileges are required to set real-time priority." << std::endl;
     return false;
   }
 
   if (tar_priority < 0 || 99 < tar_priority) {
-    cerr << "Real-time priority must be between 0 and 99." << endl;
+    std::cerr << "Real-time priority must be between 0 and 99." << std::endl;
     return false;
   }
 
@@ -57,7 +55,7 @@ bool setRealtimePriority(const int& tar_policy, const int& tar_priority)
   tar_param.sched_priority = tar_priority;
 
   if (pthread_setschedparam(this_thread, tar_policy, &tar_param) != 0) {
-    cerr << "Failed to set scheduling parameters." << endl;
+    std::cerr << "Failed to set scheduling parameters." << std::endl;
     return false;
   }
 
@@ -68,12 +66,12 @@ bool setRealtimePriority(const int& tar_policy, const int& tar_priority)
   return true;
 }
 
-bool setRealtimePriorityFIFO(const int& priority)
+bool setRealtimePriorityFIFO(int priority)
 {
   return setRealtimePriority(SCHED_FIFO, priority);
 }
 
-bool setRealtimePriorityRR(const int& priority)
+bool setRealtimePriorityRR(int priority)
 {
   return setRealtimePriority(SCHED_RR, priority);
 }

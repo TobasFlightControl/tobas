@@ -3,11 +3,7 @@
 
 #include "tobas_kdl/tree_mass_holder.hpp"
 
-#include <iostream>
-
 #include <tobas_algorithm/kahan.hpp>
-
-using namespace std;
 
 namespace tobas
 {
@@ -18,14 +14,9 @@ TreeMassHolder::TreeMassHolder(const Tree& tree) : super(tree)
   updateTotalMass();
 }
 
-bool TreeMassHolder::updateInternalDataStructures()
+void TreeMassHolder::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
-
   updateTotalMass();
-  return true;
 }
 
 void TreeMassHolder::updateTotalMass()
@@ -33,7 +24,7 @@ void TreeMassHolder::updateTotalMass()
   mass_ = computeMass(tree_.getRootSegment());
 }
 
-double TreeMassHolder::computeMass(const SegmentMap::const_iterator& cur_it)
+double TreeMassHolder::computeMass(const SegmentMap::const_iterator& cur_it) const
 {
   const auto& cur_ele = cur_it->second;
   const auto& cur_seg = cur_ele.segment;
@@ -45,8 +36,8 @@ double TreeMassHolder::computeMass(const SegmentMap::const_iterator& cur_it)
     mass_sum.add(computeMass(child_it));
   }
 
-  // To reduce numerical error, add the current segment's mass last because segments
-  // near the root tend to have greater mass.
+  // To reduce numerical error, add the current segment's mass last
+  // because segments near the root tend to have greater mass.
   mass_sum.add(cur_seg.inertia().getMass());
 
   return mass_sum.get();

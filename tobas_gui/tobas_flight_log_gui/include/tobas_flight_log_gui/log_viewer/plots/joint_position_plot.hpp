@@ -39,7 +39,7 @@ private:
 
   qt::GridLayout* grid_;
 
-  std::unordered_map<std::string, size_t> name2idx_;  // Joint Name -> Index
+  std::unordered_map<std::string, size_t> name2idx_;  ///< Joint Name -> Index
 
   size_t numJoints() const;
 

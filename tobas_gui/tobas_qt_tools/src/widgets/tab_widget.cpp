@@ -93,6 +93,8 @@ void TabWidget::clearTabBackgroundColor(int index)
 
 void TabWidget::setTabEnabled(QWidget* tab, bool enabled)
 {
+  tab->setEnabled(enabled);
+
   const auto idx = indexOf(tab);
   TOBAS_CHECK(idx >= 0);
   tabBar()->setTabEnabled(idx, enabled);

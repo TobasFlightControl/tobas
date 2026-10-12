@@ -15,15 +15,13 @@ namespace gui
 namespace ctrl
 {
 /**
- * @brief Widget embedding OpenStreetMap.
- * cf. https://stackoverflow.com/questions/36141170/creating-and-adding-mapquickitem-to-map-in-pyqt
+ * Widget embedding OpenStreetMap.
+ *
+ * @see https://stackoverflow.com/questions/36141170/creating-and-adding-mapquickitem-to-map-in-pyqt
  */
 class MapWidget : public QQuickWidget
 {
   Q_OBJECT
-
-  using self = MapWidget;
-  using super = QQuickWidget;
 
 Q_SIGNALS:
   void waypointMoved(int index, double latitude, double longitude);

@@ -11,7 +11,7 @@
 #include <fstream>
 #include <iostream>
 
-#include <tobas_linux/error.hpp>
+#include <tobas_std_tools/error.hpp>
 
 namespace ch = std::chrono;
 
@@ -21,12 +21,12 @@ namespace crypt
 {
 namespace
 {
-/* Read `/etc/shadow` line by line. */
+/** Read `/etc/shadow` line by line. */
 std::vector<std::string> readLines(const std::string& path)
 {
   std::ifstream ifs(path);
   if (!ifs) {
-    std::cerr << "Failed to open " << path << ": " << linux::strError() << std::endl;
+    std::cerr << "Failed to open " << path << ": " << st::strError() << std::endl;
     return {};
   }
 
@@ -39,7 +39,7 @@ std::vector<std::string> readLines(const std::string& path)
   return lines;
 }
 
-/* Convert colon-separated text to an array. */
+/** Convert colon-separated text to an array. */
 std::vector<std::string> splitShadow(const std::string& line)
 {
   std::vector<std::string> fields;
@@ -59,7 +59,7 @@ std::vector<std::string> splitShadow(const std::string& line)
   return fields;
 }
 
-/* Convert an array back to colon-separated text. */
+/** Convert an array back to colon-separated text. */
 std::string joinShadow(const std::vector<std::string>& fields)
 {
   std::ostringstream ss;
@@ -72,13 +72,13 @@ std::string joinShadow(const std::vector<std::string>& fields)
   return ss.str();
 }
 
-/* Safely overwrite a file. */
+/** Safely overwrite a file. */
 bool atomicOverwrite(const std::string& path, const std::string& content)
 {
   // Save existing metadata.
   struct stat st;
   if (stat(path.c_str(), &st) < 0) {
-    std::cerr << "stat failed on " + path + ": " << linux::strError() << std::endl;
+    std::cerr << "stat failed on " + path + ": " << st::strError() << std::endl;
     return false;
   }
 
@@ -90,7 +90,7 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
 
   auto fd = ::mkstemp(tmpc.data());
   if (fd < 0) {
-    std::cerr << "mkstemp failed: " << linux::strError() << std::endl;
+    std::cerr << "mkstemp failed: " << st::strError() << std::endl;
     return false;
   }
   tmp.assign(tmpc.data());
@@ -117,7 +117,7 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
   // Append a newline if missing.
   if (content.empty() || content.back() != '\n') {
     if (::write(fd, "\n", 1) != 1) {
-      std::cerr << "write failed: " << linux::strError() << std::endl;
+      std::cerr << "write failed: " << st::strError() << std::endl;
       return false;
     }
   }
@@ -134,7 +134,7 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
   // Replace atomically.
   if (::rename(tmp.c_str(), path.c_str()) < 0) {
     ::unlink(tmp.c_str());
-    std::cerr << "rename failed: " << linux::strError() << std::endl;
+    std::cerr << "rename failed: " << st::strError() << std::endl;
     return false;
   }
 
@@ -155,7 +155,8 @@ bool setShadowPassword(
 
   // Generate hash.
   const auto hash = _crypt.crypt(_new_password);
-  if (hash.empty()) {
+  if (!hash) {
+    std::cerr << "Failed to generate hash: " << hash.error() << std::endl;
     return false;
   }
 
@@ -182,8 +183,8 @@ bool setShadowPassword(
         fields.resize(kMinNumFields, "");
       }
 
-      fields[1] = hash;                  // Hash.
-      fields[2] = std::to_string(days);  // Last change date.
+      fields[1] = *hash;                 // Hash
+      fields[2] = std::to_string(days);  // Last change date
       line = joinShadow(fields);
       found = true;
       break;

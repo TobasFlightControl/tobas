@@ -12,7 +12,15 @@ class ThreadSafeComponentManager : public rclcpp_components::ComponentManager
 public:
   using ComponentManager::ComponentManager;
 
-  virtual std::shared_ptr<rclcpp_components::NodeFactory>
-  create_component_factory(const ComponentResource& resource) override;
+protected:
+  void on_load_node(
+    const std::shared_ptr<rmw_request_id_t> request_header,
+    const LoadNode::Request::SharedPtr request,
+    LoadNode::Response::SharedPtr response) override;
+
+  void on_unload_node(
+    const std::shared_ptr<rmw_request_id_t> request_header,
+    const UnloadNode::Request::SharedPtr request,
+    UnloadNode::Response::SharedPtr response) override;
 };
 }  // namespace tobas

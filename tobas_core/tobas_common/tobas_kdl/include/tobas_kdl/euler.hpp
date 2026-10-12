@@ -14,9 +14,7 @@ namespace tobas
 {
 namespace kdl
 {
-/**
- * @brief ZYX Euler angles.
- */
+/** ZYX Euler angles. */
 class Euler
 {
 public:
@@ -42,14 +40,16 @@ public:
   inline Quaternion toQuaternion() const;
   inline Vector toAngleAxis() const;
 
-  /* Return the difference between two rotations as an equivalent angle-axis `Vector`.
-   * `O_AngleAxis_AB = O_Rot_B - O_Rot_A`. */
+  /**
+   * Return the difference between two rotations as an equivalent angle-axis `Vector`.
+   * `O_AngleAxis_AB = O_Rot_B - O_Rot_A`.
+   */
   inline AngleAxis operator-(const Euler& rhs) const;
 
-  /* Rotate a 3D `Vector`. */
+  /** Rotate a 3D `Vector`. */
   inline Vector operator*(const Vector& v) const;
 
-  /* Apply the inverse rotation to a 3D `Vector`. */
+  /** Apply the inverse rotation to a 3D `Vector`. */
   inline Vector inverse(const Vector& v) const;
 
   inline bool isFinite() const;

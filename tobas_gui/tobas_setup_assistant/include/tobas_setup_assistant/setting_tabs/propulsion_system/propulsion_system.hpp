@@ -6,11 +6,10 @@
 #include <QButtonGroup>
 
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
+#include <tobas_uadf/model.hpp>
 
 #include "../base_setting.hpp"
 #include "./base.hpp"
-#include "./electric/propulsion_system.hpp"
-#include "./ice/propulsion_system.hpp"
 #include "tobas_setup_assistant/signals.hpp"
 
 namespace tobas
@@ -26,7 +25,6 @@ class PropulsionSystemWidget : public BaseSettingWidget
   Q_OBJECT
 
   using self = PropulsionSystemWidget;
-  using super = BaseSettingWidget;
 
 public:
   explicit PropulsionSystemWidget(const uadf::Model& uadf, Signals& sig);

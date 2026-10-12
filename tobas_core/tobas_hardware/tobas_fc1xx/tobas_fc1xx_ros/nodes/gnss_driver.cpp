@@ -5,6 +5,7 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_hardware_common/constants.hpp>
+#include <tobas_ic_drivers/ublox/ubx_transport_spi.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_std_tools/gnss.hpp>
 
@@ -48,13 +49,14 @@ private:
 
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
   : super("fc1xx_gnss_driver", nodeOptions_Default(options))
+  , gnss_(std::make_unique<ublox::UbxTransportSpi>("/dev/spidev1.2"))
 {
   initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
 }
 
 void GnssDriverNode::initialize()
 {
-  if (!gnss_.initialize("/dev/spidev1.2")) {
+  if (!gnss_.initialize()) {
     TOBAS_ERROR("Failed to initialize GNSS driver. Retrying...");
     return;
   }
@@ -288,7 +290,9 @@ void GnssDriverNode::mainTimerCb()
 
 void GnssDriverNode::rtcmCorrectionSubCb(const tobas_msgs::msg::BinaryPacket::ConstSharedPtr& msg)
 {
-  gnss_.registerRtcmCorrectionData(msg->data);
+  if (!gnss_.registerRtcmCorrectionData(msg->data)) {
+    TOBAS_WARN_THROTTLE(1.0, "Failed to send RTCM correction data to the GNSS receiver.");
+  }
 }
 }  // namespace fc1xx
 }  // namespace tobas

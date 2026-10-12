@@ -3,4 +3,4 @@
 set -e
 
 source /opt/ros/jazzy/setup.bash
-ros2 launch tobas_setup_assistant setup_assistant.launch.py
+exec ros2 launch tobas_setup_assistant setup_assistant.launch.py

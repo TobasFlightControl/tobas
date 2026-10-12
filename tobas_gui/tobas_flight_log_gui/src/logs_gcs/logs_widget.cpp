@@ -218,19 +218,18 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& log_name)
   constexpr char kLastOpenedDirKey[] = "flight_logs_gcs/last_opened_dir";
 
   // Get the last opened directory path.
-  const auto last_opened_dir =
-    settings_store_.value(kLastOpenedDirKey, QString::fromStdString(ros2::getHomeDir())).toString();
+  const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey, QDir::homePath()).toString();
 
   // Set the default output file path.
-  auto default_out_path = fs::path(last_opened_dir.toStdString()) / log_name.toStdString();
-  default_out_path.replace_extension(".csv");
+  const auto default_filename = log_name + ".csv";
+  const auto default_path = QDir(last_opened_dir).filePath(default_filename);
 
   // Get the save file path.
   QString selected_filter;
   const auto save_path = QFileDialog::getSaveFileName(
     this,
     "Export Flight Log",
-    QString::fromStdString(default_out_path),
+    default_path,
     kFilterTextCsv + QString(";;") + kFilterTextRosbag,
     &selected_filter,
     QFileDialog::DontUseNativeDialog);

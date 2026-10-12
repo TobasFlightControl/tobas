@@ -19,11 +19,13 @@ using JacobianMap = std::map<std::string, Jacobian>;
 class Jacobian
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  Eigen::Matrix<double, 6, Eigen::Dynamic> data;
+  Eigen::Matrix6Xd data;
 
   inline explicit Jacobian();
   inline explicit Jacobian(size_t nj);
+  inline explicit Jacobian(const Eigen::Matrix6Xd& _data);
+
+  static inline Jacobian Zero(size_t nj);
 
   inline void resize(size_t nj);
   inline void setZero();
@@ -50,7 +52,15 @@ inline Jacobian::Jacobian()
 
 inline Jacobian::Jacobian(size_t nj) : data(6, nj)
 {
-  data.setZero();
+}
+
+inline Jacobian::Jacobian(const Eigen::Matrix6Xd& _data) : data(_data)
+{
+}
+
+inline Jacobian Jacobian::Zero(size_t nj)
+{
+  return Jacobian(Eigen::Matrix6Xd::Zero(Eigen::NoChange, nj));
 }
 
 inline void Jacobian::resize(size_t nj)

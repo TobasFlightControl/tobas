@@ -26,10 +26,9 @@ bool belongsTo(const gz::sim::Entity& entity, const gz::sim::Entity& target, con
   }
 }
 
-std::optional<gz::sim::Entity>
-findJointWithChildLink(const gz::sim::EntityComponentManager& ecm, const std::string& link_name)
+gz::sim::Entity findJointWithChildLink(const gz::sim::EntityComponentManager& ecm, const std::string& link_name)
 {
-  std::optional<gz::sim::Entity> res;
+  auto res = gz::sim::kNullEntity;
 
   ecm.Each<cmp::Joint, cmp::ChildLinkName>(
     [&](const gz::sim::Entity& entity, const cmp::Joint*, const cmp::ChildLinkName* child_link_name) -> bool

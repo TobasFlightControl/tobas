@@ -31,7 +31,7 @@ public:
   FrameTypeDetector(FrameTypeDetector&&) = delete;
   FrameTypeDetector& operator=(FrameTypeDetector&&) = delete;
 
-  bool updateInternalDataStructures();
+  void updateInternalDataStructures();
   FrameTypeDetectionResult determineFrameType();
 
 private:

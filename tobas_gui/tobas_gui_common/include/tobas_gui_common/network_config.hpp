@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <expected>
+
 #include <QString>
 
 namespace tobas
@@ -11,14 +13,13 @@ namespace gui
 {
 namespace cmn
 {
-class NetworkConfig
+struct NetworkConfig
 {
-public:
   QString interface;
-
-  bool load(const QString& path);
-  bool save(const QString& path) const;
 };
+
+std::expected<NetworkConfig, QString> loadNetworkConfig(const QString& path);
+std::expected<void, QString> saveNetworkConfig(const QString& path, const NetworkConfig& config);
 }  // namespace cmn
 }  // namespace gui
 }  // namespace tobas

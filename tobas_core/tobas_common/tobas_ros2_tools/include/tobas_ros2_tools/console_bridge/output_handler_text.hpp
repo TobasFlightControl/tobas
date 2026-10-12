@@ -7,7 +7,7 @@
 
 namespace console_bridge
 {
-/* Store console output as a string. */
+/** Store console output as a string. */
 class OutputHandlerText : public OutputHandler
 {
 public:

@@ -31,7 +31,6 @@ class BasePoseCommanderWidget : public QWidget
   Q_OBJECT
 
   using self = BasePoseCommanderWidget;
-  using super = QWidget;
 
 public:
   explicit BasePoseCommanderWidget(const rqt::RosQtBridge& bridge);
@@ -44,8 +43,8 @@ public:
 private:
   qt::ToggleButton* arming_button_;
 
-  std::array<qt::DoubleSliderDisplay*, 3> cmd_xyz_;  // [m]
-  std::array<qt::IntSliderDisplay*, 3> cmd_rpy_;     // [deg]
+  std::array<qt::DoubleSliderDisplay*, 3> cmd_xyz_;  ///< [m]
+  std::array<qt::IntSliderDisplay*, 3> cmd_rpy_;     ///< [deg]
 
   QPushButton* home_button_;
 

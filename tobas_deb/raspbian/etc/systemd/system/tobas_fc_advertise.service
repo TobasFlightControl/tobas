@@ -1,0 +1,13 @@
+[Unit]
+Description=Tobas FC Advertisement
+Requires=avahi-daemon.service
+After=avahi-daemon.service
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/tobas/config/project.env
+ExecStart=/usr/bin/avahi-publish-service --no-fail %H _tobas-fc._tcp 22 drone=${TOBAS_DRONE} id=${TOBAS_ID}
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

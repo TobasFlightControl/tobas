@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "../propulsion_system.hpp"
 #include "./engine.hpp"
 #include "./ice_rotor.hpp"
@@ -19,9 +22,9 @@ public:
 
   EngineConfig engine;
 
-  bool isValid() const override;
+  std::expected<void, std::string> validate() const override;
 
-  bool load(const YAML::Node& node) override;
+  std::expected<void, std::string> load(const YAML::Node& node) override;
   YAML::Node dump() const override;
 
   PropulsionSystem type() const override;
@@ -40,13 +43,13 @@ public:
 private:
   std::optional<double> max_engine_speed_;
 
-  /* Maximum engine speed when the average propeller pitch angle is fixed [rad/s]. */
+  /** Maximum engine speed when the average propeller pitch angle is fixed [rad/s]. */
   double maxEngineSpeed();
 
-  /* Compute steady-state speed from engine throttle with the average propeller pitch angle fixed (memo: 3-29). */
+  /** Compute steady-state speed from engine throttle with the average propeller pitch angle fixed (memo: 3-29). */
   double computeEngineSpeed(double throttle) const;
 
-  /* Function passed to the Newton-method solver (memo: 3-29). */
+  /** Function passed to the Newton-method solver (memo: 3-29). */
   double speedFunc(double throttle, double omega) const;
   double speedFuncDeriv(double throttle, double omega) const;
 

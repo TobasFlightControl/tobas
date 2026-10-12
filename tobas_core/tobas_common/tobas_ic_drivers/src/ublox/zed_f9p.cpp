@@ -5,6 +5,9 @@
 
 #include <cassert>
 #include <cstring>
+#include <memory>
+#include <utility>
+#include <vector>
 
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
@@ -13,102 +16,53 @@ namespace tobas
 {
 namespace ublox
 {
-ZEDF9P::ZEDF9P() : rate_(50us)
+ZEDF9P::ZEDF9P(std::unique_ptr<UbxTransport> _transport) : transport_(std::move(_transport)), scan_rate_(50us)
 {
+  assert(transport_);
 }
 
-bool ZEDF9P::initialize(const char* spi_device)
+bool ZEDF9P::initialize()
 {
-  // Initialize SPI device.
-  constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz.
-  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
-    return false;
-  }
-
-  return true;
+  return transport_->initialize();
 }
 
-bool ZEDF9P::update(bool nonblock)
+bool ZEDF9P::update(bool blocking)
 {
-  constexpr uint8_t kDefaultData = 0xFF;  // Sent while there is no RTCM data to send.
-
   scanner_.reset();
 
-  if (nonblock) {
-    rate_.start();
+  if (!blocking) {
+    // Check the start byte.
+    // Keep receiving while queued data remains, because some transports (e.g. SPI) send it only while receiving.
+    scan_rate_.start();
     while (true) {
-      bool sended = false;
-      uint8_t send_data = kDefaultData;
-      {
-        std::lock_guard<std::mutex> lock(send_buffer_mutex_);
-        if (!send_buffer_.empty()) {
-          send_data = send_buffer_[0];
-          sended = true;
-        }
-      }
-      tx_buf_[0] = send_data;
-
-      // Check the start byte.
-      if (!spi_.transfer(1)) {
+      const auto first_byte = transport_->receiveByte();
+      if (!first_byte) {
         return false;
       }
-      if (sended) {
-        std::lock_guard<std::mutex> lock(send_buffer_mutex_);
-        if (!send_buffer_.empty()) {
-          send_buffer_.pop_front();
-        }
-      }
-      if (!scanner_.update(rx_buf_[0])) {
-        return false;
-      }
+      scanner_.update(*first_byte);
 
-      // Return if no data has arrived.
-      if (scanner_.state() != UBXScanner::kSync1) {
+      if (scanner_.state() != UbxScanner::kSync1) {
         break;
       }
 
-      // If no data has arrived and no data left to send, return.
-      if (!sended) {
+      // Return if no data has arrived and no data is left to send.
+      if (!transport_->hasPendingData()) {
         return false;
       }
 
-      // If the `SPI` request interval is too short, data cannot be acquired correctly,
-      // so sleep to keep at least the specified interval.
-      rate_.sleep();
+      scan_rate_.sleep();
     }
   }
 
   // Scan one message.
-  rate_.start();
-  while (scanner_.state() != UBXScanner::kDone) {
-    bool sended = false;
-    uint8_t send_data = kDefaultData;
-    {
-      std::lock_guard<std::mutex> lock(send_buffer_mutex_);
-      if (!send_buffer_.empty()) {
-        send_data = send_buffer_[0];
-        sended = true;
-      }
-    }
-    tx_buf_[0] = send_data;
-
-    if (!spi_.transfer(1)) {
+  scan_rate_.start();
+  while (scanner_.state() != UbxScanner::kDone) {
+    const auto data = transport_->receiveByte();
+    if (!data) {
       return false;
     }
-    if (sended) {
-      std::lock_guard<std::mutex> lock(send_buffer_mutex_);
-      if (!send_buffer_.empty()) {
-        send_buffer_.pop_front();
-      }
-    }
-
-    if (!scanner_.update(rx_buf_[0])) {
-      return false;
-    }
-
-    // If the `SPI` request interval is too short, data cannot be acquired correctly,
-    // so sleep to keep at least the specified interval.
-    rate_.sleep();
+    scanner_.update(*data);
+    scan_rate_.sleep();
   }
 
   if (!verifyMessage()) {
@@ -118,19 +72,17 @@ bool ZEDF9P::update(bool nonblock)
   return true;
 }
 
-void ZEDF9P::registerRtcmCorrectionData(const std::vector<uint8_t>& data)
+bool ZEDF9P::registerRtcmCorrectionData(const std::vector<uint8_t>& data)
 {
-  std::lock_guard<std::mutex> lock(send_buffer_mutex_);
   const auto observation = parseRtcmObservation(data);
-  if (observation && observation->more_messages_follow && !gnss_enabled_[observation->gnss]) {
-    return;
+  if (observation && observation->more_messages_follow) {
+    std::lock_guard<std::mutex> lock(gnss_enabled_mutex_);
+    if (!gnss_enabled_[observation->gnss]) {
+      return true;
+    }
   }
 
-  constexpr size_t kMaxSendBufferSize = 4096;
-  if (send_buffer_.size() > kMaxSendBufferSize) {
-    send_buffer_.clear();
-  }
-  send_buffer_.insert(send_buffer_.end(), data.begin(), data.end());
+  return transport_->enqueue(data.data(), data.size());
 }
 
 std::optional<ZEDF9P::RtcmObservation> ZEDF9P::parseRtcmObservation(const std::vector<uint8_t>& frame)
@@ -592,6 +544,9 @@ bool ZEDF9P::enableUsb(bool enable)
 
 bool ZEDF9P::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t size)
 {
+  // Allocate space for the header, payload, and checksum of this message.
+  std::vector<uint8_t> tx_buf(sizeof(UbxHeader) + size + sizeof(CheckSum));
+
   UbxHeader header;
   header.sync1 = kUbxSync1;
   header.sync2 = kUbxSync2;
@@ -599,13 +554,13 @@ bool ZEDF9P::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t siz
   header.id = id;
   header.length = size;
 
-  const auto payload_pos = spliceMemory(tx_buf_, &header, sizeof(UbxHeader), 0);
-  const auto checksum_pos = spliceMemory(tx_buf_, msg, size, payload_pos);
+  const auto payload_pos = spliceMemory(tx_buf.data(), &header, sizeof(UbxHeader), 0);
+  const auto checksum_pos = spliceMemory(tx_buf.data(), msg, size, payload_pos);
 
-  const auto ck = computeChecksum(tx_buf_, checksum_pos);
-  const auto message_length = spliceMemory(tx_buf_, &ck, sizeof(CheckSum), checksum_pos);
+  const auto ck = computeChecksum(tx_buf.data(), checksum_pos);
+  const auto message_length = spliceMemory(tx_buf.data(), &ck, sizeof(CheckSum), checksum_pos);
 
-  return spi_.transfer(message_length);
+  return transport_->send(tx_buf.data(), message_length);
 }
 
 bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
@@ -613,14 +568,14 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
   payload::ACK_ACK ack;
   payload::ACK_NAK nak;
 
-  const auto cls_str = std::to_string(int(cls));
-  const auto id_str = std::to_string(int(id));
+  const auto cls_str = std::to_string(static_cast<int>(cls));
+  const auto id_str = std::to_string(static_cast<int>(id));
 
   constexpr auto kWaitForGnssAck = 1s;
   const auto deadline = ch::steady_clock::now() + kWaitForGnssAck;
 
   while (ch::steady_clock::now() < deadline) {
-    if (!update(false)) {
+    if (!update(true)) {
       return false;
     }
 
@@ -657,7 +612,7 @@ bool ZEDF9P::waitForAcknowledge(UbxClass cls, uint8_t id)
         break;
 
       default:
-        std::cerr << "Unexpected ACK ID: " << (int)latestId() << std::endl;
+        std::cerr << "Unexpected ACK ID: " << static_cast<int>(latestId()) << std::endl;
         break;
     }
   }
@@ -699,7 +654,7 @@ bool ZEDF9P::enableGnss(GnssId gnss, uint16_t key_id, bool enable)
     return false;
   }
 
-  std::lock_guard<std::mutex> lock(send_buffer_mutex_);
+  std::lock_guard<std::mutex> lock(gnss_enabled_mutex_);
   gnss_enabled_[gnss] = enable;
   return true;
 }

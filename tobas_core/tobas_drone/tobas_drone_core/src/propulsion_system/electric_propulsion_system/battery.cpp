@@ -6,8 +6,6 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -19,59 +17,58 @@ constexpr char kMaxCurrentKey[] = "max_current";
 constexpr char kInternalResistanceKey[] = "internal_resistance";
 }  // namespace
 
-bool BatteryConfig::isValid() const
+std::expected<void, std::string> BatteryConfig::validate() const
 {
   if (sag_voltage <= 0.0) {
-    cerr << "Battery sag voltage must be positive." << endl;
-    return false;
+    return std::unexpected("Battery sag voltage must be positive.");
   }
 
   if (nominal_voltage <= sag_voltage) {
-    cerr << "Battery nominal voltage must be greater than sag voltage." << endl;
-    return false;
+    return std::unexpected("Battery nominal voltage must be greater than sag voltage.");
   }
 
   if (max_voltage <= nominal_voltage) {
-    cerr << "Battery max voltage must be greater than nominal voltage." << endl;
-    return false;
+    return std::unexpected("Battery max voltage must be greater than nominal voltage.");
   }
 
   if (max_current <= 0.0) {
-    cerr << "Battery max current must be positive." << endl;
-    return false;
+    return std::unexpected("Battery max current must be positive.");
   }
 
   if (internal_resistance < 0.0) {
-    cerr << "Battery internal resistance must be non-negative." << endl;
-    return false;
+    return std::unexpected("Battery internal resistance must be non-negative.");
   }
 
-  return true;
+  return {};
 }
 
-bool BatteryConfig::load(const YAML::Node& node)
+std::expected<void, std::string> BatteryConfig::load(const YAML::Node& node)
 {
-  if (!yaml::load(kNominalVoltageKey, node, nominal_voltage)) {
-    return false;
+  if (!node.IsDefined() || !node.IsMap()) {
+    return std::unexpected("Configuration node must be a map.");
   }
 
-  if (!yaml::load(kMaxVoltageKey, node, max_voltage)) {
-    return false;
+  if (const auto result = yaml::load(kNominalVoltageKey, node, nominal_voltage); !result) {
+    return result;
   }
 
-  if (!yaml::load(kSagVoltageKey, node, sag_voltage)) {
-    return false;
+  if (const auto result = yaml::load(kMaxVoltageKey, node, max_voltage); !result) {
+    return result;
   }
 
-  if (!yaml::load(kMaxCurrentKey, node, max_current)) {
-    return false;
+  if (const auto result = yaml::load(kSagVoltageKey, node, sag_voltage); !result) {
+    return result;
   }
 
-  if (!yaml::load(kInternalResistanceKey, node, internal_resistance)) {
-    return false;
+  if (const auto result = yaml::load(kMaxCurrentKey, node, max_current); !result) {
+    return result;
   }
 
-  return true;
+  if (const auto result = yaml::load(kInternalResistanceKey, node, internal_resistance); !result) {
+    return result;
+  }
+
+  return {};
 }
 
 YAML::Node BatteryConfig::dump() const

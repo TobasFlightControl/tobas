@@ -3,10 +3,6 @@
 
 #include "tobas_drone_core/propulsion_system/turning_direction.hpp"
 
-#include <iostream>
-
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -15,7 +11,7 @@ constexpr char kCcwText[] = "ccw";
 constexpr char kCwText[] = "cw";
 }  // namespace
 
-string textFromEnum(TurningDirection cmd_iface)
+std::string textFromEnum(TurningDirection cmd_iface)
 {
   switch (cmd_iface) {
     case TurningDirection::CCW:
@@ -27,7 +23,7 @@ string textFromEnum(TurningDirection cmd_iface)
   }
 }
 
-bool enumFromText(const string& text, TurningDirection& dst)
+bool enumFromText(const std::string& text, TurningDirection& dst)
 {
   if (text == kCcwText) {
     dst = TurningDirection::CCW;
@@ -38,7 +34,6 @@ bool enumFromText(const string& text, TurningDirection& dst)
     return true;
   }
   else {
-    cerr << "Invalid rotor turning direction: " << text << endl;
     return false;
   }
 }
@@ -46,7 +41,7 @@ bool enumFromText(const string& text, TurningDirection& dst)
 
 namespace YAML
 {
-Node convert<tobas::TurningDirection>::encode(const tobas::TurningDirection& rhs)
+Node convert<tobas::TurningDirection>::encode(tobas::TurningDirection rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);
@@ -59,6 +54,6 @@ bool convert<tobas::TurningDirection>::decode(const Node& node, tobas::TurningDi
     return false;
   }
 
-  return tobas::enumFromText(node.as<string>(), rhs);
+  return tobas::enumFromText(node.as<std::string>(), rhs);
 }
 }  // namespace YAML

@@ -4,7 +4,6 @@
 #pragma once
 
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
 
 #include <tobas_math/core.hpp>

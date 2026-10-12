@@ -4,8 +4,6 @@
 #pragma once
 
 #include <QLCDNumber>
-#include <QLineEdit>
-#include <QPushButton>
 
 #include <tobas_qt_tools/widgets/framed_label.hpp>
 #include <tobas_qt_tools/widgets/history_line_edit.hpp>
@@ -28,7 +26,6 @@ class FlightLogRecorderWidget : public QWidget
   Q_OBJECT
 
   using self = FlightLogRecorderWidget;
-  using super = QWidget;
 
 Q_SIGNALS:
   void recordFinished(const QString& log_name, bool is_real);

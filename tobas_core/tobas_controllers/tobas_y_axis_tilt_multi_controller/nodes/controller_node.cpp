@@ -4,7 +4,6 @@
 #include <optional>
 #include <ranges>
 
-#include <tobas_algorithm/core.hpp>
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/throttle.hpp>
 #include <tobas_constants/time.hpp>
@@ -61,29 +60,27 @@ private:
   // Controller
   TranslationalEoM trans_eom_;
   Mixer mixer_;
-  double throttle_gain_thresh_;  // [-]
+  double throttle_gain_thresh_;  ///< [-]
   struct TranslationControlParameters
   {
-    double hor_wn, ver_wn;      // [rad/s]
-    double hor_zeta, ver_zeta;  // [-]
+    double hor_wn, ver_wn;      ///< [rad/s]
+    double hor_zeta, ver_zeta;  ///< [-]
     double hor_ki, ver_ki;
     double hor_max_i_acc, ver_max_i_acc;
     kdl::Vector ei = kdl::Vector::Zero();
   } trans_ctrl_;
   struct RotationControlParameters
   {
-    double atti_wn, head_wn;      // [rad/s]
-    double atti_zeta, head_zeta;  // [-]
+    double atti_wn, head_wn;      ///< [rad/s]
+    double atti_zeta, head_zeta;  ///< [-]
     double atti_ki, head_ki;
     kdl::Vector ei = kdl::Vector::Zero();
   } rot_ctrl_;
 
   // Values depending on drone configuration
-  double max_thrust_sum_;  // [N]
+  double max_thrust_sum_;  ///< [N]
 
   // State
-  bool drone_received_ = false;
-  bool tree_received_ = false;
   bool js_received_ = false;
   bool topics_received_ = false;
   CommandPriorityHandler cmd_priority_handler_;
@@ -93,12 +90,12 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
-  std::optional<tobas_command_msgs::PosVelAccPitchYaw> pos_cmd_;  // Position-control target value in the WCS.
-  std::optional<tobas_command_msgs::AccelPitchYaw> acc_cmd_;      // Acceleration-control target value in the WCS.
-  std::optional<kdl::Rotation> tar_rot_;                          // Target attitude in the body coordinate system.
-  std::optional<kdl::Vector> tar_gyro_;  // Target angular velocity in the body coordinate system.
-  kdl::Vector tar_dgyro_;                // Target angular acceleration in the body coordinate system.
-  double ux_ = 0.0, uz_ = 0.0;           // Target thrust in the body coordinate system.
+  std::optional<tobas_command_msgs::PosVelAccPitchYaw> pos_cmd_;  ///< Position-control target value in the WCS.
+  std::optional<tobas_command_msgs::AccelPitchYaw> acc_cmd_;      ///< Acceleration-control target value in the WCS.
+  std::optional<kdl::Rotation> tar_rot_;                          ///< Target attitude in the body coordinate system.
+  std::optional<kdl::Vector> tar_gyro_;   ///< Target angular velocity in the body coordinate system.
+  std::optional<kdl::Vector> tar_dgyro_;  ///< Target angular acceleration in the body coordinate system.
+  double ux_ = 0.0, uz_ = 0.0;            ///< Target thrust in the body coordinate system.
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
@@ -123,25 +120,25 @@ private:
   // Timers
   ros2::TimerPtr check_topics_timer_;
 
-  bool updateInternalDataStructures();
+  void updateInternalDataStructures();
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
 
   // Parameter callbacks
-  bool horizontalNaturalFreqCb(const double& p);
-  bool horizontalDampingRatioCb(const double& p);
-  bool horizontalIGainCb(const double& p);
-  bool horizontalIMaxAccelCb(const double& p);
-  bool verticalNaturalFreqCb(const double& p);
-  bool verticalDampingRatioCb(const double& p);
-  bool verticalIGainCb(const double& p);
-  bool verticalIMaxAccelCb(const double& p);
-  bool attitudeNaturalFreqCb(const double& p);
-  bool attitudeDampingRatioCb(const double& p);
-  bool attitudeIGainCb(const double& p);
-  bool headingNaturalFreqCb(const double& p);
-  bool headingDampingRatioCb(const double& p);
-  bool headingIGainCb(const double& p);
-  bool throttleGainThresholdCb(const double& p);
+  void horizontalNaturalFreqCb(double p);
+  void horizontalDampingRatioCb(double p);
+  void horizontalIGainCb(double p);
+  void horizontalIMaxAccelCb(double p);
+  void verticalNaturalFreqCb(double p);
+  void verticalDampingRatioCb(double p);
+  void verticalIGainCb(double p);
+  void verticalIMaxAccelCb(double p);
+  void attitudeNaturalFreqCb(double p);
+  void attitudeDampingRatioCb(double p);
+  void attitudeIGainCb(double p);
+  void headingNaturalFreqCb(double p);
+  void headingDampingRatioCb(double p);
+  void headingIGainCb(double p);
+  void throttleGainThresholdCb(double p);
 
   // Topic callbacks
   void droneCb(const Drone::ConstSharedPtr& drone);
@@ -214,20 +211,12 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
 }
 
-bool ControllerNode::updateInternalDataStructures()
+void ControllerNode::updateInternalDataStructures()
 {
-  if (!mass_holder_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!js_converter_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!trans_eom_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!mixer_.updateInternalDataStructures()) {
-    return false;
-  }
+  mass_holder_.updateInternalDataStructures();
+  js_converter_.updateInternalDataStructures();
+  trans_eom_.updateInternalDataStructures();
+  mixer_.updateInternalDataStructures();
 
   // Update the maximum total thrust.
   max_thrust_sum_ = 0.0;
@@ -235,8 +224,6 @@ bool ControllerNode::updateInternalDataStructures()
     const auto thrust_at_full_throt = drone_.prop->thrustFromThrottle(link_name, kMaxThrot);
     max_thrust_sum_ += thrust_at_full_throt;
   }
-
-  return true;
 }
 
 bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& priority)
@@ -259,129 +246,104 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& 
   return true;
 }
 
-bool ControllerNode::horizontalNaturalFreqCb(const double& p)
+void ControllerNode::horizontalNaturalFreqCb(double p)
 {
   trans_ctrl_.hor_wn = p;
-  return true;
 }
 
-bool ControllerNode::horizontalDampingRatioCb(const double& p)
+void ControllerNode::horizontalDampingRatioCb(double p)
 {
   trans_ctrl_.hor_zeta = p;
-  return true;
 }
 
-bool ControllerNode::horizontalIGainCb(const double& p)
+void ControllerNode::horizontalIGainCb(double p)
 {
   trans_ctrl_.hor_ki = p;
-  return true;
 }
 
-bool ControllerNode::horizontalIMaxAccelCb(const double& p)
+void ControllerNode::horizontalIMaxAccelCb(double p)
 {
   trans_ctrl_.hor_max_i_acc = p;
-  return true;
 }
 
-bool ControllerNode::verticalNaturalFreqCb(const double& p)
+void ControllerNode::verticalNaturalFreqCb(double p)
 {
   trans_ctrl_.ver_wn = p;
-  return true;
 }
 
-bool ControllerNode::verticalDampingRatioCb(const double& p)
+void ControllerNode::verticalDampingRatioCb(double p)
 {
   trans_ctrl_.ver_zeta = p;
-  return true;
 }
 
-bool ControllerNode::verticalIGainCb(const double& p)
+void ControllerNode::verticalIGainCb(double p)
 {
   trans_ctrl_.ver_ki = p;
-  return true;
 }
 
-bool ControllerNode::verticalIMaxAccelCb(const double& p)
+void ControllerNode::verticalIMaxAccelCb(double p)
 {
   trans_ctrl_.ver_max_i_acc = p;
-  return true;
 }
 
-bool ControllerNode::attitudeNaturalFreqCb(const double& p)
+void ControllerNode::attitudeNaturalFreqCb(double p)
 {
   rot_ctrl_.atti_wn = p;
-  return true;
 }
 
-bool ControllerNode::attitudeDampingRatioCb(const double& p)
+void ControllerNode::attitudeDampingRatioCb(double p)
 {
   rot_ctrl_.atti_zeta = p;
-  return true;
 }
 
-bool ControllerNode::attitudeIGainCb(const double& p)
+void ControllerNode::attitudeIGainCb(double p)
 {
   rot_ctrl_.atti_ki = p;
-  return true;
 }
 
-bool ControllerNode::headingNaturalFreqCb(const double& p)
+void ControllerNode::headingNaturalFreqCb(double p)
 {
   rot_ctrl_.head_wn = p;
-  return true;
 }
 
-bool ControllerNode::headingDampingRatioCb(const double& p)
+void ControllerNode::headingDampingRatioCb(double p)
 {
   rot_ctrl_.head_zeta = p;
-  return true;
 }
 
-bool ControllerNode::headingIGainCb(const double& p)
+void ControllerNode::headingIGainCb(double p)
 {
   rot_ctrl_.head_ki = p;
-  return true;
 }
 
-bool ControllerNode::throttleGainThresholdCb(const double& p)
+void ControllerNode::throttleGainThresholdCb(double p)
 {
   throttle_gain_thresh_ = p / 100.0;
-  return true;
 }
 
 void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
 
-  if (drone->hasServoJoint()) {
+  if (!js_sub_ && drone->hasServoJoint()) {
     js_sub_ = createSubscriber(topic::kJointStates, &self::jointStateCb, this);
   }
-  else {
+  else if (js_sub_ && !drone->hasServoJoint()) {
     js_sub_.reset();
   }
 
-  if (tree_received_) {
-    if (!updateInternalDataStructures()) {
-      TOBAS_FATAL("Error occurred while updating internal data structures.");
-      return;
-    }
+  if (!tree_.empty()) {
+    updateInternalDataStructures();
   }
-
-  drone_received_ = true;
 }
 
 void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
 
-  if (drone_received_) {
-    if (!updateInternalDataStructures()) {
-      TOBAS_FATAL("Error occurred while updating internal data structures.");
-      return;
-    }
+  if (!drone_.empty()) {
+    updateInternalDataStructures();
   }
-
-  tree_received_ = true;
 }
 
 void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
@@ -521,34 +483,40 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     feedback->angle_integral_error = rot_ctrl_.ei;
   }
 
+  // Angular velocity controller.
   if (tar_gyro_) {
-    // Angular velocity controller.
-    {
-      // Determine gains.
-      const auto atti_wn = rot_ctrl_.atti_wn * gain_throt;
-      const auto head_wn = rot_ctrl_.head_wn * gain_throt;
-      const auto atti_rate_gain = atti_wn * rot_ctrl_.atti_zeta * 2;
-      const auto head_rate_gain = head_wn * rot_ctrl_.head_zeta * 2;
-      const kdl::Vector rate_gain(atti_rate_gain, atti_rate_gain, head_rate_gain);
-
-      // Compute target angular acceleration.
-      tar_dgyro_ = rate_gain.hadamard(*tar_gyro_ - cur_gyro_B);
-
-      // Fill the feedback message.
-      setpoint->odom.twist.rot = *tar_gyro_;
+    if (!tar_dgyro_) {
+      tar_dgyro_.emplace();
     }
 
-    // Mixer.
-    {
-      const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
-      if (!mixer_.solve(js_converter_.getPosition(), cur_gyro_B, tar_dgyro_, ux_, uz_, dist_torque_B)) {
-        TOBAS_FATAL("Failed to solve the mixing equation.");
-        return;
-      }
+    // Determine gains.
+    const auto atti_wn = rot_ctrl_.atti_wn * gain_throt;
+    const auto head_wn = rot_ctrl_.head_wn * gain_throt;
+    const auto atti_rate_gain = atti_wn * rot_ctrl_.atti_zeta * 2;
+    const auto head_rate_gain = head_wn * rot_ctrl_.head_zeta * 2;
+    const kdl::Vector rate_gain(atti_rate_gain, atti_rate_gain, head_rate_gain);
 
-      // Fill the feedback message.
-      setpoint->odom.accel.angular = tar_dgyro_;
+    // Compute target angular acceleration.
+    *tar_dgyro_ = rate_gain.hadamard(*tar_gyro_ - cur_gyro_B);
+
+    // Fill the feedback message.
+    setpoint->odom.twist.rot = *tar_gyro_;
+  }
+
+  // Mixer.
+  if (tar_dgyro_) {
+    // Solve the mixing equation.
+    const auto& cur_q = js_converter_.getPosition();
+    const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
+    const auto mixer_result = mixer_.solve(cur_q, cur_gyro_B, *tar_dgyro_, ux_, uz_, dist_torque_B);
+    if (!mixer_result) {
+      TOBAS_FATAL("Failed to solve the mixing equation: ", mixer_result.error());
+      // TODO: Defensive behavior
+      return;
     }
+
+    // Fill the feedback message.
+    setpoint->odom.accel.angular = *tar_dgyro_;
 
     // Publish target thrust.
     auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
@@ -556,7 +524,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       tar_thrusts->thrusts.emplace_back();
       tar_thrusts->thrusts.back().link_name = rotor_it.first;
-      tar_thrusts->thrusts.back().thrust = mixer_.getThrust(idx);
+      tar_thrusts->thrusts.back().thrust = mixer_result->thrusts(idx);
     }
     tar_thrusts_pub_->publish(std::move(tar_thrusts));
 
@@ -570,7 +538,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       }
       tar_angles->commands.emplace_back();
       tar_angles->commands.back().name = rotor->tilt_joint_name;
-      tar_angles->commands.back().data = mixer_.getTiltAngle(idx);
+      tar_angles->commands.back().data = mixer_result->tilt_angles(idx);
     }
     tar_angles_pub_->publish(std::move(tar_angles));
 
@@ -589,8 +557,8 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
 {
   // Assume that information for different joints may arrive in separate messages,
   // and convert to KDL inside the callback instead of storing the message itself.
-  if (js_converter_.convert(*js) < 0) {
-    TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
+  if (const auto result = js_converter_.convert(*js); !result) {
+    TOBAS_ERROR("Joint state converter failed: ", result.error());
     return;
   }
 
@@ -618,6 +586,7 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
     acc_cmd_.reset();
     tar_rot_.reset();
     tar_gyro_.reset();
+    tar_dgyro_.reset();
 
     TOBAS_INFO("The controller has been reset.");
   }
@@ -632,8 +601,8 @@ void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArr
   }
 
   for (const auto& data : rotor_liveliness->data) {
-    if (!mixer_.setRotorLiveliness(data.link_name, data.alive)) {
-      TOBAS_ERROR("Failed to set the liveliness of rotor \"", data.link_name, "\".");
+    if (const auto result = mixer_.setRotorLiveliness(data.link_name, data.alive); !result) {
+      TOBAS_ERROR("Failed to set rotor liveliness: ", result.error());
     }
   }
 }
@@ -728,38 +697,38 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::RateThrottleVector:
 
 void ControllerNode::checkTopicsTimerCb()
 {
-  if (!drone_received_) {
-    TOBAS_WARN("Waiting for \"", topic::kDrone, "\".");
+  if (drone_.empty()) {
+    TOBAS_WARN("Waiting for '", topic::kDrone, "'.");
     return;
   }
 
-  if (!tree_received_) {
-    TOBAS_WARN("Waiting for \"", topic::kKdlTree, "\".");
+  if (tree_.empty()) {
+    TOBAS_WARN("Waiting for '", topic::kKdlTree, "'.");
     return;
   }
 
   if (!odom_) {
-    TOBAS_WARN("Waiting for \"", topic::kOdometry, "\".");
+    TOBAS_WARN("Waiting for '", topic::kOdometry, "'.");
     return;
   }
 
   if (dist_force_sub_ && !dist_force_) {
-    TOBAS_WARN("Waiting for \"", topic::kDisturbanceForce, "\".");
+    TOBAS_WARN("Waiting for '", topic::kDisturbanceForce, "'.");
     return;
   }
 
   if (js_sub_ && !js_received_) {
-    TOBAS_WARN("Waiting for \"", topic::kJointStates, "\".");
+    TOBAS_WARN("Waiting for '", topic::kJointStates, "'.");
     return;
   }
 
   if (!landed_) {
-    TOBAS_WARN("Waiting for \"", topic::kLanded, "\".");
+    TOBAS_WARN("Waiting for '", topic::kLanded, "'.");
     return;
   }
 
   if (!arming_) {
-    TOBAS_WARN("Waiting for \"", topic::kArming, "\".");
+    TOBAS_WARN("Waiting for '", topic::kArming, "'.");
     return;
   }
 

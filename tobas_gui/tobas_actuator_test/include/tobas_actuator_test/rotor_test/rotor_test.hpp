@@ -13,6 +13,7 @@
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_path_tools/join.hpp>
+#include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
@@ -39,7 +40,6 @@ class RotorTestWidget : public BaseWidget
   Q_OBJECT
 
   using self = RotorTestWidget;
-  using super = BaseWidget;
 
 public:
   explicit RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
@@ -48,7 +48,8 @@ public:
 
   void reset() override;
 
-  void updateProject(const QString& proj_path);
+  void setProjectPath(const QString& proj_path);
+  void updateInternalDataStructures();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
 
@@ -61,8 +62,7 @@ private:
   ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
   cmn::ProjectPaths proj_paths_;
 
-  QPushButton* start_button_;
-  QPushButton* stop_button_;
+  qt::ToggleButton* start_stop_button_;
   QPushButton* save_button_;
 
   std::array<bool, kMaxDshotChannels> registered_;
@@ -79,6 +79,7 @@ private:
 
   QTimer update_timer_;
 
+  void updateActionAvailability();
   void publishTargetSppeds();
   bool loadCurrentGains();
 

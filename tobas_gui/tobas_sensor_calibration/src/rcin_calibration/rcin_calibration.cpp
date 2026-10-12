@@ -252,8 +252,9 @@ size_t RCInputCalibrationWidget::numOfGpswChannels() const
 bool RCInputCalibrationWidget::saveParamsToGcs()
 {
   ptree::PropertyTree pt;
-  if (!pt.initialize((ros2::expandUser(kConfigDirHome) / real::handler::rcin::kConfigFileName))) {
-    qt::qErrorBox(this, "Failed to initialize property tree.");
+  const auto config_path = ros2::expandUser(kConfigDirHome) / real::handler::rcin::kConfigFileName;
+  if (const auto result = pt.initialize(config_path); !result) {
+    qt::qErrorBox(this, "Failed to initialize property tree: " + QString::fromStdString(result.error()));
     return false;
   }
 
@@ -289,8 +290,8 @@ bool RCInputCalibrationWidget::saveParamsToGcs()
   pt.set(section, real::handler::rcin::kGpswOnKey, gpsw_on);
   pt.set(section, real::handler::rcin::kGpswOffKey, gpsw_off);
 
-  if (!pt.save()) {
-    qt::qErrorBox(this, "Failed to save calibration results on GCS.");
+  if (const auto result = pt.save(); !result) {
+    qt::qErrorBox(this, "Failed to save calibration results on GCS: " + QString::fromStdString(result.error()));
     return false;
   }
 

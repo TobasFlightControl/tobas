@@ -16,7 +16,6 @@ set(AMENT_DEPENDENCIES tobas_path_tools tobas_ros2_tools tobas_drone_core tobas_
 )
 
 find_package(ament_cmake REQUIRED)
-
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()

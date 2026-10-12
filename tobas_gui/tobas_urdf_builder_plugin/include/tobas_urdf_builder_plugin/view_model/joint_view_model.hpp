@@ -7,7 +7,6 @@
 
 #include <QString>
 
-#include "../utils/urdf_clone.hpp"
 #include "./base_view_model.hpp"
 #include "./joint_limits_view_model.hpp"
 
@@ -29,7 +28,7 @@ public:
   QString name() const;
   void name(const QString& name);
 
-  const QString& type() const;
+  QString type() const;
   void type(const QString& type);
 
   const ::urdf::Pose& origin() const;

@@ -3,11 +3,8 @@
 
 #include "tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp"
 
-#include <iostream>
-
-#include <boost/polymorphic_pointer_cast.hpp>
-
-using namespace std;
+#include <memory>
+#include <ranges>
 
 namespace tobas
 {
@@ -17,59 +14,54 @@ constexpr char kBatteryKey[] = "battery";
 constexpr char kRotorsKey[] = "rotors";
 }  // namespace
 
-bool ElectricPropulsionSystemConfig::isValid() const
+std::expected<void, std::string> ElectricPropulsionSystemConfig::validate() const
 {
-  // Rotors
-  for (const auto& [_, rotor] : rotors) {
-    if (!rotor->isValid()) {
-      cerr << "The configuration of rotor \"" << rotor->link_name << "\" is invalid." << endl;
-      return false;
+  for (const auto& [link_name, rotor] : rotors) {
+    if (!rotor) {
+      return std::unexpected("Rotor '" + link_name + "': configuration is missing.");
+    }
+    if (const auto result = rotor->validate(); !result) {
+      return std::unexpected("Rotor '" + link_name + "': " + result.error());
     }
   }
 
-  // Battery
-  if (!battery.isValid()) {
-    return false;
-  }
-
-  return true;
+  return battery.validate();
 }
 
-bool ElectricPropulsionSystemConfig::load(const YAML::Node& root_node)
+std::expected<void, std::string> ElectricPropulsionSystemConfig::load(const YAML::Node& root_node)
 {
+  if (!root_node.IsDefined() || !root_node.IsMap()) {
+    return std::unexpected("Electric propulsion system node must be a map.");
+  }
+
   clear();
 
   // Rotors
   const auto rotors_node = root_node[kRotorsKey];
   if (!rotors_node.IsDefined()) {
-    cerr << "\"" << kRotorsKey << "\" is not defined." << endl;
-    return false;
+    return std::unexpected(std::string("'") + kRotorsKey + "' is not defined.");
   }
   if (!rotors_node.IsSequence()) {
-    cerr << "\"" << kRotorsKey << "\" must be a sequence." << endl;
-    return false;
+    return std::unexpected(std::string("'") + kRotorsKey + "' must be a sequence.");
   }
-  for (const auto& rotor_node : rotors_node) {
-    const auto rotor = make_shared<ElectricRotorConfig>();
-    if (!rotor->load(rotor_node)) {
-      cerr << "Failed to load the configuration of rotors." << endl;
-      return false;
+  for (const auto& [idx, rotor_node] : std::views::enumerate(rotors_node)) {
+    const auto erotor = std::make_shared<ElectricRotorConfig>();
+    if (const auto result = erotor->load(rotor_node); !result) {
+      return std::unexpected("Rotors[" + std::to_string(idx) + "]: " + result.error());
     }
-    rotors[rotor->link_name] = rotor;
+    rotors[erotor->link_name] = erotor;
   }
 
   // Battery
   const auto battery_node = root_node[kBatteryKey];
   if (!battery_node.IsDefined()) {
-    cerr << "\"" << kBatteryKey << "\" is not defined." << endl;
-    return false;
+    return std::unexpected(std::string("'") + kBatteryKey + "' is not defined.");
   }
-  if (!battery.load(battery_node)) {
-    cerr << "Failed to load the configuration of battery." << endl;
-    return false;
+  if (const auto result = battery.load(battery_node); !result) {
+    return std::unexpected("Battery: " + result.error());
   }
 
-  return true;
+  return {};
 }
 
 YAML::Node ElectricPropulsionSystemConfig::dump() const
@@ -93,13 +85,13 @@ PropulsionSystem ElectricPropulsionSystemConfig::type() const
   return PropulsionSystem::kElectric;
 }
 
-double ElectricPropulsionSystemConfig::minSpeed(const string& link_name)
+double ElectricPropulsionSystemConfig::minSpeed(const std::string& link_name)
 {
   const auto rotor = getRotor(link_name);
   return rotor->min_speed;
 }
 
-double ElectricPropulsionSystemConfig::maxSpeed(const string& link_name)
+double ElectricPropulsionSystemConfig::maxSpeed(const std::string& link_name)
 {
   // FIXME: Reflect the maximum thrust while absorbing errors between electric and ICE models
   // and considering the battery or engine state.
@@ -108,13 +100,13 @@ double ElectricPropulsionSystemConfig::maxSpeed(const string& link_name)
   return rotor->speedFromVoltage(battery.nominal_voltage);
 }
 
-double ElectricPropulsionSystemConfig::minThrust(const string& link_name)
+double ElectricPropulsionSystemConfig::minThrust(const std::string& link_name)
 {
   const auto rotor = getRotor(link_name);
   return rotor->thrustFromSpeed(minSpeed(link_name));
 }
 
-double ElectricPropulsionSystemConfig::maxThrust(const string& link_name)
+double ElectricPropulsionSystemConfig::maxThrust(const std::string& link_name)
 {
   const auto rotor = getRotor(link_name);
   return rotor->thrustFromSpeed(maxSpeed(link_name));
@@ -131,19 +123,17 @@ ElectricRotorConfig::SharedPtr ElectricPropulsionSystemConfig::getRotor(const st
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    cerr << "Electric rotor link \"" << link_name << "\" is not found." << endl;
     return nullptr;
   }
-  return boost::polymorphic_pointer_downcast<ElectricRotorConfig>(it->second);
+  return std::static_pointer_cast<ElectricRotorConfig>(it->second);
 }
 
 ElectricRotorConfig::ConstSharedPtr ElectricPropulsionSystemConfig::getRotor(const std::string& link_name) const
 {
   const auto it = rotors.find(link_name);
   if (it == rotors.end()) {
-    cerr << "Electric rotor link \"" << link_name << "\" is not found." << endl;
     return nullptr;
   }
-  return boost::polymorphic_pointer_downcast<ElectricRotorConfig>(it->second);
+  return std::static_pointer_cast<ElectricRotorConfig>(it->second);
 }
 }  // namespace tobas

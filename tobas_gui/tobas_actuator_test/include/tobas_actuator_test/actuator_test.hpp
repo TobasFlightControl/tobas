@@ -20,14 +20,12 @@ class ActuatorTestWidget : public qt::VerticalTabWidget
 {
   Q_OBJECT
 
-  using self = ActuatorTestWidget;
-  using super = qt::VerticalTabWidget;
-
 public:
   explicit ActuatorTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone);
 
   void reset();
-  void updateProject(const QString& proj_path);
+  void updateInternalDataStructures();
+  void setProjectPath(const QString& proj_path);
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
 
@@ -39,8 +37,6 @@ private:
 
   BaseWidget* getWidget(int index);
   const BaseWidget* getWidget(int index) const;
-
-  void setTabsEnabled(bool enabled);
 };
 }  // namespace at
 }  // namespace gui

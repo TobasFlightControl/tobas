@@ -32,7 +32,6 @@ class RobotStateDisplay : public rviz_common::Display
 {
   Q_OBJECT
 
-  using self = RobotStateDisplay;
   using super = rviz_common::Display;
 
 public:

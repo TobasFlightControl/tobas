@@ -23,8 +23,8 @@ int main()
   double dgx, dgy, dgz;
 
   while (true) {
-    if (!driver.transfer()) {
-      cerr << "Failed to communicate with the MCU." << endl;
+    if (const auto result = driver.transfer(); !result) {
+      cerr << "Failed to communicate with the MCU: " << result.error() << endl;
       continue;
     }
 

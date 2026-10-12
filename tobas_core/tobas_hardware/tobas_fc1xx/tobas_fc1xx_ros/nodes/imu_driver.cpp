@@ -14,8 +14,6 @@
 #include <tobas_msgs/srv/configure_imu_low_pass_filter.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 
-using namespace std::chrono_literals;
-
 namespace tobas
 {
 namespace fc1xx

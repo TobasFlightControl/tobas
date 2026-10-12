@@ -50,7 +50,7 @@ void RotorsViewerWiddget::updateInternalDataStructures()
   }
 }
 
-void RotorsViewerWiddget::setSpeed(const std::string& link_name, const double& rps)
+void RotorsViewerWiddget::setSpeed(const std::string& link_name, double rps)
 {
   const auto& meter = meters_.at(link_name);
   const auto rpm = static_cast<int>(st::rps2rpm(rps));

@@ -3,6 +3,7 @@
 
 #include "tobas_planar_multi_controller/mixer_qp.hpp"
 
+#include <cassert>
 #include <ranges>
 
 #include <tobas_constants/scale.hpp>
@@ -15,52 +16,36 @@ namespace tobas
 namespace planar_multicopter
 {
 QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree)
-  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree), stopwatch_(100)
+  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
 {
 }
 
-bool QpMixer::updateInternalDataStructures()
+void QpMixer::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
-  if (!fk_solver_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!inertia_solver_.updateInternalDataStructures()) {
-    return false;
-  }
+  fk_solver_.updateInternalDataStructures();
+  inertia_solver_.updateInternalDataStructures();
 
   resizeAndFill();
-
-  return true;
 }
 
-bool QpMixer::solve(
+std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_dgyro_B,
-  const double& tar_thrusts_sum,
+  double tar_thrusts_sum,
   const kdl::Vector& ext_torque_B)
 {
   if (tar_thrusts_sum < 0.0) {
-    std::cerr << "Target thrust must be non-negative: " << tar_thrusts_sum << " < 0" << std::endl;
-    return false;
+    return std::unexpected("Target thrust must be non-negative: " + std::to_string(tar_thrusts_sum) + " < 0");
   }
 
   // Compute forward kinematics.
-  if (fk_solver_.jntToCart(cur_q) < 0) {
-    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
-    return false;
-  }
+  const auto& frames = fk_solver_.jntToCart(cur_q);
 
   // Compute mass properties.
-  if (inertia_solver_.jntToCart(cur_q) < 0) {
-    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
-    return false;
-  }
-  const auto& inertia = inertia_solver_.getInertia();
+  const auto inertia = inertia_solver_.jntToCart(cur_q);
   const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
@@ -69,10 +54,10 @@ bool QpMixer::solve(
   for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = pair.second;
 
-    const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
+    const auto& B_Pos_B2P = frames.at(rotor->link_name).p;
 
     const auto& elem = tree_.getSegment(rotor->link_name)->second;
-    const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
+    const auto& B_Rot_Par = frames.at(elem.parent->first).M;
     const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
     const auto d = rotor->sign();
@@ -125,8 +110,7 @@ bool QpMixer::solve(
 
   // Exit if thrust cannot be generated.
   if (max_thrust_sum == 0.0) {
-    std::cerr << "The vehicle cannot generate thrust." << std::endl;
-    return false;
+    return std::unexpected("The vehicle cannot generate thrust.");
   }
 
   // Equality constraints.
@@ -135,41 +119,24 @@ bool QpMixer::solve(
   qp_.problem.h(0) = std::clamp(tar_thrusts_sum, min_thrust_sum + kThrustMargin, max_thrust_sum - kThrustMargin);
 
   // Solve the QPP.
-  // stopwatch_.start();
-  if (!qp_.solve()) {
-    std::cerr << "QP failed: " << qp_.errorMessage() << std::endl;
-    return false;
-  }
-  // stopwatch_.stop();
-
-  return true;
-}
-
-double QpMixer::getThrust(size_t idx) const
-{
-  return thrustDeadband(qp_.solution()(idx));
-}
-
-bool QpMixer::setBaseWeight(double p)
-{
-  if (p <= 0.0) {
-    std::cerr << "Base weight must be positive." << std::endl;
-    return false;
+  const auto thrusts = qp_.solve();
+  if (!thrusts) {
+    return std::unexpected("QP failed: " + thrusts.error());
   }
 
+  return thrustDeadband(*thrusts);
+}
+
+void QpMixer::setBaseWeight(double p)
+{
+  assert(p > 0.0);
   cfg_.base_weight = p;
-  return true;
 }
 
-bool QpMixer::setThrustWeight(double p)
+void QpMixer::setThrustWeight(double p)
 {
-  if (p <= 0.0) {
-    std::cerr << "Thrust weight must be positive." << std::endl;
-    return false;
-  }
-
+  assert(p > 0.0);
   cfg_.thrust_weight = p;
-  return true;
 }
 
 void QpMixer::resizeAndFill()

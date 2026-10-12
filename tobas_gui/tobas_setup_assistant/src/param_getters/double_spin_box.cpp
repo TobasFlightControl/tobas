@@ -26,7 +26,7 @@ double ParamGetterWidget_DoubleSpinBox::getValue() const
   return spin_box_->value();
 }
 
-bool ParamGetterWidget_DoubleSpinBox::setValue(const double& src)
+bool ParamGetterWidget_DoubleSpinBox::setValue(double src)
 {
   if (src < spin_box_->minimum() || spin_box_->maximum() < src) {
     return false;

@@ -49,7 +49,8 @@ public:
   explicit TabWidget(QWidget* parent = nullptr);
 
   /**
-   * @brief Ignore mouse wheel events.
+   * Ignore mouse wheel events.
+   *
    * @note Must be called before TabBar settings such as `setMovable`.
    */
   virtual void enableWheelEvent(bool enable);
@@ -64,7 +65,7 @@ public:
   void setTabHeight(int height);
   void setTabSize(int width, int height);
 
-  /* Delete all tabs and free memory. */
+  /** Delete all tabs and free memory. */
   void removeAllTabs();
 
 private:

@@ -17,9 +17,6 @@ class GridLayout : public QGridLayout
 {
   Q_OBJECT
 
-  using self = GridLayout;
-  using super = QGridLayout;
-
 public:
   using QGridLayout::QGridLayout;
 

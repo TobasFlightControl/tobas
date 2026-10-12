@@ -3,12 +3,9 @@
 
 #include "tobas_ic_drivers/bmm150.hpp"
 
-#include <bitset>
-#include <cstring>
+#include <chrono>
 #include <iostream>
 #include <thread>
-
-using namespace std;
 
 namespace tobas
 {
@@ -31,37 +28,37 @@ BMM150::BMM150()
 bool BMM150::initialize(const char* i2c_device)
 {
   if (!i2c_.initialize(i2c_device, 0x10)) {
-    cerr << "Failed to initialize I2C device." << endl;
+    std::cerr << "Failed to initialize I2C device." << std::endl;
     return false;
   }
 
   if (!enterSuspendMode()) {
-    cerr << "Failed to enter suspend mode." << endl;
+    std::cerr << "Failed to enter suspend mode." << std::endl;
     return false;
   }
 
   if (!suspendToSleepMode()) {
-    cerr << "Failed to change mode from suspend to sleep." << endl;
+    std::cerr << "Failed to change mode from suspend to sleep." << std::endl;
     return false;
   }
 
   if (!checkWhoAmI()) {
-    cerr << "Who-Am-I check failed." << endl;
+    std::cerr << "Who-Am-I check failed." << std::endl;
     return false;
   }
 
   if (!execSelfTest()) {
-    cerr << "Self test failed." << endl;
+    std::cerr << "Self test failed." << std::endl;
     return false;
   }
 
   if (!readTrimRegisters()) {
-    cerr << "Failed to read trim registers." << endl;
+    std::cerr << "Failed to read trim registers." << std::endl;
     return false;
   }
 
   if (!configure()) {
-    cerr << "Failed to configure magnetometer." << endl;
+    std::cerr << "Failed to configure magnetometer." << std::endl;
     return false;
   }
 
@@ -76,21 +73,17 @@ bool BMM150::readMag(double& mx, double& my, double& mz)
 
   constexpr uint8_t kSelfTestRef = 0x01;
   if ((mag_buf_[0] & 1) != kSelfTestRef) {
-    cerr << "Failed in x-axis self test." << endl;
+    std::cerr << "Failed in x-axis self test." << std::endl;
     return false;
   }
   if ((mag_buf_[2] & 1) != kSelfTestRef) {
-    cerr << "Failed in y-axis self test." << endl;
+    std::cerr << "Failed in y-axis self test." << std::endl;
     return false;
   }
   if ((mag_buf_[4] & 1) != kSelfTestRef) {
-    cerr << "Failed in z-axis self test." << endl;
+    std::cerr << "Failed in z-axis self test." << std::endl;
     return false;
   }
-  // if (((mag_buf_[6] & 1) == 0)) {
-  //   cerr << "Read Old Data" << endl;
-  //   return false;
-  // }
 
   const int16_t msb_data_x = static_cast<int16_t>(static_cast<int8_t>(mag_buf_[1]) * 32);
   const int16_t msb_data_y = static_cast<int16_t>(static_cast<int8_t>(mag_buf_[3]) * 32);
@@ -101,7 +94,7 @@ bool BMM150::readMag(double& mx, double& my, double& mz)
   const uint16_t r_hall = ((static_cast<uint16_t>(mag_buf_[7]) << 6) | (mag_buf_[6] >> 2));
 
   // Compensate for the temperature effect using resistance value of hall sensor based on
-  // https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c compensate_x
+  // Ref: https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c compensate_x
   // (int16_t)raw_data * kResolution is approximately microteslas.
   constexpr double kResolution = 1.0 / 16.0;
   mx = static_cast<double>(compensateX(raw_data_x, r_hall)) * kResolution;
@@ -114,22 +107,22 @@ bool BMM150::readMag(double& mx, double& my, double& mz)
 bool BMM150::enterSuspendMode()
 {
   if (!i2c_.writeByte(CFG_REG_A, 0x00, true)) {
-    cerr << "Failed to write power control reg." << endl;
+    std::cerr << "Failed to write power control reg." << std::endl;
     return false;
   }
 
-  this_thread::sleep_for(3ms);  // Wait for BMM150's suspend.
+  std::this_thread::sleep_for(std::chrono::milliseconds(3));  // Wait for BMM150's suspend.
   return true;
 }
 
 bool BMM150::suspendToSleepMode()
 {
   if (!i2c_.writeByte(CFG_REG_A, 0x01), true) {
-    cerr << "Failed to write power control reg." << endl;
+    std::cerr << "Failed to write power control reg." << std::endl;
     return false;
   }
 
-  this_thread::sleep_for(3ms);  // Wait for BMM150's start-up.
+  std::this_thread::sleep_for(std::chrono::milliseconds(3));  // Wait for BMM150's start-up.
   return true;
 }
 
@@ -138,12 +131,12 @@ bool BMM150::checkWhoAmI()
   uint8_t byte;
 
   if (!i2c_.readByte(WHO_AM_I_REG, byte)) {
-    cerr << "Failed to read WHO_AM_I data." << endl;
+    std::cerr << "Failed to read WHO_AM_I data." << std::endl;
     return false;
   }
 
   if (byte != CHIP_ID) {
-    cerr << "Magnetometer is not recognized." << endl;
+    std::cerr << "Magnetometer is not recognized." << std::endl;
     return false;
   }
 
@@ -153,11 +146,11 @@ bool BMM150::checkWhoAmI()
 bool BMM150::execSelfTest()
 {
   if (!i2c_.writeByte(CFG_REG_B, ADV_SELF_TEST_NORMAL | ODR_10HZ | OP_SLEEP | SELF_TEST), true) {
-    cerr << "Failed to write to CFG_REG_B." << endl;
+    std::cerr << "Failed to write to CFG_REG_B." << std::endl;
     return false;
   }
 
-  this_thread::sleep_for(3ms);  // Wait for BMM150's self test.
+  std::this_thread::sleep_for(std::chrono::milliseconds(3));  // Wait for BMM150's self test.
 
   return true;
 }
@@ -165,17 +158,17 @@ bool BMM150::execSelfTest()
 bool BMM150::configure()
 {
   if (!i2c_.writeByte(CFG_REG_B, ADV_SELF_TEST_NORMAL | ODR_30HZ | OP_NORMAL), true) {
-    cerr << "Failed to write to CFG_REG_B." << endl;
+    std::cerr << "Failed to write to CFG_REG_B." << std::endl;
     return false;
   }
 
   if (!i2c_.writeByte(CFG_REG_E, REPXY), true) {
-    cerr << "Failed to write to CFG_REG_E." << endl;
+    std::cerr << "Failed to write to CFG_REG_E." << std::endl;
     return false;
   }
 
   if (!i2c_.writeByte(CFG_REG_F, REPZ), true) {
-    cerr << "Failed to write to CFG_REG_F." << endl;
+    std::cerr << "Failed to write to CFG_REG_F." << std::endl;
     return false;
   }
 
@@ -191,15 +184,15 @@ bool BMM150::readTrimRegisters()
 
   // Trim register value is read.
   if (!i2c_.readBytes(DIG_X1_REG, sizeof(trim_x1y1), trim_x1y1)) {
-    cerr << "Failed to read DIG_X1_REG." << endl;
+    std::cerr << "Failed to read DIG_X1_REG." << std::endl;
     return false;
   }
   if (!i2c_.readBytes(DIG_Z4_LSB_REG, sizeof(trim_xyz_data), trim_xyz_data)) {
-    cerr << "Failed to read DIG_Z4_REG." << endl;
+    std::cerr << "Failed to read DIG_Z4_REG." << std::endl;
     return false;
   }
   if (!i2c_.readBytes(DIG_Z2_LSB_REG, sizeof(trim_xy1xy2), trim_xy1xy2)) {
-    cerr << "Failed to read DIG_Z2_LSB_REG." << endl;
+    std::cerr << "Failed to read DIG_Z2_LSB_REG." << std::endl;
     return false;
   }
 
@@ -224,7 +217,7 @@ bool BMM150::readTrimRegisters()
   return true;
 }
 
-int16_t BMM150::compensateX(const int16_t& mag_data_x, const uint16_t& data_r_hall)
+int16_t BMM150::compensateX(int16_t mag_data_x, uint16_t data_r_hall)
 {
   uint16_t process_comp_x0 = 0;
 
@@ -266,7 +259,7 @@ int16_t BMM150::compensateX(const int16_t& mag_data_x, const uint16_t& data_r_ha
   }
 }
 
-int16_t BMM150::compensateY(const int16_t& mag_data_y, const uint16_t& data_r_hall)
+int16_t BMM150::compensateY(int16_t mag_data_y, uint16_t data_r_hall)
 {
   uint16_t process_comp_y0 = 0;
 
@@ -307,7 +300,7 @@ int16_t BMM150::compensateY(const int16_t& mag_data_y, const uint16_t& data_r_ha
   }
 }
 
-int16_t BMM150::compensateZ(const int16_t& mag_data_z, const uint16_t& data_r_hall)
+int16_t BMM150::compensateZ(int16_t mag_data_z, uint16_t data_r_hall)
 {
   if (mag_data_z != kZaxisHallOverflowAdcval) {
     if ((trim_data_.dig_z2 != 0) && (trim_data_.dig_z1 != 0) && (data_r_hall != 0) && (trim_data_.dig_xyz1 != 0)) {

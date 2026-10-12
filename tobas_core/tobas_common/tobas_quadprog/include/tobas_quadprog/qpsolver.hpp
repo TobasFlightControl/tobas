@@ -3,14 +3,17 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <eigen3/Eigen/Core>
 
 namespace tobas
 {
 namespace quadprog
 {
-/**
- * @brief Quadratic problem.
+/** Q
+ * uadratic problem.
  * minimize 0.5 x^T P x + q^T x s.t. G x = h & A x <= b
  */
 class QuadProgProblem
@@ -23,10 +26,10 @@ public:
   Eigen::MatrixXd A;
   Eigen::VectorXd b;
 
-  explicit QuadProgProblem(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size);
+  explicit QuadProgProblem(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size);
   explicit QuadProgProblem();
 
-  void resize(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size);
+  void resize(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size);
   void setZero();
 
   bool isSizeMatch() const;
@@ -40,31 +43,25 @@ public:
 };
 
 /**
- * @brief A base class of quadratic problem solver.
+ * A base class of quadratic problem solver.
  * minimize 0.5 x^T P x + q^T x s.t. G x = h & A x <= b
  */
 class QuadProgSolver
 {
 public:
   QuadProgProblem problem;
-  Eigen::VectorXd x_scale;  // Decision variable scale.
+  Eigen::VectorXd x_scale;  ///< Decision variable scale.
 
   explicit QuadProgSolver();
 
-  virtual bool solve() = 0;
+  virtual std::expected<Eigen::VectorXd, std::string> solve() = 0;
 
-  void resize(const Eigen::Index& var_size, const Eigen::Index& eq_size, const Eigen::Index& ineq_size);
+  void resize(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size);
   void setZero();
-
-  inline const Eigen::VectorXd& solution() const;
-  inline const std::string& errorMessage() const;
 
   friend std::ostream& operator<<(std::ostream& os, const QuadProgSolver& arg);
 
 protected:
-  Eigen::VectorXd x_opt_;
-  std::string error_msg_;
-
   QuadProgProblem scaleProblem() const;
   void checkProblemValidity() const;
 };
@@ -82,16 +79,6 @@ inline Eigen::Index QuadProgProblem::eqSize() const
 inline Eigen::Index QuadProgProblem::ineqSize() const
 {
   return b.rows();
-}
-
-inline const Eigen::VectorXd& QuadProgSolver::solution() const
-{
-  return x_opt_;
-}
-
-inline const std::string& QuadProgSolver::errorMessage() const
-{
-  return error_msg_;
 }
 }  // namespace quadprog
 }  // namespace tobas

@@ -4,10 +4,10 @@
 #pragma once
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <iterator>
-#include <ranges>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -17,7 +17,7 @@ namespace tobas
 namespace traj
 {
 /**
- * @brief Arc-length parameterized point on a Catmull-Rom path.
+ * Arc-length parameterized point on a Catmull-Rom path.
  *
  * `pos` is the position on the path. `tangent` is the unit direction with respect to path length.
  * `curvature` is d(tangent) / ds and can be used to convert scalar path speed/acceleration into a vector trajectory:
@@ -33,7 +33,7 @@ struct CatmullRomPathPoint
 };
 
 /**
- * @brief Catmull-Rom style path through all given control points.
+ * Catmull-Rom style path through all given control points.
  *
  * The path uses cubic Hermite segments with Catmull-Rom tangents.
  * End-point tangents are one-sided so the first and last segments leave/enter the path naturally.
@@ -46,7 +46,7 @@ class CatmullRomPath
 
 public:
   /**
-   * @brief Construct a path from ordered control points and precompute its arc-length table.
+   * Construct a path from ordered control points and precompute its arc-length table.
    *
    * The path contains one cubic segment between each adjacent pair of control points.
    * Throws std::invalid_argument when fewer than two control points are provided.
@@ -71,7 +71,7 @@ public:
   }
 
   /**
-   * @brief Return the number of cubic segments in the path.
+   * Return the number of cubic segments in the path.
    *
    * This is always one less than the number of control points.
    */
@@ -81,7 +81,7 @@ public:
   }
 
   /**
-   * @brief Return the approximate total arc length of the path.
+   * Return the approximate total arc length of the path.
    *
    * The length is computed from the sampled arc-length table built at construction time.
    */
@@ -91,7 +91,7 @@ public:
   }
 
   /**
-   * @brief Evaluate the path by arc length.
+   * Evaluate the path by arc length.
    *
    * @param s Distance from the start of the path. Values outside the path are clamped to the nearest endpoint.
    * @return Position, unit tangent, and curvature at the requested path distance.
@@ -122,7 +122,7 @@ public:
   }
 
   /**
-   * @brief Evaluate the path by segment-local curve parameter.
+   * Evaluate the path by segment-local curve parameter.
    *
    * @param segment Segment index in [0, segmentCount()).
    * @param u Cubic segment parameter in [0, 1], not arc length.
@@ -134,7 +134,9 @@ public:
     // When smoothly connecting any number of ordered points in any dimension,
     // the curve between two points is determined
     // only by those two points plus the neighboring points before and after them.
-    // cf. [Catmull–Rom spline](https://en.wikipedia.org/wiki/Catmull%E2%80%93Rom_spline)
+    // Ref: [Catmull–Rom spline](https://en.wikipedia.org/wiki/Catmull%E2%80%93Rom_spline)
+
+    assert(segment + 1 < points_.size());
 
     const auto& p0 = points_[segment];
     const auto& p1 = points_[segment + 1];
@@ -166,7 +168,7 @@ private:
   std::vector<double> lengths_;
 
   /**
-   * @brief Return the Catmull-Rom tangent assigned to a control point.
+   * Return the Catmull-Rom tangent assigned to a control point.
    *
    * Endpoint tangents use one-sided differences; interior tangents use the centered difference of neighboring points.
    */

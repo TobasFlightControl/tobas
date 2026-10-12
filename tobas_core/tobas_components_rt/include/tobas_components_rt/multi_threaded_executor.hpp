@@ -9,7 +9,7 @@
 
 namespace tobas
 {
-/* Assign real-time priority to the `MultiThreadedExecutor` thread pool. */
+/** Assign real-time priority to the `MultiThreadedExecutor` thread pool. */
 class MultiThreadedExecutorRT : public rclcpp::executors::MultiThreadedExecutor
 {
 public:

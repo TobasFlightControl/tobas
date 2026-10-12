@@ -5,9 +5,7 @@
 
 #include <magic_enum/magic_enum.hpp>
 
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
-#include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
@@ -112,7 +110,7 @@ void ControllerWidget::load(const YAML::Node& node)
   }
 }
 
-void ControllerWidget::setFrameType(const FrameType& type)
+void ControllerWidget::setFrameType(FrameType type)
 {
   frame_type_ = type;
 
@@ -184,7 +182,7 @@ const BaseControllerWidget* ControllerWidget::selected() const
   return qt::qConstPointerCast<BaseControllerWidget>(stack_->currentWidget());
 }
 
-void ControllerWidget::showCtrlWidgetWithFrameType(const FrameType& type)
+void ControllerWidget::showCtrlWidgetWithFrameType(FrameType type)
 {
   for (int i = 0; i < stack_->count(); ++i) {
     if (widget(i)->frameType() == type) {

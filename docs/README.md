@@ -53,7 +53,7 @@ Choose a model and one of its supported reasoning levels from the
 then specify them with `--model` and `--reasoning-effort`.
 
 ```bash
-$ python translate_docs.py --changed-only --src docs/ja --dst docs/en --base-ref HEAD --model gpt-5.6-sol --reasoning-effort max --dry-run
+$ python translate_docs.py --changed-only --src docs/ja --dst docs/en --base-ref HEAD --model gpt-6-astra--reasoning-effort max --dry-run
 ```
 
 Review the generated diff, then run the same command without `--dry-run` to update the files.

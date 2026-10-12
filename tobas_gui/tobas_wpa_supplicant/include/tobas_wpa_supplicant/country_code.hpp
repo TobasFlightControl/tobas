@@ -7,7 +7,7 @@ namespace tobas
 {
 namespace wpa
 {
-/* Country Codes: https://countrycode.org/ */
+/** Country Codes: https://countrycode.org/ */
 enum CountryCode
 {
   AF,

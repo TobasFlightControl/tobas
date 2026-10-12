@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <boost/polymorphic_pointer_cast.hpp>
+#include <algorithm>
+#include <memory>
 
-#include <tobas_algorithm/core.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_std_tools/vector.hpp>
 
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/arming.hpp>
@@ -21,7 +20,7 @@ using namespace std::chrono_literals;
 
 namespace tobas
 {
-/* Realize the target thrust for the propulsion system. */
+/** Realize the target thrust for the propulsion system. */
 class RotorControllerNode : public BaseNode
 {
   using self = RotorControllerNode;
@@ -97,12 +96,12 @@ void RotorControllerNode::publishZeroThrottle()
 {
   switch (drone_->prop->type()) {
     case PropulsionSystem::kElectric: {
-      const auto eprop = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_->prop);
+      const auto eprop = std::static_pointer_cast<ElectricPropulsionSystemConfig>(drone_->prop);
 
       auto tar_speeds_msg = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
       tar_speeds_msg->header.stamp = now();
       for (const auto& [link_name, rotor] : eprop->rotors) {
-        const auto erotor = boost::polymorphic_pointer_downcast<ElectricRotorConfig>(rotor);
+        const auto erotor = std::static_pointer_cast<ElectricRotorConfig>(rotor);
         tar_speeds_msg->speeds.emplace_back();
         tar_speeds_msg->speeds.back().link_name = link_name;
         tar_speeds_msg->speeds.back().speed = 0.0;
@@ -113,13 +112,13 @@ void RotorControllerNode::publishZeroThrottle()
       break;
     }
     case PropulsionSystem::kIce: {
-      const auto iprop = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone_->prop);
+      const auto iprop = std::static_pointer_cast<IcePropulsionSystemConfig>(drone_->prop);
 
       auto ice_cmd_msg = std::make_unique<tobas_msgs::msg::IcePropulsionSystemCommand>();
       ice_cmd_msg->header.stamp = now();
       ice_cmd_msg->engine_throttle = 0.0;
       for (const auto& [link_name, rotor] : iprop->rotors) {
-        const auto irotor = boost::polymorphic_pointer_downcast<IceRotorConfig>(rotor);
+        const auto irotor = std::static_pointer_cast<IceRotorConfig>(rotor);
         ice_cmd_msg->pitch_angles.emplace_back();
         ice_cmd_msg->pitch_angles.back().link_name = link_name;
         ice_cmd_msg->pitch_angles.back().angle = irotor->center_pitch;
@@ -167,7 +166,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
 
   switch (drone_->prop->type()) {
     case PropulsionSystem::kElectric: {
-      const auto eprop = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_->prop);
+      const auto eprop = std::static_pointer_cast<ElectricPropulsionSystemConfig>(drone_->prop);
 
       // Create target speeds message.
       auto tar_speeds_msg = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
@@ -177,7 +176,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       for (const auto& elem : tar_thrusts_msg->thrusts) {
         const auto erotor = eprop->getRotor(elem.link_name);
         if (!erotor) {
-          TOBAS_ERROR("Electric rotor \"" + elem.link_name + "\" does not exist.");
+          TOBAS_ERROR("Electric rotor '" + elem.link_name + "' does not exist.");
           continue;
         }
         const auto tar_thrust = std::max(elem.thrust, 0.0);
@@ -193,7 +192,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       break;
     }
     case PropulsionSystem::kIce: {  // Realize thrust using the reference pitch angle (memo: 3-27)
-      const auto iprop = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone_->prop);
+      const auto iprop = std::static_pointer_cast<IcePropulsionSystemConfig>(drone_->prop);
 
       // Calculate the total torque applied to the engine shaft and its coefficient.
       double thrust_sum = 0.0;
@@ -202,7 +201,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       for (const auto& elem : tar_thrusts_msg->thrusts) {
         const auto irotor = iprop->getRotor(elem.link_name);
         if (!irotor) {
-          TOBAS_ERROR("ICE Rotor \"" + elem.link_name + "\" does not exist.");
+          TOBAS_ERROR("ICE Rotor '" + elem.link_name + "' does not exist.");
           continue;
         }
         const auto motor_const = irotor->motorConst(irotor->center_pitch);
@@ -283,11 +282,11 @@ void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, c
     is_armed_ = true;
     publishCurrentArmingState();
     auto_disarm_timer_ = createTimer(kAutoDisarmBeforeCmdTimeout, &self::autoDisarmBeforeCmdTimerCb, this);
-    TOBAS_INFO("Arming request was accepted.");
+    TOBAS_INFO("Arming request has been accepted.");
   }
   else if (is_armed_ && !req->arming) {
     disarm();
-    TOBAS_INFO("Disarming request was accepted.");
+    TOBAS_INFO("Disarming request has been accepted.");
   }
 
   res->success = true;

@@ -39,8 +39,8 @@ private:
 
   qt::GridLayout* grid_;
 
-  size_t num_rotors_;                                 // The number of rotors
-  std::unordered_map<std::string, size_t> name2idx_;  // Link Name -> Index
+  size_t num_rotors_;                                 ///< The number of rotors
+  std::unordered_map<std::string, size_t> name2idx_;  ///< Link Name -> Index
 
   bool updateInternalDataStructures(const tobas_msgs::msg::RotorStateArray& msg);
 

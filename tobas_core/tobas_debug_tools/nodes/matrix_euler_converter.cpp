@@ -9,9 +9,7 @@
 
 namespace tobas
 {
-/**
- * @brief Convert the attitude from odometry to Euler angles and publish them.
- */
+/** Convert the attitude from odometry to Euler angles and publish them. */
 class MatrixEulerConverterNode : public BaseNode
 {
   using self = MatrixEulerConverterNode;

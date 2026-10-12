@@ -21,9 +21,6 @@ class EngineResponseWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = EngineResponseWidget;
-  using super = QWidget;
-
 public:
   explicit EngineResponseWidget();
 
@@ -33,10 +30,10 @@ public:
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
-  /* [s] */
+  /** [s] */
   double timeConstUp() const;
 
-  /* [s] */
+  /** [s] */
   double timeConstDown() const;
 
 private:

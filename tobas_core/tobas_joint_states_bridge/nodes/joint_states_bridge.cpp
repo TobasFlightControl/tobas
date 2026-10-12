@@ -10,7 +10,7 @@
 
 namespace tobas
 {
-/* tobas_msgs/JointStateArray -> sensor_msgs/JointState */
+/** `tobas_msgs/JointStateArray` -> `sensor_msgs/JointState` */
 class JointStatesBridgeNode : public BaseNode
 {
   using self = JointStatesBridgeNode;

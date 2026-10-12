@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <expected>
 #include <map>
 #include <string>
 
@@ -15,7 +16,7 @@
 namespace tobas
 {
 class JointConfig;
-using JointConfigMap = std::map<std::string, JointConfig>;  // Joint Name -> JointConfig
+using JointConfigMap = std::map<std::string, JointConfig>;
 
 class JointConfig
 {
@@ -24,11 +25,11 @@ public:
   JointRole role = JointRole::kUserPassive;
   JointCommandInterface cmd_iface = JointCommandInterface::kNone;
   HardwareInterface hw_iface = HardwareInterface::kOther;
-  double home_pos = 0.0;  // [rad | m]
+  double home_pos = 0.0;  ///< [rad | m]
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
-  bool load(const YAML::Node& node);
+  std::expected<void, std::string> load(const YAML::Node& node);
   YAML::Node dump() const;
 
   inline bool isServoJoint() const;

@@ -10,7 +10,7 @@ namespace tobas
 {
 namespace str
 {
-/* Concatenate `char` and `char*`. */
+/** Concatenate `char` and `char*`. */
 template <size_t N>
 inline constexpr auto concat(char c, const char (&s)[N])
 {

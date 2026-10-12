@@ -20,9 +20,6 @@ class BatteryWidget_Base : public QWidget
 {
   Q_OBJECT
 
-  using self = BatteryWidget_Base;
-  using super = QWidget;
-
 public:
   virtual const char* name() const = 0;
   virtual void setToDefaults() = 0;
@@ -31,22 +28,22 @@ public:
   virtual YAML::Node dump() const = 0;
   virtual void load(const YAML::Node& node) = 0;
 
-  /* Nominal voltage [V]. */
+  /** Nominal voltage [V]. */
   virtual double nominalVoltage() = 0;
 
-  /* Maximum voltage [V]. */
+  /** Maximum voltage [V]. */
   virtual double maxVoltage() = 0;
 
-  /* Voltage where discharge characteristics change abruptly [V]. */
+  /** Voltage where discharge characteristics change abruptly [V]. */
   virtual double sagVoltage() = 0;
 
-  /* Maximum continuous current [A]. */
+  /** Maximum continuous current [A]. */
   virtual double maxCurrent() = 0;
 
-  /* Electric capacity [As]. */
+  /** Electric capacity [As]. */
   virtual double capacity() = 0;
 
-  /* Internal resistance [ohm]. */
+  /** Internal resistance [ohm]. */
   virtual double internalRegistance() = 0;
 };
 }  // namespace electric

@@ -3,11 +3,7 @@
 
 #include "tobas_pose_pid/angle_axis_pi.hpp"
 
-#include <iostream>
-
-#include "./util.hpp"
-
-using namespace std;
+#include <cassert>
 
 namespace tobas
 {
@@ -15,7 +11,7 @@ AngleAxisPI::AngleAxisPI()
 {
 }
 
-kdl::Vector AngleAxisPI::update(const kdl::Rotation& cur_rot, const kdl::Rotation& tar_rot, const double& dt)
+kdl::Vector AngleAxisPI::update(const kdl::Rotation& cur_rot, const kdl::Rotation& tar_rot, double dt)
 {
   // Compute error in angle-axis form wrt. the local frame.
   const auto ep = (cur_rot.inverse() * tar_rot).getRot();
@@ -31,36 +27,20 @@ kdl::Vector AngleAxisPI::update(const kdl::Rotation& cur_rot, const kdl::Rotatio
   return kp_.hadamard(ep) + ki_.hadamard(ei_);
 }
 
-bool AngleAxisPI::setProportionalGain(int idx, double value)
+void AngleAxisPI::setProportionalGain(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    cerr << "Proportional gain must be non-negative." << endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   kp_(idx) = value;
-
-  return true;
 }
 
-bool AngleAxisPI::setIntegralGain(int idx, double value)
+void AngleAxisPI::setIntegralGain(int idx, double value)
 {
-  if (!checkIndex(idx)) {
-    return false;
-  }
-
-  if (value < 0.0) {
-    cerr << "Integral gain must be non-negative." << endl;
-    return false;
-  }
+  assert(0 <= idx && idx < 3);
+  assert(value >= 0.0);
 
   ki_(idx) = value;
   ei_(idx) = 0.0;
-
-  return true;
 }
 }  // namespace tobas

@@ -24,23 +24,23 @@ public:
 
   QPoint getCenter() const;
 
-  /* Compute the maximum point size for text that fits within the frame. */
+  /** Compute the maximum point size for text that fits within the frame. */
   int calcMaxTextPointSize(const QString& text, const QPoint& center) const;
 
-  /* Set background color. */
+  /** Set background color. */
   void setBackgroundColor(QPalette::ColorRole cr);
 
 protected:
-  /* Draw text. */
+  /** Draw text. */
   void drawText(QPainter& painter, const QString& text, const QPoint& center, const QFont& font);
 
-  /* Draw text. */
+  /** Draw text. */
   void drawText(QPainter& painter, const QString& text, const QPoint& center, int point_size);
 
-  /* Draw text at the maximum size that fits within the frame. */
+  /** Draw text at the maximum size that fits within the frame. */
   void drawMaximumText(QPainter& painter, const QString& text, const QPoint& center);
 
-  /* Draw text at the maximum size that fits within the frame. */
+  /** Draw text at the maximum size that fits within the frame. */
   void drawMaximumText(QPainter& painter, const QString& text);
 };
 }  // namespace qt

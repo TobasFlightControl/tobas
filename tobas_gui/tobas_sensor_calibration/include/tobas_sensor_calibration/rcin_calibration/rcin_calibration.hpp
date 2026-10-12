@@ -29,7 +29,6 @@ class RCInputCalibrationWidget : public BaseWidget
   Q_OBJECT
 
   using self = RCInputCalibrationWidget;
-  using super = BaseWidget;
 
 public:
   explicit RCInputCalibrationWidget(const rqt::RosQtBridge& bridge, const Drone& drone);

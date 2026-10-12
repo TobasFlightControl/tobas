@@ -13,7 +13,6 @@ class ToggleSwitch : public qt::Widget
 {
   Q_OBJECT
 
-  using self = ToggleSwitch;
   using super = qt::Widget;
 
 Q_SIGNALS:
@@ -45,7 +44,7 @@ protected:
   void resizeEvent(QResizeEvent* event) override;
 
 private:
-  bool checked_ = false;  // ON/OFF state.
+  bool checked_ = false;  ///< ON/OFF state.
   bool ignore_mouse_press_event_ = false;
   QString text_ = "";
   int text_psize_ = 0;

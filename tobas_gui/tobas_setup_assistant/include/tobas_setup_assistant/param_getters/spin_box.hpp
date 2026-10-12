@@ -27,7 +27,7 @@ public:
   explicit ParamGetterWidget_SpinBox(const QString& param_name, const QString& description_text = "");
 
   int getValue() const override;
-  bool setValue(const int& src) override;
+  bool setValue(int src) override;
 
   void setMinimum(int minimum);
   void setMaximum(int maximum);

@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <vector>
 
 namespace tobas
 {
@@ -16,14 +17,11 @@ static constexpr size_t kUbxIdLength = 1;
 static constexpr size_t kUbxLengthLength = 2;
 static constexpr size_t kUbxChecksumLength = 2;
 static constexpr size_t kUbxHeaderLength = kUbxSyncLength + kUbxClassLength + kUbxIdLength + kUbxLengthLength;
-static constexpr size_t kUbxFixedLength = kUbxHeaderLength + kUbxChecksumLength;
 
 static constexpr uint8_t kUbxSync1 = 0xb5;
 static constexpr uint8_t kUbxSync2 = 0x62;
 
-static constexpr size_t kUbxBufferLength = 2048;
-
-class UBXScanner
+class UbxScanner
 {
 public:
   enum State
@@ -40,10 +38,15 @@ public:
     kDone,
   };
 
-  explicit UBXScanner();
+  explicit UbxScanner();
+
+  UbxScanner(UbxScanner&& _other) = delete;
+  UbxScanner& operator=(UbxScanner&& _other) = delete;
+  UbxScanner(const UbxScanner& _other) = delete;
+  UbxScanner& operator=(const UbxScanner& _other) = delete;
 
   void reset();
-  bool update(const uint8_t& data);
+  void update(uint8_t data);
 
   inline State state() const;
   inline size_t messageLength() const;
@@ -58,58 +61,58 @@ public:
   inline const uint8_t* getChecksumB() const;
 
 private:
-  uint8_t buffer_[kUbxBufferLength];  ///< Buffer for UBX message
-  size_t payload_length_;             ///< Length of current message payload
-  size_t pos_;                        ///< Indicates current buffer offset
-  State state_;                       ///< Current scanner state
+  std::vector<uint8_t> buffer_;  ///< Buffer for UBX message
+  size_t payload_length_;        ///< Length of current message payload
+  size_t pos_;                   ///< Indicates current buffer offset
+  State state_;                  ///< Current scanner state
 };
 
-inline UBXScanner::State UBXScanner::state() const
+inline UbxScanner::State UbxScanner::state() const
 {
   return state_;
 }
 
-inline size_t UBXScanner::messageLength() const
+inline size_t UbxScanner::messageLength() const
 {
-  return kUbxFixedLength + payload_length_;
+  return kUbxHeaderLength + payload_length_ + kUbxChecksumLength;
 }
 
-inline const uint8_t* UBXScanner::getSync1() const
+inline const uint8_t* UbxScanner::getSync1() const
 {
-  return buffer_ + pos_ - messageLength();
+  return buffer_.data() + pos_ - messageLength();
 }
 
-inline const uint8_t* UBXScanner::getSync2() const
+inline const uint8_t* UbxScanner::getSync2() const
 {
   return getSync1() + 1;
 }
 
-inline const uint8_t* UBXScanner::getClass() const
+inline const uint8_t* UbxScanner::getClass() const
 {
   return getSync1() + kUbxSyncLength;
 }
 
-inline const uint8_t* UBXScanner::getId() const
+inline const uint8_t* UbxScanner::getId() const
 {
   return getClass() + kUbxClassLength;
 }
 
-inline const uint8_t* UBXScanner::getLength() const
+inline const uint8_t* UbxScanner::getLength() const
 {
   return getId() + kUbxIdLength;
 }
 
-inline const uint8_t* UBXScanner::getPayload() const
+inline const uint8_t* UbxScanner::getPayload() const
 {
   return getLength() + kUbxLengthLength;
 }
 
-inline const uint8_t* UBXScanner::getChecksumA() const
+inline const uint8_t* UbxScanner::getChecksumA() const
 {
   return getPayload() + payload_length_;
 }
 
-inline const uint8_t* UBXScanner::getChecksumB() const
+inline const uint8_t* UbxScanner::getChecksumB() const
 {
   return getChecksumA() + 1;
 }

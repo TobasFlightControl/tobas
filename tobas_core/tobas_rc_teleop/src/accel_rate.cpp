@@ -110,52 +110,44 @@ void AccelRateController::publishRate(const builtin_interfaces::msg::Time& stamp
   rate_pub_->publish(std::move(cmd));
 }
 
-bool AccelRateController::maxHorizontalAccelCb(const double& p)
+void AccelRateController::maxHorizontalAccelCb(double p)
 {
   max_hor_acc_ = p;
-  return true;
 }
 
-bool AccelRateController::maxVerticalAccelCb(const double& p)
+void AccelRateController::maxVerticalAccelCb(double p)
 {
   max_ver_acc_ = p;
-  return true;
 }
 
-bool AccelRateController::maxAttitudeRateCb(const double& p)
+void AccelRateController::maxAttitudeRateCb(double p)
 {
   max_atti_rate_ = st::deg2rad(p);
-  return true;
 }
 
-bool AccelRateController::maxHeadingRateCb(const double& p)
+void AccelRateController::maxHeadingRateCb(double p)
 {
   max_head_rate_ = st::deg2rad(p);
-  return true;
 }
 
-bool AccelRateController::horizontalAccelExpoCb(const double& p)
+void AccelRateController::horizontalAccelExpoCb(double p)
 {
   hor_acc_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool AccelRateController::verticalAccelExpoCb(const double& p)
+void AccelRateController::verticalAccelExpoCb(double p)
 {
   ver_acc_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool AccelRateController::attitudeExpoCb(const double& p)
+void AccelRateController::attitudeExpoCb(double p)
 {
   atti_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool AccelRateController::headingExpoCb(const double& p)
+void AccelRateController::headingExpoCb(double p)
 {
   head_expo_ = p / kExpoScale;
-  return true;
 }
 }  // namespace rc
 }  // namespace tobas

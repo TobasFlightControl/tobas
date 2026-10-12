@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <vector>
@@ -416,6 +415,7 @@ struct NAV_STATUS : public Payload
     MULTIPLE_SPOOFING_INDICATIONS = 3,
   } spoofDetState;
 
+  /** Carrier phase range solution status */
   enum CarrierPhaseRangeSolutionStatus : uint8_t
   {
     NO_SOLUTION = 0,
@@ -533,11 +533,11 @@ struct NAV_VELNED : public Payload
 
 struct RXM_RTCM : public Payload
 {
-  uint8_t version;      // Message version (0x02 for this version)
-  uint8_t flags;        // RTCM input status flags (bit 0: crcFailed, bit 1-2: msgUsed)
-  uint16_t subType;     // Message subtype (only applies for RTCM 4072 message)
-  uint16_t refStation;  // Reference station ID
-  uint16_t msgType;     // RTCM message type (e.g. 1005, 1075, 1115)
+  uint8_t version;      ///< Message version (0x02 for this version)
+  uint8_t flags;        ///< RTCM input status flags (bit 0: crcFailed, bit 1-2: msgUsed)
+  uint16_t subType;     ///< Message subtype (only applies for RTCM 4072 message)
+  uint16_t refStation;  ///< Reference station ID
+  uint16_t msgType;     ///< RTCM message type (e.g. 1005, 1075, 1115)
 
   bool crcFailed() const
   {

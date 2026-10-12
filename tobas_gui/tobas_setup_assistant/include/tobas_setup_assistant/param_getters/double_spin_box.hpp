@@ -27,7 +27,7 @@ public:
   explicit ParamGetterWidget_DoubleSpinBox(const QString& param_name, const QString& description_text = "");
 
   double getValue() const override;
-  bool setValue(const double& src) override;
+  bool setValue(double src) override;
 
   void setDecimals(int decimals);
   void setMinimum(double minimum);

@@ -20,7 +20,6 @@ class ArmStateBanner : public QLabel
   Q_OBJECT
 
   using self = ArmStateBanner;
-  using super = QLabel;
 
 public:
   explicit ArmStateBanner(const rqt::RosQtBridge& bridge);

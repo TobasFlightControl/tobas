@@ -3,15 +3,17 @@
 
 #pragma once
 
-#include "./frames.hpp"
-#include "./jacobian.hpp"
+#include <cstddef>
+
+#include <eigen3/Eigen/Core>
+
 #include "./jntarray.hpp"
 
 namespace tobas
 {
 namespace kdl
 {
-/* This class represents a fixed `nj` matrix containing the Joint-Space Inertia Matrix of a `kdl::Chain`. */
+/** This class represents a fixed `nj` matrix containing the joint-space inertia matrix. */
 class JntSpaceInertiaMatrix
 {
 public:
@@ -20,7 +22,7 @@ public:
   inline explicit JntSpaceInertiaMatrix();
   inline explicit JntSpaceInertiaMatrix(int nj);
 
-  /* Resize the array. */
+  /** Resize the array. */
   inline void resize(size_t nj);
 
   inline double operator()(size_t i, size_t j) const;
@@ -33,8 +35,8 @@ public:
   Add(const JntSpaceInertiaMatrix& src1, const JntSpaceInertiaMatrix& src2, JntSpaceInertiaMatrix& dest);
   inline friend void
   Subtract(const JntSpaceInertiaMatrix& src1, const JntSpaceInertiaMatrix& src2, JntSpaceInertiaMatrix& dest);
-  inline friend void Multiply(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest);
-  inline friend void Divide(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest);
+  inline friend void Multiply(const JntSpaceInertiaMatrix& src, double factor, JntSpaceInertiaMatrix& dest);
+  inline friend void Divide(const JntSpaceInertiaMatrix& src, double factor, JntSpaceInertiaMatrix& dest);
   inline friend void Multiply(const JntSpaceInertiaMatrix& src, const JntArray& vec, JntArray& dest);
 };
 
@@ -82,12 +84,12 @@ inline void Subtract(const JntSpaceInertiaMatrix& src1, const JntSpaceInertiaMat
   dest.data = src1.data - src2.data;
 }
 
-inline void Multiply(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest)
+inline void Multiply(const JntSpaceInertiaMatrix& src, double factor, JntSpaceInertiaMatrix& dest)
 {
   dest.data = factor * src.data;
 }
 
-inline void Divide(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest)
+inline void Divide(const JntSpaceInertiaMatrix& src, double factor, JntSpaceInertiaMatrix& dest)
 {
   dest.data = src.data / factor;
 }

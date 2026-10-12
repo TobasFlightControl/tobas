@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <cstdlib>
+#include <iostream>
 #include <random>
+#include <string>
+#include <vector>
 
 #include <tobas_dsp/welford.hpp>
-#include <tobas_std_tools/vector.hpp>
 
 using namespace std;
 using namespace Eigen;

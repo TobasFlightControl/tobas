@@ -9,62 +9,62 @@ namespace tobas
 {
 namespace st
 {
-/* degree -> radian */
-inline constexpr double deg2rad(const double& deg)
+/** degree -> radian */
+inline constexpr double deg2rad(double deg)
 {
   return deg * (M_PI / 180.0);
 }
 
-/* radian -> degree */
-inline constexpr double rad2deg(const double& rad)
+/** radian -> degree */
+inline constexpr double rad2deg(double rad)
 {
   return rad * (180.0 / M_PI);
 }
 
-/* rpm -> rad/s */
-inline constexpr double rpm2rps(const double& rpm)
+/** rpm -> rad/s */
+inline constexpr double rpm2rps(double rpm)
 {
   return rpm * (M_PI / 30.0);
 }
 
-/* rad/s -> rpm */
-inline constexpr double rps2rpm(const double& rps)
+/** rad/s -> rpm */
+inline constexpr double rps2rpm(double rps)
 {
   return rps * (30.0 / M_PI);
 }
 
-/* inch -> m */
-inline constexpr double inch2meter(const double& inch)
+/** inch -> m */
+inline constexpr double inch2meter(double inch)
 {
   return inch * 0.0254;
 }
 
-/* m -> inch */
-inline constexpr double meter2inch(const double& meter)
+/** m -> inch */
+inline constexpr double meter2inch(double meter)
 {
   return meter / 0.0254;
 }
 
-/* feet -> m */
-inline constexpr double feet2meter(const double& feet)
+/** feet -> m */
+inline constexpr double feet2meter(double feet)
 {
   return feet * 0.3048;
 }
 
-/* m -> feet */
-inline constexpr double meter2feet(const double& meter)
+/** m -> feet */
+inline constexpr double meter2feet(double meter)
 {
   return meter / 0.3048;
 }
 
-/* yard -> m */
-inline constexpr double yard2meter(const double& yard)
+/** yard -> m */
+inline constexpr double yard2meter(double yard)
 {
   return yard * 0.9144;
 }
 
-/* m -> yard */
-inline constexpr double meter2yard(const double& meter)
+/** m -> yard */
+inline constexpr double meter2yard(double meter)
 {
   return meter / 0.9144;
 }

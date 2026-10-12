@@ -11,6 +11,7 @@
   <depend>tf2_eigen</depend>
   <depend>rviz_common</depend>
   <depend>rviz_default_plugins</depend>
+
   <depend>tobas_visualization_msgs</depend>
 
   <export>

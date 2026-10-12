@@ -57,18 +57,27 @@ bool AerodynamicsWidget::isValid()
     return false;
   }
 
-  if (!motorConst().isValid()) {
-    qt::qWarnBox(this, "Failed to estimate the motor constant of the variable pitch propeller.");
+  if (const auto result = motorConst().validate(); !result) {
+    qt::qWarnBox(
+      this,
+      "Failed to estimate the motor constant of the variable pitch propeller:\n\n" +
+        QString::fromStdString(result.error()));
     return false;
   }
 
-  if (!momentConst().isValid()) {
-    qt::qWarnBox(this, "Failed to estimate the moment constant of the variable pitch propeller.");
+  if (const auto result = momentConst().validate(); !result) {
+    qt::qWarnBox(
+      this,
+      "Failed to estimate the moment constant of the variable pitch propeller:\n\n" +
+        QString::fromStdString(result.error()));
     return false;
   }
 
-  if (!dragConst().isValid()) {
-    qt::qWarnBox(this, "Failed to estimate the drag constant of the variable pitch propeller.");
+  if (const auto result = dragConst().validate(); !result) {
+    qt::qWarnBox(
+      this,
+      "Failed to estimate the drag constant of the variable pitch propeller:\n\n" +
+        QString::fromStdString(result.error()));
     return false;
   }
 

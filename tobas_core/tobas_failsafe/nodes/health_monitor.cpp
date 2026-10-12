@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <memory>
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_math/core.hpp>
@@ -36,7 +38,6 @@ public:
   explicit HealthMonitorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  // ROS parameters.
   struct DoCheck
   {
     bool realtime_compliance;
@@ -205,7 +206,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   // Branch by propulsion system type.
   switch (drone_->prop->type()) {
     case PropulsionSystem::kElectric: {
-      const auto eprop = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_->prop);
+      const auto eprop = std::static_pointer_cast<ElectricPropulsionSystemConfig>(drone_->prop);
 
       // Battery voltage is above the threshold.
       if (do_check_.battery_voltage) {
@@ -230,7 +231,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
       // Ignore unused item.
       health->battery_voltage = tobas_msgs::msg::VehicleHealth::IGNORED;
 
-      const auto iprop = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone_->prop);
+      const auto iprop = std::static_pointer_cast<IcePropulsionSystemConfig>(drone_->prop);
       (void)iprop;  // TODO
 
       break;
@@ -488,7 +489,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   if (do_check_.vibration_level) {
     if (vibe_) {
       // Vibration levels below 30m/s/s are normally acceptable.
-      // cf. https://ardupilot.org/copter/docs/common-diagnosing-problems-using-logs.html#vibrations
+      // Ref: https://ardupilot.org/copter/docs/common-diagnosing-problems-using-logs.html#vibrations
       constexpr double kVibrationLevelThresh = 10.0;  // [m/s^2]
       if (vibe_->data.max() > kVibrationLevelThresh) {
         health->vibration_level = tobas_msgs::msg::VehicleHealth::FAILED;
@@ -547,7 +548,7 @@ void HealthMonitorNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& b
     return;
   }
 
-  const auto eprop = boost::polymorphic_pointer_downcast<ElectricPropulsionSystemConfig>(drone_->prop);
+  const auto eprop = std::static_pointer_cast<ElectricPropulsionSystemConfig>(drone_->prop);
   if (!eprop) {
     return;
   }

@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace mission
 {
-/* Fastest stopping trajectory from an arbitrary velocity and acceleration (memo: 3-49) */
+/** Fastest stopping trajectory from an arbitrary velocity and acceleration (memo: 3-49) */
 class StopTrajectory : public traj::TrajectoryGenerator
 {
 public:

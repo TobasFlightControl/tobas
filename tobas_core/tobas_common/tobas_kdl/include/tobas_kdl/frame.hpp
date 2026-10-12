@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include "./accel.hpp"
 #include "./impulse.hpp"
 #include "./rotation.hpp"
@@ -18,7 +21,7 @@ class Frame;
 using FrameMap = std::map<std::string, Frame>;
 
 /**
- * @brief represents a frame transformation in 3D space (rotation + translation)
+ * represents a frame transformation in 3D space (rotation + translation)
  *
  * If V2 = Frame*V1 (V2 expressed in frame A, V1 expressed in frame B)
  * then V2 = Frame.M*V1+Frame.p.
@@ -29,21 +32,22 @@ using FrameMap = std::map<std::string, Frame>;
 class Frame
 {
 public:
-  Vector p;    // Origin of the frame
-  Rotation M;  // Orientation of the frame
+  Vector p;    ///< Origin of the frame
+  Rotation M;  ///< Orientation of the frame
 
   inline explicit Frame(const Rotation& R, const Vector& V);
-  // The rotation matrix defaults to identity.
+  /** The rotation matrix defaults to identity. */
   inline explicit Frame(const Vector& V);
-  // The position matrix defaults to zero.
+  /** The position defaults to zero. */
   inline explicit Frame(const Rotation& R);
+  /** The position defaults to zero and the rotation matrix defaults to identity. */
   inline explicit Frame();
 
-  // @return the identity transformation Frame(Rotation::Identity(),Vector::Zero()).
+  /** The identity transformation `Frame(Rotation::Identity(), Vector::Zero())` */
   static inline Frame Identity();
 
   /**
-   * @brief Constructs a transformation matrix T_link(i-1)_link(i)
+   * Constructs a transformation matrix T_link(i-1)_link(i)
    * with the Denavit-Hartenberg convention as described in the Craigs book:
    * Craig, J. J., Introduction to ROBOTICS: Mechanics and Control, Addison-Wesley, isbn:0-201-10326-5, 1986.
    *
@@ -77,7 +81,7 @@ public:
   static inline Frame DH_Craig1989(double a, double alpha, double d, double theta);
 
   /**
-   * @brief Constructs a transformationmatrix T_link(i-1)_link(i) with the Denavit-Hartenberg convention
+   * Constructs a transformationmatrix T_link(i-1)_link(i) with the Denavit-Hartenberg convention
    * as described in the original publictation:
    * Denavit, J. and Hartenberg, R. S.,
    * A kinematic notation for lower-pair mechanisms based on matrices,
@@ -85,7 +89,9 @@ public:
    */
   static inline Frame DH(double a, double alpha, double d, double theta);
 
-  inline bool isValid(std::string& error_msg) const;
+  static inline Frame XYZRPY(double x, double y, double z, double roll, double pitch, double yaw);
+
+  inline std::expected<void, std::string> validate() const;
 
   inline Eigen::Matrix4d matrix() const;
 
@@ -93,24 +99,24 @@ public:
   inline void setNaN();
 
   /**
-   * @brief Treats a frame as a 4x4 matrix and returns element i,j.
+   * Treats a frame as a 4x4 matrix and returns element i,j.
    * Access to elements 0..3,0..3, bounds are checked when NDEBUG is not set.
    */
   inline double operator()(int i, int j);
   /**
-   * @brief Treats a frame as a 4x4 matrix and returns element i,j.
+   * Treats a frame as a 4x4 matrix and returns element i,j.
    * Access to elements 0..3,0..3, bounds are checked when NDEBUG is not set.
    */
   inline double operator()(int i, int j) const;
 
   /**
-   * @brief The twist <t_this> is expressed wrt the current frame.
+   * The twist <t_this> is expressed wrt the current frame.
    * This frame is integrated into an updated frame with <samplefrequency>.
    * Very simple first order integration rule.
    */
   inline void integrate(const Twist& t_this, double frequency);
 
-  /* Convert the `Frame` to a 6D `Twist`. */
+  /** Convert the `Frame` to a 6D `Twist`. */
   inline Twist toTwist() const;
 
   inline Frame inverse() const;
@@ -127,21 +133,21 @@ public:
   inline SegmentJacobian operator*(const SegmentJacobian& arg) const;
   inline Frame operator*(const Frame& rhs) const;
 
-  /* Compute the difference of two frames wrt. the same frame. */
+  /** Compute the difference of two frames wrt. the same frame. */
   inline Frame operator-(const Frame& rhs) const;
 
   inline friend std::ostream& operator<<(std::ostream& os, const Frame& arg);
 };
+
+inline Frame::Frame(const Rotation& R, const Vector& V) : p(V), M(R)
+{
+}
 
 inline Frame::Frame(const Rotation& R) : p(Vector::Zero()), M(R)
 {
 }
 
 inline Frame::Frame(const Vector& V) : p(V), M(Rotation::Identity())
-{
-}
-
-inline Frame::Frame(const Rotation& R, const Vector& V) : p(V), M(R)
 {
 }
 
@@ -172,9 +178,14 @@ inline Frame Frame::DH(double a, double alpha, double d, double theta)
   return Frame(Rotation(ct, -st * ca, st * sa, st, ct * ca, -ct * sa, 0, sa, ca), Vector(a * ct, a * st, d));
 }
 
-inline bool Frame::isValid(std::string& error_msg) const
+inline Frame Frame::XYZRPY(double x, double y, double z, double roll, double pitch, double yaw)
 {
-  return M.isValid(error_msg);
+  return Frame(Rotation::RPY(roll, pitch, yaw), Vector(x, y, z));
+}
+
+inline std::expected<void, std::string> Frame::validate() const
+{
+  return M.validate();
 }
 
 inline Eigen::Matrix4d Frame::matrix() const

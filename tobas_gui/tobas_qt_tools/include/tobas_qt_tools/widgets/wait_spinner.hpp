@@ -22,13 +22,13 @@ class WaitSpinnerWidget : public QWidget
 
 public:
   /**
-   * @brief Constructor for "standard" widget behaviour.
+   * Constructor for "standard" widget behaviour.
    * Use this constructor if you wish to, e.g. embed your widget in another.
    */
   explicit WaitSpinnerWidget(QWidget* parent = nullptr, bool center_on_parent = true);
 
   /**
-   * @brief Constructor.
+   * Constructor.
    * Use this constructor to automatically create a modal ("blocking") spinner on top of the calling widget/window.
    * If a valid parent widget is provided, `center_on_parent` will ensure
    * that the spinner automatically centers itself on it, if not, `center_on_parent` is ignored.
@@ -71,7 +71,7 @@ private:
   const bool center_on_parent_;
 
   QColor color_ = Qt::black;
-  double roundness_ = 100.0;  // 0..100
+  double roundness_ = 100.0;  ///< 0..100
   double min_trail_opacity_ = M_PI;
   double trail_fade_perc_ = 80.0;
   double revolutions_per_sec_ = M_PI_2;

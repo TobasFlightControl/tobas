@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include <boost/polymorphic_pointer_cast.hpp>
+#include <memory>
+
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
@@ -26,7 +27,7 @@ struct rclcpp::TypeAdapter<tobas::ElectricPropulsionSystemConfig, tobas_drone_ms
 
     dst.rotors.clear();
     for (const auto& [_, src_rotor] : src.rotors) {
-      const auto src_erotor = boost::polymorphic_pointer_downcast<tobas::ElectricRotorConfig>(src_rotor);
+      const auto src_erotor = std::static_pointer_cast<tobas::ElectricRotorConfig>(src_rotor);
       dst.rotors.emplace_back();
       tobas_drone_msgs::ElectricRotorConfigAdapter::convert_to_ros_message(*src_erotor, dst.rotors.back());
     }

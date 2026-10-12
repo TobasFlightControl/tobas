@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <optional>
-
-#include <ranges>
+#include <chrono>
 
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Link.hh>
@@ -20,10 +18,8 @@
 #include <tobas_gazebo_tools/math.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/range.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
-#include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/fixed_wing.hpp>
 
 #include <tobas_gazebo_msgs/msg/fixed_wing_debug.hpp>
@@ -40,20 +36,19 @@ namespace tobas
 namespace gazebo
 {
 /**
- * @brief Plugin for aerodynamic forces acting on fixed-wing aircraft.
- * cf. Aircraft Flight Dynamics and Control: https://www.morikita.co.jp/books/mid/069081
+ * Plugin for aerodynamic forces acting on fixed-wing aircraft.
  *
- * @note
- * All quantities use SI units.
+ * @note All quantities use SI units.
  * Separate plugins per control surface were considered, but all control surfaces are integrated
  * because computing lift coefficients and related values would become cumbersome.
+ * @see Aircraft Flight Dynamics and Control: https://www.morikita.co.jp/books/mid/069081
  */
 class GazeboFixedWingPlugin : public BaseNode,
                               public gz::sim::System,
                               public gz::sim::ISystemConfigure,
                               public gz::sim::ISystemPreUpdate
 {
-  // Constants
+  /** Constants */
   using self = GazeboFixedWingPlugin;
 
 public:
@@ -70,13 +65,13 @@ public:
 private:
   // SDF parameters
   std::string base_link_name_;
-  double alt_0_;  // Geometric altitude of the reference point
+  double alt_0_;  ///< Geometric altitude of the reference point
   VehicleParameters vehicle_params_;
   AerodynamicCoefficients aero_coefs_;
   std::map<std::string, ControlSurface> control_surfaces_;
 
-  std::optional<gz::sim::Link> base_link_;
-  std::map<std::string, std::shared_ptr<gz::sim::Joint>> cs_joints_;  // Pointers to control-surface joints
+  gz::sim::Link base_link_;
+  std::map<std::string, gz::sim::Joint> cs_joints_;  ///< Pointers to control-surface joints
 
   const cmp::WorldPose* pose_W_;
   const cmp::WorldLinearVelocity* vel_W_;
@@ -84,7 +79,7 @@ private:
 
   double prev_alpha_ = 0.0;
   bool is_initialized_ = false;
-  gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // Wind velocity [m/s]
+  gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  ///< Wind velocity [m/s]
 
   // PubSub
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::FixedWingDebug> debug_pub_;
@@ -149,30 +144,30 @@ void GazeboFixedWingPlugin::Configure(
 
   // Get base link.
   const auto base_link_entity = model.LinkByName(ecm, base_link_name_);
-  base_link_.emplace(base_link_entity);
-  if (!base_link_->Valid(ecm)) {
+  base_link_ = gz::sim::Link(base_link_entity);
+  if (!base_link_.Valid(ecm)) {
     TOBAS_EXIT("Failed to find base link '", base_link_name_, "'.");
   }
 
   // Create necessary components.
-  TOBAS_CHECK(pose_W_ = getComponent<cmp::WorldPose>(base_link_entity, ecm));
-  TOBAS_CHECK(vel_W_ = getComponent<cmp::WorldLinearVelocity>(base_link_entity, ecm));
-  TOBAS_CHECK(gyro_B_ = getComponent<cmp::AngularVelocity>(base_link_entity, ecm));
+  pose_W_ = getComponent<cmp::WorldPose>(base_link_entity, ecm);
+  vel_W_ = getComponent<cmp::WorldLinearVelocity>(base_link_entity, ecm);
+  gyro_B_ = getComponent<cmp::AngularVelocity>(base_link_entity, ecm);
 
   // Get control surface joint models.
   for (const auto& [link_name, _] : control_surfaces_) {
     // Get control surface joint.
     const auto joint_entity = findJointWithChildLink(ecm, link_name);
-    if (!joint_entity) {
+    if (joint_entity == gz::sim::kNullEntity) {
       TOBAS_EXIT("Failed to find the parent joint of control surface link '", link_name, "'.");
     }
-    const auto joint = std::make_shared<gz::sim::Joint>(*joint_entity);
-    if (!joint->Valid(ecm)) {
+    const gz::sim::Joint joint(joint_entity);
+    if (!joint.Valid(ecm)) {
       TOBAS_EXIT("Failed to find control surface '", link_name, "'.");
     }
 
     // Check joint type.
-    const auto joint_type = joint->Type(ecm);
+    const auto joint_type = joint.Type(ecm);
     if (!joint_type) {
       TOBAS_EXIT("Failed to get the joint type of '", link_name, "'.");
     }
@@ -181,7 +176,7 @@ void GazeboFixedWingPlugin::Configure(
     }
 
     // Check joint limits.
-    const auto joint_axes = joint->Axis(ecm);
+    const auto joint_axes = joint.Axis(ecm);
     if (!joint_axes || joint_axes->size() == 0) {
       TOBAS_EXIT("'", link_name, "' has no joint axis.");
     }
@@ -207,6 +202,10 @@ void GazeboFixedWingPlugin::Configure(
 
 void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
+  if (info.paused || info.dt <= ch::steady_clock::duration::zero()) {
+    return;
+  }
+
   // Base state.
   const auto& T_W_B = pose_W_->Data();
   const auto& P_W_B = T_W_B.Pos();
@@ -284,7 +283,7 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   // Apply aerodynamic force.
   gz::math::Vector3d B_Pos_BC;
   vectorKDLToGazebo(vehicle_params_.ac, B_Pos_BC);
-  base_link_->AddWorldWrench(ecm, force_W, torque_W, B_Pos_BC);
+  base_link_.AddWorldWrench(ecm, force_W, torque_W, B_Pos_BC);
 
   // Publish debug messages.
   auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::FixedWingDebug>();
@@ -301,43 +300,42 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   constexpr char kControlSurfaceKey[] = "controlSurface";
 
-  getSdfParam(sdf, "baseLinkName", base_link_name_);
+  base_link_name_ = getSdfParam<std::string>(sdf, "baseLinkName");
 
   // Vehicle
-  getSdfParam(sdf, "wingSurface", vehicle_params_.wing_surface, kPositive);
-  getSdfParam(sdf, "wingSpan", vehicle_params_.wing_span, kPositive);
-  getSdfParam(sdf, "meanAerodynamicChord", vehicle_params_.mac, kPositive);
+  vehicle_params_.wing_surface = getSdfParam<double>(sdf, "wingSurface", kPositive);
+  vehicle_params_.wing_span = getSdfParam<double>(sdf, "wingSpan", kPositive);
+  vehicle_params_.mac = getSdfParam<double>(sdf, "meanAerodynamicChord", kPositive);
 
-  gz::math::Vector3d ac;
-  getSdfParam(sdf, "aerodynamicCenter", ac);
+  const auto ac = getSdfParam<gz::math::Vector3d>(sdf, "aerodynamicCenter");
   vectorGazeboToKDL(ac, vehicle_params_.ac);
 
-  getSdfParam(sdf, "lowerStallAngle", vehicle_params_.alpha_limit.lower);
-  getSdfParam(sdf, "upperStallAngle", vehicle_params_.alpha_limit.upper);
+  vehicle_params_.alpha_limit.lower = getSdfParam<double>(sdf, "lowerStallAngle");
+  vehicle_params_.alpha_limit.upper = getSdfParam<double>(sdf, "upperStallAngle");
   if (!vehicle_params_.alpha_limit.isValid()) {
     TOBAS_EXIT("Invalid stall angles");
   }
 
   // Aerodynamics
-  getSdfParam(sdf, "cLift0", aero_coefs_.c_lift_0, kPositive);
-  getSdfParam(sdf, "cLiftAlpha", aero_coefs_.c_lift_alpha, kPositive);
-  getSdfParam(sdf, "cDrag0", aero_coefs_.c_drag_0, kPositive);
-  getSdfParam(sdf, "cDragAlpha", aero_coefs_.c_drag_alpha, kPositive);
-  getSdfParam(sdf, "cSideBeta", aero_coefs_.c_side_beta, kNegative);
+  aero_coefs_.c_lift_0 = getSdfParam<double>(sdf, "cLift0", kPositive);
+  aero_coefs_.c_lift_alpha = getSdfParam<double>(sdf, "cLiftAlpha", kPositive);
+  aero_coefs_.c_drag_0 = getSdfParam<double>(sdf, "cDrag0", kPositive);
+  aero_coefs_.c_drag_alpha = getSdfParam<double>(sdf, "cDragAlpha", kPositive);
+  aero_coefs_.c_side_beta = getSdfParam<double>(sdf, "cSideBeta", kNegative);
 
-  getSdfParam(sdf, "cRollBeta", aero_coefs_.c_roll_beta, kNegative);
-  getSdfParam(sdf, "cRollP", aero_coefs_.c_roll_p, kNegative);
-  getSdfParam(sdf, "cRollR", aero_coefs_.c_roll_r);
+  aero_coefs_.c_roll_beta = getSdfParam<double>(sdf, "cRollBeta", kNegative);
+  aero_coefs_.c_roll_p = getSdfParam<double>(sdf, "cRollP", kNegative);
+  aero_coefs_.c_roll_r = getSdfParam<double>(sdf, "cRollR");
 
-  getSdfParam(sdf, "cPitch0", aero_coefs_.c_pitch_0);
-  getSdfParam(sdf, "cPitchAlpha", aero_coefs_.c_pitch_alpha, kNegative);
-  getSdfParam(sdf, "cPitchAbsBeta", aero_coefs_.c_pitch_abs_beta);
-  getSdfParam(sdf, "cPitchAlphaRate", aero_coefs_.c_pitch_alpha_rate);
-  getSdfParam(sdf, "cPitchQ", aero_coefs_.c_pitch_q, kNegative);
+  aero_coefs_.c_pitch_0 = getSdfParam<double>(sdf, "cPitch0");
+  aero_coefs_.c_pitch_alpha = getSdfParam<double>(sdf, "cPitchAlpha", kNegative);
+  aero_coefs_.c_pitch_abs_beta = getSdfParam<double>(sdf, "cPitchAbsBeta");
+  aero_coefs_.c_pitch_alpha_rate = getSdfParam<double>(sdf, "cPitchAlphaRate");
+  aero_coefs_.c_pitch_q = getSdfParam<double>(sdf, "cPitchQ", kNegative);
 
-  getSdfParam(sdf, "cYawBeta", aero_coefs_.c_yaw_beta);
-  getSdfParam(sdf, "cYawP", aero_coefs_.c_yaw_p);
-  getSdfParam(sdf, "cYawR", aero_coefs_.c_yaw_r, kNegative);
+  aero_coefs_.c_yaw_beta = getSdfParam<double>(sdf, "cYawBeta");
+  aero_coefs_.c_yaw_p = getSdfParam<double>(sdf, "cYawP");
+  aero_coefs_.c_yaw_r = getSdfParam<double>(sdf, "cYawR", kNegative);
 
   // ControlSurface
   if (sdf->HasElement(kControlSurfaceKey)) {
@@ -347,17 +345,17 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
     while (cs_elem) {
       ControlSurface cs;
 
-      getSdfParam(cs_elem, "jointName", cs.link_name);
+      cs.link_name = getSdfParam<std::string>(cs_elem, "jointName");
       if (joint_names.contains(cs.link_name)) {
         TOBAS_EXIT("The joint names of each control surface must be unique.");
       }
 
-      getSdfParam(cs_elem, "cLiftDelta", cs.c_lift_delta, 0.0);
-      getSdfParam(cs_elem, "cDragAbsDelta", cs.c_drag_abs_delta, 0.0);
-      getSdfParam(cs_elem, "cSideDelta", cs.c_side_delta, 0.0);
-      getSdfParam(cs_elem, "cRollDelta", cs.c_roll_delta, 0.0);
-      getSdfParam(cs_elem, "cPitchDelta", cs.c_pitch_delta, 0.0);
-      getSdfParam(cs_elem, "cYawDelta", cs.c_yaw_delta, 0.0);
+      cs.c_lift_delta = getSdfParam<double>(cs_elem, "cLiftDelta", 0.0);
+      cs.c_drag_abs_delta = getSdfParam<double>(cs_elem, "cDragAbsDelta", 0.0);
+      cs.c_side_delta = getSdfParam<double>(cs_elem, "cSideDelta", 0.0);
+      cs.c_roll_delta = getSdfParam<double>(cs_elem, "cRollDelta", 0.0);
+      cs.c_pitch_delta = getSdfParam<double>(cs_elem, "cPitchDelta", 0.0);
+      cs.c_yaw_delta = getSdfParam<double>(cs_elem, "cYawDelta", 0.0);
 
       joint_names.emplace(cs.link_name);
       control_surfaces_[cs.link_name] = cs;
@@ -369,7 +367,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 double
 GazeboFixedWingPlugin::getDeflection(const gz::sim::EntityComponentManager& ecm, const std::string& link_name) const
 {
-  return cs_joints_.at(link_name)->Position(ecm)->front();
+  return cs_joints_.at(link_name).Position(ecm)->front();
 }
 
 double GazeboFixedWingPlugin::liftCoefficient(const gz::sim::EntityComponentManager& ecm, double alpha) const

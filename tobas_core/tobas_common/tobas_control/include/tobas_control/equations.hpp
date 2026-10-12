@@ -16,27 +16,27 @@ public:
   Eigen::VectorXd b;
 
   inline explicit LinearEquation(const Eigen::MatrixXd& A, const Eigen::MatrixXd& b);
-  inline explicit LinearEquation(const Eigen::Index& var_size, const Eigen::Index& eq_size);
+  inline explicit LinearEquation(Eigen::Index var_size, Eigen::Index eq_size);
   inline explicit LinearEquation();
 
-  static inline LinearEquation Zero(const Eigen::Index& var_size, const Eigen::Index& eq_size);
+  static inline LinearEquation Zero(Eigen::Index var_size, Eigen::Index eq_size);
 
-  inline void resize(const Eigen::Index& var_size, const Eigen::Index& eq_size);
+  inline void resize(Eigen::Index var_size, Eigen::Index eq_size);
   inline void setZero();
 
   inline bool isFinite() const;
 
-  /* Variable dimension. */
+  /** Variable dimension. */
   inline Eigen::Index variableSize() const;
 
-  /* Equation or inequality dimension. */
+  /** Equation or inequality dimension. */
   inline Eigen::Index equationSize() const;
 
-  /* Create a matrix equation for scaled variables. */
+  /** Create a matrix equation for scaled variables. */
   LinearEquation scale(const Eigen::VectorXd& scale) const;
 
-  /* Discretize an equation for rates into an equation for increments. */
-  LinearEquation discretise(const double& dt) const;
+  /** Discretize an equation for rates into an equation for increments. */
+  LinearEquation discretise(double dt) const;
 
   friend std::ostream& operator<<(std::ostream& os, const LinearEquation& arg);
 };
@@ -46,8 +46,7 @@ inline LinearEquation::LinearEquation(const Eigen::MatrixXd& _A, const Eigen::Ma
   assert(A.rows() == b.rows());
 }
 
-inline LinearEquation::LinearEquation(const Eigen::Index& var_size, const Eigen::Index& eq_size)
-  : A(eq_size, var_size), b(eq_size)
+inline LinearEquation::LinearEquation(Eigen::Index var_size, Eigen::Index eq_size) : A(eq_size, var_size), b(eq_size)
 {
 }
 
@@ -55,14 +54,14 @@ inline LinearEquation::LinearEquation()
 {
 }
 
-inline LinearEquation LinearEquation::Zero(const Eigen::Index& var_size, const Eigen::Index& eq_size)
+inline LinearEquation LinearEquation::Zero(Eigen::Index var_size, Eigen::Index eq_size)
 {
   LinearEquation res(var_size, eq_size);
   res.setZero();
   return res;
 }
 
-inline void LinearEquation::resize(const Eigen::Index& var_size, const Eigen::Index& eq_size)
+inline void LinearEquation::resize(Eigen::Index var_size, Eigen::Index eq_size)
 {
   A.conservativeResize(eq_size, var_size);
   b.conservativeResize(eq_size);

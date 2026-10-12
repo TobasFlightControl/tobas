@@ -3,14 +3,15 @@
 
 #include "tobas_drone_core/drone.hpp"
 
+#include <ranges>
+
 #include <tobas_constants/rc_input.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
 #include "tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp"
 #include "tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp"
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace tobas
 {
@@ -34,73 +35,71 @@ void Drone::clear()
   fixed_wing.reset();
 }
 
-bool Drone::isValid() const
+std::expected<void, std::string> Drone::validate() const
 {
-  if (name == "") {
-    cerr << "This drone does not have name." << endl;
-    return false;
+  if (name.empty()) {
+    return std::unexpected("Drone name is empty.");
   }
 
   for (const auto& [_, pwm] : pwms) {
-    if (!pwm.isValid()) {
-      cerr << "The configuration of PWM channel " << pwm.channel << " is invalid." << endl;
-      return false;
+    if (const auto result = pwm.validate(); !result) {
+      return std::unexpected("PWM channel " + std::to_string(pwm.channel) + ": " + result.error());
     }
   }
 
   for (const auto& [_, joint] : joints) {
-    if (!joint.isValid()) {
-      cerr << "The configuration of joint \"" << joint.name << "\" is invalid." << endl;
-      return false;
+    if (const auto result = joint.validate(); !result) {
+      return std::unexpected("Joint '" + joint.name + "': " + result.error());
     }
   }
 
   if (!prop) {
-    cerr << "The configuration of propulsion system is null." << endl;
-    return false;
+    return std::unexpected("Propulsion system configuration is missing.");
   }
-  if (!prop->isValid()) {
-    cerr << "The configuration of propulsion system is invalid." << endl;
-    return false;
+  if (const auto result = prop->validate(); !result) {
+    return std::unexpected("Propulsion system: " + result.error());
   }
 
-  if (fixed_wing && !fixed_wing->isValid()) {
-    cerr << "The configuration of fixed wing is invalid." << endl;
-    return false;
+  if (fixed_wing) {
+    if (const auto result = fixed_wing->validate(); !result) {
+      return std::unexpected("Fixed wing: " + result.error());
+    }
   }
 
   if (num_sbus_channels < kMinSbusChannels || kMaxSbusChannels < num_sbus_channels) {
-    cerr << "The number of sbus channels is invalid." << endl;
-    return false;
+    return std::unexpected(
+      "The number of S.BUS channels must be between " + std::to_string(kMinSbusChannels) + " and " +
+      std::to_string(kMaxSbusChannels) + ".");
   }
 
-  return true;
+  return {};
 }
 
-bool Drone::load(const YAML::Node& root_node)
+std::expected<void, std::string> Drone::load(const YAML::Node& root_node)
 {
+  if (!root_node.IsDefined() || !root_node.IsMap()) {
+    return std::unexpected("Drone node must be a map.");
+  }
+
   clear();
 
   // Name
-  if (!yaml::load(kNameKey, root_node, name)) {
-    return false;
+  if (const auto result = yaml::load(kNameKey, root_node, name); !result) {
+    return result;
   }
 
   // Joints
   const auto joints_node = root_node[kJointsKey];
   if (!joints_node.IsDefined()) {
-    cerr << "\"" << kJointsKey << "\" is not defined." << endl;
-    return false;
+    return std::unexpected(std::string("'") + kJointsKey + "' is not defined.");
   }
   if (!joints_node.IsSequence()) {
-    cerr << "\"" << kJointsKey << "\" must be a sequence." << endl;
-    return false;
+    return std::unexpected(std::string("'") + kJointsKey + "' must be a sequence.");
   }
-  for (const auto& joint_node : joints_node) {
+  for (const auto [idx, joint_node] : std::views::enumerate(joints_node)) {
     JointConfig joint;
-    if (!joint.load(joint_node)) {
-      cerr << "Failed to load the configuration of joints." << endl;
-      return false;
+    if (const auto result = joint.load(joint_node); !result) {
+      return std::unexpected("Joints[" + std::to_string(idx) + "]: " + result.error());
     }
     joints[joint.name] = joint;
   }
@@ -108,66 +107,58 @@ bool Drone::load(const YAML::Node& root_node)
   // PWM
   const auto pwms_node = root_node[kPwmsKey];
   if (!pwms_node.IsDefined()) {
-    cerr << "\"" << kPwmsKey << "\" is not defined." << endl;
-    return false;
+    return std::unexpected(std::string("'") + kPwmsKey + "' is not defined.");
   }
   if (!pwms_node.IsSequence()) {
-    cerr << "\"" << kPwmsKey << "\" must be a sequence." << endl;
-    return false;
+    return std::unexpected(std::string("'") + kPwmsKey + "' must be a sequence.");
   }
-  for (const auto& pwm_node : pwms_node) {
+  for (const auto [idx, pwm_node] : std::views::enumerate(pwms_node)) {
     PwmConfig pwm;
-    if (!pwm.load(pwm_node)) {
-      cerr << "Failed to load the configuration of PWM." << endl;
-      return false;
+    if (const auto result = pwm.load(pwm_node); !result) {
+      return std::unexpected("PWM[" + std::to_string(idx) + "]: " + result.error());
     }
     pwms[pwm.name] = pwm;
   }
 
   // Propulsion System
   PropulsionSystem prop_type;
-  if (!yaml::load(kPropulsionSystemTypeKey, root_node, prop_type)) {
-    return false;
+  if (const auto result = yaml::load(kPropulsionSystemTypeKey, root_node, prop_type); !result) {
+    return result;
   }
 
   const auto prop_node = root_node[kPropulsionSystemKey];
   if (!prop_node.IsDefined()) {
-    cerr << "\"" << kPropulsionSystemKey << "\" is not defined." << endl;
-    return false;
+    return std::unexpected(std::string("'") + kPropulsionSystemKey + "' is not defined.");
   }
 
   switch (prop_type) {
     case PropulsionSystem::kElectric: {
-      const auto eprop = make_shared<ElectricPropulsionSystemConfig>();
-      if (!eprop->load(prop_node)) {
-        cerr << "Failed to load the configuration of electric propulsion system." << endl;
-        return false;
+      const auto eprop = std::make_shared<ElectricPropulsionSystemConfig>();
+      if (const auto result = eprop->load(prop_node); !result) {
+        return std::unexpected("Electric propulsion system: " + result.error());
       }
-      prop = static_pointer_cast<PropulsionSystemConfig>(eprop);
+      prop = std::static_pointer_cast<PropulsionSystemConfig>(eprop);
       break;
     }
     case PropulsionSystem::kIce: {
-      const auto iprop = make_shared<IcePropulsionSystemConfig>();
-      if (!iprop->load(prop_node)) {
-        cerr << "Failed to load the configuration of ICE propulsion system." << endl;
-        return false;
+      const auto iprop = std::make_shared<IcePropulsionSystemConfig>();
+      if (const auto result = iprop->load(prop_node); !result) {
+        return std::unexpected("ICE propulsion system: " + result.error());
       }
-      prop = static_pointer_cast<PropulsionSystemConfig>(iprop);
+      prop = std::static_pointer_cast<PropulsionSystemConfig>(iprop);
       break;
     }
     default: {
-      cerr << "Invalid propulsion system type: " << (int)prop_type << endl;
-      return false;
+      return std::unexpected("Invalid propulsion system type: " + std::to_string(static_cast<int>(prop_type)));
     }
   }
 
   // Fixed Wing
   const auto fw_node = root_node[kFixedWingKey];
   if (fw_node.IsDefined()) {
-    fixed_wing = make_shared<FixedWingConfig>();
-    if (!fixed_wing->load(fw_node)) {
-      cerr << "Failed to load the configuration of fixed wing." << endl;
-      return false;
+    fixed_wing = std::make_shared<FixedWingConfig>();
+    if (const auto result = fixed_wing->load(fw_node); !result) {
+      return std::unexpected("Fixed wing: " + result.error());
     }
   }
   else {
@@ -175,11 +166,11 @@ bool Drone::load(const YAML::Node& root_node)
   }
 
   // S.BUS Channels
-  if (!yaml::load(kNumSbusChannelsKey, root_node, num_sbus_channels)) {
-    return false;
+  if (const auto result = yaml::load(kNumSbusChannelsKey, root_node, num_sbus_channels); !result) {
+    return result;
   }
 
-  return true;
+  return {};
 }
 
 YAML::Node Drone::dump() const
@@ -216,20 +207,18 @@ YAML::Node Drone::dump() const
   return node;
 }
 
-bool Drone::load(const fs::path& path)
+std::expected<void, std::string> Drone::load(const fs::path& path)
 {
   const auto node = yaml::load(path);
   if (!node) {
-    cerr << node.error() << endl;
-    return false;
+    return std::unexpected(node.error());
   }
 
-  if (!load(*node)) {
-    cerr << "Failed to load drone." << endl;
-    return false;
+  if (const auto result = load(*node); !result) {
+    return std::unexpected("Failed to load drone from '" + path.string() + "': " + result.error());
   }
 
-  return true;
+  return {};
 }
 
 bool Drone::save(const fs::path& path) const

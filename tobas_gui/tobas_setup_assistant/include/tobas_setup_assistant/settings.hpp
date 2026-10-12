@@ -28,9 +28,6 @@ class SettingsWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = SettingsWidget;
-  using super = QWidget;
-
 public:
   propulsion::PropulsionSystemWidget* propulsion_system;
   fw::FixedWingWidget* fixed_wing;

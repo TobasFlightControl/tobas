@@ -5,13 +5,11 @@
 
 #include <algorithm>
 #include <format>
-
-#include <boost/polymorphic_pointer_cast.hpp>
+#include <memory>
 
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
-#include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
 namespace tobas
@@ -51,14 +49,14 @@ void EngineViewerWidget::updateInternalDataStructures()
   reset();
 
   if (drone_.prop->type() == PropulsionSystem::kIce) {
-    iprop_ = boost::polymorphic_pointer_downcast<IcePropulsionSystemConfig>(drone_.prop);
+    iprop_ = std::static_pointer_cast<IcePropulsionSystemConfig>(drone_.prop);
   }
   else {
     iprop_.reset();
   }
 }
 
-void EngineViewerWidget::updateFuelQuantity(const double& fuel_quantity)
+void EngineViewerWidget::updateFuelQuantity(double fuel_quantity)
 {
   constexpr double kMaxFuelQuantity = 100.0;  // TODO: Include fuel capacity in `EngineConfig`.
   const auto fuel_rate = math::remap(fuel_quantity, 0.0, kMaxFuelQuantity, 0.0, 100.0);
@@ -77,7 +75,7 @@ void EngineViewerWidget::updateFuelQuantity(const double& fuel_quantity)
   }
 }
 
-void EngineViewerWidget::updateOilTemperature(const double& oil_temp)
+void EngineViewerWidget::updateOilTemperature(double oil_temp)
 {
   constexpr double kMinOilTemp = 0.0;    // [degC]
   constexpr double kMaxOilTemp = 130.0;  // [degC]

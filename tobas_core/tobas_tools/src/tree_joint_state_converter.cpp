@@ -3,7 +3,7 @@
 
 #include "tobas_tools/tree_joint_state_converter.hpp"
 
-#include <tobas_std_tools/vector.hpp>
+#include <exception>
 
 namespace tobas
 {
@@ -13,28 +13,16 @@ TreeJointStateConverter::TreeJointStateConverter(const kdl::Tree& tree) : super(
   setZero();
 }
 
-bool TreeJointStateConverter::updateInternalDataStructures()
+void TreeJointStateConverter::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
-
-  if (!jnt_parser_.updateInternalDataStructures()) {
-    return false;
-  }
+  jnt_parser_.updateInternalDataStructures();
 
   resize();
   setZero();
-
-  return true;
 }
 
-int TreeJointStateConverter::convert(const tobas_msgs::msg::JointStateArray& msg)
+std::expected<void, std::string> TreeJointStateConverter::convert(const tobas_msgs::msg::JointStateArray& msg)
 {
-  if (!isUpToDate()) {
-    return setDefaultError(kNotUpToDate);
-  }
-
   for (const auto& state : msg.states) {
     try {
       const auto& kdl_idx = jnt_parser_.jointIndex(state.name);  // Index in the tree
@@ -43,19 +31,18 @@ int TreeJointStateConverter::convert(const tobas_msgs::msg::JointStateArray& msg
       f_out_(kdl_idx) = state.effort;
     }
     catch (const std::exception& e) {
-      error_msg_ = e.what();
-      return error_code_ = kNoError;
+      return std::unexpected(e.what());
     }
   }
 
-  return setDefaultError(kNoError);
+  return {};
 }
 
 void TreeJointStateConverter::resize()
 {
-  q_out_.resize(nj_);
-  qd_out_.resize(nj_);
-  f_out_.resize(nj_);
+  q_out_.resize(tree_.getNrOfJoints());
+  qd_out_.resize(tree_.getNrOfJoints());
+  f_out_.resize(tree_.getNrOfJoints());
 }
 
 void TreeJointStateConverter::setZero()

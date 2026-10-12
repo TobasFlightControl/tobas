@@ -3,7 +3,6 @@
 
 #include "tobas_bootmedia_config/wifi_hotspot/wifi_hotspot.hpp"
 
-#include <QDebug>
 #include <QFormLayout>
 #include <QRegularExpression>
 #include <inja/inja.hpp>

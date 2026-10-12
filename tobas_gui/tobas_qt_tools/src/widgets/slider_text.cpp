@@ -6,6 +6,7 @@
 #include <QDoubleValidator>
 #include <QHBoxLayout>
 #include <QIntValidator>
+#include <QLabel>
 
 namespace tobas
 {

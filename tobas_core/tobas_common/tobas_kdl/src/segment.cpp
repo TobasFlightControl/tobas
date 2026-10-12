@@ -3,42 +3,36 @@
 
 #include "tobas_kdl/segment.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
 {
-bool Segment::isValid(string& error_msg) const
+std::expected<void, std::string> Segment::validate() const
 {
   if (name_.empty()) {
-    error_msg = "Segment name is empty.";
-    return false;
+    return std::unexpected("Segment name is empty.");
   }
 
-  if (!joint_.isValid(error_msg)) {
-    error_msg = name_ + "'s joint is invalid: " + error_msg;
-    return false;
+  if (const auto result = joint_.validate(); !result) {
+    return std::unexpected(name_ + "'s joint is invalid: " + result.error());
   }
 
-  if (!f_tip_.isValid(error_msg)) {
-    error_msg = name_ + "'s frame is invalid: " + error_msg;
-    return false;
+  if (const auto result = f_tip_.validate(); !result) {
+    return std::unexpected(name_ + "'s frame is invalid: " + result.error());
   }
 
-  if (!I_.isValid(error_msg)) {
-    error_msg = name_ + "'s inertia is invalid: " + error_msg;
-    return false;
+  if (const auto result = I_.validate(); !result) {
+    return std::unexpected(name_ + "'s inertia is invalid: " + result.error());
   }
 
-  return true;
+  return {};
 }
 
-ostream& operator<<(ostream& os, const Segment& arg)
+std::ostream& operator<<(std::ostream& os, const Segment& arg)
 {
-  os << "Name: " << arg.name_ << endl;
-  os << "Joint:\n" << arg.joint_ << endl;
-  os << "Frame:\n" << arg.f_tip_ << endl;
+  os << "Name: " << arg.name_ << std::endl;
+  os << "Joint:\n" << arg.joint_ << std::endl;
+  os << "Frame:\n" << arg.f_tip_ << std::endl;
   os << "Inertia:\n" << arg.I_;
   return os;
 }

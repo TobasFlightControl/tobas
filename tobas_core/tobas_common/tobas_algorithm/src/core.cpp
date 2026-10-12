@@ -21,7 +21,7 @@ double wrapPi(double angle)
   return angle - M_PI;  // Convert from [0, 2pi) to [-pi, pi).
 }
 
-void clamp2d(double& x, double& y, const double& max_length)
+void clamp2d(double& x, double& y, double max_length)
 {
   assert(max_length >= 0.0);
 

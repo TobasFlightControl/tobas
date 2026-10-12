@@ -4,7 +4,6 @@
 #pragma once
 
 #include <QLabel>
-#include <QPushButton>
 
 #include <tobas_drone_core/joint/command_interface.hpp>
 #include <tobas_drone_core/joint/role.hpp>
@@ -25,9 +24,6 @@ namespace sa
 class ExtraJointsWidget : public BaseSettingWidget
 {
   Q_OBJECT
-
-  using self = ExtraJointsWidget;
-  using super = BaseSettingWidget;
 
 public:
   explicit ExtraJointsWidget(const uadf::Model& uadf, const kdl::Tree& tree);
@@ -54,13 +50,13 @@ public:
   void setCommandInterface(int row, JointCommandInterface value);
   void setHomePosition(int row, double value);  // [rad]
 
-  /* Number of registered joints. */
+  /** Number of registered joints. */
   int numJoints() const;
 
-  /* Return the table row for the link name, or -1 if it does not exist. */
+  /** Return the table row for the link name, or -1 if it does not exist. */
   int findLink(const QString& link_name) const;
 
-  /* Return the table row for the joint name, or -1 if it does not exist. */
+  /** Return the table row for the joint name, or -1 if it does not exist. */
   int findJoint(const QString& joint_name) const;
 
 private:

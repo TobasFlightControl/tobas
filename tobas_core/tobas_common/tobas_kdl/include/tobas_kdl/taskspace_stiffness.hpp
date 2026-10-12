@@ -10,14 +10,12 @@ namespace tobas
 {
 namespace kdl
 {
-/**
- * @brief represents both linear and angular stiffness.
- */
+/** represents both linear and angular stiffness. */
 class TaskSpaceStiffness
 {
 public:
-  Vector linear;   // [N/m]
-  Vector angular;  // [Nm/rad] Elastic coefficient for the equivalent angle-axis vector
+  Vector linear;   ///< [N/m]
+  Vector angular;  ///< [Nm/rad] Elastic coefficient for the equivalent angle-axis vector
 
   inline explicit TaskSpaceStiffness();
   inline explicit TaskSpaceStiffness(const Vector& linear, const Vector& angular);

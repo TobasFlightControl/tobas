@@ -11,7 +11,6 @@
 #include <QVBoxLayout>
 
 #include <tobas_kdl/tree.hpp>
-#include <tobas_math/definitions.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
 #include <tobas_ros2_tools/definitions.hpp>
 #include <tobas_uadf/model.hpp>
@@ -36,7 +35,6 @@ class JointStatePublisherWidget : public QWidget
   Q_OBJECT
 
   using self = JointStatePublisherWidget;
-  using super = QWidget;
 
 public:
   explicit JointStatePublisherWidget(std::shared_ptr<rclcpp::Node> node, const uadf::Model& uadf, const kdl::Tree& tree);
@@ -63,7 +61,7 @@ private:
   QPushButton* random_button_;
 
   sensor_msgs::msg::JointState js_;
-  std::vector<qt::DoubleSliderDisplay*> sliders_;
+  std::vector<qt::IntSliderDisplay*> sliders_;
   std::vector<ThrustJoint> thrust_joints_;
 
   ros2::PublisherPtr<sensor_msgs::msg::JointState> js_pub_;
@@ -76,7 +74,7 @@ private:
   void setControlButtonsEnabled(bool enabled);
 
 private Q_SLOTS:
-  void onValueChanged(double value, const std::string& jnt_name);
+  void onValueChanged(int value, const std::string& jnt_name, double position_per_step);
 
   void onZeroButtonClicked();
   void onCenterButtonClicked();

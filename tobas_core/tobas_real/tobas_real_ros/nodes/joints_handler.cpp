@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <algorithm>
+#include <cmath>
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
-#include <tobas_kdl/tree_joint_parser.hpp>
-#include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -17,7 +18,7 @@ namespace tobas
 namespace real
 {
 /**
- * @brief Receive joint position, velocity, and effort commands and command the appropriate hardware interface.
+ * Receive joint position, velocity, and effort commands and command the appropriate hardware interface.
  * Also publish the joint state.
  */
 class JointsHandlerNode : public BaseNode
@@ -148,7 +149,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
     // Get joint config.
     const auto joint_it = drone_->joints.find(jnt_name);
     if (joint_it == drone_->joints.end()) {
-      TOBAS_ERROR("Joint \"", jnt_name, "\" is not found.");
+      TOBAS_ERROR("Joint '", jnt_name, "' is not found.");
       continue;
     }
     const auto& joint = joint_it->second;
@@ -174,7 +175,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
         break;
       }
       default: {
-        TOBAS_ERROR("The hardware interface of joint \"", jnt_name, "\" is invalid: ", (int)joint.hw_iface);
+        TOBAS_ERROR("The hardware interface of joint '", jnt_name, "' is invalid: ", (int)joint.hw_iface);
         break;
       }
     }
@@ -257,7 +258,7 @@ void JointsHandlerNode::positionResetTimerCb()
         break;
       }
       default: {
-        TOBAS_WARN("The hardware interface of joint \"", joint.name, "\" is invalid: ", (int)joint.hw_iface);
+        TOBAS_WARN("The hardware interface of joint '", joint.name, "' is invalid: ", (int)joint.hw_iface);
         break;
       }
     }

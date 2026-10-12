@@ -1,5 +1,5 @@
-# launch : ros2 launch tobas_image_processing cx_gb400_ffmpeg.launch.py server_and_port:=127.0.0.1:8888
-# image receive command : ffplay -fflags nobuffer -autoexit "srt://127.0.0.1:8888?mode=listener"
+# launch : $ ros2 launch tobas_image_processing cx_gb400_ffmpeg.launch.py server_and_port:=127.0.0.1:8888
+# image receive command : $ ffplay -fflags nobuffer -autoexit "srt://127.0.0.1:8888?mode=listener"
 
 from launch import LaunchDescription
 from launch.actions import ExecuteProcess, DeclareLaunchArgument

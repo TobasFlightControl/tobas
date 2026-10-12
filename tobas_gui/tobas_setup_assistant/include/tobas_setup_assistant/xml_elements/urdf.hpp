@@ -33,8 +33,8 @@ void addImuPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  int update_rate,
   const Eigen::Vector3d& offset,
+  int update_rate,
   double gyro_noise_density,
   double gyro_random_walk,
   double gyro_bias_corr_time,
@@ -47,8 +47,8 @@ void addMagnetometerPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  int update_rate,
   const Eigen::Vector3d& offset,
+  int update_rate,
   double noise_stddev,
   double hard_bias_norm);
 
@@ -56,16 +56,16 @@ void addBarometerPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  int update_rate,
   const Eigen::Vector3d& offset,
+  int update_rate,
   double noise_stddev);
 
 void addGnssPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  int update_rate,
   const Eigen::Vector3d& offset,
+  int update_rate,
   double delay,
   double position_corr_time,
   double hor_pos_accuracy,
@@ -85,7 +85,7 @@ void addElectricPropulsionSystemPlugin(
   double moment_const,
   double drag_const,
   TurningDirection direction,
-  double max_current);
+  double max_cont_current);
 
 struct EngineParam
 {
@@ -100,8 +100,8 @@ struct IceRotorParam
   TurningDirection direction;
   double gear_ratio;
   size_t num_blades;
-  st::Range<double> pitch_angle_limit;  // [rad]
-  double max_pitch_angle_rate;          // [rad/s]
+  st::Range<double> pitch_angle_limit;  ///< [rad]
+  double max_pitch_angle_rate;          ///< [rad/s]
   VppMotorConstant motor_const;
   VppMomentConstant moment_const;
   VppDragConstant drag_const;
@@ -149,6 +149,8 @@ void addGazeboWindPlugin(tinyxml2::XMLElement* robot, const std::string& ns, con
 void addGazeboGroundTruthStatePlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
 
 void addGazeboLookAtPositionPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
+
+void addGazeboFixedLoadPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
 
 void addGazeboSuspendedLoadPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
 

@@ -22,7 +22,7 @@ namespace YAML
 template <>
 struct convert<tobas::PropulsionSystem>
 {
-  static Node encode(const tobas::PropulsionSystem& rhs);
+  static Node encode(tobas::PropulsionSystem rhs);
   static bool decode(const Node& node, tobas::PropulsionSystem& rhs);
 };
 }  // namespace YAML

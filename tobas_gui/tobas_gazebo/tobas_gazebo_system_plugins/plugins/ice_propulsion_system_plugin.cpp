@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
 #include <optional>
 
 #include <tobas_constants/ros_interface.hpp>
@@ -12,18 +13,16 @@
 
 #include <tobas_gazebo_msgs/msg/engine_state.hpp>
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
-#include <tobas_gazebo_msgs/msg/throttle.hpp>
 #include <tobas_msgs/msg/engine_state.hpp>
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 #include <tobas_msgs/msg/latency.hpp>
-#include <tobas_msgs/msg/rotor_state_array.hpp>
+#include <tobas_msgs/msg/rotor_state.hpp>
 #include <tobas_msgs_adapter/wind.hpp>
 
 #include "tobas_gazebo_system_plugins/common/common.hpp"
 #include "tobas_gazebo_system_plugins/engine_model.hpp"
 #include "tobas_gazebo_system_plugins/ice_rotor_model.hpp"
 #include "tobas_gazebo_system_plugins/rate_manager.hpp"
-#include "tobas_gazebo_system_plugins/sdf.hpp"
 
 namespace ch = std::chrono;
 
@@ -31,14 +30,13 @@ namespace tobas
 {
 namespace gazebo
 {
-/* Simulates engine and propellers. */
+/** Simulates engine and propellers. */
 class GazeboIcePropulsionSystemPlugin : public BaseNode,
                                         public gz::sim::System,
                                         public gz::sim::ISystemConfigure,
                                         public gz::sim::ISystemPreUpdate,
                                         public gz::sim::ISystemPostUpdate
 {
-  // Constants
   using self = GazeboIcePropulsionSystemPlugin;
 
 public:
@@ -58,11 +56,11 @@ private:
   EngineModel engine_;
 
   // SDF parameters
-  size_t publish_state_rate_;  // [Hz]
+  size_t publish_state_rate_;  ///< [Hz]
 
-  gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // [m/s]
+  gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  ///< [m/s]
   builtin_interfaces::msg::Time prev_sim_time_;
-  builtin_interfaces::msg::Time last_cmd_time_;  // Time when the last throttle command was issued
+  builtin_interfaces::msg::Time last_cmd_time_;  ///< Time when the last throttle command was issued
   std::optional<RateManager> publish_state_rate_manager_;
 
   // Publishers
@@ -142,6 +140,10 @@ void GazeboIcePropulsionSystemPlugin::Configure(
 
 void GazeboIcePropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
+  if (info.paused || info.dt <= ch::steady_clock::duration::zero()) {
+    return;
+  }
+
   constexpr double kAutoStopTimeout = 0.5;  // [s]
 
   // Update the previous simulation step time.
@@ -162,6 +164,10 @@ void GazeboIcePropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info,
 
 void GazeboIcePropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
+  if (info.paused || info.dt <= ch::steady_clock::duration::zero()) {
+    return;
+  }
+
   // Step simulation
   const auto dt = ch::duration<double>(info.dt).count();
   for (auto& [_, rotor] : rotors_) {
@@ -209,7 +215,7 @@ void GazeboIcePropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& s
 {
   constexpr size_t kDefaultPublishStateRate = 100;  // [Hz]
 
-  getSdfParam(sdf, "publishStateRate", publish_state_rate_, kDefaultPublishStateRate, kNonNegative);
+  publish_state_rate_ = getSdfParam<size_t>(sdf, "publishStateRate", kDefaultPublishStateRate, kNonNegative);
 }
 
 void GazeboIcePropulsionSystemPlugin::registerPubSub()

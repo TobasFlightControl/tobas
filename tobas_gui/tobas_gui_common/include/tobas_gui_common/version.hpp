@@ -32,7 +32,10 @@ public:
   bool load(const QString& path);
   bool save(const QString& path) const;
 
-  /* Automatically define comparison operators that compare lexicographically in member declaration order (>= C++20). */
+  /**
+   * Automatically define comparison operators
+   * that compare lexicographically in member declaration order (>= C++20).
+   */
   auto operator<=>(const Version&) const = default;
 };
 }  // namespace cmn

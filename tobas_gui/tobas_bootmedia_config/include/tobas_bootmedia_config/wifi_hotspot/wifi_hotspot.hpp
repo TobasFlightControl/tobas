@@ -22,7 +22,6 @@ class WifiHotspotWidget : public BaseConfigWidget
   Q_OBJECT
 
   using self = WifiHotspotWidget;
-  using super = BaseConfigWidget;
 
 public:
   explicit WifiHotspotWidget();

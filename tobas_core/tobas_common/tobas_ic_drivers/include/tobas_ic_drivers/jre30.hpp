@@ -24,12 +24,12 @@ struct JRE30Packet_A : public JRE30Packet
 {
   uint8_t protocol_version;
   uint8_t frame_count;
-  double distance;  // [m]
-  double strength;  // [-]
+  double distance;  ///< [m]
+  double strength;  ///< [-]
 
   // Status
-  bool gain;  // false: Low, true: High
-  bool ntrk;  // If true, the measured data is invalid.
+  bool gain;  ///< false: Low, true: High
+  bool ntrk;  ///< If true, the measured data is invalid.
   bool fail;
 
   size_t packetSize() const override;
@@ -53,8 +53,7 @@ struct JRE30Packet_C : public JRE30Packet
 };
 
 /**
- * @brief A Linux driver of JRE-30 range sensor.
- *
+ * A Linux driver of JRE-30 range sensor.
  * https://github.com/jfbblue0922/JFB_ardupilot/blob/Copter-4.1.5_JFB100_JRE/libraries/AP_RangeFinder/AP_RangeFinder_JRE_Serial.cpp
  */
 class JRE30

@@ -7,8 +7,6 @@
 #include <tobas_math/float.hpp>
 #include <tobas_math/linalg.hpp>
 
-#include "tobas_kdl/utilities/utility.hpp"
-
 namespace tobas
 {
 namespace kdl
@@ -120,14 +118,13 @@ Rotation Rotation::Quaternion(double x, double y, double z, double w)
     1 - (tyy + tzz), txy - twz, txz + twy, txy + twz, 1 - (txx + tzz), tyz - twx, txz - twy, tyz + twx, 1 - (txx + tyy));
 }
 
-bool Rotation::isValid(std::string& error_msg) const
+std::expected<void, std::string> Rotation::validate() const
 {
   if (!eigen::isSpecialOrthogonal(data)) {
-    error_msg = "Rotation matrix must belong to SO(3).";
-    return false;
+    return std::unexpected("Rotation matrix must belong to SO(3).");
   }
 
-  return true;
+  return {};
 }
 
 void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
@@ -194,7 +191,7 @@ Vector Rotation::getRot() const
 std::pair<double, Vector> Rotation::getAngleAxis() const
 {
   // Optional check that input is pure rotation, 'isRotationMatrix' is defined at:
-  // http://www.euclideanspace.com/maths/algebra/matrix/orthogonal/rotation/
+  // Ref: http://www.euclideanspace.com/maths/algebra/matrix/orthogonal/rotation/
 
   if (
     std::abs(data(0, 1) - data(1, 0) < kEps) && std::abs(data(0, 2) - data(2, 0)) < kEps &&

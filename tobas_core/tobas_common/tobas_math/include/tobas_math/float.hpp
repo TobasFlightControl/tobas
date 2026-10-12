@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace math
 {
-/* Return true when two numbers are nearly equal. This is similar to `numpy.isclose()`. */
+/** Return true when two numbers are nearly equal. This is similar to `numpy.isclose()`. */
 template <typename T>
 inline bool isClose(T x, T y, T abs_tol = 1e-8, T rel_tol = 1e-5)
 {
@@ -17,7 +17,7 @@ inline bool isClose(T x, T y, T abs_tol = 1e-8, T rel_tol = 1e-5)
   return diff < abs_tol || diff < rel_tol * std::max(std::abs(x), std::abs(y));
 }
 
-/* Check whether a decimal value is an integer. */
+/** Check whether a decimal value is an integer. */
 template <typename T>
 inline bool isInteger(T x)
 {

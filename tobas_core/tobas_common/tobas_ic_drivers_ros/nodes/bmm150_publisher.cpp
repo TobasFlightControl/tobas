@@ -26,7 +26,7 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr publisher_;
   driver::BMM150 mag_;
-  double mx_, my_, mz_;  // [uT]
+  double mx_, my_, mz_;  ///< [uT]
   bool initialized_ = false;
 };
 

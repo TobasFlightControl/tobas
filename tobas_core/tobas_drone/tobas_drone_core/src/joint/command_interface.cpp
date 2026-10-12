@@ -3,10 +3,6 @@
 
 #include "tobas_drone_core/joint/command_interface.hpp"
 
-#include <iostream>
-
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -17,7 +13,7 @@ constexpr char kEffort[] = "effort";
 constexpr char kNone[] = "none";
 }  // namespace
 
-string textFromEnum(JointCommandInterface value)
+std::string textFromEnum(JointCommandInterface value)
 {
   switch (value) {
     case JointCommandInterface::kPosition:
@@ -33,7 +29,7 @@ string textFromEnum(JointCommandInterface value)
   }
 }
 
-bool enumFromText(const string& text, JointCommandInterface& dst)
+bool enumFromText(const std::string& text, JointCommandInterface& dst)
 {
   if (text == kPosition) {
     dst = JointCommandInterface::kPosition;
@@ -52,7 +48,6 @@ bool enumFromText(const string& text, JointCommandInterface& dst)
     return true;
   }
   else {
-    cerr << "Invalid joint command interface: " << text << endl;
     return false;
   }
 }
@@ -60,7 +55,7 @@ bool enumFromText(const string& text, JointCommandInterface& dst)
 
 namespace YAML
 {
-Node convert<tobas::JointCommandInterface>::encode(const tobas::JointCommandInterface& rhs)
+Node convert<tobas::JointCommandInterface>::encode(tobas::JointCommandInterface rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);
@@ -73,6 +68,6 @@ bool convert<tobas::JointCommandInterface>::decode(const Node& node, tobas::Join
     return false;
   }
 
-  return tobas::enumFromText(node.as<string>(), rhs);
+  return tobas::enumFromText(node.as<std::string>(), rhs);
 }
 }  // namespace YAML

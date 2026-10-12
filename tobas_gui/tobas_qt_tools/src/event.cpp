@@ -4,7 +4,6 @@
 #include "tobas_qt_tools/event.hpp"
 
 #include <QCoreApplication>
-#include <QEvent>
 #include <QEventLoop>
 #include <QTimer>
 

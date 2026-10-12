@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <yaml-cpp/yaml.h>
 
 #include <tobas_kdl/vector.hpp>
@@ -13,15 +16,15 @@ namespace tobas
 class VehicleParameters
 {
 public:
-  double wing_surface = 0;                   // Wing surface [m^2]
-  double wing_span = 0;                      // Wing span [m]
-  double mac = 0;                            // Mean Aerodynamic Chord [m]
-  kdl::Vector ac = { 0, 0, 0 };              // Aerodynamic Center wrt the frame origin (FLU) [m]
-  st::Range<double> alpha_limit = { 0, 0 };  // Stall angles [rad]
+  double wing_surface = 0;                   ///< Wing surface [m^2]
+  double wing_span = 0;                      ///< Wing span [m]
+  double mac = 0;                            ///< Mean Aerodynamic Chord [m]
+  kdl::Vector ac = { 0, 0, 0 };              ///< Aerodynamic Center wrt the frame origin (FLU) [m]
+  st::Range<double> alpha_limit = { 0, 0 };  ///< Stall angles [rad]
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
-  bool load(const YAML::Node& node);
+  std::expected<void, std::string> load(const YAML::Node& node);
   YAML::Node dump() const;
 };
 }  // namespace tobas

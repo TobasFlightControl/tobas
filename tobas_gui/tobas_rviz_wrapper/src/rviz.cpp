@@ -122,13 +122,7 @@ void RvizFrameManager::setFixedFrame(const QString& frame)
   manager_->setFixedFrame(frame);
 }
 
-void RvizFrameManager::setOrbitView(
-  const float distance,
-  const float yaw,
-  const float pitch,
-  const float focal_x,
-  const float focal_y,
-  const float focal_z)
+void RvizFrameManager::setOrbitView(float distance, float yaw, float pitch, float focal_x, float focal_y, float focal_z)
 {
   const auto view_manager = manager_->getViewManager();
   view_manager->setCurrentViewControllerType("rviz_default_plugins/Orbit");
@@ -138,7 +132,7 @@ void RvizFrameManager::setOrbitView(
     return;
   }
 
-  const auto set_float = [this, view](const char* name, const float value)
+  const auto set_float = [this, view](const char* name, float value)
   {
     const auto prop = qobject_cast<rviz_common::properties::FloatProperty*>(view->subProp(name));
     if (!prop) {

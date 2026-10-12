@@ -5,8 +5,6 @@
 
 #include <optional>
 
-#include <QPushButton>
-
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
@@ -27,7 +25,6 @@ class SuspendedLoadWidget : public QWidget
   Q_OBJECT
 
   using self = SuspendedLoadWidget;
-  using super = QWidget;
   using AttachSrv = tobas_gazebo_msgs::srv::AttachSuspendedLoad;
   using DetachSrv = tobas_gazebo_msgs::srv::DetachSuspendedLoad;
 
@@ -54,8 +51,8 @@ private:
   void setParamsToDefault();
 
 private Q_SLOTS:
-  void onAttachRequested();
-  void onDetachRequested();
+  void onAttachButtonClicked();
+  void onDetachButtonClicked();
 };
 }  // namespace sim
 }  // namespace gui

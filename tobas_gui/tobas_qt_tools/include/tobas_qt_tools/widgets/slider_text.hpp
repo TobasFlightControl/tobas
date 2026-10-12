@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <QLabel>
 #include <QLineEdit>
 
 #include "./double_slider.hpp"

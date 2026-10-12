@@ -3,7 +3,7 @@
 
 #include "tobas_flight_log_gui/log_viewer/plots/rc_input_plot.hpp"
 
-#include <QVBoxLayout>
+#include <QGridLayout>
 
 #include <tobas_constants/rc_input.hpp>
 #include <tobas_ros2_tools/time.hpp>

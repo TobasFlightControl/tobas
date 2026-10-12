@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <fcntl.h>
 #include <linux/videodev2.h>
-#include <unistd.h>
 
 #include <tobas_linux/video_dev.hpp>
 #include <tobas_node/node.hpp>
@@ -12,15 +10,11 @@
 #include <sensor_msgs/msg/compressed_image.hpp>
 #include <sensor_msgs/msg/image.hpp>
 
-using namespace std::chrono_literals;
-
 namespace tobas
 {
 namespace camera
 {
-/**
- * @brief Use the VideoDev class from the tobas_linux package to control a UVC camera, capture images, and publish them.
- */
+/** Use the VideoDev class from the tobas_linux package to control a UVC camera, capture images, and publish them. */
 class VideoDevPublisherNode : public BaseNode
 {
 public:

@@ -3,7 +3,8 @@
 
 #include "tobas_cyclonedds_config/parse.hpp"
 
-#include <iostream>
+#include <cstring>
+#include <format>
 
 #include <tobas_xml_tools/core.hpp>
 
@@ -17,26 +18,23 @@ namespace
 {
 bool textToBool(const char* text)
 {
-  return std::strcmp(text, "true") == 0;
+  return text && std::strcmp(text, "true") == 0;
 }
 }  // namespace
 
-bool parseFromText(const std::string& text, Data& dst)
+std::expected<Data, std::string> parseFromText(const std::string& text)
 {
-  // Clear data.
-  dst.interfaces.clear();
+  Data data;
 
   // Parse XML.
   tinyxml2::XMLDocument doc;
   if (doc.Parse(text.c_str()) != tinyxml2::XML_SUCCESS) {
-    std::cerr << "Failed to parse XML." << std::endl;
-    return false;
+    return std::unexpected(std::format("Failed to parse XML: {}", doc.ErrorStr()));
   }
 
   const auto e_root = doc.RootElement();
-  if (std::strcmp(e_root->Name(), elem::kCycloneDDS) != 0) {
-    std::cerr << "The root element must be '" << elem::kCycloneDDS << "'." << std::endl;
-    return false;
+  if (!e_root || std::strcmp(e_root->Name(), elem::kCycloneDDS) != 0) {
+    return std::unexpected(std::format("The root element must be '{}'.", elem::kCycloneDDS));
   }
 
   const auto e_domain = e_root->FirstChildElement(elem::kDomain);
@@ -55,13 +53,13 @@ bool parseFromText(const std::string& text, Data& dst)
           nic.name = name;
           nic.priority = xml::getAttribute<int>(e_nic, attr::kPriority);
           nic.multicast = xml::getAttribute<bool>(e_nic, attr::kMulticast);
-          dst.interfaces.push_back(nic);
+          data.interfaces.push_back(nic);
         }
       }
 
       const auto e_redundant_networking = e_general->FirstChildElement(elem::kRedundantNetworking);
       if (e_redundant_networking) {
-        dst.redundant_networking = textToBool(e_redundant_networking->GetText());
+        data.redundant_networking = textToBool(e_redundant_networking->GetText());
       }
     }
 
@@ -69,40 +67,43 @@ bool parseFromText(const std::string& text, Data& dst)
     if (e_shared_memory) {
       const auto e_enable = e_shared_memory->FirstChildElement(elem::kEnable);
       if (e_enable) {
-        dst.shared_memory.enable = textToBool(e_enable->GetText());
+        data.shared_memory.enable = textToBool(e_enable->GetText());
       }
       const auto log_level = e_shared_memory->FirstChildElement(elem::kLogLevel);
       if (log_level) {
         const auto log_level_text = log_level->GetText();
+        if (!log_level_text) {
+          return std::unexpected("Shared memory log level is empty.");
+        }
         if (std::strcmp(log_level_text, "verbose") == 0) {
-          dst.shared_memory.log_level = SharedMemory::kVerbose;
+          data.shared_memory.log_level = SharedMemory::kVerbose;
         }
         else if (std::strcmp(log_level_text, "debug") == 0) {
-          dst.shared_memory.log_level = SharedMemory::kDebug;
+          data.shared_memory.log_level = SharedMemory::kDebug;
         }
         else if (std::strcmp(log_level_text, "info") == 0) {
-          dst.shared_memory.log_level = SharedMemory::kInfo;
+          data.shared_memory.log_level = SharedMemory::kInfo;
         }
         else if (std::strcmp(log_level_text, "warn") == 0) {
-          dst.shared_memory.log_level = SharedMemory::kWarn;
+          data.shared_memory.log_level = SharedMemory::kWarn;
         }
         else if (std::strcmp(log_level_text, "error") == 0) {
-          dst.shared_memory.log_level = SharedMemory::kError;
+          data.shared_memory.log_level = SharedMemory::kError;
         }
         else if (std::strcmp(log_level_text, "fatal") == 0) {
-          dst.shared_memory.log_level = SharedMemory::kFatal;
+          data.shared_memory.log_level = SharedMemory::kFatal;
         }
         else if (std::strcmp(log_level_text, "off") == 0) {
-          dst.shared_memory.log_level = SharedMemory::kOff;
+          data.shared_memory.log_level = SharedMemory::kOff;
         }
         else {
-          std::cerr << "Invalid shared memory log level: " << log_level_text << std::endl;
+          return std::unexpected(std::format("Invalid shared memory log level: {}", log_level_text));
         }
       }
     }
   }
 
-  return true;
+  return data;
 }
 }  // namespace cyclonedds
 }  // namespace tobas

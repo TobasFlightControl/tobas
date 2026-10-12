@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <yaml-cpp/yaml.h>
 
 #include "./aerodynamic_coefs.hpp"
@@ -23,9 +26,9 @@ public:
 
   void clear();
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
-  bool load(const YAML::Node& node);
+  std::expected<void, std::string> load(const YAML::Node& node);
   YAML::Node dump() const;
 
   inline size_t numControlSurfaces() const;

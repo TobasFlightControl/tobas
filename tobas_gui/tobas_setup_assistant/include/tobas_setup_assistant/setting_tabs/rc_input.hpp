@@ -17,9 +17,6 @@ class RcInputWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
-  using self = RcInputWidget;
-  using super = BaseSettingWidget;
-
 public:
   explicit RcInputWidget();
 

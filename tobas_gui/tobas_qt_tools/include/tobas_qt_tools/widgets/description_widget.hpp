@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace qt
 {
-/* `QLabel` configured for placing longer text. */
+/** `QLabel` configured for placing longer text. */
 class DescriptionWidget : public QLabel
 {
   Q_OBJECT

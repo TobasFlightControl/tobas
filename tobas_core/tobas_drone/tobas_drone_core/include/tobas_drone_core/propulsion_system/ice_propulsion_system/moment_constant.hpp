@@ -3,20 +3,21 @@
 
 #pragma once
 
-#include <cmath>
+#include <expected>
+#include <string>
 
 #include <yaml-cpp/yaml.h>
 
 namespace tobas
 {
-/* cm = a (φ-φ0) + b + c / (φ-φ0) */
+/** cm = a (φ-φ0) + b + c / (φ-φ0) */
 class VppMomentConstant
 {
 public:
   double a;
   double b;
   double c;
-  double phi0;  // Negative stall angle (= pitch angle where thrust becomes zero) [rad].
+  double phi0;  ///< Negative stall angle (= pitch angle where thrust becomes zero) [rad].
 
   inline explicit VppMomentConstant(double _a, double _b, double _c, double _phi0) : a(_a), b(_b), c(_c), phi0(_phi0)
   {
@@ -26,9 +27,9 @@ public:
   {
   }
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
-  bool load(const YAML::Node& node);
+  std::expected<void, std::string> load(const YAML::Node& node);
   YAML::Node dump() const;
 
   double compute(double phi) const;

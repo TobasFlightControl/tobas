@@ -4,7 +4,6 @@
 #include "tobas_string_tools/stream.hpp"
 
 #include <fstream>
-#include <iostream>
 #include <sstream>
 
 namespace tobas
@@ -15,7 +14,6 @@ bool readText(const std::string& path, std::string& text)
 {
   std::ifstream file(path);
   if (!file) {
-    std::cerr << "Failed to open file for reading: " << path << std::endl;
     return false;
   }
 
@@ -32,7 +30,6 @@ bool writeText(const std::string& path, const std::string& text)
 {
   std::ofstream file(path);
   if (!file) {
-    std::cerr << "Failed to open file for writing: " << path << std::endl;
     return false;
   }
 

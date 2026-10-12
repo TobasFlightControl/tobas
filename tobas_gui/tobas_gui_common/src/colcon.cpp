@@ -20,31 +20,41 @@ class ColconBuildThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(bool success);
+  void finished(bool success, const QString& message);
 
 public:
-  explicit ColconBuildThread(colcon::Colcon& colcon, const QString& pkg_path, const QString& ws_path)
-    : colcon_(colcon), pkg_path_(pkg_path), ws_path_(ws_path)
+  explicit ColconBuildThread(const QString& pkg_path, const QString& ws_path, const colcon::BuildOptions& options)
+    : options_(options), pkg_path_(pkg_path), ws_path_(ws_path)
   {
   }
 
   void run() override
   {
-    const auto res = colcon_.build(pkg_path_.toStdString(), ws_path_.toStdString());
-    Q_EMIT finished(res);
+    if (const auto result = colcon::build(pkg_path_.toStdString(), ws_path_.toStdString(), options_); !result) {
+      Q_EMIT finished(false, QString::fromStdString(result.error()));
+      return;
+    }
+
+    Q_EMIT finished(true, "");
   }
 
 private:
-  colcon::Colcon& colcon_;
+  const colcon::BuildOptions options_;
   const QString pkg_path_;
   const QString ws_path_;
 };
 }  // namespace
 
-bool colconBuild(colcon::Colcon& colcon, const QString& pkg_path, const QString& ws_path)
+std::expected<void, QString>
+colconBuild(const QString& pkg_path, const QString& ws_path, const colcon::BuildOptions& options)
 {
-  ColconBuildThread thread(colcon, pkg_path, ws_path);
-  return std::get<0>(qt::startThreadAndWait(thread, &ColconBuildThread::finished));
+  ColconBuildThread thread(pkg_path, ws_path, options);
+  const auto [success, message] = qt::startThreadAndWait(thread, &ColconBuildThread::finished);
+  if (!success) {
+    return std::unexpected(message);
+  }
+
+  return {};
 }
 }  // namespace cmn
 }  // namespace gui

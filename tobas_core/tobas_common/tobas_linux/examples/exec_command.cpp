@@ -3,22 +3,21 @@
 
 #include <iostream>
 
-#include <tobas_linux/command_executor.hpp>
+#include <tobas_linux/execute_command.hpp>
 
 using namespace std;
 
 int main()
 {
-  tobas::linux::CommandExecutor command_executor;
-
   const char* cmd = "date";
-  if (!command_executor.execute(cmd)) {
-    cerr << "Command failed." << endl;
+  const auto result = tobas::linux::executeCommand(cmd);
+  if (!result) {
+    cerr << "Command failed: " << result.error() << endl;
     return EXIT_FAILURE;
   }
 
   cout << "Command: " << cmd << endl;
-  cout << "Result : " << command_executor.getOutput() << endl;
+  cout << "Result : " << *result << endl;
 
   return EXIT_SUCCESS;
 }

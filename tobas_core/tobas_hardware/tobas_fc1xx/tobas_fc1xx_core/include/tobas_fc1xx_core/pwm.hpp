@@ -20,7 +20,7 @@ public:
 
   bool initialize();
 
-  bool setPeriod(size_t ch, uint16_t period_us);
+  void setPeriod(size_t ch, uint16_t period_us);
   bool transfer();
 
 private:

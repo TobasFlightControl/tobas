@@ -15,7 +15,6 @@ class ShutdownButton : public QPushButton
 {
   Q_OBJECT
 
-  using self = ShutdownButton;
   using super = QPushButton;
 
 public:

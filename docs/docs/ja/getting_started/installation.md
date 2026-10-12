@@ -16,7 +16,7 @@ ROS 2 の apt リポジトリから Tobas をインストールします．
 
 ```bash
 $ sudo apt update
-$ sudo apt install ros-jazzy-tobas
+$ sudo apt install -y ros-jazzy-tobas
 ```
 
 ## フライトコントローラのイメージ書き込み
@@ -25,7 +25,7 @@ $ sudo apt install ros-jazzy-tobas
 
 ### 必要なもの
 
-- <a href=https://www.raspberrypi.com/products/raspberry-pi-5/ target="_blank">Raspberry Pi 5 (2 GB以上)</a>
+- <a href=https://www.raspberrypi.com/products/raspberry-pi-5/ target="_blank">Raspberry Pi 5 (2 GB 以上)</a>
 - Tobas HAT <!-- TODO: URL -->
 - 16 GB 以上のマイクロ SD カード (例: <a href=https://www.sandisk.com/products/memory-cards/microsd-cards/sandisk-extreme-uhs-i-microsd target="_blank">SanDisk Extreme microSDXC™ UHS-I CARD - 32GB</a>)
 - SD カードリーダー (例: <a href=https://www.sandisk.com/products/accessories/memory-card-readers/sandisk-quickflow-microsd-memory-card-reader-usb-c target="_blank">SANDISK QuickFlow microSD Card Reader with USB-C</a>)
@@ -37,8 +37,8 @@ $ sudo apt install ros-jazzy-tobas
 
 適当なイメージフラッシャーをインストールしてください．例えば以下が使用可能です．
 
-- <a href=https://etcher.balena.io/ target="_blank">balenaEtcher</a>
-- <a href=https://www.raspberrypi.com/software/ target="_blank">Raspberry Pi Imager</a>
+- <a href=https://etcher.balena.io/ target="_blank">balenaEtcher</a>: `$ sudo apt install balena-etcher`
+- <a href=https://www.raspberrypi.com/software/ target="_blank">Raspberry Pi Imager</a>: `$ sudo apt install rpi-imager`
 
 SD カードを，カードリーダーを介して PC に接続してください．
 

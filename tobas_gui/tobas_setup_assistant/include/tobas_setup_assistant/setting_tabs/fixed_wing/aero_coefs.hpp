@@ -7,8 +7,7 @@
 #include <QSettings>
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
-
-#include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
+#include <tobas_qt_tools/widgets/double_spin_box.hpp>
 
 namespace tobas
 {
@@ -23,7 +22,6 @@ class AerodynamicsCoefficientsWidget : public QWidget
   Q_OBJECT
 
   using self = AerodynamicsCoefficientsWidget;
-  using super = QWidget;
 
 public:
   explicit AerodynamicsCoefficientsWidget();

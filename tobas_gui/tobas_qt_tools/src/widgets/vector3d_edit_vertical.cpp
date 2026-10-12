@@ -9,23 +9,17 @@ namespace tobas
 {
 namespace qt
 {
-Vector3dEditVertical::Vector3dEditVertical(QWidget* parent) : super(parent)
+Vector3dEditVertical::Vector3dEditVertical(const QStringList& labels, QWidget* parent) : super(parent)
 {
   const auto form = new QFormLayout();
   setLayout(form);
 
-  x_ = new DoubleSpinBox();
-  form->addRow("X", x_);
-
-  y_ = new DoubleSpinBox();
-  form->addRow("Y", y_);
-
-  z_ = new DoubleSpinBox();
-  form->addRow("Z", z_);
-
-  connect(x_, qOverload<double>(&DoubleSpinBox::valueChanged), this, &self::onValueChanged);
-  connect(y_, qOverload<double>(&DoubleSpinBox::valueChanged), this, &self::onValueChanged);
-  connect(z_, qOverload<double>(&DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  constexpr std::array kDefaultLabels = { "X", "Y", "Z" };
+  for (size_t i = 0; i < spin_boxes_.size(); ++i) {
+    spin_boxes_[i] = new DoubleSpinBox();
+    form->addRow(labels.size() > static_cast<int>(i) ? labels.at(i) : kDefaultLabels[i], spin_boxes_[i]);
+    connect(spin_boxes_[i], qOverload<double>(&DoubleSpinBox::valueChanged), this, &self::onValueChanged);
+  }
 }
 
 Eigen::Vector3d Vector3dEditVertical::vector() const
@@ -35,59 +29,66 @@ Eigen::Vector3d Vector3dEditVertical::vector() const
 
 void Vector3dEditVertical::setVector(const Eigen::Vector3d& src)
 {
-  x_->setValue(src.x());
-  y_->setValue(src.y());
-  z_->setValue(src.z());
+  for (size_t i = 0; i < spin_boxes_.size(); ++i) {
+    spin_boxes_[i]->setValue(src[i]);
+  }
 }
 
 void Vector3dEditVertical::setDecimals(int decimals)
 {
-  x_->setDecimals(decimals);
-  y_->setDecimals(decimals);
-  z_->setDecimals(decimals);
+  for (const auto spin_box : spin_boxes_) {
+    spin_box->setDecimals(decimals);
+  }
 }
 
 void Vector3dEditVertical::setMinimum(double minimum)
 {
-  x_->setMinimum(minimum);
-  y_->setMinimum(minimum);
-  z_->setMinimum(minimum);
+  for (const auto spin_box : spin_boxes_) {
+    spin_box->setMinimum(minimum);
+  }
 }
 
 void Vector3dEditVertical::setMaximum(double maximum)
 {
-  x_->setMaximum(maximum);
-  y_->setMaximum(maximum);
-  z_->setMaximum(maximum);
+  for (const auto spin_box : spin_boxes_) {
+    spin_box->setMaximum(maximum);
+  }
+}
+
+void Vector3dEditVertical::setRange(double minimum, double maximum)
+{
+  for (const auto spin_box : spin_boxes_) {
+    spin_box->setRange(minimum, maximum);
+  }
 }
 
 void Vector3dEditVertical::setSingleStep(double single_step)
 {
-  x_->setSingleStep(single_step);
-  y_->setSingleStep(single_step);
-  z_->setSingleStep(single_step);
+  for (const auto spin_box : spin_boxes_) {
+    spin_box->setSingleStep(single_step);
+  }
 }
 
 void Vector3dEditVertical::setSuffix(const QString& suffix)
 {
-  x_->setSuffix(suffix);
-  y_->setSuffix(suffix);
-  z_->setSuffix(suffix);
+  for (const auto spin_box : spin_boxes_) {
+    spin_box->setSuffix(suffix);
+  }
 }
 
 double Vector3dEditVertical::x() const
 {
-  return x_->value();
+  return spin_boxes_[0]->value();
 }
 
 double Vector3dEditVertical::y() const
 {
-  return y_->value();
+  return spin_boxes_[1]->value();
 }
 
 double Vector3dEditVertical::z() const
 {
-  return z_->value();
+  return spin_boxes_[2]->value();
 }
 
 void Vector3dEditVertical::onValueChanged(double)

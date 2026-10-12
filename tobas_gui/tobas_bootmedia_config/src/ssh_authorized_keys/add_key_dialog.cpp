@@ -6,8 +6,6 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include "tobas_bootmedia_config/constants.hpp"
-
 namespace tobas
 {
 namespace gui

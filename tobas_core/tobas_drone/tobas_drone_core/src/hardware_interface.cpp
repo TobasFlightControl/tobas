@@ -3,10 +3,6 @@
 
 #include "tobas_drone_core/hardware_interface.hpp"
 
-#include <iostream>
-
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -15,7 +11,7 @@ constexpr char kPwmText[] = "pwm";
 constexpr char kOtherText[] = "other";
 }  // namespace
 
-string textFromEnum(HardwareInterface value)
+std::string textFromEnum(HardwareInterface value)
 {
   switch (value) {
     case HardwareInterface::kPwm:
@@ -27,7 +23,7 @@ string textFromEnum(HardwareInterface value)
   }
 }
 
-bool enumFromText(const string& text, HardwareInterface& dst)
+bool enumFromText(const std::string& text, HardwareInterface& dst)
 {
   if (text == kPwmText) {
     dst = HardwareInterface::kPwm;
@@ -38,7 +34,6 @@ bool enumFromText(const string& text, HardwareInterface& dst)
     return true;
   }
   else {
-    cerr << "Invalid joint hardware interface: " << text << endl;
     return false;
   }
 }
@@ -46,7 +41,7 @@ bool enumFromText(const string& text, HardwareInterface& dst)
 
 namespace YAML
 {
-Node convert<tobas::HardwareInterface>::encode(const tobas::HardwareInterface& rhs)
+Node convert<tobas::HardwareInterface>::encode(tobas::HardwareInterface rhs)
 {
   Node node;
   node = tobas::textFromEnum(rhs);
@@ -59,6 +54,6 @@ bool convert<tobas::HardwareInterface>::decode(const Node& node, tobas::Hardware
     return false;
   }
 
-  return tobas::enumFromText(node.as<string>(), rhs);
+  return tobas::enumFromText(node.as<std::string>(), rhs);
 }
 }  // namespace YAML

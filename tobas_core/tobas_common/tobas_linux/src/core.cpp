@@ -5,47 +5,50 @@
 
 #include <unistd.h>
 
-#include <stdexcept>
+#include <cstdlib>
 
-using namespace std;
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 namespace tobas
 {
 namespace linux
 {
-string userName()
+std::expected<std::string, std::string> userName() noexcept
 {
   if (isSuperUser()) {
     return "root";
   }
   else {
-    const auto user_name = getenv("USER");
+    const auto user_name = std::getenv("USER");
     if (!user_name) {
-      throw runtime_error("USER environment variable not set.");
+      return std::unexpected("USER environment variable not set.");
     }
-    return string(user_name);
+    return std::string(user_name);
   }
 }
 
-fs::path homeDir()
+std::expected<fs::path, std::string> homeDir() noexcept
 {
   if (isSuperUser()) {
     return "/root";
   }
   else {
-    const auto home_dir = getenv("HOME");
+    const auto home_dir = std::getenv("HOME");
     if (!home_dir) {
-      throw runtime_error("HOME environment variable not set.");
+      return std::unexpected("HOME environment variable not set.");
     }
     return home_dir;
   }
 }
 
-fs::path expandUser(const string& path)
+std::expected<fs::path, std::string> expandUser(const std::string& path) noexcept
 {
   if (path.substr(0, 2) == "~/") {
-    return homeDir() / path.substr(2);
+    const auto home = homeDir();
+    if (!home) {
+      return std::unexpected(home.error());
+    }
+    return *home / path.substr(2);
   }
   else {
     return path;

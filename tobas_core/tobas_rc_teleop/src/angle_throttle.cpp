@@ -90,42 +90,36 @@ void AngleThrottleController::update(const tobas_msgs::RCInput& rcin, const toba
   cmd_pub_->publish(std::move(cmd));
 }
 
-bool AngleThrottleController::maxAttitudeCb(const double& p)
+void AngleThrottleController::maxAttitudeCb(double p)
 {
   max_attitude_ = st::deg2rad(p);
-  return true;
 }
 
-bool AngleThrottleController::maxAttitudeRateCb(const double& p)
+void AngleThrottleController::maxAttitudeRateCb(double p)
 {
   const auto max_atti_rate = st::deg2rad(p);  // [rad/s]
   roll_filt_.setMaxVelocity(max_atti_rate);
   pitch_filt_.setMaxVelocity(max_atti_rate);
-  return true;
 }
 
-bool AngleThrottleController::maxHeadingRateCb(const double& p)
+void AngleThrottleController::maxHeadingRateCb(double p)
 {
   max_head_rate_ = st::deg2rad(p);
-  return true;
 }
 
-bool AngleThrottleController::attitudeExpoCb(const double& p)
+void AngleThrottleController::attitudeExpoCb(double p)
 {
   atti_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool AngleThrottleController::headingExpoCb(const double& p)
+void AngleThrottleController::headingExpoCb(double p)
 {
   head_expo_ = p / kExpoScale;
-  return true;
 }
 
-bool AngleThrottleController::throttleExpoCb(const double& p)
+void AngleThrottleController::throttleExpoCb(double p)
 {
   throt_expo_ = p / kExpoScale;
-  return true;
 }
 }  // namespace rc
 }  // namespace tobas

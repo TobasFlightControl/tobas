@@ -3,7 +3,9 @@
 
 #pragma once
 
+#include <expected>
 #include <filesystem>
+#include <string>
 
 #include <yaml-cpp/yaml.h>
 
@@ -15,32 +17,30 @@
 
 namespace tobas
 {
-/**
- * @brief Class that holds only the information required to describe a drone.
- */
+/** Class that holds only the information required to describe a drone. */
 class Drone
 {
 public:
   using SharedPtr = std::shared_ptr<Drone>;
   using ConstSharedPtr = std::shared_ptr<const Drone>;
 
-  std::string name = "";                   // The name of this drone
-  JointConfigMap joints;                   // The servo joint configuration (joint name -> config)
-  PwmConfigMap pwms;                       // The PWM configuration (joint name -> config)
-  PropulsionSystemConfig::SharedPtr prop;  // The propulsion system configuration
-  FixedWingConfig::SharedPtr fixed_wing;   // The fixed wing configuration
-  uint32_t num_sbus_channels = 0;          // The number of S.BUS channels
+  std::string name = "";                   ///< The name of this drone
+  JointConfigMap joints;                   ///< The servo joint configuration (joint name -> config)
+  PwmConfigMap pwms;                       ///< The PWM configuration (joint name -> config)
+  PropulsionSystemConfig::SharedPtr prop;  ///< The propulsion system configuration
+  FixedWingConfig::SharedPtr fixed_wing;   ///< The fixed wing configuration
+  uint32_t num_sbus_channels = 0;          ///< The number of S.BUS channels
 
   inline bool empty() const;
 
   void clear();
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
-  bool load(const YAML::Node& node);
+  std::expected<void, std::string> load(const YAML::Node& node);
   YAML::Node dump() const;
 
-  bool load(const std::filesystem::path& path);
+  std::expected<void, std::string> load(const std::filesystem::path& path);
   bool save(const std::filesystem::path& path) const;
 
   bool hasServoJoint() const;

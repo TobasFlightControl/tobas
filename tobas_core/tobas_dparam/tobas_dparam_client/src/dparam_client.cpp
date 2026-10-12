@@ -4,6 +4,7 @@
 #include "tobas_dparam_client/dparam_client.hpp"
 
 #include <tobas_dparam_common/constants.hpp>
+#include <tobas_path_tools/join.hpp>
 
 namespace tobas
 {
@@ -19,17 +20,17 @@ DynamicParamClient::DynamicParamClient(rclcpp::Node::SharedPtr node, const std::
 {
 }
 
-DynamicParamClient::Error DynamicParamClient::setBool(const std::string& param_name, const bool& value)
+DynamicParamClient::Error DynamicParamClient::setBool(const std::string& param_name, bool value)
 {
   return setParam(bool_sc_, param_name, value);
 }
 
-DynamicParamClient::Error DynamicParamClient::setInt(const std::string& param_name, const long& value)
+DynamicParamClient::Error DynamicParamClient::setInt(const std::string& param_name, long value)
 {
   return setParam(int_sc_, param_name, value);
 }
 
-DynamicParamClient::Error DynamicParamClient::setDouble(const std::string& param_name, const long& value)
+DynamicParamClient::Error DynamicParamClient::setDouble(const std::string& param_name, long value)
 {
   return setParam(double_sc_, param_name, value);
 }

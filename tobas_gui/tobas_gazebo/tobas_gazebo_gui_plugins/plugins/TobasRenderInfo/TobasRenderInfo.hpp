@@ -16,7 +16,6 @@ class TobasRenderInfo : public gz::gui::Plugin
 {
   Q_OBJECT
 
-  using self = TobasRenderInfo;
   using super = gz::gui::Plugin;
 
 public:

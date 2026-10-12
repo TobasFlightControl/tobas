@@ -23,9 +23,6 @@ class BatteryWidget : public qt::ScrollArea
 {
   Q_OBJECT
 
-  using self = BatteryWidget;
-  using super = qt::ScrollArea;
-
 public:
   explicit BatteryWidget();
 

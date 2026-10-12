@@ -3,10 +3,8 @@
 
 #include "tobas_gazebo_system_plugins/world.hpp"
 
+#include <gz/sim/Util.hh>
 #include <gz/sim/World.hh>
-#include <gz/sim/components/World.hh>
-
-namespace cmp = gz::sim::components;
 
 namespace tobas
 {
@@ -14,7 +12,7 @@ namespace gazebo
 {
 std::expected<gz::sim::World, const char*> getWorld(const gz::sim::EntityComponentManager& ecm)
 {
-  const auto world_entity = ecm.EntityByComponents(cmp::World());
+  const auto world_entity = gz::sim::worldEntity(ecm);
   if (world_entity == gz::sim::kNullEntity) {
     return std::unexpected("World entity not found.");
   }

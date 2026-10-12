@@ -14,8 +14,8 @@ namespace kdl
 class FrameVel
 {
 public:
-  VectorVel p;    // Position and linear velocity
-  RotationVel M;  // Rotation and angular velocity
+  VectorVel p;    ///< Position and linear velocity
+  RotationVel M;  ///< Rotation and angular velocity
 
   inline explicit FrameVel();
   inline explicit FrameVel(const Frame& _T);

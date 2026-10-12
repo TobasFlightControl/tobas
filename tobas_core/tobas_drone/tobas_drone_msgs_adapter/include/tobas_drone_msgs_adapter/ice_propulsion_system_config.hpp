@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include <boost/polymorphic_pointer_cast.hpp>
+#include <memory>
+
 #include <rclcpp/type_adapter.hpp>
 
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp>
@@ -26,7 +27,7 @@ struct rclcpp::TypeAdapter<tobas::IcePropulsionSystemConfig, tobas_drone_msgs::m
 
     dst.rotors.clear();
     for (const auto& [_, src_rotor] : src.rotors) {
-      const auto src_irotor = boost::polymorphic_pointer_downcast<tobas::IceRotorConfig>(src_rotor);
+      const auto src_irotor = std::static_pointer_cast<tobas::IceRotorConfig>(src_rotor);
       dst.rotors.emplace_back();
       tobas_drone_msgs::IceRotorConfigAdapter::convert_to_ros_message(*src_irotor, dst.rotors.back());
     }

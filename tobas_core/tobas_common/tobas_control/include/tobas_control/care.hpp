@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <eigen3/Eigen/Core>
 
 namespace tobas
@@ -10,17 +13,18 @@ namespace tobas
 namespace ctrl
 {
 /**
- * @brief Solve the continuous-time algebraic Riccati equation.
- * cf. Arimoto-Potter method: https://qiita.com/trgkpc/items/8210927d5b035912a153
+ * Solve the continuous-time algebraic Riccati equation.
+ *
+ * @see Arimoto-Potter method: https://qiita.com/trgkpc/items/8210927d5b035912a153
  */
-Eigen::MatrixXd care_ArimotoPotter(
+std::expected<Eigen::MatrixXd, std::string> care_ArimotoPotter(
   const Eigen::MatrixXd& A,
   const Eigen::MatrixXd& B,
   const Eigen::MatrixXd& Q,
-  const Eigen::MatrixXd& R);
+  const Eigen::MatrixXd& R) noexcept;
 
 /**
- * @brief Solve the continuous-time algebraic Riccati equation.
+ * Solve the continuous-time algebraic Riccati equation.
  *
  * @note Does not work correctly (2023/5/24).
  */

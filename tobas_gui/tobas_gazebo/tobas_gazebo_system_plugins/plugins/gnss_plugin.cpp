@@ -2,13 +2,12 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <atomic>
+#include <chrono>
 #include <optional>
 
+#include <gz/sim/Model.hh>
 #include <gz/sim/components/AngularVelocity.hh>
 #include <gz/sim/components/LinearVelocity.hh>
-#include <gz/sim/components/Link.hh>
-#include <gz/sim/components/Name.hh>
-#include <gz/sim/components/ParentEntity.hh>
 #include <gz/sim/components/Pose.hh>
 
 #include <tobas_constants/ros_interface.hpp>
@@ -35,9 +34,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/**
- * @brief Plugin that publishes GNSS position and velocity data.
- */
+/** Plugin that publishes GNSS position and velocity data. */
 class GazeboGnssPlugin : public BaseNode,
                          public gz::sim::System,
                          public gz::sim::ISystemConfigure,
@@ -51,7 +48,7 @@ public:
   explicit GazeboGnssPlugin();
 
   void Configure(
-    const gz::sim::Entity& model,
+    const gz::sim::Entity& model_entity,
     const sdf::ElementConstPtr& sdf,
     gz::sim::EntityComponentManager& ecm,
     gz::sim::EventManager&) override;
@@ -63,19 +60,19 @@ private:
 
   // SDF parameters
   std::string link_name_;
-  int update_rate_;            // Update rate [Hz]
-  gz::math::Vector3d offset_;  // B_Pos_BS [m]
-  double delay_;               // GNSS delay time [s]
-  double pos_corr_time_;       // Correlation time constant of the OU process [s]
-  double hor_pos_accuracy_;    // Horizontal position accuracy, expected error value [m]
-  double ver_pos_accuracy_;    // Vertical position accuracy, expected error value [m]
-  double hor_vel_stddev_;      // Standard deviation of horizontal velocity noise [m/s]
-  double ver_vel_stddev_;      // Standard deviation of vertical velocity noise [m/s]
-  double geoid_undulation_;    // WGS 84 ellipsoid height minus MSL height [m]
+  gz::math::Vector3d offset_;  ///< B_Pos_BS [m]
+  int update_rate_;            ///< Update rate [Hz]
+  double delay_;               ///< GNSS delay time [s]
+  double pos_corr_time_;       ///< Correlation time constant of the OU process [s]
+  double hor_pos_accuracy_;    ///< Horizontal position accuracy, expected error value [m]
+  double ver_pos_accuracy_;    ///< Vertical position accuracy, expected error value [m]
+  double hor_vel_stddev_;      ///< Standard deviation of horizontal velocity noise [m/s]
+  double ver_vel_stddev_;      ///< Standard deviation of vertical velocity noise [m/s]
+  double geoid_undulation_;    ///< WGS 84 ellipsoid height minus MSL height [m]
 
-  double lat_0_;  // Latitude north of the origin [deg]
-  double lon_0_;  // Longitude east of the origin [deg]
-  double alt_0_;  // Altitude of the origin [m]
+  double lat_0_;  ///< Latitude north of the origin [deg]
+  double lon_0_;  ///< Longitude east of the origin [deg]
+  double alt_0_;  ///< Altitude of the origin [m]
 
   std::optional<RateManager> rate_manager_;
 
@@ -117,7 +114,7 @@ GazeboGnssPlugin::GazeboGnssPlugin()
 }
 
 void GazeboGnssPlugin::Configure(
-  const gz::sim::Entity& model,
+  const gz::sim::Entity& model_entity,
   const sdf::ElementConstPtr& sdf,
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
@@ -136,14 +133,15 @@ void GazeboGnssPlugin::Configure(
   lon_0_ = sc->LongitudeReference().Degree();
   alt_0_ = sc->ElevationReference();
 
-  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
-  if (link == gz::sim::kNullEntity) {
+  const gz::sim::Model model(model_entity);
+  const auto link_entity = model.LinkByName(ecm, link_name_);
+  if (link_entity == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
   }
 
-  pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
-  vel_W_ = getComponent<cmp::WorldLinearVelocity>(link, ecm);
-  gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm);
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
+  vel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm);
+  gyro_B_ = getComponent<cmp::AngularVelocity>(link_entity, ecm);
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
   lose_fix_ss_ = createService<LoseFixSrv>(kLoseGnssFixSrv, &self::loseFixCb, this);
@@ -151,6 +149,10 @@ void GazeboGnssPlugin::Configure(
 
 void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
+  if (info.paused || info.dt <= ch::steady_clock::duration::zero()) {
+    return;
+  }
+
   // Add the current state to history.
   const auto& cur_time = info.simTime;
   history_.emplace_back(cur_time, pose_W_->Data(), vel_W_->Data(), gyro_B_->Data());
@@ -185,7 +187,6 @@ void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
 
   // Create the GNSS message.
   auto gnss_msg = std::make_unique<tobas_msgs::Gnss>();
-  gnss_msg->header.frame_id = link_name_;
   ros2::timeChronoToMsg(gnss_time, gnss_msg->header.stamp);
   if (force_no_fix_.load()) {
     gnss_msg->fix_type = tobas_msgs::msg::Gnss::NO_FIX;
@@ -205,19 +206,19 @@ void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
 
 void GazeboGnssPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kNonNegative);
-  getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
+  link_name_ = getSdfParam<std::string>(sdf, "linkName");
+  offset_ = getSdfParam<gz::math::Vector3d>(sdf, "offset", gz::math::Vector3d::Zero);
+  update_rate_ = getSdfParam<int>(sdf, "updateRate", kNonNegative);
 
-  getSdfParam(sdf, "delay", delay_, kNonNegative);
-  getSdfParam(sdf, "positionCorrTime", pos_corr_time_, kPositive);
+  delay_ = getSdfParam<double>(sdf, "delay", kNonNegative);
+  pos_corr_time_ = getSdfParam<double>(sdf, "positionCorrTime", kPositive);
 
-  getSdfParam(sdf, "horPosAccuracy", hor_pos_accuracy_, kNonNegative);
-  getSdfParam(sdf, "verPosAccuracy", ver_pos_accuracy_, kNonNegative);
-  getSdfParam(sdf, "horVelStdDev", hor_vel_stddev_, kNonNegative);
-  getSdfParam(sdf, "verVelStdDev", ver_vel_stddev_, kNonNegative);
+  hor_pos_accuracy_ = getSdfParam<double>(sdf, "horPosAccuracy", kNonNegative);
+  ver_pos_accuracy_ = getSdfParam<double>(sdf, "verPosAccuracy", kNonNegative);
+  hor_vel_stddev_ = getSdfParam<double>(sdf, "horVelStdDev", kNonNegative);
+  ver_vel_stddev_ = getSdfParam<double>(sdf, "verVelStdDev", kNonNegative);
 
-  getSdfParam(sdf, "geoidUndulation", geoid_undulation_, 0.0);
+  geoid_undulation_ = getSdfParam<double>(sdf, "geoidUndulation", 0.0);
 }
 
 void GazeboGnssPlugin::setRandomDistribuitons()

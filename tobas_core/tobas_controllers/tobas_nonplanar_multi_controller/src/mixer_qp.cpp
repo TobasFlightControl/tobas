@@ -3,15 +3,13 @@
 
 #include "tobas_nonplanar_multi_controller/mixer_qp.hpp"
 
+#include <cassert>
 #include <ranges>
 
 #include <tobas_constants/scale.hpp>
 #include <tobas_eigen_tools/operators.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
-
-using namespace std;
-using namespace Eigen;
 
 namespace tobas
 {
@@ -22,25 +20,17 @@ QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree)
 {
 }
 
-bool QpMixer::updateInternalDataStructures()
+void QpMixer::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
+  super::updateInternalDataStructures();
 
-  if (!fk_solver_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!inertia_solver_.updateInternalDataStructures()) {
-    return false;
-  }
+  fk_solver_.updateInternalDataStructures();
+  inertia_solver_.updateInternalDataStructures();
 
   resizeAndFill();
-
-  return true;
 }
 
-bool QpMixer::solve(
+std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro_B,
@@ -50,28 +40,21 @@ bool QpMixer::solve(
   const kdl::Vector& ext_torque_B)
 {
   // Compute forward kinematics.
-  if (fk_solver_.jntToCart(cur_q) < 0) {
-    cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
-    return false;
-  }
+  const auto& frames = fk_solver_.jntToCart(cur_q);
 
   // Compute mass properties.
-  if (inertia_solver_.jntToCart(cur_q) < 0) {
-    cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
-    return false;
-  }
-  const auto& inertia = inertia_solver_.getInertia();
+  const auto inertia = inertia_solver_.jntToCart(cur_q);
   const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
 
   // Left-hand side of the EoM matrix equality.
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
     // Compute the rotation axis.
     const auto& elem = tree_.getSegment(rotor->link_name)->second;
-    const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
+    const auto& B_Rot_Par = frames.at(elem.parent->first).M;
     const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
     // Translation.
@@ -80,7 +63,7 @@ bool QpMixer::solve(
     // Rotation.
     const auto d = rotor->sign();
     const auto cm = rotor->momentConst();
-    const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
+    const auto& B_Pos_B2P = frames.at(rotor->link_name).p;
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
     G_.block<3, 1>(3, idx) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
   }
@@ -88,8 +71,7 @@ bool QpMixer::solve(
   // Right-hand side of the translational EoM.
   const kdl::Vector grav_W(0, 0, -st::kGravity);
   auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
-  eom_trans_right_W.z(
-    max(eom_trans_right_W.z(), 0.0));  // Limit thrust so that it is not generated vertically downward.
+  eom_trans_right_W.z(std::max(eom_trans_right_W.z(), 0.0));
   h_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
 
   // Right-hand side of the rotational EoM.
@@ -115,7 +97,7 @@ bool QpMixer::solve(
   qp_.problem.q = -G_.transpose() * Q_ * h_;
 
   // Inequality constraints.
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     if (rotor_alive_[rotor->link_name]) {
       qp_.problem.b(idx) = drone_.prop->maxThrust(rotor->link_name);
@@ -128,55 +110,30 @@ bool QpMixer::solve(
   }
 
   // Solve the QPP.
-  if (!qp_.solve()) {
-    cerr << "QP failed: " << qp_.errorMessage() << endl;
-    return false;
+  const auto thrusts = qp_.solve();
+  if (!thrusts) {
+    return std::unexpected("QP failed: " + thrusts.error());
   }
 
-  return true;
+  return thrustDeadband(*thrusts);
 }
 
-const Eigen::VectorXd& QpMixer::getThrusts() const
+void QpMixer::setLinearWeight(double p)
 {
-  return qp_.solution();
-}
-
-double QpMixer::getThrust(size_t idx) const
-{
-  return thrustDeadband(qp_.solution()(idx));
-}
-
-bool QpMixer::setLinearWeight(double p)
-{
-  if (p <= 0.0) {
-    cerr << "Linear weight must be positive." << endl;
-    return false;
-  }
-
+  assert(p > 0.0);
   cfg_.linear_weight = p;
-  return true;
 }
 
-bool QpMixer::setAngularWeight(double p)
+void QpMixer::setAngularWeight(double p)
 {
-  if (p <= 0.0) {
-    cerr << "Angular weight must be positive." << endl;
-    return false;
-  }
-
+  assert(p > 0.0);
   cfg_.angular_weight = p;
-  return true;
 }
 
-bool QpMixer::setThrustWeight(double p)
+void QpMixer::setThrustWeight(double p)
 {
-  if (p <= 0.0) {
-    cerr << "Thrust weight must be positive." << endl;
-    return false;
-  }
-
+  assert(p > 0.0);
   cfg_.thrust_weight = p;
-  return true;
 }
 
 void QpMixer::resizeAndFill()
@@ -193,7 +150,7 @@ void QpMixer::resizeAndFill()
   qp_.problem.A.bottomRows(var_size).diagonal().fill(-1);
 
   R_.resize(var_size);
-  G_.resize(NoChange, var_size);
+  G_.resize(Eigen::NoChange, var_size);
 }
 }  // namespace nonplanar_multicopter
 }  // namespace tobas

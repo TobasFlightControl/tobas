@@ -11,15 +11,15 @@
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/pwm_key.hpp>
 #include <tobas_constants/throttle.hpp>
+#include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
+#include <tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp>
 #include <tobas_gui_common/network_config.hpp>
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/version.hpp>
 #include <tobas_math/definitions.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
-#include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/check.hpp>
-#include <tobas_string_tools/core.hpp>
 #include <tobas_uadf/exporter.hpp>
 #include <tobas_urdf/exporter.hpp>
 #include <tobas_urdf/util.hpp>
@@ -28,6 +28,8 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_system.hpp"
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_system.hpp"
 #include "tobas_setup_assistant/util.hpp"
 #include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
 
@@ -44,7 +46,7 @@ constexpr char kRosParamsKey[] = "ros__parameters";
 constexpr char kDoNotEditThisPackage[] = "DO_NOT_EDIT_THIS_PACKAGE";
 constexpr char kYouCanEditThisPackage[] = "YOU_CAN_EDIT_THIS_PACKAGE";
 
-TurningDirection turningDirectionUadfToTbsdrn(const uadf::Thrust::Direction& src)
+TurningDirection turningDirectionUadfToTbsdrn(uadf::Thrust::Direction src)
 {
   switch (src) {
     case uadf::Thrust::CW:
@@ -733,7 +735,7 @@ void ProjectGenerator::generateNetworkConfig()
   cmn::NetworkConfig config;
   config.interface = settings_->network->networkInterface();
 
-  TOBAS_CHECK(config.save(proj_paths_.networkConfigPath()));
+  TOBAS_CHECK(cmn::saveNetworkConfig(proj_paths_.networkConfigPath(), config));
 }
 
 void ProjectGenerator::generateOriginalUadf()
@@ -804,7 +806,13 @@ void ProjectGenerator::resolveModifiedUrdfMeshFilePath(tinyxml2::XMLElement* ele
     return;
   }
 
-  const auto src_path = QString::fromStdString(urdf::resolveUri(filename).string());
+  const auto resolved_path = urdf::resolveUri(filename);
+  if (!resolved_path) {
+    qWarning().nospace() << "Failed to resolve mesh URI '" << filename << "': " << resolved_path.error().c_str();
+    return;
+  }
+
+  const auto src_path = QString::fromStdString(resolved_path->string());
   const QFileInfo src_info(src_path);
   if (!src_info.exists()) {
     qWarning() << "Mesh file" << src_path << "does not exist.";
@@ -830,7 +838,7 @@ void ProjectGenerator::resolveModifiedUrdfMeshFilePath(tinyxml2::XMLElement* ele
   // Replace mesh file paths.
   // Ignition cannot find paths in the `package://<pkg_name>` format,
   // so embed a xacro command to replace them with absolute paths.
-  // cf. https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
+  // Ref: https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
   const auto new_filename = "file://$(find " + proj_paths_.cfgPkgName() + ")/meshes/" + base_name;
   elem->SetAttribute("filename", new_filename.toUtf8().constData());
 }
@@ -858,7 +866,12 @@ void ProjectGenerator::replaceOriginalUadfMeshFilePath(tinyxml2::XMLElement* ele
     return;
   }
 
-  const auto src_path = QString::fromStdString(urdf::resolveUri(filename).string());
+  const auto resolved_path = urdf::resolveUri(filename);
+  if (!resolved_path) {
+    qWarning() << "Failed to resolve mesh URI:" << QString::fromStdString(resolved_path.error());
+    return;
+  }
+  const auto src_path = QString::fromStdString(resolved_path->string());
   const auto base_name = QFileInfo(src_path).fileName();
 
   // Specify as a relative path from `config_pkg`.
@@ -919,8 +932,8 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     robot,
     ns,
     root_name,
-    kImuSamplingRate,
     Eigen::Vector3d::Zero(),  // TODO: Offset
+    kImuSamplingRate,
     fmu->gyroNoiseDensity(),
     fmu->gyroRandomWalk(),
     fmu->gyroBiasCorrTime(),
@@ -934,8 +947,8 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     robot,
     ns,
     root_name,
-    fmu->magUpdateRate(),
     Eigen::Vector3d::Zero(),  // TODO: Offset
+    fmu->magUpdateRate(),
     fmu->magNoiseStddev(),
     fmu->magHardBiasNorm());
 
@@ -944,8 +957,8 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     robot,
     ns,
     root_name,
-    fmu->presUpdateRate(),
     Eigen::Vector3d::Zero(),  // TODO: Offset
+    fmu->presUpdateRate(),
     fmu->presNoiseStddev());
 
   // GNSS plugin
@@ -953,10 +966,10 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     robot,
     ns,
     root_name,
-    fmu->gnssUpdateRate(),
     Eigen::Vector3d::Zero(),  // TODO: Offset
-    0.1,                      // The time for radio waves from GNSS satellites to reach the ground is roughly fixed.
-    30.0,                     // TODO: What is the actual GNSS position correlation time constant?
+    fmu->gnssUpdateRate(),
+    0.1,   // The time for radio waves from GNSS satellites to reach the ground is roughly fixed.
+    30.0,  // TODO: What is the actual GNSS position correlation time constant?
     fmu->gnssHorizontalPositionAccuracy(),
     fmu->gnssVerticalPositionAccuracy(),
     fmu->gnssHorizontalVelocityStddev(),
@@ -1008,7 +1021,7 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
           aero->momentConst(),
           aero->dragConst(),
           turningDirectionUadfToTbsdrn(uadf_.thrusts.at(cur_jnt.name).direction),
-          esc->maxCurrent());
+          esc->maxContinuousCurrent());
       }
 
       break;
@@ -1114,6 +1127,9 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
   // Suspended load plugin
   xml::addGazeboSuspendedLoadPlugin(robot, ns, root_name);
+
+  // Fixed load plugin
+  xml::addGazeboFixedLoadPlugin(robot, ns, root_name);
 
   // Ground truth state plugin
   xml::addGazeboGroundTruthStatePlugin(robot, ns, root_name);

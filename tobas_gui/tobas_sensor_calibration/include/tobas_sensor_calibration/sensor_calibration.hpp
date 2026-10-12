@@ -20,7 +20,6 @@ class SensorCalibrationWidget : public qt::VerticalTabWidget
   Q_OBJECT
 
   using self = SensorCalibrationWidget;
-  using super = qt::VerticalTabWidget;
 
 public:
   explicit SensorCalibrationWidget(const rqt::RosQtBridge& bridge, const Drone& drone);

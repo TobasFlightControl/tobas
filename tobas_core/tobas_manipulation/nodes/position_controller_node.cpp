@@ -1,16 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <optional>
-
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_kdl/tree_active_joints_extractor.hpp>
-#include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_tools/tree_joint_state_converter.hpp>
 
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
+#include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs_adapter/link_state_array.hpp>
 
 #include "tobas_manipulation/constants.hpp"
@@ -78,7 +74,7 @@ PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& option
   tar_js_sub_ = createSubscriber(topic::kPosCtrlJS, &self::targetJointStateCb, this);
   tar_ls_sub_ = createSubscriber(topic::kPosCtrlLS, &self::targetLinkStateCb, this);
 
-  auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
+  auto_reset_timer_ = createTimer(kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 }
 
 bool PositionControllerNode::jointSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg)
@@ -87,7 +83,7 @@ bool PositionControllerNode::jointSpaceControl(tobas_msgs::msg::JointCommandArra
   for (const auto& tar_state : tar_js_->states) {
     const auto& jnt_name = tar_state.name;
     if (!jnt_names_.contains(jnt_name)) {
-      TOBAS_ERROR("The target joint \"", jnt_name, "\" is not included in the joint group.");
+      TOBAS_ERROR("The target joint '", jnt_name, "' is not included in the joint group.");
       return false;
     }
     positions_msg.commands.emplace_back();
@@ -115,12 +111,12 @@ void PositionControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
   for (const auto& jnt_name : jnt_names_) {
     const auto joint_it = drone->joints.find(jnt_name);
     if (joint_it == drone->joints.end()) {
-      TOBAS_WARN("The drone does not have joint \"", jnt_name, "\".");
+      TOBAS_WARN("The drone does not have joint '", jnt_name, "'.");
       continue;
     }
     const auto& joint = joint_it->second;
     if (joint.cmd_iface != JointCommandInterface::kPosition) {
-      TOBAS_WARN("The command interface of joint \"", jnt_name, "\" is not position.");
+      TOBAS_WARN("The command interface of joint '", jnt_name, "' is not position.");
       continue;
     }
     home_js_.states.emplace_back();
@@ -190,7 +186,7 @@ void PositionControllerNode::autoResetTimerCb()
 
   TOBAS_WARN(
     "The target joint states are automatically reset because ",
-    manipulation::kAutoResetTimeThresh,
+    kAutoResetTimeThresh,
     " have elapsed since the last command.");
 
   auto_reset_timer_->cancel();

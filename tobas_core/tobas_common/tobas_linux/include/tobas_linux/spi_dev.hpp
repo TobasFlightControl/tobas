@@ -20,10 +20,7 @@ public:
   bool
   initialize(const char* spi_dev, void* tx_buf, void* rx_buf, uint32_t speed_hz, uint8_t bits_per_word = 8) noexcept;
 
-  /**
-   * @brief Transmit and receive the number of bytes specified by the argument.
-   * @note This deadlocks if the SPI slave is not working, for example when the device is not connected.
-   */
+  /** Transmit and receive the number of bytes specified by the argument. */
   bool transfer(uint32_t length) noexcept;
 
 private:

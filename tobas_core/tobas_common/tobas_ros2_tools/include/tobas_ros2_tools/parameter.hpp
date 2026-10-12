@@ -17,7 +17,7 @@ void declareParam(rclcpp::Node::SharedPtr node, const std::string& name, const T
       return;
     }
     else {
-      throw rclcpp::exceptions::ParameterAlreadyDeclaredException("Parameter \"" + name + "\" is already declared.");
+      throw rclcpp::exceptions::ParameterAlreadyDeclaredException("Parameter '" + name + "' is already declared.");
     }
   }
   else {

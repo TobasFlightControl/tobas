@@ -17,9 +17,6 @@ class ObserverWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
-  using self = ObserverWidget;
-  using super = BaseSettingWidget;
-
 public:
   explicit ObserverWidget();
 

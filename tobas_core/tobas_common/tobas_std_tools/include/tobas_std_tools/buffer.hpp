@@ -3,11 +3,10 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cassert>
-#include <string>
+#include <cstddef>
 #include <vector>
-
-#include "./assert.hpp"
 
 namespace tobas
 {
@@ -96,9 +95,7 @@ inline bool Buffer<T>::isEmpty() const
 template <typename T>
 inline const T& Buffer<T>::get(size_t idx) const
 {
-  assertWithMsg(
-    idx < std::min(max_size_, cur_),
-    "Invalid index: idx = " << idx << ", max_size = " << max_size_ << ", current index = " << cur_);
+  assert(idx < std::min(max_size_, cur_));
   return data_[idx];
 }
 

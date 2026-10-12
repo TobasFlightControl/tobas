@@ -3,9 +3,8 @@
 
 #include "tobas_fc1xx_core/pwm.hpp"
 
-#include <iostream>
-
-using namespace std;
+#include <algorithm>
+#include <cassert>
 
 namespace tobas
 {
@@ -25,21 +24,10 @@ bool PWM::initialize()
   return true;
 }
 
-bool PWM::setPeriod(size_t ch, uint16_t period_us)
+void PWM::setPeriod(size_t ch, uint16_t period_us)
 {
-  if (ch >= kChannelSize) {
-    cerr << "PWM channel out of range." << endl;
-    return false;
-  }
-
-  constexpr uint16_t kMaxPeriod = 2500;  // [us]
-  if (period_us > kMaxPeriod) {
-    cerr << "PWM period cannot be greater than " << kMaxPeriod << " [us].";
-    return false;
-  }
-
-  tx_buf_[ch] = period_us;
-  return true;
+  assert(ch < kChannelSize);
+  tx_buf_[ch] = std::min<uint16_t>(period_us, 2500);
 }
 
 bool PWM::transfer()

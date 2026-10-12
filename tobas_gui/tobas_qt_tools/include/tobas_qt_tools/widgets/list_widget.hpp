@@ -26,22 +26,22 @@ Q_SIGNALS:
 public:
   using super::QListWidget;
 
-  /* Return true if the list contains the text. */
+  /** Return true if the list contains the text. */
   bool contains(const QString& text) const;
 
-  /* Delete an item. */
+  /** Delete an item. */
   void remove(QListWidgetItem* item);
 
-  /* Select the item with the specified text. */
+  /** Select the item with the specified text. */
   void setCurrentText(const QString& text);
 
-  /* Clear the selection. */
+  /** Clear the selection. */
   void deselect();
 
-  /* Set the list height to the number of rows. */
+  /** Set the list height to the number of rows. */
   void shrinkToContents();
 
-  /* Show row numbers. */
+  /** Show row numbers. */
   void showRowNumber();
 
 protected:

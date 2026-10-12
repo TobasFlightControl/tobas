@@ -23,7 +23,6 @@ class EngineViewerWidget : public QWidget
   Q_OBJECT
 
   using self = EngineViewerWidget;
-  using super = QWidget;
 
 public:
   explicit EngineViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
@@ -38,8 +37,8 @@ private:
   qt::ProgressBar* fuel_quantity_;
   qt::ProgressBar* oil_temp_;
 
-  void updateFuelQuantity(const double& fuel_quantity);
-  void updateOilTemperature(const double& oil_temp);
+  void updateFuelQuantity(double fuel_quantity);
+  void updateOilTemperature(double oil_temp);
 
 private Q_SLOTS:
   void engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state);

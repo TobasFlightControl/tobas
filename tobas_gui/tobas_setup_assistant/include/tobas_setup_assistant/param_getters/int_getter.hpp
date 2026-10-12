@@ -16,7 +16,6 @@ class IntGetter : public QWidget
   Q_OBJECT
 
   using self = IntGetter;
-  using super = QWidget;
 
 Q_SIGNALS:
   void valueChanged(int value);
@@ -25,7 +24,7 @@ public:
   explicit IntGetter(const QString& name);
 
   int getValue() const;
-  bool setValue(const int& value);
+  bool setValue(int value);
 
   void setMinimum(int minimum);
   void setMaximum(int maximum);

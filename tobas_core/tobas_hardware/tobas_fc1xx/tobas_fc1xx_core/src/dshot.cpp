@@ -3,17 +3,23 @@
 
 #include "tobas_fc1xx_core/dshot.hpp"
 
+#include <cassert>
+#include <format>
 #include <iostream>
 
 #include <tobas_math/definitions.hpp>
+#include <tobas_std_tools/error.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
-
-using namespace std;
 
 namespace tobas
 {
 namespace fc1xx
 {
+namespace
+{
+constexpr uint32_t kParameterMask = 0xFFFFFFF;
+}  // namespace
+
 DShot::DShot() noexcept : crc_(algo::CRC32Left::CRC_32)
 {
   crc_.initialize();
@@ -28,227 +34,107 @@ bool DShot::initialize() noexcept
   half_num_poles_.fill(1);
 
   for (size_t ch = 0; ch < kChannelSize; ++ch) {
-    if (!setThrottle(ch, DSHOT_CMD_MOTOR_STOP)) {
-      return false;
-    }
+    setThrottle(ch, DSHOT_CMD_MOTOR_STOP);
   }
 
   return true;
 }
 
-bool DShot::transfer() noexcept
+std::expected<void, std::string> DShot::transfer() noexcept
 {
   // Compute CRC.
   tx_buf_[kChannelSize] = crc_.compute((uint8_t*)tx_buf_, sizeof(uint32_t) * kChannelSize);
 
   // Transfer.
   if (!spi_.transfer(sizeof(tx_buf_))) {
-    return false;
+    return std::unexpected("SPI transfer failed: " + st::strError());
   }
 
   // Check CRC.
   const auto cs = rx_buf_[kChannelSize];
   const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint32_t) * kChannelSize);
   if (cs != cr) {
-    cerr << "CRC failed: " << hex << uppercase << cs << " != " << cr << dec << endl;
-    return false;
+    return std::unexpected(std::format("CRC mismatch: received 0x{:08X}, computed 0x{:08X}.", cs, cr));
   }
 
-  return true;
+  return {};
 }
 
-bool DShot::setThrottle(size_t ch, uint16_t throttle) noexcept
+void DShot::setThrottle(size_t ch, uint16_t throttle) noexcept
 {
-  if (!checkChannelSize(ch)) {
-    return false;
-  }
-
-  if (throttle >= (1 << 11)) {
-    cerr << "DShot thrrotle out of range." << endl;
-    return false;
-  }
+  assert(ch < kChannelSize);
 
   constexpr uint8_t kSetThrottleCmd = 0;
-  tx_buf_[ch] = (kSetThrottleCmd << 28) | throttle;
-
-  return true;
+  tx_buf_[ch] = (kSetThrottleCmd << 28) | (throttle & kParameterMask);
 }
 
-bool DShot::setTargetSpeed(size_t ch, double rps) noexcept
+void DShot::setTargetSpeed(size_t ch, double rps) noexcept
 {
-  if (!checkChannelSize(ch)) {
-    return false;
-  }
-
-  if (rps < 0.0) {
-    cerr << "Target speed must be non-negative." << endl;
-    return false;
-  }
-
-  const auto rpm = static_cast<uint32_t>(st::rps2rpm(rps));
-  if (rpm >= (1 << 16)) {
-    cerr << "Target rotation speed is too large." << endl;
-    return false;
-  }
+  assert(ch < kChannelSize);
 
   constexpr uint8_t kSetTargetRPMCmd = 1;
-  tx_buf_[ch] = (kSetTargetRPMCmd << 28) | rpm;
-
-  return true;
+  const auto rpm = static_cast<uint32_t>(st::rps2rpm(std::max(rps, 0.0)));
+  tx_buf_[ch] = (kSetTargetRPMCmd << 28) | (rpm & kParameterMask);
 }
 
-bool DShot::setKv(size_t ch, double kv_si) noexcept
+void DShot::setKv(size_t ch, double kv_si) noexcept
 {
-  if (!checkChannelSize(ch)) {
-    return false;
-  }
-
-  if (kv_si <= 0.0) {
-    cerr << "Kv value must be positive." << endl;
-    return false;
-  }
-
-  const auto kv = static_cast<uint32_t>(st::rps2rpm(kv_si));  // [rpm/V]
-  if (kv == 0) {
-    cerr << "Kv value is too small." << endl;
-    return false;
-  }
-  if (kv >= (1 << 16)) {
-    cerr << "Kv value is too large." << endl;
-    return false;
-  }
+  assert(ch < kChannelSize);
+  assert(kv_si > 0.0);
 
   constexpr uint8_t kSetKvCmd = 2;
-  tx_buf_[ch] = (kSetKvCmd << 28) | kv;
-
-  return true;
+  const auto kv = static_cast<uint32_t>(st::rps2rpm(kv_si));  // [rpm/V]
+  tx_buf_[ch] = (kSetKvCmd << 28) | (kv & kParameterMask);
 }
 
-bool DShot::setInternalResistance(size_t ch, double resistance) noexcept
+void DShot::setInternalResistance(size_t ch, double resistance) noexcept
 {
-  if (!checkChannelSize(ch)) {
-    return false;
-  }
-
-  if (resistance <= 0.0) {
-    cerr << "Internal resistance must be positive." << endl;
-    return false;
-  }
-
-  const auto resistance_mohm = static_cast<uint32_t>(resistance * 1e+3);
-  if (resistance_mohm == 0) {
-    cerr << "Internal resistance is too small." << endl;
-    return false;
-  }
-  if (resistance_mohm >= (1 << 16)) {
-    cerr << "Internal resistance is too large." << endl;
-    return false;
-  }
+  assert(ch < kChannelSize);
+  assert(resistance > 0.0);
 
   constexpr uint8_t kSetResistanceCmd = 3;
-  tx_buf_[ch] = (kSetResistanceCmd << 28) | resistance_mohm;
-
-  return true;
+  const auto resistance_mohm = static_cast<uint32_t>(resistance * 1e+3);
+  tx_buf_[ch] = (kSetResistanceCmd << 28) | (resistance_mohm & kParameterMask);
 }
 
-bool DShot::setPropellerDiameter(size_t ch, double diameter) noexcept
+void DShot::setPropellerDiameter(size_t ch, double diameter) noexcept
 {
-  if (!checkChannelSize(ch)) {
-    return false;
-  }
-
-  if (diameter <= 0.0) {
-    cerr << "Propeller diameter must be positive." << endl;
-    return false;
-  }
-
-  const auto diameter_mm = static_cast<uint32_t>(diameter * 1e+3);
-  if (diameter_mm == 0) {
-    cerr << "Propeller diameter is too small." << endl;
-    return false;
-  }
-  if (diameter_mm >= (1 << 16)) {
-    cerr << "Propeller diameter is too large." << endl;
-    return false;
-  }
+  assert(ch < kChannelSize);
+  assert(diameter > 0.0);
 
   constexpr uint8_t kSetDiameterCmd = 4;
-  tx_buf_[ch] = (kSetDiameterCmd << 28) | diameter_mm;
-
-  return true;
+  const auto diameter_mm = static_cast<uint32_t>(diameter * 1e+3);
+  tx_buf_[ch] = (kSetDiameterCmd << 28) | (diameter_mm & kParameterMask);
 }
 
-bool DShot::setMomentConstant(size_t ch, double moment_const) noexcept
+void DShot::setMomentConstant(size_t ch, double moment_const) noexcept
 {
-  if (!checkChannelSize(ch)) {
-    return false;
-  }
-
-  if (moment_const <= 0.0) {
-    cerr << "Moment constant must be positive." << endl;
-    return false;
-  }
-
-  const auto moment_const_scaled = static_cast<uint32_t>(moment_const * 1e+9);
-  if (moment_const_scaled == 0) {
-    cerr << "Moment constant is too small." << endl;
-    return false;
-  }
-  if (moment_const_scaled >= (1 << 24)) {
-    cerr << "Moment constant is too large." << endl;
-    return false;
-  }
+  assert(ch < kChannelSize);
+  assert(moment_const > 0.0);
 
   constexpr uint8_t kSetMomentConstCmd = 5;
-  tx_buf_[ch] = (kSetMomentConstCmd << 28) | moment_const_scaled;
-
-  return true;
+  const auto moment_const_scaled = static_cast<uint32_t>(moment_const * 1e+9);
+  tx_buf_[ch] = (kSetMomentConstCmd << 28) | (moment_const_scaled & kParameterMask);
 }
 
-bool DShot::setNumPoles(size_t ch, uint16_t num_poles) noexcept
+void DShot::setNumPoles(size_t ch, uint16_t num_poles) noexcept
 {
-  if (!checkChannelSize(ch)) {
-    return false;
-  }
-
-  if (num_poles == 0) {
-    cerr << "Number of poles must be positive." << endl;
-    return false;
-  }
-
-  if (num_poles % 2 != 0) {
-    cerr << "Number of poles must be even." << endl;
-    return false;
-  }
-
-  const auto half_num_poles = num_poles / 2;
-  if (half_num_poles >= (1 << 16)) {
-    cerr << "Number of poles is too large." << endl;
-    return false;
-  }
+  assert(ch < kChannelSize);
+  assert(num_poles > 0);
+  assert(num_poles % 2 == 0);
 
   constexpr uint8_t kSetHalfNumPolesCmd = 6;
-  tx_buf_[ch] = (kSetHalfNumPolesCmd << 28) | half_num_poles;
+  const auto half_num_poles = num_poles / 2;
+  tx_buf_[ch] = (kSetHalfNumPolesCmd << 28) | (half_num_poles & kParameterMask);
   half_num_poles_.at(ch) = half_num_poles;
-
-  return true;
 }
 
-bool DShot::setRpmControlGain(size_t ch, uint8_t gain) noexcept
+void DShot::setRpmControlGain(size_t ch, uint8_t gain) noexcept
 {
-  if (!checkChannelSize(ch)) {
-    return false;
-  }
-
-  if (gain >= (1 << 8)) {
-    cerr << "Speed control gain is too large." << endl;
-    return false;
-  }
+  assert(ch < kChannelSize);
 
   constexpr uint8_t kSetGainCmd = 7;
-  tx_buf_[ch] = (kSetGainCmd << 28) | gain;
-
-  return true;
+  tx_buf_[ch] = (kSetGainCmd << 28) | (gain & kParameterMask);
 }
 
 bool DShot::getValidity(size_t ch) noexcept
@@ -295,12 +181,12 @@ double DShot::getCurrent(size_t ch) noexcept
 
 void DShot::printCurrentState(size_t ch) noexcept
 {
-  cout << "Channel " << ch << ":" << endl;
-  cout << "\tValid             : " << boolalpha << getValidity(ch) << noboolalpha << endl;
-  cout << "\tSpeed [rpm]       : " << st::rps2rpm(getSpeed(ch)) << endl;
-  cout << "\tTemperature [degC]: " << getTemperature(ch) << endl;
-  cout << "\tVoltage [V]       : " << getVoltage(ch) << endl;
-  cout << "\tCurrent [A]       : " << getCurrent(ch) << endl;
+  std::cout << "Channel " << ch << ":" << std::endl;
+  std::cout << "\tValid             : " << std::boolalpha << getValidity(ch) << std::noboolalpha << std::endl;
+  std::cout << "\tSpeed [rpm]       : " << st::rps2rpm(getSpeed(ch)) << std::endl;
+  std::cout << "\tTemperature [degC]: " << getTemperature(ch) << std::endl;
+  std::cout << "\tVoltage [V]       : " << getVoltage(ch) << std::endl;
+  std::cout << "\tCurrent [A]       : " << getCurrent(ch) << std::endl;
 }
 
 void DShot::printCurrentStates() noexcept
@@ -308,16 +194,6 @@ void DShot::printCurrentStates() noexcept
   for (size_t ch = 0; ch < fc1xx::DShot::kChannelSize; ++ch) {
     printCurrentState(ch);
   }
-}
-
-bool DShot::checkChannelSize(size_t ch) noexcept
-{
-  if (ch >= kChannelSize) {
-    cerr << "DShot channel out of range." << endl;
-    return false;
-  }
-
-  return true;
 }
 }  // namespace fc1xx
 }  // namespace tobas

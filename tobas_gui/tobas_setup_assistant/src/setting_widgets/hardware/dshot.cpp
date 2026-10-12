@@ -241,7 +241,7 @@ void DShotWidget::setBidirectionalButtonText(QPushButton* button, bool checked)
   }
 }
 
-void DShotWidget::onPropulsionTypeChanged(const PropulsionSystem& new_prop_type)
+void DShotWidget::onPropulsionTypeChanged(PropulsionSystem new_prop_type)
 {
   if (new_prop_type == prop_type_) {
     return;

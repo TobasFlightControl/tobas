@@ -13,7 +13,7 @@
 
 namespace tobas
 {
-/** @brief An events queue that keeps at most one pending event for each timer. */
+/** An events queue that keeps at most one pending event for each timer. */
 class TimerCoalescingEventsQueue : public rclcpp::experimental::executors::EventsQueue
 {
 public:

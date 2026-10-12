@@ -17,8 +17,6 @@ namespace rcin
 {
 class StickPanel : public QWidget
 {
-  using super = QWidget;
-
 public:
   explicit StickPanel(const QString& title, const QString& x_label, const QString& y_label);
 

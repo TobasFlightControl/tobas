@@ -2,7 +2,7 @@
 
 <!-- cf. PX4 Releases: https://docs.px4.io/main/en/releases/ -->
 
-Tobasソフトウェアのリリースノートです．
+Tobas ソフトウェアのリリースノートです．
 各バージョンのページでは前回のリリースからの主な差分及びバージョン内で行われたバグ修正について記載しています．
 
 ## ROS 2 Jazzy

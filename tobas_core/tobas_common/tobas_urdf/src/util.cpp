@@ -13,7 +13,7 @@ namespace tobas
 {
 namespace urdf
 {
-fs::path resolveUri(const std::string& uri)
+std::expected<fs::path, std::string> resolveUri(const std::string& uri)
 {
   constexpr char kPackagePrefix[] = "package://";
   constexpr char kAbsPathPrefix[] = "file://";
@@ -27,12 +27,12 @@ fs::path resolveUri(const std::string& uri)
   else if (uri.starts_with(kAbsPathPrefix)) {
     const auto path = str::lstrip(uri, kAbsPathPrefix);
     if (path.find("$(") != std::string::npos) {
-      throw std::runtime_error("Embedded xacro command is not supported.");  // TODO: Replace `$(find package_name)`.
+      return std::unexpected("Embedded xacro command is not supported.");  // TODO: Replace `$(find package_name)`.
     }
     return fs::absolute(path);
   }
   else {
-    throw std::runtime_error("Invalid URI: " + uri);
+    return std::unexpected("Invalid URI.");
   }
 }
 }  // namespace urdf

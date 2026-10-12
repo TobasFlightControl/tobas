@@ -42,7 +42,6 @@ class PlotTabWidget : public qt::TabWidget
   Q_OBJECT
 
   using self = PlotTabWidget;
-  using super = qt::TabWidget;
 
 public:
   explicit PlotTabWidget(

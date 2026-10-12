@@ -22,9 +22,6 @@ class MissionExecutorWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
-  using self = MissionExecutorWidget;
-  using super = BaseSettingWidget;
-
 public:
   explicit MissionExecutorWidget();
 
@@ -39,7 +36,7 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  void setFrameType(const FrameType& type);
+  void setFrameType(FrameType type);
 
   QString executorPackage() const;
   QString pluginName() const;

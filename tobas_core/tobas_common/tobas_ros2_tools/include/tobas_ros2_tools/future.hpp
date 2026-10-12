@@ -10,7 +10,7 @@ namespace tobas
 {
 namespace ros2
 {
-/* Similar to `future.wait_for()`, but waits indefinitely when the timeout is non-positive. */
+/** Similar to `future.wait_for()`, but waits indefinitely when the timeout is non-positive. */
 template <typename FutureType, typename RepType, typename DurType>
 std::future_status waitForFuture(const FutureType& future, std::chrono::duration<RepType, DurType> timeout)
 {

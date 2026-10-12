@@ -12,14 +12,17 @@ namespace tim
 class Rate
 {
 public:
-  explicit Rate(const std::chrono::microseconds& period);
-  explicit Rate(const double& freq);
+  explicit Rate();
+  explicit Rate(const std::chrono::microseconds& _period);
+  explicit Rate(double _freq);
 
   void start();
   void sleep();
 
+  void setInterval(const std::chrono::microseconds& _period);
+
 private:
-  const std::chrono::microseconds period_;
+  std::chrono::microseconds period_ = {};
   std::chrono::steady_clock::time_point last_time_;
 };
 }  // namespace tim

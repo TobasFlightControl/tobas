@@ -10,8 +10,7 @@ namespace tobas
 namespace driver
 {
 /**
- * @brief A linux driver of 3-axis magnetometer bmm150.
- *
+ * A linux driver of 3-axis magnetometer bmm150.
  * Datasheet: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmm150-ds001.pdf
  */
 class BMM150
@@ -21,11 +20,11 @@ public:
 
   bool initialize(const char* i2c_device);
 
-  /* Read the current magnetic field [μT]. */
+  /** Read the current magnetic field [μT]. */
   bool readMag(double& mx, double& my, double& mz);
 
 private:
-  /* 7: Register mapping (p.22) */
+  /** 7: Register mapping (p.22) */
   enum Register : uint8_t
   {
     // Who I am ID
@@ -76,7 +75,7 @@ private:
     SOFT_RST_A = 1 << 7,
     SPI3EN = 1 << 2,
     SOFT_RST_B = 1 << 1,
-    PWR_ON = 1 << 0,  // 0 means suspend
+    PWR_ON = 1 << 0,  ///< 0 means suspend
 
     // CFG_REG_B
     ADV_SELF_TEST_NORMAL = 0b00 << 6,
@@ -98,7 +97,7 @@ private:
     // CFG_REG_C
     DATA_OVERRUN_EN = 1 << 7,
     OVERFLOW_INT_EN = 1 << 6,
-    HIGH_INT_Z = 1 << 5,  // 1 means disable
+    HIGH_INT_Z = 1 << 5,  ///< 1 means disable
     HIGH_INT_Y = 1 << 4,
     HIGH_INT_X = 1 << 3,
     LOW_INT_X = 1 << 2,
@@ -106,40 +105,24 @@ private:
     LOW_INT_Z = 1 << 0,
 
     // CFG_REG_D
+    REPXY = 7,  ///< p.13 recommended settings for Rep. XYZ, p.30 nXY = 1 + 2*REPXY
 
-    // ref: p.13 recommended settings for Rep. XYZ, p.30 nXY = 1 + 2*REPXY
-    // CFG_REG_E
-    REPXY = 7,
-
-    // ref: p.31 nZ = 1 + REPZ
-    // CFG_REG_F
-    REPZ = 26,
+    REPZ = 26,  ///< p.31 nZ = 1 + REPZ
   };
 
   struct TrimData
   {
-    /* trim x1 data */
-    int8_t dig_x1;
-    /* trim y1 data */
-    int8_t dig_y1;
-    /* trim x2 data */
-    int8_t dig_x2;
-    /* trim y2 data */
-    int8_t dig_y2;
-    /* trim z1 data */
-    uint16_t dig_z1;
-    /* trim z2 data */
-    int16_t dig_z2;
-    /* trim z3 data */
-    int16_t dig_z3;
-    /* trim z4 data */
-    int16_t dig_z4;
-    /* trim xy1 data */
-    uint8_t dig_xy1;
-    /* trim xy2 data */
-    int8_t dig_xy2;
-    /* trim xyz1 data */
-    uint16_t dig_xyz1;
+    int8_t dig_x1;      ///< trim x1 data
+    int8_t dig_y1;      ///< trim y1 data
+    int8_t dig_x2;      ///< trim x2 data
+    int8_t dig_y2;      ///< trim y2 data
+    uint16_t dig_z1;    ///< trim z1 data
+    int16_t dig_z2;     ///< trim z2 data
+    int16_t dig_z3;     ///< trim z3 data
+    int16_t dig_z4;     ///< trim z4 data
+    uint8_t dig_xy1;    ///< trim xy1 data
+    int8_t dig_xy2;     ///< trim xy2 data
+    uint16_t dig_xyz1;  ///< trim xyz1 data
   } trim_data_;
 
   linux::I2Cdev i2c_;
@@ -150,33 +133,40 @@ private:
   bool checkWhoAmI();
   bool execSelfTest();
   bool configure();
-  /* ref: https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c (not written in data sheet) */
+
+  /**
+   * Read the sensor trim registers and store calibration data for magnetic field compensation.
+   *
+   * @see https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c (not written in data sheet)
+   */
   bool readTrimRegisters();
 
   /**
-   * @brief This internal API is used to obtain the compensated magnetometer X axis data in microteslas.
+   * This internal API is used to obtain the compensated magnetometer X axis data in microteslas.
    *
    * @param mag_data_x magneto X axis raw data (int16_t)
    * @param data_r_hall hall sensor resistance raw data (uint16_t)
    * @return int16_t compensated magneto X axis data
    */
-  int16_t compensateX(const int16_t& mag_data_x, const uint16_t& data_r_hall);
+  int16_t compensateX(int16_t mag_data_x, uint16_t data_r_hall);
+
   /**
-   * @brief This internal API is used to obtain the compensated magnetometer Y axis data in microteslas.
+   * This internal API is used to obtain the compensated magnetometer Y axis data in microteslas.
    *
    * @param mag_data_y magneto Y axis raw data (int16_t)
    * @param data_r_hall hall sensor resistance raw data (uint16_t)
    * @return int16_t compensated magneto Y axis data
    */
-  int16_t compensateY(const int16_t& mag_data_y, const uint16_t& data_r_hall);
+  int16_t compensateY(int16_t mag_data_y, uint16_t data_r_hall);
+
   /**
-   * @brief This internal API is used to obtain the compensated magnetometer Z axis data in microteslas.
+   * This internal API is used to obtain the compensated magnetometer Z axis data in microteslas.
    *
    * @param mag_data_z magneto Z axis raw data (int16_t)
    * @param data_r_hall hall sensor resistance raw data (uint16_t)
    * @return int16_t compensated magneto Z axis data
    */
-  int16_t compensateZ(const int16_t& mag_data_z, const uint16_t& data_r_hall);
+  int16_t compensateZ(int16_t mag_data_z, uint16_t data_r_hall);
 };
 }  // namespace driver
 }  // namespace tobas

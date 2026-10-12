@@ -23,7 +23,7 @@ namespace YAML
 template <>
 struct convert<tobas::FlightMode>
 {
-  static Node encode(const tobas::FlightMode& rhs);
+  static Node encode(tobas::FlightMode rhs);
   static bool decode(const Node& node, tobas::FlightMode& rhs);
 };
 }  // namespace YAML

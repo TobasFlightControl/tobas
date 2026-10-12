@@ -4,6 +4,7 @@
 #include "tobas_simulation_gui/simulation.hpp"
 
 #include <csignal>
+#include <utility>
 
 #include <QCloseEvent>
 #include <QDebug>
@@ -13,7 +14,6 @@
 #include <tobas_constants/path.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/local_project_builder.hpp>
-#include <tobas_linux/error.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>
@@ -58,6 +58,15 @@ SimulationWidget::SimulationWidget(const rqt::RosQtBridge& bridge) : spinner_(Qt
   reset();
 }
 
+SimulationWidget::~SimulationWidget()
+{
+  if (launch_proc_) {
+    qWarning() << "Forcibly shutting down the simulation.";
+    launch_proc_->blockSignals(true);
+    terminateSimulation();
+  }
+}
+
 void SimulationWidget::reset()
 {
   TOBAS_CHECK(!launch_proc_);
@@ -68,21 +77,26 @@ void SimulationWidget::reset()
 
   spinner_.stop();
   start_stop_button_->setChecked(false);
+  start_stop_button_->setEnabled(project_loaded_);
 
   sim_settings_->setEnabled(project_loaded_);
   dynamic_config_->setEnabled(false);
   commanders_->setEnabled(false);
 }
 
-void SimulationWidget::updateProject(const QString& proj_path)
+void SimulationWidget::setProjectPath(const QString& proj_path)
 {
   // Update project path.
   proj_paths_.setProjPath(proj_path);
 
-  // Load KDL tree.
+  // Load UADF.
   const auto uadf_path = proj_paths_.originalUadfPath();
-  TOBAS_CHECK(uadf_parser_.parseFromPath(uadf_path.toStdString(), uadf_));
-  TOBAS_CHECK(tree_parser_.parseFromUrdf(*uadf_.urdf, tree_));
+  const auto uadf = uadf_parser_.parseFromPath(uadf_path.toStdString());
+  uadf_ = std::move(*uadf);
+
+  // Load KDL tree.
+  const auto tree = tree_parser_.parseFromUrdf(*uadf_.urdf);
+  tree_ = std::move(*tree);
 
   // Load drone configuration.
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
@@ -91,6 +105,7 @@ void SimulationWidget::updateProject(const QString& proj_path)
   commanders_->updateInternalDataStructures();
 
   project_loaded_ = true;
+  reset();
 }
 
 void SimulationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
@@ -114,18 +129,6 @@ void SimulationWidget::clearRosInterfaces()
 bool SimulationWidget::isRunning() const
 {
   return state_ != kIdle;
-}
-
-void SimulationWidget::closeEvent(QCloseEvent* event)
-{
-  qDebug() << "SimulationWidget::closeEvent";
-
-  // Destroy child processes when closing the parent widget.
-  if (launch_proc_) {
-    terminateSimulation();
-  }
-
-  event->accept();
 }
 
 std::map<QString, QString> SimulationWidget::makeGazeboLaunchArguments() const
@@ -208,14 +211,6 @@ void SimulationWidget::terminateSimulation()
   killGazeboServer();
 
   state_ = kStopping;
-}
-
-void SimulationWidget::onLaunchProcessFinished(int code, QProcess::ExitStatus status)
-{
-  qDebug().nospace() << "SimulationWidget::onLaunchProcessFinished(" << code << ", " << status << ")";
-
-  const auto process = qt::qPointerCast<QProcess>(sender());
-  finalizeLaunchProcess(process, code, status);
 }
 
 void SimulationWidget::finalizeLaunchProcess(QProcess* process, int code, QProcess::ExitStatus status)
@@ -342,6 +337,14 @@ void SimulationWidget::onTerminateRequested()
 
   qInfo() << "Waiting for the simulation process to shutdown.";
   spinner_.start();
+}
+
+void SimulationWidget::onLaunchProcessFinished(int code, QProcess::ExitStatus status)
+{
+  qDebug().nospace() << "SimulationWidget::onLaunchProcessFinished(" << code << ", " << status << ")";
+
+  const auto process = qt::qPointerCast<QProcess>(sender());
+  finalizeLaunchProcess(process, code, status);
 }
 
 void SimulationWidget::onLaunchProcessErrorOccurred(QProcess::ProcessError error)

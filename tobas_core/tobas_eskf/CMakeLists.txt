@@ -16,7 +16,6 @@ set(AMENT_DEPENDENCIES tobas_eigen_tools tobas_geographic tobas_kdl_conversions 
 )
 
 find_package(ament_cmake REQUIRED)
-
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()

@@ -24,7 +24,7 @@ int ParamGetterWidget_SpinBox::getValue() const
   return spin_box_->value();
 }
 
-bool ParamGetterWidget_SpinBox::setValue(const int& src)
+bool ParamGetterWidget_SpinBox::setValue(int src)
 {
   if (src < spin_box_->minimum() || spin_box_->maximum() < src) {
     return false;

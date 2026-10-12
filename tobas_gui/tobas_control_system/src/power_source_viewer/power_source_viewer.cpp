@@ -3,8 +3,6 @@
 
 #include "tobas_control_system/power_source_viewer/power_source_viewer.hpp"
 
-#include <QVBoxLayout>
-
 namespace tobas
 {
 namespace gui

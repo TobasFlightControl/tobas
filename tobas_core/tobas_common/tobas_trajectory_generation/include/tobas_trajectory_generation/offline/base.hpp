@@ -14,7 +14,7 @@ struct TrajectoryPoint
   double a;
 };
 
-/* Base class for trajectory generators. */
+/** Base class for trajectory generators. */
 class TrajectoryGenerator
 {
 public:

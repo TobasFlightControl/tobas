@@ -8,11 +8,7 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/linalg.hpp>
 
-#include "tobas_control/dare.hpp"
 #include "tobas_control/util.hpp"
-
-using namespace std;
-using namespace Eigen;
 
 namespace tobas
 {
@@ -22,12 +18,12 @@ KalmanFilter::KalmanFilter()
 {
 }
 
-KalmanFilter::KalmanFilter(const Index& x_size, const Index& u_size, const Index& y_size, const Index& v_size)
+KalmanFilter::KalmanFilter(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size, Eigen::Index v_size)
 {
   resize(x_size, u_size, y_size, v_size);
 }
 
-void KalmanFilter::resize(const Index& x_size, const Index& u_size, const Index& y_size, const Index& v_size)
+void KalmanFilter::resize(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size, Eigen::Index v_size)
 {
   ss.resize(x_size, u_size, y_size);
   Bv.conservativeResize(x_size, v_size);
@@ -47,7 +43,7 @@ void KalmanFilter::setZero()
   u.setZero();
 }
 
-void KalmanFilter::initialize(const VectorXd& init_x, const MatrixXd& init_P)
+void KalmanFilter::initialize(const Eigen::VectorXd& init_x, const Eigen::MatrixXd& init_P)
 {
   assert(init_x.size() == init_P.rows());
   assert(eigen::isSymmetricSemiPositiveDefinite(init_P));
@@ -60,18 +56,21 @@ void KalmanFilter::update()
 {
   verify();
 
+  // Use the lower triangular parts for computational efficiency.
+  const auto _P = P_.selfadjointView<Eigen::Lower>();
+  const auto _Q = Q.selfadjointView<Eigen::Lower>();
+  const auto _R = R.selfadjointView<Eigen::Lower>();
+
   // Prior prediction.
-  const VectorXd x_prev = ss.A * x_ + ss.B * u;
-  const MatrixXd P_prev =
-    ss.A * P_.selfadjointView<Lower>() * ss.A.transpose() + Bv * Q.selfadjointView<Lower>() * Bv.transpose();
+  const Eigen::VectorXd x_prev = ss.A * x_ + ss.B * u;
+  const Eigen::MatrixXd P_prev = ss.A * _P * ss.A.transpose() + Bv * _Q * Bv.transpose();
 
   // Posterior estimate.
-  const MatrixXd PCt = P_prev.selfadjointView<Lower>() * ss.C.transpose();
-  const MatrixXd G = PCt * (ss.C * PCt + R).inverse();
-  const MatrixXd I_GC = MatrixXd::Identity(stateSize(), stateSize()) - G * ss.C;
+  const Eigen::MatrixXd PCt = P_prev.selfadjointView<Eigen::Lower>() * ss.C.transpose();
+  const Eigen::MatrixXd G = PCt * (ss.C * PCt + R).inverse();
+  const Eigen::MatrixXd I_GC = Eigen::MatrixXd::Identity(stateSize(), stateSize()) - G * ss.C;
   x_ = x_prev + G * (y - ss.C * x_prev);
-  P_ = I_GC * P_prev.selfadjointView<Lower>() * I_GC.transpose() +
-       G * R.selfadjointView<Lower>() * G.transpose();  // Joseph form
+  P_ = I_GC * P_prev.selfadjointView<Eigen::Lower>() * I_GC.transpose() + G * _R * G.transpose();  // Joseph form
 }
 
 void KalmanFilter::verify() const
@@ -94,12 +93,12 @@ void KalmanFilter::verify() const
   assert(eigen::isSymmetricPositiveDefinite(R));
 }
 
-IdentityKalmanFilter::IdentityKalmanFilter(const Index& size)
+IdentityKalmanFilter::IdentityKalmanFilter(Eigen::Index size)
 {
   resize(size);
 }
 
-void IdentityKalmanFilter::resize(const Index& size)
+void IdentityKalmanFilter::resize(Eigen::Index size)
 {
   kf_.resize(size, 0, size, size);
   kf_.ss.A.setIdentity(size, size);
@@ -118,7 +117,7 @@ void IdentityKalmanFilter::setZero()
   y.setZero();
 }
 
-void IdentityKalmanFilter::initialize(const VectorXd& init_x, const MatrixXd& init_P)
+void IdentityKalmanFilter::initialize(const Eigen::VectorXd& init_x, const Eigen::MatrixXd& init_P)
 {
   kf_.initialize(init_x, init_P);
 }

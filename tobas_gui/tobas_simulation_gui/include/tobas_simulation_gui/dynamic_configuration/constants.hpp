@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <chrono>
-
 namespace tobas
 {
 namespace gui

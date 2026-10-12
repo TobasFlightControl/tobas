@@ -14,6 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 
 set(AMENT_DEPENDENCIES
+    PkgConfig
     OpenCV
     cv_bridge
     ffmpeg_encoder_decoder

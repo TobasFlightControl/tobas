@@ -22,7 +22,6 @@ class RvizWidget : public QWidget
   Q_OBJECT
 
   using self = RvizWidget;
-  using super = QWidget;
 
 public:
   explicit RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree);

@@ -42,8 +42,7 @@ sudo apt install -y ros-jazzy-desktop-full
 
 # Initialize rosdep
 sudo rosdep init | true
-rosdep update
 
 # Setup environment
 source /opt/ros/jazzy/setup.bash
-echo -e "\033[32mROS 2 Jazzy is installed successfully.\033[0m"
+echo -e "\033[32mROS 2 Jazzy has been installed successfully.\033[0m"

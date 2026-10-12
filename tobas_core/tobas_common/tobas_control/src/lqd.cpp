@@ -3,16 +3,9 @@
 
 #include "tobas_control/lqd.hpp"
 
-#include <iostream>
-
-#include <eigen3/Eigen/LU>
-
 #include <tobas_eigen_tools/core.hpp>
 
 #include "tobas_control/care.hpp"
-
-using namespace std;
-using namespace Eigen;
 
 namespace tobas
 {
@@ -22,23 +15,25 @@ LQD::LQD()
 {
 }
 
-VectorXd LQD::solve(const double& dt, const bool& update_gain)
+std::expected<Eigen::VectorXd, std::string> LQD::solve(double dt, bool update_gain)
 {
   assert(dt >= 0);
   checkProblemValidity();
 
   if (update_gain) {
-    updateGain();
+    if (const auto result = updateGainMatrix(); !result) {
+      return std::unexpected("Failed to update gain matrix: " + result.error());
+    }
   }
 
   // Scaling.
-  const VectorXd x_scaled = current_state.array() / state_scale.array();
-  const VectorXd s_scaled = target_state.array() / state_scale.array();
-  const VectorXd last_u_scaled = last_input.array() / input_scale.array();
+  const Eigen::VectorXd x_scaled = current_state.array() / state_scale.array();
+  const Eigen::VectorXd s_scaled = target_state.array() / state_scale.array();
+  const Eigen::VectorXd last_u_scaled = last_input.array() / input_scale.array();
 
   // Create the augmented state.
-  const VectorXd x_tilde = eigen::concat(x_scaled, last_u_scaled, 0);
-  const VectorXd s_tilde = eigen::concat(s_scaled, VectorXd::Zero(input_weight.rows()), 0);
+  const Eigen::VectorXd x_tilde = eigen::concat(x_scaled, last_u_scaled, Eigen::Vertical);
+  const Eigen::VectorXd s_tilde = eigen::concat(s_scaled, Eigen::VectorXd::Zero(input_weight.rows()), Eigen::Vertical);
 
   const auto ud_scaled = K_ * (s_tilde - x_tilde);
 
@@ -49,7 +44,7 @@ VectorXd LQD::solve(const double& dt, const bool& update_gain)
   return last_input;
 }
 
-void LQD::resize(const Index& state_size, const Index& input_size)
+void LQD::resize(Eigen::Index state_size, Eigen::Index input_size)
 {
   dynamics.resize(state_size, input_size);
 
@@ -65,7 +60,7 @@ void LQD::resize(const Index& state_size, const Index& input_size)
   last_input.conservativeResize(input_size);
 }
 
-void LQD::updateGain()
+std::expected<void, std::string> LQD::updateGainMatrix()
 {
   const auto x_size = current_state.rows();
   const auto u_size = input_weight.rows();
@@ -75,24 +70,29 @@ void LQD::updateGain()
   const auto dyn_scaled = dynamics.scale(state_scale, input_scale);
 
   // Create dynamics for the augmented state.
-  MatrixXd A_tilde(x_tilde_size, x_tilde_size);
+  Eigen::MatrixXd A_tilde(x_tilde_size, x_tilde_size);
   A_tilde.topLeftCorner(x_size, x_size) = dyn_scaled.A;
   A_tilde.topRightCorner(x_size, u_size) = dyn_scaled.B;
   A_tilde.bottomRows(u_size).setZero();
 
-  MatrixXd B_tilde(x_tilde_size, u_size);
+  Eigen::MatrixXd B_tilde(x_tilde_size, u_size);
   B_tilde.topRows(x_size).setZero();
   B_tilde.bottomRows(u_size).setIdentity();
 
   // Create weight matrices.
-  const MatrixXd Q_tilde = eigen::concat(state_weight, input_weight, 0).asDiagonal();
-  const MatrixXd R_tilde = input_rate_weight.asDiagonal();
+  const Eigen::MatrixXd Q_tilde = eigen::concat(state_weight, input_weight, Eigen::Vertical).asDiagonal();
+  const Eigen::MatrixXd R_tilde = input_rate_weight.asDiagonal();
 
   // Solve CARE.
-  P_inf_ = care_ArimotoPotter(A_tilde, B_tilde, Q_tilde, R_tilde);
+  const auto P_inf = care_ArimotoPotter(A_tilde, B_tilde, Q_tilde, R_tilde);
+  if (!P_inf) {
+    return std::unexpected("Failed to solve CARE: " + P_inf.error());
+  }
 
   // Compute the LQR solution.
-  K_ = R_tilde.diagonal().cwiseInverse().asDiagonal() * B_tilde.transpose() * P_inf_;
+  K_ = R_tilde.diagonal().cwiseInverse().asDiagonal() * B_tilde.transpose() * *P_inf;
+
+  return {};
 }
 
 void LQD::checkProblemValidity()
@@ -125,14 +125,13 @@ void LQD::checkProblemValidity()
   assert((input_rate_weight.array() > 0.0).all());
 }
 
-ostream& operator<<(ostream& os, const LQD& arg)
+std::ostream& operator<<(std::ostream& os, const LQD& arg)
 {
-  os << "Dynamics:\n" << arg.dynamics << endl;
-  os << "Current state:\n" << arg.current_state << endl;
-  os << "Target state:\n" << arg.target_state << endl;
-  os << "State error:\n" << arg.target_state - arg.current_state << endl;
-  os << "Covariance matrix:\n" << arg.P_inf_ << endl;
-  os << "Gain:\n" << arg.K_ << endl;
+  os << "Dynamics:\n" << arg.dynamics << std::endl;
+  os << "Current state:\n" << arg.current_state << std::endl;
+  os << "Target state:\n" << arg.target_state << std::endl;
+  os << "State error:\n" << arg.target_state - arg.current_state << std::endl;
+  os << "Gain:\n" << arg.K_ << std::endl;
 
   return os;
 }

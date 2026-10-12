@@ -4,16 +4,16 @@
 #pragma once
 
 #include <array>
-#include <deque>
+#include <memory>
 #include <mutex>
 #include <optional>
 #include <vector>
 
-#include <tobas_linux/spi_dev.hpp>
 #include <tobas_time_tools/rate.hpp>
 
 #include "./ubx_payload.hpp"
 #include "./ubx_scanner.hpp"
+#include "./ubx_transport.hpp"
 
 #define PACKED __attribute__((__packed__))  // Struct member variables are contiguous in memory.
 
@@ -22,7 +22,7 @@ namespace tobas
 namespace ublox
 {
 /**
- * @brief A Linux driver of u-blox ZED-F9P using SPI interface and UBX protocol.
+ * A Linux driver of u-blox ZED-F9P using UBX protocol.
  *
  * [Product Page](https://www.u-blox.com/en/product/zed-f9p-module)
  *
@@ -32,9 +32,6 @@ namespace ublox
  */
 class ZEDF9P
 {
-private:
-  static constexpr size_t kSpiBufSize = 256;
-
 public:
   enum UbxClass : uint8_t
   {
@@ -116,7 +113,7 @@ public:
     E_SCOOTER = 12,
   };
 
-  /* GNSS identifiers (same as `gnssId` in UBX messages) */
+  /** GNSS identifiers (same as `gnssId` in UBX messages) */
   enum GnssId : uint8_t
   {
     GNSS_GPS = 0,
@@ -128,23 +125,37 @@ public:
     GNSS_NAVIC = 7,
   };
 
-  /* GNSS and position in the epoch of an RTCM 3 observation message */
+  /** GNSS and position in the epoch of an RTCM 3 observation message */
   struct RtcmObservation
   {
     GnssId gnss;
-    // Whether more observation messages of the same epoch follow (the multiple message bit of MSM, the synchronous
-    // GNSS flag of legacy messages). The receiver processes an epoch when it receives the message where this is false.
+    /**
+     * Whether more observation messages of the same epoch follow (the multiple message bit of MSM, the synchronous
+     * GNSS flag of legacy messages). The receiver processes an epoch when it receives the message where this is false.
+     */
     bool more_messages_follow;
   };
 
-  explicit ZEDF9P();
+  explicit ZEDF9P(std::unique_ptr<UbxTransport> _transport);
 
-  bool initialize(const char* spi_device);
-  bool update(bool nonblock = true);
-  // rtcm correction dataを登録する 登録したデータはupdate関数内で少しずつ送る
-  // If `data` is a single RTCM 3 frame containing observations of GNSS disabled in the receiver, it is discarded unless
-  // it is the last observation message of its epoch.
-  void registerRtcmCorrectionData(const std::vector<uint8_t>& data);
+  ZEDF9P(ZEDF9P&& _other) = delete;
+  ZEDF9P& operator=(ZEDF9P&& _other) = delete;
+  ZEDF9P(const ZEDF9P& _other) = delete;
+  ZEDF9P& operator=(const ZEDF9P& _other) = delete;
+
+  bool initialize();
+  bool update(bool blocking = false);
+
+  /**
+   * @brief Pass RTCM correction data to the transport to be sent to the receiver.
+   *
+   * With SPI, the data is sent byte by byte while UBX messages are received in `update()`.
+   * If `data` is a single RTCM 3 frame containing observations of GNSS disabled in the receiver, it is discarded unless
+   * it is the last observation message of its epoch.
+   *
+   * @return false if the transport failed to accept the data.
+   */
+  bool registerRtcmCorrectionData(const std::vector<uint8_t>& data);
 
   /**
    * @brief Parse the GNSS and the position in the epoch of an RTCM 3 observation message.
@@ -154,7 +165,7 @@ public:
    */
   static std::optional<RtcmObservation> parseRtcmObservation(const std::vector<uint8_t>& frame);
 
-  /* ===== Configurations =====*/
+  // ===== Configurations =====
 
   bool enableSpiMessage(UbxClass cls, uint8_t id, bool enable);
   bool configureDynamicsModel(DynamicsModel model);
@@ -251,7 +262,7 @@ private:
     CFG_USBOUTPROT = 0x78,    ///< Output Protocol Configuration of the USB Interface
   };
 
-  /* SPI Protocol Key ID */
+  /** SPI Protocol Key ID */
   enum CfgProtocol : uint8_t
   {
     UBX = 0x01,
@@ -301,21 +312,19 @@ private:
 
     CfgData<ValueType> data[N];  ///< Configuration data
   };
+
   // ==============================
 
-  linux::SPIdev spi_;
-  uint8_t tx_buf_[kSpiBufSize];
-  uint8_t rx_buf_[kSpiBufSize];
+  const std::unique_ptr<UbxTransport> transport_;
+  UbxScanner scanner_;
+  tim::Rate scan_rate_;
 
-  UBXScanner scanner_;
-
-  std::deque<uint8_t> send_buffer_;
-  // Whether each GNSS is enabled in the receiver, indexed by `GnssId`. Guarded by `send_buffer_mutex_`.
-  // GNSS that have not been configured are regarded as enabled so that their RTCM data is not discarded.
+  /**
+   * Whether each GNSS is enabled in the receiver, indexed by `GnssId`.
+   * GNSS that have not been configured are regarded as enabled so that their RTCM data is not discarded.
+   */
   std::array<bool, 8> gnss_enabled_ = { true, true, true, true, true, true, true, true };
-  mutable std::mutex send_buffer_mutex_;
-
-  tim::Rate rate_;
+  mutable std::mutex gnss_enabled_mutex_;
 
   template <typename T>
   bool cfgValSetSingle(CfgSize size, CfgGroup group, uint16_t id, T value);
@@ -325,7 +334,7 @@ private:
   bool configure(UbxCfgId cfg_id, const void* msg, uint16_t size);
   bool verifyMessage() const;
 
-  /* Enable or disable a GNSS with the given CFG-SIGNAL-XXX_ENA key and record the state. */
+  /** Enable or disable a GNSS with the given CFG-SIGNAL-XXX_ENA key and record the state. */
   bool enableGnss(GnssId gnss, uint16_t key_id, bool enable);
 
   bool enableGps(bool enable);

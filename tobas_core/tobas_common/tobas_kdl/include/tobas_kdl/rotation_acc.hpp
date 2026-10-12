@@ -12,9 +12,9 @@ namespace kdl
 class RotationAcc
 {
 public:
-  Rotation R;  // rotation matrix
-  Vector w;    // angular velocity vector
-  Vector dw;   // Angular acceleration vector.
+  Rotation R;  ///< rotation matrix
+  Vector w;    ///< angular velocity vector
+  Vector dw;   ///< Angular acceleration vector.
 
   inline explicit RotationAcc();
   inline explicit RotationAcc(const Rotation& _R);

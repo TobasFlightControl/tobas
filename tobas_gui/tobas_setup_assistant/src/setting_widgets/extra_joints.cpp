@@ -7,13 +7,10 @@
 #include <QHeaderView>
 
 #include <tobas_qt_tools/cast.hpp>
-#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
-
-#include "tobas_setup_assistant/constants.hpp"
 
 namespace tobas
 {

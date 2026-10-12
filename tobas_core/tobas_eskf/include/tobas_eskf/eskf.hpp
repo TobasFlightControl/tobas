@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <expected>
+#include <string>
+
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 
@@ -17,7 +20,7 @@ namespace tobas
 namespace eskf
 {
 /**
- * @brief Error-state Kalman filter.
+ * Error-state Kalman filter.
  *
  * Base algorithm: Quaternion kinematics for the error-state Kalman filter [Sola, 2017]
  * Japanese translation: https://www.flight.t.u-tokyo.ac.jp/?p=800
@@ -80,10 +83,10 @@ public:
     const Eigen::Matrix3d& init_mag_hard_bias_cov,
     const Eigen::Matrix3d& init_mag_soft_bias,
     const Eigen::Matrix6d& init_mag_soft_bias_cov,
-    const double& init_baro_alt_bias,
-    const double& init_baro_alt_bias_var,
-    const double& init_grav,
-    const double& init_grav_var,
+    double init_baro_alt_bias,
+    double init_baro_alt_bias_var,
+    double init_grav,
+    double init_grav_var,
     const std::chrono::steady_clock::time_point& time);
 
   void initializePosition(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
@@ -93,20 +96,20 @@ public:
   void initializeGyroBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
   void initializeMagHardBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
   void initializeMagSoftBias(const Eigen::Matrix3d& value, const Eigen::Matrix6d& cov);
-  void initializeBaroAltBias(const double& value, const double& var);
-  void initializeGravity(const double& value, const double& var);
+  void initializeBaroAltBias(double value, double var);
+  void initializeGravity(double value, double var);
 
   void enableSecondIntegral(bool enable);
   void enableCovSymmetrisation(bool enable);
   void enableCovInitialization(bool enable);
   void enableJosephForm(bool enable);
 
-  bool setAccBiasProcNoiseDensity(double value);      // [m/s^3/√Hz]
-  bool setGyroBiasProcNoiseDensity(double value);     // [rad/s^2/√Hz]
-  bool setMagHardBiasProcNoiseDensity(double value);  // [/s/√Hz]
-  bool setMagSoftBiasProcNoiseDensity(double value);  // [/s/√Hz]
-  bool setBaroAltBiasProcNoiseDensity(double value);  // [m/s/√Hz]
-  bool setGravProcNoiseDensity(double value);         // [m/s^3/√Hz]
+  void setAccBiasProcNoiseDensity(double value);      // [m/s^3/√Hz]
+  void setGyroBiasProcNoiseDensity(double value);     // [rad/s^2/√Hz]
+  void setMagHardBiasProcNoiseDensity(double value);  // [/s/√Hz]
+  void setMagSoftBiasProcNoiseDensity(double value);  // [/s/√Hz]
+  void setBaroAltBiasProcNoiseDensity(double value);  // [m/s/√Hz]
+  void setGravProcNoiseDensity(double value);         // [m/s^3/√Hz]
 
   void setMagneticFieldRef(const Eigen::Vector3d& mag_W);
   void setAirPressureOrigin(double pres);
@@ -136,7 +139,7 @@ public:
   inline double getBaroAltBiasVariance() const;
 
   /**
-   * @brief Predict the next state from acceleration and gyro measurements, and correct the attitude.
+   * Predict the next state from acceleration and gyro measurements, and correct the attitude.
    *
    * @param acc_meas [m/s^2] Measured acceleration.
    * @param gyro_meas [rad/s] Measured gyro value.
@@ -144,8 +147,11 @@ public:
    * @param gyro_cov [rad^2/s^2] Covariance of gyro measurement noise.
    * @param grav_cov [m^2/s^4] Covariance of gravitational acceleration measurement noise.
    * @param time [s] Current time.
+   * @return Anomaly score, or an error message if attitude correction cannot be performed.
+   *
+   * @note During free fall, state prediction is still applied before returning an error.
    */
-  double measureIMU(
+  std::expected<double, std::string> measureImu(
     const Eigen::Vector3d& acc_meas,
     const Eigen::Vector3d& gyro_meas,
     const Eigen::Matrix3d& acc_cov,
@@ -154,38 +160,36 @@ public:
     const std::chrono::steady_clock::time_point& time);
 
   /**
-   * @brief Apply a position observation to the nominal state.
+   * Apply a position observation to the nominal state.
    *
    * @param pos_meas Position observation expressed in the world coordinate system.
    * @param pos_cov Covariance of position measurement noise.
    * @param offset Offset of the observation frame from the IMU frame, expressed in the IMU frame.
-   *
-   * @return Anomaly score
+   * @return Anomaly score, or an error message if the observation cannot be applied.
    */
-  double measurePosition(
+  std::expected<double, std::string> measurePosition(
     const Eigen::Vector3d& pos_meas,
     const Eigen::Matrix3d& pos_cov,
     const Eigen::Vector3d& offset,
     const std::chrono::steady_clock::time_point& time);
 
   /**
-   * @brief Apply a velocity observation to the nominal state.
+   * Apply a velocity observation to the nominal state.
    *
    * @param vel_meas Velocity observation expressed in the world coordinate system.
    * @param vel_cov Covariance of velocity measurement noise.
    * @param offset Offset of the observation frame from the IMU frame, expressed in the IMU frame.
    * @param gyro_meas Gyro sensor reading.
-   *
-   * @return Anomaly score
+   * @return Anomaly score, or an error message if the observation cannot be applied.
    */
-  double measureVelocity(
+  std::expected<double, std::string> measureVelocity(
     const Eigen::Vector3d& vel_meas,
     const Eigen::Matrix3d& vel_cov,
     const Eigen::Vector3d& offset,
     const Eigen::Vector3d& gyro_meas,
     const std::chrono::steady_clock::time_point& time);
 
-  double measurePosVel(
+  std::expected<double, std::string> measurePosVel(
     const Eigen::Vector3d& pos_meas,
     const Eigen::Vector3d& vel_meas,
     const Eigen::Matrix6d& cov,
@@ -193,30 +197,30 @@ public:
     const Eigen::Vector3d& gyro_meas,
     const std::chrono::steady_clock::time_point& time);
 
-  double measureQuaternion(
+  std::expected<double, std::string> measureQuaternion(
     const Eigen::Quaterniond& q_meas,
     const Eigen::Matrix3d& theta_cov,
     const std::chrono::steady_clock::time_point& time);
 
-  double measurePose(
+  std::expected<double, std::string> measurePose(
     const Eigen::Vector3d& pos_meas,
     const Eigen::Quaterniond& q_meas,
     const Eigen::Matrix6d& cov,
     const Eigen::Vector3d& offset,
     const std::chrono::steady_clock::time_point& time);
 
-  double measureMagneticField3d(
+  std::expected<double, std::string> measureMagneticField3d(
     const Eigen::Vector3d& mag_meas,
     const Eigen::Matrix3d& mag_cov,
     const std::chrono::steady_clock::time_point& time);
 
-  double measureMagneticFieldHead(
+  std::expected<double, std::string> measureMagneticFieldHead(
     const Eigen::Vector3d& mag_meas,
-    const double& yaw_var,
+    double yaw_var,
     const std::chrono::steady_clock::time_point& time);
 
-  double
-  measureAirPressure(const double& pres, const double& alt_var, const std::chrono::steady_clock::time_point& time);
+  std::expected<double, std::string>
+  measureAirPressure(double pres, double alt_var, const std::chrono::steady_clock::time_point& time);
 
 private:
   // Configuration
@@ -224,17 +228,17 @@ private:
   bool enable_cov_symmetrisation_ = false;
   bool enable_cov_initialization_ = false;
   bool enable_joseph_form_ = true;
-  double acc_bias_proc_noise_density_ = 0.0;       // [m/s^3/√Hz] Process noise density of acceleration bias.
-  double gyro_bias_proc_noise_density_ = 0.0;      // [rad/s^2/√Hz] Process noise density of gyro bias.
-  double mag_hard_bias_proc_noise_density_ = 0.0;  // [/s/√Hz] Process noise density of magnetometer hard-iron bias.
-  double mag_soft_bias_proc_noise_density_ = 0.0;  // [/s/√Hz] Process noise density of magnetometer soft-iron bias.
-  double baro_alt_bias_proc_noise_density_ = 0.0;  // [m/s/√Hz] Process noise density of barometric altitude bias.
-  double grav_proc_noise_density_ = 0.0;           // [m/s^3/√Hz] Process noise density of gravitational acceleration.
+  double acc_bias_proc_noise_density_ = 0.0;       ///< [m/s^3/√Hz] Process noise density of acceleration bias.
+  double gyro_bias_proc_noise_density_ = 0.0;      ///< [rad/s^2/√Hz] Process noise density of gyro bias.
+  double mag_hard_bias_proc_noise_density_ = 0.0;  ///< [/s/√Hz] Process noise density of magnetometer hard-iron bias.
+  double mag_soft_bias_proc_noise_density_ = 0.0;  ///< [/s/√Hz] Process noise density of magnetometer soft-iron bias.
+  double baro_alt_bias_proc_noise_density_ = 0.0;  ///< [m/s/√Hz] Process noise density of barometric altitude bias.
+  double grav_proc_noise_density_ = 0.0;  ///< [m/s^3/√Hz] Process noise density of gravitational acceleration.
 
-  StateVector x_;         // State vector of the filter
-  DeltaStateMatrix P_;    // Covariance of the error state
-  DeltaStateMatrix F_x_;  // Jacobian of the state transition
-  DeltaStateMatrix G_;    // Jacobian of the error initialization
+  StateVector x_;         ///< State vector of the filter
+  DeltaStateMatrix P_;    ///< Covariance of the error state
+  DeltaStateMatrix F_x_;  ///< Jacobian of the state transition
+  DeltaStateMatrix G_;    ///< Jacobian of the error initialization
 
   // Output matrices.
   Eigen::Matrix<double, 3, kDeltaStateSize> H_pos_;
@@ -273,43 +277,41 @@ private:
   inline Eigen::Matrix3d getDCM(const StateVector& x) const;
   inline Eigen::Vector3d getGravVector(const StateVector& x) const;
 
-  /* (281) */
+  /** (281) */
   Eigen::Matrix<double, 4, 3> getQ_dtheta(const StateVector& x) const;
 
-  /* Partial derivative of vector `v` rotated by `q` with respect to `q`: `d(q * v * q') / d(q)`. */
+  /** Partial derivative of vector `v` rotated by `q` with respect to `q`: `d(q * v * q') / d(q)`. */
   Eigen::Matrix<double, 3, 4> quatRotationDerivative(const StateVector& x, const Eigen::Vector3d& a) const;
 
-  /* Output equation from quaternion to yaw. */
-  Eigen::RowVector4d hamiltonToYawOutputMatrix(const StateVector& x) const;
+  /** Output equation from quaternion to yaw. */
+  std::expected<Eigen::RowVector4d, std::string> hamiltonToYawOutputMatrix(const StateVector& x) const;
 
   void setMagSoftBiasFromMatrix(const Eigen::Matrix3d& T);
   void applyConstraints();
   void resetStateHistory();
 
   /**
-   * @brief Observation of the gravity direction, used to correct the attitude.
+   * Observation of the gravity direction, used to correct the attitude.
    *
    * @param acc_meas Accelerometer reading.
    * @param grav_cov Parameter that controls the correction amount from the observation.
    * It is mathematically treated as covariance,
    * but it should be tuned because the generally correct value is unknown;
    * in addition to sensor noise, the variance of the estimated attitude also affects it.
-   *
-   * @return Anomaly score
+   * @return Anomaly score, or an error message if the observation cannot be applied.
    */
-  double measureGravity(
+  std::expected<double, std::string> measureGravity(
     const Eigen::Vector3d& acc_meas,
     const Eigen::Matrix3d& grav_cov,
     const std::chrono::steady_clock::time_point& time);
 
   /**
-   * @brief Compute posterior estimates of the state and covariance from an observation.
+   * Compute posterior estimates of the state and covariance from an observation.
    *
    * @tparam M Observation dimension.
    * @param delta_meas Error between the observation and the nominal state.
    * @param meas_cov Covariance of observation noise.
    * @param H Observation equation.
-   *
    * @return Anomaly score
    */
   template <int M>

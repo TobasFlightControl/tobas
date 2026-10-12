@@ -2,6 +2,8 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <chrono>
+#include <expected>
+#include <string>
 #include <thread>
 
 #include <tobas_constants/imu.hpp>
@@ -54,7 +56,7 @@ private:
   ros2::TimerPtr initialize_timer_, main_timer_;
 
   bool initialize();
-  bool transfer();
+  std::expected<void, std::string> transfer();
 
   void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms);
 
@@ -102,7 +104,7 @@ bool PwmBattImuDriverNode::initialize()
   return true;
 }
 
-bool PwmBattImuDriverNode::transfer()
+std::expected<void, std::string> PwmBattImuDriverNode::transfer()
 {
   constexpr auto kMinCommunicationInterval = 200us;  // Communication errors occur at 100 us.
   std::this_thread::sleep_until(last_comm_time_ + kMinCommunicationInterval);
@@ -130,9 +132,9 @@ void PwmBattImuDriverNode::configureImuLowPassFilterCb(
 {
   driver_.configureLowPassFilter(req->accel_cutoff, req->gyro_cutoff, req->dgyro_cutoff);
 
-  if (!transfer()) {
+  if (const auto result = transfer(); !result) {
     res->success = false;
-    res->message = "Failed to communicate with the MCU.";
+    res->message = "Failed to communicate with the MCU: " + result.error();
     return;
   }
 
@@ -146,9 +148,9 @@ void PwmBattImuDriverNode::configureImuRpmFilter(
 {
   driver_.configureRpmFilter(req->quality_factor, req->min_center_freq, req->fade_range, req->lpf_cutoff);
 
-  if (!transfer()) {
+  if (const auto result = transfer(); !result) {
     res->success = false;
-    res->message = "Failed to communicate with the MCU.";
+    res->message = "Failed to communicate with the MCU: " + result.error();
     return;
   }
 
@@ -169,8 +171,8 @@ void PwmBattImuDriverNode::mainTimerCb()
   const auto cur_time = now();
 
   // Communicate with the MCU.
-  if (!transfer()) {
-    TOBAS_ERROR("Failed to communicate with the MCU.");
+  if (const auto result = transfer(); !result) {
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to communicate with the MCU: ", result.error());
     return;
   }
 

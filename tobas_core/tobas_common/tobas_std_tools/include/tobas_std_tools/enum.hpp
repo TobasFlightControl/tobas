@@ -10,7 +10,7 @@ namespace tobas
 {
 namespace st
 {
-/* Class modeled after Python `enum.Enum`. It maps enum values to names. */
+/** Class modeled after Python `enum.Enum`. It maps enum values to names. */
 struct NamedEnum
 {
   const char* name;

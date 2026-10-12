@@ -21,16 +21,15 @@ class IPv4Widget : public BaseNetworkWidget
   Q_OBJECT
 
   using self = IPv4Widget;
-  using super = BaseNetworkWidget;
 
-  /* Method index */
+  /** Method index */
   enum Method : int
   {
     kAutomatic = 0,
     kManual = 1,
   };
 
-  /* Prefix length index */
+  /** Prefix length index */
   enum PrefixLength : int
   {
     kSlash8 = 0,

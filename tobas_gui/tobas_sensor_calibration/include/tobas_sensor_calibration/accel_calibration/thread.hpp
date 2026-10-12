@@ -24,7 +24,6 @@ class AccelCalibrationThread : public QThread
   Q_OBJECT
 
   using self = AccelCalibrationThread;
-  using super = QThread;
 
 Q_SIGNALS:
   void finished(bool success, const QString& message);

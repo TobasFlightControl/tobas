@@ -4,7 +4,6 @@
 #include "tobas_simulation_gui/simulation_settings/pose.hpp"
 
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QVBoxLayout>
 
 #include <tobas_gui_common/constants.hpp>

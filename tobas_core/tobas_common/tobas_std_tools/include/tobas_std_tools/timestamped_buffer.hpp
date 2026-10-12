@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace st
 {
-/* Buffer that keeps only data within the specified duration. */
+/** Buffer that keeps only data within the specified duration. */
 template <typename T>
 class TimestampedBuffer
 {
@@ -79,7 +79,7 @@ public:
     return last()->second;
   }
 
-  /* Get the first value at or after the given time. */
+  /** Get the first value at or after the given time. */
   const T& closestAfterValue(const TimeType& time) const
   {
     assert(!map_.empty());

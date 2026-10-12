@@ -17,32 +17,32 @@ namespace
 constexpr char kInterfaceKey[] = "interface";
 }  // namespace
 
-bool NetworkConfig::load(const QString& path)
+std::expected<NetworkConfig, QString> loadNetworkConfig(const QString& path)
 {
   const auto node = yaml::load(path.toStdString());
   if (!node) {
-    std::cerr << node.error() << std::endl;
-    return false;
+    return std::unexpected(QString::fromStdString(node.error()));
   }
 
-  if (!yaml::load(kInterfaceKey, *node, interface)) {
-    return false;
+  NetworkConfig config;
+  if (const auto result = yaml::load(kInterfaceKey, *node, config.interface); !result) {
+    return std::unexpected(QString::fromStdString(result.error()));
   }
 
-  return true;
+  return config;
 }
 
-bool NetworkConfig::save(const QString& path) const
+std::expected<void, QString> saveNetworkConfig(const QString& path, const NetworkConfig& config)
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kInterfaceKey] = interface;
+  node[kInterfaceKey] = config.interface;
 
-  if (!yaml::save(path.toStdString(), node)) {
-    return false;
+  if (const auto result = yaml::save(path.toStdString(), node); !result) {
+    return std::unexpected(QString::fromStdString(result.error()));
   }
 
-  return true;
+  return {};
 }
 }  // namespace cmn
 }  // namespace gui

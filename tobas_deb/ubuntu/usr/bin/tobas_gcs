@@ -3,4 +3,4 @@
 set -e
 
 source /opt/ros/jazzy/setup.bash
-ros2 launch tobas_gcs gcs.launch.py
+exec ros2 launch tobas_gcs gcs.launch.py

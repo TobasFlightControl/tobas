@@ -11,7 +11,7 @@ namespace rviz
 {
 namespace
 {
-/* Promote cached non-owning references for callers, omitting objects whose owners have released them. */
+/** Promote cached non-owning references for callers, omitting objects whose owners have released them. */
 template <typename T>
 std::vector<std::shared_ptr<const T>> lockAll(const std::vector<std::weak_ptr<const T>>& weak_ptrs)
 {

@@ -3,8 +3,7 @@
 
 #include "tobas_drone_core/propulsion_system/ice_propulsion_system/moment_constant.hpp"
 
-#include <iostream>
-#include <limits>
+#include <cassert>
 
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
@@ -19,35 +18,38 @@ constexpr char kCKey[] = "c";
 constexpr char kPhi0Key[] = "phi0";
 }  // namespace
 
-bool VppMomentConstant::isValid() const
+std::expected<void, std::string> VppMomentConstant::validate() const
 {
   if (a <= 0.0 || c <= 0.0) {
-    std::cerr << "The first and third term of the moment constant must be positive." << std::endl;
-    return false;
+    return std::unexpected("The first and third term of the moment constant must be positive.");
   }
 
-  return true;
+  return {};
 }
 
-bool VppMomentConstant::load(const YAML::Node& node)
+std::expected<void, std::string> VppMomentConstant::load(const YAML::Node& node)
 {
-  if (!yaml::load(kAKey, node, a)) {
-    return false;
+  if (!node.IsDefined() || !node.IsMap()) {
+    return std::unexpected("Configuration node must be a map.");
   }
 
-  if (!yaml::load(kBKey, node, b)) {
-    return false;
+  if (const auto result = yaml::load(kAKey, node, a); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCKey, node, c)) {
-    return false;
+  if (const auto result = yaml::load(kBKey, node, b); !result) {
+    return result;
   }
 
-  if (!yaml::load(kPhi0Key, node, phi0)) {
-    return false;
+  if (const auto result = yaml::load(kCKey, node, c); !result) {
+    return result;
   }
 
-  return true;
+  if (const auto result = yaml::load(kPhi0Key, node, phi0); !result) {
+    return result;
+  }
+
+  return {};
 }
 
 YAML::Node VppMomentConstant::dump() const
@@ -64,11 +66,7 @@ YAML::Node VppMomentConstant::dump() const
 
 double VppMomentConstant::compute(double phi) const
 {
-  if (phi <= phi0) {
-    std::cerr << "The moment constant cannot be computed because the pitch angle of " << phi
-              << "[rad] is smaller than the negative stall angle of " << phi0 << "[rad]." << std::endl;
-    return std::numeric_limits<double>::max();
-  }
+  assert(phi > phi0);
 
   const auto x = phi - phi0;
   return a * x + b + c / x;

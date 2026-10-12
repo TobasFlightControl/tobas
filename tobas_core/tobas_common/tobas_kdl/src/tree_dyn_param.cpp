@@ -3,8 +3,6 @@
 
 #include "tobas_kdl/tree_dyn_param.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 namespace kdl
@@ -15,39 +13,27 @@ TreeDynParam::TreeDynParam(const Tree& tree, const Vector& grav)
   resize();
 }
 
-bool TreeDynParam::updateInternalDataStructures()
+void TreeDynParam::updateInternalDataStructures()
 {
-  if (!super::updateInternalDataStructures()) {
-    return false;
-  }
-
-  if (!rne_coriolis_.updateInternalDataStructures()) {
-    return false;
-  }
-  if (!rne_gravity_.updateInternalDataStructures()) {
-    return false;
-  }
+  rne_coriolis_.updateInternalDataStructures();
+  rne_gravity_.updateInternalDataStructures();
 
   resize();
-
-  return true;
 }
 
-int TreeDynParam::jntToCoriolis(const JntArray& q, const JntArray& qd)
+const JntArray& TreeDynParam::jntToCoriolis(const JntArray& q, const JntArray& qd)
 {
-  rne_coriolis_.cartToJnt(q, qd, jntarray_null_);
-  return copyError(rne_coriolis_);
+  return rne_coriolis_.cartToJnt(q, qd, q_zero_);
 }
 
-int TreeDynParam::jntToGravity(const JntArray& q)
+const JntArray& TreeDynParam::jntToGravity(const JntArray& q)
 {
-  rne_gravity_.cartToJnt(q, jntarray_null_, jntarray_null_);
-  return copyError(rne_gravity_);
+  return rne_gravity_.cartToJnt(q, q_zero_, q_zero_);
 }
 
 void TreeDynParam::resize()
 {
-  jntarray_null_ = JntArray::Zero(nj_);
+  q_zero_ = JntArray::Zero(tree_.getNrOfJoints());
 }
 }  // namespace kdl
 }  // namespace tobas

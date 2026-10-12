@@ -11,10 +11,13 @@ int main(int argc, char** argv)
     std::cerr << "Usage: " << argv[0] << " <password>" << std::endl;
     return EXIT_FAILURE;
   }
-
   const auto password = argv[1];
 
   tobas::crypt::Yescrypt crypt;
   const auto hash = crypt.crypt(password);
-  std::cout << password << " -> " << hash << std::endl;
+  if (!hash) {
+    std::cerr << hash.error() << std::endl;
+    return EXIT_FAILURE;
+  }
+  std::cout << password << " -> " << *hash << std::endl;
 }

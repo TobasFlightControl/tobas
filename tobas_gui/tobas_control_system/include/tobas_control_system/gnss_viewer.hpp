@@ -17,7 +17,6 @@ class GnssViewerWidget : public QWidget
   Q_OBJECT
 
   using self = GnssViewerWidget;
-  using super = QWidget;
 
 public:
   explicit GnssViewerWidget(const rqt::RosQtBridge& bridge);

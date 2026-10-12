@@ -4,6 +4,7 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/blade_theory.hpp"
 
 #include <tobas_math/core.hpp>
+#include <tobas_math/definitions.hpp>
 #include <tobas_std_tools/check.hpp>
 
 namespace tobas
@@ -20,7 +21,7 @@ namespace
 {
 constexpr double a = M_2PI;    // 2D lift curve slope (ideal value)
 constexpr double B = 0.9;      // Tip loss factor
-constexpr double gamma = 8.0;  // Lock number (typical value, cf. Balic Helicopter Aerodynamics p.66)
+constexpr double gamma = 8.0;  // Lock number (Ref: Balic Helicopter Aerodynamics p.66)
 constexpr double C_d0 = 0.02;  // Profile drag coefficient (typical value)
 }  // namespace
 

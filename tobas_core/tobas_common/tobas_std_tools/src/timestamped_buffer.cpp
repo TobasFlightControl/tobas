@@ -4,7 +4,6 @@
 #include "tobas_std_tools/timestamped_buffer.hpp"
 
 #include <cmath>
-#include <limits>
 
 #include <tobas_algorithm/kahan.hpp>
 #include <tobas_math/core.hpp>

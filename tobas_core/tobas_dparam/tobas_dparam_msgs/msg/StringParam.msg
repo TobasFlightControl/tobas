@@ -2,5 +2,6 @@
 # Copyright (C) 2026 Tobas, Inc.
 
 string name
-string dflt
-string value
+string default_value
+string initial_value
+string current_value

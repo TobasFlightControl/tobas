@@ -6,10 +6,8 @@
 #include <QLabel>
 #include <QMap>
 #include <QPushButton>
-#include <QVBoxLayout>
 #include <QWidget>
 
-#include <tobas_mission_items/mission_items.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/check_box.hpp>
 
@@ -26,7 +24,6 @@ class BaseCommandWidget : public QWidget
   Q_OBJECT
 
   using self = BaseCommandWidget;
-  using super = QWidget;
 
 Q_SIGNALS:
   void updated();
@@ -43,9 +40,9 @@ protected:
   bool isChecked(field::BaseFieldWidget* widget) const;
   void setChecked(field::BaseFieldWidget* widget, bool checked);
 
-  /* Return the configured value if checked; otherwise return NaN. */
+  /** Return the configured value if checked; otherwise return NaN. */
   double getValueOrDefault(field::FieldWidget<double>* widget) const;
-  /* Set a valid value as-is; use the default value if it is NaN. */
+  /** Set a valid value as-is; use the default value if it is NaN. */
   void setValueOrDefault(field::FieldWidget<double>* widget, double value);
 
 private:

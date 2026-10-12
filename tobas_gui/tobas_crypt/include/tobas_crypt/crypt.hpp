@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace crypt
 {
-/* Update the user password. */
+/** Update the user password. */
 bool setShadowPassword(
   const std::string& _shadow_path,
   const std::string& _username,

@@ -17,9 +17,6 @@ class WorldWidget_Standard : public BaseWorldWidget
 {
   Q_OBJECT
 
-  using self = WorldWidget_Standard;
-  using super = BaseWorldWidget;
-
 public:
   explicit WorldWidget_Standard();
 

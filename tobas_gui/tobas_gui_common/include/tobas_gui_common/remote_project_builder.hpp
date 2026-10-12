@@ -3,6 +3,10 @@
 
 #pragma once
 
+#include <expected>
+
+#include <QString>
+
 #include "./ssh_client.hpp"
 
 namespace tobas
@@ -16,15 +20,10 @@ class RemoteProjectBuilder
 public:
   explicit RemoteProjectBuilder(rclcpp::Node::SharedPtr node);
 
-  bool build(const QString& remote_proj_path);
-
-  const QString& getOutput() const;
-  QString getErrorMessage() const;
+  std::expected<QString, QString> build(const QString& remote_proj_path);
 
 private:
   cmn::SshClientWrapper ssh_client_;
-
-  QString output_;
 };
 }  // namespace cmn
 }  // namespace gui

@@ -3,12 +3,13 @@
 
 #pragma once
 
+#include <expected>
 #include <string>
 
 namespace tobas
 {
 namespace git
 {
-std::string getGitConfigValue(const char* key);
+std::expected<std::string, std::string> getGitConfigValue(const char* key);
 }  // namespace git
 }  // namespace tobas

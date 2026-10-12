@@ -24,7 +24,7 @@ namespace YAML
 template <>
 struct convert<tobas::JointCommandInterface>
 {
-  static Node encode(const tobas::JointCommandInterface& rhs);
+  static Node encode(tobas::JointCommandInterface rhs);
   static bool decode(const Node& node, tobas::JointCommandInterface& rhs);
 };
 }  // namespace YAML

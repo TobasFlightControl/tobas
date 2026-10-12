@@ -6,8 +6,6 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -19,39 +17,42 @@ constexpr char kHardwareIfaceKey[] = "hw_iface";
 constexpr char kHomePosKey[] = "home_position";
 }  // namespace
 
-bool JointConfig::isValid() const
+std::expected<void, std::string> JointConfig::validate() const
 {
   if (name.empty()) {
-    cerr << "Joint name is empty." << endl;
-    return false;
+    return std::unexpected("Joint name is empty.");
   }
 
-  return true;
+  return {};
 }
 
-bool JointConfig::load(const YAML::Node& node)
+std::expected<void, std::string> JointConfig::load(const YAML::Node& node)
 {
-  if (!yaml::load(kNameKey, node, name)) {
-    return false;
+  if (!node.IsDefined() || !node.IsMap()) {
+    return std::unexpected("Configuration node must be a map.");
   }
 
-  if (!yaml::load(kRoleKey, node, role)) {
-    return false;
+  if (const auto result = yaml::load(kNameKey, node, name); !result) {
+    return result;
   }
 
-  if (!yaml::load(kCommandIfaceKey, node, cmd_iface)) {
-    return false;
+  if (const auto result = yaml::load(kRoleKey, node, role); !result) {
+    return result;
   }
 
-  if (!yaml::load(kHardwareIfaceKey, node, hw_iface)) {
-    return false;
+  if (const auto result = yaml::load(kCommandIfaceKey, node, cmd_iface); !result) {
+    return result;
   }
 
-  if (!yaml::load(kHomePosKey, node, home_pos)) {
-    return false;
+  if (const auto result = yaml::load(kHardwareIfaceKey, node, hw_iface); !result) {
+    return result;
   }
 
-  return true;
+  if (const auto result = yaml::load(kHomePosKey, node, home_pos); !result) {
+    return result;
+  }
+
+  return {};
 }
 
 YAML::Node JointConfig::dump() const

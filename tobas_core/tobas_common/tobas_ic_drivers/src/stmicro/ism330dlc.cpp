@@ -252,7 +252,7 @@ bool ISM330DLC::readImu(double& ax, double& ay, double& az, double& gx, double& 
   return true;
 }
 
-bool ISM330DLC::readRegs(const uint8_t& addr, const size_t& bytes)
+bool ISM330DLC::readRegs(uint8_t addr, size_t bytes)
 {
   constexpr uint8_t kReadFlag = 0x80;
   tx_buf_[0] = addr | kReadFlag;
@@ -266,7 +266,7 @@ bool ISM330DLC::readRegs(const uint8_t& addr, const size_t& bytes)
   return true;
 }
 
-bool ISM330DLC::writeReg(const uint8_t& addr, const uint8_t& data)
+bool ISM330DLC::writeReg(uint8_t addr, uint8_t data)
 {
   tx_buf_[0] = addr;
   tx_buf_[1] = data;

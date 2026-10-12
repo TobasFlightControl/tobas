@@ -16,7 +16,7 @@ namespace ub
 namespace view_model
 {
 /**
- * @brief Wrapper for a URDF element class.
+ * Wrapper for a URDF element class.
  *
  * @tparam M URDF element class.
  * @tparam Derived Derived class.
@@ -45,7 +45,7 @@ public:
     return DerivedPtr(new Derived(utils::clone(model_)));
   }
 
-  /* Apply the View Model contents to the URDF model. */
+  /** Apply the View Model contents to the URDF model. */
   virtual void sync() = 0;
 
 protected:

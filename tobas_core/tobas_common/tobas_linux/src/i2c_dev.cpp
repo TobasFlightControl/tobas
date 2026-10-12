@@ -12,7 +12,7 @@
 #include <iostream>
 #include <thread>
 
-#include "tobas_linux/error.hpp"
+#include <tobas_std_tools/error.hpp>
 
 using namespace std::chrono_literals;
 
@@ -205,7 +205,7 @@ bool I2Cdev::write(uint8_t reg_addr, size_t length, const void* tx)
   const auto req_length = length + 1;
   const auto res = ::write(i2c_fd_, tx_, req_length);
   if (res < 0) {
-    std::cerr << "I2C write failed: " << strError() << std::endl;
+    std::cerr << "I2C write failed: " << st::strError() << std::endl;
     switch (errno) {
       case EREMOTEIO:
         std::cerr << "Please ensure that the correct 7-bit slave address is set." << std::endl;
@@ -236,7 +236,7 @@ bool I2Cdev::read(size_t length, void* rx)
   // 8. Stop Condition (Master -> Slave)
   const auto res = ::read(i2c_fd_, rx, length);
   if (res < 0) {
-    std::cerr << "I2C read failed: " << strError() << std::endl;
+    std::cerr << "I2C read failed: " << st::strError() << std::endl;
     return false;
   }
   if (res != static_cast<ssize_t>(length)) {

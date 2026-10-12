@@ -3,8 +3,6 @@
 
 #include "tobas_drone_core/propulsion_system/ice_propulsion_system/motor_constant.hpp"
 
-#include <iostream>
-
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
@@ -16,27 +14,30 @@ constexpr char kC0Key[] = "c0";
 constexpr char kC1Key[] = "c1";
 }  // namespace
 
-bool VppMotorConstant::isValid() const
+std::expected<void, std::string> VppMotorConstant::validate() const
 {
   if (c1 <= 0.0) {
-    std::cerr << "The second term of the motor constant must be positive." << std::endl;
-    return false;
+    return std::unexpected("The second term of the motor constant must be positive.");
   }
 
-  return true;
+  return {};
 }
 
-bool VppMotorConstant::load(const YAML::Node& node)
+std::expected<void, std::string> VppMotorConstant::load(const YAML::Node& node)
 {
-  if (!yaml::load(kC0Key, node, c0)) {
-    return false;
+  if (!node.IsDefined() || !node.IsMap()) {
+    return std::unexpected("Configuration node must be a map.");
   }
 
-  if (!yaml::load(kC1Key, node, c1)) {
-    return false;
+  if (const auto result = yaml::load(kC0Key, node, c0); !result) {
+    return result;
   }
 
-  return true;
+  if (const auto result = yaml::load(kC1Key, node, c1); !result) {
+    return result;
+  }
+
+  return {};
 }
 
 YAML::Node VppMotorConstant::dump() const

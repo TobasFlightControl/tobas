@@ -6,8 +6,6 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-using namespace std;
-
 namespace tobas
 {
 namespace
@@ -22,94 +20,90 @@ constexpr char kMotorConstKey[] = "motor_constant";
 constexpr char kMomentConstKey[] = "moment_constant";
 }  // namespace
 
-bool ElectricRotorConfig::isValid() const
+std::expected<void, std::string> ElectricRotorConfig::validate() const
 {
-  if (!super::isValid()) {
-    return false;
+  if (const auto result = super::validate(); !result) {
+    return result;
   }
 
   if (num_poles <= 0) {
-    cerr << "The number of poles must be positive." << endl;
-    return false;
+    return std::unexpected("The number of poles must be positive.");
   }
 
   if (num_poles % 2 != 0) {
-    cerr << "The number of poles must be even." << endl;
-    return false;
+    return std::unexpected("The number of poles must be even.");
   }
 
   if (kv <= 0.0) {
-    cerr << "Kv value must be positive." << endl;
-    return false;
+    return std::unexpected("Kv value must be positive.");
   }
 
   if (internal_resistance <= 0.0) {
-    cerr << "Internal resistance must be positive." << endl;
-    return false;
+    return std::unexpected("Internal resistance must be positive.");
   }
 
   if (min_speed < 0.0) {
-    cerr << "Minimum rotation speed must be non-negative." << endl;
-    return false;
+    return std::unexpected("Minimum rotation speed must be non-negative.");
   }
 
   if (propeller_diameter <= 0.0) {
-    cerr << "Propeller diameter must be positive." << endl;
-    return false;
+    return std::unexpected("Propeller diameter must be positive.");
   }
 
   if (motor_const <= 0.0) {
-    cerr << "Motor constant must be positive." << endl;
-    return false;
+    return std::unexpected("Motor constant must be positive.");
   }
 
   if (moment_const <= 0.0) {
-    cerr << "Moment constant must be positive." << endl;
-    return false;
+    return std::unexpected("Moment constant must be positive.");
   }
 
-  return true;
+  return {};
 }
 
-bool ElectricRotorConfig::load(const YAML::Node& node)
+std::expected<void, std::string> ElectricRotorConfig::load(const YAML::Node& node)
 {
-  if (!super::load(node)) {
-    return false;
+  if (!node.IsDefined() || !node.IsMap()) {
+    return std::unexpected("Configuration node must be a map.");
   }
 
-  if (!yaml::load(kChannelKey, node, channel)) {
-    return false;
+  if (const auto result = super::load(node); !result) {
+    return result;
   }
 
-  if (!yaml::load(kNumPolesKey, node, num_poles)) {
-    return false;
+  if (const auto result = yaml::load(kChannelKey, node, channel); !result) {
+    return result;
   }
 
-  if (!yaml::load(kKvKey, node, kv)) {
-    return false;
+  if (const auto result = yaml::load(kNumPolesKey, node, num_poles); !result) {
+    return result;
   }
 
-  if (!yaml::load(kInternalResistanceKey, node, internal_resistance)) {
-    return false;
+  if (const auto result = yaml::load(kKvKey, node, kv); !result) {
+    return result;
   }
 
-  if (!yaml::load(kMinSpeed, node, min_speed)) {
-    return false;
+  if (const auto result = yaml::load(kInternalResistanceKey, node, internal_resistance); !result) {
+    return result;
   }
 
-  if (!yaml::load(kPropellerDiameterKey, node, propeller_diameter)) {
-    return false;
+  if (const auto result = yaml::load(kMinSpeed, node, min_speed); !result) {
+    return result;
   }
 
-  if (!yaml::load(kMotorConstKey, node, motor_const)) {
-    return false;
+  if (const auto result = yaml::load(kPropellerDiameterKey, node, propeller_diameter); !result) {
+    return result;
   }
 
-  if (!yaml::load(kMomentConstKey, node, moment_const)) {
-    return false;
+  if (const auto result = yaml::load(kMotorConstKey, node, motor_const); !result) {
+    return result;
   }
 
-  return true;
+  if (const auto result = yaml::load(kMomentConstKey, node, moment_const); !result) {
+    return result;
+  }
+
+  return {};
 }
 
 YAML::Node ElectricRotorConfig::dump() const

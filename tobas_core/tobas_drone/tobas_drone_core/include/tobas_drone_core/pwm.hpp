@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <expected>
 #include <map>
 #include <string>
 
@@ -13,19 +14,19 @@
 namespace tobas
 {
 class PwmConfig;
-using PwmConfigMap = std::map<std::string, PwmConfig>;  // Name -> PwmConfig
+using PwmConfigMap = std::map<std::string, PwmConfig>;
 
 class PwmConfig
 {
 public:
   uint32_t channel = 0;
   std::string name = "";
-  std::pair<double, double> period_range = { 1000, 2000 };  // [us]
-  std::pair<double, double> value_range = { 0, 0 };         // Range of values corresponding to PWM.
+  std::pair<double, double> period_range = { 1000, 2000 };  ///< [us]
+  std::pair<double, double> value_range = { 0, 0 };         ///< Range of values corresponding to PWM.
 
-  bool isValid() const;
+  std::expected<void, std::string> validate() const;
 
-  bool load(const YAML::Node& node);
+  std::expected<void, std::string> load(const YAML::Node& node);
   YAML::Node dump() const;
 
   inline double periodFromValue(double value) const;

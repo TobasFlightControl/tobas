@@ -19,13 +19,11 @@ class FlightLogWidget : public QWidget
   Q_OBJECT
 
   using self = FlightLogWidget;
-  using super = QWidget;
 
 public:
   explicit FlightLogWidget(const rqt::RosQtBridge& bridge);
 
   void reset();
-  void onProjectLoaded();
   void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
   void clearRosInterfaces();
 

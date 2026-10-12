@@ -20,7 +20,6 @@ class FrameTreeWidget : public QTreeWidget
   Q_OBJECT
 
   using self = FrameTreeWidget;
-  using super = QTreeWidget;
 
 public:
   explicit FrameTreeWidget(const kdl::Tree& tree, RvizWidget* rviz);
@@ -30,7 +29,7 @@ public:
 private Q_SLOTS:
   void onItemChanged(QTreeWidgetItem* ite);
 
-  /* Adjust column widths according to string length. */
+  /** Adjust column widths according to string length. */
   void resizeColumns();
 
 private:

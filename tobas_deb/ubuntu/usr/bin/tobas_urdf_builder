@@ -3,4 +3,4 @@
 set -e
 
 source /opt/ros/jazzy/setup.bash
-ros2 launch tobas_urdf_builder urdf_builder.launch.py
+exec ros2 launch tobas_urdf_builder urdf_builder.launch.py

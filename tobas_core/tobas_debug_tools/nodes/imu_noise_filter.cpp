@@ -11,9 +11,7 @@
 
 namespace tobas
 {
-/**
- * @brief Calculate IMU covariance online.
- */
+/** Calculate IMU covariance online. */
 class ImuNoiseFilter : public BaseNode
 {
   using self = ImuNoiseFilter;
@@ -23,7 +21,7 @@ public:
   explicit ImuNoiseFilter(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  static constexpr size_t kWindowSize = 400;  // 1 second at 400 Hz
+  static constexpr size_t kWindowSize = 400;  ///< 1 second at 400 Hz
   dsp::NoiseVarianceFilter<double, 3, kWindowSize> acc_noise_filter_;
   dsp::NoiseVarianceFilter<double, 3, kWindowSize> gyro_noise_filter_;
 

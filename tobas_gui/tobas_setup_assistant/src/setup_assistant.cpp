@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setup_assistant.hpp"
 
+#include <utility>
+
 #include <QDebug>
 #include <QFileInfo>
 #include <ament_index_cpp/get_package_share_directory.hpp>
@@ -13,18 +15,16 @@
 #include <tobas_gui_common/load_project_dialog.hpp>
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/version.hpp>
-#include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>
 #include <tobas_ros2_tools/package.hpp>
 #include <tobas_std_tools/check.hpp>
-#include <tobas_string_tools/stream.hpp>
 #include <tobas_urdf/exporter.hpp>
 #include <tobas_xml_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
+#include "tobas_setup_assistant/parse_xacro.hpp"
 #include "tobas_setup_assistant/save_project_dialog.hpp"
-#include "tobas_setup_assistant/xacro_parser.hpp"
 
 namespace fs = std::filesystem;
 
@@ -47,9 +47,6 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   , spinner_(Qt::WindowModal, this)
   , rotor_marker_publisher_(node, uadf_)
 {
-  // `--merge-install` is required to add the workspace install directory directly to the path.
-  colcon_.setMergeInstall(true);
-
   // Package manager
   proj_path_ = new QLineEdit();
   proj_path_->setReadOnly(true);
@@ -149,9 +146,7 @@ bool SetupAssistantWidget::resolveMeshPaths(const QString& config_pkg_path, tiny
 bool SetupAssistantWidget::updateInternalDataStructures()
 {
   // Update KDL objects.
-  if (!frame_type_detector_.updateInternalDataStructures()) {
-    return false;
-  }
+  frame_type_detector_.updateInternalDataStructures();
 
   // Update widgets.
   rotor_marker_publisher_.updateInternalDataStructures();
@@ -186,9 +181,9 @@ bool SetupAssistantWidget::updateInternalDataStructures()
 void SetupAssistantWidget::onNewButtonClicked()
 {
   // Get the previously opened path.
-  const auto default_dir = fs::path(ament_index_cpp::get_package_share_directory("tobas_description")) / "urdf";
-  const auto last_opened_dir =
-    settings_store_.value(kLastOpenedDirKey_New, QString::fromStdString(default_dir.string())).toString();
+  const auto default_pkg_share = ament_index_cpp::get_package_share_directory("tobas_description");
+  const auto default_dir = QDir(QString::fromStdString(default_pkg_share)).filePath("urdf");
+  const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey_New, default_dir).toString();
 
   // Get the UADF path.
   const auto uadf_path = QFileDialog::getOpenFileName(
@@ -220,11 +215,13 @@ void SetupAssistantWidget::onNewButtonClicked()
 
     qInfo().nospace() << "UADF is in ROS package " << pkg_name_qt << ". Building it.";
     spinner_.start();
-    const auto build_success = cmn::colconBuild(colcon_, pkg_path->c_str(), qt::expandUser(kColconWSPathHome));
+    // `--merge-install` is required to add the workspace install directory directly to the path.
+    const auto ws_path = qt::expandUser(kColconWSPathHome);
+    const auto build_result = cmn::colconBuild(pkg_path->c_str(), ws_path, { .merge_install = true });
     spinner_.stop();
 
-    if (!build_success) {
-      const auto error_msg = QString::fromStdString(colcon_.errorMessage());
+    if (!build_result) {
+      const auto& error_msg = build_result.error();
       if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
         qt::qErrorBox(this, "Failed to build '" + pkg_name_qt + "':\n\n" + error_msg);
       }
@@ -243,9 +240,9 @@ void SetupAssistantWidget::onNewButtonClicked()
   }
 
   // Parse XACRO.
-  std::string uadf_text;
-  if (!xacro_parser_.parseFromPath(uadf_path.toStdString(), uadf_text)) {
-    const auto error_msg = QString::fromStdString(xacro_parser_.getOutput());
+  const auto uadf_text = parseXacroFromPath(uadf_path);
+  if (!uadf_text) {
+    const auto& error_msg = uadf_text.error();
     if (error_msg.size() < cmn::kSaveLogTextSizeThresh) {
       qt::qErrorBox(this, "Failed to parse XACRO:\n\n" + error_msg);
     }
@@ -263,40 +260,42 @@ void SetupAssistantWidget::onNewButtonClicked()
   }
 
   // Load UADF.
-  if (!uadf_parser_.parseFromText(uadf_text, uadf_)) {
-    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+  const auto uadf = uadf_parser_.parseFromText(uadf_text->toStdString());
+  if (!uadf) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf.error()));
     reset();
     return;
   }
+  uadf_ = std::move(*uadf);
 
   // Load KDL tree.
-  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
-    qt::qErrorBox(
-      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
+  const auto tree = tree_parser_.parseFromUrdf(*uadf_.urdf);
+  if (!tree) {
+    qt::qErrorBox(this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree.error()));
     reset();
     return;
   }
+  tree_ = std::move(*tree);
 
   // Check model validity.
-  std::string error_msg;
-  if (!uadf_.valid()) {
-    qt::qErrorBox(this, "UADF is invalid.");  // TODO: Show a detailed error message.
+  if (const auto result = uadf_.validate(); !result) {
+    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(result.error()));
     reset();
     return;
   }
-  if (!tree_.isValid(error_msg)) {
-    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(error_msg));
+  if (const auto result = tree_.validate(); !result) {
+    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(result.error()));
     reset();
     return;
   }
 
-  // Update the internal state.
+  // Update the internal states.
   if (!updateInternalDataStructures()) {
     reset();
     return;
   }
 
-  // Return all settings to their default values.
+  // Reset all settings to defaults.
   settings_->setToDefaults();
 
   // Clear the project path.
@@ -369,34 +368,36 @@ void SetupAssistantWidget::onLoadButtonClicked()
   }
 
   // Load the backup UADF whose mesh paths are resolved.
-  if (!uadf_parser_.parseFromXml(&uadf_doc, uadf_)) {
-    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf_parser_.errorMessage()));
+  const auto uadf = uadf_parser_.parseFromXml(&uadf_doc);
+  if (!uadf) {
+    qt::qErrorBox(this, "Failed to parse UADF:\n\n" + QString::fromStdString(uadf.error()));
     reset();
     return;
   }
+  uadf_ = std::move(*uadf);
 
   // Load KDL tree.
-  if (!tree_parser_.parseFromUrdf(*uadf_.urdf, tree_)) {
-    qt::qErrorBox(
-      this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree_parser_.errorMessage()));
+  const auto tree = tree_parser_.parseFromUrdf(*uadf_.urdf);
+  if (!tree) {
+    qt::qErrorBox(this, "Failed to construct KDL tree from URDF:\n\n" + QString::fromStdString(tree.error()));
     reset();
     return;
   }
+  tree_ = std::move(*tree);
 
   // Check model validity.
-  std::string error_msg;
-  if (!uadf_.valid()) {
-    qt::qErrorBox(this, "UADF is invalid.");  // TODO: Show a detailed error message.
+  if (const auto result = uadf_.validate(); !result) {
+    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(result.error()));
     reset();
     return;
   }
-  if (!tree_.isValid(error_msg)) {
-    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(error_msg));
+  if (const auto result = tree_.validate(); !result) {
+    qt::qErrorBox(this, "UADF is invalid: " + QString::fromStdString(result.error()));
     reset();
     return;
   }
 
-  // Update the internal state.
+  // Update the internal states.
   if (!updateInternalDataStructures()) {
     reset();
     return;
@@ -406,13 +407,16 @@ void SetupAssistantWidget::onLoadButtonClicked()
   const auto settings_path = proj_paths.backupSettingsPath();
   const auto node = yaml::load(settings_path.toStdString());
   if (!node) {
-    qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas project.");
+    qt::qErrorBox(this, "Failed to load the user settings file. Please create a new Tobas project.");
     reset();
     return;
   }
 
+  // Reset all settings to defaults before applying user settings.
+  settings_->setToDefaults();
+
   // Apply user settings to widgets.
-  // Do not reset even if this fails.
+  // Do not reset settings even if this fails.
   if (settings_->load(*node)) {
     qt::qInfoBox(this, "Tobas project has been loaded successfully.");
   }
@@ -445,6 +449,11 @@ void SetupAssistantWidget::onSaveButtonClicked()
 
 void SetupAssistantWidget::onSaveAsButtonClicked()
 {
+  // Check whether user settings have any problems.
+  if (!settings_->isValid()) {
+    return;
+  }
+
   // Get the previously opened path.
   const auto default_dir = qt::expandUser(kColconWSPathHome) + "/src";
   TOBAS_CHECK(QDir().mkpath(default_dir));

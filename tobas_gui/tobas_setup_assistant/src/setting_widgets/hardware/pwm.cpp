@@ -282,7 +282,7 @@ void PwmWidget::removeLastChannel()
   }
 }
 
-void PwmWidget::onPropulsionTypeChanged(const PropulsionSystem& new_prop_type)
+void PwmWidget::onPropulsionTypeChanged(PropulsionSystem new_prop_type)
 {
   if (new_prop_type == prop_type_) {
     return;

@@ -3,9 +3,6 @@
 
 #include "tobas_flight_log_gui/log_viewer/plots/joint_velocity_plot.hpp"
 
-#include <ranges>
-
-#include <tobas_qt_tools/util.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
 namespace tobas

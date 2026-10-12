@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <optional>
 #include <string>
 
 #include <gz/sim/Entity.hh>
@@ -13,7 +12,7 @@ namespace tobas
 {
 namespace gazebo
 {
-/* Get the component directly under an entity. Create a new one if it does not exist. */
+/** Get the component directly under an entity. Create a new one if it does not exist. */
 template <typename CompType>
 CompType* getComponent(const gz::sim::Entity& entity, gz::sim::EntityComponentManager& ecm)
 {
@@ -27,7 +26,6 @@ CompType* getComponent(const gz::sim::Entity& entity, gz::sim::EntityComponentMa
 
 bool belongsTo(const gz::sim::Entity& entity, const gz::sim::Entity& target, const gz::sim::EntityComponentManager& ecm);
 
-std::optional<gz::sim::Entity>
-findJointWithChildLink(const gz::sim::EntityComponentManager& ecm, const std::string& link_name);
+gz::sim::Entity findJointWithChildLink(const gz::sim::EntityComponentManager& ecm, const std::string& link_name);
 }  // namespace gazebo
 }  // namespace tobas

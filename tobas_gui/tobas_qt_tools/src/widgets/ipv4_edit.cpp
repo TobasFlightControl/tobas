@@ -3,7 +3,6 @@
 
 #include "tobas_qt_tools/widgets/ipv4_edit.hpp"
 
-#include <QDebug>
 #include <QEvent>
 #include <QHBoxLayout>
 #include <QLabel>

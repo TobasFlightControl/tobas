@@ -21,10 +21,10 @@ class IntSliderDisplay : public QWidget
   using super = QWidget;
 
 Q_SIGNALS:
-  void valueChanged(int value);
+  void valueChanged(int _value);
 
 public:
-  explicit IntSliderDisplay(QWidget* parent = nullptr);
+  explicit IntSliderDisplay(QWidget* _parent = nullptr);
 
   int getValue() const;
   int getMinimum() const;
@@ -32,12 +32,12 @@ public:
   QString getText() const;
   QString getSuffix() const;
 
-  void setValue(int value, bool block_signal = false);
-  void setMinimum(int minimum);
-  void setMaximum(int maximum);
-  void setRange(int minimum, int maximum);
-  void setText(const QString& text);
-  void setSuffix(const QString& suffix);
+  void setValue(int _value, bool _block_signal = false);
+  void setMinimum(int _minimum);
+  void setMaximum(int _maximum);
+  void setRange(int _minimum, int _maximum);
+  void setText(const QString& _text);
+  void setSuffix(const QString& _suffix);
 
 private:
   QString suffix_;
@@ -46,10 +46,10 @@ private:
   QLineEdit* value_;
   Slider* slider_;
 
-  void updateValueText(int value);
+  void updateValueText(int _value);
 
 private Q_SLOTS:
-  void onSliderValueChanged(int value);
+  void onSliderValueChanged(int _value);
 };
 
 class DoubleSliderDisplay : public QWidget
@@ -60,10 +60,10 @@ class DoubleSliderDisplay : public QWidget
   using super = QWidget;
 
 Q_SIGNALS:
-  void valueChanged(double value);
+  void valueChanged(double _value);
 
 public:
-  explicit DoubleSliderDisplay(QWidget* parent = nullptr);
+  explicit DoubleSliderDisplay(QWidget* _parent = nullptr);
 
   double getValue() const;
   double getMinimum() const;
@@ -72,13 +72,13 @@ public:
   QString getSuffix() const;
   int getDecimals() const;
 
-  void setValue(double value, bool block_signal = false);
-  void setMinimum(double minimum);
-  void setMaximum(double maximum);
-  void setRange(double minimum, double maximum);
-  void setText(const QString& text);
-  void setSuffix(const QString& suffix);
-  void setDecimals(int decimals);
+  void setValue(double _value, bool _block_signal = false);
+  void setMinimum(double _minimum);
+  void setMaximum(double _maximum);
+  void setRange(double _minimum, double _maximum);
+  void setText(const QString& _text);
+  void setSuffix(const QString& _suffix);
+  void setDecimals(int _decimals);
 
 private:
   QString suffix_;
@@ -88,10 +88,10 @@ private:
   QLineEdit* value_;
   DoubleSlider* slider_;
 
-  void updateValueText(double value);
+  void updateValueText(double _value);
 
 private Q_SLOTS:
-  void onSliderValueChanged(double value);
+  void onSliderValueChanged(double _value);
 };
 }  // namespace qt
 }  // namespace tobas

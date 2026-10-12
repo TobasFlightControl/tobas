@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <QProcess>
 #include <QString>
 #include <QTimer>
@@ -18,6 +20,8 @@ struct DiscoveredFlightController
 {
   QString hostname;
   QString address;
+  std::optional<QString> drone;
+  std::optional<QString> id;
 };
 
 class FlightControllerScanner : public QObject

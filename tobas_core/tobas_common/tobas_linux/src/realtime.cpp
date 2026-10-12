@@ -9,7 +9,7 @@
 #include <cstring>
 #include <iostream>
 
-#include "tobas_linux/error.hpp"
+#include <tobas_std_tools/error.hpp>
 
 namespace tobas
 {
@@ -22,7 +22,7 @@ bool setThreadPriority(pthread_t thread, size_t priority, sched_t policy)
   param.sched_priority = priority;
 
   if (pthread_setschedparam(thread, policy, &param) != 0) {
-    std::cerr << "Failed to set scheduling policy: " << strError() << std::endl;
+    std::cerr << "Failed to set scheduling policy: " << st::strError() << std::endl;
     return false;
   }
 
@@ -36,7 +36,7 @@ bool setProcessPriority(pid_t pid, size_t priority, sched_t policy)
   param.sched_priority = priority;
 
   if (sched_setscheduler(pid, policy, &param) != 0) {
-    std::cerr << "Failed to set scheduling policy: " << strError() << std::endl;
+    std::cerr << "Failed to set scheduling policy: " << st::strError() << std::endl;
     return false;
   }
 
@@ -62,7 +62,7 @@ bool setThreadCPUAffinity(pthread_t thread, uint32_t cpu_bit_mask)
   }
 
   if (pthread_setaffinity_np(thread, sizeof(set), &set) != 0) {
-    std::cerr << "Failed to set CPU affinity: " << strError() << std::endl;
+    std::cerr << "Failed to set CPU affinity: " << st::strError() << std::endl;
     return false;
   }
 
@@ -83,7 +83,7 @@ bool setProcessCPUAffinity(pid_t pid, uint32_t cpu_bit_mask)
   }
 
   if (sched_setaffinity(pid, sizeof(set), &set) != 0) {
-    std::cerr << "Failed to set CPU affinity: " << strError() << std::endl;
+    std::cerr << "Failed to set CPU affinity: " << st::strError() << std::endl;
     return false;
   }
 
