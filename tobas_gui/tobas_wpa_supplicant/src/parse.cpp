@@ -3,6 +3,7 @@
 
 #include "tobas_wpa_supplicant/parse.hpp"
 
+#include <expected>
 #include <stdexcept>
 
 #include <tobas_string_tools/core.hpp>
@@ -15,973 +16,731 @@ namespace wpa
 {
 namespace
 {
-bool parseCountryCode(const std::string& src, CountryCode& dst)
+std::expected<CountryCode, std::string> parseCountryCode(const std::string& _src)
 {
-  if (src == country_code::Afghanistan) {
-    dst = CountryCode::AF;
-    return true;
-  }
-  else if (src == country_code::Albania) {
-    dst = CountryCode::AL;
-    return true;
-  }
-  else if (src == country_code::Algeria) {
-    dst = CountryCode::DZ;
-    return true;
-  }
-  else if (src == country_code::American_Samoa) {
-    dst = CountryCode::AS;
-    return true;
-  }
-  else if (src == country_code::Andorra) {
-    dst = CountryCode::AD;
-    return true;
-  }
-  else if (src == country_code::Angola) {
-    dst = CountryCode::AO;
-    return true;
-  }
-  else if (src == country_code::Anguilla) {
-    dst = CountryCode::AI;
-    return true;
-  }
-  else if (src == country_code::Antarctica) {
-    dst = CountryCode::AQ;
-    return true;
-  }
-  else if (src == country_code::Antigua_and_Barbuda) {
-    dst = CountryCode::AG;
-    return true;
-  }
-  else if (src == country_code::Argentina) {
-    dst = CountryCode::AR;
-    return true;
-  }
-  else if (src == country_code::Armenia) {
-    dst = CountryCode::AM;
-    return true;
-  }
-  else if (src == country_code::Aruba) {
-    dst = CountryCode::AW;
-    return true;
-  }
-  else if (src == country_code::Australia) {
-    dst = CountryCode::AU;
-    return true;
-  }
-  else if (src == country_code::Austria) {
-    dst = CountryCode::AT;
-    return true;
-  }
-  else if (src == country_code::Azerbaijan) {
-    dst = CountryCode::AZ;
-    return true;
-  }
-  else if (src == country_code::Bahamas) {
-    dst = CountryCode::BS;
-    return true;
-  }
-  else if (src == country_code::Bahrain) {
-    dst = CountryCode::BH;
-    return true;
-  }
-  else if (src == country_code::Bangladesh) {
-    dst = CountryCode::BD;
-    return true;
-  }
-  else if (src == country_code::Barbados) {
-    dst = CountryCode::BB;
-    return true;
-  }
-  else if (src == country_code::Belarus) {
-    dst = CountryCode::BY;
-    return true;
-  }
-  else if (src == country_code::Belgium) {
-    dst = CountryCode::BE;
-    return true;
-  }
-  else if (src == country_code::Belize) {
-    dst = CountryCode::BZ;
-    return true;
-  }
-  else if (src == country_code::Benin) {
-    dst = CountryCode::BJ;
-    return true;
-  }
-  else if (src == country_code::Bermuda) {
-    dst = CountryCode::BM;
-    return true;
-  }
-  else if (src == country_code::Bhutan) {
-    dst = CountryCode::BT;
-    return true;
-  }
-  else if (src == country_code::Bolivia) {
-    dst = CountryCode::BO;
-    return true;
-  }
-  else if (src == country_code::Bosnia_and_Herzegovina) {
-    dst = CountryCode::BA;
-    return true;
-  }
-  else if (src == country_code::Botswana) {
-    dst = CountryCode::BW;
-    return true;
-  }
-  else if (src == country_code::Brazil) {
-    dst = CountryCode::BR;
-    return true;
-  }
-  else if (src == country_code::British_Indian_OceanTerritory) {
-    dst = CountryCode::IO;
-    return true;
-  }
-  else if (src == country_code::British_Virgin_Islands) {
-    dst = CountryCode::VG;
-    return true;
-  }
-  else if (src == country_code::Brunei) {
-    dst = CountryCode::BN;
-    return true;
-  }
-  else if (src == country_code::Bulgaria) {
-    dst = CountryCode::BG;
-    return true;
-  }
-  else if (src == country_code::Burkina_Faso) {
-    dst = CountryCode::BF;
-    return true;
-  }
-  else if (src == country_code::Burundi) {
-    dst = CountryCode::BI;
-    return true;
-  }
-  else if (src == country_code::Cambodia) {
-    dst = CountryCode::KH;
-    return true;
-  }
-  else if (src == country_code::Cameroon) {
-    dst = CountryCode::CM;
-    return true;
-  }
-  else if (src == country_code::Canad) {
-    dst = CountryCode::CA;
-    return true;
-  }
-  else if (src == country_code::Cape_Verde) {
-    dst = CountryCode::CV;
-    return true;
-  }
-  else if (src == country_code::Cayman_Islands) {
-    dst = CountryCode::KY;
-    return true;
-  }
-  else if (src == country_code::Central_African_Republic) {
-    dst = CountryCode::CF;
-    return true;
-  }
-  else if (src == country_code::Chad) {
-    dst = CountryCode::TD;
-    return true;
-  }
-  else if (src == country_code::Chile) {
-    dst = CountryCode::CL;
-    return true;
-  }
-  else if (src == country_code::China) {
-    dst = CountryCode::CN;
-    return true;
-  }
-  else if (src == country_code::Christmas_Island) {
-    dst = CountryCode::CX;
-    return true;
-  }
-  else if (src == country_code::Cocos_Islands) {
-    dst = CountryCode::CC;
-    return true;
-  }
-  else if (src == country_code::Colombia) {
-    dst = CountryCode::CO;
-    return true;
-  }
-  else if (src == country_code::Comoros) {
-    dst = CountryCode::KM;
-    return true;
-  }
-  else if (src == country_code::Cook_Islands) {
-    dst = CountryCode::CK;
-    return true;
-  }
-  else if (src == country_code::Costa_Rica) {
-    dst = CountryCode::CR;
-    return true;
-  }
-  else if (src == country_code::Croatia) {
-    dst = CountryCode::HR;
-    return true;
-  }
-  else if (src == country_code::Cuba) {
-    dst = CountryCode::CU;
-    return true;
-  }
-  else if (src == country_code::Curacao) {
-    dst = CountryCode::CW;
-    return true;
-  }
-  else if (src == country_code::Cyprus) {
-    dst = CountryCode::CY;
-    return true;
-  }
-  else if (src == country_code::Czech_Republic) {
-    dst = CountryCode::CZ;
-    return true;
-  }
-  else if (src == country_code::Democratic_Republic_of_the_Congo) {
-    dst = CountryCode::CD;
-    return true;
-  }
-  else if (src == country_code::Denmark) {
-    dst = CountryCode::DK;
-    return true;
-  }
-  else if (src == country_code::Djibouti) {
-    dst = CountryCode::DJ;
-    return true;
-  }
-  else if (src == country_code::Dominica) {
-    dst = CountryCode::DM;
-    return true;
-  }
-  else if (src == country_code::Dominican_Republic) {
-    dst = CountryCode::DO;
-    return true;
-  }
-  else if (src == country_code::East_Timor) {
-    dst = CountryCode::TL;
-    return true;
-  }
-  else if (src == country_code::Ecuador) {
-    dst = CountryCode::EC;
-    return true;
-  }
-  else if (src == country_code::Egypt) {
-    dst = CountryCode::EG;
-    return true;
-  }
-  else if (src == country_code::El_Salvador) {
-    dst = CountryCode::SV;
-    return true;
-  }
-  else if (src == country_code::Equatorial_Guinea) {
-    dst = CountryCode::GQ;
-    return true;
-  }
-  else if (src == country_code::Eritrea) {
-    dst = CountryCode::ER;
-    return true;
-  }
-  else if (src == country_code::Estonia) {
-    dst = CountryCode::EE;
-    return true;
-  }
-  else if (src == country_code::Ethiopia) {
-    dst = CountryCode::ET;
-    return true;
-  }
-  else if (src == country_code::Falkland_Islands) {
-    dst = CountryCode::FK;
-    return true;
-  }
-  else if (src == country_code::Faroe_Islands) {
-    dst = CountryCode::FO;
-    return true;
-  }
-  else if (src == country_code::Fiji) {
-    dst = CountryCode::FJ;
-    return true;
-  }
-  else if (src == country_code::Finland) {
-    dst = CountryCode::FI;
-    return true;
-  }
-  else if (src == country_code::France) {
-    dst = CountryCode::FR;
-    return true;
-  }
-  else if (src == country_code::French_Polynesia) {
-    dst = CountryCode::PF;
-    return true;
-  }
-  else if (src == country_code::Gabon) {
-    dst = CountryCode::GA;
-    return true;
-  }
-  else if (src == country_code::Gambia) {
-    dst = CountryCode::GM;
-    return true;
-  }
-  else if (src == country_code::Georgia) {
-    dst = CountryCode::GE;
-    return true;
-  }
-  else if (src == country_code::Germany) {
-    dst = CountryCode::DE;
-    return true;
-  }
-  else if (src == country_code::Ghana) {
-    dst = CountryCode::GH;
-    return true;
-  }
-  else if (src == country_code::Gibraltar) {
-    dst = CountryCode::GI;
-    return true;
-  }
-  else if (src == country_code::Greece) {
-    dst = CountryCode::GR;
-    return true;
-  }
-  else if (src == country_code::Greenland) {
-    dst = CountryCode::GL;
-    return true;
-  }
-  else if (src == country_code::Grenada) {
-    dst = CountryCode::GD;
-    return true;
-  }
-  else if (src == country_code::Guam) {
-    dst = CountryCode::GU;
-    return true;
-  }
-  else if (src == country_code::Guatemala) {
-    dst = CountryCode::GT;
-    return true;
-  }
-  else if (src == country_code::Guernsey) {
-    dst = CountryCode::GG;
-    return true;
-  }
-  else if (src == country_code::Guinea) {
-    dst = CountryCode::GN;
-    return true;
-  }
-  else if (src == country_code::Guinea_Bissau) {
-    dst = CountryCode::GW;
-    return true;
-  }
-  else if (src == country_code::Guyana) {
-    dst = CountryCode::GY;
-    return true;
-  }
-  else if (src == country_code::Haiti) {
-    dst = CountryCode::HT;
-    return true;
-  }
-  else if (src == country_code::Honduras) {
-    dst = CountryCode::HN;
-    return true;
-  }
-  else if (src == country_code::Hong_Kong) {
-    dst = CountryCode::HK;
-    return true;
-  }
-  else if (src == country_code::Hungary) {
-    dst = CountryCode::HU;
-    return true;
-  }
-  else if (src == country_code::Iceland) {
-    dst = CountryCode::IS;
-    return true;
-  }
-  else if (src == country_code::India) {
-    dst = CountryCode::IN;
-    return true;
-  }
-  else if (src == country_code::Indonesia) {
-    dst = CountryCode::ID;
-    return true;
-  }
-  else if (src == country_code::Iran) {
-    dst = CountryCode::IR;
-    return true;
-  }
-  else if (src == country_code::Iraq) {
-    dst = CountryCode::IQ;
-    return true;
-  }
-  else if (src == country_code::Ireland) {
-    dst = CountryCode::IE;
-    return true;
-  }
-  else if (src == country_code::Isle_of_Man) {
-    dst = CountryCode::IM;
-    return true;
-  }
-  else if (src == country_code::Israel) {
-    dst = CountryCode::IL;
-    return true;
-  }
-  else if (src == country_code::Italy) {
-    dst = CountryCode::IT;
-    return true;
-  }
-  else if (src == country_code::Ivory_Coast) {
-    dst = CountryCode::CI;
-    return true;
-  }
-  else if (src == country_code::Jamaica) {
-    dst = CountryCode::JM;
-    return true;
-  }
-  else if (src == country_code::Japan) {
-    dst = CountryCode::JP;
-    return true;
-  }
-  else if (src == country_code::Jersey) {
-    dst = CountryCode::JE;
-    return true;
-  }
-  else if (src == country_code::Jordan) {
-    dst = CountryCode::JO;
-    return true;
-  }
-  else if (src == country_code::Kazakhsta) {
-    dst = CountryCode::KZ;
-    return true;
-  }
-  else if (src == country_code::Kenya) {
-    dst = CountryCode::KE;
-    return true;
-  }
-  else if (src == country_code::Kiribati) {
-    dst = CountryCode::KI;
-    return true;
-  }
-  else if (src == country_code::Kosovo) {
-    dst = CountryCode::XK;
-    return true;
-  }
-  else if (src == country_code::Kuwait) {
-    dst = CountryCode::KW;
-    return true;
-  }
-  else if (src == country_code::Kyrgyzstan) {
-    dst = CountryCode::KG;
-    return true;
-  }
-  else if (src == country_code::Laos) {
-    dst = CountryCode::LA;
-    return true;
-  }
-  else if (src == country_code::Latvia) {
-    dst = CountryCode::LV;
-    return true;
-  }
-  else if (src == country_code::Lebanon) {
-    dst = CountryCode::LB;
-    return true;
-  }
-  else if (src == country_code::Lesotho) {
-    dst = CountryCode::LS;
-    return true;
-  }
-  else if (src == country_code::Liberia) {
-    dst = CountryCode::LR;
-    return true;
-  }
-  else if (src == country_code::Libya) {
-    dst = CountryCode::LY;
-    return true;
-  }
-  else if (src == country_code::Liechtenstein) {
-    dst = CountryCode::LI;
-    return true;
-  }
-  else if (src == country_code::Lithuania) {
-    dst = CountryCode::LT;
-    return true;
-  }
-  else if (src == country_code::Luxembourg) {
-    dst = CountryCode::LU;
-    return true;
-  }
-  else if (src == country_code::Macau) {
-    dst = CountryCode::MO;
-    return true;
-  }
-  else if (src == country_code::Macedonia) {
-    dst = CountryCode::MK;
-    return true;
-  }
-  else if (src == country_code::Madagascar) {
-    dst = CountryCode::MG;
-    return true;
-  }
-  else if (src == country_code::Malawi) {
-    dst = CountryCode::MW;
-    return true;
-  }
-  else if (src == country_code::Malaysia) {
-    dst = CountryCode::MY;
-    return true;
-  }
-  else if (src == country_code::Maldives) {
-    dst = CountryCode::MV;
-    return true;
-  }
-  else if (src == country_code::Mali) {
-    dst = CountryCode::ML;
-    return true;
-  }
-  else if (src == country_code::Malta) {
-    dst = CountryCode::MT;
-    return true;
-  }
-  else if (src == country_code::Marshall_Islands) {
-    dst = CountryCode::MH;
-    return true;
-  }
-  else if (src == country_code::Mauritania) {
-    dst = CountryCode::MR;
-    return true;
-  }
-  else if (src == country_code::Mauritius) {
-    dst = CountryCode::MU;
-    return true;
-  }
-  else if (src == country_code::Mayotte) {
-    dst = CountryCode::YT;
-    return true;
-  }
-  else if (src == country_code::Mexico) {
-    dst = CountryCode::MX;
-    return true;
-  }
-  else if (src == country_code::Micronesia) {
-    dst = CountryCode::FM;
-    return true;
-  }
-  else if (src == country_code::Moldova) {
-    dst = CountryCode::MD;
-    return true;
-  }
-  else if (src == country_code::Monaco) {
-    dst = CountryCode::MC;
-    return true;
-  }
-  else if (src == country_code::Mongolia) {
-    dst = CountryCode::MN;
-    return true;
-  }
-  else if (src == country_code::Montenegro) {
-    dst = CountryCode::ME;
-    return true;
-  }
-  else if (src == country_code::Montserrat) {
-    dst = CountryCode::MS;
-    return true;
-  }
-  else if (src == country_code::Morocco) {
-    dst = CountryCode::MA;
-    return true;
-  }
-  else if (src == country_code::Mozambique) {
-    dst = CountryCode::MZ;
-    return true;
-  }
-  else if (src == country_code::Myanmar) {
-    dst = CountryCode::MM;
-    return true;
-  }
-  else if (src == country_code::Namibia) {
-    dst = CountryCode::NA;
-    return true;
-  }
-  else if (src == country_code::Nauru) {
-    dst = CountryCode::NR;
-    return true;
-  }
-  else if (src == country_code::Nepal) {
-    dst = CountryCode::NP;
-    return true;
-  }
-  else if (src == country_code::Netherlands) {
-    dst = CountryCode::NL;
-    return true;
-  }
-  else if (src == country_code::Netherlands_Antilles) {
-    dst = CountryCode::AN;
-    return true;
-  }
-  else if (src == country_code::New_Caledonia) {
-    dst = CountryCode::NC;
-    return true;
-  }
-  else if (src == country_code::New_Zealand) {
-    dst = CountryCode::NZ;
-    return true;
-  }
-  else if (src == country_code::Nicaragua) {
-    dst = CountryCode::NI;
-    return true;
-  }
-  else if (src == country_code::Niger) {
-    dst = CountryCode::NE;
-    return true;
-  }
-  else if (src == country_code::Nigeria) {
-    dst = CountryCode::NG;
-    return true;
-  }
-  else if (src == country_code::Niue) {
-    dst = CountryCode::NU;
-    return true;
-  }
-  else if (src == country_code::North_Korea) {
-    dst = CountryCode::KP;
-    return true;
-  }
-  else if (src == country_code::Northern_Mariana_Islands) {
-    dst = CountryCode::MP;
-    return true;
-  }
-  else if (src == country_code::Norway) {
-    dst = CountryCode::NO;
-    return true;
-  }
-  else if (src == country_code::Oman) {
-    dst = CountryCode::OM;
-    return true;
-  }
-  else if (src == country_code::Pakistan) {
-    dst = CountryCode::PK;
-    return true;
-  }
-  else if (src == country_code::Palau) {
-    dst = CountryCode::PW;
-    return true;
-  }
-  else if (src == country_code::Palestine) {
-    dst = CountryCode::PS;
-    return true;
-  }
-  else if (src == country_code::Panama) {
-    dst = CountryCode::PA;
-    return true;
-  }
-  else if (src == country_code::Papua_New_Guinea) {
-    dst = CountryCode::PG;
-    return true;
-  }
-  else if (src == country_code::Paraguay) {
-    dst = CountryCode::PY;
-    return true;
-  }
-  else if (src == country_code::Peru) {
-    dst = CountryCode::PE;
-    return true;
-  }
-  else if (src == country_code::Philippines) {
-    dst = CountryCode::PH;
-    return true;
-  }
-  else if (src == country_code::Pitcairn) {
-    dst = CountryCode::PN;
-    return true;
-  }
-  else if (src == country_code::Poland) {
-    dst = CountryCode::PL;
-    return true;
-  }
-  else if (src == country_code::Portugal) {
-    dst = CountryCode::PT;
-    return true;
-  }
-  else if (src == country_code::Puerto_Rico) {
-    dst = CountryCode::PR;
-    return true;
-  }
-  else if (src == country_code::Qatar) {
-    dst = CountryCode::QA;
-    return true;
-  }
-  else if (src == country_code::Republic_of_the_Congo) {
-    dst = CountryCode::CG;
-    return true;
-  }
-  else if (src == country_code::Reunion) {
-    dst = CountryCode::RE;
-    return true;
-  }
-  else if (src == country_code::Romania) {
-    dst = CountryCode::RO;
-    return true;
-  }
-  else if (src == country_code::Russi) {
-    dst = CountryCode::RU;
-    return true;
-  }
-  else if (src == country_code::Rwanda) {
-    dst = CountryCode::RW;
-    return true;
-  }
-  else if (src == country_code::Saint_Barthelemy) {
-    dst = CountryCode::BL;
-    return true;
-  }
-  else if (src == country_code::Saint_Helena) {
-    dst = CountryCode::SH;
-    return true;
-  }
-  else if (src == country_code::Saint_Kitts_and_Nevis) {
-    dst = CountryCode::KN;
-    return true;
-  }
-  else if (src == country_code::Saint_Lucia) {
-    dst = CountryCode::LC;
-    return true;
-  }
-  else if (src == country_code::Saint_Martin) {
-    dst = CountryCode::MF;
-    return true;
-  }
-  else if (src == country_code::Saint_Pierre_and_Miquelon) {
-    dst = CountryCode::PM;
-    return true;
-  }
-  else if (src == country_code::Saint_Vincent_and_the_Grenadines) {
-    dst = CountryCode::VC;
-    return true;
-  }
-  else if (src == country_code::Samoa) {
-    dst = CountryCode::WS;
-    return true;
-  }
-  else if (src == country_code::San_Marino) {
-    dst = CountryCode::SM;
-    return true;
-  }
-  else if (src == country_code::Sao_Tome_and_Principe) {
-    dst = CountryCode::ST;
-    return true;
-  }
-  else if (src == country_code::Saudi_Arabia) {
-    dst = CountryCode::SA;
-    return true;
-  }
-  else if (src == country_code::Senegal) {
-    dst = CountryCode::SN;
-    return true;
-  }
-  else if (src == country_code::Serbia) {
-    dst = CountryCode::RS;
-    return true;
-  }
-  else if (src == country_code::Seychelles) {
-    dst = CountryCode::SC;
-    return true;
-  }
-  else if (src == country_code::Sierra_Leone) {
-    dst = CountryCode::SL;
-    return true;
-  }
-  else if (src == country_code::Singapore) {
-    dst = CountryCode::SG;
-    return true;
-  }
-  else if (src == country_code::Sint_Maarten) {
-    dst = CountryCode::SX;
-    return true;
-  }
-  else if (src == country_code::Slovakia) {
-    dst = CountryCode::SK;
-    return true;
-  }
-  else if (src == country_code::Slovenia) {
-    dst = CountryCode::SI;
-    return true;
-  }
-  else if (src == country_code::Solomon_Islands) {
-    dst = CountryCode::SB;
-    return true;
-  }
-  else if (src == country_code::Somalia) {
-    dst = CountryCode::SO;
-    return true;
-  }
-  else if (src == country_code::South_Africa) {
-    dst = CountryCode::ZA;
-    return true;
-  }
-  else if (src == country_code::South_Korea) {
-    dst = CountryCode::KR;
-    return true;
-  }
-  else if (src == country_code::South_Sudan) {
-    dst = CountryCode::SS;
-    return true;
-  }
-  else if (src == country_code::Spain) {
-    dst = CountryCode::ES;
-    return true;
-  }
-  else if (src == country_code::Sri_Lanka) {
-    dst = CountryCode::LK;
-    return true;
-  }
-  else if (src == country_code::Sudan) {
-    dst = CountryCode::SD;
-    return true;
-  }
-  else if (src == country_code::Suriname) {
-    dst = CountryCode::SR;
-    return true;
-  }
-  else if (src == country_code::Svalbard_and_Jan_Mayen) {
-    dst = CountryCode::SJ;
-    return true;
-  }
-  else if (src == country_code::Swaziland) {
-    dst = CountryCode::SZ;
-    return true;
-  }
-  else if (src == country_code::Sweden) {
-    dst = CountryCode::SE;
-    return true;
-  }
-  else if (src == country_code::Switzerland) {
-    dst = CountryCode::CH;
-    return true;
-  }
-  else if (src == country_code::Syria) {
-    dst = CountryCode::SY;
-    return true;
-  }
-  else if (src == country_code::Taiwan) {
-    dst = CountryCode::TW;
-    return true;
-  }
-  else if (src == country_code::Tajikistan) {
-    dst = CountryCode::TJ;
-    return true;
-  }
-  else if (src == country_code::Tanzania) {
-    dst = CountryCode::TZ;
-    return true;
-  }
-  else if (src == country_code::Thailand) {
-    dst = CountryCode::TH;
-    return true;
-  }
-  else if (src == country_code::Togo) {
-    dst = CountryCode::TG;
-    return true;
-  }
-  else if (src == country_code::Tokelau) {
-    dst = CountryCode::TK;
-    return true;
-  }
-  else if (src == country_code::Tonga) {
-    dst = CountryCode::TO;
-    return true;
-  }
-  else if (src == country_code::Trinidad_and_Tobago) {
-    dst = CountryCode::TT;
-    return true;
-  }
-  else if (src == country_code::Tunisia) {
-    dst = CountryCode::TN;
-    return true;
-  }
-  else if (src == country_code::Turkey) {
-    dst = CountryCode::TR;
-    return true;
-  }
-  else if (src == country_code::Turkmenistan) {
-    dst = CountryCode::TM;
-    return true;
-  }
-  else if (src == country_code::Turks_and_Caicos_Islands) {
-    dst = CountryCode::TC;
-    return true;
-  }
-  else if (src == country_code::Tuvalu) {
-    dst = CountryCode::TV;
-    return true;
-  }
-  else if (src == country_code::US_Virgin_Islands) {
-    dst = CountryCode::VI;
-    return true;
-  }
-  else if (src == country_code::Uganda) {
-    dst = CountryCode::UG;
-    return true;
-  }
-  else if (src == country_code::Ukraine) {
-    dst = CountryCode::UA;
-    return true;
-  }
-  else if (src == country_code::United_Arab_Emirates) {
-    dst = CountryCode::AE;
-    return true;
-  }
-  else if (src == country_code::United_Kingdom) {
-    dst = CountryCode::GB;
-    return true;
-  }
-  else if (src == country_code::United_State) {
-    dst = CountryCode::US;
-    return true;
-  }
-  else if (src == country_code::Uruguay) {
-    dst = CountryCode::UY;
-    return true;
-  }
-  else if (src == country_code::Uzbekistan) {
-    dst = CountryCode::UZ;
-    return true;
-  }
-  else if (src == country_code::Vanuatu) {
-    dst = CountryCode::VU;
-    return true;
-  }
-  else if (src == country_code::Vatican) {
-    dst = CountryCode::VA;
-    return true;
-  }
-  else if (src == country_code::Venezuela) {
-    dst = CountryCode::VE;
-    return true;
-  }
-  else if (src == country_code::Vietnam) {
-    dst = CountryCode::VN;
-    return true;
-  }
-  else if (src == country_code::Wallis_and_Futuna) {
-    dst = CountryCode::WF;
-    return true;
-  }
-  else if (src == country_code::Western_Sahara) {
-    dst = CountryCode::EH;
-    return true;
-  }
-  else if (src == country_code::Yemen) {
-    dst = CountryCode::YE;
-    return true;
-  }
-  else if (src == country_code::Zambia) {
-    dst = CountryCode::ZM;
-    return true;
-  }
-  else if (src == country_code::Zimbabwe) {
-    dst = CountryCode::ZW;
-    return true;
+  if (_src == country_code::Afghanistan) {
+    return CountryCode::AF;
+  }
+  else if (_src == country_code::Albania) {
+    return CountryCode::AL;
+  }
+  else if (_src == country_code::Algeria) {
+    return CountryCode::DZ;
+  }
+  else if (_src == country_code::American_Samoa) {
+    return CountryCode::AS;
+  }
+  else if (_src == country_code::Andorra) {
+    return CountryCode::AD;
+  }
+  else if (_src == country_code::Angola) {
+    return CountryCode::AO;
+  }
+  else if (_src == country_code::Anguilla) {
+    return CountryCode::AI;
+  }
+  else if (_src == country_code::Antarctica) {
+    return CountryCode::AQ;
+  }
+  else if (_src == country_code::Antigua_and_Barbuda) {
+    return CountryCode::AG;
+  }
+  else if (_src == country_code::Argentina) {
+    return CountryCode::AR;
+  }
+  else if (_src == country_code::Armenia) {
+    return CountryCode::AM;
+  }
+  else if (_src == country_code::Aruba) {
+    return CountryCode::AW;
+  }
+  else if (_src == country_code::Australia) {
+    return CountryCode::AU;
+  }
+  else if (_src == country_code::Austria) {
+    return CountryCode::AT;
+  }
+  else if (_src == country_code::Azerbaijan) {
+    return CountryCode::AZ;
+  }
+  else if (_src == country_code::Bahamas) {
+    return CountryCode::BS;
+  }
+  else if (_src == country_code::Bahrain) {
+    return CountryCode::BH;
+  }
+  else if (_src == country_code::Bangladesh) {
+    return CountryCode::BD;
+  }
+  else if (_src == country_code::Barbados) {
+    return CountryCode::BB;
+  }
+  else if (_src == country_code::Belarus) {
+    return CountryCode::BY;
+  }
+  else if (_src == country_code::Belgium) {
+    return CountryCode::BE;
+  }
+  else if (_src == country_code::Belize) {
+    return CountryCode::BZ;
+  }
+  else if (_src == country_code::Benin) {
+    return CountryCode::BJ;
+  }
+  else if (_src == country_code::Bermuda) {
+    return CountryCode::BM;
+  }
+  else if (_src == country_code::Bhutan) {
+    return CountryCode::BT;
+  }
+  else if (_src == country_code::Bolivia) {
+    return CountryCode::BO;
+  }
+  else if (_src == country_code::Bosnia_and_Herzegovina) {
+    return CountryCode::BA;
+  }
+  else if (_src == country_code::Botswana) {
+    return CountryCode::BW;
+  }
+  else if (_src == country_code::Brazil) {
+    return CountryCode::BR;
+  }
+  else if (_src == country_code::British_Indian_OceanTerritory) {
+    return CountryCode::IO;
+  }
+  else if (_src == country_code::British_Virgin_Islands) {
+    return CountryCode::VG;
+  }
+  else if (_src == country_code::Brunei) {
+    return CountryCode::BN;
+  }
+  else if (_src == country_code::Bulgaria) {
+    return CountryCode::BG;
+  }
+  else if (_src == country_code::Burkina_Faso) {
+    return CountryCode::BF;
+  }
+  else if (_src == country_code::Burundi) {
+    return CountryCode::BI;
+  }
+  else if (_src == country_code::Cambodia) {
+    return CountryCode::KH;
+  }
+  else if (_src == country_code::Cameroon) {
+    return CountryCode::CM;
+  }
+  else if (_src == country_code::Canad) {
+    return CountryCode::CA;
+  }
+  else if (_src == country_code::Cape_Verde) {
+    return CountryCode::CV;
+  }
+  else if (_src == country_code::Cayman_Islands) {
+    return CountryCode::KY;
+  }
+  else if (_src == country_code::Central_African_Republic) {
+    return CountryCode::CF;
+  }
+  else if (_src == country_code::Chad) {
+    return CountryCode::TD;
+  }
+  else if (_src == country_code::Chile) {
+    return CountryCode::CL;
+  }
+  else if (_src == country_code::China) {
+    return CountryCode::CN;
+  }
+  else if (_src == country_code::Christmas_Island) {
+    return CountryCode::CX;
+  }
+  else if (_src == country_code::Cocos_Islands) {
+    return CountryCode::CC;
+  }
+  else if (_src == country_code::Colombia) {
+    return CountryCode::CO;
+  }
+  else if (_src == country_code::Comoros) {
+    return CountryCode::KM;
+  }
+  else if (_src == country_code::Cook_Islands) {
+    return CountryCode::CK;
+  }
+  else if (_src == country_code::Costa_Rica) {
+    return CountryCode::CR;
+  }
+  else if (_src == country_code::Croatia) {
+    return CountryCode::HR;
+  }
+  else if (_src == country_code::Cuba) {
+    return CountryCode::CU;
+  }
+  else if (_src == country_code::Curacao) {
+    return CountryCode::CW;
+  }
+  else if (_src == country_code::Cyprus) {
+    return CountryCode::CY;
+  }
+  else if (_src == country_code::Czech_Republic) {
+    return CountryCode::CZ;
+  }
+  else if (_src == country_code::Democratic_Republic_of_the_Congo) {
+    return CountryCode::CD;
+  }
+  else if (_src == country_code::Denmark) {
+    return CountryCode::DK;
+  }
+  else if (_src == country_code::Djibouti) {
+    return CountryCode::DJ;
+  }
+  else if (_src == country_code::Dominica) {
+    return CountryCode::DM;
+  }
+  else if (_src == country_code::Dominican_Republic) {
+    return CountryCode::DO;
+  }
+  else if (_src == country_code::East_Timor) {
+    return CountryCode::TL;
+  }
+  else if (_src == country_code::Ecuador) {
+    return CountryCode::EC;
+  }
+  else if (_src == country_code::Egypt) {
+    return CountryCode::EG;
+  }
+  else if (_src == country_code::El_Salvador) {
+    return CountryCode::SV;
+  }
+  else if (_src == country_code::Equatorial_Guinea) {
+    return CountryCode::GQ;
+  }
+  else if (_src == country_code::Eritrea) {
+    return CountryCode::ER;
+  }
+  else if (_src == country_code::Estonia) {
+    return CountryCode::EE;
+  }
+  else if (_src == country_code::Ethiopia) {
+    return CountryCode::ET;
+  }
+  else if (_src == country_code::Falkland_Islands) {
+    return CountryCode::FK;
+  }
+  else if (_src == country_code::Faroe_Islands) {
+    return CountryCode::FO;
+  }
+  else if (_src == country_code::Fiji) {
+    return CountryCode::FJ;
+  }
+  else if (_src == country_code::Finland) {
+    return CountryCode::FI;
+  }
+  else if (_src == country_code::France) {
+    return CountryCode::FR;
+  }
+  else if (_src == country_code::French_Polynesia) {
+    return CountryCode::PF;
+  }
+  else if (_src == country_code::Gabon) {
+    return CountryCode::GA;
+  }
+  else if (_src == country_code::Gambia) {
+    return CountryCode::GM;
+  }
+  else if (_src == country_code::Georgia) {
+    return CountryCode::GE;
+  }
+  else if (_src == country_code::Germany) {
+    return CountryCode::DE;
+  }
+  else if (_src == country_code::Ghana) {
+    return CountryCode::GH;
+  }
+  else if (_src == country_code::Gibraltar) {
+    return CountryCode::GI;
+  }
+  else if (_src == country_code::Greece) {
+    return CountryCode::GR;
+  }
+  else if (_src == country_code::Greenland) {
+    return CountryCode::GL;
+  }
+  else if (_src == country_code::Grenada) {
+    return CountryCode::GD;
+  }
+  else if (_src == country_code::Guam) {
+    return CountryCode::GU;
+  }
+  else if (_src == country_code::Guatemala) {
+    return CountryCode::GT;
+  }
+  else if (_src == country_code::Guernsey) {
+    return CountryCode::GG;
+  }
+  else if (_src == country_code::Guinea) {
+    return CountryCode::GN;
+  }
+  else if (_src == country_code::Guinea_Bissau) {
+    return CountryCode::GW;
+  }
+  else if (_src == country_code::Guyana) {
+    return CountryCode::GY;
+  }
+  else if (_src == country_code::Haiti) {
+    return CountryCode::HT;
+  }
+  else if (_src == country_code::Honduras) {
+    return CountryCode::HN;
+  }
+  else if (_src == country_code::Hong_Kong) {
+    return CountryCode::HK;
+  }
+  else if (_src == country_code::Hungary) {
+    return CountryCode::HU;
+  }
+  else if (_src == country_code::Iceland) {
+    return CountryCode::IS;
+  }
+  else if (_src == country_code::India) {
+    return CountryCode::IN;
+  }
+  else if (_src == country_code::Indonesia) {
+    return CountryCode::ID;
+  }
+  else if (_src == country_code::Iran) {
+    return CountryCode::IR;
+  }
+  else if (_src == country_code::Iraq) {
+    return CountryCode::IQ;
+  }
+  else if (_src == country_code::Ireland) {
+    return CountryCode::IE;
+  }
+  else if (_src == country_code::Isle_of_Man) {
+    return CountryCode::IM;
+  }
+  else if (_src == country_code::Israel) {
+    return CountryCode::IL;
+  }
+  else if (_src == country_code::Italy) {
+    return CountryCode::IT;
+  }
+  else if (_src == country_code::Ivory_Coast) {
+    return CountryCode::CI;
+  }
+  else if (_src == country_code::Jamaica) {
+    return CountryCode::JM;
+  }
+  else if (_src == country_code::Japan) {
+    return CountryCode::JP;
+  }
+  else if (_src == country_code::Jersey) {
+    return CountryCode::JE;
+  }
+  else if (_src == country_code::Jordan) {
+    return CountryCode::JO;
+  }
+  else if (_src == country_code::Kazakhsta) {
+    return CountryCode::KZ;
+  }
+  else if (_src == country_code::Kenya) {
+    return CountryCode::KE;
+  }
+  else if (_src == country_code::Kiribati) {
+    return CountryCode::KI;
+  }
+  else if (_src == country_code::Kosovo) {
+    return CountryCode::XK;
+  }
+  else if (_src == country_code::Kuwait) {
+    return CountryCode::KW;
+  }
+  else if (_src == country_code::Kyrgyzstan) {
+    return CountryCode::KG;
+  }
+  else if (_src == country_code::Laos) {
+    return CountryCode::LA;
+  }
+  else if (_src == country_code::Latvia) {
+    return CountryCode::LV;
+  }
+  else if (_src == country_code::Lebanon) {
+    return CountryCode::LB;
+  }
+  else if (_src == country_code::Lesotho) {
+    return CountryCode::LS;
+  }
+  else if (_src == country_code::Liberia) {
+    return CountryCode::LR;
+  }
+  else if (_src == country_code::Libya) {
+    return CountryCode::LY;
+  }
+  else if (_src == country_code::Liechtenstein) {
+    return CountryCode::LI;
+  }
+  else if (_src == country_code::Lithuania) {
+    return CountryCode::LT;
+  }
+  else if (_src == country_code::Luxembourg) {
+    return CountryCode::LU;
+  }
+  else if (_src == country_code::Macau) {
+    return CountryCode::MO;
+  }
+  else if (_src == country_code::Macedonia) {
+    return CountryCode::MK;
+  }
+  else if (_src == country_code::Madagascar) {
+    return CountryCode::MG;
+  }
+  else if (_src == country_code::Malawi) {
+    return CountryCode::MW;
+  }
+  else if (_src == country_code::Malaysia) {
+    return CountryCode::MY;
+  }
+  else if (_src == country_code::Maldives) {
+    return CountryCode::MV;
+  }
+  else if (_src == country_code::Mali) {
+    return CountryCode::ML;
+  }
+  else if (_src == country_code::Malta) {
+    return CountryCode::MT;
+  }
+  else if (_src == country_code::Marshall_Islands) {
+    return CountryCode::MH;
+  }
+  else if (_src == country_code::Mauritania) {
+    return CountryCode::MR;
+  }
+  else if (_src == country_code::Mauritius) {
+    return CountryCode::MU;
+  }
+  else if (_src == country_code::Mayotte) {
+    return CountryCode::YT;
+  }
+  else if (_src == country_code::Mexico) {
+    return CountryCode::MX;
+  }
+  else if (_src == country_code::Micronesia) {
+    return CountryCode::FM;
+  }
+  else if (_src == country_code::Moldova) {
+    return CountryCode::MD;
+  }
+  else if (_src == country_code::Monaco) {
+    return CountryCode::MC;
+  }
+  else if (_src == country_code::Mongolia) {
+    return CountryCode::MN;
+  }
+  else if (_src == country_code::Montenegro) {
+    return CountryCode::ME;
+  }
+  else if (_src == country_code::Montserrat) {
+    return CountryCode::MS;
+  }
+  else if (_src == country_code::Morocco) {
+    return CountryCode::MA;
+  }
+  else if (_src == country_code::Mozambique) {
+    return CountryCode::MZ;
+  }
+  else if (_src == country_code::Myanmar) {
+    return CountryCode::MM;
+  }
+  else if (_src == country_code::Namibia) {
+    return CountryCode::NA;
+  }
+  else if (_src == country_code::Nauru) {
+    return CountryCode::NR;
+  }
+  else if (_src == country_code::Nepal) {
+    return CountryCode::NP;
+  }
+  else if (_src == country_code::Netherlands) {
+    return CountryCode::NL;
+  }
+  else if (_src == country_code::Netherlands_Antilles) {
+    return CountryCode::AN;
+  }
+  else if (_src == country_code::New_Caledonia) {
+    return CountryCode::NC;
+  }
+  else if (_src == country_code::New_Zealand) {
+    return CountryCode::NZ;
+  }
+  else if (_src == country_code::Nicaragua) {
+    return CountryCode::NI;
+  }
+  else if (_src == country_code::Niger) {
+    return CountryCode::NE;
+  }
+  else if (_src == country_code::Nigeria) {
+    return CountryCode::NG;
+  }
+  else if (_src == country_code::Niue) {
+    return CountryCode::NU;
+  }
+  else if (_src == country_code::North_Korea) {
+    return CountryCode::KP;
+  }
+  else if (_src == country_code::Northern_Mariana_Islands) {
+    return CountryCode::MP;
+  }
+  else if (_src == country_code::Norway) {
+    return CountryCode::NO;
+  }
+  else if (_src == country_code::Oman) {
+    return CountryCode::OM;
+  }
+  else if (_src == country_code::Pakistan) {
+    return CountryCode::PK;
+  }
+  else if (_src == country_code::Palau) {
+    return CountryCode::PW;
+  }
+  else if (_src == country_code::Palestine) {
+    return CountryCode::PS;
+  }
+  else if (_src == country_code::Panama) {
+    return CountryCode::PA;
+  }
+  else if (_src == country_code::Papua_New_Guinea) {
+    return CountryCode::PG;
+  }
+  else if (_src == country_code::Paraguay) {
+    return CountryCode::PY;
+  }
+  else if (_src == country_code::Peru) {
+    return CountryCode::PE;
+  }
+  else if (_src == country_code::Philippines) {
+    return CountryCode::PH;
+  }
+  else if (_src == country_code::Pitcairn) {
+    return CountryCode::PN;
+  }
+  else if (_src == country_code::Poland) {
+    return CountryCode::PL;
+  }
+  else if (_src == country_code::Portugal) {
+    return CountryCode::PT;
+  }
+  else if (_src == country_code::Puerto_Rico) {
+    return CountryCode::PR;
+  }
+  else if (_src == country_code::Qatar) {
+    return CountryCode::QA;
+  }
+  else if (_src == country_code::Republic_of_the_Congo) {
+    return CountryCode::CG;
+  }
+  else if (_src == country_code::Reunion) {
+    return CountryCode::RE;
+  }
+  else if (_src == country_code::Romania) {
+    return CountryCode::RO;
+  }
+  else if (_src == country_code::Russi) {
+    return CountryCode::RU;
+  }
+  else if (_src == country_code::Rwanda) {
+    return CountryCode::RW;
+  }
+  else if (_src == country_code::Saint_Barthelemy) {
+    return CountryCode::BL;
+  }
+  else if (_src == country_code::Saint_Helena) {
+    return CountryCode::SH;
+  }
+  else if (_src == country_code::Saint_Kitts_and_Nevis) {
+    return CountryCode::KN;
+  }
+  else if (_src == country_code::Saint_Lucia) {
+    return CountryCode::LC;
+  }
+  else if (_src == country_code::Saint_Martin) {
+    return CountryCode::MF;
+  }
+  else if (_src == country_code::Saint_Pierre_and_Miquelon) {
+    return CountryCode::PM;
+  }
+  else if (_src == country_code::Saint_Vincent_and_the_Grenadines) {
+    return CountryCode::VC;
+  }
+  else if (_src == country_code::Samoa) {
+    return CountryCode::WS;
+  }
+  else if (_src == country_code::San_Marino) {
+    return CountryCode::SM;
+  }
+  else if (_src == country_code::Sao_Tome_and_Principe) {
+    return CountryCode::ST;
+  }
+  else if (_src == country_code::Saudi_Arabia) {
+    return CountryCode::SA;
+  }
+  else if (_src == country_code::Senegal) {
+    return CountryCode::SN;
+  }
+  else if (_src == country_code::Serbia) {
+    return CountryCode::RS;
+  }
+  else if (_src == country_code::Seychelles) {
+    return CountryCode::SC;
+  }
+  else if (_src == country_code::Sierra_Leone) {
+    return CountryCode::SL;
+  }
+  else if (_src == country_code::Singapore) {
+    return CountryCode::SG;
+  }
+  else if (_src == country_code::Sint_Maarten) {
+    return CountryCode::SX;
+  }
+  else if (_src == country_code::Slovakia) {
+    return CountryCode::SK;
+  }
+  else if (_src == country_code::Slovenia) {
+    return CountryCode::SI;
+  }
+  else if (_src == country_code::Solomon_Islands) {
+    return CountryCode::SB;
+  }
+  else if (_src == country_code::Somalia) {
+    return CountryCode::SO;
+  }
+  else if (_src == country_code::South_Africa) {
+    return CountryCode::ZA;
+  }
+  else if (_src == country_code::South_Korea) {
+    return CountryCode::KR;
+  }
+  else if (_src == country_code::South_Sudan) {
+    return CountryCode::SS;
+  }
+  else if (_src == country_code::Spain) {
+    return CountryCode::ES;
+  }
+  else if (_src == country_code::Sri_Lanka) {
+    return CountryCode::LK;
+  }
+  else if (_src == country_code::Sudan) {
+    return CountryCode::SD;
+  }
+  else if (_src == country_code::Suriname) {
+    return CountryCode::SR;
+  }
+  else if (_src == country_code::Svalbard_and_Jan_Mayen) {
+    return CountryCode::SJ;
+  }
+  else if (_src == country_code::Swaziland) {
+    return CountryCode::SZ;
+  }
+  else if (_src == country_code::Sweden) {
+    return CountryCode::SE;
+  }
+  else if (_src == country_code::Switzerland) {
+    return CountryCode::CH;
+  }
+  else if (_src == country_code::Syria) {
+    return CountryCode::SY;
+  }
+  else if (_src == country_code::Taiwan) {
+    return CountryCode::TW;
+  }
+  else if (_src == country_code::Tajikistan) {
+    return CountryCode::TJ;
+  }
+  else if (_src == country_code::Tanzania) {
+    return CountryCode::TZ;
+  }
+  else if (_src == country_code::Thailand) {
+    return CountryCode::TH;
+  }
+  else if (_src == country_code::Togo) {
+    return CountryCode::TG;
+  }
+  else if (_src == country_code::Tokelau) {
+    return CountryCode::TK;
+  }
+  else if (_src == country_code::Tonga) {
+    return CountryCode::TO;
+  }
+  else if (_src == country_code::Trinidad_and_Tobago) {
+    return CountryCode::TT;
+  }
+  else if (_src == country_code::Tunisia) {
+    return CountryCode::TN;
+  }
+  else if (_src == country_code::Turkey) {
+    return CountryCode::TR;
+  }
+  else if (_src == country_code::Turkmenistan) {
+    return CountryCode::TM;
+  }
+  else if (_src == country_code::Turks_and_Caicos_Islands) {
+    return CountryCode::TC;
+  }
+  else if (_src == country_code::Tuvalu) {
+    return CountryCode::TV;
+  }
+  else if (_src == country_code::US_Virgin_Islands) {
+    return CountryCode::VI;
+  }
+  else if (_src == country_code::Uganda) {
+    return CountryCode::UG;
+  }
+  else if (_src == country_code::Ukraine) {
+    return CountryCode::UA;
+  }
+  else if (_src == country_code::United_Arab_Emirates) {
+    return CountryCode::AE;
+  }
+  else if (_src == country_code::United_Kingdom) {
+    return CountryCode::GB;
+  }
+  else if (_src == country_code::United_State) {
+    return CountryCode::US;
+  }
+  else if (_src == country_code::Uruguay) {
+    return CountryCode::UY;
+  }
+  else if (_src == country_code::Uzbekistan) {
+    return CountryCode::UZ;
+  }
+  else if (_src == country_code::Vanuatu) {
+    return CountryCode::VU;
+  }
+  else if (_src == country_code::Vatican) {
+    return CountryCode::VA;
+  }
+  else if (_src == country_code::Venezuela) {
+    return CountryCode::VE;
+  }
+  else if (_src == country_code::Vietnam) {
+    return CountryCode::VN;
+  }
+  else if (_src == country_code::Wallis_and_Futuna) {
+    return CountryCode::WF;
+  }
+  else if (_src == country_code::Western_Sahara) {
+    return CountryCode::EH;
+  }
+  else if (_src == country_code::Yemen) {
+    return CountryCode::YE;
+  }
+  else if (_src == country_code::Zambia) {
+    return CountryCode::ZM;
+  }
+  else if (_src == country_code::Zimbabwe) {
+    return CountryCode::ZW;
   }
   else {
-    return false;
+    return std::unexpected("Invalid country code: " + _src);
   }
-
-  return true;
 }
 
 std::expected<int, std::string> parseInteger(const std::string& text, const std::string& field)
@@ -1021,10 +780,11 @@ std::expected<Data, std::string> parseFromText(const std::string& text)
 
     // country
     if (line.starts_with(kCountryPrefix)) {
-      const auto country_str = line.substr(sizeof(kCountryPrefix) - 1);
-      if (!parseCountryCode(country_str, res.country)) {
-        return std::unexpected("Invalid country code: " + country_str);
+      const auto country = parseCountryCode(line.substr(sizeof(kCountryPrefix) - 1));
+      if (!country) {
+        return std::unexpected(country.error());
       }
+      res.country = *country;
       continue;
     }
 
