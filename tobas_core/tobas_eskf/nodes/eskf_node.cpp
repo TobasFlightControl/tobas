@@ -837,7 +837,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
     return;
   }
 
-  gnss_fix_ = (msg->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
+  gnss_fix_ = (msg->fix_type >= tobas_msgs::msg::Gnss::FIX_3D);
   if (!gnss_fix_) {
     return;
   }

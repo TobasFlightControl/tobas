@@ -474,7 +474,7 @@ void PoseViewerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::C
 void PoseViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
   alt_msl_ = gnss->height_msl;
-  alt_msl_valid_ = (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
+  alt_msl_valid_ = (gnss->fix_type >= tobas_msgs::msg::Gnss::FIX_3D);
 
   update();
 }

@@ -104,14 +104,11 @@ std::string createGgaSentence(
 std::string createGgaSentence(const tobas_msgs::msg::Gnss& gnss)
 {
   uint8_t fix_quality = 0;
-  if (gnss.rtk_status == tobas_msgs::msg::Gnss::RTK_FIXED) {
+  if (gnss.fix_type == tobas_msgs::msg::Gnss::RTK_FIX) {
     fix_quality = 4;
   }
-  else if (gnss.rtk_status == tobas_msgs::msg::Gnss::RTK_FLOAT) {
+  else if (gnss.fix_type == tobas_msgs::msg::Gnss::RTK_FLOAT) {
     fix_quality = 5;
-  }
-  else if (gnss.rtk_status == tobas_msgs::msg::Gnss::CORRECTION_RECEIVED) {
-    fix_quality = 2;
   }
   else if (gnss.fix_type >= tobas_msgs::msg::Gnss::FIX_2D) {
     fix_quality = 1;

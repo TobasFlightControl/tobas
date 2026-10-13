@@ -22,8 +22,7 @@ namespace
 {
 bool hasValidFix(const tobas_msgs::msg::Gnss& gnss)
 {
-  return gnss.fix_type == tobas_msgs::msg::Gnss::FIX_2D || gnss.fix_type == tobas_msgs::msg::Gnss::FIX_3D ||
-         gnss.fix_type == tobas_msgs::msg::Gnss::GPS_DEAD_RECHONING_COMBINED;
+  return gnss.fix_type >= tobas_msgs::msg::Gnss::FIX_2D;
 }
 }  // namespace
 

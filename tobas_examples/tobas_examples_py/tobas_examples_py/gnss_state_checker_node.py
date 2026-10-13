@@ -25,7 +25,7 @@ class GnssStateCheckerNode(Node):
         message.header.stamp = gnss.header.stamp
         message.name = self.get_name()
 
-        if gnss.fix_type == Gnss.FIX_3D:
+        if gnss.fix_type >= Gnss.FIX_3D:
             message.level = Message.LEVEL_INFO
             message.message = "GNSS 3D Fix"
             self._message_pub.publish(message)

@@ -337,7 +337,7 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   const auto gnss_it = data.find(topic::kGnss);
   if (gnss_it != data.end()) {
     const auto& msg = gnss_decoder_.decode(gnss_it->second);
-    if (msg.fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
+    if (msg.fix_type >= tobas_msgs::msg::Gnss::FIX_3D) {
       res += std::to_string(msg.latitude) + ',' + std::to_string(msg.longitude) + ',' + std::to_string(msg.height_msl) +
              ',' + std::to_string(msg.ground_speed.x) + ',' + std::to_string(msg.ground_speed.y) + ',' +
              std::to_string(msg.ground_speed.z) + ',';

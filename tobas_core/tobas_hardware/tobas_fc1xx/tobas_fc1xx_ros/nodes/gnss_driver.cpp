@@ -264,25 +264,34 @@ void GnssDriverNode::mainTimerCb()
   gnss_msg->velocity_covariance(2, 1) = cov_.velCovED;
   gnss_msg->velocity_covariance(2, 2) = cov_.velCovDD;
 
-  // Fill other status.
-  gnss_msg->fix_type = pvt_.fixType;
-  gnss_msg->num_satellites_used = pvt_.numSV;
+  // Fill fix type.
+  // Dead reckoning and time-only fixes are regarded as no fix.
+  switch (pvt_.fixType) {
+    case ublox::payload::FIX_2D:
+      gnss_msg->fix_type = tobas_msgs::msg::Gnss::FIX_2D;
+      break;
+    case ublox::payload::FIX_3D:
+      if (status_.carrSoln == ublox::payload::NAV_STATUS::CarrierPhaseRangeSolutionStatus::FIXED_AMBIGUITY) {
+        gnss_msg->fix_type = tobas_msgs::msg::Gnss::RTK_FIX;
+      }
+      else if (status_.carrSoln == ublox::payload::NAV_STATUS::CarrierPhaseRangeSolutionStatus::FLOATING_AMBIGUITY) {
+        gnss_msg->fix_type = tobas_msgs::msg::Gnss::RTK_FLOAT;
+      }
+      else {
+        gnss_msg->fix_type = tobas_msgs::msg::Gnss::FIX_3D;
+      }
+      break;
+    case ublox::payload::NO_FIX:
+    case ublox::payload::DEAD_RECKONING_ONLY:
+    case ublox::payload::GPS_DEAD_RECKONING_COMBINED:
+    case ublox::payload::TIME_ONLY_FIX:
+    default:
+      gnss_msg->fix_type = tobas_msgs::msg::Gnss::NO_FIX;
+      break;
+  }
 
-  // Fill rtk status
-  if (!status_.diffCorr) {
-    gnss_msg->rtk_status = tobas_msgs::msg::Gnss::STAND_ALONE;
-  }
-  else {
-    if (status_.carrSoln == ublox::payload::NAV_STATUS::CarrierPhaseRangeSolutionStatus::FLOATING_AMBIGUITY) {
-      gnss_msg->rtk_status = tobas_msgs::msg::Gnss::RTK_FLOAT;
-    }
-    else if (status_.carrSoln == ublox::payload::NAV_STATUS::CarrierPhaseRangeSolutionStatus::FIXED_AMBIGUITY) {
-      gnss_msg->rtk_status = tobas_msgs::msg::Gnss::RTK_FIXED;
-    }
-    else {
-      gnss_msg->rtk_status = tobas_msgs::msg::Gnss::CORRECTION_RECEIVED;
-    }
-  }
+  // Fill other status.
+  gnss_msg->num_satellites_used = pvt_.numSV;
 
   // Publish GNSS message.
   gnss_pub_->publish(std::move(gnss_msg));
