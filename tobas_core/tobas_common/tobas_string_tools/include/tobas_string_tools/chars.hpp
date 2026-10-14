@@ -12,12 +12,12 @@ namespace str
 {
 /** Concatenate `char` and `char*`. */
 template <size_t N>
-inline constexpr auto concat(char c, const char (&s)[N])
+inline constexpr auto concat(char _c, const char (&_s)[N])
 {
   std::array<char, N + 1> out{};  // `N` includes the terminating '\0'.
-  out[0] = c;
+  out[0] = _c;
   for (size_t i = 0; i < N; ++i) {
-    out[i + 1] = s[i];
+    out[i + 1] = _s[i];
   }
   return out;  // Returning `data()` would release `std::array` and leave a dangling pointer.
 }

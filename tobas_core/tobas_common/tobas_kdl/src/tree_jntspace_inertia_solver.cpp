@@ -9,8 +9,8 @@ namespace tobas
 {
 namespace kdl
 {
-TreeJntSpaceInertiaSolver::TreeJntSpaceInertiaSolver(const Tree& tree)
-  : super(tree), rne_bias_(tree_, kdl::Vector::Zero()), rne_mass_(tree_, kdl::Vector::Zero())
+TreeJntSpaceInertiaSolver::TreeJntSpaceInertiaSolver(const Tree& _tree)
+  : super(_tree), rne_bias_(tree_, kdl::Vector::Zero()), rne_mass_(tree_, kdl::Vector::Zero())
 {
   resize();
 }
@@ -23,14 +23,14 @@ void TreeJntSpaceInertiaSolver::updateInternalDataStructures()
   resize();
 }
 
-const JntSpaceInertiaMatrix& TreeJntSpaceInertiaSolver::jntToMass(const JntArray& q)
+const JntSpaceInertiaMatrix& TreeJntSpaceInertiaSolver::jntToMass(const JntArray& _q)
 {
-  assert(q.size() == nj_);
+  assert(_q.size() == nj_);
 
-  const auto& bias = rne_bias_.cartToJnt(q, q_zero_, q_zero_);
+  const auto& bias = rne_bias_.cartToJnt(_q, q_zero_, q_zero_);
 
   for (size_t i = 0; i < nj_; ++i) {
-    const auto& mass = rne_mass_.cartToJnt(q, q_zero_, elements_[i]);
+    const auto& mass = rne_mass_.cartToJnt(_q, q_zero_, elements_[i]);
     mass_out_.data.col(i) = mass.data - bias.data;
   }
 

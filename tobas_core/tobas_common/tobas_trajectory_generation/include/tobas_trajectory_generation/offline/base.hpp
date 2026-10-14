@@ -18,7 +18,7 @@ struct TrajectoryPoint
 class TrajectoryGenerator
 {
 public:
-  virtual TrajectoryPoint get(double t) const noexcept = 0;
+  virtual TrajectoryPoint get(double _t) const noexcept = 0;
   virtual double duration() const noexcept = 0;
 };
 }  // namespace traj

@@ -11,6 +11,6 @@ namespace tobas
 namespace linux
 {
 /** Execute a shell command and return its output or an error description. */
-std::expected<std::string, std::string> executeCommand(std::string command);
+std::expected<std::string, std::string> executeCommand(std::string _command);
 }  // namespace linux
 }  // namespace tobas

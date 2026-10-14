@@ -165,12 +165,12 @@ YAML::Node AerodynamicsCoefficientsWidget::dump() const
   return node;
 }
 
-void AerodynamicsCoefficientsWidget::load(const YAML::Node& node)
+void AerodynamicsCoefficientsWidget::load(const YAML::Node& _node)
 {
   for (int row = 0; row < form_->rowCount(); ++row) {
     const auto label = qt::qConstPointerCast<QLabel>(form_->getLabel(row));
     const auto widget = qt::qPointerCast<qt::DoubleSpinBox>(form_->getWidget(row));
-    widget->setValue(node[label->text().toStdString()].as<double>());
+    widget->setValue(_node[label->text().toStdString()].as<double>());
   }
 }
 

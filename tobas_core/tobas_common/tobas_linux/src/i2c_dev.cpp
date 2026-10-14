@@ -31,20 +31,20 @@ I2Cdev::~I2Cdev()
   }
 }
 
-bool I2Cdev::initialize(const char* i2c_dev, uint8_t dev_addr)
+bool I2Cdev::initialize(const char* _i2c_dev, uint8_t _dev_addr)
 {
-  if (dev_addr >= 0x80) {
+  if (_dev_addr >= 0x80) {
     std::cerr << "Invalid slave address. It must be 7-bit." << std::endl;
     return false;
   }
 
-  i2c_fd_ = open(i2c_dev, O_RDWR);
+  i2c_fd_ = open(_i2c_dev, O_RDWR);
   if (i2c_fd_ < 0) {
-    std::cerr << "Failed to open I2C device: " << i2c_dev << std::endl;
+    std::cerr << "Failed to open I2C device: " << _i2c_dev << std::endl;
     return false;
   }
 
-  dev_addr_ = dev_addr;
+  dev_addr_ = _dev_addr;
 
   // Wait to avoid remote I/O error 121.
   std::this_thread::sleep_for(10ms);
@@ -52,30 +52,30 @@ bool I2Cdev::initialize(const char* i2c_dev, uint8_t dev_addr)
   return true;
 }
 
-bool I2Cdev::readBit(uint8_t reg_addr, uint8_t bit_pos, bool& value)
+bool I2Cdev::readBit(uint8_t _reg_addr, uint8_t _bit_pos, bool& _value)
 {
-  if (bit_pos >= 8) {
+  if (_bit_pos >= 8) {
     std::cerr << "Bit position must be 0-7." << std::endl;
     return false;
   }
 
   uint8_t byte;
-  if (!readByte(reg_addr, byte)) {
+  if (!readByte(_reg_addr, byte)) {
     return false;
   }
 
-  value = byte & (1 << bit_pos);
+  _value = byte & (1 << _bit_pos);
   return true;
 }
 
-bool I2Cdev::readByte(uint8_t reg_addr, uint8_t& value)
+bool I2Cdev::readByte(uint8_t _reg_addr, uint8_t& _value)
 {
-  return readBytes(reg_addr, 1, &value);
+  return readBytes(_reg_addr, 1, &_value);
 }
 
-bool I2Cdev::readBytes(uint8_t reg_addr, size_t length, void* rx)
+bool I2Cdev::readBytes(uint8_t _reg_addr, size_t _length, void* _rx)
 {
-  if (!checkDataLength(length)) {
+  if (!checkDataLength(_length)) {
     return false;
   }
 
@@ -83,20 +83,20 @@ bool I2Cdev::readBytes(uint8_t reg_addr, size_t length, void* rx)
     return false;
   }
 
-  if (!write(reg_addr, 0, nullptr)) {
+  if (!write(_reg_addr, 0, nullptr)) {
     return false;
   }
 
-  if (!read(length, rx)) {
+  if (!read(_length, _rx)) {
     return false;
   }
 
   return true;
 }
 
-bool I2Cdev::readBytesNoRegAddress(size_t length, void* rx)
+bool I2Cdev::readBytesNoRegAddress(size_t _length, void* _rx)
 {
-  if (!checkDataLength(length)) {
+  if (!checkDataLength(_length)) {
     return false;
   }
 
@@ -104,43 +104,43 @@ bool I2Cdev::readBytesNoRegAddress(size_t length, void* rx)
     return false;
   }
 
-  if (!read(length, rx)) {
+  if (!read(_length, _rx)) {
     return false;
   }
 
   return true;
 }
 
-bool I2Cdev::writeBit(uint8_t reg_addr, uint8_t bit_pos, bool value, bool verify)
+bool I2Cdev::writeBit(uint8_t _reg_addr, uint8_t _bit_pos, bool _value, bool _verify)
 {
-  if (bit_pos >= 8) {
+  if (_bit_pos >= 8) {
     std::cerr << "Bit position must be 0-7." << std::endl;
     return false;
   }
 
   uint8_t byte;
-  if (!readByte(reg_addr, byte)) {
+  if (!readByte(_reg_addr, byte)) {
     return false;
   }
 
-  if (value) {
-    byte |= (1 << bit_pos);
+  if (_value) {
+    byte |= (1 << _bit_pos);
   }
   else {
-    byte &= ~(1 << bit_pos);
+    byte &= ~(1 << _bit_pos);
   }
 
-  return writeByte(reg_addr, byte, verify);
+  return writeByte(_reg_addr, byte, _verify);
 }
 
-bool I2Cdev::writeByte(uint8_t reg_addr, uint8_t value, bool verify)
+bool I2Cdev::writeByte(uint8_t _reg_addr, uint8_t _value, bool _verify)
 {
-  return writeBytes(reg_addr, 1, &value, verify);
+  return writeBytes(_reg_addr, 1, &_value, _verify);
 }
 
-bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length, const void* tx, bool verify)
+bool I2Cdev::writeBytes(uint8_t _reg_addr, size_t _length, const void* _tx, bool _verify)
 {
-  if (!checkDataLength(length)) {
+  if (!checkDataLength(_length)) {
     return false;
   }
 
@@ -148,17 +148,17 @@ bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length, const void* tx, bool ve
     return false;
   }
 
-  if (!write(reg_addr, length, tx)) {
+  if (!write(_reg_addr, _length, _tx)) {
     return false;
   }
 
-  if (verify) {
-    if (!readBytes(reg_addr, length, rx_)) {
+  if (_verify) {
+    if (!readBytes(_reg_addr, _length, rx_)) {
       return false;
     }
 
-    if (std::memcmp(tx, rx_, length) != 0) {
-      std::cerr << "The " << length << " bytes written over I2C are not taking effect in the slave’s registers."
+    if (std::memcmp(_tx, rx_, _length) != 0) {
+      std::cerr << "The " << _length << " bytes written over I2C are not taking effect in the slave’s registers."
                 << std::endl;
       return false;
     }
@@ -167,9 +167,9 @@ bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length, const void* tx, bool ve
   return true;
 }
 
-bool I2Cdev::checkDataLength(size_t length) const
+bool I2Cdev::checkDataLength(size_t _length) const
 {
-  if (length > kBufSize) {
+  if (_length > kBufSize) {
     std::cerr << "Data length cannot be greater than buffer size." << std::endl;
     return false;
   }
@@ -190,10 +190,10 @@ bool I2Cdev::selectDevice() const
   return true;
 }
 
-bool I2Cdev::write(uint8_t reg_addr, size_t length, const void* tx)
+bool I2Cdev::write(uint8_t _reg_addr, size_t _length, const void* _tx)
 {
-  tx_[0] = reg_addr;
-  std::memcpy(tx_ + 1, tx, length);
+  tx_[0] = _reg_addr;
+  std::memcpy(tx_ + 1, _tx, _length);
 
   // 1. Start Condition (Master -> Slave)
   // 2. Slave Address (Master -> Slave)
@@ -202,7 +202,7 @@ bool I2Cdev::write(uint8_t reg_addr, size_t length, const void* tx)
   // 5. Register Address (Master -> Slave)
   // 6. ACK (Slave -> Master)
   // 7. Stop Condition (Master -> Slave)
-  const auto req_length = length + 1;
+  const auto req_length = _length + 1;
   const auto res = ::write(i2c_fd_, tx_, req_length);
   if (res < 0) {
     std::cerr << "I2C write failed: " << st::strError() << std::endl;
@@ -214,7 +214,7 @@ bool I2Cdev::write(uint8_t reg_addr, size_t length, const void* tx)
     return false;
   }
   if (res != static_cast<ssize_t>(req_length)) {
-    std::cerr << "Tried to write " << req_length << " bytes on " << reg_addr << ", but " << res
+    std::cerr << "Tried to write " << req_length << " bytes on " << _reg_addr << ", but " << res
               << " bytes were written." << std::endl;
     return false;
   }
@@ -222,7 +222,7 @@ bool I2Cdev::write(uint8_t reg_addr, size_t length, const void* tx)
   return true;
 }
 
-bool I2Cdev::read(size_t length, void* rx)
+bool I2Cdev::read(size_t _length, void* _rx)
 {
   // 1. Start Condition (Master -> Slave)
   // 2. Slave Address (Master -> Slave)
@@ -234,13 +234,13 @@ bool I2Cdev::read(size_t length, void* rx)
   // 6. Register Value (Slave -> Master)
   // 7. NAK (Master -> Slave)
   // 8. Stop Condition (Master -> Slave)
-  const auto res = ::read(i2c_fd_, rx, length);
+  const auto res = ::read(i2c_fd_, _rx, _length);
   if (res < 0) {
     std::cerr << "I2C read failed: " << st::strError() << std::endl;
     return false;
   }
-  if (res != static_cast<ssize_t>(length)) {
-    std::cerr << "Tried to read " << length << " bytes, but " << res << " bytes were read." << std::endl;
+  if (res != static_cast<ssize_t>(_length)) {
+    std::cerr << "Tried to read " << _length << " bytes, but " << res << " bytes were read." << std::endl;
     return false;
   }
 

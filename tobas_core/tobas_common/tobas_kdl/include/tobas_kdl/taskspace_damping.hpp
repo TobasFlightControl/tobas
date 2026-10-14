@@ -19,14 +19,14 @@ public:
   Vector angular;  ///< [Nms/rad]
 
   inline explicit TaskSpaceDamping();
-  inline explicit TaskSpaceDamping(const Vector& linear, const Vector& angular);
+  inline explicit TaskSpaceDamping(const Vector& _linear, const Vector& _angular);
 
   static inline TaskSpaceDamping Zero();
 
   inline void setZero();
 
-  inline Twist operator*(const Frame& rhs);
-  inline Accel operator*(const Twist& rhs);
+  inline Twist operator*(const Frame& _rhs);
+  inline Accel operator*(const Twist& _rhs);
 };
 
 inline TaskSpaceDamping::TaskSpaceDamping()
@@ -49,14 +49,14 @@ inline void TaskSpaceDamping::setZero()
   angular.setZero();
 }
 
-inline Twist TaskSpaceDamping::operator*(const Frame& rhs)
+inline Twist TaskSpaceDamping::operator*(const Frame& _rhs)
 {
-  return Twist(linear.hadamard(rhs.p), angular.hadamard(rhs.M.getRot()));
+  return Twist(linear.hadamard(_rhs.p), angular.hadamard(_rhs.M.getRot()));
 }
 
-inline Accel TaskSpaceDamping::operator*(const Twist& rhs)
+inline Accel TaskSpaceDamping::operator*(const Twist& _rhs)
 {
-  return Accel(linear.hadamard(rhs.vel), angular.hadamard(rhs.rot));
+  return Accel(linear.hadamard(_rhs.vel), angular.hadamard(_rhs.rot));
 }
 }  // namespace kdl
 }  // namespace tobas

@@ -12,24 +12,24 @@ namespace tobas
 {
 namespace algo
 {
-double wrapPi(double angle)
+double wrapPi(double _angle)
 {
-  angle = std::fmod(angle + M_PI, M_2PI);  // Convert `angle` to the range [0, 2pi).
-  if (angle < 0.0) {
-    angle += M_2PI;  // Correct the range if `angle` is negative.
+  _angle = std::fmod(_angle + M_PI, M_2PI);  // Convert `angle` to the range [0, 2pi).
+  if (_angle < 0.0) {
+    _angle += M_2PI;  // Correct the range if `angle` is negative.
   }
-  return angle - M_PI;  // Convert from [0, 2pi) to [-pi, pi).
+  return _angle - M_PI;  // Convert from [0, 2pi) to [-pi, pi).
 }
 
-void clamp2d(double& x, double& y, double max_length)
+void clamp2d(double& _x, double& _y, double _max_length)
 {
-  assert(max_length >= 0.0);
+  assert(_max_length >= 0.0);
 
-  const auto length = std::hypot(x, y);
-  if (length > max_length) {
-    const auto scale = max_length / length;
-    x *= scale;
-    y *= scale;
+  const auto length = std::hypot(_x, _y);
+  if (length > _max_length) {
+    const auto scale = _max_length / length;
+    _x *= scale;
+    _y *= scale;
   }
 }
 }  // namespace algo

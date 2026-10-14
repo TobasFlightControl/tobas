@@ -12,9 +12,9 @@ namespace tobas
 {
 namespace udv
 {
-std::string getDevNode(udev_device* dev);
-std::string getPropertyValue(udev_device* dev, const char* key);
-std::string getSysAttrValue(udev_device* dev, const char* attr);
-std::string getBlockLabel(udev* u, const std::filesystem::path& devnode);
+std::string getDevNode(udev_device* _dev);
+std::string getPropertyValue(udev_device* _dev, const char* _key);
+std::string getSysAttrValue(udev_device* _dev, const char* _attr);
+std::string getBlockLabel(udev* _u, const std::filesystem::path& _devnode);
 }  // namespace udv
 }  // namespace tobas

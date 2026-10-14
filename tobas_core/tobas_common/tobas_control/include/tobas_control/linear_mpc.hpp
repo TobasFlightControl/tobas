@@ -71,7 +71,7 @@ public:
 
   std::expected<Eigen::VectorXd, std::string> solve();
 
-  friend std::ostream& operator<<(std::ostream& os, const LinearMPC& arg);
+  friend std::ostream& operator<<(std::ostream& _os, const LinearMPC& _arg);
 
 private:
   // quadprog::QuadProgppSolver qpsolver_;
@@ -86,29 +86,29 @@ private:
   void checkProblemValidity();
 
   void updateQpConstraint(
-    const Eigen::VectorXd& last_u,
-    const Eigen::VectorXd& Psi_x,
-    const Eigen::VectorXd& Upsilon_u,
-    const Eigen::MatrixXd& Theta,
-    const std::vector<LinearEquation>& du_consts,
-    const std::vector<LinearEquation>& u_consts,
-    const std::vector<LinearEquation>& z_consts,
-    Eigen::MatrixXd& A,
-    Eigen::VectorXd& b);
+    const Eigen::VectorXd& _last_u,
+    const Eigen::VectorXd& _psi_x,
+    const Eigen::VectorXd& _upsilon_u,
+    const Eigen::MatrixXd& _theta,
+    const std::vector<LinearEquation>& _du_consts,
+    const std::vector<LinearEquation>& _u_consts,
+    const std::vector<LinearEquation>& _z_consts,
+    Eigen::MatrixXd& _a,
+    Eigen::VectorXd& _b);
 
   Eigen::MatrixXd makeSa();
-  Eigen::VectorXd makeSb(const Eigen::VectorXd& last_u);
-  Eigen::MatrixXd makeFGothic(const Eigen::MatrixXd& F);
-  Eigen::MatrixXd makePsi(const std::vector<LinearDynamics>& dyn, const Eigen::MatrixXd& Cz);
-  Eigen::MatrixXd makeUpsilon(const std::vector<LinearDynamics>& dyn, const Eigen::MatrixXd& Cz);
-  Eigen::MatrixXd makeTheta(const std::vector<LinearDynamics>& dyn, const Eigen::MatrixXd& Cz);
+  Eigen::VectorXd makeSb(const Eigen::VectorXd& _last_u);
+  Eigen::MatrixXd makeFGothic(const Eigen::MatrixXd& _f);
+  Eigen::MatrixXd makePsi(const std::vector<LinearDynamics>& _dyn, const Eigen::MatrixXd& _cz);
+  Eigen::MatrixXd makeUpsilon(const std::vector<LinearDynamics>& _dyn, const Eigen::MatrixXd& _cz);
+  Eigen::MatrixXd makeTheta(const std::vector<LinearDynamics>& _dyn, const Eigen::MatrixXd& _cz);
 
   /** Create Tau on p.90 based on Example 1.3 on p.12. */
-  Eigen::VectorXd makeTau(const Eigen::VectorXd& x, const Eigen::VectorXd& z, const Eigen::MatrixXd& Cz);
+  Eigen::VectorXd makeTau(const Eigen::VectorXd& _x, const Eigen::VectorXd& _z, const Eigen::MatrixXd& _cz);
   std::vector<Eigen::VectorXd> makeDecays();
 
   /** Create the overall inequality constraint matrix from the time series of inequality conditions A x <= b. */
-  static Eigen::MatrixXd makeConstraintMatrix(const std::vector<LinearEquation>& ineqs, Eigen::Index H);
+  static Eigen::MatrixXd makeConstraintMatrix(const std::vector<LinearEquation>& _ineqs, Eigen::Index _h);
 };
 }  // namespace ctrl
 }  // namespace tobas

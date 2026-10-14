@@ -16,14 +16,14 @@ namespace ub
 namespace ui
 {
 StringInputDialog::StringInputDialog(
-  QWidget* parent,
-  const QString& title,
-  const QString& name,
-  const QString& default_text,
-  const QStringList& excludes)
-  : super(parent), excludeds_(excludes)
+  QWidget* _parent,
+  const QString& _title,
+  const QString& _name,
+  const QString& _default_text,
+  const QStringList& _excludes)
+  : super(_parent), excludeds_(_excludes)
 {
-  setWindowTitle(title);
+  setWindowTitle(_title);
 
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -31,10 +31,10 @@ StringInputDialog::StringInputDialog(
   const auto cols = new QHBoxLayout();
   rows->addLayout(cols);
 
-  const auto label = new QLabel(name);
+  const auto label = new QLabel(_name);
   cols->addWidget(label);
 
-  line_edit_ = new QLineEdit(default_text);
+  line_edit_ = new QLineEdit(_default_text);
   connect(line_edit_, &QLineEdit::textChanged, this, &self::onLineEditTextChanged);
   cols->addWidget(line_edit_);
 
@@ -56,15 +56,15 @@ QString StringInputDialog::getText() const
   return line_edit_->text();
 }
 
-void StringInputDialog::onLineEditTextChanged(const QString& text)
+void StringInputDialog::onLineEditTextChanged(const QString& _text)
 {
-  if (text.isEmpty()) {
+  if (_text.isEmpty()) {
     warn_label_->setText("Please set text.");
     enableOkButton(false);
     return;
   }
 
-  if (excludeds_.contains(text)) {
+  if (excludeds_.contains(_text)) {
     warn_label_->setText("This is already used.");
     enableOkButton(false);
     return;
@@ -74,9 +74,9 @@ void StringInputDialog::onLineEditTextChanged(const QString& text)
   enableOkButton(true);
 }
 
-void StringInputDialog::enableOkButton(bool enable)
+void StringInputDialog::enableOkButton(bool _enable)
 {
-  button_box_->button(QDialogButtonBox::Ok)->setEnabled(enable);
+  button_box_->button(QDialogButtonBox::Ok)->setEnabled(_enable);
 }
 }  // namespace ui
 }  // namespace ub

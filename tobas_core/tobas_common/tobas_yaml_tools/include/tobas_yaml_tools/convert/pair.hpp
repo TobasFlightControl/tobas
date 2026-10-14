@@ -12,27 +12,27 @@ namespace YAML
 template <>
 struct convert<std::pair<double, double>>
 {
-  static Node encode(const std::pair<double, double>& rhs)
+  static Node encode(const std::pair<double, double>& _rhs)
   {
     Node node(NodeType::Sequence);
 
-    node.push_back(tobas::yaml::format(rhs.first));
-    node.push_back(tobas::yaml::format(rhs.second));
+    node.push_back(tobas::yaml::format(_rhs.first));
+    node.push_back(tobas::yaml::format(_rhs.second));
 
     return node;
   }
 
-  static bool decode(const Node& node, std::pair<double, double>& rhs)
+  static bool decode(const Node& _node, std::pair<double, double>& _rhs)
   {
-    if (!node.IsSequence()) {
+    if (!_node.IsSequence()) {
       return false;
     }
-    if (node.size() != 2) {
+    if (_node.size() != 2) {
       return false;
     }
 
-    rhs.first = node[0].as<double>();
-    rhs.second = node[1].as<double>();
+    _rhs.first = _node[0].as<double>();
+    _rhs.second = _node[1].as<double>();
 
     return true;
   }

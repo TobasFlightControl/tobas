@@ -13,51 +13,51 @@ PositionPDD2::PositionPDD2()
 }
 
 kdl::Vector PositionPDD2::update(
-  const kdl::Vector& cur_pos,
-  const kdl::Vector& cur_vel,
-  const kdl::Vector& cur_acc,
-  const kdl::Vector& tar_pos,
-  const kdl::Vector& tar_vel,
-  const kdl::Vector& tar_acc,
-  double dt)
+  const kdl::Vector& _cur_pos,
+  const kdl::Vector& _cur_vel,
+  const kdl::Vector& _cur_acc,
+  const kdl::Vector& _tar_pos,
+  const kdl::Vector& _tar_vel,
+  const kdl::Vector& _tar_acc,
+  double _dt)
 {
   // Calculate errors.
-  const auto ep = tar_pos - cur_pos;
-  const auto ev = tar_vel - cur_vel;
-  const auto ea = tar_acc - cur_acc;
+  const auto ep = _tar_pos - _cur_pos;
+  const auto ev = _tar_vel - _cur_vel;
+  const auto ea = _tar_acc - _cur_acc;
 
   // PDD2 + clamp
   const auto cmd_jerk = kp_.hadamard(ep) + kv_.hadamard(ev) + ka_.hadamard(ea);
 
   // Integrate the target jerk and output it.
-  cmd_acc_ += cmd_jerk * dt;
+  cmd_acc_ += cmd_jerk * _dt;
   return cmd_acc_;
 }
 
-void PositionPDD2::setNaturalFreq(int idx, double value)
+void PositionPDD2::setNaturalFreq(int _idx, double _value)
 {
-  assert(0 <= idx && idx < 3);
-  assert(value >= 0.0);
+  assert(0 <= _idx && _idx < 3);
+  assert(_value >= 0.0);
 
-  wn_(idx) = value;
+  wn_(_idx) = _value;
   updateGain();
 }
 
-void PositionPDD2::setInertiaRatio(int idx, double value)
+void PositionPDD2::setInertiaRatio(int _idx, double _value)
 {
-  assert(0 <= idx && idx < 3);
-  assert(value >= 0.0);
+  assert(0 <= _idx && _idx < 3);
+  assert(_value >= 0.0);
 
-  zeta_(idx) = value;
+  zeta_(_idx) = _value;
   updateGain();
 }
 
-void PositionPDD2::setDampingRatio(int idx, double value)
+void PositionPDD2::setDampingRatio(int _idx, double _value)
 {
-  assert(0 <= idx && idx < 3);
-  assert(value >= 0.0);
+  assert(0 <= _idx && _idx < 3);
+  assert(_value >= 0.0);
 
-  xi_(idx) = value;
+  xi_(_idx) = _value;
   updateGain();
 }
 

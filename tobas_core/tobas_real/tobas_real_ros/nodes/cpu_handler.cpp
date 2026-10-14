@@ -26,7 +26,7 @@ class CpuHandlerNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit CpuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit CpuHandlerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   int temp_millidegrees_;
@@ -51,8 +51,8 @@ private:
   void mainTimerCb();
 };
 
-CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options)
-  : super("real_cpu_handler", nodeOptions_Default(options))
+CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& _options)
+  : super("real_cpu_handler", nodeOptions_Default(_options))
 {
   // Configure the LPFs.
   temp_lpf_.setCutoffFrequency(dsp::cutoffFromTimeConst(5.0));

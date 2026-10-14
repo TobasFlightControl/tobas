@@ -12,38 +12,38 @@ namespace tobas
 {
 namespace qt
 {
-void ComboBox::wheelEvent(QWheelEvent* event)
+void ComboBox::wheelEvent(QWheelEvent* _event)
 {
-  event->ignore();
+  _event->ignore();
 }
 
-bool ComboBox::contains(const QString& text) const
+bool ComboBox::contains(const QString& _text) const
 {
-  return findText(text) >= 0;
+  return findText(_text) >= 0;
 }
 
-void ComboBox::removeText(const QString& text)
+void ComboBox::removeText(const QString& _text)
 {
-  const auto index = findText(text);
+  const auto index = findText(_text);
   if (index < 0) {
-    throw std::runtime_error("'" + text.toStdString() + "' does not exist in the combo box choices.");
+    throw std::runtime_error("'" + _text.toStdString() + "' does not exist in the combo box choices.");
   }
   removeItem(index);
 }
 
-void ComboBox::setCurrentIndex(int index)
+void ComboBox::setCurrentIndex(int _index)
 {
-  if (index < 0 || count() <= index) {
-    throw std::runtime_error("Index " + std::to_string(index) + " is out of range.");
+  if (_index < 0 || count() <= _index) {
+    throw std::runtime_error("Index " + std::to_string(_index) + " is out of range.");
   }
-  super::setCurrentIndex(index);
+  super::setCurrentIndex(_index);
 }
 
-void ComboBox::setCurrentText(const QString& text)
+void ComboBox::setCurrentText(const QString& _text)
 {
-  const auto index = findText(text);
+  const auto index = findText(_text);
   if (index < 0) {
-    throw std::runtime_error("'" + text.toStdString() + "' does not exist in the combo box choices.");
+    throw std::runtime_error("'" + _text.toStdString() + "' does not exist in the combo box choices.");
   }
   super::setCurrentIndex(index);
 }
@@ -53,18 +53,18 @@ void ComboBox::sort()
   model()->sort(0, Qt::AscendingOrder);
 }
 
-void ComboBox::setItemEnabled(int row, bool enabled)
+void ComboBox::setItemEnabled(int _row, bool _enabled)
 {
   const auto model = qt::qConstPointerCast<QStandardItemModel>(this->model());
-  const auto item = model->item(row);
+  const auto item = model->item(_row);
   const auto cur_flags = item->flags();
-  const auto new_flags = enabled ? cur_flags | Qt::ItemIsEnabled : cur_flags & ~Qt::ItemIsEnabled;
+  const auto new_flags = _enabled ? cur_flags | Qt::ItemIsEnabled : cur_flags & ~Qt::ItemIsEnabled;
   item->setFlags(new_flags);
 }
 
-void ComboBox::setItemEnabled(const QString& text, bool enabled)
+void ComboBox::setItemEnabled(const QString& _text, bool _enabled)
 {
-  setItemEnabled(findText(text), enabled);
+  setItemEnabled(findText(_text), _enabled);
 }
 }  // namespace qt
 }  // namespace tobas

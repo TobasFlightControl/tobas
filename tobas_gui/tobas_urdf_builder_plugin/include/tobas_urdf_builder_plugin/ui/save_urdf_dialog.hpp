@@ -20,10 +20,10 @@ class SaveUrdfDialog : public QFileDialog
   Q_OBJECT
 
 public:
-  explicit SaveUrdfDialog(QWidget* parent, const QString& dir);
+  explicit SaveUrdfDialog(QWidget* _parent, const QString& _dir);
 
 protected:
-  bool eventFilter(QObject* obj, QEvent* event) override;
+  bool eventFilter(QObject* _obj, QEvent* _event) override;
 
 private Q_SLOTS:
   void onLineEditTextChanged();

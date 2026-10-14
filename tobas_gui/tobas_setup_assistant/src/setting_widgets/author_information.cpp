@@ -130,10 +130,10 @@ YAML::Node AuthorInformationWidget::dump() const
   return node;
 }
 
-void AuthorInformationWidget::load(const YAML::Node& node)
+void AuthorInformationWidget::load(const YAML::Node& _node)
 {
-  name_->setValue(node[name_->name()].as<QString>());
-  email_->setValue(node[email_->name()].as<QString>());
+  name_->setValue(_node[name_->name()].as<QString>());
+  email_->setValue(_node[email_->name()].as<QString>());
 }
 
 QString AuthorInformationWidget::authorName() const

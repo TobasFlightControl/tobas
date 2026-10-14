@@ -21,19 +21,19 @@ class ListWidget : public QListWidget
   using super = QListWidget;
 
 Q_SIGNALS:
-  void itemMoved(QListWidgetItem* item);
+  void itemMoved(QListWidgetItem* _item);
 
 public:
   using super::QListWidget;
 
   /** Return true if the list contains the text. */
-  bool contains(const QString& text) const;
+  bool contains(const QString& _text) const;
 
   /** Delete an item. */
-  void remove(QListWidgetItem* item);
+  void remove(QListWidgetItem* _item);
 
   /** Select the item with the specified text. */
-  void setCurrentText(const QString& text);
+  void setCurrentText(const QString& _text);
 
   /** Clear the selection. */
   void deselect();
@@ -45,7 +45,7 @@ public:
   void showRowNumber();
 
 protected:
-  void dropEvent(QDropEvent* event) override;
+  void dropEvent(QDropEvent* _event) override;
 };
 
 /**
@@ -55,7 +55,7 @@ protected:
 class ListWidgetItem : public QListWidgetItem
 {
 public:
-  virtual bool operator<(const QListWidgetItem& rhs) const override;
+  virtual bool operator<(const QListWidgetItem& _rhs) const override;
 };
 }  // namespace qt
 }  // namespace tobas

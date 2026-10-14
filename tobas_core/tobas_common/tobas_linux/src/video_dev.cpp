@@ -48,20 +48,20 @@ VideoDev::~VideoDev()
 }
 
 bool VideoDev::initialize(
-  const char* video_dev,
-  const char* pixel_format,
-  bool disable_video_streaming,
-  uint32_t width,
-  uint32_t height)
+  const char* _video_dev,
+  const char* _pixel_format,
+  bool _disable_video_streaming,
+  uint32_t _width,
+  uint32_t _height)
 {
   if (fd_ >= 0) {
     close(fd_);
   }
 
   // Open device.
-  fd_ = open(video_dev, O_RDWR);
+  fd_ = open(_video_dev, O_RDWR);
   if (fd_ < 0) {
-    std::cerr << "Failed to open video device: " << video_dev << std::endl;
+    std::cerr << "Failed to open video device: " << _video_dev << std::endl;
     return false;
   }
 
@@ -69,8 +69,8 @@ bool VideoDev::initialize(
     return false;
   }
 
-  if (!disable_video_streaming) {
-    if (!setImgFormat(pixel_format, width, height)) {
+  if (!_disable_video_streaming) {
+    if (!setImgFormat(_pixel_format, _width, _height)) {
       return false;
     }
 
@@ -120,9 +120,9 @@ void VideoDev::displaySupportedFormats()
   }
 }
 
-bool VideoDev::execUvcControl(const uvc_xu_control_query& query)
+bool VideoDev::execUvcControl(const uvc_xu_control_query& _query)
 {
-  if (ioctl(fd_, UVCIOC_CTRL_QUERY, &query) < 0) {
+  if (ioctl(fd_, UVCIOC_CTRL_QUERY, &_query) < 0) {
     std::cerr << "Failed to execute UVC control: " << st::strError() << std::endl;
     return false;
   }
@@ -154,9 +154,9 @@ bool VideoDev::takePicture()
   return true;
 }
 
-void* VideoDev::getImage(uint32_t& length)
+void* VideoDev::getImage(uint32_t& _length)
 {
-  length = buffers_[image_address_].length;
+  _length = buffers_[image_address_].length;
   return buffers_[image_address_].start;
 }
 
@@ -165,14 +165,14 @@ VideoDev::ImgFormat VideoDev::getImageFormat()
   return fmt_;
 }
 
-std::string VideoDev::FCC2S(uint32_t val)
+std::string VideoDev::FCC2S(uint32_t _val)
 {
   std::string s;
-  s += val & 0x7F;
-  s += (val >> 8) & 0x7F;
-  s += (val >> 16) & 0x7F;
-  s += (val >> 24) & 0x7F;
-  if (val & (1 << 31)) {
+  s += _val & 0x7F;
+  s += (_val >> 8) & 0x7F;
+  s += (_val >> 16) & 0x7F;
+  s += (_val >> 24) & 0x7F;
+  if (_val & (1 << 31)) {
     s += "-BE";
   }
   return s;
@@ -237,12 +237,12 @@ bool VideoDev::mapBuffer()
   return true;
 }
 
-bool VideoDev::enqueue(uint32_t i)
+bool VideoDev::enqueue(uint32_t _i)
 {
   v4l2_buffer buf = {};
   buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   buf.memory = V4L2_MEMORY_MMAP;
-  buf.index = i;
+  buf.index = _i;
   if (ioctl(fd_, VIDIOC_QBUF, &buf) < 0) {
     std::cerr << "Failed to query buffer." << std::endl;
     return false;
@@ -295,7 +295,7 @@ int VideoDev::dequeue()
   return buf.index;
 }
 
-bool VideoDev::setImgFormat(const char* pixel_format, uint32_t width, uint32_t height)
+bool VideoDev::setImgFormat(const char* _pixel_format, uint32_t _width, uint32_t _height)
 {
   v4l2_format fmt_request = {};
   fmt_request.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -305,14 +305,14 @@ bool VideoDev::setImgFormat(const char* pixel_format, uint32_t width, uint32_t h
   }
   fmt_request.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   fmt_request.fmt.pix.pixelformat = v4l2_fourcc(
-    pixel_format[0],
-    pixel_format[1],
-    pixel_format[2],
-    pixel_format[3]);  // Normally specified with values such as `V4L2_PIX_FMT_MJPEG` or `V4L2_PIX_FMT_YUYV`.
+    _pixel_format[0],
+    _pixel_format[1],
+    _pixel_format[2],
+    _pixel_format[3]);  // Normally specified with values such as `V4L2_PIX_FMT_MJPEG` or `V4L2_PIX_FMT_YUYV`.
   fmt_request.fmt.pix.field = V4L2_FIELD_ANY;
-  if ((width != 0) && (height != 0)) {
-    fmt_request.fmt.pix.width = width;
-    fmt_request.fmt.pix.height = height;
+  if ((_width != 0) && (_height != 0)) {
+    fmt_request.fmt.pix.width = _width;
+    fmt_request.fmt.pix.height = _height;
   }
   if (ioctl(fd_, VIDIOC_S_FMT, &fmt_request) < 0) {
     std::cerr << "Failed to set image format: " << st::strError() << std::endl;
@@ -323,7 +323,7 @@ bool VideoDev::setImgFormat(const char* pixel_format, uint32_t width, uint32_t h
     std::cerr << "Failed to get image format." << std::endl;
     return false;
   }
-  if (fmt_request.fmt.pix.pixelformat != v4l2_fourcc(pixel_format[0], pixel_format[1], pixel_format[2], pixel_format[3])) {
+  if (fmt_request.fmt.pix.pixelformat != v4l2_fourcc(_pixel_format[0], _pixel_format[1], _pixel_format[2], _pixel_format[3])) {
     std::cerr << "Failed to set image format. The specified format is not supported by the device." << std::endl;
     return false;
   }

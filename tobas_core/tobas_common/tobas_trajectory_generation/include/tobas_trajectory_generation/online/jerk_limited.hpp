@@ -24,21 +24,21 @@ public:
   inline double getTrajectoryVelocity() const;
   inline double getTrajectoryAcceleration() const;
 
-  inline void setTargetPosition(double tar_pos);
-  inline void setTargetVelocity(double tar_vel);
-  inline void setTargetAcceleration(double tar_acc);
+  inline void setTargetPosition(double _tar_pos);
+  inline void setTargetVelocity(double _tar_vel);
+  inline void setTargetAcceleration(double _tar_acc);
 
-  void setMinVelocity(double min_vel);
-  void setMaxVelocity(double max_vel);
-  void setMinAcceleration(double min_acc);
-  void setMaxAcceleration(double max_acc);
-  void setMaxJerk(double max_jerk);
+  void setMinVelocity(double _min_vel);
+  void setMaxVelocity(double _max_vel);
+  void setMinAcceleration(double _min_acc);
+  void setMaxAcceleration(double _max_acc);
+  void setMaxJerk(double _max_jerk);
 
-  void update(double dt);
+  void update(double _dt);
 
-  void setTargetPointAndUpdate(double tar_pos, double tar_vel, double tar_acc, double dt);
+  void setTargetPointAndUpdate(double _tar_pos, double _tar_vel, double _tar_acc, double _dt);
 
-  void resetCurrentTrajectoryPoint(double pos, double vel, double acc);
+  void resetCurrentTrajectoryPoint(double _pos, double _vel, double _acc);
 
 private:
   // Trajectory Point
@@ -74,19 +74,19 @@ inline double JerkLimitedOnlineTrajectoryGenerator::getTrajectoryAcceleration() 
   return traj_acc_;
 }
 
-inline void JerkLimitedOnlineTrajectoryGenerator::setTargetPosition(double tar_pos)
+inline void JerkLimitedOnlineTrajectoryGenerator::setTargetPosition(double _tar_pos)
 {
-  tar_pos_ = tar_pos;
+  tar_pos_ = _tar_pos;
 }
 
-inline void JerkLimitedOnlineTrajectoryGenerator::setTargetVelocity(double tar_vel)
+inline void JerkLimitedOnlineTrajectoryGenerator::setTargetVelocity(double _tar_vel)
 {
-  tar_vel_ = tar_vel;
+  tar_vel_ = _tar_vel;
 }
 
-inline void JerkLimitedOnlineTrajectoryGenerator::setTargetAcceleration(double tar_acc)
+inline void JerkLimitedOnlineTrajectoryGenerator::setTargetAcceleration(double _tar_acc)
 {
-  tar_acc_ = tar_acc;
+  tar_acc_ = _tar_acc;
 }
 }  // namespace traj
 }  // namespace tobas

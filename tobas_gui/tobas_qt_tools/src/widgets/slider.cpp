@@ -9,9 +9,9 @@ namespace tobas
 {
 namespace qt
 {
-void Slider::wheelEvent(QWheelEvent* event)
+void Slider::wheelEvent(QWheelEvent* _event)
 {
-  event->ignore();
+  _event->ignore();
 }
 }  // namespace qt
 }  // namespace tobas

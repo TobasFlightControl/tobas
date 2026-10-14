@@ -11,8 +11,8 @@ namespace gui
 {
 namespace sa
 {
-ParamGetterWidget_SpinBox::ParamGetterWidget_SpinBox(const QString& param_name, const QString& description_text)
-  : super(param_name, description_text)
+ParamGetterWidget_SpinBox::ParamGetterWidget_SpinBox(const QString& _param_name, const QString& _description_text)
+  : super(_param_name, _description_text)
 {
   spin_box_ = new qt::SpinBox();
   rows_->addWidget(spin_box_);
@@ -24,39 +24,39 @@ int ParamGetterWidget_SpinBox::getValue() const
   return spin_box_->value();
 }
 
-bool ParamGetterWidget_SpinBox::setValue(int src)
+bool ParamGetterWidget_SpinBox::setValue(int _src)
 {
-  if (src < spin_box_->minimum() || spin_box_->maximum() < src) {
+  if (_src < spin_box_->minimum() || spin_box_->maximum() < _src) {
     return false;
   }
 
-  spin_box_->setValue(src);
+  spin_box_->setValue(_src);
   return true;
 }
 
-void ParamGetterWidget_SpinBox::setMinimum(int minimum)
+void ParamGetterWidget_SpinBox::setMinimum(int _minimum)
 {
-  spin_box_->setMinimum(minimum);
+  spin_box_->setMinimum(_minimum);
 }
 
-void ParamGetterWidget_SpinBox::setMaximum(int maximum)
+void ParamGetterWidget_SpinBox::setMaximum(int _maximum)
 {
-  spin_box_->setMaximum(maximum);
+  spin_box_->setMaximum(_maximum);
 }
 
-void ParamGetterWidget_SpinBox::setSingleStep(int single_step)
+void ParamGetterWidget_SpinBox::setSingleStep(int _single_step)
 {
-  spin_box_->setSingleStep(single_step);
+  spin_box_->setSingleStep(_single_step);
 }
 
-void ParamGetterWidget_SpinBox::setSuffix(const QString& suffix)
+void ParamGetterWidget_SpinBox::setSuffix(const QString& _suffix)
 {
-  spin_box_->setSuffix(QString::fromStdString(str::convertToSuperscript(suffix.toStdString())));
+  spin_box_->setSuffix(QString::fromStdString(str::convertToSuperscript(_suffix.toStdString())));
 }
 
-void ParamGetterWidget_SpinBox::onValueChanged(int value)
+void ParamGetterWidget_SpinBox::onValueChanged(int _value)
 {
-  Q_EMIT valueChanged(value);
+  Q_EMIT valueChanged(_value);
 }
 }  // namespace sa
 }  // namespace gui

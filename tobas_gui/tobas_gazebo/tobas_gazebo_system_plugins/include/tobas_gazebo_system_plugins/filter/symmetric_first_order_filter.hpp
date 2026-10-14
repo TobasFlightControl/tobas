@@ -17,7 +17,7 @@ class SymmetricFirstOrderFilter : public AsymmetricFirstOrderFilter<T>
 public:
   explicit SymmetricFirstOrderFilter();
 
-  virtual void initialize(double time_const, const T& init_value);
+  virtual void initialize(double _time_const, const T& _init_value);
 };
 
 template <typename T>
@@ -26,9 +26,9 @@ SymmetricFirstOrderFilter<T>::SymmetricFirstOrderFilter()
 }
 
 template <typename T>
-void SymmetricFirstOrderFilter<T>::initialize(double time_const, const T& init_value)
+void SymmetricFirstOrderFilter<T>::initialize(double _time_const, const T& _init_value)
 {
-  super::initialize(time_const, time_const, init_value);
+  super::initialize(_time_const, _time_const, _init_value);
 }
 }  // namespace gazebo
 }  // namespace tobas

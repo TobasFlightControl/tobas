@@ -28,7 +28,7 @@ class RotorMarkerPublisher : public QObject
   using self = RotorMarkerPublisher;
 
 public:
-  explicit RotorMarkerPublisher(rclcpp::Node::SharedPtr node, const uadf::Model& uadf);
+  explicit RotorMarkerPublisher(rclcpp::Node::SharedPtr _node, const uadf::Model& _uadf);
 
   void updateInternalDataStructures();
 

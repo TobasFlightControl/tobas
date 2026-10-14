@@ -27,7 +27,7 @@ class TreeServerNode : public BaseNode
   using DetachSrv = tobas_msgs::srv::DetachLoad;
 
 public:
-  explicit TreeServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit TreeServerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   kdl::Tree tree_;
@@ -39,17 +39,18 @@ private:
   ros2::ServiceServerPtr<AttachSrv> attach_srv_;
   ros2::ServiceServerPtr<DetachSrv> detach_srv_;
 
-  static std::string loadSegmentName(const std::string& id);
-  static kdl::RigidBodyInertia parseLoad(const AttachSrv::Request& req);
+  static std::string loadSegmentName(const std::string& _id);
+  static kdl::RigidBodyInertia parseLoad(const AttachSrv::Request& _req);
 
   void publishTree();
   void initialPublishTimerCb();
 
-  void attachCb(const AttachSrv::Request::ConstSharedPtr& req, const AttachSrv::Response::SharedPtr& res);
-  void detachCb(const DetachSrv::Request::ConstSharedPtr& req, const DetachSrv::Response::SharedPtr& res);
+  void attachCb(const AttachSrv::Request::ConstSharedPtr& _req, const AttachSrv::Response::SharedPtr& _res);
+  void detachCb(const DetachSrv::Request::ConstSharedPtr& _req, const DetachSrv::Response::SharedPtr& _res);
 };
 
-TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& options) : super("tree_server", nodeOptions_Default(options))
+TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& _options)
+  : super("tree_server", nodeOptions_Default(_options))
 {
   // Load a KDL tree.
   const auto robot_description = getStringParam("robot_description");
@@ -81,20 +82,20 @@ void TreeServerNode::initialPublishTimerCb()
   publishTree();
 }
 
-std::string TreeServerNode::loadSegmentName(const std::string& id)
+std::string TreeServerNode::loadSegmentName(const std::string& _id)
 {
-  return "attached_load/" + id;
+  return "attached_load/" + _id;
 }
 
-kdl::RigidBodyInertia TreeServerNode::parseLoad(const AttachSrv::Request& req)
+kdl::RigidBodyInertia TreeServerNode::parseLoad(const AttachSrv::Request& _req)
 {
   kdl::Vector cog;
-  tobas_kdl_msgs::VectorAdapter::convert_to_custom(req.inertia.cog, cog);
+  tobas_kdl_msgs::VectorAdapter::convert_to_custom(_req.inertia.cog, cog);
 
   kdl::RotationalInertia i_cog;
-  tobas_kdl_msgs::RotationalInertiaAdapter::convert_to_custom(req.inertia.i_cog, i_cog);
+  tobas_kdl_msgs::RotationalInertiaAdapter::convert_to_custom(_req.inertia.i_cog, i_cog);
 
-  return kdl::RigidBodyInertia(req.inertia.mass, cog, i_cog);
+  return kdl::RigidBodyInertia(_req.inertia.mass, cog, i_cog);
 }
 
 void TreeServerNode::publishTree()
@@ -103,72 +104,72 @@ void TreeServerNode::publishTree()
   tree_pub_->publish(std::move(tree_msg));
 }
 
-void TreeServerNode::attachCb(const AttachSrv::Request::ConstSharedPtr& req, const AttachSrv::Response::SharedPtr& res)
+void TreeServerNode::attachCb(const AttachSrv::Request::ConstSharedPtr& _req, const AttachSrv::Response::SharedPtr& _res)
 {
-  res->success = false;
+  _res->success = false;
 
   if (tree_.empty()) {
-    res->message = "Robot description has not been initialized.";
+    _res->message = "Robot description has not been initialized.";
     return;
   }
-  if (req->load_id.empty()) {
-    res->message = "Load ID must not be empty.";
+  if (_req->load_id.empty()) {
+    _res->message = "Load ID must not be empty.";
     return;
   }
-  if (load_ids_.contains(req->load_id)) {
-    res->message = "Load '" + req->load_id + "' is already attached.";
+  if (load_ids_.contains(_req->load_id)) {
+    _res->message = "Load '" + _req->load_id + "' is already attached.";
     return;
   }
 
-  const auto segment_name = loadSegmentName(req->load_id);
+  const auto segment_name = loadSegmentName(_req->load_id);
 
   kdl::Joint joint;
   joint.name = segment_name + "/joint";
   joint.type = kdl::Joint::kFixed;
 
-  const auto inertia = parseLoad(*req);
+  const auto inertia = parseLoad(*_req);
   if (const auto result = inertia.validate(); !result) {
-    res->message = result.error();
+    _res->message = result.error();
     return;
   }
 
   const kdl::Segment segment(segment_name, joint, kdl::Frame::Identity(), inertia);
-  if (!tree_.addSegment(segment, req->parent_link)) {
-    res->message = "Failed to add load '" + req->load_id + "'.";
+  if (!tree_.addSegment(segment, _req->parent_link)) {
+    _res->message = "Failed to add load '" + _req->load_id + "'.";
     return;
   }
 
-  load_ids_.insert(req->load_id);
+  load_ids_.insert(_req->load_id);
   publishTree();
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
 
-void TreeServerNode::detachCb(const DetachSrv::Request::ConstSharedPtr& req, const DetachSrv::Response::SharedPtr& res)
+void TreeServerNode::detachCb(const DetachSrv::Request::ConstSharedPtr& _req, const DetachSrv::Response::SharedPtr& _res)
 {
-  res->success = false;
+  _res->success = false;
 
   if (tree_.empty()) {
-    res->message = "Robot description has not been initialized.";
+    _res->message = "Robot description has not been initialized.";
     return;
   }
-  if (!load_ids_.contains(req->load_id)) {
-    res->message = "Load '" + req->load_id + "' is not attached.";
+  if (!load_ids_.contains(_req->load_id)) {
+    _res->message = "Load '" + _req->load_id + "' is not attached.";
     return;
   }
 
-  const auto segment_name = loadSegmentName(req->load_id);
+  const auto segment_name = loadSegmentName(_req->load_id);
   if (!tree_.removeSegment(segment_name)) {
-    res->message = "Failed to remove load '" + req->load_id + "'.";
+    _res->message = "Failed to remove load '" + _req->load_id + "'.";
     return;
   }
 
-  load_ids_.erase(req->load_id);
+  load_ids_.erase(_req->load_id);
   publishTree();
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
 }  // namespace tobas
 

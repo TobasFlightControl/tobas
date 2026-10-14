@@ -17,7 +17,7 @@ public:
   Vector angular;  ///< [kg m^2] (Revolute) or 0 (Prismatic)
 
   inline explicit SegmentInertia();
-  inline explicit SegmentInertia(const Vector& linear, const Vector& angular);
+  inline explicit SegmentInertia(const Vector& _linear, const Vector& _angular);
 
   static inline SegmentInertia Zero();
 };

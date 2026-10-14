@@ -111,19 +111,19 @@ void RcInputPlotWidget::clear()
   kill_plot_->replot();
 }
 
-void RcInputPlotWidget::setTimeScale(double t_start, double t_stop)
+void RcInputPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
-  roll_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  pitch_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  throt_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  yaw_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  mode_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  sub_mode_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  enable_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  kill_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+  roll_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  pitch_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  throt_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  yaw_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  mode_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  sub_mode_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  enable_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  kill_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
 }
 
-void RcInputPlotWidget::setData(const QVector<tobas_msgs::msg::RCInput>& msgs)
+void RcInputPlotWidget::setData(const QVector<tobas_msgs::msg::RCInput>& _msgs)
 {
   QVector<double> t_data;
   QVector<double> roll_data;
@@ -135,7 +135,7 @@ void RcInputPlotWidget::setData(const QVector<tobas_msgs::msg::RCInput>& msgs)
   QVector<double> enable_data;
   QVector<double> kill_data;
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     if (msg.status != tobas_msgs::msg::RCInput::STATUS_OK) {
       continue;
     }

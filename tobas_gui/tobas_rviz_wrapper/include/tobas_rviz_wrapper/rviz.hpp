@@ -20,8 +20,8 @@ namespace rviz
 class RvizFrameManager
 {
 public:
-  explicit RvizFrameManager(int argc, char** argv, const std::string& node_name);
-  explicit RvizFrameManager(const std::string& node_name);
+  explicit RvizFrameManager(int _argc, char** _argv, const std::string& _node_name);
+  explicit RvizFrameManager(const std::string& _node_name);
   ~RvizFrameManager();
 
   RvizFrameManager(const RvizFrameManager&) = delete;
@@ -29,7 +29,7 @@ public:
   RvizFrameManager(RvizFrameManager&&) = delete;
   RvizFrameManager& operator=(RvizFrameManager&&) = delete;
 
-  void initialize(const QString& config_path);
+  void initialize(const QString& _config_path);
   void clear();
 
   rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rvizNode();
@@ -38,11 +38,11 @@ public:
   QWidget* widget();
 
   QString getFixedFrame() const;
-  void setFixedFrame(const QString& frame);
-  void setOrbitView(float distance, float yaw, float pitch, float focal_x, float focal_y, float focal_z);
+  void setFixedFrame(const QString& _frame);
+  void setOrbitView(float _distance, float _yaw, float _pitch, float _focal_x, float _focal_y, float _focal_z);
   void resetTime();
 
-  std::vector<rviz_common::Display*> getDisplays(const QString& name);
+  std::vector<rviz_common::Display*> getDisplays(const QString& _name);
 
 private:
   std::shared_ptr<rviz_common::ros_integration::RosNodeAbstraction> node_;

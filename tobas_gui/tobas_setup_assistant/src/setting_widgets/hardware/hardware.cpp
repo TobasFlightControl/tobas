@@ -29,12 +29,12 @@ constexpr char kPwmLabel[] = "PWM";
 constexpr char kDShotLabel[] = "DShot";
 }  // namespace
 
-HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
+HardwareWidget::HardwareWidget(const uadf::Model& _uadf, const Signals& _sig)
 {
   type_ = new qt::ComboBox();
   hardwares_ = new qt::StackedWidget();
-  pwm_ = new PwmWidget(uadf, sig);
-  dshot_ = new DShotWidget(uadf, sig);
+  pwm_ = new PwmWidget(_uadf, _sig);
+  dshot_ = new DShotWidget(_uadf, _sig);
 
   hardwares_->addWidget(new FC1xxWidget());
   hardwares_->addWidget(new FC2xxWidget());
@@ -131,18 +131,18 @@ YAML::Node HardwareWidget::dump() const
   return node;
 }
 
-void HardwareWidget::load(const YAML::Node& node)
+void HardwareWidget::load(const YAML::Node& _node)
 {
-  type_->setCurrentText(node[kTypeKey].as<QString>());
+  type_->setCurrentText(_node[kTypeKey].as<QString>());
   setCurrentHardware(type_->currentIndex());
 
   for (int i = 0; i < hardwares_->count(); ++i) {
     const auto hardware = widget(i);
-    hardware->load(node[hardware->name()]);
+    hardware->load(_node[hardware->name()]);
   }
 
-  pwm_->load(node[kPwmLabel]);
-  dshot_->load(node[kDShotLabel]);
+  pwm_->load(_node[kPwmLabel]);
+  dshot_->load(_node[kDShotLabel]);
 }
 
 const PwmWidget* HardwareWidget::pwm() const
@@ -260,14 +260,14 @@ bool HardwareWidget::hasRpmFilter() const
   return selected()->hasRpmFilter();
 }
 
-BaseHardwareWidget* HardwareWidget::widget(int index)
+BaseHardwareWidget* HardwareWidget::widget(int _index)
 {
-  return qt::qPointerCast<BaseHardwareWidget>(hardwares_->widget(index));
+  return qt::qPointerCast<BaseHardwareWidget>(hardwares_->widget(_index));
 }
 
-const BaseHardwareWidget* HardwareWidget::widget(int index) const
+const BaseHardwareWidget* HardwareWidget::widget(int _index) const
 {
-  return qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(index));
+  return qt::qConstPointerCast<BaseHardwareWidget>(hardwares_->widget(_index));
 }
 
 BaseHardwareWidget* HardwareWidget::selected()
@@ -280,20 +280,20 @@ const BaseHardwareWidget* HardwareWidget::selected() const
   return widget(hardwares_->currentIndex());
 }
 
-void HardwareWidget::setCurrentHardware(int index)
+void HardwareWidget::setCurrentHardware(int _index)
 {
-  hardwares_->setCurrentIndex(index);
+  hardwares_->setCurrentIndex(_index);
 
-  const auto hardware = widget(index);
+  const auto hardware = widget(_index);
   pwm_->setNumChannels(hardware->numPwmChannels());
   dshot_->setNumChannels(hardware->numDShotChannels());
 }
 
-void HardwareWidget::onHardwareTypeChanged(int index)
+void HardwareWidget::onHardwareTypeChanged(int _index)
 {
-  qDebug().nospace() << "HardwareWidget::onHardwareTypeChanged(" << index << ")";
+  qDebug().nospace() << "HardwareWidget::onHardwareTypeChanged(" << _index << ")";
 
-  setCurrentHardware(index);
+  setCurrentHardware(_index);
 }
 }  // namespace hw
 }  // namespace sa

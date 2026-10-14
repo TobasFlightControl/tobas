@@ -20,35 +20,35 @@ namespace electric
 namespace
 {
 /** Least-squares solution for the ratio (memo: 2-28). */
-double ratioLeastSquare(const Eigen::VectorXd& num, const Eigen::VectorXd& den)
+double ratioLeastSquare(const Eigen::VectorXd& _num, const Eigen::VectorXd& _den)
 {
-  assert(num.size() == den.size());
-  return num.dot(den) / den.squaredNorm();
+  assert(_num.size() == _den.size());
+  return _num.dot(_den) / _den.squaredNorm();
 }
 }  // namespace
 
-double motorConstFromThrustStand(const Eigen::VectorXd& rpms, const Eigen::VectorXd& thrusts)
+double motorConstFromThrustStand(const Eigen::VectorXd& _rpms, const Eigen::VectorXd& _thrusts)
 {
-  const auto omega2 = (rpms * st::kRpmToRps).cwiseAbs2();
-  return ratioLeastSquare(thrusts, omega2);
+  const auto omega2 = (_rpms * st::kRpmToRps).cwiseAbs2();
+  return ratioLeastSquare(_thrusts, omega2);
 }
 
-double momentConstFromThrustStand(const Eigen::VectorXd& thrusts, const Eigen::VectorXd& torques)
+double momentConstFromThrustStand(const Eigen::VectorXd& _thrusts, const Eigen::VectorXd& _torques)
 {
-  return ratioLeastSquare(torques, thrusts);
+  return ratioLeastSquare(_torques, _thrusts);
 }
 
-double motorConstFromUiuc(const Eigen::VectorXd& cts, double d)
+double motorConstFromUiuc(const Eigen::VectorXd& _cts, double _d)
 {
-  const auto ct = cts.mean();
+  const auto ct = _cts.mean();
   constexpr auto rho = st::kStandardAirDensity;  // TODO: Consider runtime air pressure changes.
-  return (ct * rho * math::quar(d)) / math::sqr(M_2PI);
+  return (ct * rho * math::quar(_d)) / math::sqr(M_2PI);
 }
 
-double momentConstFromUiuc(const Eigen::VectorXd& cts, const Eigen::VectorXd& cps, double d)
+double momentConstFromUiuc(const Eigen::VectorXd& _cts, const Eigen::VectorXd& _cps, double _d)
 {
-  const auto num = d * cps;
-  const auto den = M_2PI * cts;
+  const auto num = _d * _cps;
+  const auto den = M_2PI * _cts;
   return ratioLeastSquare(num, den);
 }
 }  // namespace electric

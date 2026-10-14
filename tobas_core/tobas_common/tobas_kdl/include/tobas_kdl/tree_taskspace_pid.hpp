@@ -21,26 +21,26 @@ class TreeTaskSpacePID : public TreeSolverI
   using super = TreeSolverI;
 
 public:
-  explicit TreeTaskSpacePID(const Tree& tree, const Vector& grav = Vector(0, 0, -st::kGravity));
+  explicit TreeTaskSpacePID(const Tree& _tree, const Vector& _grav = Vector(0, 0, -st::kGravity));
 
   void updateInternalDataStructures() override;
 
   std::expected<JntArray, std::string> cartToJnt(
-    const JntArray& cur_q,
-    const JntArray& cur_qd,
-    const FrameMap& tar_p,
-    const TwistMap& tar_v,
-    const AccelMap& a_ff,
-    const WrenchMap& f_ext = WrenchMap());
+    const JntArray& _cur_q,
+    const JntArray& _cur_qd,
+    const FrameMap& _tar_p,
+    const TwistMap& _tar_v,
+    const AccelMap& _a_ff,
+    const WrenchMap& _f_ext = WrenchMap());
 
-  void setLinearStiffness(const Vector& kp);
-  void setAngularStiffness(const Vector& kp);
-  void setLinearDamping(const Vector& kd);
-  void setAngularDamping(const Vector& kd);
-  void setLinearStiffness(double kp);
-  void setAngularStiffness(double kp);
-  void setLinearDamping(double kd);
-  void setAngularDamping(double kd);
+  void setLinearStiffness(const Vector& _kp);
+  void setAngularStiffness(const Vector& _kp);
+  void setLinearDamping(const Vector& _kd);
+  void setAngularDamping(const Vector& _kd);
+  void setLinearStiffness(double _kp);
+  void setAngularStiffness(double _kp);
+  void setLinearDamping(double _kd);
+  void setAngularDamping(double _kd);
 
 private:
   TreeFkSolverVel fk_;

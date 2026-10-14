@@ -16,42 +16,42 @@ public:
   Vector w;    ///< rotation vector
 
   inline explicit RotationVel();
-  inline explicit RotationVel(const Rotation& _R);
-  inline explicit RotationVel(const Rotation& _R, const Vector& _w);
+  inline explicit RotationVel(const Rotation& _r);
+  inline explicit RotationVel(const Rotation& _r, const Vector& _w);
 
   static inline RotationVel Identity();
 
-  static inline RotationVel RotX(const doubleVel& angle);
-  static inline RotationVel RotY(const doubleVel& angle);
-  static inline RotationVel RotZ(const doubleVel& angle);
+  static inline RotationVel RotX(const doubleVel& _angle);
+  static inline RotationVel RotY(const doubleVel& _angle);
+  static inline RotationVel RotZ(const doubleVel& _angle);
 
   /** Axis must be normalized. Rotation around a constant vector. */
-  static inline RotationVel Rot(const Vector& axis, const doubleVel& angle);
+  static inline RotationVel Rot(const Vector& _axis, const doubleVel& _angle);
 
   inline void setIdentity();
   inline void setNaN();
 
   inline RotationVel inverse() const;
-  inline VectorVel inverse(const VectorVel& arg) const;
-  inline VectorVel inverse(const Vector& arg) const;
+  inline VectorVel inverse(const VectorVel& _arg) const;
+  inline VectorVel inverse(const Vector& _arg) const;
 
-  inline VectorVel operator*(const VectorVel& arg) const;
-  inline VectorVel operator*(const Vector& arg) const;
+  inline VectorVel operator*(const VectorVel& _arg) const;
+  inline VectorVel operator*(const Vector& _arg) const;
 
-  inline friend RotationVel operator*(const RotationVel& r1, const RotationVel& r2);
-  inline friend RotationVel operator*(const Rotation& r1, const RotationVel& r2);
-  inline friend RotationVel operator*(const RotationVel& r1, const Rotation& r2);
+  inline friend RotationVel operator*(const RotationVel& _r1, const RotationVel& _r2);
+  inline friend RotationVel operator*(const Rotation& _r1, const RotationVel& _r2);
+  inline friend RotationVel operator*(const RotationVel& _r1, const Rotation& _r2);
 };
 
 inline RotationVel::RotationVel()
 {
 }
 
-inline RotationVel::RotationVel(const Rotation& _R) : R(_R), w(Vector::Zero())
+inline RotationVel::RotationVel(const Rotation& _r) : R(_r), w(Vector::Zero())
 {
 }
 
-inline RotationVel::RotationVel(const Rotation& _R, const Vector& _w) : R(_R), w(_w)
+inline RotationVel::RotationVel(const Rotation& _r, const Vector& _w) : R(_r), w(_w)
 {
 }
 
@@ -60,24 +60,24 @@ inline RotationVel RotationVel::Identity()
   return RotationVel(Rotation::Identity(), Vector::Zero());
 }
 
-inline RotationVel RotationVel::RotX(const doubleVel& angle)
+inline RotationVel RotationVel::RotX(const doubleVel& _angle)
 {
-  return RotationVel(Rotation::RotX(angle.t), Vector(angle.grad, 0, 0));
+  return RotationVel(Rotation::RotX(_angle.t), Vector(_angle.grad, 0, 0));
 }
 
-inline RotationVel RotationVel::RotY(const doubleVel& angle)
+inline RotationVel RotationVel::RotY(const doubleVel& _angle)
 {
-  return RotationVel(Rotation::RotX(angle.t), Vector(0, angle.grad, 0));
+  return RotationVel(Rotation::RotX(_angle.t), Vector(0, _angle.grad, 0));
 }
 
-inline RotationVel RotationVel::RotZ(const doubleVel& angle)
+inline RotationVel RotationVel::RotZ(const doubleVel& _angle)
 {
-  return RotationVel(Rotation::RotZ(angle.t), Vector(0, 0, angle.grad));
+  return RotationVel(Rotation::RotZ(_angle.t), Vector(0, 0, _angle.grad));
 }
 
-inline RotationVel RotationVel::Rot(const Vector& axis, const doubleVel& angle)
+inline RotationVel RotationVel::Rot(const Vector& _axis, const doubleVel& _angle)
 {
-  return RotationVel(Rotation::Rot(axis, angle.t), axis * angle.grad);
+  return RotationVel(Rotation::Rot(_axis, _angle.t), _axis * _angle.grad);
 }
 
 inline void RotationVel::setIdentity()
@@ -97,43 +97,43 @@ inline RotationVel RotationVel::inverse() const
   return RotationVel(R.inverse(), -R.inverse(w));
 }
 
-inline VectorVel RotationVel::inverse(const VectorVel& arg) const
+inline VectorVel RotationVel::inverse(const VectorVel& _arg) const
 {
-  const auto tmp = R.inverse(arg.p);
-  return VectorVel(tmp, R.inverse(arg.v - w * arg.p));
+  const auto tmp = R.inverse(_arg.p);
+  return VectorVel(tmp, R.inverse(_arg.v - w * _arg.p));
 }
 
-inline VectorVel RotationVel::inverse(const Vector& arg) const
+inline VectorVel RotationVel::inverse(const Vector& _arg) const
 {
-  const auto tmp = R.inverse(arg);
-  return VectorVel(tmp, R.inverse(-w * arg));
+  const auto tmp = R.inverse(_arg);
+  return VectorVel(tmp, R.inverse(-w * _arg));
 }
 
-inline VectorVel RotationVel::operator*(const VectorVel& arg) const
+inline VectorVel RotationVel::operator*(const VectorVel& _arg) const
 {
-  const auto tmp = R * arg.p;
-  return VectorVel(tmp, w * tmp + R * arg.v);
+  const auto tmp = R * _arg.p;
+  return VectorVel(tmp, w * tmp + R * _arg.v);
 }
 
-inline VectorVel RotationVel::operator*(const Vector& arg) const
+inline VectorVel RotationVel::operator*(const Vector& _arg) const
 {
-  const auto tmp = R * arg;
+  const auto tmp = R * _arg;
   return VectorVel(tmp, w * tmp);
 }
 
-inline RotationVel operator*(const RotationVel& r1, const RotationVel& r2)
+inline RotationVel operator*(const RotationVel& _r1, const RotationVel& _r2)
 {
-  return RotationVel(r1.R * r2.R, r1.w + r1.R * r2.w);
+  return RotationVel(_r1.R * _r2.R, _r1.w + _r1.R * _r2.w);
 }
 
-inline RotationVel operator*(const Rotation& r1, const RotationVel& r2)
+inline RotationVel operator*(const Rotation& _r1, const RotationVel& _r2)
 {
-  return RotationVel(r1 * r2.R, r1 * r2.w);
+  return RotationVel(_r1 * _r2.R, _r1 * _r2.w);
 }
 
-inline RotationVel operator*(const RotationVel& r1, const Rotation& r2)
+inline RotationVel operator*(const RotationVel& _r1, const Rotation& _r2)
 {
-  return RotationVel(r1.R * r2, r1.w);
+  return RotationVel(_r1.R * _r2, _r1.w);
 }
 }  // namespace kdl
 }  // namespace tobas

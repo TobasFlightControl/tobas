@@ -40,12 +40,12 @@ Q_SIGNALS:
 public:
   static constexpr int kDroneId = 0;
 
-  explicit SimulationWidget(const rqt::RosQtBridge& bridge);
+  explicit SimulationWidget(const rqt::RosQtBridge& _bridge);
   ~SimulationWidget();
 
   void reset();
-  void setProjectPath(const QString& proj_path);
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void setProjectPath(const QString& _proj_path);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
   bool isRunning() const;
@@ -82,13 +82,13 @@ private:
   void launchSimulation();
   void terminateLaunchProcess();
   void terminateSimulation();
-  void finalizeLaunchProcess(QProcess* process, int code, QProcess::ExitStatus status);
+  void finalizeLaunchProcess(QProcess* _process, int _code, QProcess::ExitStatus _status);
 
 private Q_SLOTS:
   void onStartRequested();
   void onTerminateRequested();
-  void onLaunchProcessFinished(int code, QProcess::ExitStatus status);
-  void onLaunchProcessErrorOccurred(QProcess::ProcessError error);
+  void onLaunchProcessFinished(int _code, QProcess::ExitStatus _status);
+  void onLaunchProcessErrorOccurred(QProcess::ProcessError _error);
 };
 }  // namespace sim
 }  // namespace gui

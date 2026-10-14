@@ -58,10 +58,10 @@ class GroundControlStationWidget : public QWidget
   using self = GroundControlStationWidget;
 
 public:
-  explicit GroundControlStationWidget(int argc, char** argv);
+  explicit GroundControlStationWidget(int _argc, char** _argv);
 
 protected:
-  bool eventFilter(QObject* watched, QEvent* event) override;
+  bool eventFilter(QObject* _watched, QEvent* _event) override;
 
 private:
   struct ProjectData
@@ -118,26 +118,26 @@ private:
   void reset();
   void initializeRos();
   void deinitializeRos();
-  std::expected<void, QString> connectToVehicle(const QString& drone, const QString& id);
+  std::expected<void, QString> connectToVehicle(const QString& _drone, const QString& _id);
   void disconnectFromVehicle();
-  void setConnectionState(bool connected);
+  void setConnectionState(bool _connected);
   bool waitForHeartbeat() const;
 
   void updateWidgetEnabledStates();
   bool canUpdateFlightControllerList() const;
-  void updateFlightControllerList(const QVector<DiscoveredFlightController>& flight_controllers);
-  void setFlightControllerPlaceholder(const QString& text);
+  void updateFlightControllerList(const QVector<DiscoveredFlightController>& _flight_controllers);
+  void setFlightControllerPlaceholder(const QString& _text);
   void resetFlightControllerPlaceholder();
 
   QString currentAddress() const;
   DiscoveredFlightController currentFlightController() const;
-  void updateSelectedFlightControllerConfiguration(const QString& drone, const QString& id);
+  void updateSelectedFlightControllerConfiguration(const QString& _drone, const QString& _id);
   QString currentConnectionDescription() const;
 
   void expectTelemetryLoss();
   void clearExpectedTelemetryLoss();
 
-  void setCurrentApplication(QWidget* widget);
+  void setCurrentApplication(QWidget* _widget);
 
 private Q_SLOTS:
   void onEndpointChanged();
@@ -147,8 +147,8 @@ private Q_SLOTS:
   void onDisconnectButtonClicked();
   void onWriteButtonClicked();
 
-  void onFlightControllerScanFinished(const QVector<DiscoveredFlightController>& flight_controllers);
-  void onFlightControllerScanFailed(const QString& message);
+  void onFlightControllerScanFinished(const QVector<DiscoveredFlightController>& _flight_controllers);
+  void onFlightControllerScanFailed(const QString& _message);
 
   void onRestartButtonClicked();
   void onShutdownButtonClicked();
@@ -157,7 +157,7 @@ private Q_SLOTS:
   void onSimulationTerminated();
   void onRemoteConnectionDisconnected();
 
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
 };
 }  // namespace gcs
 }  // namespace gui

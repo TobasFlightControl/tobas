@@ -16,11 +16,11 @@ namespace std
 template <typename Scalar, int Rows, int Cols>
 struct hash<Eigen::Matrix<Scalar, Rows, Cols>>
 {
-  size_t operator()(const Eigen::Matrix<Scalar, Rows, Cols>& matrix) const
+  size_t operator()(const Eigen::Matrix<Scalar, Rows, Cols>& _matrix) const
   {
     size_t seed = 0;
-    for (size_t i = 0; i < matrix.size(); ++i) {
-      const auto elem = *(matrix.data() + i);
+    for (size_t i = 0; i < _matrix.size(); ++i) {
+      const auto elem = *(_matrix.data() + i);
       seed ^= std::hash<Scalar>()(elem) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
     return seed;

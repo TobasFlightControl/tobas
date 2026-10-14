@@ -11,9 +11,9 @@ namespace ros2
 {
 /** Wait for `timeout` until `predicate` returns true. */
 bool waitUntil(
-  const rclcpp::Node::SharedPtr& node,
-  const std::function<bool()>& predicate,
-  const std::chrono::milliseconds timeout,
-  const std::chrono::milliseconds interval = std::chrono::milliseconds(10));
+  const rclcpp::Node::SharedPtr& _node,
+  const std::function<bool()>& _predicate,
+  const std::chrono::milliseconds _timeout,
+  const std::chrono::milliseconds _interval = std::chrono::milliseconds(10));
 }  // namespace ros2
 }  // namespace tobas

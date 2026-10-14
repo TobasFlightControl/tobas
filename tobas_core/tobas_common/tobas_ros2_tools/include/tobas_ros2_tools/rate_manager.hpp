@@ -12,12 +12,12 @@ namespace ros2
 class RateManager
 {
 public:
-  explicit RateManager(double update_rate);
+  explicit RateManager(double _update_rate);
 
   void reset();
 
   /** Return true when the period is executable. */
-  bool update(const rclcpp::Time& time);
+  bool update(const rclcpp::Time& _time);
 
 private:
   const rclcpp::Duration interval_;

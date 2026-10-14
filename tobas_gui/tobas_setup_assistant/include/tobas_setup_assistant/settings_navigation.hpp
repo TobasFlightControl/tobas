@@ -25,35 +25,35 @@ class SettingsNavigationWidget : public QListWidget
   using super = QListWidget;
 
 Q_SIGNALS:
-  void currentEntryChanged(int id);
+  void currentEntryChanged(int _id);
 
 public:
   explicit SettingsNavigationWidget();
 
   /** Add a non-selectable section heading. */
-  void addSection(const QString& title);
+  void addSection(const QString& _title);
 
   /** Add a selectable entry. IDs must be unique within the widget. */
-  void addEntry(const QString& title, int id);
+  void addEntry(const QString& _title, int _id);
 
   /** Select the entry corresponding to `id`. */
-  void setCurrentEntry(int id);
+  void setCurrentEntry(int _id);
 
   /** Enable or disable an entry, displaying `disabled_reason` as a tooltip while disabled. */
-  void setEntryEnabled(int id, bool enabled, const QString& disabled_reason = {});
+  void setEntryEnabled(int _id, bool _enabled, const QString& _disabled_reason = {});
 
 protected:
-  void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
-  QModelIndex moveCursor(CursorAction cursor_action, Qt::KeyboardModifiers modifiers) override;
-  void mousePressEvent(QMouseEvent* event) override;
-  bool viewportEvent(QEvent* event) override;
+  void currentChanged(const QModelIndex& _current, const QModelIndex& _previous) override;
+  QModelIndex moveCursor(CursorAction _cursor_action, Qt::KeyboardModifiers _modifiers) override;
+  void mousePressEvent(QMouseEvent* _event) override;
+  bool viewportEvent(QEvent* _event) override;
 
 private:
   bool restoring_current_item_ = false;
 
-  QListWidgetItem* getEntry(int id) const;
-  void setListItemEnabled(QListWidgetItem* item, bool enabled);
-  void onCurrentItemChanged(QListWidgetItem* item);
+  QListWidgetItem* getEntry(int _id) const;
+  void setListItemEnabled(QListWidgetItem* _item, bool _enabled);
+  void onCurrentItemChanged(QListWidgetItem* _item);
 };
 }  // namespace sa
 }  // namespace gui

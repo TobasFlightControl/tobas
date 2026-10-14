@@ -40,9 +40,9 @@ double MaxHorizontalVelocityWidget::getValue() const
   return spin_box_->value();
 }
 
-void MaxHorizontalVelocityWidget::setValue(double value)
+void MaxHorizontalVelocityWidget::setValue(double _value)
 {
-  spin_box_->setValue(value);
+  spin_box_->setValue(_value);
 }
 }  // namespace field
 }  // namespace ctrl

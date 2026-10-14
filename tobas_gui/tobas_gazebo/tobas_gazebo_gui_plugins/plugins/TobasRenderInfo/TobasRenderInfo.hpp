@@ -21,10 +21,10 @@ class TobasRenderInfo : public gz::gui::Plugin
 public:
   explicit TobasRenderInfo();
 
-  void LoadConfig(const tinyxml2::XMLElement* elem) override;
+  void LoadConfig(const tinyxml2::XMLElement* _elem) override;
 
 private:
-  bool eventFilter(QObject* obj, QEvent* event) override;
+  bool eventFilter(QObject* _obj, QEvent* _event) override;
 
   void onRender();
 

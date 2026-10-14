@@ -16,7 +16,7 @@ class AppButton : public QToolButton
   Q_OBJECT
 
 public:
-  explicit AppButton(const QString& text, const QString& icon_path);
+  explicit AppButton(const QString& _text, const QString& _icon_path);
 };
 }  // namespace gcs
 }  // namespace gui

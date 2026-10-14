@@ -26,16 +26,16 @@ namespace
 constexpr char kMethodNameKey[] = "method_name";
 }  // namespace
 
-AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* propeller) : propeller_(propeller)
+AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : propeller_(_propeller)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
   method_name_ = new qt::ComboBox();
 
-  const auto preset = new AerodynamicsWidget_Preset(propeller);
+  const auto preset = new AerodynamicsWidget_Preset(_propeller);
   const auto thrust_stand = new AerodynamicsWidget_ThrustStand();
-  const auto uiuc = new AerodynamicsWidget_UIUC(propeller);
+  const auto uiuc = new AerodynamicsWidget_UIUC(_propeller);
 
   methods_ = new qt::StackedWidget();
   methods_->addWidget(preset);
@@ -80,9 +80,9 @@ bool AerodynamicsWidget::isValid()
   return true;
 }
 
-void AerodynamicsWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
+void AerodynamicsWidget::copyFrom(const BaseSelectedLinkSettingWidget* _src)
 {
-  const auto derived = qt::qConstPointerCast<AerodynamicsWidget>(src);
+  const auto derived = qt::qConstPointerCast<AerodynamicsWidget>(_src);
 
   method_name_->setCurrentIndex(derived->method_name_->currentIndex());
 
@@ -107,13 +107,13 @@ YAML::Node AerodynamicsWidget::dump() const
   return node;
 }
 
-void AerodynamicsWidget::load(const YAML::Node& node)
+void AerodynamicsWidget::load(const YAML::Node& _node)
 {
-  method_name_->setCurrentText(node[kMethodNameKey].as<QString>());
+  method_name_->setCurrentText(_node[kMethodNameKey].as<QString>());
 
   for (int i = 0; i < methods_->count(); ++i) {
     const auto method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
-    method->load(node[method->name()]);
+    method->load(_node[method->name()]);
   }
 }
 

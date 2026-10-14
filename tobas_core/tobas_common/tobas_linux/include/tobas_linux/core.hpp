@@ -18,7 +18,7 @@ std::expected<std::string, std::string> userName() noexcept;
 std::expected<std::filesystem::path, std::string> homeDir() noexcept;
 
 /** Expand the home directory to an absolute path. */
-std::expected<std::filesystem::path, std::string> expandUser(const std::string& path) noexcept;
+std::expected<std::filesystem::path, std::string> expandUser(const std::string& _path) noexcept;
 
 /** Return true when the program is running with root privileges. */
 bool isSuperUser() noexcept;

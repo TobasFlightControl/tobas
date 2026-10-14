@@ -22,8 +22,8 @@ class RotorWidget : public QWidget
   using self = RotorWidget;
 
 Q_SIGNALS:
-  void targetRPMChanged(int rpm);
-  void gainChanged(int gain);
+  void targetRPMChanged(int _rpm);
+  void gainChanged(int _gain);
 
 public:
   explicit RotorWidget();
@@ -35,11 +35,11 @@ public:
   int getTargetRPM() const;
   int getGain() const;
 
-  void setText(const QString& text);
-  void setMaximumRPM(int rpm);
-  void setCurrentRPM(int rpm);
-  void setTargetRPM(int rpm);
-  void setGain(int gain);
+  void setText(const QString& _text);
+  void setMaximumRPM(int _rpm);
+  void setCurrentRPM(int _rpm);
+  void setTargetRPM(int _rpm);
+  void setGain(int _gain);
 
 private:
   QLabel* text_;
@@ -50,15 +50,15 @@ private:
   qt::FramedLabel* tar_rpm_box_;
   qt::FramedLabel* gain_box_;
 
-  void setCurrentRPMBox(int rpm);
-  void setTargetRPMBox(int rpm);
-  void setGainBox(int gain);
+  void setCurrentRPMBox(int _rpm);
+  void setTargetRPMBox(int _rpm);
+  void setGainBox(int _gain);
 
-  static QString rpmToText(int rpm);
+  static QString rpmToText(int _rpm);
 
 private Q_SLOTS:
-  void onTargetRPMChanged(int rpm);
-  void onGainChanged(int gain);
+  void onTargetRPMChanged(int _rpm);
+  void onGainChanged(int _gain);
 };
 }  // namespace at
 }  // namespace gui

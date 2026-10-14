@@ -9,8 +9,8 @@ namespace gui
 {
 namespace sa
 {
-ParamGetterWidget_Ratio::ParamGetterWidget_Ratio(const QString& param_name, const QString& description_text)
-  : super(param_name, description_text)
+ParamGetterWidget_Ratio::ParamGetterWidget_Ratio(const QString& _param_name, const QString& _description_text)
+  : super(_param_name, _description_text)
 {
   left_value_ = new qt::SpinBox();
   right_value_ = new qt::SpinBox();
@@ -36,34 +36,34 @@ ParamGetterWidget_Ratio::ValueType ParamGetterWidget_Ratio::getValue() const
   return { left_value_->value(), right_value_->value() };
 }
 
-bool ParamGetterWidget_Ratio::setValue(const ValueType& src)
+bool ParamGetterWidget_Ratio::setValue(const ValueType& _src)
 {
-  left_value_->setValue(src.first);
-  right_value_->setValue(src.second);
+  left_value_->setValue(_src.first);
+  right_value_->setValue(_src.second);
 
   return true;
 }
 
-void ParamGetterWidget_Ratio::setMinimum(int minimum)
+void ParamGetterWidget_Ratio::setMinimum(int _minimum)
 {
-  left_value_->setMinimum(minimum);
-  right_value_->setMinimum(minimum);
+  left_value_->setMinimum(_minimum);
+  right_value_->setMinimum(_minimum);
 }
 
-void ParamGetterWidget_Ratio::setMaximum(int maximum)
+void ParamGetterWidget_Ratio::setMaximum(int _maximum)
 {
-  left_value_->setMinimum(maximum);
-  right_value_->setMinimum(maximum);
+  left_value_->setMinimum(_maximum);
+  right_value_->setMinimum(_maximum);
 }
 
-void ParamGetterWidget_Ratio::setLeftText(const QString& text)
+void ParamGetterWidget_Ratio::setLeftText(const QString& _text)
 {
-  left_text_->setText(text);
+  left_text_->setText(_text);
 }
 
-void ParamGetterWidget_Ratio::setRightText(const QString& text)
+void ParamGetterWidget_Ratio::setRightText(const QString& _text)
 {
-  right_text_->setText(text);
+  right_text_->setText(_text);
 }
 
 void ParamGetterWidget_Ratio::onValueChanged()

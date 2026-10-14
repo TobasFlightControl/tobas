@@ -19,7 +19,7 @@ namespace ctrl
 {
 namespace rcin
 {
-RCInputViewerWidget::RCInputViewerWidget(const rqt::RosQtBridge& bridge)
+RCInputViewerWidget::RCInputViewerWidget(const rqt::RosQtBridge& _bridge)
 {
   yaw_pitch_ = new StickPanel("Yaw / Pitch", "Yaw", "Pitch");
   roll_throttle_ = new StickPanel("Roll / Throttle", "Roll", "Throttle");
@@ -55,7 +55,7 @@ RCInputViewerWidget::RCInputViewerWidget(const rqt::RosQtBridge& bridge)
   setLayout(cols);
 
   // Connection
-  connect(&bridge, &rqt::RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
 }
 
 void RCInputViewerWidget::reset()
@@ -68,9 +68,9 @@ void RCInputViewerWidget::reset()
   setMode(static_cast<FlightMode>(-1));
 }
 
-QLabel* RCInputViewerWidget::makeBadge(const QString& text) const
+QLabel* RCInputViewerWidget::makeBadge(const QString& _text) const
 {
-  const auto badge = new QLabel(text);
+  const auto badge = new QLabel(_text);
   badge->setAlignment(Qt::AlignCenter);
   badge->setAutoFillBackground(true);
   badge->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
@@ -79,40 +79,41 @@ QLabel* RCInputViewerWidget::makeBadge(const QString& text) const
   return badge;
 }
 
-void RCInputViewerWidget::setBadge(QLabel* badge, const QString& text, const QColor& background)
+void RCInputViewerWidget::setBadge(QLabel* _badge, const QString& _text, const QColor& _background)
 {
-  badge->setText(text);
+  _badge->setText(_text);
 
-  auto pal = badge->palette();
-  pal.setColor(QPalette::Window, background);
+  auto pal = _badge->palette();
+  pal.setColor(QPalette::Window, _background);
   pal.setColor(QPalette::WindowText, palette().color(QPalette::WindowText));
-  badge->setPalette(pal);
+  _badge->setPalette(pal);
 }
 
-void RCInputViewerWidget::setMode(FlightMode mode)
+void RCInputViewerWidget::setMode(FlightMode _mode)
 {
-  setBadge(acrobat_, "Acrobat", mode == FlightMode::kAcrobat ? qt::color::lightBlue() : qt::color::gray90());
-  setBadge(stabilize_, "Stabilize", mode == FlightMode::kStabilize ? qt::color::lightBlue() : qt::color::gray90());
-  setBadge(loiter_, "Loiter", mode == FlightMode::kLoiter ? qt::color::lightBlue() : qt::color::gray90());
+  setBadge(acrobat_, "Acrobat", _mode == FlightMode::kAcrobat ? qt::color::lightBlue() : qt::color::gray90());
+  setBadge(stabilize_, "Stabilize", _mode == FlightMode::kStabilize ? qt::color::lightBlue() : qt::color::gray90());
+  setBadge(loiter_, "Loiter", _mode == FlightMode::kLoiter ? qt::color::lightBlue() : qt::color::gray90());
 }
 
-void RCInputViewerWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
+void RCInputViewerWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin)
 {
-  if (rcin->status != tobas_msgs::msg::RCInput::STATUS_OK) {
+  if (_rcin->status != tobas_msgs::msg::RCInput::STATUS_OK) {
     reset();
     return;
   }
 
-  yaw_pitch_->setValues(-rcin->yaw, rcin->pitch, true, rcin->enable);
-  roll_throttle_->setValues(rcin->roll, rcin->throttle, true, rcin->enable);
-  setBadge(enable_, rcin->enable ? "Enabled" : "Disabled", rcin->enable ? qt::color::lightBlue() : qt::color::gray90());
+  yaw_pitch_->setValues(-_rcin->yaw, _rcin->pitch, true, _rcin->enable);
+  roll_throttle_->setValues(_rcin->roll, _rcin->throttle, true, _rcin->enable);
   setBadge(
-    kill_, QString("Kill: ") + (rcin->kill ? "ON" : "OFF"), rcin->kill ? qt::color::lightRed() : qt::color::gray90());
+    enable_, _rcin->enable ? "Enabled" : "Disabled", _rcin->enable ? qt::color::lightBlue() : qt::color::gray90());
+  setBadge(
+    kill_, QString("Kill: ") + (_rcin->kill ? "ON" : "OFF"), _rcin->kill ? qt::color::lightRed() : qt::color::gray90());
   setBadge(
     sub_mode_,
-    QString("Sub: ") + (rcin->sub_mode ? "ON" : "OFF"),
-    rcin->sub_mode ? qt::color::lightBlue() : qt::color::gray90());
-  setMode(rcin->mode);
+    QString("Sub: ") + (_rcin->sub_mode ? "ON" : "OFF"),
+    _rcin->sub_mode ? qt::color::lightBlue() : qt::color::gray90());
+  setMode(_rcin->mode);
 }
 }  // namespace rcin
 }  // namespace ctrl

@@ -37,77 +37,77 @@ bool SpeedRollDeltaPitchController::requireHeading()
   return false;
 }
 
-void SpeedRollDeltaPitchController::initialize(BaseNode* node, FlightMode mode)
+void SpeedRollDeltaPitchController::initialize(BaseNode* _node, FlightMode _mode)
 {
-  node->addDynamicDoubleParam(addMode("min_speed", mode), &self::minSpeedCb, this, 0.5, 10, 1, 20, " m/s");
-  node->addDynamicDoubleParam(addMode("max_speed", mode), &self::maxSpeedCb, this, 0.5, 40, 1, 80, " m/s");
-  node->addDynamicDoubleParam(addMode("max_roll", mode), &self::maxRollCb, this, 15.0, 6, 1, 12, " deg");
-  node->addDynamicDoubleParam(addMode("max_delta_pitch", mode), &self::maxDeltaPitchCb, this, 5.0, 9, 1, 18, " deg");
-  node->addDynamicDoubleParam(addMode("speed_expo", mode), &self::speedExpoCb, this, 5.0, 0, 0, 20);
-  node->addDynamicDoubleParam(addMode("roll_expo", mode), &self::rollExpoCb, this, 5.0, 0, -20, 20);
-  node->addDynamicDoubleParam(addMode("pitch_expo", mode), &self::pitchExpoCb, this, 5.0, 0, -20, 20);
+  _node->addDynamicDoubleParam(addMode("min_speed", _mode), &self::minSpeedCb, this, 0.5, 10, 1, 20, " m/s");
+  _node->addDynamicDoubleParam(addMode("max_speed", _mode), &self::maxSpeedCb, this, 0.5, 40, 1, 80, " m/s");
+  _node->addDynamicDoubleParam(addMode("max_roll", _mode), &self::maxRollCb, this, 15.0, 6, 1, 12, " deg");
+  _node->addDynamicDoubleParam(addMode("max_delta_pitch", _mode), &self::maxDeltaPitchCb, this, 5.0, 9, 1, 18, " deg");
+  _node->addDynamicDoubleParam(addMode("speed_expo", _mode), &self::speedExpoCb, this, 5.0, 0, 0, 20);
+  _node->addDynamicDoubleParam(addMode("roll_expo", _mode), &self::rollExpoCb, this, 5.0, 0, -20, 20);
+  _node->addDynamicDoubleParam(addMode("pitch_expo", _mode), &self::pitchExpoCb, this, 5.0, 0, -20, 20);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::SpeedRollDeltaPitch>(topic::kSpeedRollDpitchCmd);
+  cmd_pub_ = _node->createPublisher<tobas_command_msgs::msg::SpeedRollDeltaPitch>(topic::kSpeedRollDpitchCmd);
 }
 
 void SpeedRollDeltaPitchController::reset(const builtin_interfaces::msg::Time&, const tobas_msgs::Odometry&, bool)
 {
 }
 
-void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
+void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& _rcin, const tobas_msgs::Odometry&, bool)
 {
   // Create command.
   auto cmd = std::make_unique<tobas_command_msgs::msg::SpeedRollDeltaPitch>();
-  cmd->header = rcin.header;
+  cmd->header = _rcin.header;
 
   // TODO: Consider the airframe speed limit.
-  const auto throttle = expo(remap(rcin.throttle, kMinThrot, kMaxThrot), speed_expo_);
+  const auto throttle = expo(remap(_rcin.throttle, kMinThrot, kMaxThrot), speed_expo_);
   cmd->speed = math::remap(throttle, kMinThrot, kMaxThrot, min_speed_, max_speed_);
 
-  cmd->roll = remapDead(rcin.roll, -max_roll_, max_roll_);
-  cmd->delta_pitch = remapDead(rcin.pitch, -max_dpitch_, max_dpitch_);
+  cmd->roll = remapDead(_rcin.roll, -max_roll_, max_roll_);
+  cmd->delta_pitch = remapDead(_rcin.pitch, -max_dpitch_, max_dpitch_);
 
   // Publish command.
   cmd_pub_->publish(std::move(cmd));
 }
 
-void SpeedRollDeltaPitchController::minSpeedCb(double p)
+void SpeedRollDeltaPitchController::minSpeedCb(double _p)
 {
-  assert(p < max_speed_);
+  assert(_p < max_speed_);
 
-  min_speed_ = p;
+  min_speed_ = _p;
 }
 
-void SpeedRollDeltaPitchController::maxSpeedCb(double p)
+void SpeedRollDeltaPitchController::maxSpeedCb(double _p)
 {
-  assert(p > min_speed_);
+  assert(_p > min_speed_);
 
-  max_speed_ = p;
+  max_speed_ = _p;
 }
 
-void SpeedRollDeltaPitchController::maxRollCb(double p)
+void SpeedRollDeltaPitchController::maxRollCb(double _p)
 {
-  max_roll_ = st::deg2rad(p);
+  max_roll_ = st::deg2rad(_p);
 }
 
-void SpeedRollDeltaPitchController::maxDeltaPitchCb(double p)
+void SpeedRollDeltaPitchController::maxDeltaPitchCb(double _p)
 {
-  max_dpitch_ = st::deg2rad(p);
+  max_dpitch_ = st::deg2rad(_p);
 }
 
-void SpeedRollDeltaPitchController::speedExpoCb(double p)
+void SpeedRollDeltaPitchController::speedExpoCb(double _p)
 {
-  speed_expo_ = p / kExpoScale;
+  speed_expo_ = _p / kExpoScale;
 }
 
-void SpeedRollDeltaPitchController::rollExpoCb(double p)
+void SpeedRollDeltaPitchController::rollExpoCb(double _p)
 {
-  roll_expo_ = p / kExpoScale;
+  roll_expo_ = _p / kExpoScale;
 }
 
-void SpeedRollDeltaPitchController::pitchExpoCb(double p)
+void SpeedRollDeltaPitchController::pitchExpoCb(double _p)
 {
-  pitch_expo_ = p / kExpoScale;
+  pitch_expo_ = _p / kExpoScale;
 }
 }  // namespace rc
 }  // namespace tobas

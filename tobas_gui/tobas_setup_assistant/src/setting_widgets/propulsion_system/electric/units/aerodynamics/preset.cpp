@@ -30,7 +30,7 @@ namespace
 constexpr char kPropellerNameKey[] = "propeller_name";
 }  // namespace
 
-AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* propeller) : propeller_(propeller)
+AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* _propeller) : propeller_(_propeller)
 {
   data_name_ = new qt::ComboBox();
 
@@ -79,9 +79,9 @@ bool AerodynamicsWidget_Preset::isValid()
   return true;
 }
 
-void AerodynamicsWidget_Preset::copyFrom(const AerodynamicsWidget_Base* src)
+void AerodynamicsWidget_Preset::copyFrom(const AerodynamicsWidget_Base* _src)
 {
-  const auto derived = qt::qConstPointerCast<AerodynamicsWidget_Preset>(src);
+  const auto derived = qt::qConstPointerCast<AerodynamicsWidget_Preset>(_src);
   data_name_->setCurrentText(derived->data_name_->currentText());
 }
 
@@ -94,9 +94,9 @@ YAML::Node AerodynamicsWidget_Preset::dump() const
   return node;
 }
 
-void AerodynamicsWidget_Preset::load(const YAML::Node& node)
+void AerodynamicsWidget_Preset::load(const YAML::Node& _node)
 {
-  data_name_->setCurrentText(node[kPropellerNameKey].as<QString>());
+  data_name_->setCurrentText(_node[kPropellerNameKey].as<QString>());
 }
 
 double AerodynamicsWidget_Preset::motorConst() const
@@ -165,10 +165,10 @@ AerodynamicsWidget_Preset::DataType AerodynamicsWidget_Preset::getCurrentDataTyp
 }
 
 std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd>
-AerodynamicsWidget_Preset::parseThrustStandData(const fs::path& path) const
+AerodynamicsWidget_Preset::parseThrustStandData(const fs::path& _path) const
 {
   // Load CSV.
-  const auto doc = csv::load(path);
+  const auto doc = csv::load(_path);
 
   // Read data.
   const auto rpms = eigen::fromStdVector(doc.GetColumn<double>(kRpmColName));
@@ -179,10 +179,10 @@ AerodynamicsWidget_Preset::parseThrustStandData(const fs::path& path) const
 }
 
 std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd>
-AerodynamicsWidget_Preset::parseUiucData(const fs::path& path) const
+AerodynamicsWidget_Preset::parseUiucData(const fs::path& _path) const
 {
   // Load CSV.
-  const auto doc = csv::load(path);
+  const auto doc = csv::load(_path);
 
   // Read data.
   const auto rpms = eigen::fromStdVector(doc.GetColumn<double>(kRpmColName));

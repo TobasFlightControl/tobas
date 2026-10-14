@@ -43,7 +43,7 @@ class RCTeleopNode : public BaseNode
   static constexpr double kWarnPeriod = 1.0;            ///< [s]
 
 public:
-  explicit RCTeleopNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit RCTeleopNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   enum Stage
@@ -98,23 +98,23 @@ private:
   void getStaticRosParams();
   void defineDynamicRosParams();
   void initializeControllers();
-  void requestArmingRotors(bool arming);
-  void updateWithIdleCommand(const tobas_msgs::RCInput& rcin);
-  void resetCurrentController(const tobas_msgs::RCInput& rcin);
-  bool isFlightModeApplicable(FlightMode mode);
+  void requestArmingRotors(bool _arming);
+  void updateWithIdleCommand(const tobas_msgs::RCInput& _rcin);
+  void resetCurrentController(const tobas_msgs::RCInput& _rcin);
+  bool isFlightModeApplicable(FlightMode _mode);
 
-  void armThrottleThresholdCb(double p);
-  void armThrottleHysteresisCb(double p);
+  void armThrottleThresholdCb(double _p);
+  void armThrottleHysteresisCb(double _p);
 
-  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
-  void setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& setpoint);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
-  void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
-  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom);
+  void setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& _setpoint);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
+  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health);
+  void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& _landed);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin);
 };
 
-RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super(node::kRcTeleop, nodeOptions_DParam(options))
+RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& _options) : super(node::kRcTeleop, nodeOptions_DParam(_options))
 {
   TOBAS_ASSERT(mode2str_.size() == magic_enum::enum_count<FlightMode>());
 
@@ -202,7 +202,7 @@ void RCTeleopNode::initializeControllers()
   }
 }
 
-void RCTeleopNode::requestArmingRotors(bool arming)
+void RCTeleopNode::requestArmingRotors(bool _arming)
 {
   if (!set_arm_sc_->service_is_ready()) {
     TOBAS_ERROR("'", service::kSetArm, "' is not ready.");
@@ -210,13 +210,13 @@ void RCTeleopNode::requestArmingRotors(bool arming)
   }
 
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
-  req->arming = arming;
+  req->arming = _arming;
   set_arm_sc_->async_send_request(req);
 }
 
-void RCTeleopNode::updateWithIdleCommand(const tobas_msgs::RCInput& rcin)
+void RCTeleopNode::updateWithIdleCommand(const tobas_msgs::RCInput& _rcin)
 {
-  auto idle_rcin = rcin;
+  auto idle_rcin = _rcin;
 
   idle_rcin.roll = kRCInputMid;
   idle_rcin.pitch = kRCInputMid;
@@ -226,7 +226,7 @@ void RCTeleopNode::updateWithIdleCommand(const tobas_msgs::RCInput& rcin)
   controllers_.at(cur_mode_)->update(idle_rcin, odom_->odom.odom, landed_->landed);
 }
 
-void RCTeleopNode::resetCurrentController(const tobas_msgs::RCInput& rcin)
+void RCTeleopNode::resetCurrentController(const tobas_msgs::RCInput& _rcin)
 {
   auto init_setpoint = odom_->odom.odom;
 
@@ -253,12 +253,12 @@ void RCTeleopNode::resetCurrentController(const tobas_msgs::RCInput& rcin)
     }
   }
 
-  controllers_.at(rcin.mode)->reset(rcin.header.stamp, init_setpoint, landed_->landed);
+  controllers_.at(_rcin.mode)->reset(_rcin.header.stamp, init_setpoint, landed_->landed);
 }
 
-bool RCTeleopNode::isFlightModeApplicable(FlightMode mode)
+bool RCTeleopNode::isFlightModeApplicable(FlightMode _mode)
 {
-  const auto& controller = controllers_.at(mode);
+  const auto& controller = controllers_.at(_mode);
 
   if (controller->requireHorizontalPosition()) {
     switch (health_->horizontal_position_accuracy) {
@@ -267,14 +267,14 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode mode)
       case tobas_msgs::msg::VehicleHealth::FAILED:
         TOBAS_WARN_THROTTLE(
           kWarnPeriod,
-          mode2str_.at(mode),
+          mode2str_.at(_mode),
           " mode cannot be applied because the horizontal position estimation is inaccurate.");
         return false;
       case tobas_msgs::msg::VehicleHealth::IGNORED:
       case tobas_msgs::msg::VehicleHealth::UNKNOWN:
         TOBAS_WARN_THROTTLE(
           kWarnPeriod,
-          mode2str_.at(mode),
+          mode2str_.at(_mode),
           " mode cannot be applied because the horizontal position estimation accuracy has not been checked.");
         return false;
       default:
@@ -290,14 +290,14 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode mode)
       case tobas_msgs::msg::VehicleHealth::FAILED:
         TOBAS_WARN_THROTTLE(
           kWarnPeriod,
-          mode2str_.at(mode),
+          mode2str_.at(_mode),
           " mode cannot be applied because the vertical position estimation is inaccurate.");
         return false;
       case tobas_msgs::msg::VehicleHealth::IGNORED:
       case tobas_msgs::msg::VehicleHealth::UNKNOWN:
         TOBAS_WARN_THROTTLE(
           kWarnPeriod,
-          mode2str_.at(mode),
+          mode2str_.at(_mode),
           " mode cannot be applied because the vertical position estimation accuracy has not been checked.");
         return false;
       default:
@@ -312,13 +312,13 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode mode)
         break;
       case tobas_msgs::msg::VehicleHealth::FAILED:
         TOBAS_WARN_THROTTLE(
-          kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because the attitude estimation is inaccurate.");
+          kWarnPeriod, mode2str_.at(_mode), " mode cannot be applied because the attitude estimation is inaccurate.");
         return false;
       case tobas_msgs::msg::VehicleHealth::IGNORED:
       case tobas_msgs::msg::VehicleHealth::UNKNOWN:
         TOBAS_WARN_THROTTLE(
           kWarnPeriod,
-          mode2str_.at(mode),
+          mode2str_.at(_mode),
           " mode cannot be applied because the attitude estimation accuracy has not been checked.");
         return false;
       default:
@@ -333,13 +333,13 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode mode)
         break;
       case tobas_msgs::msg::VehicleHealth::FAILED:
         TOBAS_WARN_THROTTLE(
-          kWarnPeriod, mode2str_.at(mode), " mode cannot be applied because the heading estimation is inaccurate.");
+          kWarnPeriod, mode2str_.at(_mode), " mode cannot be applied because the heading estimation is inaccurate.");
         return false;
       case tobas_msgs::msg::VehicleHealth::IGNORED:
       case tobas_msgs::msg::VehicleHealth::UNKNOWN:
         TOBAS_WARN_THROTTLE(
           kWarnPeriod,
-          mode2str_.at(mode),
+          mode2str_.at(_mode),
           " mode cannot be applied because the heading estimation accuracy has not been checked.");
         return false;
       default:
@@ -351,41 +351,41 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode mode)
   return true;
 }
 
-void RCTeleopNode::armThrottleThresholdCb(double p)
+void RCTeleopNode::armThrottleThresholdCb(double _p)
 {
-  arm_throt_thresh_ = kRcInputRange * (p / 100.0);
+  arm_throt_thresh_ = kRcInputRange * (_p / 100.0);
 }
 
-void RCTeleopNode::armThrottleHysteresisCb(double p)
+void RCTeleopNode::armThrottleHysteresisCb(double _p)
 {
-  arm_throt_hyst_ = kRcInputRange * (p / 100.0);
+  arm_throt_hyst_ = kRcInputRange * (_p / 100.0);
 }
 
-void RCTeleopNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
+void RCTeleopNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom)
 {
-  odom_ = odom;
+  odom_ = _odom;
 }
 
-void RCTeleopNode::setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& setpoint)
+void RCTeleopNode::setpointCb(const tobas_msgs::OdometryStamped::ConstSharedPtr& _setpoint)
 {
-  setpoint_ = setpoint;
+  setpoint_ = _setpoint;
 }
 
-void RCTeleopNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void RCTeleopNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming)
 {
-  arming_ = arming;
+  arming_ = _arming;
 
-  if (!arming->data) {
+  if (!_arming->data) {
     setpoint_.reset();
   }
 }
 
-void RCTeleopNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
+void RCTeleopNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health)
 {
-  health_ = health;
+  health_ = _health;
 
   // If the link is lost, reset the stage so commands from before the loss do not remain active.
-  if (health->radio_link == tobas_msgs::msg::VehicleHealth::FAILED) {
+  if (_health->radio_link == tobas_msgs::msg::VehicleHealth::FAILED) {
     if (stage_ != kCheckPrerequisites) {
       stage_ = kCheckPrerequisites;
       TOBAS_WARN("The radio control command has been reset because the link was lost.");
@@ -393,14 +393,14 @@ void RCTeleopNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr
   }
 }
 
-void RCTeleopNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
+void RCTeleopNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& _landed)
 {
-  landed_ = landed;
+  landed_ = _landed;
 }
 
-void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
+void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin)
 {
-  if (rcin->status != tobas_msgs::msg::RCInput::STATUS_OK) {
+  if (_rcin->status != tobas_msgs::msg::RCInput::STATUS_OK) {
     return;
   }
 
@@ -423,7 +423,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         break;
       }
 
-      t_arm_start_ = rcin->header.stamp;
+      t_arm_start_ = _rcin->header.stamp;
       stage_ = kWaitForArming;
       break;
     }
@@ -438,37 +438,37 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 
       // If the arm command is being input
       if (
-        std::max(std::abs(rcin->roll), std::abs(rcin->pitch)) < arm_throt_thresh_ &&
-        rcin->yaw < kRcInputMin + arm_throt_thresh_ && rcin->throttle < kRcInputMin + arm_throt_thresh_) {
+        std::max(std::abs(_rcin->roll), std::abs(_rcin->pitch)) < arm_throt_thresh_ &&
+        _rcin->yaw < kRcInputMin + arm_throt_thresh_ && _rcin->throttle < kRcInputMin + arm_throt_thresh_) {
         // Request arming once if the arm command has been held for a fixed time.
-        if ((rcin->header.stamp - t_arm_start_).seconds() > arm_duration_) {
+        if ((_rcin->header.stamp - t_arm_start_).seconds() > arm_duration_) {
           TOBAS_INFO("Arming rotors...");
           requestArmingRotors(true);
-          t_arm_start_ = rcin->header.stamp;
+          t_arm_start_ = _rcin->header.stamp;
           break;
         }
 
         // Continue without resetting the time only when arming is possible.
-        if (!rcin->enable) {
+        if (!_rcin->enable) {
           TOBAS_WARN_THROTTLE(kWarnPeriod, "Please turn on the enable switch before arming.");
-          t_arm_start_ = rcin->header.stamp;
+          t_arm_start_ = _rcin->header.stamp;
           break;
         }
 
-        if (rcin->kill) {
+        if (_rcin->kill) {
           TOBAS_WARN_THROTTLE(kWarnPeriod, "Please turn off the kill switch before arming.");
-          t_arm_start_ = rcin->header.stamp;
+          t_arm_start_ = _rcin->header.stamp;
           break;
         }
 
         if (!health_->ok) {
           TOBAS_WARN_THROTTLE(kWarnPeriod, "Cannot arm because pre-arm check failed.");
-          t_arm_start_ = rcin->header.stamp;
+          t_arm_start_ = _rcin->header.stamp;
           break;
         }
 
-        if (!isFlightModeApplicable(rcin->mode)) {
-          t_arm_start_ = rcin->header.stamp;
+        if (!isFlightModeApplicable(_rcin->mode)) {
+          t_arm_start_ = _rcin->header.stamp;
           break;
         }
 
@@ -476,7 +476,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         break;
       }
       else {
-        t_arm_start_ = rcin->header.stamp;
+        t_arm_start_ = _rcin->header.stamp;
         break;
       }
     }
@@ -484,29 +484,29 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
     case kWaitForEnable: {
       // Reset the stage if disarmed.
       if (!arming_->data) {
-        t_arm_start_ = rcin->header.stamp;
+        t_arm_start_ = _rcin->header.stamp;
         stage_ = kCheckPrerequisites;
         break;
       }
 
       // Move to the next stage if RC input is enabled.
-      if (rcin->enable) {
+      if (_rcin->enable) {
         // Do not transition while the kill switch is on, to avoid disarming immediately after entering manual mode.
-        if (rcin->kill) {
+        if (_rcin->kill) {
           TOBAS_WARN_THROTTLE(kWarnPeriod, "Turn off the kill switch before enabling RC control.");
           break;
         }
 
         // Check that the flight mode is applicable.
-        if (!isFlightModeApplicable(rcin->mode)) {
+        if (!isFlightModeApplicable(_rcin->mode)) {
           break;
         }
 
-        resetCurrentController(*rcin);
-        cur_mode_ = rcin->mode;
-        TOBAS_INFO("First flight mode has been set to '", mode2str_.at(rcin->mode), "'.");
+        resetCurrentController(*_rcin);
+        cur_mode_ = _rcin->mode;
+        TOBAS_INFO("First flight mode has been set to '", mode2str_.at(_rcin->mode), "'.");
 
-        t_disarm_start_ = rcin->header.stamp;
+        t_disarm_start_ = _rcin->header.stamp;
         stage_ = kRunning;
       }
 
@@ -516,20 +516,20 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
     case kRunning: {
       // Reset the stage if disarmed.
       if (!arming_->data) {
-        t_arm_start_ = rcin->header.stamp;
+        t_arm_start_ = _rcin->header.stamp;
         stage_ = kCheckPrerequisites;
         break;
       }
 
       // Immediately disarm if the kill switch is on.
-      if (rcin->kill) {
+      if (_rcin->kill) {
         TOBAS_WARN_THROTTLE(kWarnPeriod, "The kill switch has been activated. Forcing disarm.");
         requestArmingRotors(false);
         break;
       }
 
       // Return to standby mode if the enable switch is off.
-      if (!rcin->enable) {
+      if (!_rcin->enable) {
         TOBAS_INFO("RC control is disabled.");
         stage_ = kWaitForEnable;
         break;
@@ -537,40 +537,40 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 
       // If the flight mode changes, apply the change only when the new mode is applicable.
       // Otherwise, keep the previous flight mode.
-      if (rcin->mode != cur_mode_ && isFlightModeApplicable(rcin->mode)) {
-        resetCurrentController(*rcin);
-        cur_mode_ = rcin->mode;
-        TOBAS_INFO("Flight mode changed to '", mode2str_.at(rcin->mode), "'.");
+      if (_rcin->mode != cur_mode_ && isFlightModeApplicable(_rcin->mode)) {
+        resetCurrentController(*_rcin);
+        cur_mode_ = _rcin->mode;
+        TOBAS_INFO("Flight mode changed to '", mode2str_.at(_rcin->mode), "'.");
       }
 
       const auto zero_throt_thresh =
         kRcInputMin + arm_throt_thresh_ + static_cast<int>(is_zero_throt_) * arm_throt_hyst_;
-      if (landed_->landed && rcin->throttle < zero_throt_thresh) {  // Zero throttle on the ground
+      if (landed_->landed && _rcin->throttle < zero_throt_thresh) {  // Zero throttle on the ground
         is_zero_throt_ = true;
 
         // Send an idle command for safety.
-        updateWithIdleCommand(*rcin);
+        updateWithIdleCommand(*_rcin);
 
         // If this is also the disarm command
         if (
-          std::max(std::abs(rcin->roll), std::abs(rcin->pitch)) < arm_throt_thresh_ &&
-          rcin->yaw > kRcInputMax - arm_throt_thresh_) {
+          std::max(std::abs(_rcin->roll), std::abs(_rcin->pitch)) < arm_throt_thresh_ &&
+          _rcin->yaw > kRcInputMax - arm_throt_thresh_) {
           TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Disarm stick position detected. Hold to disarm.");
-          if ((rcin->header.stamp - t_disarm_start_).seconds() > disarm_duration_) {  // Request if held long enough.
+          if ((_rcin->header.stamp - t_disarm_start_).seconds() > disarm_duration_) {  // Request if held long enough.
             TOBAS_INFO("Disarming rotors...");
             requestArmingRotors(false);
-            t_disarm_start_ = rcin->header.stamp;
+            t_disarm_start_ = _rcin->header.stamp;
           }
           break;  // Exit without updating the disarm command start time.
         }
       }
       else {  // Otherwise, send the command normally.
         is_zero_throt_ = false;
-        controllers_.at(cur_mode_)->update(*rcin, odom_->odom.odom, landed_->landed);
+        controllers_.at(cur_mode_)->update(*_rcin, odom_->odom.odom, landed_->landed);
       }
 
       // Update the disarm command start time before exiting.
-      t_disarm_start_ = rcin->header.stamp;
+      t_disarm_start_ = _rcin->header.stamp;
       break;
     }
 

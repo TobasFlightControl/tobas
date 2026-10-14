@@ -14,12 +14,12 @@ namespace tobas
 {
 namespace qt
 {
-PositionBarWidget::PositionBarWidget(QWidget* parent) : super(parent)
+PositionBarWidget::PositionBarWidget(QWidget* _parent) : super(_parent)
 {
 }
 
-PositionBarWidget::PositionBarWidget(double minimum, double maximum, QWidget* parent)
-  : super(parent), minimum_(minimum), maximum_(maximum)
+PositionBarWidget::PositionBarWidget(double _minimum, double _maximum, QWidget* _parent)
+  : super(_parent), minimum_(_minimum), maximum_(_maximum)
 {
 }
 
@@ -93,81 +93,81 @@ std::optional<double> PositionBarWidget::getRange() const
   }
 }
 
-void PositionBarWidget::setMinimum(double minimum)
+void PositionBarWidget::setMinimum(double _minimum)
 {
-  minimum_ = minimum;
+  minimum_ = _minimum;
   update();
 }
 
-void PositionBarWidget::setMaximum(double maximum)
+void PositionBarWidget::setMaximum(double _maximum)
 {
-  maximum_ = maximum;
+  maximum_ = _maximum;
   update();
 }
 
-void PositionBarWidget::setLineWidth(int line_width)
+void PositionBarWidget::setLineWidth(int _line_width)
 {
-  line_width_ = line_width;
+  line_width_ = _line_width;
   update();
 }
 
-void PositionBarWidget::setTextPSize(int text_psize)
+void PositionBarWidget::setTextPSize(int _text_psize)
 {
-  text_psize_ = text_psize;
+  text_psize_ = _text_psize;
   update();
 }
 
-void PositionBarWidget::setFillColor(const QColor& color)
+void PositionBarWidget::setFillColor(const QColor& _color)
 {
-  fill_color_ = color;
+  fill_color_ = _color;
   update();
 }
 
-void PositionBarWidget::setLimitLineColor(const QColor& color)
+void PositionBarWidget::setLimitLineColor(const QColor& _color)
 {
-  limit_line_color_ = color;
+  limit_line_color_ = _color;
   update();
 }
 
-void PositionBarWidget::setValueLineColor(const QColor& color)
+void PositionBarWidget::setValueLineColor(const QColor& _color)
 {
-  value_line_color_ = color;
+  value_line_color_ = _color;
   update();
 }
 
-void PositionBarWidget::setCenterText(const QString& text)
+void PositionBarWidget::setCenterText(const QString& _text)
 {
-  center_text_ = text;
+  center_text_ = _text;
   update();
 }
 
-void PositionBarWidget::setLowerText(const QString& text)
+void PositionBarWidget::setLowerText(const QString& _text)
 {
-  lower_text_ = text;
+  lower_text_ = _text;
   update();
 }
 
-void PositionBarWidget::setUpperText(const QString& text)
+void PositionBarWidget::setUpperText(const QString& _text)
 {
-  upper_text_ = text;
+  upper_text_ = _text;
   update();
 }
 
-void PositionBarWidget::setValue(double value)
+void PositionBarWidget::setValue(double _value)
 {
-  value_ = value;
+  value_ = _value;
   update();
 }
 
-void PositionBarWidget::setLower(double lower)
+void PositionBarWidget::setLower(double _lower)
 {
-  lower_ = lower;
+  lower_ = _lower;
   update();
 }
 
-void PositionBarWidget::setUpper(double upper)
+void PositionBarWidget::setUpper(double _upper)
 {
-  upper_ = upper;
+  upper_ = _upper;
   update();
 }
 
@@ -198,13 +198,13 @@ void PositionBarWidget::updateRangeFromValue()
   update();
 }
 
-void PositionBarWidget::paintEvent(QPaintEvent* event)
+void PositionBarWidget::paintEvent(QPaintEvent* _event)
 {
   // `QPainter` can only be defined inside `paintEvent`.
   QPainter painter(this);
 
   // Draw the background.
-  painter.fillRect(event->rect(), Qt::white);
+  painter.fillRect(_event->rect(), Qt::white);
 
   // Draw the frame.
   painter.save();
@@ -244,112 +244,112 @@ void PositionBarWidget::paintEvent(QPaintEvent* event)
   }
 }
 
-void HPositionBarWidget::drawRange(QPainter& painter, double lower, double upper)
+void HPositionBarWidget::drawRange(QPainter& _painter, double _lower, double _upper)
 {
   // Compute the bar position.
-  const int lower_pos = math::remap<double>(lower, getMinimum(), getMaximum(), 0, width());
-  const int upper_pos = math::remap<double>(upper, getMinimum(), getMaximum(), 0, width());
+  const int lower_pos = math::remap<double>(_lower, getMinimum(), getMaximum(), 0, width());
+  const int upper_pos = math::remap<double>(_upper, getMinimum(), getMaximum(), 0, width());
 
   // Fill between the minimum and maximum values.
-  painter.setBrush(fill_color_);
-  painter.drawRect(lower_pos, 0, upper_pos - lower_pos, height());
+  _painter.setBrush(fill_color_);
+  _painter.drawRect(lower_pos, 0, upper_pos - lower_pos, height());
 
   // Draw black lines at the minimum and maximum value positions.
-  painter.setPen(QPen(limit_line_color_, getLineWidth()));
-  painter.drawLine(lower_pos, 0, lower_pos, height());
-  painter.drawLine(upper_pos, 0, upper_pos, height());
+  _painter.setPen(QPen(limit_line_color_, getLineWidth()));
+  _painter.drawLine(lower_pos, 0, lower_pos, height());
+  _painter.drawLine(upper_pos, 0, upper_pos, height());
 }
 
-void HPositionBarWidget::drawValue(QPainter& painter, double value)
+void HPositionBarWidget::drawValue(QPainter& _painter, double _value)
 {
   // Compute the bar position.
-  const int value_pos = math::remap<double>(value, getMinimum(), getMaximum(), 0, width());
+  const int value_pos = math::remap<double>(_value, getMinimum(), getMaximum(), 0, width());
 
   // Draw a red line at the current value position.
-  painter.setPen(QPen(value_line_color_, getLineWidth()));
-  painter.drawLine(value_pos, 0, value_pos, height());
+  _painter.setPen(QPen(value_line_color_, getLineWidth()));
+  _painter.drawLine(value_pos, 0, value_pos, height());
 }
 
-void HPositionBarWidget::drawCenterText(QPainter& painter, const QString& text)
+void HPositionBarWidget::drawCenterText(QPainter& _painter, const QString& _text)
 {
-  drawTextCommon(painter);
-  painter.drawText(QRect(0, 0, width(), height()), Qt::AlignHCenter | Qt::AlignVCenter, text);
+  drawTextCommon(_painter);
+  _painter.drawText(QRect(0, 0, width(), height()), Qt::AlignHCenter | Qt::AlignVCenter, _text);
 }
 
-void HPositionBarWidget::drawLowerText(QPainter& painter, const QString& text)
+void HPositionBarWidget::drawLowerText(QPainter& _painter, const QString& _text)
 {
-  drawTextCommon(painter);
-  painter.drawText(QRect(0, 0, width(), height()), Qt::AlignLeft | Qt::AlignVCenter, "     " + text);
+  drawTextCommon(_painter);
+  _painter.drawText(QRect(0, 0, width(), height()), Qt::AlignLeft | Qt::AlignVCenter, "     " + _text);
 }
 
-void HPositionBarWidget::drawUpperText(QPainter& painter, const QString& text)
+void HPositionBarWidget::drawUpperText(QPainter& _painter, const QString& _text)
 {
-  drawTextCommon(painter);
-  painter.drawText(QRect(0, 0, width(), height()), Qt::AlignRight | Qt::AlignVCenter, text + "     ");
+  drawTextCommon(_painter);
+  _painter.drawText(QRect(0, 0, width(), height()), Qt::AlignRight | Qt::AlignVCenter, _text + "     ");
 }
 
-void HPositionBarWidget::drawTextCommon(QPainter& painter)
+void HPositionBarWidget::drawTextCommon(QPainter& _painter)
 {
-  painter.setPen(Qt::gray);
-  painter.setFont(DefaultFont(getTextPSize()));
+  _painter.setPen(Qt::gray);
+  _painter.setFont(DefaultFont(getTextPSize()));
 }
 
-void VPositionBarWidget::drawRange(QPainter& painter, double lower, double upper)
+void VPositionBarWidget::drawRange(QPainter& _painter, double _lower, double _upper)
 {
   // Compute the bar position.
-  const int lower_pos = math::remap<double>(lower, getMinimum(), getMaximum(), 0, height());
-  const int upper_pos = math::remap<double>(upper, getMinimum(), getMaximum(), 0, height());
+  const int lower_pos = math::remap<double>(_lower, getMinimum(), getMaximum(), 0, height());
+  const int upper_pos = math::remap<double>(_upper, getMinimum(), getMaximum(), 0, height());
 
   // Fill between the minimum and maximum values.
-  painter.setBrush(fill_color_);
-  painter.drawRect(0, lower_pos, width(), upper_pos - lower_pos);
+  _painter.setBrush(fill_color_);
+  _painter.drawRect(0, lower_pos, width(), upper_pos - lower_pos);
 
   // Draw black lines at the minimum and maximum value positions.
-  painter.setPen(QPen(limit_line_color_, getLineWidth()));
-  painter.drawLine(0, lower_pos, width(), lower_pos);
-  painter.drawLine(0, upper_pos, width(), upper_pos);
+  _painter.setPen(QPen(limit_line_color_, getLineWidth()));
+  _painter.drawLine(0, lower_pos, width(), lower_pos);
+  _painter.drawLine(0, upper_pos, width(), upper_pos);
 }
 
-void VPositionBarWidget::drawValue(QPainter& painter, double value)
+void VPositionBarWidget::drawValue(QPainter& _painter, double _value)
 {
   // Compute the bar position.
-  const int value_pos = math::remap<double>(value, getMinimum(), getMaximum(), 0, height());
+  const int value_pos = math::remap<double>(_value, getMinimum(), getMaximum(), 0, height());
 
   // Draw a red line at the current value position.
-  painter.setPen(QPen(value_line_color_, getLineWidth()));
-  painter.drawLine(0, value_pos, width(), value_pos);
+  _painter.setPen(QPen(value_line_color_, getLineWidth()));
+  _painter.drawLine(0, value_pos, width(), value_pos);
 }
 
-void VPositionBarWidget::drawCenterText(QPainter& painter, const QString& text)
+void VPositionBarWidget::drawCenterText(QPainter& _painter, const QString& _text)
 {
-  drawTextCommon(painter);
+  drawTextCommon(_painter);
   QRect text_rect(-height() / 2, -width() / 2, height(), width());
-  painter.drawText(text_rect, Qt::AlignHCenter | Qt::AlignVCenter, text);
+  _painter.drawText(text_rect, Qt::AlignHCenter | Qt::AlignVCenter, _text);
 }
 
-void VPositionBarWidget::drawLowerText(QPainter& painter, const QString& text)
+void VPositionBarWidget::drawLowerText(QPainter& _painter, const QString& _text)
 {
-  drawTextCommon(painter);
+  drawTextCommon(_painter);
   QRect text_rect(-height() / 2, -width() / 2, height(), width());
-  painter.drawText(text_rect, Qt::AlignLeft | Qt::AlignVCenter, "     " + text);
+  _painter.drawText(text_rect, Qt::AlignLeft | Qt::AlignVCenter, "     " + _text);
 }
 
-void VPositionBarWidget::drawUpperText(QPainter& painter, const QString& text)
+void VPositionBarWidget::drawUpperText(QPainter& _painter, const QString& _text)
 {
-  drawTextCommon(painter);
+  drawTextCommon(_painter);
   QRect text_rect(-height() / 2, -width() / 2, height(), width());
-  painter.drawText(text_rect, Qt::AlignRight | Qt::AlignVCenter, text + "     ");
+  _painter.drawText(text_rect, Qt::AlignRight | Qt::AlignVCenter, _text + "     ");
 }
 
-void VPositionBarWidget::drawTextCommon(QPainter& painter)
+void VPositionBarWidget::drawTextCommon(QPainter& _painter)
 {
   // Set the font.
-  painter.setPen(Qt::gray);
-  painter.setFont(DefaultFont(getTextPSize()));
+  _painter.setPen(Qt::gray);
+  _painter.setFont(DefaultFont(getTextPSize()));
 
   // Set painter rotation and translation.
-  painter.translate(width() / 2, height() / 2);
-  painter.rotate(90);
+  _painter.translate(width() / 2, height() / 2);
+  _painter.rotate(90);
 }
 }  // namespace qt
 }  // namespace tobas

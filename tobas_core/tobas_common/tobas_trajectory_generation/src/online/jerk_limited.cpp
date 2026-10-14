@@ -14,30 +14,30 @@ namespace traj
 {
 namespace
 {
-inline double sign(double v)
+inline double sign(double _v)
 {
-  return std::signbit(v) ? -1 : 1;
+  return std::signbit(_v) ? -1 : 1;
 }
 
-inline double delta_v(double v, double edk, double eddk)
+inline double delta_v(double _v, double _edk, double _eddk)
 {
-  return eddk * std::abs(eddk) + 2 * (edk - v);
+  return _eddk * std::abs(_eddk) + 2 * (_edk - _v);
 }
 
-inline double u_cv(double v, double u, double edk, double eddk)
+inline double u_cv(double _v, double _u, double _edk, double _eddk)
 {
-  return -u * sign(delta_v(v, edk, eddk) + (1 - std::abs(sign(delta_v(v, edk, eddk)))) * eddk);
+  return -_u * sign(delta_v(_v, _edk, _eddk) + (1 - std::abs(sign(delta_v(_v, _edk, _eddk)))) * _eddk);
 }
 
-inline double u_a(double a, double u, double eddk)
+inline double u_a(double _a, double _u, double _eddk)
 {
-  return -u * sign(eddk - a);
+  return -_u * sign(_eddk - _a);
 }
 
-inline double u_v(double v, double u, double edd_min, double edd_max, double edk, double eddk)
+inline double u_v(double _v, double _u, double _edd_min, double _edd_max, double _edk, double _eddk)
 {
-  const auto tmp = std::min(u_cv(v, u, edk, eddk), u_a(edd_max, u, eddk));
-  return std::max(u_a(edd_min, u, eddk), tmp);
+  const auto tmp = std::min(u_cv(_v, _u, _edk, _eddk), u_a(_edd_max, _u, _eddk));
+  return std::max(u_a(_edd_min, _u, _eddk), tmp);
 }
 }  // namespace
 
@@ -45,33 +45,33 @@ JerkLimitedOnlineTrajectoryGenerator::JerkLimitedOnlineTrajectoryGenerator()
 {
 }
 
-void JerkLimitedOnlineTrajectoryGenerator::setMinVelocity(double min_vel)
+void JerkLimitedOnlineTrajectoryGenerator::setMinVelocity(double _min_vel)
 {
-  v_min_ = min_vel;
+  v_min_ = _min_vel;
 }
 
-void JerkLimitedOnlineTrajectoryGenerator::setMaxVelocity(double max_vel)
+void JerkLimitedOnlineTrajectoryGenerator::setMaxVelocity(double _max_vel)
 {
-  v_max_ = max_vel;
+  v_max_ = _max_vel;
 }
 
-void JerkLimitedOnlineTrajectoryGenerator::setMinAcceleration(double min_acc)
+void JerkLimitedOnlineTrajectoryGenerator::setMinAcceleration(double _min_acc)
 {
-  a_min_ = min_acc;
+  a_min_ = _min_acc;
 }
 
-void JerkLimitedOnlineTrajectoryGenerator::setMaxAcceleration(double max_acc)
+void JerkLimitedOnlineTrajectoryGenerator::setMaxAcceleration(double _max_acc)
 {
-  a_max_ = max_acc;
+  a_max_ = _max_acc;
 }
 
-void JerkLimitedOnlineTrajectoryGenerator::setMaxJerk(double max_jerk)
+void JerkLimitedOnlineTrajectoryGenerator::setMaxJerk(double _max_jerk)
 {
-  assert(max_jerk > 0);
-  u_ = max_jerk;
+  assert(_max_jerk > 0);
+  u_ = _max_jerk;
 }
 
-void JerkLimitedOnlineTrajectoryGenerator::update(double dt)
+void JerkLimitedOnlineTrajectoryGenerator::update(double _dt)
 {
   assert(std::isfinite(v_min_));
   assert(std::isfinite(v_max_));
@@ -81,7 +81,7 @@ void JerkLimitedOnlineTrajectoryGenerator::update(double dt)
   assert(v_min_ < v_max_);
   assert(a_min_ < a_max_);
   assert(u_ > 0);
-  assert(dt >= 0);
+  assert(_dt >= 0);
 
   const auto ek = (traj_pos_ - tar_pos_) / u_;
   const auto edk = (traj_vel_ - tar_vel_) / u_;
@@ -115,9 +115,9 @@ void JerkLimitedOnlineTrajectoryGenerator::update(double dt)
   const auto uk = std::max(u_v(ed_min, u_, edd_min, edd_max, edk, eddk), tmp);
 
   // Compute filter output.
-  const auto next_acc = traj_acc_ + dt * uk;
-  const auto next_vel = traj_vel_ + dt / 2 * (traj_acc_ + next_acc);
-  const auto next_pos = traj_pos_ + dt / 2 * (traj_vel_ + next_vel);
+  const auto next_acc = traj_acc_ + _dt * uk;
+  const auto next_vel = traj_vel_ + _dt / 2 * (traj_acc_ + next_acc);
+  const auto next_pos = traj_pos_ + _dt / 2 * (traj_vel_ + next_vel);
 
   // Update trajectory point.
   traj_acc_ = std::clamp(next_acc, a_min_, a_max_);
@@ -126,22 +126,22 @@ void JerkLimitedOnlineTrajectoryGenerator::update(double dt)
 }
 
 void JerkLimitedOnlineTrajectoryGenerator::setTargetPointAndUpdate(
-  double tar_pos,
-  double tar_vel,
-  double tar_acc,
-  double dt)
+  double _tar_pos,
+  double _tar_vel,
+  double _tar_acc,
+  double _dt)
 {
-  setTargetPosition(tar_pos);
-  setTargetVelocity(tar_vel);
-  setTargetAcceleration(tar_acc);
-  update(dt);
+  setTargetPosition(_tar_pos);
+  setTargetVelocity(_tar_vel);
+  setTargetAcceleration(_tar_acc);
+  update(_dt);
 }
 
-void JerkLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(double pos, double vel, double acc)
+void JerkLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(double _pos, double _vel, double _acc)
 {
-  traj_pos_ = pos;
-  traj_vel_ = vel;
-  traj_acc_ = acc;
+  traj_pos_ = _pos;
+  traj_vel_ = _vel;
+  traj_acc_ = _acc;
 }
 }  // namespace traj
 }  // namespace tobas

@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace tim
 {
-Stopwatch::Stopwatch(size_t samples) : samples_(std::max(samples, 1UL))
+Stopwatch::Stopwatch(size_t _samples) : samples_(std::max(_samples, 1UL))
 {
 }
 

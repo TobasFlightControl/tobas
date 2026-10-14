@@ -10,6 +10,6 @@ namespace tobas
 {
 namespace st
 {
-void _printLocation(const char* file, int line);
+void _printLocation(const char* _file, int _line);
 }  // namespace st
 }  // namespace tobas

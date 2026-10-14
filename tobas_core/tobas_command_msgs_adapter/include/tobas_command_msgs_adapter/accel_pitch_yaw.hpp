@@ -33,22 +33,22 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::AccelPitchYaw, tobas_command_msgs
   using custom_type = tobas_command_msgs::AccelPitchYaw;
   using ros_message_type = tobas_command_msgs::msg::AccelPitchYaw;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
-    dst.priority = src.priority;
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.accel, dst.accel);
-    dst.pitch = src.pitch;
-    dst.yaw = src.yaw;
+    _dst.header = _src.header;
+    _dst.priority = _src.priority;
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.accel, _dst.accel);
+    _dst.pitch = _src.pitch;
+    _dst.yaw = _src.yaw;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
-    dst.priority = src.priority;
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.accel, dst.accel);
-    dst.pitch = src.pitch;
-    dst.yaw = src.yaw;
+    _dst.header = _src.header;
+    _dst.priority = _src.priority;
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.accel, _dst.accel);
+    _dst.pitch = _src.pitch;
+    _dst.yaw = _src.yaw;
   }
 };
 

@@ -18,7 +18,7 @@ public:
   Eigen::Matrix3d data;
 
   inline explicit RotationalInertia();
-  inline explicit RotationalInertia(double Ixx, double Iyy, double Izz, double Ixy, double Ixz, double Iyz);
+  inline explicit RotationalInertia(double _ixx, double _iyy, double _izz, double _ixy, double _ixz, double _iyz);
   inline explicit RotationalInertia(const Eigen::Matrix3d& _data);
 
   static inline RotationalInertia Zero();
@@ -34,26 +34,26 @@ public:
 
   inline double trace() const;
 
-  inline RotationalInertia operator+(const RotationalInertia& rhs) const;
-  inline RotationalInertia& operator+=(const RotationalInertia& rhs);
+  inline RotationalInertia operator+(const RotationalInertia& _rhs) const;
+  inline RotationalInertia& operator+=(const RotationalInertia& _rhs);
 
   /** Compute the angular momentum resulting from a rotational velocity omega. */
-  inline Vector operator*(const Vector& omega) const;
+  inline Vector operator*(const Vector& _omega) const;
 
-  inline friend RotationalInertia operator*(double a, const RotationalInertia& I);
+  inline friend RotationalInertia operator*(double _a, const RotationalInertia& _i);
   /** Compute Ia = Rab Ib Rab^T. */
-  inline friend RotationalInertia operator*(const Rotation& R_a_b, const RotationalInertia& I_b);
+  inline friend RotationalInertia operator*(const Rotation& _r_a_b, const RotationalInertia& _i_b);
 
-  inline friend std::ostream& operator<<(std::ostream& os, const RotationalInertia& arg);
+  inline friend std::ostream& operator<<(std::ostream& _os, const RotationalInertia& _arg);
 };
 
 inline RotationalInertia::RotationalInertia() : RotationalInertia(0, 0, 0, 0, 0, 0)
 {
 }
 
-inline RotationalInertia::RotationalInertia(double Ixx, double Iyy, double Izz, double Ixy, double Ixz, double Iyz)
+inline RotationalInertia::RotationalInertia(double _ixx, double _iyy, double _izz, double _ixy, double _ixz, double _iyz)
 {
-  data << Ixx, Ixy, Ixz, Ixy, Iyy, Iyz, Ixz, Iyz, Izz;
+  data << _ixx, _ixy, _ixz, _ixy, _iyy, _iyz, _ixz, _iyz, _izz;
 }
 
 inline RotationalInertia::RotationalInertia(const Eigen::Matrix3d& _data) : data(_data)
@@ -100,37 +100,37 @@ inline double RotationalInertia::trace() const
   return data.trace();
 }
 
-inline RotationalInertia RotationalInertia::operator+(const RotationalInertia& rhs) const
+inline RotationalInertia RotationalInertia::operator+(const RotationalInertia& _rhs) const
 {
-  return RotationalInertia(data + rhs.data);
+  return RotationalInertia(data + _rhs.data);
 }
 
-inline RotationalInertia& RotationalInertia::operator+=(const RotationalInertia& rhs)
+inline RotationalInertia& RotationalInertia::operator+=(const RotationalInertia& _rhs)
 {
-  data += rhs.data;
+  data += _rhs.data;
   return *this;
 }
 
-inline Vector RotationalInertia::operator*(const Vector& omega) const
+inline Vector RotationalInertia::operator*(const Vector& _omega) const
 {
-  return Vector(data * omega.data);
+  return Vector(data * _omega.data);
 }
 
-inline RotationalInertia operator*(double a, const RotationalInertia& I)
+inline RotationalInertia operator*(double _a, const RotationalInertia& _i)
 {
-  return RotationalInertia(a * I.data);
+  return RotationalInertia(_a * _i.data);
 }
 
-inline RotationalInertia operator*(const Rotation& R_a_b, const RotationalInertia& I_b)
+inline RotationalInertia operator*(const Rotation& _r_a_b, const RotationalInertia& _i_b)
 {
-  return RotationalInertia(R_a_b.data * I_b.data * R_a_b.data.transpose());
+  return RotationalInertia(_r_a_b.data * _i_b.data * _r_a_b.data.transpose());
 }
 
-inline std::ostream& operator<<(std::ostream& os, const RotationalInertia& arg)
+inline std::ostream& operator<<(std::ostream& _os, const RotationalInertia& _arg)
 {
-  os << "Ixx: " << arg.ixx() << ", Iyy: " << arg.iyy() << ", Izz: " << arg.izz() << ", Ixy: " << arg.ixy()
-     << ", Iyz: " << arg.iyz() << ", Izx: " << arg.ixz();
-  return os;
+  _os << "Ixx: " << _arg.ixx() << ", Iyy: " << _arg.iyy() << ", Izz: " << _arg.izz() << ", Ixy: " << _arg.ixy()
+      << ", Iyz: " << _arg.iyz() << ", Izx: " << _arg.ixz();
+  return _os;
 }
 }  // namespace kdl
 }  // namespace tobas

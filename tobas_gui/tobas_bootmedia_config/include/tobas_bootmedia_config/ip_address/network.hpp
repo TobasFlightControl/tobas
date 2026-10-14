@@ -29,8 +29,8 @@ struct Network
   } manual;
 };
 
-std::expected<Network, std::string> loadNetwork(const std::string& path);
-bool saveNetwork(const std::string& path, const Network& network);
+std::expected<Network, std::string> loadNetwork(const std::string& _path);
+bool saveNetwork(const std::string& _path, const Network& _network);
 }  // namespace bm
 }  // namespace gui
 }  // namespace tobas

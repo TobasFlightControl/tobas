@@ -13,7 +13,7 @@ namespace ssh
 {
 namespace ak
 {
-std::expected<std::string, std::string> exportLine(const Data& src);
+std::expected<std::string, std::string> exportLine(const Data& _src);
 }  // namespace ak
 }  // namespace ssh
 }  // namespace tobas

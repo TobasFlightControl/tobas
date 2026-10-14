@@ -9,23 +9,23 @@ namespace tobas
 {
 namespace qwt
 {
-QwtPlotCurveWrapper::QwtPlotCurveWrapper(const QString& title)
+QwtPlotCurveWrapper::QwtPlotCurveWrapper(const QString& _title)
 {
-  impl_ = std::make_shared<QwtPlotCurve>(title);
+  impl_ = std::make_shared<QwtPlotCurve>(_title);
 }
 
-QwtPlotCurveWrapper::QwtPlotCurveWrapper(const char* title) : QwtPlotCurveWrapper(QString(title))
+QwtPlotCurveWrapper::QwtPlotCurveWrapper(const char* _title) : QwtPlotCurveWrapper(QString(_title))
 {
 }
 
-void QwtPlotCurveWrapper::setPen(const QColor& color, qreal width, Qt::PenStyle style)
+void QwtPlotCurveWrapper::setPen(const QColor& _color, qreal _width, Qt::PenStyle _style)
 {
-  impl_->setPen(color, width, style);
+  impl_->setPen(_color, _width, _style);
 }
 
-void QwtPlotCurveWrapper::setSamples(const QVector<double>& x_data, const QVector<double>& y_data)
+void QwtPlotCurveWrapper::setSamples(const QVector<double>& _x_data, const QVector<double>& _y_data)
 {
-  impl_->setSamples(x_data, y_data);
+  impl_->setSamples(_x_data, _y_data);
 }
 
 void QwtPlotCurveWrapper::setStyleLines()
@@ -48,9 +48,9 @@ void QwtPlotCurveWrapper::setStyleDots()
   impl_->setStyle(QwtPlotCurve::Dots);
 }
 
-void QwtPlotCurveWrapper::attach(QwtPlot* plot)
+void QwtPlotCurveWrapper::attach(QwtPlot* _plot)
 {
-  impl_->attach(plot);
+  impl_->attach(_plot);
 }
 
 void QwtPlotCurveWrapper::clear()

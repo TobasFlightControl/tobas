@@ -20,7 +20,7 @@ class MagDriverNode : public hardware::BaseSensorNode
   using super = hardware::BaseSensorNode;
 
 public:
-  explicit MagDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit MagDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   stm::IIS2MDC mag_;
@@ -33,8 +33,8 @@ private:
   void mainTimerCb();
 };
 
-MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc1xx_mag_driver", nodeOptions_Default(options))
+MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& _options)
+  : super("fc1xx_mag_driver", nodeOptions_Default(_options))
 {
   initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
 }

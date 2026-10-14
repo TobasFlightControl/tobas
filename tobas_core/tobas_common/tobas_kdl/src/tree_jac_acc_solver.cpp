@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace kdl
 {
-TreeJacAccSolver::TreeJacAccSolver(const Tree& tree) : super(tree)
+TreeJacAccSolver::TreeJacAccSolver(const Tree& _tree) : super(_tree)
 {
   resize();
 }
@@ -19,12 +19,12 @@ void TreeJacAccSolver::updateInternalDataStructures()
   resize();
 }
 
-const AccelMap& TreeJacAccSolver::jntToCart(const JntArray& q, const JntArray& qd)
+const AccelMap& TreeJacAccSolver::jntToCart(const JntArray& _q, const JntArray& _qd)
 {
-  assert(q.size() == tree_.getNrOfJoints());
-  assert(qd.size() == tree_.getNrOfJoints());
+  assert(_q.size() == tree_.getNrOfJoints());
+  assert(_qd.size() == tree_.getNrOfJoints());
 
-  jntToCartRec(tree_.getRootSegment(), q, qd);
+  jntToCartRec(tree_.getRootSegment(), _q, _qd);
   return jdqd_out_;
 }
 
@@ -43,17 +43,17 @@ void TreeJacAccSolver::resize()
   }
 }
 
-void TreeJacAccSolver::jntToCartRec(const SegmentMap::const_iterator& segment, const JntArray& q, const JntArray& qd)
+void TreeJacAccSolver::jntToCartRec(const SegmentMap::const_iterator& _segment, const JntArray& _q, const JntArray& _qd)
 {
-  const auto& seg = segment->second.segment;
-  const auto& seg_name = segment->first;
+  const auto& seg = _segment->second.segment;
+  const auto& seg_name = _segment->first;
 
   // Do forward calculations.
   double qj, qdj;
   if (seg.joint().type != Joint::kFixed) {
-    const auto& j = segment->second.q_nr;
-    qj = q(j);
-    qdj = qd(j);
+    const auto& j = _segment->second.q_nr;
+    qj = _q(j);
+    qdj = _qd(j);
   }
   else {
     qj = qdj = 0.0;
@@ -62,13 +62,13 @@ void TreeJacAccSolver::jntToCartRec(const SegmentMap::const_iterator& segment, c
   const auto Xj = seg.pose(qj);
   const auto vj = Xj.M.inverse(seg.twist(qj, qdj));  // Transform velocity.
 
-  if (segment == tree_.getRootSegment()) {
+  if (_segment == tree_.getRootSegment()) {
     R_.at(seg_name) = Rotation::Identity();
     v_.at(seg_name) = vj;
     a_.at(seg_name) = vj * vj;
   }
   else {
-    const auto& par_name = segment->second.parent->first;
+    const auto& par_name = _segment->second.parent->first;
     R_.at(seg_name) = R_.at(par_name) * Xj.M;
     v_.at(seg_name) = Xj.inverse(v_.at(par_name)) + vj;
     a_.at(seg_name) = Xj.inverse(a_.at(par_name)) + v_.at(seg_name) * vj;
@@ -78,8 +78,8 @@ void TreeJacAccSolver::jntToCartRec(const SegmentMap::const_iterator& segment, c
   jdqd_out_.at(seg_name) = R_.at(seg_name) * a_.at(seg_name);
 
   // propagate calculations over each child segment.
-  for (const auto& child : segment->second.children) {
-    jntToCartRec(child, q, qd);
+  for (const auto& child : _segment->second.children) {
+    jntToCartRec(child, _q, _qd);
   }
 }
 }  // namespace kdl

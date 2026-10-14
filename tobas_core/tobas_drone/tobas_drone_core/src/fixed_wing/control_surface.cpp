@@ -32,37 +32,37 @@ std::expected<void, std::string> ControlSurface::validate() const
   return {};
 }
 
-std::expected<void, std::string> ControlSurface::load(const YAML::Node& node)
+std::expected<void, std::string> ControlSurface::load(const YAML::Node& _node)
 {
-  if (!node.IsDefined() || !node.IsMap()) {
+  if (!_node.IsDefined() || !_node.IsMap()) {
     return std::unexpected("Configuration node must be a map.");
   }
 
-  if (const auto result = yaml::load(kLinkNameKey, node, link_name); !result) {
+  if (const auto result = yaml::load(kLinkNameKey, _node, link_name); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCLiftDeltaKey, node, c_lift_delta); !result) {
+  if (const auto result = yaml::load(kCLiftDeltaKey, _node, c_lift_delta); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCDragAbsDeltaKey, node, c_drag_abs_delta); !result) {
+  if (const auto result = yaml::load(kCDragAbsDeltaKey, _node, c_drag_abs_delta); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCSideDeltaKey, node, c_side_delta); !result) {
+  if (const auto result = yaml::load(kCSideDeltaKey, _node, c_side_delta); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCRollDeltaKey, node, c_roll_delta); !result) {
+  if (const auto result = yaml::load(kCRollDeltaKey, _node, c_roll_delta); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCPitchDeltaKey, node, c_pitch_delta); !result) {
+  if (const auto result = yaml::load(kCPitchDeltaKey, _node, c_pitch_delta); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCYawDeltaKey, node, c_yaw_delta); !result) {
+  if (const auto result = yaml::load(kCYawDeltaKey, _node, c_yaw_delta); !result) {
     return result;
   }
 

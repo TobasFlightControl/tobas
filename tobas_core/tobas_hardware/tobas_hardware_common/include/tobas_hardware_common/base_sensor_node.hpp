@@ -18,7 +18,7 @@ class BaseSensorNode : public BaseNode
   using Empty = std_srvs::srv::Empty;
 
 public:
-  explicit BaseSensorNode(const std::string& name, const rclcpp::NodeOptions& options);
+  explicit BaseSensorNode(const std::string& _name, const rclcpp::NodeOptions& _options);
 
 protected:
   ros2::TimerPtr main_timer_;
@@ -27,8 +27,8 @@ private:
   ros2::ServiceServerPtr<Empty> start_ss_;
   ros2::ServiceServerPtr<Empty> stop_ss_;
 
-  void startMainTimerSrvCb(const Empty::Request::ConstSharedPtr& req, const Empty::Response::SharedPtr& res);
-  void stopMainTimerSrvCb(const Empty::Request::ConstSharedPtr& req, const Empty::Response::SharedPtr& res);
+  void startMainTimerSrvCb(const Empty::Request::ConstSharedPtr& _req, const Empty::Response::SharedPtr& _res);
+  void stopMainTimerSrvCb(const Empty::Request::ConstSharedPtr& _req, const Empty::Response::SharedPtr& _res);
 };
 }  // namespace hardware
 }  // namespace tobas

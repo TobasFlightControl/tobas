@@ -13,8 +13,8 @@ enum class HardwareInterface
   kOther,
 };
 
-std::string textFromEnum(HardwareInterface value);
-bool enumFromText(const std::string& text, HardwareInterface& dst);
+std::string textFromEnum(HardwareInterface _value);
+bool enumFromText(const std::string& _text, HardwareInterface& _dst);
 }  // namespace tobas
 
 namespace YAML
@@ -22,7 +22,7 @@ namespace YAML
 template <>
 struct convert<tobas::HardwareInterface>
 {
-  static Node encode(tobas::HardwareInterface rhs);
-  static bool decode(const Node& node, tobas::HardwareInterface& rhs);
+  static Node encode(tobas::HardwareInterface _rhs);
+  static bool decode(const Node& _node, tobas::HardwareInterface& _rhs);
 };
 }  // namespace YAML

@@ -24,11 +24,11 @@ public:
   const char* name() const override;
 
   mission::Land dump() const;
-  void load(const mission::Land& src);
+  void load(const mission::Land& _src);
 
   double speed() const;
 
-  void speed(double value);
+  void speed(double _value);
 
 private:
   field::LandSpeedWidget* speed_;

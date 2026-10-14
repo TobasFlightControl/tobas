@@ -29,7 +29,7 @@ class FieldWidget : public BaseFieldWidget
 {
 public:
   virtual T getValue() const = 0;
-  virtual void setValue(T value) = 0;
+  virtual void setValue(T _value) = 0;
 };
 }  // namespace field
 }  // namespace ctrl

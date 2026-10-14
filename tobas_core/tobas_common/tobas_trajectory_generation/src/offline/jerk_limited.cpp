@@ -17,8 +17,8 @@ namespace
 constexpr auto kEps = 1e-6;  // If this is too small, convergence may never occur.
 }  // namespace
 
-JerkLimitedTrajectory::JerkLimitedTrajectory(double p0, double pf, double max_jerk, double max_acc, double max_vel)
-  : p0_(p0), pd_(std::abs(pf - p0)), sign_(math::sign(pf - p0)), jm_(max_jerk), am_(max_acc), vm_(max_vel)
+JerkLimitedTrajectory::JerkLimitedTrajectory(double _p0, double _pf, double _max_jerk, double _max_acc, double _max_vel)
+  : p0_(_p0), pd_(std::abs(_pf - _p0)), sign_(math::sign(_pf - _p0)), jm_(_max_jerk), am_(_max_acc), vm_(_max_vel)
 {
   assert(jm_ > 0.0);
   assert(am_ > 0.0);
@@ -67,14 +67,14 @@ JerkLimitedTrajectory::JerkLimitedTrajectory(double p0, double pf, double max_je
   assert(t3_ < t4_);
 }
 
-TrajectoryPoint JerkLimitedTrajectory::get(double t) const noexcept
+TrajectoryPoint JerkLimitedTrajectory::get(double _t) const noexcept
 {
   if (pd_ < kEps) {
     return { p0_, 0.0, 0.0 };
   }
 
   // Restore the origin and movement direction removed at the beginning.
-  return { p0_ + sign_ * p(t), sign_ * v(t), sign_ * a(t) };
+  return { p0_ + sign_ * p(_t), sign_ * v(_t), sign_ * a(_t) };
 }
 
 double JerkLimitedTrajectory::duration() const noexcept
@@ -82,69 +82,69 @@ double JerkLimitedTrajectory::duration() const noexcept
   return 2 * t4_;
 }
 
-double JerkLimitedTrajectory::p(double t) const noexcept
+double JerkLimitedTrajectory::p(double _t) const noexcept
 {
-  if (t <= 0) {
+  if (_t <= 0) {
     return 0;
   }
-  else if (t <= t1_) {
-    return (jm_ / 6) * math::cube(t);
+  else if (_t <= t1_) {
+    return (jm_ / 6) * math::cube(_t);
   }
-  else if (t <= t2_) {
-    return p(t1_) + (am_ / 2) * t * (t - t1_);
+  else if (_t <= t2_) {
+    return p(t1_) + (am_ / 2) * _t * (_t - t1_);
   }
-  else if (t <= t3_) {
-    return p(t2_) + vm_ * (t - t2_) + (jm_ / 6) * (math::cube(t3_ - t) - math::cube(t1_));
+  else if (_t <= t3_) {
+    return p(t2_) + vm_ * (_t - t2_) + (jm_ / 6) * (math::cube(t3_ - _t) - math::cube(t1_));
   }
-  else if (t <= t4_) {
-    return p(t3_) + vm_ * (t - t3_);
+  else if (_t <= t4_) {
+    return p(t3_) + vm_ * (_t - t3_);
   }
   else {
-    return pd_ - p(2 * t4_ - t);  // Use point symmetry around t = t4, p = pd/2.
+    return pd_ - p(2 * t4_ - _t);  // Use point symmetry around t = t4, p = pd/2.
   }
 }
 
-double JerkLimitedTrajectory::v(double t) const noexcept
+double JerkLimitedTrajectory::v(double _t) const noexcept
 {
-  if (t <= 0) {
+  if (_t <= 0) {
     return 0;
   }
-  else if (t <= t1_) {
-    return (jm_ / 2) * math::sqr(t);
+  else if (_t <= t1_) {
+    return (jm_ / 2) * math::sqr(_t);
   }
-  else if (t <= t2_) {
-    return v(t1_) + am_ * (t - t1_);
+  else if (_t <= t2_) {
+    return v(t1_) + am_ * (_t - t1_);
   }
-  else if (t <= t3_) {
-    return vm_ - v(t3_ - t);  // Use point symmetry around t = t3/2, v = vm/2.
+  else if (_t <= t3_) {
+    return vm_ - v(t3_ - _t);  // Use point symmetry around t = t3/2, v = vm/2.
   }
-  else if (t <= t4_) {
+  else if (_t <= t4_) {
     return vm_;
   }
   else {
-    return v(2 * t4_ - t);  // Use line symmetry around t = t4.
+    return v(2 * t4_ - _t);  // Use line symmetry around t = t4.
   }
 }
 
-double JerkLimitedTrajectory::a(double t) const noexcept
+double JerkLimitedTrajectory::a(double _t) const noexcept
 {
-  if (t <= 0) {
+  if (_t <= 0) {
     return 0;
   }
-  else if (t <= t1_) {
-    return jm_ * t;
+  else if (_t <= t1_) {
+    return jm_ * _t;
   }
-  else if (t <= t2_) {
+  else if (_t <= t2_) {
     return am_;
   }
-  else if (t <= t3_) {
-    return a(t3_ - t);  // Use line symmetry around t = t3/2.
+  else if (_t <= t3_) {
+    return a(t3_ - _t);  // Use line symmetry around t = t3/2.
   }
-  else if (t <= t4_) {
+  else if (_t <= t4_) {
     return 0;
   }
   else {
-    return -a(2 * t4_ - t);  // Use point symmetry around t = t4, a = 0.
+    return -a(2 * t4_ - _t);  // Use point symmetry around t = t4, a = 0.
   }
 }
 }  // namespace traj

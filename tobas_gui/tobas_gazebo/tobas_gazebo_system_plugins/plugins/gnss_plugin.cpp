@@ -48,12 +48,12 @@ public:
   explicit GazeboGnssPlugin();
 
   void Configure(
-    const gz::sim::Entity& model_entity,
-    const sdf::ElementConstPtr& sdf,
-    gz::sim::EntityComponentManager& ecm,
+    const gz::sim::Entity& _model_entity,
+    const sdf::ElementConstPtr& _sdf,
+    gz::sim::EntityComponentManager& _ecm,
     gz::sim::EventManager&) override;
 
-  void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
+  void PostUpdate(const gz::sim::UpdateInfo& _info, const gz::sim::EntityComponentManager& _ecm) override;
 
 private:
   geo::Geography geography_;
@@ -96,17 +96,17 @@ private:
   // Services
   ros2::ServiceServerPtr<LoseFixSrv> lose_fix_ss_;
 
-  void getSdfParams(const sdf::ElementConstPtr& sdf);
+  void getSdfParams(const sdf::ElementConstPtr& _sdf);
   void setRandomDistribuitons();
-  void fillCovariances(tobas_msgs::Gnss& gnss_msg);
-  void updatePosition(tobas_msgs::Gnss& gnss_msg, const gz::math::Pose3d& T_W_B);
+  void fillCovariances(tobas_msgs::Gnss& _gnss_msg);
+  void updatePosition(tobas_msgs::Gnss& _gnss_msg, const gz::math::Pose3d& _t_w_b);
   void updateVelocity(
-    tobas_msgs::Gnss& gnss_msg,
-    const gz::math::Quaterniond& W_Rot_B,
-    const gz::math::Vector3d& W_Linvel_WB,
-    const gz::math::Vector3d& B_Angvel_WB);
+    tobas_msgs::Gnss& _gnss_msg,
+    const gz::math::Quaterniond& _w_rot_b,
+    const gz::math::Vector3d& _w_linvel_wb,
+    const gz::math::Vector3d& _b_angvel_wb);
 
-  void loseFixCb(const LoseFixSrv::Request::ConstSharedPtr& req, const LoseFixSrv::Response::SharedPtr& res);
+  void loseFixCb(const LoseFixSrv::Request::ConstSharedPtr& _req, const LoseFixSrv::Response::SharedPtr& _res);
 };
 
 GazeboGnssPlugin::GazeboGnssPlugin()
@@ -114,18 +114,18 @@ GazeboGnssPlugin::GazeboGnssPlugin()
 }
 
 void GazeboGnssPlugin::Configure(
-  const gz::sim::Entity& model_entity,
-  const sdf::ElementConstPtr& sdf,
-  gz::sim::EntityComponentManager& ecm,
+  const gz::sim::Entity& _model_entity,
+  const sdf::ElementConstPtr& _sdf,
+  gz::sim::EntityComponentManager& _ecm,
   gz::sim::EventManager&)
 {
-  initialize("gazebo_gnss_plugin", sdf);
-  getSdfParams(sdf);
+  initialize("gazebo_gnss_plugin", _sdf);
+  getSdfParams(_sdf);
   setRandomDistribuitons();
 
   rate_manager_.emplace(update_rate_);
 
-  const auto sc = getWorldSphericalCoordinates(ecm);
+  const auto sc = getWorldSphericalCoordinates(_ecm);
   if (!sc) {
     TOBAS_EXIT(sc.error());
   }
@@ -133,28 +133,28 @@ void GazeboGnssPlugin::Configure(
   lon_0_ = sc->LongitudeReference().Degree();
   alt_0_ = sc->ElevationReference();
 
-  const gz::sim::Model model(model_entity);
-  const auto link_entity = model.LinkByName(ecm, link_name_);
+  const gz::sim::Model model(_model_entity);
+  const auto link_entity = model.LinkByName(_ecm, link_name_);
   if (link_entity == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
   }
 
-  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
-  vel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm);
-  gyro_B_ = getComponent<cmp::AngularVelocity>(link_entity, ecm);
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, _ecm);
+  vel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, _ecm);
+  gyro_B_ = getComponent<cmp::AngularVelocity>(link_entity, _ecm);
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
   lose_fix_ss_ = createService<LoseFixSrv>(kLoseGnssFixSrv, &self::loseFixCb, this);
 }
 
-void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
+void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& _info, const gz::sim::EntityComponentManager&)
 {
-  if (info.paused || info.dt <= ch::steady_clock::duration::zero()) {
+  if (_info.paused || _info.dt <= ch::steady_clock::duration::zero()) {
     return;
   }
 
   // Add the current state to history.
-  const auto& cur_time = info.simTime;
+  const auto& cur_time = _info.simTime;
   history_.emplace_back(cur_time, pose_W_->Data(), vel_W_->Data(), gyro_B_->Data());
 
   // Delete old history.
@@ -166,11 +166,11 @@ void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
   }
 
   // Update position bias according to an Ornstein-Uhlenbeck process.
-  const auto dt = ch::duration<double>(info.dt).count();
+  const auto dt = ch::duration<double>(_info.dt).count();
   pos_bias_ += (dpos_noise_->get() - pos_bias_ / pos_corr_time_) * dt;
 
   // Do not publish unless it is time to update.
-  if (!rate_manager_->update(info.simTime)) {
+  if (!rate_manager_->update(_info.simTime)) {
     return;
   }
 
@@ -204,21 +204,21 @@ void GazeboGnssPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim
   gnss_pub_->publish(std::move(gnss_msg));
 }
 
-void GazeboGnssPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+void GazeboGnssPlugin::getSdfParams(const sdf::ElementConstPtr& _sdf)
 {
-  link_name_ = getSdfParam<std::string>(sdf, "linkName");
-  offset_ = getSdfParam<gz::math::Vector3d>(sdf, "offset", gz::math::Vector3d::Zero);
-  update_rate_ = getSdfParam<int>(sdf, "updateRate", kNonNegative);
+  link_name_ = getSdfParam<std::string>(_sdf, "linkName");
+  offset_ = getSdfParam<gz::math::Vector3d>(_sdf, "offset", gz::math::Vector3d::Zero);
+  update_rate_ = getSdfParam<int>(_sdf, "updateRate", kNonNegative);
 
-  delay_ = getSdfParam<double>(sdf, "delay", kNonNegative);
-  pos_corr_time_ = getSdfParam<double>(sdf, "positionCorrTime", kPositive);
+  delay_ = getSdfParam<double>(_sdf, "delay", kNonNegative);
+  pos_corr_time_ = getSdfParam<double>(_sdf, "positionCorrTime", kPositive);
 
-  hor_pos_accuracy_ = getSdfParam<double>(sdf, "horPosAccuracy", kNonNegative);
-  ver_pos_accuracy_ = getSdfParam<double>(sdf, "verPosAccuracy", kNonNegative);
-  hor_vel_stddev_ = getSdfParam<double>(sdf, "horVelStdDev", kNonNegative);
-  ver_vel_stddev_ = getSdfParam<double>(sdf, "verVelStdDev", kNonNegative);
+  hor_pos_accuracy_ = getSdfParam<double>(_sdf, "horPosAccuracy", kNonNegative);
+  ver_pos_accuracy_ = getSdfParam<double>(_sdf, "verPosAccuracy", kNonNegative);
+  hor_vel_stddev_ = getSdfParam<double>(_sdf, "horVelStdDev", kNonNegative);
+  ver_vel_stddev_ = getSdfParam<double>(_sdf, "verVelStdDev", kNonNegative);
 
-  geoid_undulation_ = getSdfParam<double>(sdf, "geoidUndulation", 0.0);
+  geoid_undulation_ = getSdfParam<double>(_sdf, "geoidUndulation", 0.0);
 }
 
 void GazeboGnssPlugin::setRandomDistribuitons()
@@ -235,25 +235,25 @@ void GazeboGnssPlugin::setRandomDistribuitons()
   vel_noise_.emplace(rnd_dev_, gz::math::Vector3d::Zero, vel_stddev);
 }
 
-void GazeboGnssPlugin::fillCovariances(tobas_msgs::Gnss& gnss_msg)
+void GazeboGnssPlugin::fillCovariances(tobas_msgs::Gnss& _gnss_msg)
 {
   // FIXME: Accuracy and covariance are different. GNSS is not white noise, so how is covariance computed?
-  gnss_msg.position_covariance.setZero();
-  gnss_msg.position_covariance.diagonal()(0) = math::sqr(hor_pos_accuracy_);
-  gnss_msg.position_covariance.diagonal()(1) = math::sqr(hor_pos_accuracy_);
-  gnss_msg.position_covariance.diagonal()(2) = math::sqr(ver_pos_accuracy_);
+  _gnss_msg.position_covariance.setZero();
+  _gnss_msg.position_covariance.diagonal()(0) = math::sqr(hor_pos_accuracy_);
+  _gnss_msg.position_covariance.diagonal()(1) = math::sqr(hor_pos_accuracy_);
+  _gnss_msg.position_covariance.diagonal()(2) = math::sqr(ver_pos_accuracy_);
 
-  gnss_msg.velocity_covariance.setZero();
-  gnss_msg.velocity_covariance.diagonal()(0) = math::sqr(hor_vel_stddev_);
-  gnss_msg.velocity_covariance.diagonal()(1) = math::sqr(hor_vel_stddev_);
-  gnss_msg.velocity_covariance.diagonal()(2) = math::sqr(ver_vel_stddev_);
+  _gnss_msg.velocity_covariance.setZero();
+  _gnss_msg.velocity_covariance.diagonal()(0) = math::sqr(hor_vel_stddev_);
+  _gnss_msg.velocity_covariance.diagonal()(1) = math::sqr(hor_vel_stddev_);
+  _gnss_msg.velocity_covariance.diagonal()(2) = math::sqr(ver_vel_stddev_);
 }
 
-void GazeboGnssPlugin::updatePosition(tobas_msgs::Gnss& gnss_msg, const gz::math::Pose3d& T_W_B)
+void GazeboGnssPlugin::updatePosition(tobas_msgs::Gnss& _gnss_msg, const gz::math::Pose3d& _t_w_b)
 {
   // Compute GNSS receiver position while considering the offset.
-  const auto& W_Pos_WB = T_W_B.Pos();
-  const auto& W_Rot_B = T_W_B.Rot();
+  const auto& W_Pos_WB = _t_w_b.Pos();
+  const auto& W_Rot_B = _t_w_b.Rot();
   auto W_Pos_WS = W_Pos_WB + W_Rot_B.RotateVector(offset_);
 
   // Add the altitude of the origin to the z-coordinate.
@@ -264,38 +264,38 @@ void GazeboGnssPlugin::updatePosition(tobas_msgs::Gnss& gnss_msg, const gz::math
 
   // Fill the GNSS message.
   const auto coord = geography_.planeToGeodetic(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_);
-  gnss_msg.latitude = coord.latitude;
-  gnss_msg.longitude = coord.longitude;
-  gnss_msg.height_msl = W_Pos_WS.Z();
-  gnss_msg.height_wgs84 = gnss_msg.height_msl + geoid_undulation_;
+  _gnss_msg.latitude = coord.latitude;
+  _gnss_msg.longitude = coord.longitude;
+  _gnss_msg.height_msl = W_Pos_WS.Z();
+  _gnss_msg.height_wgs84 = _gnss_msg.height_msl + geoid_undulation_;
 }
 
 void GazeboGnssPlugin::updateVelocity(
-  tobas_msgs::Gnss& gnss_msg,
-  const gz::math::Quaterniond& W_Rot_B,
-  const gz::math::Vector3d& W_Linvel_WB,
-  const gz::math::Vector3d& B_Angvel_WB)
+  tobas_msgs::Gnss& _gnss_msg,
+  const gz::math::Quaterniond& _w_rot_b,
+  const gz::math::Vector3d& _w_linvel_wb,
+  const gz::math::Vector3d& _b_angvel_wb)
 {
   // Compute GNSS receiver velocity while considering the offset.
-  auto W_Linvel_WS = W_Linvel_WB + W_Rot_B.RotateVector(B_Angvel_WB.Cross(offset_));
+  auto W_Linvel_WS = _w_linvel_wb + _w_rot_b.RotateVector(_b_angvel_wb.Cross(offset_));
 
   // Apply noise to ground speed.
   W_Linvel_WS += vel_noise_->get();
 
   // Fill the ground speed message.
-  vectorGazeboToKDL(W_Linvel_WS, gnss_msg.ground_speed);
+  vectorGazeboToKDL(W_Linvel_WS, _gnss_msg.ground_speed);
 }
 
-void GazeboGnssPlugin::loseFixCb(const LoseFixSrv::Request::ConstSharedPtr&, const LoseFixSrv::Response::SharedPtr& res)
+void GazeboGnssPlugin::loseFixCb(const LoseFixSrv::Request::ConstSharedPtr&, const LoseFixSrv::Response::SharedPtr& _res)
 {
   if (!force_no_fix_.exchange(true)) {
-    res->message = "GNSS fix has been lost.";
+    _res->message = "GNSS fix has been lost.";
   }
   else {
-    res->message = "GNSS fix is already lost.";
+    _res->message = "GNSS fix is already lost.";
   }
 
-  res->success = true;
+  _res->success = true;
 }
 }  // namespace gazebo
 }  // namespace tobas

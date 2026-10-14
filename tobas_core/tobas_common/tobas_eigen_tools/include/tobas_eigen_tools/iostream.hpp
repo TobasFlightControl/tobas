@@ -7,4 +7,4 @@
 
 #include <eigen3/Eigen/Geometry>
 
-std::ostream& operator<<(std::ostream& os, const Eigen::Quaterniond& arg);
+std::ostream& operator<<(std::ostream& _os, const Eigen::Quaterniond& _arg);

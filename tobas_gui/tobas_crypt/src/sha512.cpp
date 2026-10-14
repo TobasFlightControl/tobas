@@ -16,7 +16,7 @@ namespace tobas
 {
 namespace crypt
 {
-Sha512::Sha512(int rounds) : rounds_(rounds)
+Sha512::Sha512(int _rounds) : rounds_(_rounds)
 {
 }
 

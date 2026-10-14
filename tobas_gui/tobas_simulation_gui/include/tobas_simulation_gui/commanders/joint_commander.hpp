@@ -31,11 +31,11 @@ class JointCommanderWidget : public QWidget
   using CmdMsg = tobas_msgs::msg::JointCommandArray;
 
 public:
-  explicit JointCommanderWidget(const kdl::Tree& tree, const Drone& drone);
+  explicit JointCommanderWidget(const kdl::Tree& _tree, const Drone& _drone);
 
   void reset();
   void updateInternalDataStructures();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:
@@ -72,7 +72,7 @@ private Q_SLOTS:
   void onStartRequested();
   void onStopRequested();
 
-  void onValueChanged(double value, const std::string& jnt_name);
+  void onValueChanged(double _value, const std::string& _jnt_name);
 
   void onHomeButtonClicked();
   void onCenterButtonClicked();

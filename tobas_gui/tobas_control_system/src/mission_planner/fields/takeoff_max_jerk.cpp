@@ -40,9 +40,9 @@ double TakeoffMaxJerkWidget::getValue() const
   return spin_box_->value();
 }
 
-void TakeoffMaxJerkWidget::setValue(double value)
+void TakeoffMaxJerkWidget::setValue(double _value)
 {
-  spin_box_->setValue(value);
+  spin_box_->setValue(_value);
 }
 }  // namespace field
 }  // namespace ctrl

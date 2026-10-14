@@ -21,16 +21,16 @@ class ProgressBar : public QProgressBar
 
 public:
   /** Constructs a progress bar with text shown at the center. */
-  explicit ProgressBar(QWidget* parent = nullptr);
+  explicit ProgressBar(QWidget* _parent = nullptr);
 
   /** Clears the displayed text and resets the value to the minimum. */
   void reset();
 
   /** Sets the bar fill color. */
-  void setFillColor(const QColor& color);
+  void setFillColor(const QColor& _color);
 
   /** Sets the value as a percentage in the current progress range. */
-  void setPercentage(double percentage);
+  void setPercentage(double _percentage);
 };
 }  // namespace qt
 }  // namespace tobas

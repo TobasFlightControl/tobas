@@ -13,43 +13,43 @@ namespace ros2
 {
 namespace
 {
-inline bool isLower(char c)
+inline bool isLower(char _c)
 {
-  return c >= 'a' && c <= 'z';
+  return _c >= 'a' && _c <= 'z';
 }
 
-inline bool isDigit(char c)
+inline bool isDigit(char _c)
 {
-  return c >= '0' && c <= '9';
+  return _c >= '0' && _c <= '9';
 }
 }  // namespace
 
-std::expected<fs::path, std::string> getPackagePathOf(const fs::path& path)
+std::expected<fs::path, std::string> getPackagePathOf(const fs::path& _path)
 {
-  if (!fs::exists(path)) {
-    return std::unexpected(path.string() + " does not exist.");
+  if (!fs::exists(_path)) {
+    return std::unexpected(_path.string() + " does not exist.");
   }
 
-  if (fs::is_directory(path)) {
-    const auto pkg_xml_path = path / "package.xml";
+  if (fs::is_directory(_path)) {
+    const auto pkg_xml_path = _path / "package.xml";
     if (fs::is_regular_file(pkg_xml_path)) {
-      return path;
+      return _path;
     }
   }
 
-  const auto parent_path = path.parent_path();
-  if (path == parent_path) {
+  const auto parent_path = _path.parent_path();
+  if (_path == parent_path) {
     return std::unexpected("package.xml not found.");
   }
 
   return getPackagePathOf(parent_path);
 }
 
-std::expected<std::string, std::string> getPackageNameOf(const fs::path& path)
+std::expected<std::string, std::string> getPackageNameOf(const fs::path& _path)
 {
-  const auto pkg_path = getPackagePathOf(path);
+  const auto pkg_path = getPackagePathOf(_path);
   if (!pkg_path) {
-    return std::unexpected(path.string() + " is not in a ROS package: " + pkg_path.error());
+    return std::unexpected(_path.string() + " is not in a ROS package: " + pkg_path.error());
   }
 
   const auto pkg_xml_path = *pkg_path / "package.xml";
@@ -71,11 +71,11 @@ std::expected<std::string, std::string> getPackageNameOf(const fs::path& path)
   return name->GetText();
 }
 
-std::expected<fs::path, std::string> estimateWorkspaceOf(const fs::path& path)
+std::expected<fs::path, std::string> estimateWorkspaceOf(const fs::path& _path)
 {
-  const auto pkg_path = getPackagePathOf(path);
+  const auto pkg_path = getPackagePathOf(_path);
   if (!pkg_path) {
-    return std::unexpected("'" + path.string() + "' is not in a ROS package: " + pkg_path.error());
+    return std::unexpected("'" + _path.string() + "' is not in a ROS package: " + pkg_path.error());
   }
 
   auto cur = pkg_path->parent_path();
@@ -91,21 +91,21 @@ std::expected<fs::path, std::string> estimateWorkspaceOf(const fs::path& path)
   }
 }
 
-bool isAlreadyBuiltAndInstalled(const fs::path& pkg_path)
+bool isAlreadyBuiltAndInstalled(const fs::path& _pkg_path)
 {
   // Directly under `share`.
-  if (pkg_path.parent_path().filename() != "share") {
+  if (_pkg_path.parent_path().filename() != "share") {
     return false;
   }
 
   // Not a C++ package.
-  const auto cmake_lists_path = pkg_path / "CMakeLists.txt";
+  const auto cmake_lists_path = _pkg_path / "CMakeLists.txt";
   if (fs::is_regular_file(cmake_lists_path)) {
     return false;
   }
 
   // Not a Python package.
-  const auto setup_py_path = pkg_path / "setup.py";
+  const auto setup_py_path = _pkg_path / "setup.py";
   if (fs::is_regular_file(setup_py_path)) {
     return false;
   }
@@ -113,19 +113,19 @@ bool isAlreadyBuiltAndInstalled(const fs::path& pkg_path)
   return true;
 }
 
-bool isValidPackageName(const std::string& pkg_name)
+bool isValidPackageName(const std::string& _pkg_name)
 {
-  if (pkg_name.empty()) {
+  if (_pkg_name.empty()) {
     return false;
   }
 
-  const auto& c0 = pkg_name[0];
+  const auto& c0 = _pkg_name[0];
   if (!isLower(c0)) {
     return false;
   }
 
-  for (size_t i = 1; i < pkg_name.size(); ++i) {
-    const auto& c = pkg_name[i];
+  for (size_t i = 1; i < _pkg_name.size(); ++i) {
+    const auto& c = _pkg_name[i];
     if (!isLower(c) && !isDigit(c) && c != '_') {
       return false;
     }

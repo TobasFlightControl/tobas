@@ -8,22 +8,22 @@
 using namespace std;
 
 template <typename T>
-ostream& operator<<(ostream& os, const vector<T>& vec)
+ostream& operator<<(ostream& _os, const vector<T>& _vec)
 {
-  const auto size = vec.size();
+  const auto size = _vec.size();
 
   if (size == 0) {
-    os << "[]";
-    return os;
+    _os << "[]";
+    return _os;
   }
 
-  os << "[";
+  _os << "[";
   for (size_t i = 0; i < size - 1; ++i) {
-    os << vec[i] << " ";
+    _os << _vec[i] << " ";
   }
-  os << vec[size - 1] << "]";
+  _os << _vec[size - 1] << "]";
 
-  return os;
+  return _os;
 }
 
 int main()

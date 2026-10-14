@@ -16,20 +16,20 @@ struct rclcpp::TypeAdapter<tobas::kdl::Quaternion, tobas_kdl_msgs::msg::Quaterni
   using custom_type = tobas::kdl::Quaternion;
   using ros_message_type = tobas_kdl_msgs::msg::Quaternion;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.x = src.x;
-    dst.y = src.y;
-    dst.z = src.z;
-    dst.w = src.w;
+    _dst.x = _src.x;
+    _dst.y = _src.y;
+    _dst.z = _src.z;
+    _dst.w = _src.w;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.x = src.x;
-    dst.y = src.y;
-    dst.z = src.z;
-    dst.w = src.w;
+    _dst.x = _src.x;
+    _dst.y = _src.y;
+    _dst.z = _src.z;
+    _dst.w = _src.w;
   }
 };
 

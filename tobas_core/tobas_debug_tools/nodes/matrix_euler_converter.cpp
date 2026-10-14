@@ -16,27 +16,27 @@ class MatrixEulerConverterNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit MatrixEulerConverterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit MatrixEulerConverterNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   ros2::PublisherPtr<tobas_kdl_msgs::EulerStamped> euler_pub_;
   ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
 
-  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom);
 };
 
-MatrixEulerConverterNode::MatrixEulerConverterNode(const rclcpp::NodeOptions& options)
-  : super("matrix_euler_converter", nodeOptions_Default(options))
+MatrixEulerConverterNode::MatrixEulerConverterNode(const rclcpp::NodeOptions& _options)
+  : super("matrix_euler_converter", nodeOptions_Default(_options))
 {
   euler_pub_ = createPublisher<tobas_kdl_msgs::EulerStamped>("euler");
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
 }
 
-void MatrixEulerConverterNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
+void MatrixEulerConverterNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom)
 {
   auto euler = std::make_unique<tobas_kdl_msgs::EulerStamped>();
-  euler->header = odom->header;
-  odom->odom.odom.frame.M.getRPY(euler->euler.roll, euler->euler.pitch, euler->euler.yaw);
+  euler->header = _odom->header;
+  _odom->odom.odom.frame.M.getRPY(euler->euler.roll, euler->euler.pitch, euler->euler.yaw);
   euler_pub_->publish(std::move(euler));
 }
 }  // namespace tobas

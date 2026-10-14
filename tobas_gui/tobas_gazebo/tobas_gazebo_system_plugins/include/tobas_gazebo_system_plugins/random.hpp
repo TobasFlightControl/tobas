@@ -17,10 +17,10 @@ class NormalDistribution3d
 {
 public:
   explicit NormalDistribution3d(
-    std::random_device& rnd_dev,
-    const gz::math::Vector3d& mean,
-    const gz::math::Vector3d& stddev);
-  explicit NormalDistribution3d(std::random_device& rnd_dev, double mean, double stddev);
+    std::random_device& _rnd_dev,
+    const gz::math::Vector3d& _mean,
+    const gz::math::Vector3d& _stddev);
+  explicit NormalDistribution3d(std::random_device& _rnd_dev, double _mean, double _stddev);
 
   gz::math::Vector3d get();
 
@@ -33,8 +33,11 @@ private:
 class UniformDistribution3d
 {
 public:
-  explicit UniformDistribution3d(std::random_device& rnd_dev, const gz::math::Vector3d& lb, const gz::math::Vector3d& ub);
-  explicit UniformDistribution3d(std::random_device& rnd_dev, double lb, double ub);
+  explicit UniformDistribution3d(
+    std::random_device& _rnd_dev,
+    const gz::math::Vector3d& _lb,
+    const gz::math::Vector3d& _ub);
+  explicit UniformDistribution3d(std::random_device& _rnd_dev, double _lb, double _ub);
 
   gz::math::Vector3d get();
 
@@ -45,6 +48,6 @@ private:
 };
 
 /** Generate a random point on the unit sphere. */
-gz::math::Vector3d createUnitSpherePoint(std::random_device& rnd_dev);
+gz::math::Vector3d createUnitSpherePoint(std::random_device& _rnd_dev);
 }  // namespace gazebo
 }  // namespace tobas

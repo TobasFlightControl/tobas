@@ -10,14 +10,14 @@
 
 using namespace std;
 
-double f(double x)
+double f(double _x)
 {
-  return tobas::math::sqr(x) + 2 * x - 1;
+  return tobas::math::sqr(_x) + 2 * _x - 1;
 }
 
-double dfdx(double x)
+double dfdx(double _x)
 {
-  return 2 * x + 2;
+  return 2 * _x + 2;
 }
 
 int main()

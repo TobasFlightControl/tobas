@@ -39,9 +39,9 @@ double RtlMinAltitudeWidget::getValue() const
   return spin_box_->value();
 }
 
-void RtlMinAltitudeWidget::setValue(double value)
+void RtlMinAltitudeWidget::setValue(double _value)
 {
-  spin_box_->setValue(value);
+  spin_box_->setValue(_value);
 }
 }  // namespace field
 }  // namespace ctrl

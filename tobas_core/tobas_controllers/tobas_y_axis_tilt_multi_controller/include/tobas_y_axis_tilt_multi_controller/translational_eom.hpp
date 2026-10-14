@@ -13,7 +13,7 @@ namespace y_axis_tilt_multicopter
 class TranslationalEoM
 {
 public:
-  explicit TranslationalEoM(const kdl::Tree& tree);
+  explicit TranslationalEoM(const kdl::Tree& _tree);
 
   void updateInternalDataStructures();
 
@@ -24,13 +24,13 @@ public:
    * but their target values are used instead because gimbal lock may make the yaw angle unstable.
    */
   bool solve(
-    const kdl::Vector& tar_acc_W,
-    double tar_pitch,
-    double tar_yaw,
-    const kdl::Vector& ext_force_W,
-    double& ux_out,
-    double& uz_out,
-    kdl::Rotation& rot_out);
+    const kdl::Vector& _tar_acc_w,
+    double _tar_pitch,
+    double _tar_yaw,
+    const kdl::Vector& _ext_force_w,
+    double& _ux_out,
+    double& _uz_out,
+    kdl::Rotation& _rot_out);
 
 private:
   kdl::TreeMassHolder mass_holder_;

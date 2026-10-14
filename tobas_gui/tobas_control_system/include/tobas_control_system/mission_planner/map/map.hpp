@@ -24,7 +24,7 @@ class MapWidget : public QQuickWidget
   Q_OBJECT
 
 Q_SIGNALS:
-  void waypointMoved(int index, double latitude, double longitude);
+  void waypointMoved(int _index, double _latitude, double _longitude);
 
 public:
   explicit MapWidget();
@@ -32,18 +32,18 @@ public:
 
   void clear();
 
-  void addWaypoint(int index, const QGeoCoordinate& coord, double acceptance_radius, const QString& marker_color);
-  void addLine(double latitude_1, double longitude_1, double latitude_2, double longitude_2);
+  void addWaypoint(int _index, const QGeoCoordinate& _coord, double _acceptance_radius, const QString& _marker_color);
+  void addLine(double _latitude_1, double _longitude_1, double _latitude_2, double _longitude_2);
 
   QGeoCoordinate getCenter() const;
   double getZoomLevel() const;
   QGeoCoordinate getArrowPosition() const;
   double getArrowRotation() const;  // [deg]
 
-  void setMapCenter(double latitude, double longitude);
-  void setZoomLevel(double zoom_level);
-  void setArrowPosition(double latitude, double longitude);
-  void setArrowRotation(double angle_deg);
+  void setMapCenter(double _latitude, double _longitude);
+  void setZoomLevel(double _zoom_level);
+  void setArrowPosition(double _latitude, double _longitude);
+  void setArrowRotation(double _angle_deg);
 
 private:
   map::WaypointModel* waypoint_;
@@ -57,7 +57,7 @@ private:
   QObject* getArrowRotationObject() const;
 
 private Q_SLOTS:
-  void onWaypointMoved(int index, double latitude, double longitude);
+  void onWaypointMoved(int _index, double _latitude, double _longitude);
 };
 }  // namespace ctrl
 }  // namespace gui

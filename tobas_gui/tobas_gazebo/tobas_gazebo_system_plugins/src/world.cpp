@@ -10,29 +10,29 @@ namespace tobas
 {
 namespace gazebo
 {
-std::expected<gz::sim::World, const char*> getWorld(const gz::sim::EntityComponentManager& ecm)
+std::expected<gz::sim::World, const char*> getWorld(const gz::sim::EntityComponentManager& _ecm)
 {
-  const auto world_entity = gz::sim::worldEntity(ecm);
+  const auto world_entity = gz::sim::worldEntity(_ecm);
   if (world_entity == gz::sim::kNullEntity) {
     return std::unexpected("World entity not found.");
   }
 
   const gz::sim::World world(world_entity);
-  if (!world.Valid(ecm)) {
+  if (!world.Valid(_ecm)) {
     return std::unexpected("Failed to get the world model.");
   }
 
   return world;
 }
 
-std::expected<std::string, const char*> getWorldName(const gz::sim::EntityComponentManager& ecm)
+std::expected<std::string, const char*> getWorldName(const gz::sim::EntityComponentManager& _ecm)
 {
-  const auto world = getWorld(ecm);
+  const auto world = getWorld(_ecm);
   if (!world) {
     return std::unexpected(world.error());
   }
 
-  const auto name = world->Name(ecm);
+  const auto name = world->Name(_ecm);
   if (!name) {
     return std::unexpected("No world name.");
   }
@@ -41,14 +41,14 @@ std::expected<std::string, const char*> getWorldName(const gz::sim::EntityCompon
 }
 
 std::expected<gz::math::SphericalCoordinates, const char*>
-getWorldSphericalCoordinates(const gz::sim::EntityComponentManager& ecm)
+getWorldSphericalCoordinates(const gz::sim::EntityComponentManager& _ecm)
 {
-  const auto world = getWorld(ecm);
+  const auto world = getWorld(_ecm);
   if (!world) {
     return std::unexpected(world.error());
   }
 
-  const auto sc = world->SphericalCoordinates(ecm);
+  const auto sc = world->SphericalCoordinates(_ecm);
   if (!sc) {
     return std::unexpected("No spherical coordinates on the world.");
   }

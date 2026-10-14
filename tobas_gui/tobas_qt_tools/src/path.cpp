@@ -19,48 +19,48 @@ QString getResourcePath()
   return QDir(QString::fromStdString(pkg_path)).filePath("resources");
 }
 
-QString getBaseName(const QString& path)
+QString getBaseName(const QString& _path)
 {
-  return path.left(path.lastIndexOf('.'));
+  return _path.left(_path.lastIndexOf('.'));
 }
 
-QString expandUser(const QString& path)
+QString expandUser(const QString& _path)
 {
-  if (path == "~") {
+  if (_path == "~") {
     return QDir::homePath();
   }
-  else if (path.startsWith("~/")) {
-    return QDir(QDir::homePath()).filePath(path.mid(2));
+  else if (_path.startsWith("~/")) {
+    return QDir(QDir::homePath()).filePath(_path.mid(2));
   }
   else {
-    return path;
+    return _path;
   }
 }
 
 std::expected<QString, QString> writeTimestampedFile(
-  const QString& content,
-  const QString& dir_path,
-  const QString& prefix,
-  const QString& suffix,
-  const QString& ext)
+  const QString& _content,
+  const QString& _dir_path,
+  const QString& _prefix,
+  const QString& _suffix,
+  const QString& _ext)
 {
-  QDir dir(dir_path);
+  QDir dir(_dir_path);
   if (!dir.exists()) {
     if (!dir.mkpath(".")) {
-      return std::unexpected("Failed to create directory: " + dir_path);
+      return std::unexpected("Failed to create directory: " + _dir_path);
     }
   }
 
   // Generate the filename from date and time.
   auto filename = QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss");
-  if (!prefix.isEmpty()) {
-    filename = prefix + '_' + filename;
+  if (!_prefix.isEmpty()) {
+    filename = _prefix + '_' + filename;
   }
-  if (!suffix.isEmpty()) {
-    filename += '_' + suffix;
+  if (!_suffix.isEmpty()) {
+    filename += '_' + _suffix;
   }
-  if (!ext.isEmpty()) {
-    filename += '.' + ext;
+  if (!_ext.isEmpty()) {
+    filename += '.' + _ext;
   }
 
   // Write to the file.
@@ -72,7 +72,7 @@ std::expected<QString, QString> writeTimestampedFile(
 
   QTextStream os(&file);
   os.setCodec("UTF-8");
-  os << content;
+  os << _content;
 
   if (!file.commit()) {
     return std::unexpected("Failed to save " + path);

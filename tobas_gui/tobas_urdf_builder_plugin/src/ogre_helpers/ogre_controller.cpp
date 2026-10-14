@@ -31,13 +31,13 @@ constexpr float kHighlightB = 0.0f;
 
 struct OgreController::PImpl
 {
-  explicit PImpl(rviz_common::DisplayContext* context) : ogre(context->getSceneManager())
+  explicit PImpl(rviz_common::DisplayContext* _context) : ogre(_context->getSceneManager())
   {
     ogre.root_node = ogre.scene_manager->getRootSceneNode();
     ogre.robot_node = ogre.root_node->createChildSceneNode();
     ogre.axes_node = ogre.root_node->createChildSceneNode();
     ogre.names_node = ogre.root_node->createChildSceneNode();
-    rviz.robot = new rviz_default_plugins::robot::Robot(ogre.robot_node, context, "urdf_robot_model", nullptr);
+    rviz.robot = new rviz_default_plugins::robot::Robot(ogre.robot_node, _context, "urdf_robot_model", nullptr);
 
     rviz.robot->setAlpha(kDefaultRobotAlpha);  // Alpha for the entire robot.
     rviz.robot->setVisualVisible(kDefaultVisualVisible);
@@ -73,7 +73,7 @@ struct OgreController::PImpl
   std::optional<ogre::StaticLinkUpdater> link_updater;
 };
 
-OgreController::OgreController(rviz_common::DisplayContext* context) : pimpl_(new OgreController::PImpl(context))
+OgreController::OgreController(rviz_common::DisplayContext* _context) : pimpl_(new OgreController::PImpl(_context))
 {
 }
 
@@ -88,15 +88,15 @@ void OgreController::update()
   pimpl_->rviz.robot->update(*pimpl_->link_updater);
 }
 
-void OgreController::reload(const view_model::URDFViewModel& vm)
+void OgreController::reload(const view_model::URDFViewModel& _vm)
 {
-  reloadRobot(vm);
-  reloadAxes(vm);
+  reloadRobot(_vm);
+  reloadAxes(_vm);
 }
 
-void OgreController::reloadRobot(const view_model::URDFViewModel& vm)
+void OgreController::reloadRobot(const view_model::URDFViewModel& _vm)
 {
-  const auto& model = vm.urdf();
+  const auto& model = _vm.urdf();
   pimpl_->rviz.robot->load(*model);
   pimpl_->link_updater.emplace(model);
 
@@ -117,12 +117,12 @@ void OgreController::reloadRobot(const view_model::URDFViewModel& vm)
   }
 }
 
-void OgreController::reloadAxes(const view_model::URDFViewModel& vm)
+void OgreController::reloadAxes(const view_model::URDFViewModel& _vm)
 {
   pimpl_->ogre.names_node->removeAndDestroyAllChildren();
   pimpl_->rviz.axes.clear();
 
-  const auto& model = vm.urdf();
+  const auto& model = _vm.urdf();
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
   for (const auto& pair : model->links_) {
@@ -148,18 +148,18 @@ void OgreController::reloadAxes(const view_model::URDFViewModel& vm)
   }
 }
 
-void OgreController::highlight(const std::string& link_name)
+void OgreController::highlight(const std::string& _link_name)
 {
-  const auto link = pimpl_->rviz.robot->getLink(link_name);
+  const auto link = pimpl_->rviz.robot->getLink(_link_name);
   link->setColor(kHighlightR, kHighlightG, kHighlightB);
-  highlighted_links_.insert(link_name);
+  highlighted_links_.insert(_link_name);
 }
 
-void OgreController::unhighlight(const std::string& link_name)
+void OgreController::unhighlight(const std::string& _link_name)
 {
-  const auto link = pimpl_->rviz.robot->getLink(link_name);
+  const auto link = pimpl_->rviz.robot->getLink(_link_name);
   link->unsetColor();
-  highlighted_links_.erase(link_name);
+  highlighted_links_.erase(_link_name);
 }
 
 void OgreController::unhighlightAll()
@@ -170,33 +170,33 @@ void OgreController::unhighlightAll()
   highlighted_links_.clear();
 }
 
-void OgreController::show(const std::string& link_name)
+void OgreController::show(const std::string& _link_name)
 {
-  const auto link = pimpl_->rviz.robot->getLink(link_name);
+  const auto link = pimpl_->rviz.robot->getLink(_link_name);
   link->setRobotAlpha(kDefaultRobotAlpha);
-  hidden_links_.erase(link_name);
+  hidden_links_.erase(_link_name);
 }
 
-void OgreController::hide(const std::string& link_name)
+void OgreController::hide(const std::string& _link_name)
 {
-  const auto link = pimpl_->rviz.robot->getLink(link_name);
+  const auto link = pimpl_->rviz.robot->getLink(_link_name);
   link->setRobotAlpha(0.0);
-  hidden_links_.insert(link_name);
+  hidden_links_.insert(_link_name);
 }
 
-void OgreController::setVisualVisible(bool visible)
+void OgreController::setVisualVisible(bool _visible)
 {
-  pimpl_->rviz.robot->setVisualVisible(visible);
+  pimpl_->rviz.robot->setVisualVisible(_visible);
 }
 
-void OgreController::setCollisionVisible(bool visible)
+void OgreController::setCollisionVisible(bool _visible)
 {
-  pimpl_->rviz.robot->setCollisionVisible(visible);
+  pimpl_->rviz.robot->setCollisionVisible(_visible);
 }
 
-void OgreController::setInertiaVisible(bool visible)
+void OgreController::setInertiaVisible(bool _visible)
 {
-  pimpl_->rviz.robot->setInertiaVisible(visible);
+  pimpl_->rviz.robot->setInertiaVisible(_visible);
 }
 }  // namespace ogre
 }  // namespace ub

@@ -17,30 +17,30 @@ class DoubleSlider : public Slider
   using super = Slider;
 
 Q_SIGNALS:
-  void valueChanged(double value);
+  void valueChanged(double _value);
 
 public:
-  explicit DoubleSlider(Qt::Orientation orientation, QWidget* parent = nullptr);
+  explicit DoubleSlider(Qt::Orientation _orientation, QWidget* _parent = nullptr);
 
   double minimum() const;
-  void setMinimum(double minimum);
+  void setMinimum(double _minimum);
 
   double maximum() const;
-  void setMaximum(double maximum);
+  void setMaximum(double _maximum);
 
   double value() const;
-  void setValue(double value);
+  void setValue(double _value);
 
-  void setRange(double minimum, double maximum);
+  void setRange(double _minimum, double _maximum);
 
 private Q_SLOTS:
-  void onSliderValueChanged(int slider_value);
+  void onSliderValueChanged(int _slider_value);
 
 private:
   double min_ = 0.0;
   double max_ = 1.0;
 
-  double valueFromSlider(int slider_value) const;
+  double valueFromSlider(int _slider_value) const;
 };
 }  // namespace qt
 }  // namespace tobas

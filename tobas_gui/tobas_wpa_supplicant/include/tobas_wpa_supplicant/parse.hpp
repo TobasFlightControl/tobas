@@ -13,6 +13,6 @@ namespace tobas
 namespace wpa
 {
 /** Parse wpa_supplicant configuration text. */
-std::expected<Data, std::string> parseFromText(const std::string& text);
+std::expected<Data, std::string> parseFromText(const std::string& _text);
 }  // namespace wpa
 }  // namespace tobas

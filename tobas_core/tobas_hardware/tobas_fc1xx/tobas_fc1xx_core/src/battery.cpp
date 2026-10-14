@@ -33,14 +33,14 @@ bool Battery::initialize()
   return true;
 }
 
-bool Battery::read(float& voltage, float& current)
+bool Battery::read(float& _voltage, float& _current)
 {
   if (!spi_.transfer(sizeof(tx_buf_))) {
     return false;
   }
 
-  voltage = std::bit_cast<float>(rx_buf_[0]);
-  current = std::bit_cast<float>(rx_buf_[1]);
+  _voltage = std::bit_cast<float>(rx_buf_[0]);
+  _current = std::bit_cast<float>(rx_buf_[1]);
 
   return true;
 }

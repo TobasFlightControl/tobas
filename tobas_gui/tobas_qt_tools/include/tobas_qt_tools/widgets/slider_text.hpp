@@ -20,20 +20,20 @@ class IntSliderTextWidget : public QWidget
   using super = QWidget;
 
 Q_SIGNALS:
-  void valueChanged(int value);
+  void valueChanged(int _value);
 
 public:
-  explicit IntSliderTextWidget(int minimum, int maximum, QWidget* parent = nullptr);
+  explicit IntSliderTextWidget(int _minimum, int _maximum, QWidget* _parent = nullptr);
 
   int get() const;
-  void set(int value);
+  void set(int _value);
 
 private:
   Slider* slider_;
   QLineEdit* line_edit_;
 
-  void setSliderValue(int value);
-  void setLineEditText(int value);
+  void setSliderValue(int _value);
+  void setLineEditText(int _value);
 
 private Q_SLOTS:
   void onSliderValueChanged();
@@ -48,21 +48,21 @@ class DoubleSliderTextWidget : public QWidget
   using super = QWidget;
 
 Q_SIGNALS:
-  void valueChanged(double value);
+  void valueChanged(double _value);
 
 public:
-  explicit DoubleSliderTextWidget(double minimum, double maximum, int decimals = 6, QWidget* parent = nullptr);
+  explicit DoubleSliderTextWidget(double _minimum, double _maximum, int _decimals = 6, QWidget* _parent = nullptr);
 
   double get() const;
-  void set(double value);
+  void set(double _value);
 
 private:
   const int decimals_;
   DoubleSlider* slider_;
   QLineEdit* line_edit_;
 
-  void setSliderValue(double value);
-  void setLineEditText(double value);
+  void setSliderValue(double _value);
+  void setLineEditText(double _value);
 
 private Q_SLOTS:
   void onSliderValueChanged();

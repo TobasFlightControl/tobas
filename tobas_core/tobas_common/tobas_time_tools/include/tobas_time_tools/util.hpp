@@ -13,24 +13,24 @@ namespace tobas
 {
 namespace tim
 {
-inline void sleep(double sec)
+inline void sleep(double _sec)
 {
-  std::this_thread::sleep_for(std::chrono::duration<double>(sec));
+  std::this_thread::sleep_for(std::chrono::duration<double>(_sec));
 }
 
-inline void msleep(size_t msec)
+inline void msleep(size_t _msec)
 {
-  std::this_thread::sleep_for(std::chrono::milliseconds(msec));
+  std::this_thread::sleep_for(std::chrono::milliseconds(_msec));
 }
 
-inline void usleep(size_t usec)
+inline void usleep(size_t _usec)
 {
-  std::this_thread::sleep_for(std::chrono::microseconds(usec));
+  std::this_thread::sleep_for(std::chrono::microseconds(_usec));
 }
 
-inline void nsleep(size_t nsec)
+inline void nsleep(size_t _nsec)
 {
-  std::this_thread::sleep_for(std::chrono::nanoseconds(nsec));
+  std::this_thread::sleep_for(std::chrono::nanoseconds(_nsec));
 }
 
 template <int Hz>
@@ -39,15 +39,15 @@ inline constexpr std::chrono::duration<int, std::ratio<1, Hz>> periodFromFrequen
   return std::chrono::duration<int, std::ratio<1, Hz>>{ 1 };
 }
 
-std::expected<std::chrono::system_clock::time_point, std::string> tmToTimePoint(tm tm);
-tm timePointToTm(const std::chrono::system_clock::time_point& tp);
+std::expected<std::chrono::system_clock::time_point, std::string> tmToTimePoint(tm _tm);
+tm timePointToTm(const std::chrono::system_clock::time_point& _tp);
 
-tm tmFromUTC(int year, int month, int day, int hour, int min, int sec);
+tm tmFromUTC(int _year, int _month, int _day, int _hour, int _min, int _sec);
 
 std::expected<std::chrono::system_clock::time_point, std::string>
-timePointFromUTC(int year, int month, int day, int hour, int min, int sec, int nano);
+timePointFromUTC(int _year, int _month, int _day, int _hour, int _min, int _sec, int _nano);
 
 /** Convert a Gregorian date to a fractional year using day precision. */
-double yearFraction(const std::chrono::system_clock::time_point& tp = std::chrono::system_clock::now());
+double yearFraction(const std::chrono::system_clock::time_point& _tp = std::chrono::system_clock::now());
 }  // namespace tim
 }  // namespace tobas

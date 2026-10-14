@@ -60,10 +60,10 @@ YAML::Node EngineWidget::dump() const
   return node;
 }
 
-void EngineWidget::load(const YAML::Node& node)
+void EngineWidget::load(const YAML::Node& _node)
 {
-  dynamics_->load(node[kDynamicsLabel]);
-  response_->load(node[kResponseLabel]);
+  dynamics_->load(_node[kDynamicsLabel]);
+  response_->load(_node[kResponseLabel]);
 }
 
 const EngineDynamicsWidget* EngineWidget::dynamics() const

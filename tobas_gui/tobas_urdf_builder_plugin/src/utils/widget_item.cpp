@@ -11,8 +11,8 @@ namespace ub
 {
 namespace ui
 {
-LinkTreeWidgetItem::LinkTreeWidgetItem(view_model::LinkViewModelPtr vm, QTreeWidget* tree_widget)
-  : QTreeWidgetItem(tree_widget, QTreeWidgetItem::Type), vm_(std::move(vm))
+LinkTreeWidgetItem::LinkTreeWidgetItem(view_model::LinkViewModelPtr _vm, QTreeWidget* _tree_widget)
+  : QTreeWidgetItem(_tree_widget, QTreeWidgetItem::Type), vm_(std::move(_vm))
 {
 }
 
@@ -21,8 +21,8 @@ const view_model::LinkViewModelPtr& LinkTreeWidgetItem::viewModel() const
   return vm_;
 }
 
-VisualListWidgetItem::VisualListWidgetItem(const view_model::VisualViewModelPtr& vm)
-  : QListWidgetItem(vm->name()), vm_(vm)
+VisualListWidgetItem::VisualListWidgetItem(const view_model::VisualViewModelPtr& _vm)
+  : QListWidgetItem(_vm->name()), vm_(_vm)
 {
 }
 
@@ -31,8 +31,8 @@ const view_model::VisualViewModelPtr& VisualListWidgetItem::viewModel() const
   return vm_;
 }
 
-CollisionListWidgetItem::CollisionListWidgetItem(const view_model::CollisionViewModelPtr& vm)
-  : QListWidgetItem(vm->name()), vm_(vm)
+CollisionListWidgetItem::CollisionListWidgetItem(const view_model::CollisionViewModelPtr& _vm)
+  : QListWidgetItem(_vm->name()), vm_(_vm)
 {
 }
 

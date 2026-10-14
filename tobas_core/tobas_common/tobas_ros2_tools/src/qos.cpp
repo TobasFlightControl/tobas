@@ -9,16 +9,16 @@ namespace ros2
 {
 namespace qos
 {
-QoS::QoS(bool latch, bool reliable, size_t queue_size) : rclcpp::QoS(rclcpp::KeepLast(queue_size))
+QoS::QoS(bool _latch, bool _reliable, size_t _queue_size) : rclcpp::QoS(rclcpp::KeepLast(_queue_size))
 {
-  if (latch) {
+  if (_latch) {
     durability(RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL);
   }
   else {
     durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
   }
 
-  if (reliable) {
+  if (_reliable) {
     reliability(RMW_QOS_POLICY_RELIABILITY_RELIABLE);
   }
   else {

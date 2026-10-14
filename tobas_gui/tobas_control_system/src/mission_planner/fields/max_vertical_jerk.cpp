@@ -40,9 +40,9 @@ double MaxVerticalJerkWidget::getValue() const
   return spin_box_->value();
 }
 
-void MaxVerticalJerkWidget::setValue(double value)
+void MaxVerticalJerkWidget::setValue(double _value)
 {
-  spin_box_->setValue(value);
+  spin_box_->setValue(_value);
 }
 }  // namespace field
 }  // namespace ctrl

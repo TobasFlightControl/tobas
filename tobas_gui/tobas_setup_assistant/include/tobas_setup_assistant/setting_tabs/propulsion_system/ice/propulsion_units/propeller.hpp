@@ -28,10 +28,10 @@ public:
   const char* name() const override;
   void setToDefaults() override;
   bool isValid() override;
-  void copyFrom(const BaseSelectedLinkSettingWidget* src) override;
+  void copyFrom(const BaseSelectedLinkSettingWidget* _src) override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   /** Number of blades per propeller */
   int numBlades() const;

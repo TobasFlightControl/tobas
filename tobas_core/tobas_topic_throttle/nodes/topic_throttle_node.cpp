@@ -33,13 +33,13 @@ public:
   {
   }
 
-  void initialize(rclcpp::Node::SharedPtr node, const std::string& topic)
+  void initialize(rclcpp::Node::SharedPtr _node, const std::string& _topic)
   {
-    node_ = node;
+    node_ = _node;
     rate_manager_.reset();
 
-    pub_ = ros2::createPublisher<MsgType>(node, addThrotNS(topic));
-    sub_ = ros2::createSubscriber(node, topic, &TopicThrottle::callback, this);
+    pub_ = ros2::createPublisher<MsgType>(_node, addThrotNS(_topic));
+    sub_ = ros2::createSubscriber(_node, _topic, &TopicThrottle::callback, this);
   }
 
 private:
@@ -49,7 +49,7 @@ private:
   ros2::PublisherPtr<MsgType> pub_;
   ros2::SubscriberPtr<MsgType> sub_;
 
-  void callback(const typename MsgType::ConstSharedPtr& msg_in)
+  void callback(const typename MsgType::ConstSharedPtr& _msg_in)
   {
     // Thin out high-frequency topics to reduce network traffic.
     // Use the node clock because PC-FC system clock differences can break the output rate
@@ -58,7 +58,7 @@ private:
       return;
     }
 
-    auto msg_out = std::make_unique<MsgType>(*msg_in);
+    auto msg_out = std::make_unique<MsgType>(*_msg_in);
     pub_->publish(std::move(msg_out));
   }
 };
@@ -69,7 +69,7 @@ class TopicThrottleNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit TopicThrottleNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit TopicThrottleNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
   void initialize();
 
@@ -90,8 +90,8 @@ private:
   ros2::TimerPtr initialize_timer_;
 };
 
-TopicThrottleNode::TopicThrottleNode(const rclcpp::NodeOptions& options)
-  : super("topic_throttle", nodeOptions_Default(options))
+TopicThrottleNode::TopicThrottleNode(const rclcpp::NodeOptions& _options)
+  : super("topic_throttle", nodeOptions_Default(_options))
 {
   initialize_timer_ = createTimer(0s, &self::initialize, this);
 }

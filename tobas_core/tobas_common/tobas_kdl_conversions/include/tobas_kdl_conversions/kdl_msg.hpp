@@ -19,25 +19,25 @@ namespace tobas
 {
 namespace kdl
 {
-void vectorKDLToMsg(const Vector& k, geometry_msgs::msg::Vector3& m);
-void vectorMsgToKDL(const geometry_msgs::msg::Vector3& m, Vector& k);
+void vectorKDLToMsg(const Vector& _k, geometry_msgs::msg::Vector3& _m);
+void vectorMsgToKDL(const geometry_msgs::msg::Vector3& _m, Vector& _k);
 
-void pointKDLToMsg(const Vector& k, geometry_msgs::msg::Point& m);
-void pointMsgToKDL(const geometry_msgs::msg::Point& m, Vector& k);
+void pointKDLToMsg(const Vector& _k, geometry_msgs::msg::Point& _m);
+void pointMsgToKDL(const geometry_msgs::msg::Point& _m, Vector& _k);
 
-void twistKDLToMsg(const Twist& k, geometry_msgs::msg::Twist& m);
-void twistMsgToKDL(const geometry_msgs::msg::Twist& m, Twist& k);
+void twistKDLToMsg(const Twist& _k, geometry_msgs::msg::Twist& _m);
+void twistMsgToKDL(const geometry_msgs::msg::Twist& _m, Twist& _k);
 
-void rotationKDLToMsg(const Rotation& k, geometry_msgs::msg::Quaternion& m);
-void rotationMsgToKDL(const geometry_msgs::msg::Quaternion& m, Rotation& k);
+void rotationKDLToMsg(const Rotation& _k, geometry_msgs::msg::Quaternion& _m);
+void rotationMsgToKDL(const geometry_msgs::msg::Quaternion& _m, Rotation& _k);
 
-void quaternionKDLToMsg(const Quaternion& k, geometry_msgs::msg::Quaternion& m);
-void quaternionMsgToKDL(const geometry_msgs::msg::Quaternion& m, Quaternion& k);
+void quaternionKDLToMsg(const Quaternion& _k, geometry_msgs::msg::Quaternion& _m);
+void quaternionMsgToKDL(const geometry_msgs::msg::Quaternion& _m, Quaternion& _k);
 
-void poseKDLToMsg(const Frame& k, geometry_msgs::msg::Pose& m);
-void poseMsgToKDL(const geometry_msgs::msg::Pose& m, Frame& k);
+void poseKDLToMsg(const Frame& _k, geometry_msgs::msg::Pose& _m);
+void poseMsgToKDL(const geometry_msgs::msg::Pose& _m, Frame& _k);
 
-void transformKDLToMsg(const Frame& k, geometry_msgs::msg::Transform& m);
-void transformMsgToKDL(const geometry_msgs::msg::Transform& m, Frame& k);
+void transformKDLToMsg(const Frame& _k, geometry_msgs::msg::Transform& _m);
+void transformMsgToKDL(const geometry_msgs::msg::Transform& _m, Frame& _k);
 }  // namespace kdl
 }  // namespace tobas

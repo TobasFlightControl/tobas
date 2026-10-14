@@ -21,21 +21,21 @@ class ParamGetterWidget_SpinBox : public ParamGetterWidget<int>
   using super = ParamGetterWidget<int>;
 
 Q_SIGNALS:
-  void valueChanged(int value);
+  void valueChanged(int _value);
 
 public:
-  explicit ParamGetterWidget_SpinBox(const QString& param_name, const QString& description_text = "");
+  explicit ParamGetterWidget_SpinBox(const QString& _param_name, const QString& _description_text = "");
 
   int getValue() const override;
-  bool setValue(int src) override;
+  bool setValue(int _src) override;
 
-  void setMinimum(int minimum);
-  void setMaximum(int maximum);
-  void setSingleStep(int single_step);
-  void setSuffix(const QString& suffix);
+  void setMinimum(int _minimum);
+  void setMaximum(int _maximum);
+  void setSingleStep(int _single_step);
+  void setSuffix(const QString& _suffix);
 
 private Q_SLOTS:
-  void onValueChanged(int value);
+  void onValueChanged(int _value);
 
 private:
   qt::SpinBox* spin_box_;

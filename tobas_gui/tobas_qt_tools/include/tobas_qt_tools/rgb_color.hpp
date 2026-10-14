@@ -26,9 +26,9 @@ public:
   static constexpr RGBColor Red();
   static constexpr RGBColor Yellow();
 
-  RGBColor mean(const RGBColor& other) const;
+  RGBColor mean(const RGBColor& _other) const;
 
-  bool operator==(const RGBColor& rhs) const;
+  bool operator==(const RGBColor& _rhs) const;
 };
 
 constexpr RGBColor::RGBColor(uint8_t _r, uint8_t _g, uint8_t _b) : r(_r), g(_g), b(_b)

@@ -20,8 +20,8 @@ public:
   explicit SimpleJointModel();
 
   double getCurrentPosition() const;
-  void setTargetPosition(double tar_pos);
-  void step(double dt);
+  void setTargetPosition(double _tar_pos);
+  void step(double _dt);
 
 private:
   double cur_pos_ = 0.0;

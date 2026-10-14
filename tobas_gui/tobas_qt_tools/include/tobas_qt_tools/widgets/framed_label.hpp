@@ -15,7 +15,7 @@ class FramedLabel : public QLabel
   using super = QLabel;
 
 public:
-  explicit FramedLabel(const QString& text = "", QWidget* parent = nullptr);
+  explicit FramedLabel(const QString& _text = "", QWidget* _parent = nullptr);
 };
 }  // namespace qt
 }  // namespace tobas

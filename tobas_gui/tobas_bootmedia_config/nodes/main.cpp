@@ -12,11 +12,11 @@
 #include "tobas_bootmedia_config/bootmedia_config.hpp"
 #include "tobas_bootmedia_config/util.hpp"
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
   qInstallMessageHandler(tobas::qt::colorMessageHandler);
 
-  QApplication qapp(argc, argv);
+  QApplication qapp(_argc, _argv);
   QApplication::setOrganizationName("tobas");
   QApplication::setApplicationName("bootmedia_config");
 

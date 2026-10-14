@@ -12,9 +12,9 @@ namespace tobas
 class ControlLatencyPublisher
 {
 public:
-  explicit ControlLatencyPublisher(rclcpp::Node* node);
+  explicit ControlLatencyPublisher(rclcpp::Node* _node);
 
-  void publish(const builtin_interfaces::msg::Time& start_time);
+  void publish(const builtin_interfaces::msg::Time& _start_time);
 
 private:
   rclcpp::Node* const node_;

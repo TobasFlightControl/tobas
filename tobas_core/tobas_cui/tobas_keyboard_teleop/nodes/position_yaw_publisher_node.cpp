@@ -21,10 +21,11 @@
 
 using namespace std::chrono_literals;
 
-bool takeoff(rclcpp::Node::SharedPtr node)
+bool takeoff(rclcpp::Node::SharedPtr _node)
 {
   // Create action client.
-  tobas::ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
+  tobas::ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(
+    _node, tobas::action::kExecuteMission);
   client.waitForServer();
 
   // Create goal.
@@ -45,32 +46,32 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   // Execute action.
   const auto result = client.sendGoalAndWait(goal);
   if (!result) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to call takeoff action.");
+    RCLCPP_ERROR(_node->get_logger(), "Failed to call takeoff action.");
     return false;
   }
 
   // Check action result.
   if (result->code != rclcpp_action::ResultCode::SUCCEEDED) {
-    RCLCPP_ERROR_STREAM(node->get_logger(), "Takeoff action failed: " << result->result->error_message);
+    RCLCPP_ERROR_STREAM(_node->get_logger(), "Takeoff action failed: " << result->result->error_message);
     return false;
   }
 
   return true;
 }
 
-std::expected<tobas::kdl::Frame, const char*> waitForCurrentPose(rclcpp::Node::SharedPtr node)
+std::expected<tobas::kdl::Frame, const char*> waitForCurrentPose(rclcpp::Node::SharedPtr _node)
 {
   tobas_msgs::OdometryWithCovarianceStamped odom;
-  if (!rclcpp::wait_for_message(odom, node, tobas::topic::kOdometry, 1s, tobas::ros2::qos::DefaultQoS())) {
+  if (!rclcpp::wait_for_message(odom, _node, tobas::topic::kOdometry, 1s, tobas::ros2::qos::DefaultQoS())) {
     return std::unexpected("Failed to get the current odometry.");
   }
 
   return odom.odom.odom.frame;
 }
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
-  tobas::ros2::AsyncNodeManager node_manager(argc, argv, "keyboard_teleop");
+  tobas::ros2::AsyncNodeManager node_manager(_argc, _argv, "keyboard_teleop");
   const auto node = node_manager.node();
 
   // Take off.

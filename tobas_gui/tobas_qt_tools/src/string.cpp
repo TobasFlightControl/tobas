@@ -7,9 +7,9 @@ namespace tobas
 {
 namespace qt
 {
-QString boolToText(bool arg)
+QString boolToText(bool _arg)
 {
-  if (arg) {
+  if (_arg) {
     return "true";
   }
   else {
@@ -17,33 +17,33 @@ QString boolToText(bool arg)
   }
 }
 
-QStringList stringListFromStdToQt(const std::vector<std::string>& src)
+QStringList stringListFromStdToQt(const std::vector<std::string>& _src)
 {
   QStringList res;
-  for (const auto& item : src) {
+  for (const auto& item : _src) {
     res.append(QString::fromStdString(item));
   }
   return res;
 }
 
-std::vector<std::string> stringListFromQtToStd(const QStringList& src)
+std::vector<std::string> stringListFromQtToStd(const QStringList& _src)
 {
   std::vector<std::string> res;
-  for (const auto& item : src) {
+  for (const auto& item : _src) {
     res.push_back(item.toStdString());
   }
   return res;
 }
 
-bool isControlChar(const QChar& c)
+bool isControlChar(const QChar& _c)
 {
-  const auto cat = c.category();
+  const auto cat = _c.category();
   return cat == QChar::Other_Control || cat == QChar::Other_Format;
 }
 
-bool containsControlChars(const QStringView& s)
+bool containsControlChars(const QStringView& _s)
 {
-  for (const auto& c : s) {
+  for (const auto& c : _s) {
     if (isControlChar(c)) {
       return true;
     }

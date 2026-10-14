@@ -17,19 +17,19 @@ namespace qwt
 class QwtPlotCurveWrapper
 {
 public:
-  QwtPlotCurveWrapper(const QString& title = "");
-  QwtPlotCurveWrapper(const char* title = "");
+  QwtPlotCurveWrapper(const QString& _title = "");
+  QwtPlotCurveWrapper(const char* _title = "");
 
-  void setPen(const QColor& color, qreal width, Qt::PenStyle style = Qt::SolidLine);
+  void setPen(const QColor& _color, qreal _width, Qt::PenStyle _style = Qt::SolidLine);
 
-  void setSamples(const QVector<double>& x_data, const QVector<double>& y_data);
+  void setSamples(const QVector<double>& _x_data, const QVector<double>& _y_data);
 
   void setStyleLines();
   void setStyleSticks();
   void setStyleSteps();
   void setStyleDots();
 
-  void attach(QwtPlot* plot);
+  void attach(QwtPlot* _plot);
 
   /** Clear samples. */
   void clear();

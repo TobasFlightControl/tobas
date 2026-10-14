@@ -18,7 +18,7 @@ class PwmDriverNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit PwmDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit PwmDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   PWM pwm_;
@@ -26,11 +26,11 @@ private:
   ros2::TimerPtr initialize_timer_;
 
   void initialize();
-  void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms);
+  void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& _pwms);
 };
 
-PwmDriverNode::PwmDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc1xx_pwm_driver", nodeOptions_Default(options))
+PwmDriverNode::PwmDriverNode(const rclcpp::NodeOptions& _options)
+  : super("fc1xx_pwm_driver", nodeOptions_Default(_options))
 {
   initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
 }
@@ -47,10 +47,10 @@ void PwmDriverNode::initialize()
   initialize_timer_->cancel();
 }
 
-void PwmDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms)
+void PwmDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& _pwms)
 {
   // Set PWM periods of each channel.
-  for (const auto& elem : pwms->pwms) {
+  for (const auto& elem : _pwms->pwms) {
     if (elem.channel >= PWM::kChannelSize) {
       TOBAS_ERROR("PWM channel ", elem.channel, " does not exist.");
       continue;

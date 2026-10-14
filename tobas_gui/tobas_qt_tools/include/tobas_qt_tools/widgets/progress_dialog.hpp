@@ -27,13 +27,13 @@ class ProgressDialog : public QProgressDialog
   using super = QProgressDialog;
 
 public:
-  explicit ProgressDialog(const QString& title = "", int num_steps = 1, QWidget* parent = nullptr);
+  explicit ProgressDialog(const QString& _title = "", int _num_steps = 1, QWidget* _parent = nullptr);
 
   void show();
   void hide();
 
-  void setLabelText(const QString& text);
-  void setStep(int step);
+  void setLabelText(const QString& _text);
+  void setStep(int _step);
   void progressStep();
 
 private:

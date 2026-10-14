@@ -13,29 +13,29 @@ namespace tobas
 {
 namespace kdl
 {
-void vectorKdlToUrdf(const Vector& k, ::urdf::Vector3& u);
-void vectorUrdfToKdl(const ::urdf::Vector3& u, Vector& k);
-::urdf::Vector3 vectorKdlToUrdf(const Vector& k);
-Vector vectorUrdfToKdl(const ::urdf::Vector3& u);
+void vectorKdlToUrdf(const Vector& _k, ::urdf::Vector3& _u);
+void vectorUrdfToKdl(const ::urdf::Vector3& _u, Vector& _k);
+::urdf::Vector3 vectorKdlToUrdf(const Vector& _k);
+Vector vectorUrdfToKdl(const ::urdf::Vector3& _u);
 
-void rotationKdlToUrdf(const Rotation& k, ::urdf::Rotation& u);
-void rotationUrdfToKdl(const ::urdf::Rotation& u, Rotation& k);
-::urdf::Rotation rotationKdlToUrdf(const Rotation& k);
-Rotation rotationUrdfToKdl(const ::urdf::Rotation& u);
+void rotationKdlToUrdf(const Rotation& _k, ::urdf::Rotation& _u);
+void rotationUrdfToKdl(const ::urdf::Rotation& _u, Rotation& _k);
+::urdf::Rotation rotationKdlToUrdf(const Rotation& _k);
+Rotation rotationUrdfToKdl(const ::urdf::Rotation& _u);
 
-void poseKdlToUrdf(const Frame& k, ::urdf::Pose& u);
-void poseUrdfToKdl(const ::urdf::Pose& u, Frame& k);
-::urdf::Pose poseKdlToUrdf(const Frame& k);
-Frame poseUrdfToKdl(const ::urdf::Pose& u);
+void poseKdlToUrdf(const Frame& _k, ::urdf::Pose& _u);
+void poseUrdfToKdl(const ::urdf::Pose& _u, Frame& _k);
+::urdf::Pose poseKdlToUrdf(const Frame& _k);
+Frame poseUrdfToKdl(const ::urdf::Pose& _u);
 
-void inertiaKdlToUrdf(const RigidBodyInertia& k, ::urdf::Inertial& u);
-void inertiaUrdfToKdl(const ::urdf::Inertial& u, RigidBodyInertia& k);
-::urdf::Inertial inertiaKdlToUrdf(const RigidBodyInertia& k);
-RigidBodyInertia inertiaUrdfToKdl(const ::urdf::Inertial& u);
+void inertiaKdlToUrdf(const RigidBodyInertia& _k, ::urdf::Inertial& _u);
+void inertiaUrdfToKdl(const ::urdf::Inertial& _u, RigidBodyInertia& _k);
+::urdf::Inertial inertiaKdlToUrdf(const RigidBodyInertia& _k);
+RigidBodyInertia inertiaUrdfToKdl(const ::urdf::Inertial& _u);
 
-void jointKdlToUrdf(const Joint& k, ::urdf::Joint& u);
-void jointUrdfToKdl(const ::urdf::Joint& u, Joint& k);
-::urdf::Joint jointKdlToUrdf(const Joint& k);
-Joint jointUrdfToKdl(const ::urdf::Joint& u);
+void jointKdlToUrdf(const Joint& _k, ::urdf::Joint& _u);
+void jointUrdfToKdl(const ::urdf::Joint& _u, Joint& _k);
+::urdf::Joint jointKdlToUrdf(const Joint& _k);
+Joint jointUrdfToKdl(const ::urdf::Joint& _u);
 }  // namespace kdl
 }  // namespace tobas

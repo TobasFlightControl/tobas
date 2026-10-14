@@ -37,7 +37,7 @@ class SetupAssistantWidget : public QWidget
   using self = SetupAssistantWidget;
 
 public:
-  explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
+  explicit SetupAssistantWidget(rclcpp::Node::SharedPtr _node);
 
 private:
   uadf::Model uadf_;
@@ -72,8 +72,8 @@ private:
   /** Return all settings to their startup state. */
   void reset();
 
-  void enableSaveButtons(bool enable);
-  bool resolveMeshPaths(const QString& config_pkg_path, tinyxml2::XMLElement* elem);
+  void enableSaveButtons(bool _enable);
+  bool resolveMeshPaths(const QString& _config_pkg_path, tinyxml2::XMLElement* _elem);
 
   bool updateInternalDataStructures();
 

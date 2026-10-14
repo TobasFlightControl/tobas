@@ -16,95 +16,95 @@ CycloidGenerator3d::CycloidGenerator3d()
 {
 }
 
-void CycloidGenerator3d::generate(const kdl::Vector& p0, const kdl::Vector& pf, double T, double h, double k)
+void CycloidGenerator3d::generate(const kdl::Vector& _p0, const kdl::Vector& _pf, double _t, double _h, double _k)
 {
-  assert(T > 0.0);
-  assert(h > 0.0);
-  assert(k >= 0.0);
+  assert(_t > 0.0);
+  assert(_h > 0.0);
+  assert(_k >= 0.0);
 
-  p0_ = p0;
-  pf_ = pf;
-  T_ = T;
-  h_ = h;
-  k_ = k;
-  TT_ = math::sqr(T);
-  kk_ = math::sqr(k);
-  p_diff_ = pf - p0;
+  p0_ = _p0;
+  pf_ = _pf;
+  T_ = _t;
+  h_ = _h;
+  k_ = _k;
+  TT_ = math::sqr(_t);
+  kk_ = math::sqr(_k);
+  p_diff_ = _pf - _p0;
 }
 
-void CycloidGenerator3d::get(double t, const Rotation& r, Vector& p, Vector& v, Vector& a) const
+void CycloidGenerator3d::get(double _t, const Rotation& _r, Vector& _p, Vector& _v, Vector& _a) const
 {
-  assert(t >= 0.0);
+  assert(_t >= 0.0);
 
-  if (t <= T_) {
-    getPos(t, r, p);
-    getVel(t, r, v);
-    getAcc(t, r, a);
+  if (_t <= T_) {
+    getPos(_t, _r, _p);
+    getVel(_t, _r, _v);
+    getAcc(_t, _r, _a);
   }
   else {
-    p = r * pf_;
-    v.setZero();
-    a.setZero();
+    _p = _r * pf_;
+    _v.setZero();
+    _a.setZero();
   }
 }
 
-void CycloidGenerator3d::get(double t, Vector& p, Vector& v, Vector& a) const
+void CycloidGenerator3d::get(double _t, Vector& _p, Vector& _v, Vector& _a) const
 {
-  get(t, r0_, p, v, a);
+  get(_t, r0_, _p, _v, _a);
 }
 
-void CycloidGenerator3d::get(double t, Vector& p, Vector& v) const
+void CycloidGenerator3d::get(double _t, Vector& _p, Vector& _v) const
 {
   Vector dummy_vector;
-  get(t, r0_, p, v, dummy_vector);
+  get(_t, r0_, _p, _v, dummy_vector);
 }
 
-void CycloidGenerator3d::get(double t, Vector& p) const
+void CycloidGenerator3d::get(double _t, Vector& _p) const
 {
   Vector dummy_vector;
-  get(t, r0_, p, dummy_vector, dummy_vector);
+  get(_t, r0_, _p, dummy_vector, dummy_vector);
 }
 
-void CycloidGenerator3d::getPos(double t, const kdl::Rotation& r, Vector& p) const
+void CycloidGenerator3d::getPos(double _t, const kdl::Rotation& _r, Vector& _p) const
 {
-  const auto theta = computeTheta(t);
+  const auto theta = computeTheta(_t);
   const auto tmp = (theta - std::sin(theta)) / M_2PI;
 
-  p.x(p0_.x() + p_diff_.x() * tmp);
-  p.y(p0_.y() + p_diff_.y() * tmp);
-  p.z(pf_.z() + h_ / 2 * (1 - std::cos(theta)) - p_diff_.z() * std::exp(-k_ * t / T_));
+  _p.x(p0_.x() + p_diff_.x() * tmp);
+  _p.y(p0_.y() + p_diff_.y() * tmp);
+  _p.z(pf_.z() + h_ / 2 * (1 - std::cos(theta)) - p_diff_.z() * std::exp(-k_ * _t / T_));
 
-  p = r * p;
+  _p = _r * _p;
 }
 
-void CycloidGenerator3d::getVel(double t, const kdl::Rotation& r, Vector& v) const
+void CycloidGenerator3d::getVel(double _t, const kdl::Rotation& _r, Vector& _v) const
 {
-  const auto theta = computeTheta(t);
+  const auto theta = computeTheta(_t);
   const auto tmp = (1 - std::cos(theta)) / T_;
 
-  v.x(p_diff_.x() * tmp);
-  v.y(p_diff_.y() * tmp);
-  v.z(M_PI * h_ * std::sin(theta) / T_ + p_diff_.z() * k_ * std::exp(-k_ * t / T_) / T_);
+  _v.x(p_diff_.x() * tmp);
+  _v.y(p_diff_.y() * tmp);
+  _v.z(M_PI * h_ * std::sin(theta) / T_ + p_diff_.z() * k_ * std::exp(-k_ * _t / T_) / T_);
 
-  v = r * v;
+  _v = _r * _v;
 }
 
-void CycloidGenerator3d::getAcc(double t, const kdl::Rotation& r, Vector& a) const
+void CycloidGenerator3d::getAcc(double _t, const kdl::Rotation& _r, Vector& _a) const
 {
-  const auto theta = computeTheta(t);
+  const auto theta = computeTheta(_t);
   const auto tmp = M_2PI / TT_ * std::sin(theta);
 
-  a.x(p_diff_.x() * tmp);
-  a.y(p_diff_.y() * tmp);
-  a.z(2 * math::sqr(M_PI) * h_ / TT_ * std::cos(theta) - p_diff_.z() * kk_ / TT_ * std::exp(-k_ * t / T_));
+  _a.x(p_diff_.x() * tmp);
+  _a.y(p_diff_.y() * tmp);
+  _a.z(2 * math::sqr(M_PI) * h_ / TT_ * std::cos(theta) - p_diff_.z() * kk_ / TT_ * std::exp(-k_ * _t / T_));
 
-  a = r * a;
+  _a = _r * _a;
 }
 
-double CycloidGenerator3d::computeTheta(double t) const
+double CycloidGenerator3d::computeTheta(double _t) const
 {
-  assert(t >= 0.0);
-  return M_2PI * t / T_;
+  assert(_t >= 0.0);
+  return M_2PI * _t / T_;
 }
 }  // namespace kdl
 }  // namespace tobas

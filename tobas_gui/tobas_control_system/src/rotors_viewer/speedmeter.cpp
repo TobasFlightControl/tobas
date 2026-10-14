@@ -62,39 +62,39 @@ QString SpeedmeterWidget::getBottomText() const
   return getBottomTextObject()->property("text").value<QString>();
 }
 
-void SpeedmeterWidget::setBackgroundColor(const QString& text)
+void SpeedmeterWidget::setBackgroundColor(const QString& _text)
 {
-  QMetaObject::invokeMethod(rootObject(), "setBackgroundColor", Q_ARG(QString, text));
+  QMetaObject::invokeMethod(rootObject(), "setBackgroundColor", Q_ARG(QString, _text));
 }
 
-void SpeedmeterWidget::setMaximumValue(double value)
+void SpeedmeterWidget::setMaximumValue(double _value)
 {
-  QMetaObject::invokeMethod(rootObject(), "setMaximumValue", Q_ARG(double, value));
+  QMetaObject::invokeMethod(rootObject(), "setMaximumValue", Q_ARG(double, _value));
 }
 
-void SpeedmeterWidget::setMinimumValue(double value)
+void SpeedmeterWidget::setMinimumValue(double _value)
 {
-  QMetaObject::invokeMethod(rootObject(), "setMinimumValue", Q_ARG(double, value));
+  QMetaObject::invokeMethod(rootObject(), "setMinimumValue", Q_ARG(double, _value));
 }
 
-void SpeedmeterWidget::setStepSize(double value)
+void SpeedmeterWidget::setStepSize(double _value)
 {
-  QMetaObject::invokeMethod(rootObject(), "setStepSize", Q_ARG(double, value));
+  QMetaObject::invokeMethod(rootObject(), "setStepSize", Q_ARG(double, _value));
 }
 
-void SpeedmeterWidget::setValue(double value)
+void SpeedmeterWidget::setValue(double _value)
 {
-  QMetaObject::invokeMethod(rootObject(), "setValue", Q_ARG(double, value));
+  QMetaObject::invokeMethod(rootObject(), "setValue", Q_ARG(double, _value));
 }
 
-void SpeedmeterWidget::setTopText(const QString& text)
+void SpeedmeterWidget::setTopText(const QString& _text)
 {
-  QMetaObject::invokeMethod(rootObject(), "setTopText", Q_ARG(QString, text));
+  QMetaObject::invokeMethod(rootObject(), "setTopText", Q_ARG(QString, _text));
 }
 
-void SpeedmeterWidget::setBottomText(const QString& text)
+void SpeedmeterWidget::setBottomText(const QString& _text)
 {
-  QMetaObject::invokeMethod(rootObject(), "setBottomText", Q_ARG(QString, text));
+  QMetaObject::invokeMethod(rootObject(), "setBottomText", Q_ARG(QString, _text));
 }
 
 QObject* SpeedmeterWidget::getRectangleObject() const

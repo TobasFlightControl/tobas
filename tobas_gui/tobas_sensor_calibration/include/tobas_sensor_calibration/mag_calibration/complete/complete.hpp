@@ -46,14 +46,14 @@ class CompleteMagCalibWidget : public BaseMagCalibWidget
   static constexpr size_t kFaceSize = kRightIdx + 1;
 
 public:
-  explicit CompleteMagCalibWidget(const rqt::RosQtBridge& bridge);
+  explicit CompleteMagCalibWidget(const rqt::RosQtBridge& _bridge);
 
   void reset() override;
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) override;
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns) override;
   void clearRosInterfaces() override;
 
 protected:
-  void paintEvent(QPaintEvent* event) override;
+  void paintEvent(QPaintEvent* _event) override;
 
 private:
   rclcpp::Node::SharedPtr node_;
@@ -110,34 +110,34 @@ private:
 
   /** Find the offset using sphere approximation. */
   bool
-  computeHardBias(const Eigen::VectorXd& x, const Eigen::VectorXd& y, const Eigen::VectorXd& z, Eigen::Vector3d& dst);
+  computeHardBias(const Eigen::VectorXd& _x, const Eigen::VectorXd& _y, const Eigen::VectorXd& _z, Eigen::Vector3d& _dst);
 
   /** Find distortion using ellipsoid approximation. */
   bool
-  computeSoftBias(const Eigen::VectorXd& x, const Eigen::VectorXd& y, const Eigen::VectorXd& z, Eigen::Vector6d& dst);
+  computeSoftBias(const Eigen::VectorXd& _x, const Eigen::VectorXd& _y, const Eigen::VectorXd& _z, Eigen::Vector6d& _dst);
 
   /** Update FC parameters. */
-  bool updateRemoteParameters(const Eigen::Vector3d& hard_bias, const Eigen::Vector6d& soft_bias);
+  bool updateRemoteParameters(const Eigen::Vector3d& _hard_bias, const Eigen::Vector6d& _soft_bias);
 
   /** Display the result point cloud. */
-  void displayPointClouds(const eigen::Ellipsoid& ellipsoid);
+  void displayPointClouds(const eigen::Ellipsoid& _ellipsoid);
 
   /** Display the estimated ellipsoid. */
-  void displayEllipsoidWireFrame(const eigen::Ellipsoid& ellipsoid);
+  void displayEllipsoidWireFrame(const eigen::Ellipsoid& _ellipsoid);
   void addEllipsoidPoint(
-    double theta,
-    double phi,
-    const eigen::Ellipsoid& ellipsoid,
-    std::vector<geometry_msgs::msg::Point>& points);
+    double _theta,
+    double _phi,
+    const eigen::Ellipsoid& _ellipsoid,
+    std::vector<geometry_msgs::msg::Point>& _points);
 
 private Q_SLOTS:
   void onStartButtonClicked();
   void onCancelButtonClicked();
   void onFinishButtonClicked();
 
-  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& msg);
-  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& msg);
+  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& _msg);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _msg);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _msg);
 };
 }  // namespace sc
 }  // namespace gui

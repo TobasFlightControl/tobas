@@ -18,13 +18,13 @@ namespace rcin
 class StickPanel : public QWidget
 {
 public:
-  explicit StickPanel(const QString& title, const QString& x_label, const QString& y_label);
+  explicit StickPanel(const QString& _title, const QString& _x_label, const QString& _y_label);
 
   void reset();
-  void setValues(double x, double y, bool ok, bool enabled);
+  void setValues(double _x, double _y, bool _ok, bool _enabled);
 
 protected:
-  void paintEvent(QPaintEvent* event) override;
+  void paintEvent(QPaintEvent* _event) override;
 
 private:
   QString title_;
@@ -37,7 +37,7 @@ private:
   bool enabled_ = false;
 
   QRect fieldRect() const;
-  QString axisText(double value) const;
+  QString axisText(double _value) const;
 };
 }  // namespace rcin
 }  // namespace ctrl

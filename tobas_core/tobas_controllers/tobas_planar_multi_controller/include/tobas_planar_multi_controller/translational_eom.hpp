@@ -13,17 +13,17 @@ namespace planar_multicopter
 class TranslationalEoM
 {
 public:
-  explicit TranslationalEoM(const kdl::Tree& tree);
+  explicit TranslationalEoM(const kdl::Tree& _tree);
 
   void updateInternalDataStructures();
 
   bool solve(
-    const kdl::Rotation& cur_rot,
-    const kdl::Vector& tar_acc_W,
-    const kdl::Vector& ext_force_W,
-    double& thrust_out,
-    double& roll_out,
-    double& pitch_out);
+    const kdl::Rotation& _cur_rot,
+    const kdl::Vector& _tar_acc_w,
+    const kdl::Vector& _ext_force_w,
+    double& _thrust_out,
+    double& _roll_out,
+    double& _pitch_out);
 
 private:
   kdl::TreeMassHolder mass_holder_;

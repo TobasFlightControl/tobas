@@ -24,7 +24,7 @@ class MediaManagerWidget : public QWidget
   using self = MediaManagerWidget;
 
 Q_SIGNALS:
-  void connected(const BootMedia& media);
+  void connected(const BootMedia& _media);
   void disconnected();
 
 public:
@@ -42,7 +42,7 @@ private:
 
   const BootMedia& currentBootMedia() const;
 
-  static std::pair<std::string, std::string> getVendorAndModel(udev_device* dev);
+  static std::pair<std::string, std::string> getVendorAndModel(udev_device* _dev);
 
 private Q_SLOTS:
   void onConnectButtonClicked();

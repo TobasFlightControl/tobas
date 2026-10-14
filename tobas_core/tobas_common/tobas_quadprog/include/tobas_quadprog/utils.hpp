@@ -12,16 +12,16 @@ namespace quadprog
 /**
  * Create equivalent matrix inequalities (`A @ x <= b`) from variable ranges (`lb <= x <= ub`).
  *
- * @param lb Lower bounds.
- * @param ub Upper bounds.
- * @param inf Values greater than this are omitted from the matrix inequalities.
+ * @param _lb Lower bounds.
+ * @param _ub Upper bounds.
+ * @param _inf Values greater than this are omitted from the matrix inequalities.
  * @return The (`A`, `b`) pair for `A @ x <= b`.
  */
 void matIneqFromRange(
-  const Eigen::VectorXd& lb,
-  const Eigen::VectorXd& ub,
-  Eigen::MatrixXd& A,
-  Eigen::VectorXd& b,
-  double inf = 1E+12);
+  const Eigen::VectorXd& _lb,
+  const Eigen::VectorXd& _ub,
+  Eigen::MatrixXd& _a,
+  Eigen::VectorXd& _b,
+  double _inf = 1E+12);
 }  // namespace quadprog
 }  // namespace tobas

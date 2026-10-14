@@ -26,13 +26,13 @@ public:
   QString getTopText() const;
   QString getBottomText() const;
 
-  void setBackgroundColor(const QString& text);
-  void setMaximumValue(double value);
-  void setMinimumValue(double value);
-  void setStepSize(double value);
-  void setValue(double value);
-  void setTopText(const QString& text);
-  void setBottomText(const QString& text);
+  void setBackgroundColor(const QString& _text);
+  void setMaximumValue(double _value);
+  void setMinimumValue(double _value);
+  void setStepSize(double _value);
+  void setValue(double _value);
+  void setTopText(const QString& _text);
+  void setBottomText(const QString& _text);
 
 private:
   QObject* getRectangleObject() const;

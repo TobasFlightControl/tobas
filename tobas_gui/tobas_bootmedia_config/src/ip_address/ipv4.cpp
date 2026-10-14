@@ -12,7 +12,7 @@ namespace gui
 {
 namespace bm
 {
-IPv4Widget::IPv4Widget(const QString& name) : name_(name)
+IPv4Widget::IPv4Widget(const QString& _name) : name_(_name)
 {
   const auto form = new qt::FormLayout();
   setLayout(form);
@@ -58,23 +58,23 @@ void IPv4Widget::reset()
   enableManualFields(false);
 }
 
-bool IPv4Widget::load(const Network& src)
+bool IPv4Widget::load(const Network& _src)
 {
-  if (src.automatic) {
+  if (_src.automatic) {
     method_->setCurrentIndex(Method::kAutomatic);
   }
   else {
     method_->setCurrentIndex(Method::kManual);
 
-    const auto prefix = prefixValueToIndex(src.manual.prefix);
+    const auto prefix = prefixValueToIndex(_src.manual.prefix);
     if (!prefix) {
       qt::qErrorBox(this, prefix.error());
       return false;
     }
     prefix_->setCurrentIndex(*prefix);
 
-    address_->setFromInt(src.manual.address);
-    gateway_->setFromInt(src.manual.gateway);
+    address_->setFromInt(_src.manual.address);
+    gateway_->setFromInt(_src.manual.gateway);
   }
 
   return true;
@@ -105,16 +105,16 @@ Network IPv4Widget::dump() const
   return res;
 }
 
-void IPv4Widget::enableManualFields(bool enabled)
+void IPv4Widget::enableManualFields(bool _enabled)
 {
-  prefix_->setEnabled(enabled);
-  address_->setEnabled(enabled);
-  gateway_->setEnabled(enabled);
+  prefix_->setEnabled(_enabled);
+  address_->setEnabled(_enabled);
+  gateway_->setEnabled(_enabled);
 }
 
-std::expected<IPv4Widget::PrefixLength, QString> IPv4Widget::prefixValueToIndex(uint8_t value)
+std::expected<IPv4Widget::PrefixLength, QString> IPv4Widget::prefixValueToIndex(uint8_t _value)
 {
-  switch (value) {
+  switch (_value) {
     case 8:
       return PrefixLength::kSlash8;
     case 16:
@@ -136,13 +136,13 @@ std::expected<IPv4Widget::PrefixLength, QString> IPv4Widget::prefixValueToIndex(
     case 32:
       return PrefixLength::kSlash32;
     default:
-      return std::unexpected("Unexpected IPv4 prefix length: " + QString::number(value));
+      return std::unexpected("Unexpected IPv4 prefix length: " + QString::number(_value));
   }
 }
 
-uint8_t IPv4Widget::prefixIndexToValue(PrefixLength index)
+uint8_t IPv4Widget::prefixIndexToValue(PrefixLength _index)
 {
-  switch (index) {
+  switch (_index) {
     case PrefixLength::kSlash8:
       return 8;
     case PrefixLength::kSlash16:
@@ -168,9 +168,9 @@ uint8_t IPv4Widget::prefixIndexToValue(PrefixLength index)
   }
 }
 
-void IPv4Widget::onMethodChanged(int index)
+void IPv4Widget::onMethodChanged(int _index)
 {
-  switch (index) {
+  switch (_index) {
     case Method::kAutomatic:
       enableManualFields(false);
       break;

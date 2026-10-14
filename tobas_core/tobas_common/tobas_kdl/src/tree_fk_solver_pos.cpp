@@ -9,32 +9,32 @@ namespace tobas
 {
 namespace kdl
 {
-TreeFkSolverPos::TreeFkSolverPos(const Tree& tree) : super(tree)
+TreeFkSolverPos::TreeFkSolverPos(const Tree& _tree) : super(_tree)
 {
 }
 
-Frame TreeFkSolverPos::jntToCart(const JntArray& q, const std::string& seg_name)
+Frame TreeFkSolverPos::jntToCart(const JntArray& _q, const std::string& _seg_name)
 {
-  assert(q.size() == tree_.getNrOfJoints());
-  assert(tree_.hasSegment(seg_name));
+  assert(_q.size() == tree_.getNrOfJoints());
+  assert(tree_.hasSegment(_seg_name));
 
-  const auto seg_it = tree_.getSegment(seg_name);
-  return recursiveFk(q, seg_it);
+  const auto seg_it = tree_.getSegment(_seg_name);
+  return recursiveFk(_q, seg_it);
 }
 
-Frame TreeFkSolverPos::recursiveFk(const JntArray& q, const SegmentMap::const_iterator& cur_it)
+Frame TreeFkSolverPos::recursiveFk(const JntArray& _q, const SegmentMap::const_iterator& _cur_it)
 {
-  const auto& cur_ele = cur_it->second;
+  const auto& cur_ele = _cur_it->second;
   const auto& cur_seg = cur_ele.segment;
   const auto& cur_idx = cur_ele.q_nr;
-  const auto& cur_frame = cur_seg.pose(q(cur_idx));
+  const auto& cur_frame = cur_seg.pose(_q(cur_idx));
 
-  if (cur_it == tree_.getRootSegment()) {
+  if (_cur_it == tree_.getRootSegment()) {
     return cur_frame;
   }
 
   const auto& parent_it = cur_ele.parent;
-  return recursiveFk(q, parent_it) * cur_frame;
+  return recursiveFk(_q, parent_it) * cur_frame;
 }
 }  // namespace kdl
 }  // namespace tobas

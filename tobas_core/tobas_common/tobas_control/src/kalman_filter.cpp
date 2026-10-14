@@ -18,19 +18,19 @@ KalmanFilter::KalmanFilter()
 {
 }
 
-KalmanFilter::KalmanFilter(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size, Eigen::Index v_size)
+KalmanFilter::KalmanFilter(Eigen::Index _x_size, Eigen::Index _u_size, Eigen::Index _y_size, Eigen::Index _v_size)
 {
-  resize(x_size, u_size, y_size, v_size);
+  resize(_x_size, _u_size, _y_size, _v_size);
 }
 
-void KalmanFilter::resize(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size, Eigen::Index v_size)
+void KalmanFilter::resize(Eigen::Index _x_size, Eigen::Index _u_size, Eigen::Index _y_size, Eigen::Index _v_size)
 {
-  ss.resize(x_size, u_size, y_size);
-  Bv.conservativeResize(x_size, v_size);
-  Q.conservativeResize(v_size, v_size);
-  R.conservativeResize(y_size, y_size);
-  y.conservativeResize(y_size);
-  u.conservativeResize(u_size);
+  ss.resize(_x_size, _u_size, _y_size);
+  Bv.conservativeResize(_x_size, _v_size);
+  Q.conservativeResize(_v_size, _v_size);
+  R.conservativeResize(_y_size, _y_size);
+  y.conservativeResize(_y_size);
+  u.conservativeResize(_u_size);
 }
 
 void KalmanFilter::setZero()
@@ -43,13 +43,13 @@ void KalmanFilter::setZero()
   u.setZero();
 }
 
-void KalmanFilter::initialize(const Eigen::VectorXd& init_x, const Eigen::MatrixXd& init_P)
+void KalmanFilter::initialize(const Eigen::VectorXd& _init_x, const Eigen::MatrixXd& _init_p)
 {
-  assert(init_x.size() == init_P.rows());
-  assert(eigen::isSymmetricSemiPositiveDefinite(init_P));
+  assert(_init_x.size() == _init_p.rows());
+  assert(eigen::isSymmetricSemiPositiveDefinite(_init_p));
 
-  x_ = init_x;
-  P_ = init_P;
+  x_ = _init_x;
+  P_ = _init_p;
 }
 
 void KalmanFilter::update()
@@ -93,21 +93,21 @@ void KalmanFilter::verify() const
   assert(eigen::isSymmetricPositiveDefinite(R));
 }
 
-IdentityKalmanFilter::IdentityKalmanFilter(Eigen::Index size)
+IdentityKalmanFilter::IdentityKalmanFilter(Eigen::Index _size)
 {
-  resize(size);
+  resize(_size);
 }
 
-void IdentityKalmanFilter::resize(Eigen::Index size)
+void IdentityKalmanFilter::resize(Eigen::Index _size)
 {
-  kf_.resize(size, 0, size, size);
-  kf_.ss.A.setIdentity(size, size);
-  kf_.ss.C.setIdentity(size, size);
-  kf_.Bv.setIdentity(size, size);
+  kf_.resize(_size, 0, _size, _size);
+  kf_.ss.A.setIdentity(_size, _size);
+  kf_.ss.C.setIdentity(_size, _size);
+  kf_.Bv.setIdentity(_size, _size);
 
-  Q.conservativeResize(size, size);
-  R.conservativeResize(size, size);
-  y.conservativeResize(size);
+  Q.conservativeResize(_size, _size);
+  R.conservativeResize(_size, _size);
+  y.conservativeResize(_size);
 }
 
 void IdentityKalmanFilter::setZero()
@@ -117,9 +117,9 @@ void IdentityKalmanFilter::setZero()
   y.setZero();
 }
 
-void IdentityKalmanFilter::initialize(const Eigen::VectorXd& init_x, const Eigen::MatrixXd& init_P)
+void IdentityKalmanFilter::initialize(const Eigen::VectorXd& _init_x, const Eigen::MatrixXd& _init_p)
 {
-  kf_.initialize(init_x, init_P);
+  kf_.initialize(_init_x, _init_p);
 }
 
 void IdentityKalmanFilter::update()

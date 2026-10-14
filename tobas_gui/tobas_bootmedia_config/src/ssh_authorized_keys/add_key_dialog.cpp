@@ -12,7 +12,7 @@ namespace gui
 {
 namespace bm
 {
-AddSshKeyDialog::AddSshKeyDialog(QWidget* parent) : super(parent)
+AddSshKeyDialog::AddSshKeyDialog(QWidget* _parent) : super(_parent)
 {
   setWindowTitle("Add New SSH Public Key");
 
@@ -53,9 +53,9 @@ bool AddSshKeyDialog::isAcceptable() const
   return true;
 }
 
-void AddSshKeyDialog::enableOkButton(bool enable)
+void AddSshKeyDialog::enableOkButton(bool _enable)
 {
-  btn_box_->button(QDialogButtonBox::Ok)->setEnabled(enable);
+  btn_box_->button(QDialogButtonBox::Ok)->setEnabled(_enable);
 }
 
 void AddSshKeyDialog::onTextChanged()

@@ -7,10 +7,10 @@ namespace tobas
 {
 namespace qt
 {
-ToggleButton::ToggleButton(const QString& off_text, const QString& on_text, QWidget* parent)
-  : super(parent), off_text_(off_text), on_text_(on_text)
+ToggleButton::ToggleButton(const QString& _off_text, const QString& _on_text, QWidget* _parent)
+  : super(_parent), off_text_(_off_text), on_text_(_on_text)
 {
-  setText(off_text);
+  setText(_off_text);
 
   connect(this, &super::clicked, this, &self::onClicked);
 }

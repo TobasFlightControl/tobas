@@ -12,11 +12,11 @@ namespace rviz
 class FixedJointModel : public JointModel
 {
 public:
-  explicit FixedJointModel(const std::string& name, size_t joint_index, size_t first_variable_index);
+  explicit FixedJointModel(const std::string& _name, size_t _joint_index, size_t _first_variable_index);
 
-  void getVariableDefaultPositions(double* values) const override;
-  void computeTransform(const double* joint_values, Eigen::Isometry3d& transf) const override;
-  void computeVariablePositions(const Eigen::Isometry3d& transf, double* joint_values) const override;
+  void getVariableDefaultPositions(double* _values) const override;
+  void computeTransform(const double* _joint_values, Eigen::Isometry3d& _transf) const override;
+  void computeVariablePositions(const Eigen::Isometry3d& _transf, double* _joint_values) const override;
 };
 }  // namespace rviz
 }  // namespace tobas

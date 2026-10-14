@@ -24,13 +24,14 @@ namespace at
 {
 namespace
 {
-std::string paramName(size_t ch)
+std::string paramName(size_t _ch)
 {
-  return param::kRpmControlGainPrefix + std::to_string(ch);
+  return param::kRpmControlGainPrefix + std::to_string(_ch);
 }
 }  // namespace
 
-RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : bridge_(bridge), drone_(drone)
+RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone)
+  : bridge_(_bridge), drone_(_drone)
 {
   constexpr int kButtonWidth = 100;
   constexpr int kButtonHeight = 40;
@@ -87,7 +88,7 @@ RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& dr
   }
 
   connect(&update_timer_, &QTimer::timeout, this, &self::onUpdateTimerTimeout);
-  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 
   updateActionAvailability();
 }
@@ -115,9 +116,9 @@ void RotorTestWidget::reset()
   updateActionAvailability();
 }
 
-void RotorTestWidget::setProjectPath(const QString& proj_path)
+void RotorTestWidget::setProjectPath(const QString& _proj_path)
 {
-  proj_paths_.setProjPath(proj_path);
+  proj_paths_.setProjPath(_proj_path);
 
   updateActionAvailability();
 }
@@ -158,17 +159,17 @@ void RotorTestWidget::updateInternalDataStructures()
   updateActionAvailability();
 }
 
-void RotorTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void RotorTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
   if (eprop_) {
     tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
-      node, path::join(ns, kRemoteIfaceNS, topic::kRotorSpeedsCmd));
-    dparam_cli_.emplace(node, node::kRpmControlConfigServer, ns);
+      _node, path::join(_ns, kRemoteIfaceNS, topic::kRotorSpeedsCmd));
+    dparam_cli_.emplace(_node, node::kRpmControlConfigServer, _ns);
     get_params_sc_.emplace(
-      node, path::join(ns, kRemoteIfaceNS, node::kRpmControlConfigServer, service::kGetDynamicParams));
+      _node, path::join(_ns, kRemoteIfaceNS, node::kRpmControlConfigServer, service::kGetDynamicParams));
   }
 
-  node_ = std::move(node);
+  node_ = std::move(_node);
 
   updateActionAvailability();
 }
@@ -300,11 +301,11 @@ void RotorTestWidget::onTargetRPMChanged(int, size_t)
   publishTargetSppeds();
 }
 
-void RotorTestWidget::onGainChanged(int gain, size_t ch)
+void RotorTestWidget::onGainChanged(int _gain, size_t _ch)
 {
-  if (dparam_cli_->setInt(paramName(ch), gain) != dparam::DynamicParamClient::kNoError) {
+  if (dparam_cli_->setInt(paramName(_ch), _gain) != dparam::DynamicParamClient::kNoError) {
     qWarning() << dparam_cli_->errorMessage();
-    qt::qErrorBox(this, "Failed to set the RPM control gain of channel " + QString::number(ch) + ".");
+    qt::qErrorBox(this, "Failed to set the RPM control gain of channel " + QString::number(_ch) + ".");
   }
 }
 
@@ -313,9 +314,9 @@ void RotorTestWidget::onUpdateTimerTimeout()
   publishTargetSppeds();
 }
 
-void RotorTestWidget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& cur_states)
+void RotorTestWidget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& _cur_states)
 {
-  for (const auto& elem : cur_states->states) {
+  for (const auto& elem : _cur_states->states) {
     if (elem.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE) {
       continue;
     }
@@ -325,15 +326,15 @@ void RotorTestWidget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::Cons
   }
 }
 
-void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming)
 {
   // Force the test to stop if the vehicle is armed while the test is running.
-  if (running_ && arming->data) {
+  if (running_ && _arming->data) {
     reset();
     qt::qWarnBox(this, "Rotor test was terminated because an arming command was issued.");
   }
 
-  arming_ = arming;
+  arming_ = _arming;
   updateActionAvailability();
 }
 }  // namespace at

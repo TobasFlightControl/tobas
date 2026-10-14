@@ -16,20 +16,20 @@ struct rclcpp::TypeAdapter<tobas::VppMomentConstant, tobas_drone_msgs::msg::VppM
   using custom_type = tobas::VppMomentConstant;
   using ros_message_type = tobas_drone_msgs::msg::VppMomentConstant;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.a = src.a;
-    dst.b = src.b;
-    dst.c = src.c;
-    dst.phi0 = src.phi0;
+    _dst.a = _src.a;
+    _dst.b = _src.b;
+    _dst.c = _src.c;
+    _dst.phi0 = _src.phi0;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.a = src.a;
-    dst.b = src.b;
-    dst.c = src.c;
-    dst.phi0 = src.phi0;
+    _dst.a = _src.a;
+    _dst.b = _src.b;
+    _dst.c = _src.c;
+    _dst.phi0 = _src.phi0;
   }
 };
 

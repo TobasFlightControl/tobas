@@ -13,7 +13,7 @@ namespace crypt
 class Crypt
 {
 public:
-  std::expected<std::string, std::string> crypt(const std::string& password) const;
+  std::expected<std::string, std::string> crypt(const std::string& _password) const;
 
 private:
   virtual std::expected<std::string, std::string> createSalt() const = 0;

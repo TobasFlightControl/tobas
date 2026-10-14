@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace rviz
 {
-RobotState::RobotState(const RobotModel& robot_model) : robot_model_(robot_model)
+RobotState::RobotState(const RobotModel& _robot_model) : robot_model_(_robot_model)
 {
   dirty_link_transforms_ = robot_model_.getRootJoint();
   positions_.resize(robot_model_.getVariableCount());
@@ -24,26 +24,26 @@ const RobotModel& RobotState::getRobotModel() const
 }
 
 void RobotState::setVariablePositions(
-  const std::vector<std::string>& variable_names,
-  const std::vector<double>& variable_positions)
+  const std::vector<std::string>& _variable_names,
+  const std::vector<double>& _variable_positions)
 {
-  assert(variable_names.size() == variable_positions.size());
-  for (size_t i = 0; i < variable_names.size(); ++i) {
-    const auto index = robot_model_.getVariableIndex(variable_names[i]);
-    positions_[index] = variable_positions[i];
+  assert(_variable_names.size() == _variable_positions.size());
+  for (size_t i = 0; i < _variable_names.size(); ++i) {
+    const auto index = robot_model_.getVariableIndex(_variable_names[i]);
+    positions_[index] = _variable_positions[i];
     const auto joint = robot_model_.getJointOfVariable(index);
     markDirtyJointTransforms(joint);
     updateMimicJoint(joint);
   }
 }
 
-void RobotState::setJointPositions(const std::string& joint_name, const Eigen::Isometry3d& transform)
+void RobotState::setJointPositions(const std::string& _joint_name, const Eigen::Isometry3d& _transform)
 {
-  const auto joint = robot_model_.getJointModel(joint_name);
+  const auto joint = robot_model_.getJointModel(_joint_name);
   if (joint->getVariableCount() == 0) {
     return;
   }
-  joint->computeVariablePositions(transform, &positions_.at(joint->getFirstVariableIndex()));
+  joint->computeVariablePositions(_transform, &positions_.at(joint->getFirstVariableIndex()));
   markDirtyJointTransforms(joint);
   updateMimicJoint(joint);
 }
@@ -55,34 +55,35 @@ void RobotState::setToDefaultValues()
   dirty_link_transforms_ = robot_model_.getRootJoint();
 }
 
-void RobotState::update(bool force)
+void RobotState::update(bool _force)
 {
-  if (force) {
+  if (_force) {
     std::fill(dirty_joint_transforms_.begin(), dirty_joint_transforms_.end(), 1);
     dirty_link_transforms_ = robot_model_.getRootJoint();
   }
   updateLinkTransforms();
 }
 
-const Eigen::Isometry3d& RobotState::getGlobalLinkTransform(const LinkModel::ConstSharedPtr& link) const
+const Eigen::Isometry3d& RobotState::getGlobalLinkTransform(const LinkModel::ConstSharedPtr& _link) const
 {
   assert(checkLinkTransforms());
-  return global_link_transforms_[link->getLinkIndex()];
+  return global_link_transforms_[_link->getLinkIndex()];
 }
 
-void RobotState::markDirtyJointTransforms(const JointModel::ConstSharedPtr& joint)
+void RobotState::markDirtyJointTransforms(const JointModel::ConstSharedPtr& _joint)
 {
-  dirty_joint_transforms_[joint->getJointIndex()] = 1;
-  dirty_link_transforms_ = !dirty_link_transforms_ ? joint : robot_model_.getCommonRoot(dirty_link_transforms_, joint);
+  dirty_joint_transforms_[_joint->getJointIndex()] = 1;
+  dirty_link_transforms_ =
+    !dirty_link_transforms_ ? _joint : robot_model_.getCommonRoot(dirty_link_transforms_, _joint);
 }
 
-void RobotState::updateMimicJoint(const JointModel::ConstSharedPtr& joint)
+void RobotState::updateMimicJoint(const JointModel::ConstSharedPtr& _joint)
 {
-  if (joint->getVariableCount() == 0) {
+  if (_joint->getVariableCount() == 0) {
     return;
   }
-  const double value = positions_[joint->getFirstVariableIndex()];
-  for (const auto& mimic_joint : joint->getMimicRequests()) {
+  const double value = positions_[_joint->getFirstVariableIndex()];
+  for (const auto& mimic_joint : _joint->getMimicRequests()) {
     positions_[mimic_joint->getFirstVariableIndex()] =
       mimic_joint->getMimicFactor() * value + mimic_joint->getMimicOffset();
     markDirtyJointTransforms(robot_model_.getJointModel(mimic_joint->getName()));
@@ -97,9 +98,9 @@ void RobotState::updateLinkTransforms()
   }
 }
 
-void RobotState::updateLinkTransformsInternal(const JointModel::ConstSharedPtr& start)
+void RobotState::updateLinkTransformsInternal(const JointModel::ConstSharedPtr& _start)
 {
-  for (const auto& link : start->getDescendantLinkModels()) {
+  for (const auto& link : _start->getDescendantLinkModels()) {
     const auto link_index = link->getLinkIndex();
     const auto parent = link->getParentLinkModel();
     if (parent) {
@@ -134,16 +135,16 @@ void RobotState::updateLinkTransformsInternal(const JointModel::ConstSharedPtr& 
   }
 }
 
-const Eigen::Isometry3d& RobotState::getJointTransform(const JointModel::ConstSharedPtr& joint)
+const Eigen::Isometry3d& RobotState::getJointTransform(const JointModel::ConstSharedPtr& _joint)
 {
-  const auto index = joint->getJointIndex();
-  if (joint->getVariableCount() == 0) {
+  const auto index = _joint->getJointIndex();
+  if (_joint->getVariableCount() == 0) {
     return variable_joint_transforms_[index];
   }
 
   auto& dirty = dirty_joint_transforms_[index];
   if (dirty) {
-    joint->computeTransform(&positions_.at(joint->getFirstVariableIndex()), variable_joint_transforms_[index]);
+    _joint->computeTransform(&positions_.at(_joint->getFirstVariableIndex()), variable_joint_transforms_[index]);
     dirty = 0;
   }
   return variable_joint_transforms_[index];

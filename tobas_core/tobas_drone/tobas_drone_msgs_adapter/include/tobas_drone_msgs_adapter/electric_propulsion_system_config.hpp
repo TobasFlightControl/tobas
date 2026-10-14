@@ -21,27 +21,27 @@ struct rclcpp::TypeAdapter<tobas::ElectricPropulsionSystemConfig, tobas_drone_ms
   using custom_type = tobas::ElectricPropulsionSystemConfig;
   using ros_message_type = tobas_drone_msgs::msg::ElectricPropulsionSystemConfig;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    tobas_drone_msgs::BatteryConfigAdapter::convert_to_ros_message(src.battery, dst.battery);
+    tobas_drone_msgs::BatteryConfigAdapter::convert_to_ros_message(_src.battery, _dst.battery);
 
-    dst.rotors.clear();
-    for (const auto& [_, src_rotor] : src.rotors) {
+    _dst.rotors.clear();
+    for (const auto& [_, src_rotor] : _src.rotors) {
       const auto src_erotor = std::static_pointer_cast<tobas::ElectricRotorConfig>(src_rotor);
-      dst.rotors.emplace_back();
-      tobas_drone_msgs::ElectricRotorConfigAdapter::convert_to_ros_message(*src_erotor, dst.rotors.back());
+      _dst.rotors.emplace_back();
+      tobas_drone_msgs::ElectricRotorConfigAdapter::convert_to_ros_message(*src_erotor, _dst.rotors.back());
     }
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas_drone_msgs::BatteryConfigAdapter::convert_to_custom(src.battery, dst.battery);
+    tobas_drone_msgs::BatteryConfigAdapter::convert_to_custom(_src.battery, _dst.battery);
 
-    dst.rotors.clear();
-    for (const auto& src_erotor : src.rotors) {
+    _dst.rotors.clear();
+    for (const auto& src_erotor : _src.rotors) {
       const auto dst_erotor = std::make_shared<tobas::ElectricRotorConfig>();
       tobas_drone_msgs::ElectricRotorConfigAdapter::convert_to_custom(src_erotor, *dst_erotor);
-      dst.rotors[src_erotor.rotor.link_name] = dst_erotor;
+      _dst.rotors[src_erotor.rotor.link_name] = dst_erotor;
     }
   }
 };

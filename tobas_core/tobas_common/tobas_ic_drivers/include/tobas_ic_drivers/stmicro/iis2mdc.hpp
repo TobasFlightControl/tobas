@@ -18,10 +18,10 @@ class IIS2MDC
 public:
   explicit IIS2MDC();
 
-  bool initialize(const char* i2c_device);
+  bool initialize(const char* _i2c_device);
 
   /** Read the current magnetic field [gauss]. */
-  bool readMag(double& mx, double& my, double& mz);
+  bool readMag(double& _mx, double& _my, double& _mz);
 
 private:
   /** 7: Register mapping (p.27) */

@@ -26,31 +26,31 @@ namespace tobas
 {
 namespace qt
 {
-MainWidget::MainWidget(const QString& title, const QString& icon_path, QWidget* widget) : widget_(widget)
+MainWidget::MainWidget(const QString& _title, const QString& _icon_path, QWidget* _widget) : widget_(_widget)
 {
-  setWindowTitle(title);
+  setWindowTitle(_title);
 
-  if (!icon_path.isEmpty()) {
-    setWindowIcon(QIcon(icon_path));
+  if (!_icon_path.isEmpty()) {
+    setWindowIcon(QIcon(_icon_path));
   }
 
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  rows->addWidget(widget);
+  rows->addWidget(_widget);
 
   restoreWindowGeometry();
   connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &MainWidget::saveWindowGeometry);
 }
 
-void MainWidget::closeEvent(QCloseEvent* event)
+void MainWidget::closeEvent(QCloseEvent* _event)
 {
   if (widget_->close()) {
     saveWindowGeometry();
-    event->accept();
+    _event->accept();
   }
   else {
-    event->ignore();
+    _event->ignore();
   }
 }
 

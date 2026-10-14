@@ -69,9 +69,9 @@ UARTdev::~UARTdev()
   }
 }
 
-bool UARTdev::initialize(const char* uart_dev, bool block_mode)
+bool UARTdev::initialize(const char* _uart_dev, bool _block_mode)
 {
-  block_mode_ = block_mode;
+  block_mode_ = _block_mode;
 
   // Close UART device if already opened.
   if (uart_fd_ >= 0) {
@@ -80,12 +80,12 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
 
   // Open UART device.
   int oflag = O_RDWR | O_NOCTTY;
-  if (!block_mode) {
+  if (!_block_mode) {
     oflag |= O_NONBLOCK;
   }
-  uart_fd_ = open(uart_dev, oflag);
+  uart_fd_ = open(_uart_dev, oflag);
   if (uart_fd_ < 0) {
-    std::cerr << "Failed to open UART device '" << uart_dev << "': " << st::strError() << std::endl;
+    std::cerr << "Failed to open UART device '" << _uart_dev << "': " << st::strError() << std::endl;
     return false;
   }
 
@@ -120,7 +120,7 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   }
 
   // Set minimum characters.
-  options_.c_cc[VMIN] = block_mode ? 1 : 0;
+  options_.c_cc[VMIN] = _block_mode ? 1 : 0;
 
   // Set the new configuration of the serial interface.
   if (!setConfig()) {
@@ -136,20 +136,20 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   return true;
 }
 
-bool UARTdev::setBaudRate(uint32_t baud_rate)
+bool UARTdev::setBaudRate(uint32_t _baud_rate)
 {
-  if (isStandardBaudRate(baud_rate)) {
-    return setStandardBaudRate(baud_rate);
+  if (isStandardBaudRate(_baud_rate)) {
+    return setStandardBaudRate(_baud_rate);
   }
   else {
-    return setNonStandardBaudRate(baud_rate);
+    return setNonStandardBaudRate(_baud_rate);
   }
 }
 
-bool UARTdev::setDataBits(uint8_t data_bits)
+bool UARTdev::setDataBits(uint8_t _data_bits)
 {
   tcflag_t flag;
-  switch (data_bits) {
+  switch (_data_bits) {
     case 5:
       flag = CS5;
       break;
@@ -184,9 +184,9 @@ bool UARTdev::setDoubleStopBit()
   return setConfig();
 }
 
-bool UARTdev::enableParity(ParityMode mode)
+bool UARTdev::enableParity(ParityMode _mode)
 {
-  switch (mode) {
+  switch (_mode) {
     case kOdd:
       options_.c_cflag |= PARODD;
       break;
@@ -226,50 +226,50 @@ bool UARTdev::disableHungupClose()
   return setConfig();
 }
 
-bool UARTdev::setTimeout(cc_t msec_100)
+bool UARTdev::setTimeout(cc_t _msec_100)
 {
-  if (!block_mode_ && msec_100 > 0) {
+  if (!block_mode_ && _msec_100 > 0) {
     std::cerr << "The timeout configuration is disabled in non-blocking mode." << std::endl;
     return false;
   }
-  options_.c_cc[VTIME] = msec_100;  // FIXME: Not reflected
+  options_.c_cc[VTIME] = _msec_100;  // FIXME: Not reflected
   return setConfig();
 }
 
-bool UARTdev::setMinimumChars(uint8_t num)
+bool UARTdev::setMinimumChars(uint8_t _num)
 {
-  if (!block_mode_ && num > 0) {
+  if (!block_mode_ && _num > 0) {
     std::cerr << "The minimum number of characters configuration is disabled in non-blocking mode." << std::endl;
     return false;
   }
-  options_.c_cc[VMIN] = num;
+  options_.c_cc[VMIN] = _num;
   return setConfig();
 }
 
-bool UARTdev::send(const uint8_t* data, size_t length)
+bool UARTdev::send(const uint8_t* _data, size_t _length)
 {
-  const auto res = ::write(uart_fd_, data, length);
+  const auto res = ::write(uart_fd_, _data, _length);
   if (res < 0) {
     std::cerr << "UART TX failed: " << st::strError() << std::endl;
     return false;
   }
-  if (res != static_cast<ssize_t>(length)) {
-    std::cerr << "Tried to transmit " << length << " bytes, but " << res << " bytes were transmitted." << std::endl;
+  if (res != static_cast<ssize_t>(_length)) {
+    std::cerr << "Tried to transmit " << _length << " bytes, but " << res << " bytes were transmitted." << std::endl;
     return false;
   }
 
   return true;
 }
 
-bool UARTdev::receive(uint8_t* data, size_t length)
+bool UARTdev::receive(uint8_t* _data, size_t _length)
 {
-  const auto res = ::read(uart_fd_, data, length);
+  const auto res = ::read(uart_fd_, _data, _length);
   if (res < 0) {
     std::cerr << "UART RX failed: " << st::strError() << std::endl;
     return false;
   }
-  if (res != static_cast<ssize_t>(length)) {
-    std::cerr << "Tried to receive " << length << " bytes, but " << res << " bytes were received." << std::endl;
+  if (res != static_cast<ssize_t>(_length)) {
+    std::cerr << "Tried to receive " << _length << " bytes, but " << res << " bytes were received." << std::endl;
     return false;
   }
 
@@ -308,14 +308,14 @@ bool UARTdev::setConfig()
   return true;
 }
 
-bool UARTdev::isStandardBaudRate(uint32_t baud_rate)
+bool UARTdev::isStandardBaudRate(uint32_t _baud_rate)
 {
-  return kBaudrateConstants.contains(baud_rate);
+  return kBaudrateConstants.contains(_baud_rate);
 }
 
-bool UARTdev::setStandardBaudRate(uint32_t baud_rate)
+bool UARTdev::setStandardBaudRate(uint32_t _baud_rate)
 {
-  const auto& flag = kBaudrateConstants.at(baud_rate);
+  const auto& flag = kBaudrateConstants.at(_baud_rate);
 
   options_.c_cflag &= ~CBAUD;
   options_.c_cflag |= flag;
@@ -325,7 +325,7 @@ bool UARTdev::setStandardBaudRate(uint32_t baud_rate)
   return setConfig();
 }
 
-bool UARTdev::setNonStandardBaudRate(uint32_t baud_rate)
+bool UARTdev::setNonStandardBaudRate(uint32_t _baud_rate)
 {
   options_.c_cflag &= ~CBAUD;
   options_.c_cflag |= CBAUDEX;
@@ -336,7 +336,7 @@ bool UARTdev::setNonStandardBaudRate(uint32_t baud_rate)
     return false;
   }
 
-  if (!linux::setNonStandardBaudRate(uart_fd_, baud_rate)) {
+  if (!linux::setNonStandardBaudRate(uart_fd_, _baud_rate)) {
     return false;
   }
 

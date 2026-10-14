@@ -22,11 +22,11 @@ namespace crypt
 namespace
 {
 /** Read `/etc/shadow` line by line. */
-std::vector<std::string> readLines(const std::string& path)
+std::vector<std::string> readLines(const std::string& _path)
 {
-  std::ifstream ifs(path);
+  std::ifstream ifs(_path);
   if (!ifs) {
-    std::cerr << "Failed to open " << path << ": " << st::strError() << std::endl;
+    std::cerr << "Failed to open " << _path << ": " << st::strError() << std::endl;
     return {};
   }
 
@@ -40,19 +40,19 @@ std::vector<std::string> readLines(const std::string& path)
 }
 
 /** Convert colon-separated text to an array. */
-std::vector<std::string> splitShadow(const std::string& line)
+std::vector<std::string> splitShadow(const std::string& _line)
 {
   std::vector<std::string> fields;
   size_t start = 0;
 
   while (true) {
-    const auto pos = line.find(':', start);
+    const auto pos = _line.find(':', start);
     if (pos == std::string::npos) {
-      fields.push_back(line.substr(start));
+      fields.push_back(_line.substr(start));
       break;
     }
 
-    fields.push_back(line.substr(start, pos - start));
+    fields.push_back(_line.substr(start, pos - start));
     start = pos + 1;
   }
 
@@ -60,30 +60,30 @@ std::vector<std::string> splitShadow(const std::string& line)
 }
 
 /** Convert an array back to colon-separated text. */
-std::string joinShadow(const std::vector<std::string>& fields)
+std::string joinShadow(const std::vector<std::string>& _fields)
 {
   std::ostringstream ss;
-  for (size_t i = 0; i < fields.size(); ++i) {
+  for (size_t i = 0; i < _fields.size(); ++i) {
     if (i) {
       ss << ':';
     }
-    ss << fields[i];
+    ss << _fields[i];
   }
   return ss.str();
 }
 
 /** Safely overwrite a file. */
-bool atomicOverwrite(const std::string& path, const std::string& content)
+bool atomicOverwrite(const std::string& _path, const std::string& _content)
 {
   // Save existing metadata.
   struct stat st;
-  if (stat(path.c_str(), &st) < 0) {
-    std::cerr << "stat failed on " + path + ": " << st::strError() << std::endl;
+  if (stat(_path.c_str(), &st) < 0) {
+    std::cerr << "stat failed on " + _path + ": " << st::strError() << std::endl;
     return false;
   }
 
   // Create a temporary file in the same directory.
-  const auto dir = path.substr(0, path.find_last_of('/'));
+  const auto dir = _path.substr(0, _path.find_last_of('/'));
   auto tmp = dir + "/.shadow.tmp.XXXXXX";
   std::vector<char> tmpc(tmp.begin(), tmp.end());
   tmpc.push_back('\0');
@@ -106,8 +106,8 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
   }
 
   // Write.
-  const auto wr = ::write(fd, content.data(), content.size());
-  if (wr != static_cast<ssize_t>(content.size())) {
+  const auto wr = ::write(fd, _content.data(), _content.size());
+  if (wr != static_cast<ssize_t>(_content.size())) {
     ::close(fd);
     ::unlink(tmp.c_str());
     std::cerr << "write failed" << std::endl;
@@ -115,7 +115,7 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
   }
 
   // Append a newline if missing.
-  if (content.empty() || content.back() != '\n') {
+  if (_content.empty() || _content.back() != '\n') {
     if (::write(fd, "\n", 1) != 1) {
       std::cerr << "write failed: " << st::strError() << std::endl;
       return false;
@@ -132,7 +132,7 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
   ::close(fd);
 
   // Replace atomically.
-  if (::rename(tmp.c_str(), path.c_str()) < 0) {
+  if (::rename(tmp.c_str(), _path.c_str()) < 0) {
     ::unlink(tmp.c_str());
     std::cerr << "rename failed: " << st::strError() << std::endl;
     return false;

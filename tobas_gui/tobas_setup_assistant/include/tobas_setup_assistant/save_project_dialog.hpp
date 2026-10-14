@@ -23,10 +23,10 @@ class SaveProjectDialog : public QFileDialog
   using super = QFileDialog;
 
 public:
-  explicit SaveProjectDialog(QWidget* parent, const QString& dir, const QString& dflt_name);
+  explicit SaveProjectDialog(QWidget* _parent, const QString& _dir, const QString& _dflt_name);
 
 protected:
-  bool eventFilter(QObject* obj, QEvent* event) override;
+  bool eventFilter(QObject* _obj, QEvent* _event) override;
 
 private:
   QPushButton* save_button_;

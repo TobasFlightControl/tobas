@@ -115,9 +115,9 @@ bool PropellerWidget::isValid()
   return true;
 }
 
-void PropellerWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
+void PropellerWidget::copyFrom(const BaseSelectedLinkSettingWidget* _src)
 {
-  const auto derived = qt::qConstPointerCast<PropellerWidget>(src);
+  const auto derived = qt::qConstPointerCast<PropellerWidget>(_src);
 
   num_blades_->setValue(derived->num_blades_->getValue());
   diameter_->setValue(derived->diameter_->getValue());
@@ -145,16 +145,16 @@ YAML::Node PropellerWidget::dump() const
   return node;
 }
 
-void PropellerWidget::load(const YAML::Node& node)
+void PropellerWidget::load(const YAML::Node& _node)
 {
-  num_blades_->setValue(node[num_blades_->name()].as<int>());
-  diameter_->setValue(node[diameter_->name()].as<int>());
-  pitch_length_neutoral_->setValue(node[pitch_length_neutoral_->name()].as<double>());
-  pitch_angle_limit_->setValue(node[pitch_angle_limit_->name()].as<st::Range<double>>());
-  center_pitch_angle_->setValue(node[center_pitch_angle_->name()].as<double>());
-  max_pitch_angle_rate_->setValue(node[max_pitch_angle_rate_->name()].as<int>());
-  min_chord_->setValue(node[min_chord_->name()].as<int>());
-  max_chord_->setValue(node[max_chord_->name()].as<int>());
+  num_blades_->setValue(_node[num_blades_->name()].as<int>());
+  diameter_->setValue(_node[diameter_->name()].as<int>());
+  pitch_length_neutoral_->setValue(_node[pitch_length_neutoral_->name()].as<double>());
+  pitch_angle_limit_->setValue(_node[pitch_angle_limit_->name()].as<st::Range<double>>());
+  center_pitch_angle_->setValue(_node[center_pitch_angle_->name()].as<double>());
+  max_pitch_angle_rate_->setValue(_node[max_pitch_angle_rate_->name()].as<int>());
+  min_chord_->setValue(_node[min_chord_->name()].as<int>());
+  max_chord_->setValue(_node[max_chord_->name()].as<int>());
 }
 
 int PropellerWidget::numBlades() const

@@ -18,14 +18,14 @@ struct rclcpp::TypeAdapter<tobas::kdl::JntArray, tobas_kdl_msgs::msg::JntArray>
   using custom_type = tobas::kdl::JntArray;
   using ros_message_type = tobas_kdl_msgs::msg::JntArray;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    tobas_kdl_msgs::vectorXdEigenToStd(src.data, dst.data);
+    tobas_kdl_msgs::vectorXdEigenToStd(_src.data, _dst.data);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas_kdl_msgs::vectorXdStdToEigen(src.data, dst.data);
+    tobas_kdl_msgs::vectorXdStdToEigen(_src.data, _dst.data);
   }
 };
 

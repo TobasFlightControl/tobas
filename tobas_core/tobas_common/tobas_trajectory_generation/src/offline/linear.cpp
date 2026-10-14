@@ -10,12 +10,12 @@ namespace tobas
 {
 namespace traj
 {
-LinearSpline::LinearSpline(double p0, double pf, double T) : p0_(p0), T_(T)
+LinearSpline::LinearSpline(double _p0, double _pf, double _t) : p0_(_p0), T_(_t)
 {
-  if (T > 0.0) {
-    v_ = (pf - p0) / T;
+  if (_t > 0.0) {
+    v_ = (_pf - _p0) / _t;
   }
-  else if (p0 == pf && T == 0.0) {
+  else if (_p0 == _pf && _t == 0.0) {
     v_ = 0.0;
   }
   else {

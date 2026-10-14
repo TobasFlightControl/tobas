@@ -15,21 +15,21 @@ Exporter::Exporter()
 {
 }
 
-std::string Exporter::exportText(const Data& src) const
+std::string Exporter::exportText(const Data& _src) const
 {
   std::ostringstream oss;
 
   // Country
-  oss << kCountryPrefix << countryCodeToString(src.country) << "\n";
+  oss << kCountryPrefix << countryCodeToString(_src.country) << "\n";
 
   // ctrl_interface
-  oss << kCtrlInterfacePrefix << src.ctrl_interface << "\n";
+  oss << kCtrlInterfacePrefix << _src.ctrl_interface << "\n";
 
   // update_config
-  oss << kUpdateConfigPrefix << (src.update_config ? "1" : "0") << "\n";
+  oss << kUpdateConfigPrefix << (_src.update_config ? "1" : "0") << "\n";
 
   // Networks
-  for (const auto& network : src.networks) {
+  for (const auto& network : _src.networks) {
     oss << "\n" << kStartNetworkBlock << "\n";
 
     oss << "\t" << kSsidPrefix << "\"" << network.ssid << "\"\n";
@@ -60,9 +60,9 @@ std::string Exporter::exportText(const Data& src) const
   return oss.str();
 }
 
-const char* Exporter::countryCodeToString(CountryCode cc)
+const char* Exporter::countryCodeToString(CountryCode _cc)
 {
-  switch (cc) {
+  switch (_cc) {
     case CountryCode::AF:
       return country_code::Afghanistan;
     case CountryCode::AL:

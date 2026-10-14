@@ -21,7 +21,7 @@ namespace ui
 class LinkTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-  explicit LinkTreeWidgetItem(view_model::LinkViewModelPtr vm, QTreeWidget* tree_widget = nullptr);
+  explicit LinkTreeWidgetItem(view_model::LinkViewModelPtr _vm, QTreeWidget* _tree_widget = nullptr);
 
   const view_model::LinkViewModelPtr& viewModel() const;
 
@@ -32,7 +32,7 @@ private:
 class VisualListWidgetItem : public QListWidgetItem
 {
 public:
-  explicit VisualListWidgetItem(const view_model::VisualViewModelPtr& vm);
+  explicit VisualListWidgetItem(const view_model::VisualViewModelPtr& _vm);
 
   const view_model::VisualViewModelPtr& viewModel() const;
 
@@ -43,7 +43,7 @@ private:
 class CollisionListWidgetItem : public QListWidgetItem
 {
 public:
-  explicit CollisionListWidgetItem(const view_model::CollisionViewModelPtr& vm);
+  explicit CollisionListWidgetItem(const view_model::CollisionViewModelPtr& _vm);
 
   const view_model::CollisionViewModelPtr& viewModel() const;
 

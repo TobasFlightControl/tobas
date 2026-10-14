@@ -30,17 +30,17 @@ class SynchronizedStringParameter
 
 public:
   std::string loadInitialValue(
-    const rclcpp::Node::SharedPtr& node,
-    const std::string& name,
-    const StringCallback& parent_callback = {},
-    bool default_continuous_value = false,
-    double default_timeout = 10.0);
+    const rclcpp::Node::SharedPtr& _node,
+    const std::string& _name,
+    const StringCallback& _parent_callback = {},
+    bool _default_continuous_value = false,
+    double _default_timeout = 10.0);
 
 private:
   bool getMainParameter();
   bool shouldPublish();
-  bool waitForMessage(const rclcpp::Duration& timeout);
-  void stringCallback(const std_msgs::msg::String::ConstSharedPtr& msg);
+  bool waitForMessage(const rclcpp::Duration& _timeout);
+  void stringCallback(const std_msgs::msg::String::ConstSharedPtr& _msg);
 
   rclcpp::Node::SharedPtr node_;
   std::string name_;

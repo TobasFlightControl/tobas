@@ -53,21 +53,21 @@ void CpuPlotWidget::clear()
   load_plot_->replot();
 }
 
-void CpuPlotWidget::setTimeScale(double t_start, double t_stop)
+void CpuPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
-  freq_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  temp_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  load_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+  freq_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  temp_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  load_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
 }
 
-void CpuPlotWidget::setData(const QVector<tobas_msgs::msg::Cpu>& msgs)
+void CpuPlotWidget::setData(const QVector<tobas_msgs::msg::Cpu>& _msgs)
 {
   QVector<double> t_data;
   QVector<double> freq_data;
   QVector<double> temp_data;
   QVector<double> load_data;
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
 
     freq_data.push_back(static_cast<double>(msg.frequency) * 1e-9);

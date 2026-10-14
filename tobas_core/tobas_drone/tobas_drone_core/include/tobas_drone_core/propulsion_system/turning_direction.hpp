@@ -13,13 +13,13 @@ enum class TurningDirection
   CW,
 };
 
-std::string textFromEnum(TurningDirection interface);
-bool enumFromText(const std::string& text, TurningDirection& dst);
+std::string textFromEnum(TurningDirection _interface);
+bool enumFromText(const std::string& _text, TurningDirection& _dst);
 
 /** CCW = 1, CW = -1 */
-inline constexpr int sign(TurningDirection direction)
+inline constexpr int sign(TurningDirection _direction)
 {
-  switch (direction) {
+  switch (_direction) {
     case TurningDirection::CCW:
       return 1;
     case TurningDirection::CW:
@@ -35,7 +35,7 @@ namespace YAML
 template <>
 struct convert<tobas::TurningDirection>
 {
-  static Node encode(tobas::TurningDirection rhs);
-  static bool decode(const Node& node, tobas::TurningDirection& rhs);
+  static Node encode(tobas::TurningDirection _rhs);
+  static bool decode(const Node& _node, tobas::TurningDirection& _rhs);
 };
 }  // namespace YAML

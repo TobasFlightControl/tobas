@@ -19,7 +19,7 @@ namespace tobas
 {
 namespace rviz
 {
-RvizFrameManager::RvizFrameManager(int argc, char** argv, const std::string& node_name)
+RvizFrameManager::RvizFrameManager(int _argc, char** _argv, const std::string& _node_name)
 {
   // Initialize ROS node in a unique domain ID.
   if (!rclcpp::ok()) {
@@ -30,14 +30,14 @@ RvizFrameManager::RvizFrameManager(int argc, char** argv, const std::string& nod
       --new_domain_id;
     }
     options.set_domain_id(new_domain_id);
-    rclcpp::init(argc, argv, options);
+    rclcpp::init(_argc, _argv, options);
   }
 
   // Create the RViz ROS interface.
-  node_ = std::make_shared<rviz_common::ros_integration::RosNodeAbstraction>(node_name);
+  node_ = std::make_shared<rviz_common::ros_integration::RosNodeAbstraction>(_node_name);
 }
 
-RvizFrameManager::RvizFrameManager(const std::string& node_name) : RvizFrameManager(0, nullptr, node_name)
+RvizFrameManager::RvizFrameManager(const std::string& _node_name) : RvizFrameManager(0, nullptr, _node_name)
 {
 }
 
@@ -46,14 +46,14 @@ RvizFrameManager::~RvizFrameManager()
   clear();
 }
 
-void RvizFrameManager::initialize(const QString& config_path)
+void RvizFrameManager::initialize(const QString& _config_path)
 {
   removeDefaultColorMaterials();
 
   // Read configuration.
   rviz_common::YamlConfigReader reader;
   rviz_common::Config config;
-  reader.readFile(config, config_path);
+  reader.readFile(config, _config_path);
 
   // Create a visualization frame.
   // Keep the frame parentless so that QLayout::addWidget() reparents it as an embedded widget and clears its Qt::Window flag.
@@ -117,12 +117,18 @@ QString RvizFrameManager::getFixedFrame() const
   return manager_->getFixedFrame();
 }
 
-void RvizFrameManager::setFixedFrame(const QString& frame)
+void RvizFrameManager::setFixedFrame(const QString& _frame)
 {
-  manager_->setFixedFrame(frame);
+  manager_->setFixedFrame(_frame);
 }
 
-void RvizFrameManager::setOrbitView(float distance, float yaw, float pitch, float focal_x, float focal_y, float focal_z)
+void RvizFrameManager::setOrbitView(
+  float _distance,
+  float _yaw,
+  float _pitch,
+  float _focal_x,
+  float _focal_y,
+  float _focal_z)
 {
   const auto view_manager = manager_->getViewManager();
   view_manager->setCurrentViewControllerType("rviz_default_plugins/Orbit");
@@ -132,19 +138,19 @@ void RvizFrameManager::setOrbitView(float distance, float yaw, float pitch, floa
     return;
   }
 
-  const auto set_float = [this, view](const char* name, float value)
+  const auto set_float = [this, view](const char* _name, float _value)
   {
-    const auto prop = qobject_cast<rviz_common::properties::FloatProperty*>(view->subProp(name));
+    const auto prop = qobject_cast<rviz_common::properties::FloatProperty*>(view->subProp(_name));
     if (!prop) {
-      qWarning() << "Failed to get RViz view property:" << name;
+      qWarning() << "Failed to get RViz view property:" << _name;
       return;
     }
-    prop->setFloat(value);
+    prop->setFloat(_value);
   };
 
-  set_float("Distance", distance);
-  set_float("Yaw", yaw);
-  set_float("Pitch", pitch);
+  set_float("Distance", _distance);
+  set_float("Yaw", _yaw);
+  set_float("Pitch", _pitch);
 
   constexpr char kFocalPoint[] = "Focal Point";
   const auto focal_point = qobject_cast<rviz_common::properties::VectorProperty*>(view->subProp(kFocalPoint));
@@ -152,10 +158,10 @@ void RvizFrameManager::setOrbitView(float distance, float yaw, float pitch, floa
     qWarning() << "Failed to get RViz view property:" << kFocalPoint;
     return;
   }
-  focal_point->setVector(Ogre::Vector3(focal_x, focal_y, focal_z));
+  focal_point->setVector(Ogre::Vector3(_focal_x, _focal_y, _focal_z));
 }
 
-std::vector<rviz_common::Display*> RvizFrameManager::getDisplays(const QString& name)
+std::vector<rviz_common::Display*> RvizFrameManager::getDisplays(const QString& _name)
 {
   std::vector<rviz_common::Display*> res;
 
@@ -167,7 +173,7 @@ std::vector<rviz_common::Display*> RvizFrameManager::getDisplays(const QString& 
       continue;
     };
 
-    if (display->getName() == name) {
+    if (display->getName() == _name) {
       res.push_back(display);
     }
   }

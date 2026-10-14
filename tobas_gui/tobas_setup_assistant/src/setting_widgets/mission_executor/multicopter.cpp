@@ -244,24 +244,24 @@ YAML::Node MulticopterWidget::dump() const
   return node;
 }
 
-void MulticopterWidget::load(const YAML::Node& node)
+void MulticopterWidget::load(const YAML::Node& _node)
 {
-  wp_max_hor_vel_->setValue(node[kWaypointMaxHorizontalVelocityParam].as<double>());
-  wp_max_hor_acc_->setValue(node[kWaypointMaxHorizontalAccelParam].as<double>());
-  wp_max_hor_jerk_->setValue(node[kWaypointMaxHorizontalJerkParam].as<double>());
-  wp_max_ver_vel_->setValue(node[kWaypointMaxVerticalVelocityParam].as<double>());
-  wp_max_ver_acc_->setValue(node[kWaypointMaxVerticalAccelParam].as<double>());
-  wp_max_ver_jerk_->setValue(node[kWaypointMaxVerticalJerkParam].as<double>());
-  wp_max_head_rate_->setValue(node[kWaypointMaxHeadingRateParam].as<int>());
-  wp_max_head_acc_->setValue(node[kWaypointMaxHeadingAccelParam].as<int>());
+  wp_max_hor_vel_->setValue(_node[kWaypointMaxHorizontalVelocityParam].as<double>());
+  wp_max_hor_acc_->setValue(_node[kWaypointMaxHorizontalAccelParam].as<double>());
+  wp_max_hor_jerk_->setValue(_node[kWaypointMaxHorizontalJerkParam].as<double>());
+  wp_max_ver_vel_->setValue(_node[kWaypointMaxVerticalVelocityParam].as<double>());
+  wp_max_ver_acc_->setValue(_node[kWaypointMaxVerticalAccelParam].as<double>());
+  wp_max_ver_jerk_->setValue(_node[kWaypointMaxVerticalJerkParam].as<double>());
+  wp_max_head_rate_->setValue(_node[kWaypointMaxHeadingRateParam].as<int>());
+  wp_max_head_acc_->setValue(_node[kWaypointMaxHeadingAccelParam].as<int>());
 
-  takeoff_max_speed_->setValue(node[kTakeoffMaxSpeedParam].as<double>());
-  takeoff_max_accel_->setValue(node[kTakeoffMaxAccelParam].as<double>());
-  takeoff_max_jerk_->setValue(node[kTakeoffMaxJerkParam].as<double>());
+  takeoff_max_speed_->setValue(_node[kTakeoffMaxSpeedParam].as<double>());
+  takeoff_max_accel_->setValue(_node[kTakeoffMaxAccelParam].as<double>());
+  takeoff_max_jerk_->setValue(_node[kTakeoffMaxJerkParam].as<double>());
 
-  land_speed_->setValue(node[kLandSpeedParam].as<double>());
+  land_speed_->setValue(_node[kLandSpeedParam].as<double>());
 
-  rtl_min_alt_->setValue(node[kRtlMinAltitudeParam].as<double>());
+  rtl_min_alt_->setValue(_node[kRtlMinAltitudeParam].as<double>());
 }
 
 bool MulticopterWidget::isValid()

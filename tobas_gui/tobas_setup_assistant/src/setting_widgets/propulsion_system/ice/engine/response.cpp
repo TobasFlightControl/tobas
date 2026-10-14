@@ -54,10 +54,10 @@ YAML::Node EngineResponseWidget::dump() const
   return node;
 }
 
-void EngineResponseWidget::load(const YAML::Node& node)
+void EngineResponseWidget::load(const YAML::Node& _node)
 {
-  time_const_up_->setValue(node[time_const_up_->name()].as<int>());
-  time_const_down_->setValue(node[time_const_down_->name()].as<int>());
+  time_const_up_->setValue(_node[time_const_up_->name()].as<int>());
+  time_const_down_->setValue(_node[time_const_down_->name()].as<int>());
 }
 
 double EngineResponseWidget::timeConstUp() const

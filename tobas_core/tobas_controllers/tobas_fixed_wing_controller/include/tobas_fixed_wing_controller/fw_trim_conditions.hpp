@@ -18,19 +18,19 @@ namespace fixed_wing
 class TrimConditions : public SolverI
 {
 public:
-  explicit TrimConditions(const Drone& drone, const kdl::Tree& tree);
+  explicit TrimConditions(const Drone& _drone, const kdl::Tree& _tree);
 
   void updateInternalDataStructures() override;
 
   /**
    * Update the internal state.
    *
-   * @param V Magnitude of aircraft velocity relative to wind speed [m/s].
-   * @param rho Air density [kg/m^3].
-   * @param q Joint angles [rad].
+   * @param _v Magnitude of aircraft velocity relative to wind speed [m/s].
+   * @param _rho Air density [kg/m^3].
+   * @param _q Joint angles [rad].
    * @return Error Error code
    */
-  int update(double V, double rho, const kdl::JntArray& q);
+  int update(double _v, double _rho, const kdl::JntArray& _q);
 
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
 
@@ -52,21 +52,21 @@ public:
   /** Speed in the X-axis direction [m/s]. */
   inline const double& u() const;
 
-  inline double minimumSpeed(double rho) const;
-  inline double maximumSpeed(double rho) const;
+  inline double minimumSpeed(double _rho) const;
+  inline double maximumSpeed(double _rho) const;
 
   /**
    * Range of velocity magnitudes that avoid stall.
    *
-   * @param rho Air density [kg/m^3].
+   * @param _rho Air density [kg/m^3].
    * @return st::Range<double> Range of velocity magnitudes.
    *
    * @see Blue book, p.85, (2.9-47, 2.9-49)
    */
-  st::Range<double> speedLimit(double rho) const;
+  st::Range<double> speedLimit(double _rho) const;
 
   /** Velocity at which enough lift to raise the aircraft is generated even when the angle of attack is zero. */
-  double takeOffSpeed(double rho) const;
+  double takeOffSpeed(double _rho) const;
 
 private:
   const Drone& drone_;
@@ -133,14 +133,14 @@ inline const double& TrimConditions::u() const
   return u_;
 }
 
-inline double TrimConditions::minimumSpeed(double rho) const
+inline double TrimConditions::minimumSpeed(double _rho) const
 {
-  return speedLimit(rho).lower;
+  return speedLimit(_rho).lower;
 }
 
-inline double TrimConditions::maximumSpeed(double rho) const
+inline double TrimConditions::maximumSpeed(double _rho) const
 {
-  return speedLimit(rho).upper;
+  return speedLimit(_rho).upper;
 }
 }  // namespace fixed_wing
 }  // namespace tobas

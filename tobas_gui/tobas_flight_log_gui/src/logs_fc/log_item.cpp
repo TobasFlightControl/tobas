@@ -15,9 +15,9 @@ namespace gui
 {
 namespace log
 {
-FlightLogItemWidgetFC::FlightLogItemWidgetFC(const QString& log_name)
+FlightLogItemWidgetFC::FlightLogItemWidgetFC(const QString& _log_name)
 {
-  log_name_ = new QLabel(log_name);
+  log_name_ = new QLabel(_log_name);
   log_name_->setFont(qt::DefaultFont(kPSize3));
 
   download_button_ = new QPushButton("Download");

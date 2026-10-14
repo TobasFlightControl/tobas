@@ -18,11 +18,11 @@ namespace camera
 class H264Decompressor : public BaseNode
 {
 public:
-  explicit H264Decompressor(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit H264Decompressor(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
-  void publishRawImg(const sensor_msgs::msg::Image::ConstSharedPtr& msg);
-  void callback(const ffmpeg_image_transport_msgs::msg::FFMPEGPacket::ConstSharedPtr& msg);
+  void publishRawImg(const sensor_msgs::msg::Image::ConstSharedPtr& _msg);
+  void callback(const ffmpeg_image_transport_msgs::msg::FFMPEGPacket::ConstSharedPtr& _msg);
 
   ros2::SubscriberPtr<ffmpeg_image_transport_msgs::msg::FFMPEGPacket> h264_sub_;
   ros2::PublisherPtr<sensor_msgs::msg::Image> raw_img_pub_;
@@ -31,8 +31,8 @@ private:
   ffmpeg_encoder_decoder::Decoder decoder_;
 };
 
-H264Decompressor::H264Decompressor(const rclcpp::NodeOptions& options)
-  : BaseNode("h264_decompressor", nodeOptions_Default(options))
+H264Decompressor::H264Decompressor(const rclcpp::NodeOptions& _options)
+  : BaseNode("h264_decompressor", nodeOptions_Default(_options))
 {
   const auto image_raw_topic = getStringParam("decoded_topic", "image_h264_decoded");
   const auto h264_topic = getStringParam("h264_topic", "image_h264");
@@ -41,37 +41,37 @@ H264Decompressor::H264Decompressor(const rclcpp::NodeOptions& options)
   h264_sub_ = createSubscriber(h264_topic, &H264Decompressor::callback, this);
 }
 
-void H264Decompressor::publishRawImg(const sensor_msgs::msg::Image::ConstSharedPtr& msg_ptr)
+void H264Decompressor::publishRawImg(const sensor_msgs::msg::Image::ConstSharedPtr& _msg_ptr)
 {
-  raw_img_pub_->publish(*msg_ptr);
+  raw_img_pub_->publish(*_msg_ptr);
 }
 
-void H264Decompressor::callback(const ffmpeg_image_transport_msgs::msg::FFMPEGPacket::ConstSharedPtr& msg)
+void H264Decompressor::callback(const ffmpeg_image_transport_msgs::msg::FFMPEGPacket::ConstSharedPtr& _msg)
 {
   if (decoder_.isInitialized()) {
     // Decode the packet directly once the decoder has been initialized.
     decoder_.decodePacket(
-      msg->encoding, &msg->data[0], msg->data.size(), msg->pts, msg->header.frame_id, msg->header.stamp);
+      _msg->encoding, &_msg->data[0], _msg->data.size(), _msg->pts, _msg->header.frame_id, _msg->header.stamp);
     return;
   }
 
   // Initialize the decoder when the first key frame arrives.
-  if (msg->flags == 0) {
+  if (_msg->flags == 0) {
     return;  // Wait for a key frame.
   }
 
-  if (msg->encoding.empty()) {
+  if (_msg->encoding.empty()) {
     TOBAS_ERROR("no encoding provided!");
     return;
   }
 
-  if (!decoder_.initialize(msg->encoding, std::bind(&H264Decompressor::publishRawImg, this, _1), "h264")) {
+  if (!decoder_.initialize(_msg->encoding, std::bind(&H264Decompressor::publishRawImg, this, _1), "h264")) {
     TOBAS_ERROR("cannot initialize decoder: h264");
     return;
   }
 
   decoder_.decodePacket(
-    msg->encoding, &msg->data[0], msg->data.size(), msg->pts, msg->header.frame_id, msg->header.stamp);
+    _msg->encoding, &_msg->data[0], _msg->data.size(), _msg->pts, _msg->header.frame_id, _msg->header.stamp);
 }
 }  // namespace camera
 }  // namespace tobas

@@ -25,20 +25,20 @@ class ComboBox : public QComboBox
 public:
   using super::QComboBox;
 
-  void wheelEvent(QWheelEvent* event) override;
+  void wheelEvent(QWheelEvent* _event) override;
 
-  bool contains(const QString& text) const;
+  bool contains(const QString& _text) const;
 
-  void removeText(const QString& text);
+  void removeText(const QString& _text);
 
-  void setItemEnabled(int row, bool enabled);
-  void setItemEnabled(const QString& text, bool enabled);
+  void setItemEnabled(int _row, bool _enabled);
+  void setItemEnabled(const QString& _text, bool _enabled);
 
   void sort();
 
 public Q_SLOTS:
-  void setCurrentIndex(int index);
-  void setCurrentText(const QString& text);
+  void setCurrentIndex(int _index);
+  void setCurrentText(const QString& _text);
 };
 }  // namespace qt
 }  // namespace tobas

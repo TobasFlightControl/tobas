@@ -63,16 +63,16 @@ public:
 
   explicit ISM330DLC();
 
-  bool initialize(const char* spi_device);
+  bool initialize(const char* _spi_device);
 
-  bool setAccelOutputDataRate(odr_xl_t odr);
-  bool setGyroOutputDataRate(odr_g_t odr);
+  bool setAccelOutputDataRate(odr_xl_t _odr);
+  bool setGyroOutputDataRate(odr_g_t _odr);
 
-  bool setAccelFullScale(fs_xl_t fs);
-  bool setGyroFullScale(fs_g_t fs);
+  bool setAccelFullScale(fs_xl_t _fs);
+  bool setGyroFullScale(fs_g_t _fs);
 
   /** Read the current acceleration [m/s^2] and gyro [rad/s]. */
-  bool readImu(double& ax, double& ay, double& az, double& gx, double& gy, double& gz);
+  bool readImu(double& _ax, double& _ay, double& _az, double& _gx, double& _gy, double& _gz);
 
 private:
   static constexpr size_t kImuDataSize = 6 * 2;  ///< Gyro + Accel
@@ -246,10 +246,10 @@ private:
   uint8_t res_[kImuDataSize];  ///< The results of readRegs are stored.
 
   /** 6.5.1: SPI read (p.27) */
-  bool readRegs(uint8_t addr, size_t bytes);
+  bool readRegs(uint8_t _addr, size_t _bytes);
 
   /** 6.5.2: SPI write (p.28) */
-  bool writeReg(uint8_t addr, uint8_t data);
+  bool writeReg(uint8_t _addr, uint8_t _data);
 
   bool checkWhoAmI();
 };

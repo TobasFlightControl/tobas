@@ -18,7 +18,7 @@ class RestartButton : public QPushButton
   using super = QPushButton;
 
 public:
-  explicit RestartButton(int radius);
+  explicit RestartButton(int _radius);
 };
 }  // namespace gcs
 }  // namespace gui

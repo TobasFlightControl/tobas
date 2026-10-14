@@ -31,17 +31,17 @@ void PropellerPitchPlotWidget::clear()
   name2idx_.clear();
 }
 
-void PropellerPitchPlotWidget::setTimeScale(double t_start, double t_stop)
+void PropellerPitchPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
   for (auto& plot : plots_) {
-    plot->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+    plot->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
   }
 }
 
-void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& msgs)
+void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& _msgs)
 {
-  if (msgs.size() > 0) {
-    const auto& first_msg = msgs.first();
+  if (_msgs.size() > 0) {
+    const auto& first_msg = _msgs.first();
     if (first_msg.pitch_angles.size() != num_rotors_) {
       if (!updateInternalDataStructures(first_msg)) {
         return;
@@ -53,7 +53,7 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
   QVector<QVector<double>> pitch_data(num_rotors_);
   VerticalScaleRange range;
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     if (msg.pitch_angles.size() != num_rotors_) {
       qWarning() << "The number of VPPs mismatch.";
       continue;
@@ -85,11 +85,11 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
   }
 }
 
-bool PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::IcePropulsionSystemCommand& msg)
+bool PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::IcePropulsionSystemCommand& _msg)
 {
   clear();
 
-  for (const auto& [idx, elem] : std::views::enumerate(msg.pitch_angles)) {
+  for (const auto& [idx, elem] : std::views::enumerate(_msg.pitch_angles)) {
     if (elem.link_name.empty()) {
       qWarning() << "Rotor link name is empty.";
       return false;

@@ -19,16 +19,16 @@ namespace fixed_wing
 class StabilityDerivativesCG : public SolverI
 {
 public:
-  explicit StabilityDerivativesCG(const Drone& drone, const kdl::Tree& tree);
+  explicit StabilityDerivativesCG(const Drone& _drone, const kdl::Tree& _tree);
 
   void updateInternalDataStructures() override;
 
-  int update(const kdl::JntArray& q);
+  int update(const kdl::JntArray& _q);
 
   inline const double& cPitchAlpha() const;
   inline const double& cYawBeta() const;
-  inline const double& cPitchDelta(const std::string& link_name) const;
-  inline const double& cYawDelta(const std::string& link_name) const;
+  inline const double& cPitchDelta(const std::string& _link_name) const;
+  inline const double& cYawDelta(const std::string& _link_name) const;
 
 private:
   const Drone& drone_;
@@ -52,14 +52,14 @@ inline const double& StabilityDerivativesCG::cYawBeta() const
   return c_yaw_beta_cg_;
 }
 
-inline const double& StabilityDerivativesCG::cPitchDelta(const std::string& link_name) const
+inline const double& StabilityDerivativesCG::cPitchDelta(const std::string& _link_name) const
 {
-  return c_pitch_delta_cg_.at(link_name);
+  return c_pitch_delta_cg_.at(_link_name);
 }
 
-inline const double& StabilityDerivativesCG::cYawDelta(const std::string& link_name) const
+inline const double& StabilityDerivativesCG::cYawDelta(const std::string& _link_name) const
 {
-  return c_yaw_delta_cg_.at(link_name);
+  return c_yaw_delta_cg_.at(_link_name);
 }
 }  // namespace fixed_wing
 }  // namespace tobas

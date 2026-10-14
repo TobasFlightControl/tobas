@@ -15,7 +15,7 @@ namespace gui
 {
 namespace ctrl
 {
-StatusWidget::StatusWidget(const QString& text)
+StatusWidget::StatusWidget(const QString& _text)
 {
   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
@@ -23,7 +23,7 @@ StatusWidget::StatusWidget(const QString& text)
   status_->setAlignment(Qt::AlignCenter);
   status_->setFixedWidth(40);
 
-  label_ = new qt::Label(text, 12);
+  label_ = new qt::Label(_text, 12);
 
   reset();
 
@@ -38,9 +38,9 @@ void StatusWidget::reset()
   setStatusText("---", palette().color(QPalette::Disabled, QPalette::WindowText));
 }
 
-void StatusWidget::setStatus(Status status)
+void StatusWidget::setStatus(Status _status)
 {
-  switch (status) {
+  switch (_status) {
     case PASSED:
       setStatusText("OK", Qt::darkGreen);
       break;
@@ -54,29 +54,29 @@ void StatusWidget::setStatus(Status status)
       reset();
       break;
     default:
-      qWarning() << "Unknown status:" << status;
+      qWarning() << "Unknown status:" << _status;
       reset();
       break;
   }
 }
 
-void StatusWidget::setStatus(uint8_t status)
+void StatusWidget::setStatus(uint8_t _status)
 {
-  setStatus(static_cast<Status>(status));
+  setStatus(static_cast<Status>(_status));
 }
 
-void StatusWidget::setStatus(bool ok)
+void StatusWidget::setStatus(bool _ok)
 {
-  const auto status = ok ? PASSED : FAILED;
+  const auto status = _ok ? PASSED : FAILED;
   setStatus(status);
 }
 
-void StatusWidget::setStatusText(const QString& text, const QColor& color)
+void StatusWidget::setStatusText(const QString& _text, const QColor& _color)
 {
-  status_->setText(text);
+  status_->setText(_text);
 
   auto pal = status_->palette();
-  pal.setColor(QPalette::WindowText, color);
+  pal.setColor(QPalette::WindowText, _color);
   status_->setPalette(pal);
 }
 }  // namespace ctrl

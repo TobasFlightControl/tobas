@@ -13,13 +13,13 @@ namespace tobas
 namespace qt
 {
 /** boolean -> "true" or "false" */
-QString boolToText(bool arg);
+QString boolToText(bool _arg);
 
-QStringList stringListFromStdToQt(const std::vector<std::string>& src);
-std::vector<std::string> stringListFromQtToStd(const QStringList& src);
+QStringList stringListFromStdToQt(const std::vector<std::string>& _src);
+std::vector<std::string> stringListFromQtToStd(const QStringList& _src);
 
-bool isControlChar(const QChar& c);
+bool isControlChar(const QChar& _c);
 
-bool containsControlChars(const QStringView& s);
+bool containsControlChars(const QStringView& _s);
 }  // namespace qt
 }  // namespace tobas

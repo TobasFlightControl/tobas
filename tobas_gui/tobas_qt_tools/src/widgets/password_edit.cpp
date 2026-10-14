@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace qt
 {
-PasswordEdit::PasswordEdit(QWidget* parent) : super(parent)
+PasswordEdit::PasswordEdit(QWidget* _parent) : super(_parent)
 {
   const auto rsrc_path = getResourcePath();
   eye_on_ = QIcon(rsrc_path + "/eye_on.png");
@@ -41,17 +41,17 @@ void PasswordEdit::reset()
   hideText();
 }
 
-void PasswordEdit::setMode(bool on)
+void PasswordEdit::setMode(bool _on)
 {
-  setEchoMode(on ? QLineEdit::Normal : QLineEdit::Password);
-  toggle_->setIcon(on ? eye_on_ : eye_off_);
-  toggle_->setToolTip(on ? "Hide password" : "Show password");
+  setEchoMode(_on ? QLineEdit::Normal : QLineEdit::Password);
+  toggle_->setIcon(_on ? eye_on_ : eye_off_);
+  toggle_->setToolTip(_on ? "Hide password" : "Show password");
 }
 
-void PasswordEdit::onIconToggled(bool on)
+void PasswordEdit::onIconToggled(bool _on)
 {
   const auto cursor_pos = cursorPosition();  // Keep the cursor position.
-  setMode(on);
+  setMode(_on);
   setCursorPosition(cursor_pos);
 }
 }  // namespace qt

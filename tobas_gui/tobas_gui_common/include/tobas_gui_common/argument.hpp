@@ -20,7 +20,7 @@ namespace cmn
 class NonRosArgumentParser
 {
 public:
-  explicit NonRosArgumentParser(int argc, char** argv);
+  explicit NonRosArgumentParser(int _argc, char** _argv);
 
   int& argc();
   char** argv();

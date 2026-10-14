@@ -15,45 +15,45 @@ class CycloidGenerator3d
 public:
   explicit CycloidGenerator3d();
 
-  void generate(const kdl::Vector& p0, const kdl::Vector& pf, double T, double h, double k = 5.0);
+  void generate(const kdl::Vector& _p0, const kdl::Vector& _pf, double _t, double _h, double _k = 5.0);
 
   /**
    * Get the trajectory at time `t`.
    *
-   * @param t Time from the start point.
-   * @param r Rotation from the frame to view to the planning frame.
-   * @param p Position at time `t`.
-   * @param v Velocity at time `t`.
-   * @param a Acceleration at time `t`.
+   * @param _t Time from the start point.
+   * @param _r Rotation from the frame to view to the planning frame.
+   * @param _p Position at time `t`.
+   * @param _v Velocity at time `t`.
+   * @param _a Acceleration at time `t`.
    */
-  void get(double t, const kdl::Rotation& r, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
+  void get(double _t, const kdl::Rotation& _r, kdl::Vector& _p, kdl::Vector& _v, kdl::Vector& _a) const;
 
   /**
    * Get the trajectory at time `t`.
    *
-   * @param t Time from the start point.
-   * @param p Position at time `t`.
-   * @param v Velocity at time `t`.
-   * @param a Acceleration at time `t`.
+   * @param _t Time from the start point.
+   * @param _p Position at time `t`.
+   * @param _v Velocity at time `t`.
+   * @param _a Acceleration at time `t`.
    */
-  void get(double t, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
+  void get(double _t, kdl::Vector& _p, kdl::Vector& _v, kdl::Vector& _a) const;
 
   /**
    * Get the trajectory at time `t`.
    *
-   * @param t Time from the start point.
-   * @param p Position at time `t`.
-   * @param v Velocity at time `t`.
+   * @param _t Time from the start point.
+   * @param _p Position at time `t`.
+   * @param _v Velocity at time `t`.
    */
-  void get(double t, kdl::Vector& p, kdl::Vector& v) const;
+  void get(double _t, kdl::Vector& _p, kdl::Vector& _v) const;
 
   /**
    * Get the trajectory at time `t`.
    *
-   * @param t Time from the start point.
-   * @param p Position at time `t`.
+   * @param _t Time from the start point.
+   * @param _p Position at time `t`.
    */
-  void get(double t, kdl::Vector& p) const;
+  void get(double _t, kdl::Vector& _p) const;
 
 private:
   kdl::Vector p0_;
@@ -66,11 +66,11 @@ private:
   kdl::Vector p_diff_;
   const kdl::Rotation r0_;  ///< Identity matrix
 
-  void getPos(double t, const kdl::Rotation& r, kdl::Vector& p) const;
-  void getVel(double t, const kdl::Rotation& r, kdl::Vector& v) const;
-  void getAcc(double t, const kdl::Rotation& r, kdl::Vector& a) const;
+  void getPos(double _t, const kdl::Rotation& _r, kdl::Vector& _p) const;
+  void getVel(double _t, const kdl::Rotation& _r, kdl::Vector& _v) const;
+  void getAcc(double _t, const kdl::Rotation& _r, kdl::Vector& _a) const;
 
-  double computeTheta(double t) const;
+  double computeTheta(double _t) const;
 };
 }  // namespace kdl
 }  // namespace tobas

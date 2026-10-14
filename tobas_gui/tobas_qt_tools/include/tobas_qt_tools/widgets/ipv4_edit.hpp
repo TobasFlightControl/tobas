@@ -21,7 +21,7 @@ class IPv4Edit : public QWidget
   static constexpr size_t kNumFields = 4;
 
 public:
-  explicit IPv4Edit(QWidget* parent = nullptr);
+  explicit IPv4Edit(QWidget* _parent = nullptr);
 
   void clear();
 
@@ -32,16 +32,16 @@ public:
   /** xxx.xxx.xxx.xxx */
   QString toString() const;
 
-  void setFromInt(uint32_t address);
+  void setFromInt(uint32_t _address);
 
 protected:
-  bool eventFilter(QObject* watched, QEvent* event) override;
+  bool eventFilter(QObject* _watched, QEvent* _event) override;
 
 private:
   std::array<QLineEdit*, kNumFields> fields_;
 
-  uint8_t getFieldValue(size_t idx) const;
-  void setFieldValue(size_t idx, uint8_t value);
+  uint8_t getFieldValue(size_t _idx) const;
+  void setFieldValue(size_t _idx, uint8_t _value);
 };
 }  // namespace qt
 }  // namespace tobas

@@ -22,7 +22,7 @@ class LandingDetectorNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit LandingDetectorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit LandingDetectorNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   bool landed_ = true;
@@ -40,17 +40,17 @@ private:
 
   ros2::TimerPtr publish_timer_;
 
-  void publishCurrentLandedState(const builtin_interfaces::msg::Time& stamp);
-  void changeState(bool landed, const builtin_interfaces::msg::Time& stamp);
+  void publishCurrentLandedState(const builtin_interfaces::msg::Time& _stamp);
+  void changeState(bool _landed, const builtin_interfaces::msg::Time& _stamp);
 
-  void treeCb(const kdl::Tree::ConstSharedPtr& tree);
-  void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
+  void treeCb(const kdl::Tree::ConstSharedPtr& _tree);
+  void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& _dist_force);
 
   void publishTimerCb();
 };
 
-LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
-  : super("landing_detector", nodeOptions_Default(options)), mass_holder_(tree_)
+LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& _options)
+  : super("landing_detector", nodeOptions_Default(_options)), mass_holder_(tree_)
 {
   constexpr double kDistForceLpfCutoff = 1.0;  // [Hz]
   force_z_lpf_.setCutoffFrequency(kDistForceLpfCutoff);
@@ -61,30 +61,30 @@ LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& options)
   dist_force_sub_ = createSubscriber(topic::kDisturbanceForce, &self::disturbanceForceCb, this);
 }
 
-void LandingDetectorNode::publishCurrentLandedState(const builtin_interfaces::msg::Time& stamp)
+void LandingDetectorNode::publishCurrentLandedState(const builtin_interfaces::msg::Time& _stamp)
 {
   auto msg = std::make_unique<tobas_msgs::msg::LandedState>();
-  msg->header.stamp = stamp;
+  msg->header.stamp = _stamp;
   msg->landed = landed_;
   landed_pub_->publish(std::move(msg));
 }
 
-void LandingDetectorNode::changeState(bool landed, const builtin_interfaces::msg::Time& stamp)
+void LandingDetectorNode::changeState(bool _landed, const builtin_interfaces::msg::Time& _stamp)
 {
-  landed_ = landed;
-  t_last_no_change_ = stamp;
-  publishCurrentLandedState(stamp);
+  landed_ = _landed;
+  t_last_no_change_ = _stamp;
+  publishCurrentLandedState(_stamp);
   publish_timer_->reset();
 }
 
-void LandingDetectorNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
+void LandingDetectorNode::treeCb(const kdl::Tree::ConstSharedPtr& _tree)
 {
-  tree_ = *tree;
+  tree_ = *_tree;
 
   mass_holder_.updateInternalDataStructures();
 }
 
-void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force)
+void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& _dist_force)
 {
   // Verify that the KDL tree has been received.
   if (tree_.empty()) {
@@ -92,27 +92,27 @@ void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped
   }
 
   // Get the latest vertical force wrt. the world frame.
-  const auto& force_z = dist_force->wrench.force.z();
+  const auto& force_z = _dist_force->wrench.force.z();
 
   // First message
   if (!dist_force_) {
-    dist_force_ = dist_force;
-    t_last_no_change_ = dist_force->header.stamp;
+    dist_force_ = _dist_force;
+    t_last_no_change_ = _dist_force->header.stamp;
     force_z_lpf_.setValue(force_z);
     publish_timer_ = createTimer(1s, &self::publishTimerCb, this);
     return;
   }
 
   // Smooth the vertical force.
-  const auto dt = (dist_force->header.stamp - dist_force_->header.stamp).seconds();
+  const auto dt = (_dist_force->header.stamp - dist_force_->header.stamp).seconds();
   force_z_lpf_.update(force_z, dt);
 
   // Update the latest message.
-  dist_force_ = dist_force;
+  dist_force_ = _dist_force;
 
   // Change the takeoff/landing state if the upward external force (ground reaction force)
   // stays beyond the threshold ratio to weight for a fixed time.
-  const auto& cur_time = dist_force->header.stamp;
+  const auto& cur_time = _dist_force->header.stamp;
   const auto& force_z_filt = force_z_lpf_.getValue();
   const auto weight = mass_holder_.getMass() * st::kGravity;
   if (landed_) {

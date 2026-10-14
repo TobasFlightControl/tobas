@@ -82,17 +82,17 @@ void GnssPlotWidget::clear()
   up_speed_plot_->replot();
 }
 
-void GnssPlotWidget::setTimeScale(double t_start, double t_stop)
+void GnssPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
-  latitude_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  longitude_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  altitude_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  east_speed_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  north_speed_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
-  up_speed_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+  latitude_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  longitude_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  altitude_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  east_speed_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  north_speed_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
+  up_speed_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
 }
 
-void GnssPlotWidget::setData(const QVector<tobas_msgs::msg::Gnss>& gnss_msgs)
+void GnssPlotWidget::setData(const QVector<tobas_msgs::msg::Gnss>& _gnss_msgs)
 {
   QVector<double> t_data;
   QVector<double> latitude_data;
@@ -102,7 +102,7 @@ void GnssPlotWidget::setData(const QVector<tobas_msgs::msg::Gnss>& gnss_msgs)
   QVector<double> north_speed_data;
   QVector<double> up_speed_data;
 
-  for (const auto& gnss : gnss_msgs) {
+  for (const auto& gnss : _gnss_msgs) {
     if (gnss.fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
       continue;
     }

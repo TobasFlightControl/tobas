@@ -26,14 +26,14 @@ BaseNode::~BaseNode()
   }
 }
 
-void BaseNode::initialize(const std::string& name, const sdf::ElementConstPtr& sdf)
+void BaseNode::initialize(const std::string& _name, const sdf::ElementConstPtr& _sdf)
 {
-  gzmsg << "Initializing '" << name << "'." << std::endl;
+  gzmsg << "Initializing '" << _name << "'." << std::endl;
 
-  name_ = name;
+  name_ = _name;
 
-  if (!sdf->Get<std::string>("robotNamespace", ns_, "/")) {
-    gzwarn << "[" << name << "] Namespace is not specified." << std::endl;
+  if (!_sdf->Get<std::string>("robotNamespace", ns_, "/")) {
+    gzwarn << "[" << _name << "] Namespace is not specified." << std::endl;
   }
 
   if (!rclcpp::ok()) {
@@ -47,7 +47,7 @@ void BaseNode::initialize(const std::string& name, const sdf::ElementConstPtr& s
   options.start_parameter_event_publisher(false);
   options.append_parameter_override("start_type_description_service", false);
 
-  node_ = rclcpp::Node::make_shared(name, ns_, options);
+  node_ = rclcpp::Node::make_shared(_name, ns_, options);
 
   // The executor constructor creates a guard condition using the ROS context,
   // so defer construction until after `rclcpp::init()` has initialized that context.
@@ -68,33 +68,33 @@ const std::string& BaseNode::ns() const
   return ns_;
 }
 
-void BaseNode::gazeboLog(uint8_t level, const std::string& text) const
+void BaseNode::gazeboLog(uint8_t _level, const std::string& _text) const
 {
-  switch (level) {
+  switch (_level) {
     case tobas_msgs::msg::Message::LEVEL_DEBUG:
-      tbsdbg << text << std::endl;
+      tbsdbg << _text << std::endl;
       break;
     case tobas_msgs::msg::Message::LEVEL_INFO:
-      tbsmsg << text << std::endl;
+      tbsmsg << _text << std::endl;
       break;
     case tobas_msgs::msg::Message::LEVEL_WARN:
-      tbswarn << text << std::endl;
+      tbswarn << _text << std::endl;
       break;
     case tobas_msgs::msg::Message::LEVEL_ERROR:
-      tbserr << text << std::endl;
+      tbserr << _text << std::endl;
       break;
     case tobas_msgs::msg::Message::LEVEL_FATAL:
-      tbserr << text << std::endl;
+      tbserr << _text << std::endl;
       break;
     default:
-      tbserr << "Invalid log level: " << static_cast<int>(level) << std::endl;
+      tbserr << "Invalid log level: " << static_cast<int>(_level) << std::endl;
       break;
   }
 }
 
-std::string BaseNode::createID(const char* file, int line)
+std::string BaseNode::createID(const char* _file, int _line)
 {
-  return std::string(file) + ":" + std::to_string(line);
+  return std::string(_file) + ":" + std::to_string(_line);
 }
 }  // namespace gazebo
 }  // namespace tobas

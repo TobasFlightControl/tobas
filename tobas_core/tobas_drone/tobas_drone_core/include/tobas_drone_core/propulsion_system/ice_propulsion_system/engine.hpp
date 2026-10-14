@@ -21,15 +21,15 @@ public:
 
   std::expected<void, std::string> validate() const;
 
-  std::expected<void, std::string> load(const YAML::Node& node);
+  std::expected<void, std::string> load(const YAML::Node& _node);
   YAML::Node dump() const;
 
   /** Compute engine torque [Nm] from speed [rad/s] and throttle [0, 1]. */
-  double computeTorque(double speed, double throttle);
+  double computeTorque(double _speed, double _throttle);
 
   /** Compute engine throttle [0, 1] from torque [N] and speed [rad/s]. */
-  double computeThrottle(double torque, double speed);
+  double computeThrottle(double _torque, double _speed);
 
-  friend std::ostream& operator<<(std::ostream& os, const EngineConfig& arg);
+  friend std::ostream& operator<<(std::ostream& _os, const EngineConfig& _arg);
 };
 }  // namespace tobas

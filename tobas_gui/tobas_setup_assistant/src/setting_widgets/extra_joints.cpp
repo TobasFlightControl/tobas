@@ -40,7 +40,7 @@ constexpr char kCmdIfaceLabel_Effort[] = "Effort";
 constexpr char kCmdIfaceLabel_None[] = "None";
 }  // namespace
 
-ExtraJointsWidget::ExtraJointsWidget(const uadf::Model& uadf, const kdl::Tree& tree) : uadf_(uadf), tree_(tree)
+ExtraJointsWidget::ExtraJointsWidget(const uadf::Model& _uadf, const kdl::Tree& _tree) : uadf_(_uadf), tree_(_tree)
 {
   table_ = new qt::TableWidget(0, kNumCols);
   table_->setHeaderSectionsClickable(false);
@@ -131,10 +131,10 @@ YAML::Node ExtraJointsWidget::dump() const
   return node;
 }
 
-void ExtraJointsWidget::load(const YAML::Node& node)
+void ExtraJointsWidget::load(const YAML::Node& _node)
 {
   // Set each field value and enabled state.
-  for (const auto& pair : node) {
+  for (const auto& pair : _node) {
     const auto link_name = pair.first.as<QString>();
     const auto& sub_node = pair.second;
 
@@ -146,19 +146,19 @@ void ExtraJointsWidget::load(const YAML::Node& node)
   }
 }
 
-QString ExtraJointsWidget::getLinkName(int row) const
+QString ExtraJointsWidget::getLinkName(int _row) const
 {
-  return linkNameWidget(row)->text();
+  return linkNameWidget(_row)->text();
 }
 
-QString ExtraJointsWidget::getJointName(int row) const
+QString ExtraJointsWidget::getJointName(int _row) const
 {
-  return jointNameWidget(row)->text();
+  return jointNameWidget(_row)->text();
 }
 
-JointCommandInterface ExtraJointsWidget::getCommandInterface(int row) const
+JointCommandInterface ExtraJointsWidget::getCommandInterface(int _row) const
 {
-  const auto text = commandIfaceWidget(row)->currentText();
+  const auto text = commandIfaceWidget(_row)->currentText();
 
   if (text == kCmdIfaceLabel_Position) {
     return JointCommandInterface::kPosition;
@@ -177,21 +177,21 @@ JointCommandInterface ExtraJointsWidget::getCommandInterface(int row) const
   }
 }
 
-JointRole ExtraJointsWidget::getRole(int row) const
+JointRole ExtraJointsWidget::getRole(int _row) const
 {
-  const auto cmd_iface = getCommandInterface(row);
+  const auto cmd_iface = getCommandInterface(_row);
   return cmd_iface == JointCommandInterface::kNone ? JointRole::kUserPassive : JointRole::kUserActive;
 }
 
-double ExtraJointsWidget::getHomePosition(int row) const
+double ExtraJointsWidget::getHomePosition(int _row) const
 {
-  return st::deg2rad(homePositionWidget(row)->value());
+  return st::deg2rad(homePositionWidget(_row)->value());
 }
 
-void ExtraJointsWidget::setCommandInterface(int row, JointCommandInterface value)
+void ExtraJointsWidget::setCommandInterface(int _row, JointCommandInterface _value)
 {
   QString text;
-  switch (value) {
+  switch (_value) {
     case JointCommandInterface::kPosition:
       text = kCmdIfaceLabel_Position;
       break;
@@ -208,12 +208,12 @@ void ExtraJointsWidget::setCommandInterface(int row, JointCommandInterface value
       throw;
   }
 
-  commandIfaceWidget(row)->setCurrentText(text);
+  commandIfaceWidget(_row)->setCurrentText(text);
 }
 
-void ExtraJointsWidget::setHomePosition(int row, double value)
+void ExtraJointsWidget::setHomePosition(int _row, double _value)
 {
-  homePositionWidget(row)->setValue(std::round(st::rad2deg(value)));
+  homePositionWidget(_row)->setValue(std::round(st::rad2deg(_value)));
 }
 
 int ExtraJointsWidget::numJoints() const
@@ -221,68 +221,68 @@ int ExtraJointsWidget::numJoints() const
   return table_->rowCount();
 }
 
-int ExtraJointsWidget::findLink(const QString& link_name) const
+int ExtraJointsWidget::findLink(const QString& _link_name) const
 {
   for (int row = 0; row < table_->rowCount(); ++row) {
-    if (getLinkName(row) == link_name) {
+    if (getLinkName(row) == _link_name) {
       return row;
     }
   }
 
-  qWarning() << "Link" << link_name << "not found.";
+  qWarning() << "Link" << _link_name << "not found.";
   return -1;
 }
 
-int ExtraJointsWidget::findJoint(const QString& joint_name) const
+int ExtraJointsWidget::findJoint(const QString& _joint_name) const
 {
   for (int row = 0; row < table_->rowCount(); ++row) {
-    if (getJointName(row) == joint_name) {
+    if (getJointName(row) == _joint_name) {
       return row;
     }
   }
 
-  qWarning() << "Joint" << joint_name << "not found.";
+  qWarning() << "Joint" << _joint_name << "not found.";
   return -1;
 }
 
-QLabel* ExtraJointsWidget::linkNameWidget(int row)
+QLabel* ExtraJointsWidget::linkNameWidget(int _row)
 {
-  return qt::qPointerCast<QLabel>(table_->cellWidget(row, kLinkNameCol));
+  return qt::qPointerCast<QLabel>(table_->cellWidget(_row, kLinkNameCol));
 }
 
-const QLabel* ExtraJointsWidget::linkNameWidget(int row) const
+const QLabel* ExtraJointsWidget::linkNameWidget(int _row) const
 {
-  return qt::qConstPointerCast<QLabel>(table_->cellWidget(row, kLinkNameCol));
+  return qt::qConstPointerCast<QLabel>(table_->cellWidget(_row, kLinkNameCol));
 }
 
-QLabel* ExtraJointsWidget::jointNameWidget(int row)
+QLabel* ExtraJointsWidget::jointNameWidget(int _row)
 {
-  return qt::qPointerCast<QLabel>(table_->cellWidget(row, kJointNameCol));
+  return qt::qPointerCast<QLabel>(table_->cellWidget(_row, kJointNameCol));
 }
 
-const QLabel* ExtraJointsWidget::jointNameWidget(int row) const
+const QLabel* ExtraJointsWidget::jointNameWidget(int _row) const
 {
-  return qt::qConstPointerCast<QLabel>(table_->cellWidget(row, kJointNameCol));
+  return qt::qConstPointerCast<QLabel>(table_->cellWidget(_row, kJointNameCol));
 }
 
-qt::ComboBox* ExtraJointsWidget::commandIfaceWidget(int row)
+qt::ComboBox* ExtraJointsWidget::commandIfaceWidget(int _row)
 {
-  return qt::qPointerCast<qt::ComboBox>(table_->cellWidget(row, kCmdIfaceCol));
+  return qt::qPointerCast<qt::ComboBox>(table_->cellWidget(_row, kCmdIfaceCol));
 }
 
-const qt::ComboBox* ExtraJointsWidget::commandIfaceWidget(int row) const
+const qt::ComboBox* ExtraJointsWidget::commandIfaceWidget(int _row) const
 {
-  return qt::qConstPointerCast<qt::ComboBox>(table_->cellWidget(row, kCmdIfaceCol));
+  return qt::qConstPointerCast<qt::ComboBox>(table_->cellWidget(_row, kCmdIfaceCol));
 }
 
-qt::SpinBox* ExtraJointsWidget::homePositionWidget(int row)
+qt::SpinBox* ExtraJointsWidget::homePositionWidget(int _row)
 {
-  return qt::qPointerCast<qt::SpinBox>(table_->cellWidget(row, kHomePosCol));
+  return qt::qPointerCast<qt::SpinBox>(table_->cellWidget(_row, kHomePosCol));
 }
 
-const qt::SpinBox* ExtraJointsWidget::homePositionWidget(int row) const
+const qt::SpinBox* ExtraJointsWidget::homePositionWidget(int _row) const
 {
-  return qt::qConstPointerCast<qt::SpinBox>(table_->cellWidget(row, kHomePosCol));
+  return qt::qConstPointerCast<qt::SpinBox>(table_->cellWidget(_row, kHomePosCol));
 }
 
 void ExtraJointsWidget::clear()
@@ -290,30 +290,30 @@ void ExtraJointsWidget::clear()
   table_->removeAll();
 }
 
-void ExtraJointsWidget::reset(int row)
+void ExtraJointsWidget::reset(int _row)
 {
-  const auto cmd_iface = commandIfaceWidget(row);
+  const auto cmd_iface = commandIfaceWidget(_row);
   if (cmd_iface->isEnabled()) {
     cmd_iface->setCurrentText(kCmdIfaceLabel_Position);
   }
 
-  const auto home_pos = homePositionWidget(row);
+  const auto home_pos = homePositionWidget(_row);
   if (home_pos->isEnabled()) {
     home_pos->setValue(0);
   }
 }
 
-void ExtraJointsWidget::addLink(const std::string& link_name)
+void ExtraJointsWidget::addLink(const std::string& _link_name)
 {
   const auto row = table_->rowCount();
 
-  const auto seg_it = tree_.getSegment(link_name);
+  const auto seg_it = tree_.getSegment(_link_name);
   const auto& joint = seg_it->second.segment.joint();
   const auto& joint_name = joint.name;
   TOBAS_CHECK(joint.type == kdl::Joint::kRotation);
 
   // Name
-  const auto link_name_label = new QLabel(QString::fromStdString(link_name));
+  const auto link_name_label = new QLabel(QString::fromStdString(_link_name));
   const auto joint_name_label = new QLabel(QString::fromStdString(joint_name));
 
   // Command Interface

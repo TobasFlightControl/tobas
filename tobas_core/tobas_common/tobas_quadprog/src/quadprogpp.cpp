@@ -7,51 +7,51 @@
 
 namespace quadprogpp
 {
-void matrixEigenToQp(const Eigen::MatrixXd& e, Matrix<double>& q)
+void matrixEigenToQp(const Eigen::MatrixXd& _e, Matrix<double>& _q)
 {
-  if (q.nrows() != e.rows() || q.ncols() != e.cols()) {
-    q.resize(e.rows(), e.cols());
+  if (_q.nrows() != _e.rows() || _q.ncols() != _e.cols()) {
+    _q.resize(_e.rows(), _e.cols());
   }
 
-  for (Eigen::Index i = 0; i < e.rows(); ++i) {
-    for (Eigen::Index j = 0; j < e.cols(); ++j) {
-      q[i][j] = e(i, j);
+  for (Eigen::Index i = 0; i < _e.rows(); ++i) {
+    for (Eigen::Index j = 0; j < _e.cols(); ++j) {
+      _q[i][j] = _e(i, j);
     }
   }
 }
 
-void matrixQpToEigen(const Matrix<double>& q, Eigen::MatrixXd& e)
+void matrixQpToEigen(const Matrix<double>& _q, Eigen::MatrixXd& _e)
 {
   // Eigen cannot be resized casually here, so ensure the argument already has the correct size.
-  assert(e.rows() == q.nrows() && e.cols() == q.ncols());
+  assert(_e.rows() == _q.nrows() && _e.cols() == _q.ncols());
 
-  for (Eigen::Index i = 0; i < e.rows(); ++i) {
-    for (Eigen::Index j = 0; j < e.cols(); ++j) {
-      e(i, j) = q[i][j];
+  for (Eigen::Index i = 0; i < _e.rows(); ++i) {
+    for (Eigen::Index j = 0; j < _e.cols(); ++j) {
+      _e(i, j) = _q[i][j];
     }
   }
 }
 
-void vectorEigenToQp(const Eigen::VectorXd& e, Vector<double>& q)
+void vectorEigenToQp(const Eigen::VectorXd& _e, Vector<double>& _q)
 {
-  assert(e.cols() == 1);
+  assert(_e.cols() == 1);
 
-  if (q.size() != e.size()) {
-    q.resize(e.rows());
+  if (_q.size() != _e.size()) {
+    _q.resize(_e.rows());
   }
 
-  for (Eigen::Index i = 0; i < e.rows(); ++i) {
-    q[i] = e(i);
+  for (Eigen::Index i = 0; i < _e.rows(); ++i) {
+    _q[i] = _e(i);
   }
 }
 
-void vectorQpToEigen(const Vector<double>& q, Eigen::VectorXd& e)
+void vectorQpToEigen(const Vector<double>& _q, Eigen::VectorXd& _e)
 {
-  assert(e.rows() == q.size());
-  assert(e.cols() == 1);
+  assert(_e.rows() == _q.size());
+  assert(_e.cols() == 1);
 
-  for (Eigen::Index i = 0; i < e.rows(); ++i) {
-    e(i) = q[i];
+  for (Eigen::Index i = 0; i < _e.rows(); ++i) {
+    _e(i) = _q[i];
   }
 }
 }  // namespace quadprogpp

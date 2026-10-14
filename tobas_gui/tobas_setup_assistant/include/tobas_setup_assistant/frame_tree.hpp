@@ -22,12 +22,12 @@ class FrameTreeWidget : public QTreeWidget
   using self = FrameTreeWidget;
 
 public:
-  explicit FrameTreeWidget(const kdl::Tree& tree, RvizWidget* rviz);
+  explicit FrameTreeWidget(const kdl::Tree& _tree, RvizWidget* _rviz);
 
   void updateInternalDataStructures();
 
 private Q_SLOTS:
-  void onItemChanged(QTreeWidgetItem* ite);
+  void onItemChanged(QTreeWidgetItem* _ite);
 
   /** Adjust column widths according to string length. */
   void resizeColumns();
@@ -36,7 +36,7 @@ private:
   const kdl::Tree& tree_;
   RvizWidget* const rviz_;
 
-  void addTreeItemsRec(QTreeWidgetItem* parent_item);
+  void addTreeItemsRec(QTreeWidgetItem* _parent_item);
 };
 }  // namespace sa
 }  // namespace gui

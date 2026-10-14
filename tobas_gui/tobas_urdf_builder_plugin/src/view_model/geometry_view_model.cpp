@@ -36,8 +36,8 @@ constexpr double kDefaultHeight = 0.0;
 constexpr double kDefaultScale = 1.0;
 }  // namespace
 
-GeometryViewModel::GeometryViewModel(const ::urdf::GeometrySharedPtr& model)
-  : BaseViewModel<::urdf::Geometry, GeometryViewModel>(model)
+GeometryViewModel::GeometryViewModel(const ::urdf::GeometrySharedPtr& _model)
+  : BaseViewModel<::urdf::Geometry, GeometryViewModel>(_model)
   , type_(model_->type)
   , radius_(kDefaultRadius)
   , length_(kDefaultLength)
@@ -45,7 +45,7 @@ GeometryViewModel::GeometryViewModel(const ::urdf::GeometrySharedPtr& model)
   , height_(kDefaultHeight)
   , scale_(kDefaultScale, kDefaultScale, kDefaultScale)
 {
-  if (!model) {
+  if (!_model) {
     model_.reset(new ::urdf::Sphere());
   }
   load();
@@ -99,14 +99,14 @@ GeometryType GeometryViewModel::type() const
   return type_;
 }
 
-void GeometryViewModel::type(GeometryType type)
+void GeometryViewModel::type(GeometryType _type)
 {
-  type_ = type;
+  type_ = _type;
 }
 
-void GeometryViewModel::type(const QString& type)
+void GeometryViewModel::type(const QString& _type)
 {
-  type_ = kGeometryNameToTypeMap.at(type);
+  type_ = kGeometryNameToTypeMap.at(_type);
 }
 
 double GeometryViewModel::width() const
@@ -114,9 +114,9 @@ double GeometryViewModel::width() const
   return width_;
 }
 
-void GeometryViewModel::width(double width)
+void GeometryViewModel::width(double _width)
 {
-  width_ = width;
+  width_ = _width;
 }
 
 double GeometryViewModel::length() const
@@ -124,9 +124,9 @@ double GeometryViewModel::length() const
   return length_;
 }
 
-void GeometryViewModel::length(double length)
+void GeometryViewModel::length(double _length)
 {
-  length_ = length;
+  length_ = _length;
 }
 
 double GeometryViewModel::height() const
@@ -134,9 +134,9 @@ double GeometryViewModel::height() const
   return height_;
 }
 
-void GeometryViewModel::height(double height)
+void GeometryViewModel::height(double _height)
 {
-  height_ = height;
+  height_ = _height;
 }
 
 double GeometryViewModel::radius() const
@@ -144,9 +144,9 @@ double GeometryViewModel::radius() const
   return radius_;
 }
 
-void GeometryViewModel::radius(double radius)
+void GeometryViewModel::radius(double _radius)
 {
-  radius_ = radius;
+  radius_ = _radius;
 }
 
 QString GeometryViewModel::filePath() const
@@ -154,9 +154,9 @@ QString GeometryViewModel::filePath() const
   return QString::fromStdString(filepath_);
 }
 
-void GeometryViewModel::filePath(const QString& filepath)
+void GeometryViewModel::filePath(const QString& _filepath)
 {
-  filepath_ = filepath.toStdString();
+  filepath_ = _filepath.toStdString();
 }
 
 const ::urdf::Vector3& GeometryViewModel::scale() const
@@ -164,9 +164,9 @@ const ::urdf::Vector3& GeometryViewModel::scale() const
   return scale_;
 }
 
-void GeometryViewModel::scale(const ::urdf::Vector3& scale)
+void GeometryViewModel::scale(const ::urdf::Vector3& _scale)
 {
-  scale_ = scale;
+  scale_ = _scale;
 }
 
 void GeometryViewModel::load()

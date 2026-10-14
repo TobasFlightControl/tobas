@@ -14,18 +14,18 @@ VelocityLimitedOnlineTrajectoryGenerator::VelocityLimitedOnlineTrajectoryGenerat
 {
 }
 
-void VelocityLimitedOnlineTrajectoryGenerator::setMaxVelocity(double max_vel)
+void VelocityLimitedOnlineTrajectoryGenerator::setMaxVelocity(double _max_vel)
 {
-  assert(max_vel > 0);
-  max_vel_ = max_vel;
+  assert(_max_vel > 0);
+  max_vel_ = _max_vel;
 }
 
-double VelocityLimitedOnlineTrajectoryGenerator::update(double dt)
+double VelocityLimitedOnlineTrajectoryGenerator::update(double _dt)
 {
   assert(std::isfinite(max_vel_));
-  assert(dt >= 0);
+  assert(_dt >= 0);
 
-  const auto max_delta = max_vel_ * dt;
+  const auto max_delta = max_vel_ * _dt;
 
   auto delta = tar_pos_ - traj_pos_;
   if (delta > max_delta) {
@@ -45,15 +45,15 @@ double VelocityLimitedOnlineTrajectoryGenerator::update(double dt)
   return traj_pos_;
 }
 
-double VelocityLimitedOnlineTrajectoryGenerator::setTargetPointAndUpdate(double tar_pos, double dt)
+double VelocityLimitedOnlineTrajectoryGenerator::setTargetPointAndUpdate(double _tar_pos, double _dt)
 {
-  setTargetPosition(tar_pos);
-  return update(dt);
+  setTargetPosition(_tar_pos);
+  return update(_dt);
 }
 
-void VelocityLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(double pos)
+void VelocityLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(double _pos)
 {
-  traj_pos_ = pos;
+  traj_pos_ = _pos;
 }
 }  // namespace traj
 }  // namespace tobas

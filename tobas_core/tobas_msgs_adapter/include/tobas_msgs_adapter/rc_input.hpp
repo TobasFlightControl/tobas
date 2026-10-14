@@ -39,34 +39,34 @@ struct rclcpp::TypeAdapter<tobas_msgs::RCInput, tobas_msgs::msg::RCInput>
   using custom_type = tobas_msgs::RCInput;
   using ros_message_type = tobas_msgs::msg::RCInput;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
-    dst.status = src.status;
-    dst.roll = src.roll;
-    dst.pitch = src.pitch;
-    dst.throttle = src.throttle;
-    dst.yaw = src.yaw;
-    dst.mode = static_cast<uint8_t>(src.mode);
-    dst.sub_mode = src.sub_mode;
-    dst.enable = src.enable;
-    dst.kill = src.kill;
-    dst.gpsw = src.gpsw;
+    _dst.header = _src.header;
+    _dst.status = _src.status;
+    _dst.roll = _src.roll;
+    _dst.pitch = _src.pitch;
+    _dst.throttle = _src.throttle;
+    _dst.yaw = _src.yaw;
+    _dst.mode = static_cast<uint8_t>(_src.mode);
+    _dst.sub_mode = _src.sub_mode;
+    _dst.enable = _src.enable;
+    _dst.kill = _src.kill;
+    _dst.gpsw = _src.gpsw;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
-    dst.status = src.status;
-    dst.roll = src.roll;
-    dst.pitch = src.pitch;
-    dst.throttle = src.throttle;
-    dst.yaw = src.yaw;
-    dst.mode = static_cast<tobas::FlightMode>(src.mode);
-    dst.sub_mode = src.sub_mode;
-    dst.enable = src.enable;
-    dst.kill = src.kill;
-    dst.gpsw = src.gpsw;
+    _dst.header = _src.header;
+    _dst.status = _src.status;
+    _dst.roll = _src.roll;
+    _dst.pitch = _src.pitch;
+    _dst.throttle = _src.throttle;
+    _dst.yaw = _src.yaw;
+    _dst.mode = static_cast<tobas::FlightMode>(_src.mode);
+    _dst.sub_mode = _src.sub_mode;
+    _dst.enable = _src.enable;
+    _dst.kill = _src.kill;
+    _dst.gpsw = _src.gpsw;
   }
 };
 

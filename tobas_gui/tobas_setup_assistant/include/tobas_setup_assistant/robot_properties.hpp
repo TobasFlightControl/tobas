@@ -21,11 +21,11 @@ class RobotPropertiesWidget : public qt::ScrollArea
   Q_OBJECT
 
 public:
-  explicit RobotPropertiesWidget(const uadf::Model& uadf, const kdl::Tree& tree);
+  explicit RobotPropertiesWidget(const uadf::Model& _uadf, const kdl::Tree& _tree);
 
   void updateInternalDataStructures();
 
-  void setFrameType(FrameType type);
+  void setFrameType(FrameType _type);
 
 private:
   const uadf::Model& uadf_;

@@ -26,7 +26,7 @@ public:
   virtual bool isValid() = 0;
 
   virtual YAML::Node dump() const = 0;
-  virtual void load(const YAML::Node& node) = 0;
+  virtual void load(const YAML::Node& _node) = 0;
 
   /** Nominal voltage [V]. */
   virtual double nominalVoltage() = 0;

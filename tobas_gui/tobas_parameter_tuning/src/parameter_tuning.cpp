@@ -86,10 +86,10 @@ void ParameterTuningWidget::reset()
   }
 }
 
-void ParameterTuningWidget::setProjectPath(const QString& proj_path)
+void ParameterTuningWidget::setProjectPath(const QString& _proj_path)
 {
   // Update project path.
-  proj_paths_.setProjPath(proj_path);
+  proj_paths_.setProjPath(_proj_path);
 
   // Load drone configuration.
   const auto tbsdrn_path = proj_paths_.tbsdrnPath();
@@ -99,10 +99,10 @@ void ParameterTuningWidget::setProjectPath(const QString& proj_path)
   updateActionAvailability();
 }
 
-void ParameterTuningWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void ParameterTuningWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
   for (const auto& block : blocks_) {
-    block->initializeRosInterfaces(node, ns);
+    block->initializeRosInterfaces(_node, _ns);
   }
 
   ros_initialized_ = true;

@@ -20,6 +20,6 @@ namespace linux
 std::expected<pid_t, std::string> createSubprocess(const std::vector<char*>& _argv);
 
 /** Run a bash command in a subprocess. */
-std::expected<pid_t, std::string> createSubprocess(const std::string& command);
+std::expected<pid_t, std::string> createSubprocess(const std::string& _command);
 }  // namespace linux
 }  // namespace tobas

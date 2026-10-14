@@ -11,16 +11,16 @@ namespace tobas
 {
 namespace ros2
 {
-int createTemporalFile(std::string& path)
+int createTemporalFile(std::string& _path)
 {
   // Get the system temporary directory.
   const auto tmp_dir = rfs::temp_directory_path();
 
   // Create the template string. The last six characters must be X.
-  path = (tmp_dir / "tobas_temporal_file_XXXXXX").string();
+  _path = (tmp_dir / "tobas_temporal_file_XXXXXX").string();
 
   // `mkstemp()` replaces the X part of the template with random characters and creates a temporary file.
-  return mkstemp(path.data());
+  return mkstemp(_path.data());
 }
 }  // namespace ros2
 }  // namespace tobas

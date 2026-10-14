@@ -33,10 +33,10 @@ public:
 
   void setToDefaults();
   bool isValid();
-  void copyFrom(const PropulsionUnitWidget* src);
+  void copyFrom(const PropulsionUnitWidget* _src);
 
   YAML::Node dump() const;
-  void load(const YAML::Node& node);
+  void load(const YAML::Node& _node);
 
   const TransmissionWidget* transmission() const;
   const PropellerWidget* propeller() const;

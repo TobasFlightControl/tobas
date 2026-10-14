@@ -24,7 +24,7 @@ class ImuDriverNode : public hardware::BaseSensorNode
   using super = hardware::BaseSensorNode;
 
 public:
-  explicit ImuDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit ImuDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   stm::ISM330DLC imu_;
@@ -45,15 +45,15 @@ private:
   bool initializeImuDriver();
 
   void configureImuLowPassFilterCb(
-    const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
-    const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res);
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& _req,
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& _res);
 
   void initializeTimerCb();
   void mainTimerCb();
 };
 
-ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc1xx_imu_driver", nodeOptions_Default(options)), sampling_time_pub_(this)
+ImuDriverNode::ImuDriverNode(const rclcpp::NodeOptions& _options)
+  : super("fc1xx_imu_driver", nodeOptions_Default(_options)), sampling_time_pub_(this)
 {
   prev_gyro_raw_.setZero();
 
@@ -97,17 +97,17 @@ bool ImuDriverNode::initializeImuDriver()
 }
 
 void ImuDriverNode::configureImuLowPassFilterCb(
-  const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
-  const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res)
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& _req,
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& _res)
 {
-  acc_lpf_.setCutoffFrequency(req->accel_cutoff);
-  gyro_lpf_.setCutoffFrequency(req->gyro_cutoff);
-  dgyro_lpf_.setCutoffFrequency(req->dgyro_cutoff);
+  acc_lpf_.setCutoffFrequency(_req->accel_cutoff);
+  gyro_lpf_.setCutoffFrequency(_req->gyro_cutoff);
+  dgyro_lpf_.setCutoffFrequency(_req->dgyro_cutoff);
 
   lpf_initialized_ = true;
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
 
 void ImuDriverNode::initializeTimerCb()

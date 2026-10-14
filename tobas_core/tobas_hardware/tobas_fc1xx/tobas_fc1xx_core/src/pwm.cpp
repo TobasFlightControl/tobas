@@ -24,10 +24,10 @@ bool PWM::initialize()
   return true;
 }
 
-void PWM::setPeriod(size_t ch, uint16_t period_us)
+void PWM::setPeriod(size_t _ch, uint16_t _period_us)
 {
-  assert(ch < kChannelSize);
-  tx_buf_[ch] = std::min<uint16_t>(period_us, 2500);
+  assert(_ch < kChannelSize);
+  tx_buf_[_ch] = std::min<uint16_t>(_period_us, 2500);
 }
 
 bool PWM::transfer()

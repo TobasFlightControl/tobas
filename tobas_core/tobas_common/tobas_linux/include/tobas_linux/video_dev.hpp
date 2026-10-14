@@ -36,11 +36,11 @@ public:
    * `pixcel_format` is four characters, such as MJPG, JPEG, or YUYV.
    */
   bool initialize(
-    const char* video_dev,
-    const char* pixcel_format = "MJPG",
-    bool disable_video_streaming = false,
-    uint32_t width = 0,
-    uint32_t height = 0);
+    const char* _video_dev,
+    const char* _pixcel_format = "MJPG",
+    bool _disable_video_streaming = false,
+    uint32_t _width = 0,
+    uint32_t _height = 0);
 
   /** Display supported image formats. */
   void displaySupportedFormats();
@@ -50,7 +50,7 @@ public:
    *
    * @see https://docs.kernel.org/userspace-api/media/drivers/uvcvideo.html#extension-unit-xu-support
    */
-  bool execUvcControl(const uvc_xu_control_query& query);
+  bool execUvcControl(const uvc_xu_control_query& _query);
 
   /** Turn the stream on so the PC can retrieve data from the device. */
   bool startStream();
@@ -58,11 +58,11 @@ public:
   /** Dequeue and re-enqueue a buffer. Available only after the stream is on. */
   bool takePicture();
 
-  void* getImage(uint32_t& length);
+  void* getImage(uint32_t& _length);
 
   ImgFormat getImageFormat();
 
-  std::string FCC2S(uint32_t val);
+  std::string FCC2S(uint32_t _val);
 
 private:
   int fd_ = -1;
@@ -89,7 +89,7 @@ private:
   bool mapBuffer();
 
   /** Fill one image worth of memory in the i-th device-side buffer. */
-  bool enqueue(uint32_t i);
+  bool enqueue(uint32_t _i);
 
   /** Fill device-side buffers. */
   bool fillDeviceBuffer();
@@ -104,7 +104,7 @@ private:
   int dequeue();
 
   /** Set the image format. */
-  bool setImgFormat(const char* pixcel_format, uint32_t width = 0, uint32_t height = 0);
+  bool setImgFormat(const char* _pixcel_format, uint32_t _width = 0, uint32_t _height = 0);
 
   /** Request the image format. */
   bool requestImgFormat();

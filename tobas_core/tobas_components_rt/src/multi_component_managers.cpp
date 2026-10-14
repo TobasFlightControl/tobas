@@ -27,35 +27,35 @@ struct ComponentManager
   std::thread thread;
 };
 
-std::string nodeName(size_t idx)
+std::string nodeName(size_t _idx)
 {
-  return "component_manager_" + std::to_string(idx + 1);
+  return "component_manager_" + std::to_string(_idx + 1);
 }
 }  // namespace
 
-MultiComponentManagers::MultiComponentManagers(size_t num_managers)
-  : num_managers_(num_managers), configs_(num_managers)
+MultiComponentManagers::MultiComponentManagers(size_t _num_managers)
+  : num_managers_(_num_managers), configs_(_num_managers)
 {
 }
 
-void MultiComponentManagers::setPolicy(size_t idx, linux::sched_t policy)
+void MultiComponentManagers::setPolicy(size_t _idx, linux::sched_t _policy)
 {
-  configs_.at(idx).policy = policy;
+  configs_.at(_idx).policy = _policy;
 }
 
-void MultiComponentManagers::setPriority(size_t idx, size_t priority)
+void MultiComponentManagers::setPriority(size_t _idx, size_t _priority)
 {
-  configs_.at(idx).priority = priority;
+  configs_.at(_idx).priority = _priority;
 }
 
-void MultiComponentManagers::setCpuAffinity(size_t idx, uint32_t affinity)
+void MultiComponentManagers::setCpuAffinity(size_t _idx, uint32_t _affinity)
 {
-  configs_.at(idx).affinity = affinity;
+  configs_.at(_idx).affinity = _affinity;
 }
 
-void MultiComponentManagers::setNumThreads(size_t idx, size_t num_threads)
+void MultiComponentManagers::setNumThreads(size_t _idx, size_t _num_threads)
 {
-  configs_.at(idx).num_threads = num_threads;
+  configs_.at(_idx).num_threads = _num_threads;
 }
 
 void MultiComponentManagers::spin()

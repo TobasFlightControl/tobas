@@ -21,20 +21,20 @@ class ParamGetterWidget_LinearEquation : public ParamGetterWidget<std::pair<doub
   using super = ParamGetterWidget<ValueType>;
 
 Q_SIGNALS:
-  void valueChanged(const ValueType& value);
+  void valueChanged(const ValueType& _value);
 
 public:
   explicit ParamGetterWidget_LinearEquation(
-    const QString& param_name,
-    const QString& left,
-    const QString& value,
-    const QString& description_text = "");
+    const QString& _param_name,
+    const QString& _left,
+    const QString& _value,
+    const QString& _description_text = "");
 
   ValueType getValue() const override;
-  bool setValue(const ValueType& src) override;
+  bool setValue(const ValueType& _src) override;
 
-  void setDecimals(int decimals);
-  void setSuffix(const QString& suffix);
+  void setDecimals(int _decimals);
+  void setSuffix(const QString& _suffix);
 
 private Q_SLOTS:
   void onValueChanged();

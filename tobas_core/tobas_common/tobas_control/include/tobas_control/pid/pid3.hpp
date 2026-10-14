@@ -20,11 +20,11 @@ public:
   explicit PID3();
 
   Eigen::Vector3d update(
-    const Eigen::Vector3d& cur_pos,
-    const Eigen::Vector3d& cur_vel,
-    const Eigen::Vector3d& tar_pos,
-    const Eigen::Vector3d& tar_vel,
-    double dt);
+    const Eigen::Vector3d& _cur_pos,
+    const Eigen::Vector3d& _cur_vel,
+    const Eigen::Vector3d& _tar_pos,
+    const Eigen::Vector3d& _tar_vel,
+    double _dt);
 
   inline void reset();
 

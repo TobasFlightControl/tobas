@@ -16,9 +16,9 @@ BMM350::BMM350()
 {
 }
 
-bool BMM350::initialize(const char* i2c_device)
+bool BMM350::initialize(const char* _i2c_device)
 {
-  if (!i2c_.initialize(i2c_device, 0x14)) {
+  if (!i2c_.initialize(_i2c_device, 0x14)) {
     std::cerr << "Failed to initialize I2C device." << std::endl;
     return false;
   }
@@ -52,25 +52,25 @@ bool BMM350::initialize(const char* i2c_device)
   return true;
 }
 
-bool BMM350::readBytesWithDummy(uint8_t reg_addr, size_t length, uint8_t* rx)
+bool BMM350::readBytesWithDummy(uint8_t _reg_addr, size_t _length, uint8_t* _rx)
 {
   constexpr size_t kDummyBytes = 2;
   uint8_t raw[MAG_TEMP_DATA_LEN + kDummyBytes] = {};
 
-  if (!i2c_.readBytes(reg_addr, length + kDummyBytes, raw)) {
+  if (!i2c_.readBytes(_reg_addr, _length + kDummyBytes, raw)) {
     return false;
   }
 
-  for (size_t i = 0; i < length; ++i) {
-    rx[i] = raw[i + kDummyBytes];
+  for (size_t i = 0; i < _length; ++i) {
+    _rx[i] = raw[i + kDummyBytes];
   }
 
   return true;
 }
 
-bool BMM350::readOtpWord(uint8_t addr, uint16_t& word)
+bool BMM350::readOtpWord(uint8_t _addr, uint16_t& _word)
 {
-  const uint8_t otp_cmd = static_cast<uint8_t>(OTP_DIR_READ | (addr & OTP_WORD_ADDR_MSK));
+  const uint8_t otp_cmd = static_cast<uint8_t>(OTP_DIR_READ | (_addr & OTP_WORD_ADDR_MSK));
   if (!i2c_.writeByte(OTP_CMD_REG, otp_cmd, false)) {
     return false;
   }
@@ -104,7 +104,7 @@ bool BMM350::readOtpWord(uint8_t addr, uint16_t& word)
     return false;
   }
 
-  word = static_cast<uint16_t>((static_cast<uint16_t>(msb) << 8) | lsb);
+  _word = static_cast<uint16_t>((static_cast<uint16_t>(msb) << 8) | lsb);
   return true;
 }
 
@@ -181,10 +181,10 @@ void BMM350::updateCompensationFromOtp()
   mag_comp_.cross_z_y = static_cast<float>(fixSign(cross_z_y, SIGNED_8_BIT)) / 800.0f;
 }
 
-void BMM350::configure(ODR odr, Averaging averaging)
+void BMM350::configure(ODR _odr, Averaging _averaging)
 {
-  odr_ = odr;
-  averaging_ = averaging;
+  odr_ = _odr;
+  averaging_ = _averaging;
 }
 
 bool BMM350::applyConfiguration()
@@ -208,20 +208,20 @@ bool BMM350::applyConfiguration()
   return true;
 }
 
-bool BMM350::isValidOdr(uint8_t odr)
+bool BMM350::isValidOdr(uint8_t _odr)
 {
-  return odr == ODR_100Hz || odr == ODR_25Hz;
+  return _odr == ODR_100Hz || _odr == ODR_25Hz;
 }
 
-bool BMM350::isValidAveraging(uint8_t averaging)
+bool BMM350::isValidAveraging(uint8_t _averaging)
 {
-  return averaging == AVG_2 || averaging == AVG_4;
+  return _averaging == AVG_2 || _averaging == AVG_4;
 }
 
-bool BMM350::setOdrPerformance(uint8_t odr, uint8_t avg)
+bool BMM350::setOdrPerformance(uint8_t _odr, uint8_t _avg)
 {
   uint8_t reg;
-  reg = static_cast<uint8_t>((odr & ~AVG_MSK) | ((avg << AVG_POS) & AVG_MSK));
+  reg = static_cast<uint8_t>((_odr & ~AVG_MSK) | ((_avg << AVG_POS) & AVG_MSK));
 
   if (!i2c_.writeByte(PMU_CMD_AGGR_SET_REG, reg, false)) {
     std::cerr << "Failed to configure ODR/performance." << std::endl;
@@ -258,7 +258,7 @@ bool BMM350::suspendToNormalMode()
   return setPowerMode(PMU_NORMAL);
 }
 
-bool BMM350::setPowerMode(uint8_t mode)
+bool BMM350::setPowerMode(uint8_t _mode)
 {
   uint8_t last_mode;
   if (!readBytesWithDummy(PMU_CMD_REG, 1, &last_mode)) {
@@ -275,12 +275,12 @@ bool BMM350::setPowerMode(uint8_t mode)
     delayUs(GOTO_SUSPEND_DELAY_US);
   }
 
-  if (!i2c_.writeByte(PMU_CMD_REG, mode, false)) {
+  if (!i2c_.writeByte(PMU_CMD_REG, _mode, false)) {
     std::cerr << "Failed to set PMU mode." << std::endl;
     return false;
   }
 
-  if (mode == PMU_NORMAL) {
+  if (_mode == PMU_NORMAL) {
     // Specified wait time required for the suspend-to-normal transition.
     delayUs(SUSPEND_TO_NORMAL_DELAY_US);
   }
@@ -301,19 +301,19 @@ bool BMM350::checkWhoAmI()
   return true;
 }
 
-bool BMM350::getPmuCmdStatus0(PmuCmdStatus0& status)
+bool BMM350::getPmuCmdStatus0(PmuCmdStatus0& _status)
 {
   uint8_t reg = 0;
   if (!readBytesWithDummy(PMU_CMD_STATUS_0_REG, 1, &reg)) {
     return false;
   }
 
-  status.pmu_cmd_busy = reg & PMU_CMD_BUSY_MSK;
-  status.odr_ovwr = (reg & ODR_OVWR_MSK) >> ODR_OVWR_POS;
-  status.avr_ovwr = (reg & AVG_OVWR_MSK) >> AVG_OVWR_POS;
-  status.pwr_mode_is_normal = (reg & PWR_MODE_IS_NORMAL_MSK) >> PWR_MODE_IS_NORMAL_POS;
-  status.cmd_is_illegal = (reg & CMD_IS_ILLEGAL_MSK) >> CMD_IS_ILLEGAL_POS;
-  status.pmu_cmd_value = (reg & PMU_CMD_VALUE_MSK) >> PMU_CMD_VALUE_POS;
+  _status.pmu_cmd_busy = reg & PMU_CMD_BUSY_MSK;
+  _status.odr_ovwr = (reg & ODR_OVWR_MSK) >> ODR_OVWR_POS;
+  _status.avr_ovwr = (reg & AVG_OVWR_MSK) >> AVG_OVWR_POS;
+  _status.pwr_mode_is_normal = (reg & PWR_MODE_IS_NORMAL_MSK) >> PWR_MODE_IS_NORMAL_POS;
+  _status.cmd_is_illegal = (reg & CMD_IS_ILLEGAL_MSK) >> CMD_IS_ILLEGAL_POS;
+  _status.pmu_cmd_value = (reg & PMU_CMD_VALUE_MSK) >> PMU_CMD_VALUE_POS;
   return true;
 }
 
@@ -368,7 +368,7 @@ bool BMM350::magneticResetAndWait()
   return true;
 }
 
-bool BMM350::readRawMagData(RawMagData& raw)
+bool BMM350::readRawMagData(RawMagData& _raw)
 {
   if (!readBytesWithDummy(OUT_X_XLSB_REG, MAG_TEMP_DATA_LEN, raw_data_)) {
     return false;
@@ -383,34 +383,34 @@ bool BMM350::readRawMagData(RawMagData& raw)
   const uint32_t raw_t = static_cast<uint32_t>(raw_data_[9]) | (static_cast<uint32_t>(raw_data_[10]) << 8) |
                          (static_cast<uint32_t>(raw_data_[11]) << 16);
 
-  raw.x = ((axis_en_ & 0x01) == 0) ? 0 : fixSign(raw_x, SIGNED_24_BIT);
-  raw.y = ((axis_en_ & 0x02) == 0) ? 0 : fixSign(raw_y, SIGNED_24_BIT);
-  raw.z = ((axis_en_ & 0x04) == 0) ? 0 : fixSign(raw_z, SIGNED_24_BIT);
-  raw.t = fixSign(raw_t, SIGNED_24_BIT);
+  _raw.x = ((axis_en_ & 0x01) == 0) ? 0 : fixSign(raw_x, SIGNED_24_BIT);
+  _raw.y = ((axis_en_ & 0x02) == 0) ? 0 : fixSign(raw_y, SIGNED_24_BIT);
+  _raw.z = ((axis_en_ & 0x04) == 0) ? 0 : fixSign(raw_z, SIGNED_24_BIT);
+  _raw.t = fixSign(raw_t, SIGNED_24_BIT);
   return true;
 }
 
-float BMM350::compensateX(float x, float y, float, float) const
+float BMM350::compensateX(float _x, float _y, float, float) const
 {
   const float denom = 1.0f - (mag_comp_.cross_y_x * mag_comp_.cross_x_y);
-  return (x - mag_comp_.cross_x_y * y) / denom;
+  return (_x - mag_comp_.cross_x_y * _y) / denom;
 }
 
-float BMM350::compensateY(float x, float y, float, float) const
+float BMM350::compensateY(float _x, float _y, float, float) const
 {
   const float denom = 1.0f - (mag_comp_.cross_y_x * mag_comp_.cross_x_y);
-  return (y - mag_comp_.cross_y_x * x) / denom;
+  return (_y - mag_comp_.cross_y_x * _x) / denom;
 }
 
-float BMM350::compensateZ(float x, float y, float z, float) const
+float BMM350::compensateZ(float _x, float _y, float _z, float) const
 {
   const float denom = 1.0f - (mag_comp_.cross_y_x * mag_comp_.cross_x_y);
-  return z + (x * (mag_comp_.cross_y_x * mag_comp_.cross_z_y - mag_comp_.cross_z_x) -
-              y * (mag_comp_.cross_z_y - mag_comp_.cross_x_y * mag_comp_.cross_z_x)) /
-               denom;
+  return _z + (_x * (mag_comp_.cross_y_x * mag_comp_.cross_z_y - mag_comp_.cross_z_x) -
+               _y * (mag_comp_.cross_z_y - mag_comp_.cross_x_y * mag_comp_.cross_z_x)) /
+                denom;
 }
 
-bool BMM350::readMag(float& mx, float& my, float& mz)
+bool BMM350::readMag(float& _mx, float& _my, float& _mz)
 {
   if (!readRawMagData(raw_)) {
     std::cerr << "Failed to read magnetic field." << std::endl;
@@ -458,17 +458,17 @@ bool BMM350::readMag(float& mx, float& my, float& mz)
   const float x_ut = ((axis_en_ & 0x01) == 0) ? 0.0f : cr_x;
   const float y_ut = ((axis_en_ & 0x02) == 0) ? 0.0f : cr_y;
   const float z_ut = ((axis_en_ & 0x04) == 0) ? 0.0f : cr_z;
-  mx = x_ut;
-  my = y_ut;
-  mz = z_ut;
+  _mx = x_ut;
+  _my = y_ut;
+  _mz = z_ut;
   return true;
 }
 
-int32_t BMM350::fixSign(uint32_t raw, int bits)
+int32_t BMM350::fixSign(uint32_t _raw, int _bits)
 {
   int32_t sign_bit_index = 0;
   int32_t full_scale = 0;
-  switch (bits) {
+  switch (_bits) {
     case SIGNED_8_BIT:
       sign_bit_index = 7;
       full_scale = 1 << 8;
@@ -486,20 +486,20 @@ int32_t BMM350::fixSign(uint32_t raw, int bits)
       full_scale = 1 << 24;
       break;
     default:
-      return static_cast<int32_t>(raw);
+      return static_cast<int32_t>(_raw);
   }
 
-  const std::bitset<32> raw_bits(raw);
-  int32_t value = static_cast<int32_t>(raw);
+  const std::bitset<32> raw_bits(_raw);
+  int32_t value = static_cast<int32_t>(_raw);
   if (raw_bits.test(static_cast<size_t>(sign_bit_index))) {
     value -= full_scale;
   }
   return value;
 }
 
-void BMM350::delayUs(uint32_t period_us)
+void BMM350::delayUs(uint32_t _period_us)
 {
-  std::this_thread::sleep_for(std::chrono::microseconds(period_us));
+  std::this_thread::sleep_for(std::chrono::microseconds(_period_us));
 }
 }  // namespace driver
 }  // namespace tobas

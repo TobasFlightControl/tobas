@@ -68,99 +68,99 @@ std::expected<void, std::string> DShot::transfer() noexcept
   return {};
 }
 
-void DShot::setThrottle(size_t ch, uint16_t throttle) noexcept
+void DShot::setThrottle(size_t _ch, uint16_t _throttle) noexcept
 {
-  assert(ch < kChannelSize);
+  assert(_ch < kChannelSize);
 
   constexpr uint8_t kSetThrottleCmd = 0;
-  tx_buf_[ch] = (kSetThrottleCmd << 28) | (throttle & kParameterMask);
+  tx_buf_[_ch] = (kSetThrottleCmd << 28) | (_throttle & kParameterMask);
 }
 
-void DShot::setTargetSpeed(size_t ch, double rps) noexcept
+void DShot::setTargetSpeed(size_t _ch, double _rps) noexcept
 {
-  assert(ch < kChannelSize);
+  assert(_ch < kChannelSize);
 
   constexpr uint8_t kSetTargetRPMCmd = 1;
-  const auto rpm = static_cast<uint32_t>(st::rps2rpm(std::max(rps, 0.0)));
-  tx_buf_[ch] = (kSetTargetRPMCmd << 28) | (rpm & kParameterMask);
+  const auto rpm = static_cast<uint32_t>(st::rps2rpm(std::max(_rps, 0.0)));
+  tx_buf_[_ch] = (kSetTargetRPMCmd << 28) | (rpm & kParameterMask);
 }
 
-void DShot::setKv(size_t ch, double kv_si) noexcept
+void DShot::setKv(size_t _ch, double _kv_si) noexcept
 {
-  assert(ch < kChannelSize);
-  assert(kv_si > 0.0);
+  assert(_ch < kChannelSize);
+  assert(_kv_si > 0.0);
 
   constexpr uint8_t kSetKvCmd = 2;
-  const auto kv = static_cast<uint32_t>(st::rps2rpm(kv_si));  // [rpm/V]
-  tx_buf_[ch] = (kSetKvCmd << 28) | (kv & kParameterMask);
+  const auto kv = static_cast<uint32_t>(st::rps2rpm(_kv_si));  // [rpm/V]
+  tx_buf_[_ch] = (kSetKvCmd << 28) | (kv & kParameterMask);
 }
 
-void DShot::setInternalResistance(size_t ch, double resistance) noexcept
+void DShot::setInternalResistance(size_t _ch, double _resistance) noexcept
 {
-  assert(ch < kChannelSize);
-  assert(resistance > 0.0);
+  assert(_ch < kChannelSize);
+  assert(_resistance > 0.0);
 
   constexpr uint8_t kSetResistanceCmd = 3;
-  const auto resistance_mohm = static_cast<uint32_t>(resistance * 1e+3);
-  tx_buf_[ch] = (kSetResistanceCmd << 28) | (resistance_mohm & kParameterMask);
+  const auto resistance_mohm = static_cast<uint32_t>(_resistance * 1e+3);
+  tx_buf_[_ch] = (kSetResistanceCmd << 28) | (resistance_mohm & kParameterMask);
 }
 
-void DShot::setPropellerDiameter(size_t ch, double diameter) noexcept
+void DShot::setPropellerDiameter(size_t _ch, double _diameter) noexcept
 {
-  assert(ch < kChannelSize);
-  assert(diameter > 0.0);
+  assert(_ch < kChannelSize);
+  assert(_diameter > 0.0);
 
   constexpr uint8_t kSetDiameterCmd = 4;
-  const auto diameter_mm = static_cast<uint32_t>(diameter * 1e+3);
-  tx_buf_[ch] = (kSetDiameterCmd << 28) | (diameter_mm & kParameterMask);
+  const auto diameter_mm = static_cast<uint32_t>(_diameter * 1e+3);
+  tx_buf_[_ch] = (kSetDiameterCmd << 28) | (diameter_mm & kParameterMask);
 }
 
-void DShot::setMomentConstant(size_t ch, double moment_const) noexcept
+void DShot::setMomentConstant(size_t _ch, double _moment_const) noexcept
 {
-  assert(ch < kChannelSize);
-  assert(moment_const > 0.0);
+  assert(_ch < kChannelSize);
+  assert(_moment_const > 0.0);
 
   constexpr uint8_t kSetMomentConstCmd = 5;
-  const auto moment_const_scaled = static_cast<uint32_t>(moment_const * 1e+9);
-  tx_buf_[ch] = (kSetMomentConstCmd << 28) | (moment_const_scaled & kParameterMask);
+  const auto moment_const_scaled = static_cast<uint32_t>(_moment_const * 1e+9);
+  tx_buf_[_ch] = (kSetMomentConstCmd << 28) | (moment_const_scaled & kParameterMask);
 }
 
-void DShot::setNumPoles(size_t ch, uint16_t num_poles) noexcept
+void DShot::setNumPoles(size_t _ch, uint16_t _num_poles) noexcept
 {
-  assert(ch < kChannelSize);
-  assert(num_poles > 0);
-  assert(num_poles % 2 == 0);
+  assert(_ch < kChannelSize);
+  assert(_num_poles > 0);
+  assert(_num_poles % 2 == 0);
 
   constexpr uint8_t kSetHalfNumPolesCmd = 6;
-  const auto half_num_poles = num_poles / 2;
-  tx_buf_[ch] = (kSetHalfNumPolesCmd << 28) | (half_num_poles & kParameterMask);
-  half_num_poles_.at(ch) = half_num_poles;
+  const auto half_num_poles = _num_poles / 2;
+  tx_buf_[_ch] = (kSetHalfNumPolesCmd << 28) | (half_num_poles & kParameterMask);
+  half_num_poles_.at(_ch) = half_num_poles;
 }
 
-void DShot::setRpmControlGain(size_t ch, uint8_t gain) noexcept
+void DShot::setRpmControlGain(size_t _ch, uint8_t _gain) noexcept
 {
-  assert(ch < kChannelSize);
+  assert(_ch < kChannelSize);
 
   constexpr uint8_t kSetGainCmd = 7;
-  tx_buf_[ch] = (kSetGainCmd << 28) | (gain & kParameterMask);
+  tx_buf_[_ch] = (kSetGainCmd << 28) | (_gain & kParameterMask);
 }
 
-void DShot::setNoOperation(size_t ch) noexcept
+void DShot::setNoOperation(size_t _ch) noexcept
 {
-  assert(ch < kChannelSize);
+  assert(_ch < kChannelSize);
 
   constexpr uint8_t kNoOperationCmd = UINT8_MAX;
-  tx_buf_[ch] = (kNoOperationCmd << 28);
+  tx_buf_[_ch] = (kNoOperationCmd << 28);
 }
 
-bool DShot::getValidity(size_t ch) noexcept
+bool DShot::getValidity(size_t _ch) noexcept
 {
-  return rx_buf_[ch] > 0;
+  return rx_buf_[_ch] > 0;
 }
 
-double DShot::getSpeed(size_t ch) noexcept
+double DShot::getSpeed(size_t _ch) noexcept
 {
-  const auto erpm = (rx_buf_[ch] >> 0) & 0x0FFF;
+  const auto erpm = (rx_buf_[_ch] >> 0) & 0x0FFF;
 
   if (erpm == 0) {
     return NAN;
@@ -173,36 +173,36 @@ double DShot::getSpeed(size_t ch) noexcept
   const auto base = erpm & 0x01FF;
   const auto eperiod_us = (base << exp);
 
-  const auto period_us = eperiod_us * half_num_poles_.at(ch);
+  const auto period_us = eperiod_us * half_num_poles_.at(_ch);
   return (M_2PI * 1e+6) / static_cast<double>(period_us);
 }
 
-double DShot::getTemperature(size_t ch) noexcept
+double DShot::getTemperature(size_t _ch) noexcept
 {
-  const auto temperature = (rx_buf_[ch] >> 12) & 0x0F;
+  const auto temperature = (rx_buf_[_ch] >> 12) & 0x0F;
   return static_cast<double>(temperature << 4);
 }
 
-double DShot::getVoltage(size_t ch) noexcept
+double DShot::getVoltage(size_t _ch) noexcept
 {
-  const auto voltage = (rx_buf_[ch] >> 16) & 0xFF;
+  const auto voltage = (rx_buf_[_ch] >> 16) & 0xFF;
   return static_cast<double>(voltage) / 4;
 }
 
-double DShot::getCurrent(size_t ch) noexcept
+double DShot::getCurrent(size_t _ch) noexcept
 {
-  const auto current = (rx_buf_[ch] >> 24) & 0xFF;
+  const auto current = (rx_buf_[_ch] >> 24) & 0xFF;
   return static_cast<double>(current);
 }
 
-void DShot::printCurrentState(size_t ch) noexcept
+void DShot::printCurrentState(size_t _ch) noexcept
 {
-  std::cout << "Channel " << ch << ":" << std::endl;
-  std::cout << "\tValid             : " << std::boolalpha << getValidity(ch) << std::noboolalpha << std::endl;
-  std::cout << "\tSpeed [rpm]       : " << st::rps2rpm(getSpeed(ch)) << std::endl;
-  std::cout << "\tTemperature [degC]: " << getTemperature(ch) << std::endl;
-  std::cout << "\tVoltage [V]       : " << getVoltage(ch) << std::endl;
-  std::cout << "\tCurrent [A]       : " << getCurrent(ch) << std::endl;
+  std::cout << "Channel " << _ch << ":" << std::endl;
+  std::cout << "\tValid             : " << std::boolalpha << getValidity(_ch) << std::noboolalpha << std::endl;
+  std::cout << "\tSpeed [rpm]       : " << st::rps2rpm(getSpeed(_ch)) << std::endl;
+  std::cout << "\tTemperature [degC]: " << getTemperature(_ch) << std::endl;
+  std::cout << "\tVoltage [V]       : " << getVoltage(_ch) << std::endl;
+  std::cout << "\tCurrent [A]       : " << getCurrent(_ch) << std::endl;
 }
 
 void DShot::printCurrentStates() noexcept

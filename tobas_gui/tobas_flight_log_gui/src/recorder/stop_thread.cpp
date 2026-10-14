@@ -35,9 +35,9 @@ void RecordStopThread::run()
   Q_EMIT finished(true, "", QString::fromStdString(res->path));
 }
 
-void RecordStopThread::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void RecordStopThread::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  sc_.emplace(node, path::join(ns, kRemoteIfaceNS, service::kRosbagRecordStop));
+  sc_.emplace(_node, path::join(_ns, kRemoteIfaceNS, service::kRosbagRecordStop));
 }
 
 void RecordStopThread::clearRosInterfaces()

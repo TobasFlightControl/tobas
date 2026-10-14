@@ -35,60 +35,61 @@ bool RateThrottleController::requireHeading()
   return false;
 }
 
-void RateThrottleController::initialize(BaseNode* node, FlightMode mode)
+void RateThrottleController::initialize(BaseNode* _node, FlightMode _mode)
 {
-  node->addDynamicDoubleParam(
-    addMode("max_attitude_rate", mode), &self::maxAttitudeRateCb, this, 45.0, 8, 1, 16, " dps");
-  node->addDynamicDoubleParam(addMode("max_heading_rate", mode), &self::maxHeadingRateCb, this, 45.0, 8, 1, 16, " dps");
-  node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5.0, -6, -20, 20);
-  node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
-  node->addDynamicDoubleParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 5.0, 0, 0, 20);
+  _node->addDynamicDoubleParam(
+    addMode("max_attitude_rate", _mode), &self::maxAttitudeRateCb, this, 45.0, 8, 1, 16, " dps");
+  _node->addDynamicDoubleParam(
+    addMode("max_heading_rate", _mode), &self::maxHeadingRateCb, this, 45.0, 8, 1, 16, " dps");
+  _node->addDynamicDoubleParam(addMode("attitude_expo", _mode), &self::attitudeExpoCb, this, 5.0, -6, -20, 20);
+  _node->addDynamicDoubleParam(addMode("heading_expo", _mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
+  _node->addDynamicDoubleParam(addMode("throttle_expo", _mode), &self::throttleExpoCb, this, 5.0, 0, 0, 20);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottle>(topic::kRateThrotCmd);
+  cmd_pub_ = _node->createPublisher<tobas_command_msgs::RateThrottle>(topic::kRateThrotCmd);
 }
 
 void RateThrottleController::reset(const builtin_interfaces::msg::Time&, const tobas_msgs::Odometry&, bool)
 {
 }
 
-void RateThrottleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
+void RateThrottleController::update(const tobas_msgs::RCInput& _rcin, const tobas_msgs::Odometry&, bool)
 {
   // Create command.
   auto cmd = std::make_unique<tobas_command_msgs::RateThrottle>();
-  cmd->header = rcin.header;
+  cmd->header = _rcin.header;
   cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
-  cmd->rate.x(expoRemap(rcin.roll, atti_expo_, -max_atti_rate_, max_atti_rate_));
-  cmd->rate.y(expoRemap(rcin.pitch, atti_expo_, -max_atti_rate_, max_atti_rate_));
-  cmd->rate.z(expoRemap(rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_));
-  cmd->throttle = expo(remap(rcin.throttle, kMinThrot, kMaxThrot), throt_expo_);
+  cmd->rate.x(expoRemap(_rcin.roll, atti_expo_, -max_atti_rate_, max_atti_rate_));
+  cmd->rate.y(expoRemap(_rcin.pitch, atti_expo_, -max_atti_rate_, max_atti_rate_));
+  cmd->rate.z(expoRemap(_rcin.yaw, head_expo_, -max_head_rate_, max_head_rate_));
+  cmd->throttle = expo(remap(_rcin.throttle, kMinThrot, kMaxThrot), throt_expo_);
 
   // Publish command.
   cmd_pub_->publish(std::move(cmd));
 }
 
-void RateThrottleController::maxAttitudeRateCb(double p)
+void RateThrottleController::maxAttitudeRateCb(double _p)
 {
-  max_atti_rate_ = st::deg2rad(p);
+  max_atti_rate_ = st::deg2rad(_p);
 }
 
-void RateThrottleController::maxHeadingRateCb(double p)
+void RateThrottleController::maxHeadingRateCb(double _p)
 {
-  max_head_rate_ = st::deg2rad(p);
+  max_head_rate_ = st::deg2rad(_p);
 }
 
-void RateThrottleController::attitudeExpoCb(double p)
+void RateThrottleController::attitudeExpoCb(double _p)
 {
-  atti_expo_ = p / kExpoScale;
+  atti_expo_ = _p / kExpoScale;
 }
 
-void RateThrottleController::headingExpoCb(double p)
+void RateThrottleController::headingExpoCb(double _p)
 {
-  head_expo_ = p / kExpoScale;
+  head_expo_ = _p / kExpoScale;
 }
 
-void RateThrottleController::throttleExpoCb(double p)
+void RateThrottleController::throttleExpoCb(double _p)
 {
-  throt_expo_ = p / kExpoScale;
+  throt_expo_ = _p / kExpoScale;
 }
 }  // namespace rc
 }  // namespace tobas

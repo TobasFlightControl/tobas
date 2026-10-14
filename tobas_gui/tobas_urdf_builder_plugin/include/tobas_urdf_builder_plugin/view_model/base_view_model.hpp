@@ -28,7 +28,7 @@ public:
   using ModelPtr = std::shared_ptr<M>;
   using DerivedPtr = std::shared_ptr<Derived>;
 
-  explicit BaseViewModel(const ModelPtr& model) : model_(model)
+  explicit BaseViewModel(const ModelPtr& _model) : model_(_model)
   {
     if (!model_) {
       model_.reset(new M());

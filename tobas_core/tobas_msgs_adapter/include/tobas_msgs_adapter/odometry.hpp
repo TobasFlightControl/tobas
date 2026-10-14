@@ -39,18 +39,18 @@ struct rclcpp::TypeAdapter<tobas_msgs::Odometry, tobas_msgs::msg::Odometry>
   using custom_type = tobas_msgs::Odometry;
   using ros_message_type = tobas_msgs::msg::Odometry;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    tobas_kdl_msgs::FrameAdapter::convert_to_ros_message(src.frame, dst.frame);
-    tobas_kdl_msgs::TwistAdapter::convert_to_ros_message(src.twist, dst.twist);
-    tobas_kdl_msgs::AccelAdapter::convert_to_ros_message(src.accel, dst.accel);
+    tobas_kdl_msgs::FrameAdapter::convert_to_ros_message(_src.frame, _dst.frame);
+    tobas_kdl_msgs::TwistAdapter::convert_to_ros_message(_src.twist, _dst.twist);
+    tobas_kdl_msgs::AccelAdapter::convert_to_ros_message(_src.accel, _dst.accel);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas_kdl_msgs::FrameAdapter::convert_to_custom(src.frame, dst.frame);
-    tobas_kdl_msgs::TwistAdapter::convert_to_custom(src.twist, dst.twist);
-    tobas_kdl_msgs::AccelAdapter::convert_to_custom(src.accel, dst.accel);
+    tobas_kdl_msgs::FrameAdapter::convert_to_custom(_src.frame, _dst.frame);
+    tobas_kdl_msgs::TwistAdapter::convert_to_custom(_src.twist, _dst.twist);
+    tobas_kdl_msgs::AccelAdapter::convert_to_custom(_src.accel, _dst.accel);
   }
 };
 

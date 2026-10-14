@@ -36,7 +36,7 @@ constexpr char kPeriodUbLabel[] = "PWM Period (UB)";
 
 }  // namespace
 
-PwmWidget::PwmWidget(const uadf::Model& uadf, const Signals& sig) : super(0, kNumCols), uadf_(uadf)
+PwmWidget::PwmWidget(const uadf::Model& _uadf, const Signals& _sig) : super(0, kNumCols), uadf_(_uadf)
 {
   setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
   setHorizontalHeaderLabels({ kTargetNameLabel, kPeriodLbLabel, kPeriodUbLabel });
@@ -46,7 +46,7 @@ PwmWidget::PwmWidget(const uadf::Model& uadf, const Signals& sig) : super(0, kNu
   hor_header->setSectionResizeMode(QHeaderView::ResizeToContents);
   hor_header->setMinimumSectionSize(kTableHeaderSectionSize);
 
-  connect(&sig, &Signals::propulsionTypeChanged, this, &self::onPropulsionTypeChanged);
+  connect(&_sig, &Signals::propulsionTypeChanged, this, &self::onPropulsionTypeChanged);
 }
 
 void PwmWidget::updateInternalDataStructures()
@@ -99,22 +99,22 @@ YAML::Node PwmWidget::dump() const
   return node;
 }
 
-void PwmWidget::load(const YAML::Node& node)
+void PwmWidget::load(const YAML::Node& _node)
 {
-  for (const auto& [channel, sub_node] : std::views::enumerate(node)) {
+  for (const auto& [channel, sub_node] : std::views::enumerate(_node)) {
     targetNameWidget(channel)->setCurrentText(sub_node[kTargetNameLabel].as<QString>());
     periodLbWidget(channel)->setValue(sub_node[kPeriodLbLabel].as<double>());
     periodUbWidget(channel)->setValue(sub_node[kPeriodUbLabel].as<double>());
   }
 }
 
-void PwmWidget::setNumChannels(int num)
+void PwmWidget::setNumChannels(int _num)
 {
   while (true) {
-    if (num > rowCount()) {
+    if (_num > rowCount()) {
       addLastChannel();
     }
-    else if (num < rowCount()) {
+    else if (_num < rowCount()) {
       removeLastChannel();
     }
     else {
@@ -123,14 +123,14 @@ void PwmWidget::setNumChannels(int num)
   }
 }
 
-QString PwmWidget::targetName(int channel) const
+QString PwmWidget::targetName(int _channel) const
 {
-  return targetNameWidget(channel)->currentText();
+  return targetNameWidget(_channel)->currentText();
 }
 
-PwmWidget::TargetType PwmWidget::targetType(int channel) const
+PwmWidget::TargetType PwmWidget::targetType(int _channel) const
 {
-  const auto target_name = targetName(channel).toStdString();
+  const auto target_name = targetName(_channel).toStdString();
 
   if (uadf_.thrusts.contains(target_name)) {
     return TargetType::kThrust;
@@ -149,20 +149,20 @@ PwmWidget::TargetType PwmWidget::targetType(int channel) const
   }
 }
 
-double PwmWidget::periodLb(int channel) const
+double PwmWidget::periodLb(int _channel) const
 {
-  return periodLbWidget(channel)->value();
+  return periodLbWidget(_channel)->value();
 }
 
-double PwmWidget::periodUb(int channel) const
+double PwmWidget::periodUb(int _channel) const
 {
-  return periodUbWidget(channel)->value();
+  return periodUbWidget(_channel)->value();
 }
 
-bool PwmWidget::contains(const QString& target_name) const
+bool PwmWidget::contains(const QString& _target_name) const
 {
   for (int channel = 0; channel < rowCount(); ++channel) {
-    if (targetName(channel) == target_name) {
+    if (targetName(channel) == _target_name) {
       return true;
     }
   }
@@ -170,46 +170,46 @@ bool PwmWidget::contains(const QString& target_name) const
   return false;
 }
 
-int PwmWidget::channel(const QString& target_name) const
+int PwmWidget::channel(const QString& _target_name) const
 {
   for (int channel = 0; channel < rowCount(); ++channel) {
-    if (targetName(channel) == target_name) {
+    if (targetName(channel) == _target_name) {
       return channel;
     }
   }
 
-  qWarning() << target_name << "not found.";
+  qWarning() << _target_name << "not found.";
   return -1;
 }
 
-qt::ComboBox* PwmWidget::targetNameWidget(int row)
+qt::ComboBox* PwmWidget::targetNameWidget(int _row)
 {
-  return qt::qPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
+  return qt::qPointerCast<qt::ComboBox>(cellWidget(_row, kTargetNameCol));
 }
 
-qt::DoubleSpinBox* PwmWidget::periodLbWidget(int row)
+qt::DoubleSpinBox* PwmWidget::periodLbWidget(int _row)
 {
-  return qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodLbCol));
+  return qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kPeriodLbCol));
 }
 
-qt::DoubleSpinBox* PwmWidget::periodUbWidget(int row)
+qt::DoubleSpinBox* PwmWidget::periodUbWidget(int _row)
 {
-  return qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodUbCol));
+  return qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kPeriodUbCol));
 }
 
-const qt::ComboBox* PwmWidget::targetNameWidget(int row) const
+const qt::ComboBox* PwmWidget::targetNameWidget(int _row) const
 {
-  return qt::qConstPointerCast<qt::ComboBox>(cellWidget(row, kTargetNameCol));
+  return qt::qConstPointerCast<qt::ComboBox>(cellWidget(_row, kTargetNameCol));
 }
 
-const qt::DoubleSpinBox* PwmWidget::periodLbWidget(int row) const
+const qt::DoubleSpinBox* PwmWidget::periodLbWidget(int _row) const
 {
-  return qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodLbCol));
+  return qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kPeriodLbCol));
 }
 
-const qt::DoubleSpinBox* PwmWidget::periodUbWidget(int row) const
+const qt::DoubleSpinBox* PwmWidget::periodUbWidget(int _row) const
 {
-  return qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPeriodUbCol));
+  return qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kPeriodUbCol));
 }
 
 void PwmWidget::addLastChannel()
@@ -282,9 +282,9 @@ void PwmWidget::removeLastChannel()
   }
 }
 
-void PwmWidget::onPropulsionTypeChanged(PropulsionSystem new_prop_type)
+void PwmWidget::onPropulsionTypeChanged(PropulsionSystem _new_prop_type)
 {
-  if (new_prop_type == prop_type_) {
+  if (_new_prop_type == prop_type_) {
     return;
   }
 
@@ -317,7 +317,7 @@ void PwmWidget::onPropulsionTypeChanged(PropulsionSystem new_prop_type)
   }
 
   // Add choices for the new propulsion system.
-  switch (new_prop_type) {
+  switch (_new_prop_type) {
     case PropulsionSystem::kElectric: {
       break;
     }
@@ -338,7 +338,7 @@ void PwmWidget::onPropulsionTypeChanged(PropulsionSystem new_prop_type)
       throw;
   }
 
-  prop_type_ = new_prop_type;
+  prop_type_ = _new_prop_type;
 }
 }  // namespace hw
 }  // namespace sa

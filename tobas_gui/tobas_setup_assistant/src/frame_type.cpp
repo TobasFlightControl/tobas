@@ -19,9 +19,9 @@ constexpr char kRandomAxisTiltMulticopter[] = "Random Axis Tilt Multicopter";
 constexpr char kFixedWing[] = "Fixed Wing";
 }  // namespace
 
-std::string textFromEnum(FrameType arg)
+std::string textFromEnum(FrameType _arg)
 {
-  switch (arg) {
+  switch (_arg) {
     case FrameType::kUndefined:
       return kUndefined;
     case FrameType::kPlanarMulticopter:
@@ -39,30 +39,30 @@ std::string textFromEnum(FrameType arg)
   }
 }
 
-bool enumFromText(const std::string& text, FrameType& dst)
+bool enumFromText(const std::string& _text, FrameType& _dst)
 {
-  if (text == kUndefined) {
-    dst = FrameType::kUndefined;
+  if (_text == kUndefined) {
+    _dst = FrameType::kUndefined;
     return true;
   }
-  else if (text == kPlanarMulticopter) {
-    dst = FrameType::kPlanarMulticopter;
+  else if (_text == kPlanarMulticopter) {
+    _dst = FrameType::kPlanarMulticopter;
     return true;
   }
-  else if (text == kNonPlanarMulticopter) {
-    dst = FrameType::kNonPlanarMulticopter;
+  else if (_text == kNonPlanarMulticopter) {
+    _dst = FrameType::kNonPlanarMulticopter;
     return true;
   }
-  else if (text == kYAxisTiltMulticopter) {
-    dst = FrameType::kYAxisTiltMulticopter;
+  else if (_text == kYAxisTiltMulticopter) {
+    _dst = FrameType::kYAxisTiltMulticopter;
     return true;
   }
-  else if (text == kRandomAxisTiltMulticopter) {
-    dst = FrameType::kRandomAxisTiltMulticopter;
+  else if (_text == kRandomAxisTiltMulticopter) {
+    _dst = FrameType::kRandomAxisTiltMulticopter;
     return true;
   }
-  else if (text == kFixedWing) {
-    dst = FrameType::kFixedWing;
+  else if (_text == kFixedWing) {
+    _dst = FrameType::kFixedWing;
     return true;
   }
   else {
@@ -75,19 +75,19 @@ bool enumFromText(const std::string& text, FrameType& dst)
 
 namespace YAML
 {
-Node convert<tobas::gui::sa::FrameType>::encode(tobas::gui::sa::FrameType rhs)
+Node convert<tobas::gui::sa::FrameType>::encode(tobas::gui::sa::FrameType _rhs)
 {
   Node node;
-  node = tobas::gui::sa::textFromEnum(rhs);
-  return Node(tobas::gui::sa::textFromEnum(rhs));
+  node = tobas::gui::sa::textFromEnum(_rhs);
+  return Node(tobas::gui::sa::textFromEnum(_rhs));
 }
 
-bool convert<tobas::gui::sa::FrameType>::decode(const Node& node, tobas::gui::sa::FrameType& rhs)
+bool convert<tobas::gui::sa::FrameType>::decode(const Node& _node, tobas::gui::sa::FrameType& _rhs)
 {
-  if (!node.IsScalar()) {
+  if (!_node.IsScalar()) {
     return false;
   }
 
-  return tobas::gui::sa::enumFromText(node.as<std::string>(), rhs);
+  return tobas::gui::sa::enumFromText(_node.as<std::string>(), _rhs);
 }
 }  // namespace YAML

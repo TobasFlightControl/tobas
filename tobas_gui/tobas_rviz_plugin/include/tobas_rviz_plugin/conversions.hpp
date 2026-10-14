@@ -11,6 +11,6 @@ namespace tobas
 {
 namespace rviz
 {
-bool robotStateMsgToRobotState(const tobas_visualization_msgs::msg::RobotState& robot_state, RobotState& state);
+bool robotStateMsgToRobotState(const tobas_visualization_msgs::msg::RobotState& _robot_state, RobotState& _state);
 }  // namespace rviz
 }  // namespace tobas

@@ -18,7 +18,7 @@ class SbusDriverNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit SbusDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit SbusDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   std::string device_;
@@ -28,11 +28,11 @@ private:
   ros2::TimerPtr initialize_timer_;
 
   void initialize();
-  void onPacket(const SBUS::Packet& packet);
+  void onPacket(const SBUS::Packet& _packet);
 };
 
-SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& options)
-  : super("sbus_driver", nodeOptions_Default(options)), sbus_(std::bind(&self::onPacket, this, std::placeholders::_1))
+SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& _options)
+  : super("sbus_driver", nodeOptions_Default(_options)), sbus_(std::bind(&self::onPacket, this, std::placeholders::_1))
 {
   device_ = getStringParam("device", "");
   if (device_.empty()) {
@@ -57,17 +57,17 @@ void SbusDriverNode::initialize()
   initialize_timer_->cancel();
 }
 
-void SbusDriverNode::onPacket(const SBUS::Packet& packet)
+void SbusDriverNode::onPacket(const SBUS::Packet& _packet)
 {
   // Create a message.
   auto sbus_msg = std::make_unique<tobas_msgs::msg::Sbus>();
   sbus_msg->header.stamp = now();
 
-  sbus_msg->periods = packet.periods;
-  sbus_msg->ch17 = packet.ch17;
-  sbus_msg->ch18 = packet.ch18;
-  sbus_msg->frame_lost = packet.frame_lost;
-  sbus_msg->failsafe = packet.failsafe;
+  sbus_msg->periods = _packet.periods;
+  sbus_msg->ch17 = _packet.ch17;
+  sbus_msg->ch18 = _packet.ch18;
+  sbus_msg->frame_lost = _packet.frame_lost;
+  sbus_msg->failsafe = _packet.failsafe;
 
   // Publish the message.
   sbus_pub_->publish(std::move(sbus_msg));

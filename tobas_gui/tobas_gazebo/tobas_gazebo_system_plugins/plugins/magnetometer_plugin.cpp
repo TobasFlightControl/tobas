@@ -41,12 +41,12 @@ public:
   explicit GazeboMagnetometerPlugin();
 
   void Configure(
-    const gz::sim::Entity& model_entity,
-    const sdf::ElementConstPtr& sdf,
-    gz::sim::EntityComponentManager& ecm,
+    const gz::sim::Entity& _model_entity,
+    const sdf::ElementConstPtr& _sdf,
+    gz::sim::EntityComponentManager& _ecm,
     gz::sim::EventManager&) override;
 
-  void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
+  void PostUpdate(const gz::sim::UpdateInfo& _info, const gz::sim::EntityComponentManager& _ecm) override;
 
 private:
   geo::Geography geography_;
@@ -73,7 +73,7 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
 
-  void getSdfParams(const sdf::ElementConstPtr& sdf);
+  void getSdfParams(const sdf::ElementConstPtr& _sdf);
 };
 
 GazeboMagnetometerPlugin::GazeboMagnetometerPlugin()
@@ -81,17 +81,17 @@ GazeboMagnetometerPlugin::GazeboMagnetometerPlugin()
 }
 
 void GazeboMagnetometerPlugin::Configure(
-  const gz::sim::Entity& model_entity,
-  const sdf::ElementConstPtr& sdf,
-  gz::sim::EntityComponentManager& ecm,
+  const gz::sim::Entity& _model_entity,
+  const sdf::ElementConstPtr& _sdf,
+  gz::sim::EntityComponentManager& _ecm,
   gz::sim::EventManager&)
 {
-  initialize("gazebo_magnetometer_plugin", sdf);
-  getSdfParams(sdf);
+  initialize("gazebo_magnetometer_plugin", _sdf);
+  getSdfParams(_sdf);
 
   rate_manager_.emplace(update_rate_);
 
-  const auto sc = getWorldSphericalCoordinates(ecm);
+  const auto sc = getWorldSphericalCoordinates(_ecm);
   if (!sc) {
     TOBAS_EXIT(sc.error());
   }
@@ -99,13 +99,13 @@ void GazeboMagnetometerPlugin::Configure(
   lon_0_ = sc->LongitudeReference().Degree();
   alt_0_ = sc->ElevationReference();
 
-  const gz::sim::Model model(model_entity);
-  const auto link_entity = model.LinkByName(ecm, link_name_);
+  const gz::sim::Model model(_model_entity);
+  const auto link_entity = model.LinkByName(_ecm, link_name_);
   if (link_entity == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
   }
 
-  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, _ecm);
 
   hard_bias_ = createUnitSpherePoint(rnd_dev_) * hard_bias_norm_;
 
@@ -114,13 +114,13 @@ void GazeboMagnetometerPlugin::Configure(
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(topic::kMagneticField);
 }
 
-void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
+void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& _info, const gz::sim::EntityComponentManager&)
 {
-  if (info.paused || info.dt <= std::chrono::steady_clock::duration::zero()) {
+  if (_info.paused || _info.dt <= std::chrono::steady_clock::duration::zero()) {
     return;
   }
 
-  if (!rate_manager_->update(info.simTime)) {
+  if (!rate_manager_->update(_info.simTime)) {
     return;
   }
 
@@ -149,21 +149,21 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
 
   // Create message.
   auto mag_msg = std::make_unique<tobas_msgs::MagneticField>();
-  ros2::timeChronoToMsg(info.simTime, mag_msg->header.stamp);
+  ros2::timeChronoToMsg(_info.simTime, mag_msg->header.stamp);
   vectorGazeboToKDL(field_meas, mag_msg->mag);
 
   // Publish message.
   mag_pub_->publish(std::move(mag_msg));
 }
 
-void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& _sdf)
 {
-  link_name_ = getSdfParam<std::string>(sdf, "linkName");
-  offset_ = getSdfParam<gz::math::Vector3d>(sdf, "offset");
-  update_rate_ = getSdfParam<int>(sdf, "updateRate", kNonNegative);
+  link_name_ = getSdfParam<std::string>(_sdf, "linkName");
+  offset_ = getSdfParam<gz::math::Vector3d>(_sdf, "offset");
+  update_rate_ = getSdfParam<int>(_sdf, "updateRate", kNonNegative);
 
-  noise_stddev_ = getSdfParam<double>(sdf, "noiseStddev", kNonNegative);
-  hard_bias_norm_ = getSdfParam<double>(sdf, "hardBiasNorm", kNonNegative);
+  noise_stddev_ = getSdfParam<double>(_sdf, "noiseStddev", kNonNegative);
+  hard_bias_norm_ = getSdfParam<double>(_sdf, "hardBiasNorm", kNonNegative);
 }
 }  // namespace gazebo
 }  // namespace tobas

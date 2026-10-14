@@ -19,7 +19,7 @@ public:
   Vector angular;  ///< [-] (Revolute) or 0 (Prismatic)
 
   inline explicit SegmentJacobian();
-  inline explicit SegmentJacobian(const Vector& linear, const Vector& angular);
+  inline explicit SegmentJacobian(const Vector& _linear, const Vector& _angular);
 
   static inline SegmentJacobian Zero();
 
@@ -27,15 +27,15 @@ public:
 
   inline Eigen::Vector6d ravel() const;
 
-  inline SegmentJacobian refPoint(const Vector& p) const;
+  inline SegmentJacobian refPoint(const Vector& _p) const;
 
   /** Compute task-space acceleration from joint-space acceleration. */
-  inline Accel accel(double qdd) const;
+  inline Accel accel(double _qdd) const;
 
   /** Compute the force [N or Nm] acting on the joint. */
-  inline double dot(const Wrench& rhs) const;
+  inline double dot(const Wrench& _rhs) const;
   /** Compute inertia [kg m^2 or kg] in joint space. */
-  inline double dot(const SegmentInertia& rhs) const;
+  inline double dot(const SegmentInertia& _rhs) const;
 };
 
 inline SegmentJacobian::SegmentJacobian()
@@ -63,24 +63,24 @@ inline Eigen::Vector6d SegmentJacobian::ravel() const
   return (Eigen::Vector6d() << linear.data, angular.data).finished();
 }
 
-inline SegmentJacobian SegmentJacobian::refPoint(const Vector& p) const
+inline SegmentJacobian SegmentJacobian::refPoint(const Vector& _p) const
 {
-  return SegmentJacobian(linear + angular * p, angular);
+  return SegmentJacobian(linear + angular * _p, angular);
 }
 
-inline Accel SegmentJacobian::accel(double qdd) const
+inline Accel SegmentJacobian::accel(double _qdd) const
 {
-  return Accel(linear * qdd, angular * qdd);
+  return Accel(linear * _qdd, angular * _qdd);
 }
 
-inline double SegmentJacobian::dot(const Wrench& rhs) const
+inline double SegmentJacobian::dot(const Wrench& _rhs) const
 {
-  return linear.dot(rhs.force) + angular.dot(rhs.torque);
+  return linear.dot(_rhs.force) + angular.dot(_rhs.torque);
 }
 
-inline double SegmentJacobian::dot(const SegmentInertia& rhs) const
+inline double SegmentJacobian::dot(const SegmentInertia& _rhs) const
 {
-  return linear.dot(rhs.linear) + angular.dot(rhs.angular);
+  return linear.dot(_rhs.linear) + angular.dot(_rhs.angular);
 }
 }  // namespace kdl
 }  // namespace tobas

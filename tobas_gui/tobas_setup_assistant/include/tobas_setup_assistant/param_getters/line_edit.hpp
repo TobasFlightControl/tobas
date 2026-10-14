@@ -21,16 +21,16 @@ class ParamGetterWidget_LineEdit : public ParamGetterWidget<QString>
   using super = ParamGetterWidget<QString>;
 
 Q_SIGNALS:
-  void textChanged(const QString& text);
+  void textChanged(const QString& _text);
 
 public:
-  explicit ParamGetterWidget_LineEdit(const QString& param_name, const QString& description_text = "");
+  explicit ParamGetterWidget_LineEdit(const QString& _param_name, const QString& _description_text = "");
 
   QString getValue() const override;
-  bool setValue(const QString& src) override;
+  bool setValue(const QString& _src) override;
 
 private Q_SLOTS:
-  void onTextChanged(const QString& text);
+  void onTextChanged(const QString& _text);
 
 private:
   QLineEdit* line_;

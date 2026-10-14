@@ -91,10 +91,10 @@ void SuspendedLoadWidget::reset()
   setParamsToDefault();
 }
 
-void SuspendedLoadWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void SuspendedLoadWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  attach_sc_.emplace(node, path::join(ns, gazebo::kAttachSuspenedLoadSrv));
-  detach_sc_.emplace(node, path::join(ns, gazebo::kDetachSuspenedLoadSrv));
+  attach_sc_.emplace(_node, path::join(_ns, gazebo::kAttachSuspenedLoadSrv));
+  detach_sc_.emplace(_node, path::join(_ns, gazebo::kDetachSuspenedLoadSrv));
 }
 
 void SuspendedLoadWidget::clearRosInterfaces()

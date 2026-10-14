@@ -35,7 +35,7 @@ class HealthMonitorNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit HealthMonitorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit HealthMonitorNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   struct DoCheck
@@ -105,25 +105,25 @@ private:
   void getStaticRosParams();
   std::unique_ptr<tobas_msgs::msg::VehicleHealth> createHealthMessage() const;
 
-  void droneCb(const Drone::ConstSharedPtr& drone);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
-  void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
-  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
-  void rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liv);
-  void samplingTimeCb(const tobas_msgs::msg::Latency::ConstSharedPtr& sampling_time);
-  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
-  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
-  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag);
-  void magRefCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_ref);
-  void vibrationLevelCb(const tobas_msgs::VibrationLevel::ConstSharedPtr& vibe);
-  void userDefinedHealthStatusCb(const tobas_msgs::msg::UserDefinedHealthStatus::ConstSharedPtr& user_health);
+  void droneCb(const Drone::ConstSharedPtr& _drone);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
+  void battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& _battery);
+  void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& _cpu);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin);
+  void rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& _rotor_liv);
+  void samplingTimeCb(const tobas_msgs::msg::Latency::ConstSharedPtr& _sampling_time);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom);
+  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss);
+  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& _mag);
+  void magRefCb(const tobas_msgs::MagneticField::ConstSharedPtr& _mag_ref);
+  void vibrationLevelCb(const tobas_msgs::VibrationLevel::ConstSharedPtr& _vibe);
+  void userDefinedHealthStatusCb(const tobas_msgs::msg::UserDefinedHealthStatus::ConstSharedPtr& _user_health);
 
   void mainTimerCb();
 };
 
-HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& options)
-  : super("health_monitor", nodeOptions_Default(options))
+HealthMonitorNode::HealthMonitorNode(const rclcpp::NodeOptions& _options)
+  : super("health_monitor", nodeOptions_Default(_options))
   , t_last_rt_violation_(now())
   , pos_bufs_{ st::TimestampedBufferDouble(5s), st::TimestampedBufferDouble(5s), st::TimestampedBufferDouble(5s) }
 {
@@ -525,24 +525,24 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
   return health;
 }
 
-void HealthMonitorNode::droneCb(const Drone::ConstSharedPtr& drone)
+void HealthMonitorNode::droneCb(const Drone::ConstSharedPtr& _drone)
 {
-  drone_ = drone;
+  drone_ = _drone;
 }
 
-void HealthMonitorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void HealthMonitorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming)
 {
   // Clear `pos_bufs_` for position drift checks when disarmed.
-  if (!arming_ || (arming_->data && !arming->data)) {
+  if (!arming_ || (arming_->data && !_arming->data)) {
     for (auto& buf : pos_bufs_) {
       buf.clear();
     }
   }
 
-  arming_ = arming;
+  arming_ = _arming;
 }
 
-void HealthMonitorNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
+void HealthMonitorNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& _battery)
 {
   if (!drone_) {
     return;
@@ -554,20 +554,20 @@ void HealthMonitorNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& b
   }
 
   // Calculate voltage compensated for the drop caused by internal resistance.
-  const auto voltage = battery->voltage + eprop->battery.internal_resistance * battery->current;
+  const auto voltage = _battery->voltage + eprop->battery.internal_resistance * _battery->current;
 
   // Determine the initial state.
   if (!battery_) {
-    battery_ = battery;
+    battery_ = _battery;
     batt_voltage_ok_ = voltage > eprop->battery.nominal_voltage;
     return;
   }
 
   // Update the latest battery state.
-  battery_ = battery;
+  battery_ = _battery;
 
   // Switch state robustly using hysteresis and a time window.
-  const auto& cur_time = battery->header.stamp;
+  const auto& cur_time = _battery->header.stamp;
   if (batt_voltage_ok_) {
     // Update the last time the voltage was above the threshold.
     if (voltage > eprop->battery.sag_voltage) {
@@ -597,57 +597,57 @@ void HealthMonitorNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& b
   }
 }
 
-void HealthMonitorNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
+void HealthMonitorNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& _cpu)
 {
-  cpu_ = cpu;
+  cpu_ = _cpu;
 }
 
-void HealthMonitorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
+void HealthMonitorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin)
 {
-  if (rcin->status == tobas_msgs::msg::RCInput::STATUS_OK) {
-    t_last_valid_rcin_ = rclcpp::Time(rcin->header.stamp, get_clock()->get_clock_type());
+  if (_rcin->status == tobas_msgs::msg::RCInput::STATUS_OK) {
+    t_last_valid_rcin_ = rclcpp::Time(_rcin->header.stamp, get_clock()->get_clock_type());
   }
 
-  rcin_ = rcin;
+  rcin_ = _rcin;
 }
 
-void HealthMonitorNode::rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liv)
+void HealthMonitorNode::rotorLivCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& _rotor_liv)
 {
-  rotor_liv_ = rotor_liv;
+  rotor_liv_ = _rotor_liv;
 }
 
-void HealthMonitorNode::samplingTimeCb(const tobas_msgs::msg::Latency::ConstSharedPtr& sampling_time)
+void HealthMonitorNode::samplingTimeCb(const tobas_msgs::msg::Latency::ConstSharedPtr& _sampling_time)
 {
   // Check message time difference.
   constexpr auto kImuSamplingTimeThresh = 5ms;
-  if (sampling_time->data > kImuSamplingTimeThresh) {
-    t_last_rt_violation_ = rclcpp::Time(sampling_time->header.stamp, get_clock()->get_clock_type());
+  if (_sampling_time->data > kImuSamplingTimeThresh) {
+    t_last_rt_violation_ = rclcpp::Time(_sampling_time->header.stamp, get_clock()->get_clock_type());
   }
 
-  sampling_time_ = sampling_time;
+  sampling_time_ = _sampling_time;
 }
 
-void HealthMonitorNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
+void HealthMonitorNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom)
 {
   // Store position history while the vehicle is not armed.
   if (arming_ && !arming_->data) {
-    const auto stamp = ros2::chronoFromRosTime(odom->header.stamp);
+    const auto stamp = ros2::chronoFromRosTime(_odom->header.stamp);
     for (size_t i = 0; i < 3; ++i) {
-      pos_bufs_[i].add(stamp, odom->odom.odom.frame.p(i));
+      pos_bufs_[i].add(stamp, _odom->odom.odom.frame.p(i));
     }
   }
 
-  odom_ = odom;
+  odom_ = _odom;
 }
 
-void HealthMonitorNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
+void HealthMonitorNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss)
 {
   constexpr auto kGnssFixLossTimeThresh = 1s;
   constexpr auto kGnssFixRecoveryTimeThresh = 3s;
-  const auto fix_available = (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
-  const auto& cur_time = gnss->header.stamp;
+  const auto fix_available = (_gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
+  const auto& cur_time = _gnss->header.stamp;
 
-  gnss_ = gnss;
+  gnss_ = _gnss;
 
   if (gnss_fixed_) {
     if (fix_available) {
@@ -669,13 +669,13 @@ void HealthMonitorNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
   }
 }
 
-void HealthMonitorNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag)
+void HealthMonitorNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& _mag)
 {
   if (!odom_) {
     return;
   }
 
-  const auto& mag_B = mag->mag;
+  const auto& mag_B = _mag->mag;
 
   // Magnetic field vector in the world frame, ideally an invariant vector.
   // Convert to the world frame before passing through the LPF to avoid attitude-magnetic-field time offset.
@@ -685,31 +685,31 @@ void HealthMonitorNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& m
     mag_B_lpf_.setValue(mag_B);
     mag_W_lpf_.setValue(mag_W);
 
-    mag_ = mag;
+    mag_ = _mag;
     return;
   }
 
-  const auto dt = (mag->header.stamp - mag_->header.stamp).seconds();
-  mag_ = mag;
+  const auto dt = (_mag->header.stamp - mag_->header.stamp).seconds();
+  mag_ = _mag;
 
   mag_B_lpf_.update(mag_B, dt);
   mag_W_lpf_.update(mag_W, dt);
 }
 
-void HealthMonitorNode::magRefCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_ref)
+void HealthMonitorNode::magRefCb(const tobas_msgs::MagneticField::ConstSharedPtr& _mag_ref)
 {
-  mag_ref_ = mag_ref;
+  mag_ref_ = _mag_ref;
 }
 
-void HealthMonitorNode::vibrationLevelCb(const tobas_msgs::VibrationLevel::ConstSharedPtr& vibe)
+void HealthMonitorNode::vibrationLevelCb(const tobas_msgs::VibrationLevel::ConstSharedPtr& _vibe)
 {
-  vibe_ = vibe;
+  vibe_ = _vibe;
 }
 
 void HealthMonitorNode::userDefinedHealthStatusCb(
-  const tobas_msgs::msg::UserDefinedHealthStatus::ConstSharedPtr& user_health)
+  const tobas_msgs::msg::UserDefinedHealthStatus::ConstSharedPtr& _user_health)
 {
-  user_health_ = user_health;
+  user_health_ = _user_health;
 }
 
 void HealthMonitorNode::mainTimerCb()

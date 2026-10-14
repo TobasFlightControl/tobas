@@ -25,7 +25,7 @@ public:
    * Constructor for "standard" widget behaviour.
    * Use this constructor if you wish to, e.g. embed your widget in another.
    */
-  explicit WaitSpinnerWidget(QWidget* parent = nullptr, bool center_on_parent = true);
+  explicit WaitSpinnerWidget(QWidget* _parent = nullptr, bool _center_on_parent = true);
 
   /**
    * Constructor.
@@ -33,17 +33,17 @@ public:
    * If a valid parent widget is provided, `center_on_parent` will ensure
    * that the spinner automatically centers itself on it, if not, `center_on_parent` is ignored.
    */
-  explicit WaitSpinnerWidget(Qt::WindowModality modality, QWidget* parent = nullptr, bool center_on_parent = true);
+  explicit WaitSpinnerWidget(Qt::WindowModality _modality, QWidget* _parent = nullptr, bool _center_on_parent = true);
 
-  void setColor(QColor color);
-  void setRoundness(double roundness);
-  void setMinimumTrailOpacity(double min_trail_opacity);
-  void setTrailFadePercentage(double trail);
-  void setRevolutionsPerSecond(double revolution_per_sec);
-  void setNumberOfLines(int lines);
-  void setLineLength(int length);
-  void setLineWidth(int width);
-  void setInnerRadius(int radius);
+  void setColor(QColor _color);
+  void setRoundness(double _roundness);
+  void setMinimumTrailOpacity(double _min_trail_opacity);
+  void setTrailFadePercentage(double _trail);
+  void setRevolutionsPerSecond(double _revolution_per_sec);
+  void setNumberOfLines(int _lines);
+  void setLineLength(int _length);
+  void setLineWidth(int _width);
+  void setInnerRadius(int _radius);
 
   QColor color() const;
   double roundness() const;
@@ -62,7 +62,7 @@ public Q_SLOTS:
   void stop();
 
 protected:
-  void paintEvent(QPaintEvent* event);
+  void paintEvent(QPaintEvent* _event);
 
 private Q_SLOTS:
   void rotate();

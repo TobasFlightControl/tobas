@@ -13,9 +13,9 @@ TreeParser::TreeParser()
 {
 }
 
-std::expected<Tree, std::string> TreeParser::parseFromPath(const std::string& path)
+std::expected<Tree, std::string> TreeParser::parseFromPath(const std::string& _path)
 {
-  const auto model = urdf_parser_.parseFromPath(path);
+  const auto model = urdf_parser_.parseFromPath(_path);
   if (!model) {
     return std::unexpected(model.error());
   }
@@ -23,9 +23,9 @@ std::expected<Tree, std::string> TreeParser::parseFromPath(const std::string& pa
   return parseFromUrdf(**model);
 }
 
-std::expected<Tree, std::string> TreeParser::parseFromText(const std::string& xml)
+std::expected<Tree, std::string> TreeParser::parseFromText(const std::string& _xml)
 {
-  const auto model = urdf_parser_.parseFromText(xml);
+  const auto model = urdf_parser_.parseFromText(_xml);
   if (!model) {
     return std::unexpected(model.error());
   }
@@ -33,9 +33,9 @@ std::expected<Tree, std::string> TreeParser::parseFromText(const std::string& xm
   return parseFromUrdf(**model);
 }
 
-std::expected<Tree, std::string> TreeParser::parseFromUrdf(const ::urdf::ModelInterface& model)
+std::expected<Tree, std::string> TreeParser::parseFromUrdf(const ::urdf::ModelInterface& _model)
 {
-  const auto root_link = model.getRoot();
+  const auto root_link = _model.getRoot();
   if (!root_link) {
     return std::unexpected("Failed to get root link.");
   }
@@ -59,29 +59,29 @@ std::expected<Tree, std::string> TreeParser::parseFromUrdf(const ::urdf::ModelIn
   return tree;
 }
 
-void TreeParser::addChildrenToTree(const ::urdf::LinkConstSharedPtr& root, Tree& tree)
+void TreeParser::addChildrenToTree(const ::urdf::LinkConstSharedPtr& _root, Tree& _tree)
 {
   // Construct the KDL joint.
-  const auto joint = jointUrdfToKdl(*root->parent_joint);
+  const auto joint = jointUrdfToKdl(*_root->parent_joint);
 
   // Construct the tip frame.
-  const auto f_tip = poseUrdfToKdl(root->parent_joint->parent_to_joint_origin_transform);
+  const auto f_tip = poseUrdfToKdl(_root->parent_joint->parent_to_joint_origin_transform);
 
   // Construct the optional inertia.
   RigidBodyInertia inertia;
-  if (root->inertial) {
-    inertiaUrdfToKdl(*root->inertial, inertia);
+  if (_root->inertial) {
+    inertiaUrdfToKdl(*_root->inertial, inertia);
   }
 
   // Construct the KDL segment.
-  const Segment segment(root->name, joint, f_tip, inertia);
+  const Segment segment(_root->name, joint, f_tip, inertia);
 
   // Add segment to tree.
-  tree.addSegment(segment, root->parent_joint->parent_link_name);
+  _tree.addSegment(segment, _root->parent_joint->parent_link_name);
 
   // Recurslively add all children.
-  for (const auto& child : root->child_links) {
-    addChildrenToTree(child, tree);
+  for (const auto& child : _root->child_links) {
+    addChildrenToTree(child, _tree);
   }
 }
 }  // namespace kdl

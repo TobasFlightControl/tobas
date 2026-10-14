@@ -24,12 +24,12 @@ public:
     kServerError = -2,
   };
 
-  explicit DynamicParamClient(rclcpp::Node::SharedPtr node, const std::string& node_name, const std::string& ns = "");
+  explicit DynamicParamClient(rclcpp::Node::SharedPtr _node, const std::string& _node_name, const std::string& _ns = "");
 
-  Error setBool(const std::string& param_name, bool value);
-  Error setInt(const std::string& param_name, long value);
-  Error setDouble(const std::string& param_name, long value);
-  Error setString(const std::string& param_name, const std::string& value);
+  Error setBool(const std::string& _param_name, bool _value);
+  Error setInt(const std::string& _param_name, long _value);
+  Error setDouble(const std::string& _param_name, long _value);
+  Error setString(const std::string& _param_name, const std::string& _value);
 
   Error errorCode() const;
   const char* errorMessage() const;
@@ -47,19 +47,19 @@ private:
   std::string server_error_msg_;
 
   template <typename SrvType, typename T>
-  Error setParam(ros2::SyncServiceClient<SrvType>& sc, const std::string& param_name, T& value);
+  Error setParam(ros2::SyncServiceClient<SrvType>& _sc, const std::string& _param_name, T& _value);
 };
 
 template <typename SrvType, typename T>
 DynamicParamClient::Error
-DynamicParamClient::setParam(ros2::SyncServiceClient<SrvType>& sc, const std::string& param_name, T& value)
+DynamicParamClient::setParam(ros2::SyncServiceClient<SrvType>& _sc, const std::string& _param_name, T& _value)
 {
   const auto req = std::make_shared<typename SrvType::Request>();
   req->node_name = node_name_;
-  req->param_name = param_name;
-  req->value = value;
+  req->param_name = _param_name;
+  req->value = _value;
 
-  const auto res = sc.sendRequestAndWait(req);
+  const auto res = _sc.sendRequestAndWait(req);
   if (!res) {
     return error_code_ = kServiceNotReady;
   }

@@ -33,12 +33,12 @@ class AddLinkDialog : public QDialog
   using super = QDialog;
 
 public:
-  explicit AddLinkDialog(UrdfBuilderPanel* main, const QStringList& link_names, view_model::LinkViewModel& link_vm);
+  explicit AddLinkDialog(UrdfBuilderPanel* _main, const QStringList& _link_names, view_model::LinkViewModel& _link_vm);
 
 private Q_SLOTS:
-  void onLinkNameLineEditTextChanged(const QString& text);
-  void onJointNameLineEditTextChanged(const QString& text);
-  void onJointParentComboBoxIndexChanged(int index);
+  void onLinkNameLineEditTextChanged(const QString& _text);
+  void onJointNameLineEditTextChanged(const QString& _text);
+  void onJointParentComboBoxIndexChanged(int _index);
 
 private:
   UrdfBuilderPanel* main_;
@@ -46,7 +46,7 @@ private:
   view_model::LinkViewModel& link_vm_;
 
   void checkValidity();
-  void enableOkButton(bool enable);
+  void enableOkButton(bool _enable);
 };
 }  // namespace ui
 }  // namespace ub

@@ -10,7 +10,7 @@ namespace tobas
 {
 namespace gazebo
 {
-void vector3dGzToMsg(const gz::math::Vector3d& g, gz::msgs::Vector3d& m);
-void vector3dMsgToGz(const gz::msgs::Vector3d& m, gz::math::Vector3d& g);
+void vector3dGzToMsg(const gz::math::Vector3d& _g, gz::msgs::Vector3d& _m);
+void vector3dMsgToGz(const gz::msgs::Vector3d& _m, gz::math::Vector3d& _g);
 }  // namespace gazebo
 }  // namespace tobas

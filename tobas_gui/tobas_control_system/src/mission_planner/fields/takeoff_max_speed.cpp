@@ -40,9 +40,9 @@ double TakeoffMaxSpeedWidget::getValue() const
   return spin_box_->value();
 }
 
-void TakeoffMaxSpeedWidget::setValue(double value)
+void TakeoffMaxSpeedWidget::setValue(double _value)
 {
-  spin_box_->setValue(value);
+  spin_box_->setValue(_value);
 }
 }  // namespace field
 }  // namespace ctrl

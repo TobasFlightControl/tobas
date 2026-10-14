@@ -21,38 +21,38 @@ namespace rviz
 class RobotModel
 {
 public:
-  explicit RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model);
+  explicit RobotModel(const urdf::ModelInterfaceSharedPtr& _urdf_model);
 
   const std::string& getModelFrame() const;
   const urdf::ModelInterfaceSharedPtr& getURDF() const;
   JointModel::ConstSharedPtr getRootJoint() const;
 
-  bool hasJointModel(const std::string& name) const;
-  JointModel::ConstSharedPtr getJointModel(const std::string& name) const;
-  JointModel::ConstSharedPtr getJointOfVariable(int variable_index) const;
+  bool hasJointModel(const std::string& _name) const;
+  JointModel::ConstSharedPtr getJointModel(const std::string& _name) const;
+  JointModel::ConstSharedPtr getJointOfVariable(int _variable_index) const;
   size_t getJointModelCount() const;
 
   LinkModel::ConstSharedPtr getRootLink() const;
-  LinkModel::ConstSharedPtr getLinkModel(const std::string& name) const;
+  LinkModel::ConstSharedPtr getLinkModel(const std::string& _name) const;
   size_t getLinkModelCount() const;
 
-  void getVariableDefaultPositions(std::vector<double>& values) const;
+  void getVariableDefaultPositions(std::vector<double>& _values) const;
   size_t getVariableCount() const;
-  size_t getVariableIndex(const std::string& variable) const;
+  size_t getVariableIndex(const std::string& _variable) const;
 
   JointModel::ConstSharedPtr
-  getCommonRoot(const JointModel::ConstSharedPtr& a, const JointModel::ConstSharedPtr& b) const;
+  getCommonRoot(const JointModel::ConstSharedPtr& _a, const JointModel::ConstSharedPtr& _b) const;
 
 private:
-  void updateMimicJoints(double* values) const;
-  void buildModel(const urdf::ModelInterface& urdf_model);
-  void buildMimic(const urdf::ModelInterface& urdf_model);
+  void updateMimicJoints(double* _values) const;
+  void buildModel(const urdf::ModelInterface& _urdf_model);
+  void buildMimic(const urdf::ModelInterface& _urdf_model);
   void buildJointInfo();
   void computeDescendants();
   void computeCommonRoots();
-  JointModel::SharedPtr buildRecursive(const LinkModel::SharedPtr& parent, const urdf::LinkConstSharedPtr& link);
-  JointModel::SharedPtr constructJointModel(const urdf::LinkConstSharedPtr& child_link);
-  LinkModel::SharedPtr constructLinkModel(const urdf::LinkConstSharedPtr& urdf_link);
+  JointModel::SharedPtr buildRecursive(const LinkModel::SharedPtr& _parent, const urdf::LinkConstSharedPtr& _link);
+  JointModel::SharedPtr constructJointModel(const urdf::LinkConstSharedPtr& _child_link);
+  LinkModel::SharedPtr constructLinkModel(const urdf::LinkConstSharedPtr& _urdf_link);
 
   std::string model_name_;
   std::string model_frame_;

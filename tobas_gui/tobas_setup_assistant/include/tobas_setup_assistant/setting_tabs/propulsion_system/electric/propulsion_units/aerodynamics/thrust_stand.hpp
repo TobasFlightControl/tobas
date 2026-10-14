@@ -32,10 +32,10 @@ public:
 
   void setToDefaults() override;
   bool isValid() override;
-  void copyFrom(const AerodynamicsWidget_Base* src) override;
+  void copyFrom(const AerodynamicsWidget_Base* _src) override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   double motorConst() const override;
   double momentConst() const override;

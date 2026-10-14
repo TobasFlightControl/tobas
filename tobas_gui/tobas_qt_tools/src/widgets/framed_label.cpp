@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace qt
 {
-FramedLabel::FramedLabel(const QString& text, QWidget* parent) : super(text, parent)
+FramedLabel::FramedLabel(const QString& _text, QWidget* _parent) : super(_text, _parent)
 {
   setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
   setAlignment(Qt::AlignRight | Qt::AlignVCenter);

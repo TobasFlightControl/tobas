@@ -22,11 +22,11 @@ public:
   inline explicit SphericalCoordinate();
   inline explicit SphericalCoordinate(double _rho, double _phi, double _theta);
 
-  static inline SphericalCoordinate Cartesian(const Vector& cart);
+  static inline SphericalCoordinate Cartesian(const Vector& _cart);
 
   inline Vector toCartesian() const;
 
-  inline friend std::ostream& operator<<(std::ostream& os, const SphericalCoordinate& arg);
+  inline friend std::ostream& operator<<(std::ostream& _os, const SphericalCoordinate& _arg);
 };
 
 inline SphericalCoordinate::SphericalCoordinate()
@@ -38,10 +38,10 @@ inline SphericalCoordinate::SphericalCoordinate(double _rho, double _phi, double
 {
 }
 
-inline SphericalCoordinate SphericalCoordinate::Cartesian(const Vector& cart)
+inline SphericalCoordinate SphericalCoordinate::Cartesian(const Vector& _cart)
 {
-  const auto r = std::hypot(cart.x(), cart.y());
-  return SphericalCoordinate(cart.norm(), std::atan2(r, cart.z()), std::atan2(cart.y(), cart.x()));
+  const auto r = std::hypot(_cart.x(), _cart.y());
+  return SphericalCoordinate(_cart.norm(), std::atan2(r, _cart.z()), std::atan2(_cart.y(), _cart.x()));
 }
 
 inline Vector SphericalCoordinate::toCartesian() const
@@ -49,9 +49,9 @@ inline Vector SphericalCoordinate::toCartesian() const
   return rho * Vector(std::sin(phi) * std::cos(theta), std::sin(phi) * std::sin(theta), std::cos(phi));
 }
 
-inline std::ostream& operator<<(std::ostream& os, const SphericalCoordinate& arg)
+inline std::ostream& operator<<(std::ostream& _os, const SphericalCoordinate& _arg)
 {
-  os << "rho: " << arg.rho << ", phi: " << arg.phi << ", theta: " << arg.theta;
+  _os << "rho: " << _arg.rho << ", phi: " << _arg.phi << ", theta: " << _arg.theta;
 }
 }  // namespace kdl
 }  // namespace tobas

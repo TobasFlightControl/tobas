@@ -21,8 +21,8 @@ enum class FrameType
   kFixedWing,
 };
 
-std::string textFromEnum(FrameType arg);
-bool enumFromText(const std::string& text, FrameType& dst);
+std::string textFromEnum(FrameType _arg);
+bool enumFromText(const std::string& _text, FrameType& _dst);
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas
@@ -32,7 +32,7 @@ namespace YAML
 template <>
 struct convert<tobas::gui::sa::FrameType>
 {
-  static Node encode(tobas::gui::sa::FrameType rhs);
-  static bool decode(const Node& node, tobas::gui::sa::FrameType& rhs);
+  static Node encode(tobas::gui::sa::FrameType _rhs);
+  static bool decode(const Node& _node, tobas::gui::sa::FrameType& _rhs);
 };
 }  // namespace YAML

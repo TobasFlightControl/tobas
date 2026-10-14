@@ -10,18 +10,22 @@ namespace tobas
 namespace ros2
 {
 template <typename T>
-void declareParam(rclcpp::Node::SharedPtr node, const std::string& name, const T& default_value, bool declared_ok = true)
+void declareParam(
+  rclcpp::Node::SharedPtr _node,
+  const std::string& _name,
+  const T& _default_value,
+  bool _declared_ok = true)
 {
-  if (node->has_parameter(name)) {
-    if (declared_ok) {
+  if (_node->has_parameter(_name)) {
+    if (_declared_ok) {
       return;
     }
     else {
-      throw rclcpp::exceptions::ParameterAlreadyDeclaredException("Parameter '" + name + "' is already declared.");
+      throw rclcpp::exceptions::ParameterAlreadyDeclaredException("Parameter '" + _name + "' is already declared.");
     }
   }
   else {
-    node->declare_parameter(name, default_value);
+    _node->declare_parameter(_name, _default_value);
   }
 }
 }  // namespace ros2

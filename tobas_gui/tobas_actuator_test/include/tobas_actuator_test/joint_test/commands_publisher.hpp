@@ -29,10 +29,10 @@ class JointCommandsPublisherWidget : public QWidget
   using self = JointCommandsPublisherWidget;
 
 public:
-  explicit JointCommandsPublisherWidget(const kdl::Tree& tree, const Drone& drone);
+  explicit JointCommandsPublisherWidget(const kdl::Tree& _tree, const Drone& _drone);
 
   void updateInternalDataStructures();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
   void start();

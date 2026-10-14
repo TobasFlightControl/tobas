@@ -104,71 +104,71 @@ int RotorWidget::getGain() const
   return gain_slider_->value();
 }
 
-void RotorWidget::setText(const QString& text)
+void RotorWidget::setText(const QString& _text)
 {
-  text_->setText(text);
+  text_->setText(_text);
 }
 
-void RotorWidget::setMaximumRPM(int rpm)
+void RotorWidget::setMaximumRPM(int _rpm)
 {
   // Prevent `valueChanged` from being emitted while setting the slider range.
   const QSignalBlocker cur_rpm_block(cur_rpm_meter_);
   const QSignalBlocker tar_rpm_block(tar_rpm_slider_);
 
-  cur_rpm_meter_->setUpperBound(rpm);
+  cur_rpm_meter_->setUpperBound(_rpm);
 
-  tar_rpm_slider_->setUpperBound(rpm);
-  tar_rpm_slider_->setTotalSteps(rpm);  // Step size is 1.
+  tar_rpm_slider_->setUpperBound(_rpm);
+  tar_rpm_slider_->setTotalSteps(_rpm);  // Step size is 1.
 }
 
-void RotorWidget::setCurrentRPM(int rpm)
+void RotorWidget::setCurrentRPM(int _rpm)
 {
-  cur_rpm_meter_->setValue(rpm);
-  setCurrentRPMBox(rpm);
+  cur_rpm_meter_->setValue(_rpm);
+  setCurrentRPMBox(_rpm);
 }
 
-void RotorWidget::setTargetRPM(int rpm)
+void RotorWidget::setTargetRPM(int _rpm)
 {
-  tar_rpm_slider_->setValue(rpm);
-  setTargetRPMBox(rpm);
+  tar_rpm_slider_->setValue(_rpm);
+  setTargetRPMBox(_rpm);
 }
 
-void RotorWidget::setGain(int gain)
+void RotorWidget::setGain(int _gain)
 {
-  gain_slider_->setValue(gain);
-  setGainBox(gain);
+  gain_slider_->setValue(_gain);
+  setGainBox(_gain);
 }
 
-void RotorWidget::setCurrentRPMBox(int rpm)
+void RotorWidget::setCurrentRPMBox(int _rpm)
 {
-  cur_rpm_box_->setText(rpmToText(rpm));
+  cur_rpm_box_->setText(rpmToText(_rpm));
 }
 
-void RotorWidget::setTargetRPMBox(int rpm)
+void RotorWidget::setTargetRPMBox(int _rpm)
 {
-  tar_rpm_box_->setText(rpmToText(rpm));
+  tar_rpm_box_->setText(rpmToText(_rpm));
 }
 
-void RotorWidget::setGainBox(int gain)
+void RotorWidget::setGainBox(int _gain)
 {
-  gain_box_->setText(QString::number(gain));
+  gain_box_->setText(QString::number(_gain));
 }
 
-QString RotorWidget::rpmToText(int rpm)
+QString RotorWidget::rpmToText(int _rpm)
 {
-  return QString::number(rpm) + " RPM";
+  return QString::number(_rpm) + " RPM";
 }
 
-void RotorWidget::onTargetRPMChanged(int rpm)
+void RotorWidget::onTargetRPMChanged(int _rpm)
 {
-  setTargetRPMBox(rpm);
-  Q_EMIT targetRPMChanged(rpm);
+  setTargetRPMBox(_rpm);
+  Q_EMIT targetRPMChanged(_rpm);
 }
 
-void RotorWidget::onGainChanged(int gain)
+void RotorWidget::onGainChanged(int _gain)
 {
-  setGainBox(gain);
-  Q_EMIT gainChanged(gain);
+  setGainBox(_gain);
+  Q_EMIT gainChanged(_gain);
 }
 }  // namespace at
 }  // namespace gui

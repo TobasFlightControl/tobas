@@ -20,35 +20,35 @@ TabBar::TabBar()
   setStyleSheet("QTabBar::tab:disabled { color: palette(midlight); }");
 }
 
-void TabBar::enableWheelEvent(bool enable)
+void TabBar::enableWheelEvent(bool _enable)
 {
-  enable_wheel_event_ = enable;
+  enable_wheel_event_ = _enable;
 }
 
-void TabBar::setTabBackgroundColor(int index, const QColor& color)
+void TabBar::setTabBackgroundColor(int _index, const QColor& _color)
 {
-  colors_[index] = color;
+  colors_[_index] = _color;
   update();
 }
 
-void TabBar::clearTabBackgroundColor(int index)
+void TabBar::clearTabBackgroundColor(int _index)
 {
-  if (!colors_.contains(index)) {
-    qWarning().nospace() << "No color is set for tab " << index << ".";
+  if (!colors_.contains(_index)) {
+    qWarning().nospace() << "No color is set for tab " << _index << ".";
     return;
   }
 
-  colors_.remove(index);
+  colors_.remove(_index);
   update();
 }
 
-void TabBar::wheelEvent(QWheelEvent* event)
+void TabBar::wheelEvent(QWheelEvent* _event)
 {
   if (enable_wheel_event_) {
-    super::wheelEvent(event);
+    super::wheelEvent(_event);
   }
   else {
-    event->ignore();
+    _event->ignore();
   }
 }
 
@@ -69,59 +69,59 @@ void TabBar::paintEvent(QPaintEvent*)
   }
 }
 
-TabWidget::TabWidget(QWidget* parent) : super(parent)
+TabWidget::TabWidget(QWidget* _parent) : super(_parent)
 {
   tab_bar_ = new TabBar();
   setTabBar(tab_bar_);
 }
 
-void TabWidget::enableWheelEvent(bool enable)
+void TabWidget::enableWheelEvent(bool _enable)
 {
   const auto tab_bar = qPointerCast<TabBar>(tabBar());
-  tab_bar->enableWheelEvent(enable);
+  tab_bar->enableWheelEvent(_enable);
 }
 
-void TabWidget::setTabBackgroundColor(int index, const QColor& color)
+void TabWidget::setTabBackgroundColor(int _index, const QColor& _color)
 {
-  tab_bar_->setTabBackgroundColor(index, color);
+  tab_bar_->setTabBackgroundColor(_index, _color);
 }
 
-void TabWidget::clearTabBackgroundColor(int index)
+void TabWidget::clearTabBackgroundColor(int _index)
 {
-  tab_bar_->clearTabBackgroundColor(index);
+  tab_bar_->clearTabBackgroundColor(_index);
 }
 
-void TabWidget::setTabEnabled(QWidget* tab, bool enabled)
+void TabWidget::setTabEnabled(QWidget* _tab, bool _enabled)
 {
-  tab->setEnabled(enabled);
+  _tab->setEnabled(_enabled);
 
-  const auto idx = indexOf(tab);
+  const auto idx = indexOf(_tab);
   TOBAS_CHECK(idx >= 0);
-  tabBar()->setTabEnabled(idx, enabled);
+  tabBar()->setTabEnabled(idx, _enabled);
 }
 
-void TabWidget::setTabVisible(QWidget* tab, bool visible)
+void TabWidget::setTabVisible(QWidget* _tab, bool _visible)
 {
-  const auto idx = indexOf(tab);
+  const auto idx = indexOf(_tab);
   TOBAS_CHECK(idx >= 0);
-  tabBar()->setTabVisible(idx, visible);
+  tabBar()->setTabVisible(idx, _visible);
 }
 
-void TabWidget::setTabWidth(int width)
+void TabWidget::setTabWidth(int _width)
 {
-  const auto qss = std::format("QTabBar::tab {{ width: {}px; }}", width);
+  const auto qss = std::format("QTabBar::tab {{ width: {}px; }}", _width);
   setStyleSheet(QString::fromStdString(qss));
 }
 
-void TabWidget::setTabHeight(int height)
+void TabWidget::setTabHeight(int _height)
 {
-  const auto qss = std::format("QTabBar::tab {{ height: {}px; }}", height);
+  const auto qss = std::format("QTabBar::tab {{ height: {}px; }}", _height);
   setStyleSheet(QString::fromStdString(qss));
 }
 
-void TabWidget::setTabSize(int width, int height)
+void TabWidget::setTabSize(int _width, int _height)
 {
-  const auto qss = std::format("QTabBar::tab {{ width: {}px; height: {}px; }}", width, height);
+  const auto qss = std::format("QTabBar::tab {{ width: {}px; height: {}px; }}", _width, _height);
   setStyleSheet(QString::fromStdString(qss));
 }
 

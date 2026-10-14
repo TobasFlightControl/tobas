@@ -8,16 +8,16 @@
 
 using namespace std;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
-  if (argc != 5) {
-    cerr << "Usage: " << argv[0] << " a b c d -> Solve: a x^3 + b x^2 + c x + d = 0" << endl;
+  if (_argc != 5) {
+    cerr << "Usage: " << _argv[0] << " a b c d -> Solve: a x^3 + b x^2 + c x + d = 0" << endl;
     return EXIT_FAILURE;
   }
-  const auto a = stod(argv[1]);
-  const auto b = stod(argv[2]);
-  const auto c = stod(argv[3]);
-  const auto d = stod(argv[4]);
+  const auto a = stod(_argv[1]);
+  const auto b = stod(_argv[2]);
+  const auto c = stod(_argv[3]);
+  const auto d = stod(_argv[4]);
 
   const auto [x1, x2, x3] = tobas::math::solveCubicEquation(a, b, c, d);
   cout << a << " x^3 + " << b << " x^2 + " << c << " x + " << d << " = 0 <=> x = " << x1 << ", " << x2 << ", " << x3

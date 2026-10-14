@@ -73,12 +73,12 @@ YAML::Node BatteryWidget_LiPo::dump() const
   return node;
 }
 
-void BatteryWidget_LiPo::load(const YAML::Node& node)
+void BatteryWidget_LiPo::load(const YAML::Node& _node)
 {
-  num_cells_->setValue(node[num_cells_->name()].as<int>());
-  capacity_->setValue(node[capacity_->name()].as<int>());
-  C_cont_->setValue(node[C_cont_->name()].as<int>());
-  registance_->setValue(node[registance_->name()].as<int>());
+  num_cells_->setValue(_node[num_cells_->name()].as<int>());
+  capacity_->setValue(_node[capacity_->name()].as<int>());
+  C_cont_->setValue(_node[C_cont_->name()].as<int>());
+  registance_->setValue(_node[registance_->name()].as<int>());
 }
 
 double BatteryWidget_LiPo::nominalVoltage()

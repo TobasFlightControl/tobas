@@ -13,7 +13,7 @@ namespace tobas
 {
 namespace crypt
 {
-std::expected<std::string, std::string> Crypt::crypt(const std::string& password) const
+std::expected<std::string, std::string> Crypt::crypt(const std::string& _password) const
 {
   struct crypt_data data;
   std::memset(&data, 0, sizeof(data));
@@ -23,7 +23,7 @@ std::expected<std::string, std::string> Crypt::crypt(const std::string& password
     return salt;
   }
 
-  const auto out = ::crypt_r(password.c_str(), salt->c_str(), &data);
+  const auto out = ::crypt_r(_password.c_str(), salt->c_str(), &data);
   if (!out || out[0] == '*') {
     return std::unexpected("crypt_r failed: " + st::strError());
   }

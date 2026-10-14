@@ -26,7 +26,7 @@ Q_SIGNALS:
   void disconnected();
 
 public:
-  explicit RemoteConnectionWidget(const rqt::RosQtBridge& bridge);
+  explicit RemoteConnectionWidget(const rqt::RosQtBridge& _bridge);
 
   void start();
   void stop();
@@ -61,10 +61,10 @@ private:
   void setDisonnected();
   void setUnknown();
 
-  void setIconPixmap(const QPixmap& pixmap);
+  void setIconPixmap(const QPixmap& _pixmap);
 
 private Q_SLOTS:
-  void heartbeatCb(const tobas_msgs::msg::Heartbeat::ConstSharedPtr& msg);
+  void heartbeatCb(const tobas_msgs::msg::Heartbeat::ConstSharedPtr& _msg);
   void onTimeout();
 };
 }  // namespace gcs

@@ -71,34 +71,34 @@ public:
   std::expected<void, std::string> transfer() noexcept;
 
   /** Set the DShot throttle directory. */
-  void setThrottle(size_t ch, uint16_t throttle) noexcept;
+  void setThrottle(size_t _ch, uint16_t _throttle) noexcept;
   /** Set the target motor rotating speed [rad/s]. */
-  void setTargetSpeed(size_t ch, double rps) noexcept;
+  void setTargetSpeed(size_t _ch, double _rps) noexcept;
   /** Set the Kv value [rad/s/V]. */
-  void setKv(size_t ch, double kv_si) noexcept;
+  void setKv(size_t _ch, double _kv_si) noexcept;
   /** Set the internal resistance [Ω]. */
-  void setInternalResistance(size_t ch, double resistance) noexcept;
+  void setInternalResistance(size_t _ch, double _resistance) noexcept;
   /** Set the propeller diameter [m]. */
-  void setPropellerDiameter(size_t ch, double diameter) noexcept;
+  void setPropellerDiameter(size_t _ch, double _diameter) noexcept;
   /** Set the moment constant scaled by the propeller diameter [Nm/(rad/s)^2/m^5]. */
-  void setMomentConstant(size_t ch, double moment_const) noexcept;
+  void setMomentConstant(size_t _ch, double _moment_const) noexcept;
   /** Set the number of motor poles. */
-  void setNumPoles(size_t ch, uint16_t num_poles) noexcept;
+  void setNumPoles(size_t _ch, uint16_t _num_poles) noexcept;
   /** Set the motor speed control gain (2 to the x-1 power). No feedback when 0 is specified. */
-  void setRpmControlGain(size_t ch, uint8_t gain) noexcept;
+  void setRpmControlGain(size_t _ch, uint8_t _gain) noexcept;
 
   /** Get the validity of the telemetry. */
-  bool getValidity(size_t ch) noexcept;
+  bool getValidity(size_t _ch) noexcept;
   /** Get the current motor rotating speed [rad/s]. */
-  double getSpeed(size_t ch) noexcept;
+  double getSpeed(size_t _ch) noexcept;
   /** Get the current ESC temperature [degC]. */
-  double getTemperature(size_t ch) noexcept;
+  double getTemperature(size_t _ch) noexcept;
   /** Get the current ESC input voltage [V]. */
-  double getVoltage(size_t ch) noexcept;
+  double getVoltage(size_t _ch) noexcept;
   /** Get the current ESC current [A]. */
-  double getCurrent(size_t ch) noexcept;
+  double getCurrent(size_t _ch) noexcept;
 
-  void printCurrentState(size_t ch) noexcept;
+  void printCurrentState(size_t _ch) noexcept;
   void printCurrentStates() noexcept;
 
 private:

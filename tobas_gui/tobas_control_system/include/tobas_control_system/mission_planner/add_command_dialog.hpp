@@ -23,7 +23,7 @@ class AddCommandDialog : public QDialog
   using super = QDialog;
 
 public:
-  explicit AddCommandDialog(QWidget* parent);
+  explicit AddCommandDialog(QWidget* _parent);
 
   mission::Type selectedCommand() const;
 
@@ -31,10 +31,10 @@ private:
   qt::ListWidget* command_list_;
   mission::Type selected_command_;
 
-  void acceptWithItem(QListWidgetItem* item);
+  void acceptWithItem(QListWidgetItem* _item);
 
 private Q_SLOTS:
-  void onItemDoubleClicked(QListWidgetItem* item);
+  void onItemDoubleClicked(QListWidgetItem* _item);
   void onOkClicked();
 };
 }  // namespace ctrl

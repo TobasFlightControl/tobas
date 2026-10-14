@@ -13,8 +13,8 @@ namespace ub
 {
 namespace view_model
 {
-MaterialViewModel::MaterialViewModel(const ::urdf::MaterialSharedPtr& model)
-  : BaseViewModel<::urdf::Material, MaterialViewModel>(model)
+MaterialViewModel::MaterialViewModel(const ::urdf::MaterialSharedPtr& _model)
+  : BaseViewModel<::urdf::Material, MaterialViewModel>(_model)
 {
   if (model_->name.empty()) {
     // Set default name.
@@ -37,9 +37,9 @@ QString MaterialViewModel::name() const
   return QString::fromStdString(model_->name);
 }
 
-void MaterialViewModel::name(const QString& name)
+void MaterialViewModel::name(const QString& _name)
 {
-  model_->name = name.toStdString();
+  model_->name = _name.toStdString();
 }
 
 const ::urdf::Color& MaterialViewModel::color() const
@@ -47,12 +47,12 @@ const ::urdf::Color& MaterialViewModel::color() const
   return model_->color;
 }
 
-void MaterialViewModel::color(double r, double g, double b, double a)
+void MaterialViewModel::color(double _r, double _g, double _b, double _a)
 {
-  model_->color.r = static_cast<float>(r);
-  model_->color.g = static_cast<float>(g);
-  model_->color.b = static_cast<float>(b);
-  model_->color.a = static_cast<float>(a);
+  model_->color.r = static_cast<float>(_r);
+  model_->color.g = static_cast<float>(_g);
+  model_->color.b = static_cast<float>(_b);
+  model_->color.a = static_cast<float>(_a);
 }
 
 void MaterialViewModel::color(const QColor& _color)
@@ -65,9 +65,9 @@ QString MaterialViewModel::textureFileName() const
   return QString::fromStdString(model_->texture_filename);
 }
 
-void MaterialViewModel::textureFileName(const QString& filename)
+void MaterialViewModel::textureFileName(const QString& _filename)
 {
-  model_->texture_filename = filename.toStdString();
+  model_->texture_filename = _filename.toStdString();
 }
 }  // namespace view_model
 }  // namespace ub

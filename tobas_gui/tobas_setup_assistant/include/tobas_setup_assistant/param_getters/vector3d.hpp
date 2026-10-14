@@ -21,22 +21,22 @@ class ParamGetterWidget_Vector3d : public ParamGetterWidget<Eigen::Vector3d>
   using super = ParamGetterWidget<Eigen::Vector3d>;
 
 Q_SIGNALS:
-  void valueChanged(const Eigen::Vector3d& value);
+  void valueChanged(const Eigen::Vector3d& _value);
 
 public:
-  explicit ParamGetterWidget_Vector3d(const QString& param_name, const QString& description_text = "");
+  explicit ParamGetterWidget_Vector3d(const QString& _param_name, const QString& _description_text = "");
 
   Eigen::Vector3d getValue() const override;
-  bool setValue(const Eigen::Vector3d& src) override;
+  bool setValue(const Eigen::Vector3d& _src) override;
 
-  void setDecimals(int decimals);
-  void setMinimum(double minimum);
-  void setMaximum(double maximum);
-  void setSingleStep(double single_step);
-  void setSuffix(const QString& suffix);
+  void setDecimals(int _decimals);
+  void setMinimum(double _minimum);
+  void setMaximum(double _maximum);
+  void setSingleStep(double _single_step);
+  void setSuffix(const QString& _suffix);
 
 private Q_SLOTS:
-  void onValueChanged(const Eigen::Vector3d& value);
+  void onValueChanged(const Eigen::Vector3d& _value);
 
 private:
   qt::Vector3dEditHorizontal* vector3d_;

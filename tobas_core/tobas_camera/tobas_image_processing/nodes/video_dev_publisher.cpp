@@ -18,7 +18,7 @@ namespace camera
 class VideoDevPublisherNode : public BaseNode
 {
 public:
-  explicit VideoDevPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit VideoDevPublisherNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   bool initialize();
@@ -35,8 +35,8 @@ private:
   ros2::TimerPtr timer_;
 };
 
-VideoDevPublisherNode::VideoDevPublisherNode(const rclcpp::NodeOptions& options)
-  : BaseNode("video_dev_publisher", nodeOptions_Default(options))
+VideoDevPublisherNode::VideoDevPublisherNode(const rclcpp::NodeOptions& _options)
+  : BaseNode("video_dev_publisher", nodeOptions_Default(_options))
 {
   use_compressed_img_ = getBoolParam("use_compressed_image", true);
   device_name_ = getStringParam("device_name", "/dev/video0");

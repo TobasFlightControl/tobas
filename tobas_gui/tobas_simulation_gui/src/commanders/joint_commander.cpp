@@ -21,8 +21,8 @@ namespace gui
 {
 namespace sim
 {
-JointCommanderWidget::JointCommanderWidget(const kdl::Tree& tree, const Drone& drone)
-  : tree_(tree), drone_(drone), rnd_gen_(rnd_dev_()), joint_parser_(tree)
+JointCommanderWidget::JointCommanderWidget(const kdl::Tree& _tree, const Drone& _drone)
+  : tree_(_tree), drone_(_drone), rnd_gen_(rnd_dev_()), joint_parser_(_tree)
 {
   const auto title = new qt::Label("User Joint", cmn::kLabelPSize, QFont::Bold);
 
@@ -214,16 +214,16 @@ void JointCommanderWidget::updateInternalDataStructures()
   start_stop_button_->setEnabled(!commanders_.empty());
 }
 
-void JointCommanderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void JointCommanderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
   if (!tar_js_pos_.commands.empty()) {
-    tar_js_pos_pub_ = ros2::createPublisher<CmdMsg>(node, path::join(ns, topic::kJointPosCmd));
+    tar_js_pos_pub_ = ros2::createPublisher<CmdMsg>(_node, path::join(_ns, topic::kJointPosCmd));
   }
   if (!tar_js_vel_.commands.empty()) {
-    tar_js_vel_pub_ = ros2::createPublisher<CmdMsg>(node, path::join(ns, topic::kJointVelCmd));
+    tar_js_vel_pub_ = ros2::createPublisher<CmdMsg>(_node, path::join(_ns, topic::kJointVelCmd));
   }
   if (!tar_js_eff_.commands.empty()) {
-    tar_js_eff_pub_ = ros2::createPublisher<CmdMsg>(node, path::join(ns, topic::kJointEffCmd));
+    tar_js_eff_pub_ = ros2::createPublisher<CmdMsg>(_node, path::join(_ns, topic::kJointEffCmd));
   }
 }
 
@@ -279,28 +279,28 @@ void JointCommanderWidget::onStopRequested()
   qt::qInfoBox(this, "GUI teleoperation is ready.");
 }
 
-void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_name)
+void JointCommanderWidget::onValueChanged(double _value, const std::string& _jnt_name)
 {
-  if (!drone_.joints.contains(jnt_name)) {
-    qWarning() << "Invalid joint name:" << QString::fromStdString(jnt_name);
+  if (!drone_.joints.contains(_jnt_name)) {
+    qWarning() << "Invalid joint name:" << QString::fromStdString(_jnt_name);
     return;
   }
 
-  const auto& joint = drone_.joints.at(jnt_name);
+  const auto& joint = drone_.joints.at(_jnt_name);
   bool jnt_found = false;
 
   switch (joint.cmd_iface) {
     case JointCommandInterface::kPosition: {
       for (auto& cmd : tar_js_pos_.commands) {
-        if (cmd.name == jnt_name) {
-          cmd.data = value;
+        if (cmd.name == _jnt_name) {
+          cmd.data = _value;
           jnt_found = true;
           break;
         }
       }
 
       if (!jnt_found) {
-        qWarning() << "Position commanded joint" << QString::fromStdString(jnt_name) << "is not found.";
+        qWarning() << "Position commanded joint" << QString::fromStdString(_jnt_name) << "is not found.";
         return;
       }
 
@@ -308,15 +308,15 @@ void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_n
     }
     case JointCommandInterface::kVelocity: {
       for (auto& cmd : tar_js_vel_.commands) {
-        if (cmd.name == jnt_name) {
-          cmd.data = value;
+        if (cmd.name == _jnt_name) {
+          cmd.data = _value;
           jnt_found = true;
           break;
         }
       }
 
       if (!jnt_found) {
-        qWarning() << "Velocity commanded joint" << QString::fromStdString(jnt_name) << "is not found.";
+        qWarning() << "Velocity commanded joint" << QString::fromStdString(_jnt_name) << "is not found.";
         return;
       }
 
@@ -324,15 +324,15 @@ void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_n
     }
     case JointCommandInterface::kEffort: {
       for (auto& cmd : tar_js_eff_.commands) {
-        if (cmd.name == jnt_name) {
-          cmd.data = value;
+        if (cmd.name == _jnt_name) {
+          cmd.data = _value;
           jnt_found = true;
           break;
         }
       }
 
       if (!jnt_found) {
-        qWarning() << "Effort commanded joint" << QString::fromStdString(jnt_name) << "is not found.";
+        qWarning() << "Effort commanded joint" << QString::fromStdString(_jnt_name) << "is not found.";
         return;
       }
 
@@ -342,7 +342,7 @@ void JointCommanderWidget::onValueChanged(double value, const std::string& jnt_n
       break;
     }
     default: {
-      qWarning() << "The command interface of joint" << QString::fromStdString(jnt_name) << "is invalid.";
+      qWarning() << "The command interface of joint" << QString::fromStdString(_jnt_name) << "is invalid.";
       return;
     }
   }

@@ -18,13 +18,13 @@ public:
   Vector angular;  ///< [Nm/rad] Elastic coefficient for the equivalent angle-axis vector
 
   inline explicit TaskSpaceStiffness();
-  inline explicit TaskSpaceStiffness(const Vector& linear, const Vector& angular);
+  inline explicit TaskSpaceStiffness(const Vector& _linear, const Vector& _angular);
 
   static inline TaskSpaceStiffness Zero();
 
   inline void setZero();
 
-  inline Accel operator*(const Frame& rhs);
+  inline Accel operator*(const Frame& _rhs);
 };
 
 inline TaskSpaceStiffness::TaskSpaceStiffness()
@@ -47,9 +47,9 @@ inline void TaskSpaceStiffness::setZero()
   angular.setZero();
 }
 
-inline Accel TaskSpaceStiffness::operator*(const Frame& rhs)
+inline Accel TaskSpaceStiffness::operator*(const Frame& _rhs)
 {
-  return Accel(linear.hadamard(rhs.p), angular.hadamard(rhs.M.getRot()));
+  return Accel(linear.hadamard(_rhs.p), angular.hadamard(_rhs.M.getRot()));
 }
 }  // namespace kdl
 }  // namespace tobas

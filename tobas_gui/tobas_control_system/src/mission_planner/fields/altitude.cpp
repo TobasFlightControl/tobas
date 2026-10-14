@@ -37,9 +37,9 @@ double AltitudeWidget::getValue() const
   return spin_box_->value();
 }
 
-void AltitudeWidget::setValue(double value)
+void AltitudeWidget::setValue(double _value)
 {
-  spin_box_->setValue(value);
+  spin_box_->setValue(_value);
 }
 }  // namespace field
 }  // namespace ctrl

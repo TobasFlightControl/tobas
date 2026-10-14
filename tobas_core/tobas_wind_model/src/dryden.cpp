@@ -14,12 +14,12 @@ DrydenComponents::DrydenComponents()
 {
 }
 
-void DrydenComponents::update(double relative_wind_speed, double altitude, double dt)
+void DrydenComponents::update(double _relative_wind_speed, double _altitude, double _dt)
 {
-  assert(relative_wind_speed >= 0);
-  assert(dt >= 0);
+  assert(_relative_wind_speed >= 0);
+  assert(_dt >= 0);
 
-  const auto h = std::max(altitude, dryden::kMinimumAltitude);  // Ensure the altitude is positive.
+  const auto h = std::max(_altitude, dryden::kMinimumAltitude);  // Ensure the altitude is positive.
   const auto h_ft = h * st::kMeterToFeet;
   if (h_ft > dryden::kLowAltitudeThreshold) {
     PRINT_WARN(
@@ -32,23 +32,23 @@ void DrydenComponents::update(double relative_wind_speed, double altitude, doubl
   L_uv_ = h / std::pow(tmp, 1.2);
   sigma_w_ = 0.1 * mean_speed_;
   sigma_uv_ = sigma_w_ / std::pow(tmp, 0.4);
-  r_w_ = relative_wind_speed / L_w_ * dt;
-  r_uv_ = relative_wind_speed / L_uv_ * dt;
+  r_w_ = _relative_wind_speed / L_w_ * _dt;
+  r_uv_ = _relative_wind_speed / L_uv_ * _dt;
 }
 
-void DrydenComponents::setMeanWindSpeed(double mean_wind_speed)
+void DrydenComponents::setMeanWindSpeed(double _mean_wind_speed)
 {
-  assert(mean_wind_speed >= 0);
-  mean_speed_ = mean_wind_speed;
+  assert(_mean_wind_speed >= 0);
+  mean_speed_ = _mean_wind_speed;
 }
 
 DrydenSimulator::DrydenSimulator() : rnd_gen_(rnd_dev_()), noise_(0, 1)
 {
 }
 
-void DrydenSimulator::update(double relative_wind_speed, double altitude, double dt)
+void DrydenSimulator::update(double _relative_wind_speed, double _altitude, double _dt)
 {
-  components_.update(relative_wind_speed, altitude, dt);
+  components_.update(_relative_wind_speed, _altitude, _dt);
 
   // Update turbulence.
   // When the gust wavelength is constant, higher relative wind speed produces a higher frequency (Doppler effect).
@@ -57,8 +57,8 @@ void DrydenSimulator::update(double relative_wind_speed, double altitude, double
   w_ = (1 - components_.updateRateVer()) * w_ + components_.noiseStddevVer() * noise_(rnd_gen_);
 }
 
-void DrydenSimulator::setMeanWindSpeed(double mean_wind_speed)
+void DrydenSimulator::setMeanWindSpeed(double _mean_wind_speed)
 {
-  components_.setMeanWindSpeed(mean_wind_speed);
+  components_.setMeanWindSpeed(_mean_wind_speed);
 }
 }  // namespace tobas

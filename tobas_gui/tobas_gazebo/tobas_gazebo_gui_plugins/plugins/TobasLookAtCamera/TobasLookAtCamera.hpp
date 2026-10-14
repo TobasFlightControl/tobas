@@ -27,15 +27,15 @@ class TobasLookAtCamera : public gz::gui::Plugin
 public:
   explicit TobasLookAtCamera();
 
-  void LoadConfig(const tinyxml2::XMLElement* elem) override;
+  void LoadConfig(const tinyxml2::XMLElement* _elem) override;
 
 private:
-  bool eventFilter(QObject* obj, QEvent* event) override;
+  bool eventFilter(QObject* _obj, QEvent* _event) override;
 
   void onRender();
   void initialize();
 
-  void lookAtPositionCb(const gz::msgs::Vector3d& msg);
+  void lookAtPositionCb(const gz::msgs::Vector3d& _msg);
 
   gz::transport::Node node_;
 

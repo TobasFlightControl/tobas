@@ -31,25 +31,25 @@ public:
    * The RVector v_base_AB is a RVector from the old point to the new point.
    * Complexity : 6M+6A
    */
-  inline TwistAcc refPoint(const VectorAcc& v_base_AB);
+  inline TwistAcc refPoint(const VectorAcc& _v_base_ab);
 
   inline Twist getTwist() const;
   inline Accel getAccel() const;
 
-  inline TwistAcc& operator+=(const TwistAcc& arg);
-  inline TwistAcc& operator-=(const TwistAcc& arg);
+  inline TwistAcc& operator+=(const TwistAcc& _arg);
+  inline TwistAcc& operator-=(const TwistAcc& _arg);
 
-  inline friend TwistAcc operator*(const TwistAcc& lhs, double rhs);
-  inline friend TwistAcc operator*(double lhs, const TwistAcc& rhs);
-  inline friend TwistAcc operator/(const TwistAcc& lhs, double rhs);
+  inline friend TwistAcc operator*(const TwistAcc& _lhs, double _rhs);
+  inline friend TwistAcc operator*(double _lhs, const TwistAcc& _rhs);
+  inline friend TwistAcc operator/(const TwistAcc& _lhs, double _rhs);
 
-  inline friend TwistAcc operator*(const TwistAcc& lhs, const doubleAcc& rhs);
-  inline friend TwistAcc operator*(const doubleAcc& lhs, const TwistAcc& rhs);
-  inline friend TwistAcc operator/(const TwistAcc& lhs, const doubleAcc& rhs);
+  inline friend TwistAcc operator*(const TwistAcc& _lhs, const doubleAcc& _rhs);
+  inline friend TwistAcc operator*(const doubleAcc& _lhs, const TwistAcc& _rhs);
+  inline friend TwistAcc operator/(const TwistAcc& _lhs, const doubleAcc& _rhs);
 
-  inline friend TwistAcc operator+(const TwistAcc& lhs, const TwistAcc& rhs);
-  inline friend TwistAcc operator-(const TwistAcc& lhs, const TwistAcc& rhs);
-  inline friend TwistAcc operator-(const TwistAcc& arg);
+  inline friend TwistAcc operator+(const TwistAcc& _lhs, const TwistAcc& _rhs);
+  inline friend TwistAcc operator-(const TwistAcc& _lhs, const TwistAcc& _rhs);
+  inline friend TwistAcc operator-(const TwistAcc& _arg);
 
   friend class RotationAcc;
   friend class FrameAcc;
@@ -80,9 +80,9 @@ inline void TwistAcc::setNaN()
   rot.setNaN();
 }
 
-inline TwistAcc TwistAcc::refPoint(const VectorAcc& v_base_AB)
+inline TwistAcc TwistAcc::refPoint(const VectorAcc& _v_base_ab)
 {
-  return TwistAcc(vel + rot * v_base_AB, rot);
+  return TwistAcc(vel + rot * _v_base_ab, rot);
 }
 
 inline Twist TwistAcc::getTwist() const
@@ -95,63 +95,63 @@ inline Accel TwistAcc::getAccel() const
   return Accel(vel.v, rot.v);
 }
 
-inline TwistAcc& TwistAcc::operator+=(const TwistAcc& arg)
+inline TwistAcc& TwistAcc::operator+=(const TwistAcc& _arg)
 {
-  vel += arg.vel;
-  rot += arg.rot;
+  vel += _arg.vel;
+  rot += _arg.rot;
   return *this;
 }
 
-inline TwistAcc& TwistAcc::operator-=(const TwistAcc& arg)
+inline TwistAcc& TwistAcc::operator-=(const TwistAcc& _arg)
 {
-  vel -= arg.vel;
-  rot -= arg.rot;
+  vel -= _arg.vel;
+  rot -= _arg.rot;
   return *this;
 }
 
-inline TwistAcc operator*(const TwistAcc& lhs, double rhs)
+inline TwistAcc operator*(const TwistAcc& _lhs, double _rhs)
 {
-  return TwistAcc(lhs.vel * rhs, lhs.rot * rhs);
+  return TwistAcc(_lhs.vel * _rhs, _lhs.rot * _rhs);
 }
 
-inline TwistAcc operator*(double lhs, const TwistAcc& rhs)
+inline TwistAcc operator*(double _lhs, const TwistAcc& _rhs)
 {
-  return TwistAcc(lhs * rhs.vel, lhs * rhs.rot);
+  return TwistAcc(_lhs * _rhs.vel, _lhs * _rhs.rot);
 }
 
-inline TwistAcc operator/(const TwistAcc& lhs, double rhs)
+inline TwistAcc operator/(const TwistAcc& _lhs, double _rhs)
 {
-  return TwistAcc(lhs.vel / rhs, lhs.rot / rhs);
+  return TwistAcc(_lhs.vel / _rhs, _lhs.rot / _rhs);
 }
 
-inline TwistAcc operator*(const TwistAcc& lhs, const doubleAcc& rhs)
+inline TwistAcc operator*(const TwistAcc& _lhs, const doubleAcc& _rhs)
 {
-  return TwistAcc(lhs.vel * rhs, lhs.rot * rhs);
+  return TwistAcc(_lhs.vel * _rhs, _lhs.rot * _rhs);
 }
 
-inline TwistAcc operator*(const doubleAcc& lhs, const TwistAcc& rhs)
+inline TwistAcc operator*(const doubleAcc& _lhs, const TwistAcc& _rhs)
 {
-  return TwistAcc(lhs * rhs.vel, lhs * rhs.rot);
+  return TwistAcc(_lhs * _rhs.vel, _lhs * _rhs.rot);
 }
 
-inline TwistAcc operator/(const TwistAcc& lhs, const doubleAcc& rhs)
+inline TwistAcc operator/(const TwistAcc& _lhs, const doubleAcc& _rhs)
 {
-  return TwistAcc(lhs.vel / rhs, lhs.rot / rhs);
+  return TwistAcc(_lhs.vel / _rhs, _lhs.rot / _rhs);
 }
 
-inline TwistAcc operator+(const TwistAcc& lhs, const TwistAcc& rhs)
+inline TwistAcc operator+(const TwistAcc& _lhs, const TwistAcc& _rhs)
 {
-  return TwistAcc(lhs.vel + rhs.vel, lhs.rot + rhs.rot);
+  return TwistAcc(_lhs.vel + _rhs.vel, _lhs.rot + _rhs.rot);
 }
 
-inline TwistAcc operator-(const TwistAcc& lhs, const TwistAcc& rhs)
+inline TwistAcc operator-(const TwistAcc& _lhs, const TwistAcc& _rhs)
 {
-  return TwistAcc(lhs.vel - rhs.vel, lhs.rot - rhs.rot);
+  return TwistAcc(_lhs.vel - _rhs.vel, _lhs.rot - _rhs.rot);
 }
 
-inline TwistAcc operator-(const TwistAcc& arg)
+inline TwistAcc operator-(const TwistAcc& _arg)
 {
-  return TwistAcc(-arg.vel, -arg.rot);
+  return TwistAcc(-_arg.vel, -_arg.rot);
 }
 }  // namespace kdl
 }  // namespace tobas

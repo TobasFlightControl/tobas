@@ -44,11 +44,11 @@ void DynamicConfigWidget::reset()
   suspended_load_->reset();
 }
 
-void DynamicConfigWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void DynamicConfigWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  wind_params_->initializeRosInterfaces(node, ns);
-  fixed_load_->initializeRosInterfaces(node, ns);
-  suspended_load_->initializeRosInterfaces(node, ns);
+  wind_params_->initializeRosInterfaces(_node, _ns);
+  fixed_load_->initializeRosInterfaces(_node, _ns);
+  suspended_load_->initializeRosInterfaces(_node, _ns);
 }
 
 void DynamicConfigWidget::clearRosInterfaces()

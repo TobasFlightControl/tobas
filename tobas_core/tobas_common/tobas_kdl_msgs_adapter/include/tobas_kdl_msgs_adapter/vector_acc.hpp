@@ -18,18 +18,18 @@ struct rclcpp::TypeAdapter<tobas::kdl::VectorAcc, tobas_kdl_msgs::msg::VectorAcc
   using custom_type = tobas::kdl::VectorAcc;
   using ros_message_type = tobas_kdl_msgs::msg::VectorAcc;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.p, dst.p);
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.v, dst.v);
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.dv, dst.dv);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.p, _dst.p);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.v, _dst.v);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.dv, _dst.dv);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.p, dst.p);
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.v, dst.v);
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.dv, dst.dv);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.p, _dst.p);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.v, _dst.v);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.dv, _dst.dv);
   }
 };
 

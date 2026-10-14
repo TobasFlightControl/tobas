@@ -20,13 +20,13 @@ namespace tobas
 class Bmm350PublisherNode : public rclcpp::Node
 {
 public:
-  explicit Bmm350PublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit Bmm350PublisherNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
   bool initialize();
 
 private:
-  std::expected<driver::BMM350::ODR, const char*> toOdr(int odr_hz);
-  std::expected<driver::BMM350::Averaging, const char*> toAveraging(int averaging);
+  std::expected<driver::BMM350::ODR, const char*> toOdr(int _odr_hz);
+  std::expected<driver::BMM350::Averaging, const char*> toAveraging(int _averaging);
   void timerCallback();
 
   rclcpp::TimerBase::SharedPtr timer_;
@@ -36,7 +36,7 @@ private:
   bool initialized_ = false;
 };
 
-Bmm350PublisherNode::Bmm350PublisherNode(const rclcpp::NodeOptions& options) : Node("bmm350_publisher", options)
+Bmm350PublisherNode::Bmm350PublisherNode(const rclcpp::NodeOptions& _options) : Node("bmm350_publisher", _options)
 {
   declare_parameter<int>("odr_hz", 100);
   declare_parameter<int>("averaging", 4);
@@ -79,23 +79,23 @@ bool Bmm350PublisherNode::initialize()
   return true;
 }
 
-std::expected<driver::BMM350::ODR, const char*> Bmm350PublisherNode::toOdr(int odr_hz)
+std::expected<driver::BMM350::ODR, const char*> Bmm350PublisherNode::toOdr(int _odr_hz)
 {
-  if (odr_hz == 100) {
+  if (_odr_hz == 100) {
     return driver::BMM350::ODR_100Hz;
   }
-  if (odr_hz == 25) {
+  if (_odr_hz == 25) {
     return driver::BMM350::ODR_25Hz;
   }
   return std::unexpected("invalid ODR");
 }
 
-std::expected<driver::BMM350::Averaging, const char*> Bmm350PublisherNode::toAveraging(int averaging)
+std::expected<driver::BMM350::Averaging, const char*> Bmm350PublisherNode::toAveraging(int _averaging)
 {
-  if (averaging == 2) {
+  if (_averaging == 2) {
     return driver::BMM350::AVG_2;
   }
-  if (averaging == 4) {
+  if (_averaging == 4) {
     return driver::BMM350::AVG_4;
   }
   return std::unexpected("invalid averaging");

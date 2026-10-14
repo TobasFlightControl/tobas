@@ -14,7 +14,7 @@ namespace tobas
 {
 namespace kdl
 {
-TreeIkSolverVel::TreeIkSolverVel(const Tree& tree) : super(tree), jnt2jac_(tree_), jntparser_(tree_)
+TreeIkSolverVel::TreeIkSolverVel(const Tree& _tree) : super(_tree), jnt2jac_(tree_), jntparser_(tree_)
 {
   resize();
 }
@@ -27,21 +27,21 @@ void TreeIkSolverVel::updateInternalDataStructures()
   resize();
 }
 
-std::expected<JntArray, std::string> TreeIkSolverVel::cartToJnt(const JntArray& q_in, const TwistMap& v_in)
+std::expected<JntArray, std::string> TreeIkSolverVel::cartToJnt(const JntArray& _q_in, const TwistMap& _v_in)
 {
-  assert(q_in.size() == tree_.getNrOfJoints());
+  assert(_q_in.size() == tree_.getNrOfJoints());
 
-  const auto num_points = v_in.size();
+  const auto num_points = _v_in.size();
   const auto eq_dim = 6 * num_points;
 
   // Create big jacobian and velocity.
   J_.conservativeResize(eq_dim, tree_.getNrOfJoints());
   t_.conservativeResize(eq_dim);
-  for (const auto& [i, entry] : std::views::enumerate(v_in)) {
+  for (const auto& [i, entry] : std::views::enumerate(_v_in)) {
     const auto& [seg_name, twist] = entry;
 
     // Update big jacobian.
-    const auto& jacob = jnt2jac_.jntToJac(q_in, seg_name);
+    const auto& jacob = jnt2jac_.jntToJac(_q_in, seg_name);
     J_.block(6 * i, 0, 6, tree_.getNrOfJoints()) = jacob.data;
 
     // Update big velocity.
@@ -63,10 +63,10 @@ std::expected<JntArray, std::string> TreeIkSolverVel::cartToJnt(const JntArray& 
   for (size_t j = 0; j < tree_.getNrOfJoints(); ++j) {
     // If the joint angle limit is already exceeded,
     // constrain the velocity so the violation does not increase further.
-    if (q_in(j) < jntparser_.lowerLimit(j)) {
+    if (_q_in(j) < jntparser_.lowerLimit(j)) {
       qd_min(j) = 0.0;
     }
-    else if (q_in(j) > jntparser_.upperLimit(j)) {
+    else if (_q_in(j) > jntparser_.upperLimit(j)) {
       qd_max(j) = 0.0;
     }
   }
@@ -80,11 +80,11 @@ std::expected<JntArray, std::string> TreeIkSolverVel::cartToJnt(const JntArray& 
   return JntArray(*qd_out);
 }
 
-void TreeIkSolverVel::setWeightTS(const Eigen::Vector6d& Wt)
+void TreeIkSolverVel::setWeightTS(const Eigen::Vector6d& _wt)
 {
-  assert((Wt.array() >= 0.0).all());
+  assert((_wt.array() >= 0.0).all());
 
-  Wt_ = Wt;
+  Wt_ = _wt;
 }
 
 const Eigen::Vector6d& TreeIkSolverVel::getWeightTS() const
@@ -92,12 +92,12 @@ const Eigen::Vector6d& TreeIkSolverVel::getWeightTS() const
   return Wt_;
 }
 
-void TreeIkSolverVel::setWeightJS(double Wj)
+void TreeIkSolverVel::setWeightJS(double _wj)
 {
   // Always include a regularization term to prevent numerical errors.
-  assert(Wj > 0.0);
+  assert(_wj > 0.0);
 
-  Wj_ = Wj;
+  Wj_ = _wj;
 }
 
 const double& TreeIkSolverVel::getWeightJS() const

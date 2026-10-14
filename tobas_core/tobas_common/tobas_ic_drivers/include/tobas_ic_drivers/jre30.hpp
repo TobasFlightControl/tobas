@@ -17,7 +17,7 @@ namespace driver
 struct JRE30Packet
 {
   virtual size_t packetSize() const = 0;
-  virtual void decode(uint8_t* buf) = 0;
+  virtual void decode(uint8_t* _buf) = 0;
 };
 
 struct JRE30Packet_A : public JRE30Packet
@@ -33,7 +33,7 @@ struct JRE30Packet_A : public JRE30Packet
   bool fail;
 
   size_t packetSize() const override;
-  void decode(uint8_t* buf) override;
+  void decode(uint8_t* _buf) override;
 };
 
 struct JRE30Packet_B : public JRE30Packet
@@ -41,7 +41,7 @@ struct JRE30Packet_B : public JRE30Packet
   // TODO
 
   size_t packetSize() const override;
-  void decode(uint8_t* buf) override;
+  void decode(uint8_t* _buf) override;
 };
 
 struct JRE30Packet_C : public JRE30Packet
@@ -49,7 +49,7 @@ struct JRE30Packet_C : public JRE30Packet
   // TODO
 
   size_t packetSize() const override;
-  void decode(uint8_t* buf) override;
+  void decode(uint8_t* _buf) override;
 };
 
 /**
@@ -59,10 +59,10 @@ struct JRE30Packet_C : public JRE30Packet
 class JRE30
 {
 public:
-  explicit JRE30(std::function<void(std::shared_ptr<const JRE30Packet>)> packet_cb);
+  explicit JRE30(std::function<void(std::shared_ptr<const JRE30Packet>)> _packet_cb);
   ~JRE30();
 
-  bool initialize(const char* uart_device);
+  bool initialize(const char* _uart_device);
 
   void start();
   void stop();
@@ -81,7 +81,7 @@ private:
   std::shared_ptr<JRE30Packet_C> packet_c_;
 
   std::jthread read_thread_;
-  void readThreadFunc(std::stop_token st);
+  void readThreadFunc(std::stop_token _st);
 
   bool checkCRC() const;
 };

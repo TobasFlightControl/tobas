@@ -14,10 +14,10 @@ class Exporter
 public:
   explicit Exporter();
 
-  std::string exportText(const Data& src) const;
+  std::string exportText(const Data& _src) const;
 
 private:
-  static const char* countryCodeToString(CountryCode cc);
+  static const char* countryCodeToString(CountryCode _cc);
 };
 }  // namespace wpa
 }  // namespace tobas

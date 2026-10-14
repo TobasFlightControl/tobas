@@ -10,30 +10,30 @@ namespace tobas
 {
 namespace qt
 {
-void qInfoBox(QWidget* parent, const QString& msg)
+void qInfoBox(QWidget* _parent, const QString& _msg)
 {
-  qInfo().noquote() << msg;
-  QMessageBox::information(parent, "INFO", msg);
+  qInfo().noquote() << _msg;
+  QMessageBox::information(_parent, "INFO", _msg);
 }
 
-void qWarnBox(QWidget* parent, const QString& msg)
+void qWarnBox(QWidget* _parent, const QString& _msg)
 {
-  qWarning().noquote() << msg;
-  QMessageBox::warning(parent, "WARN", msg);
+  qWarning().noquote() << _msg;
+  QMessageBox::warning(_parent, "WARN", _msg);
 }
 
-void qErrorBox(QWidget* parent, const QString& msg)
+void qErrorBox(QWidget* _parent, const QString& _msg)
 {
-  qCritical().noquote() << msg;
-  QMessageBox::critical(parent, "ERROR", msg);
+  qCritical().noquote() << _msg;
+  QMessageBox::critical(_parent, "ERROR", _msg);
 }
 
-bool yesOrNo(QWidget* parent, const QString& text, QMessageLevel level)
+bool yesOrNo(QWidget* _parent, const QString& _text, QMessageLevel _level)
 {
-  QMessageBox msg_box(parent);
+  QMessageBox msg_box(_parent);
 
   // Set the message level.
-  switch (level) {
+  switch (_level) {
     case QMessageLevel::INFO:
       msg_box.setIcon(QMessageBox::Icon::Information);
       msg_box.setWindowTitle("INFO");
@@ -51,10 +51,10 @@ bool yesOrNo(QWidget* parent, const QString& text, QMessageLevel level)
   }
 
   // Set text.
-  msg_box.setText(text);
+  msg_box.setText(_text);
 
   // Set text.
-  msg_box.setText(text);
+  msg_box.setText(_text);
 
   // Set buttons.
   // Layout is determined automatically. There is no clear rule, but consistent rules across the app are important:

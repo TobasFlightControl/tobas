@@ -16,10 +16,10 @@ ISM330DLC::ISM330DLC()
 {
 }
 
-bool ISM330DLC::initialize(const char* spi_device)
+bool ISM330DLC::initialize(const char* _spi_device)
 {
   constexpr uint32_t kSpiClockFreq = 10'000'000;  // Maximum frequency is 10MHz.
-  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
+  if (!spi_.initialize(_spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
   }
 
@@ -49,7 +49,7 @@ bool ISM330DLC::initialize(const char* spi_device)
   return true;
 }
 
-bool ISM330DLC::setAccelOutputDataRate(odr_xl_t odr)
+bool ISM330DLC::setAccelOutputDataRate(odr_xl_t _odr)
 {
   if (!readRegs(REG_CTRL1_XL, 1)) {
     return false;
@@ -58,7 +58,7 @@ bool ISM330DLC::setAccelOutputDataRate(odr_xl_t odr)
   auto ctrl1_xl = res_[0];
   ctrl1_xl &= 0b00001111;
 
-  switch (odr) {
+  switch (_odr) {
     case odr_xl_t::ODR_XL_26HZ:
       ctrl1_xl |= ODR_XL_26HZ;
       break;
@@ -87,7 +87,7 @@ bool ISM330DLC::setAccelOutputDataRate(odr_xl_t odr)
       ctrl1_xl |= ODR_XL_6664HZ;
       break;
     default:
-      std::cerr << "Invalid accelerometer output data rate type: " << (int)odr << std::endl;
+      std::cerr << "Invalid accelerometer output data rate type: " << (int)_odr << std::endl;
       return false;
   }
 
@@ -98,7 +98,7 @@ bool ISM330DLC::setAccelOutputDataRate(odr_xl_t odr)
   return true;
 }
 
-bool ISM330DLC::setGyroOutputDataRate(odr_g_t odr)
+bool ISM330DLC::setGyroOutputDataRate(odr_g_t _odr)
 {
   if (!readRegs(REG_CTRL2_G, 1)) {
     return false;
@@ -107,7 +107,7 @@ bool ISM330DLC::setGyroOutputDataRate(odr_g_t odr)
   auto ctrl2_g = res_[0];
   ctrl2_g &= 0b00001111;
 
-  switch (odr) {
+  switch (_odr) {
     case odr_g_t::ODR_G_26HZ:
       ctrl2_g |= ODR_G_26HZ;
       break;
@@ -136,7 +136,7 @@ bool ISM330DLC::setGyroOutputDataRate(odr_g_t odr)
       ctrl2_g |= ODR_G_6664HZ;
       break;
     default:
-      std::cerr << "Invalid gyroscope output data rate type: " << (int)odr << std::endl;
+      std::cerr << "Invalid gyroscope output data rate type: " << (int)_odr << std::endl;
       return false;
   }
 
@@ -147,7 +147,7 @@ bool ISM330DLC::setGyroOutputDataRate(odr_g_t odr)
   return true;
 }
 
-bool ISM330DLC::setAccelFullScale(fs_xl_t fs)
+bool ISM330DLC::setAccelFullScale(fs_xl_t _fs)
 {
   if (!readRegs(REG_CTRL1_XL, 1)) {
     return false;
@@ -156,7 +156,7 @@ bool ISM330DLC::setAccelFullScale(fs_xl_t fs)
   auto ctrl1_xl = res_[0];
   ctrl1_xl &= 0b11110011;
 
-  switch (fs) {
+  switch (_fs) {
     case fs_xl_t::FS_XL_2G:
       ctrl1_xl |= FS_XL_2G;
       acc_scale_ = 0.061;
@@ -174,7 +174,7 @@ bool ISM330DLC::setAccelFullScale(fs_xl_t fs)
       acc_scale_ = 0.488;
       break;
     default:
-      std::cerr << "Invalid accelerometer full scale type: " << (int)fs << std::endl;
+      std::cerr << "Invalid accelerometer full scale type: " << (int)_fs << std::endl;
       return false;
   }
 
@@ -189,7 +189,7 @@ bool ISM330DLC::setAccelFullScale(fs_xl_t fs)
   return true;
 }
 
-bool ISM330DLC::setGyroFullScale(fs_g_t fs)
+bool ISM330DLC::setGyroFullScale(fs_g_t _fs)
 {
   if (!readRegs(REG_CTRL2_G, 1)) {
     return false;
@@ -198,7 +198,7 @@ bool ISM330DLC::setGyroFullScale(fs_g_t fs)
   auto ctrl2_g = res_[0];
   ctrl2_g &= 0b11110001;
 
-  switch (fs) {
+  switch (_fs) {
     case fs_g_t::FS_G_125DPS:
       ctrl2_g |= FS_G_125DPS;
       gyro_scale_ = 4.375;
@@ -220,7 +220,7 @@ bool ISM330DLC::setGyroFullScale(fs_g_t fs)
       gyro_scale_ = 70.0;
       break;
     default:
-      std::cerr << "Invalid gyroscope full scale type: " << (int)fs << std::endl;
+      std::cerr << "Invalid gyroscope full scale type: " << (int)_fs << std::endl;
       return false;
   }
 
@@ -235,41 +235,41 @@ bool ISM330DLC::setGyroFullScale(fs_g_t fs)
   return true;
 }
 
-bool ISM330DLC::readImu(double& ax, double& ay, double& az, double& gx, double& gy, double& gz)
+bool ISM330DLC::readImu(double& _ax, double& _ay, double& _az, double& _gx, double& _gy, double& _gz)
 {
   if (!readRegs(REG_OUTX_L_G, 12)) {
     return false;
   }
 
   // Convert to a signed 16-bit integer first to represent both positive and negative values.
-  gx = static_cast<double>(static_cast<int16_t>((res_[1] << 8) | res_[0])) * gyro_scale_;
-  gy = static_cast<double>(static_cast<int16_t>((res_[3] << 8) | res_[2])) * gyro_scale_;
-  gz = static_cast<double>(static_cast<int16_t>((res_[5] << 8) | res_[4])) * gyro_scale_;
-  ax = static_cast<double>(static_cast<int16_t>((res_[7] << 8) | res_[6])) * acc_scale_;
-  ay = static_cast<double>(static_cast<int16_t>((res_[9] << 8) | res_[8])) * acc_scale_;
-  az = static_cast<double>(static_cast<int16_t>((res_[11] << 8) | res_[10])) * acc_scale_;
+  _gx = static_cast<double>(static_cast<int16_t>((res_[1] << 8) | res_[0])) * gyro_scale_;
+  _gy = static_cast<double>(static_cast<int16_t>((res_[3] << 8) | res_[2])) * gyro_scale_;
+  _gz = static_cast<double>(static_cast<int16_t>((res_[5] << 8) | res_[4])) * gyro_scale_;
+  _ax = static_cast<double>(static_cast<int16_t>((res_[7] << 8) | res_[6])) * acc_scale_;
+  _ay = static_cast<double>(static_cast<int16_t>((res_[9] << 8) | res_[8])) * acc_scale_;
+  _az = static_cast<double>(static_cast<int16_t>((res_[11] << 8) | res_[10])) * acc_scale_;
 
   return true;
 }
 
-bool ISM330DLC::readRegs(uint8_t addr, size_t bytes)
+bool ISM330DLC::readRegs(uint8_t _addr, size_t _bytes)
 {
   constexpr uint8_t kReadFlag = 0x80;
-  tx_buf_[0] = addr | kReadFlag;
+  tx_buf_[0] = _addr | kReadFlag;
 
-  if (!spi_.transfer(bytes + 1)) {
+  if (!spi_.transfer(_bytes + 1)) {
     return false;
   }
 
-  std::memcpy(res_, rx_buf_ + 1, bytes);
+  std::memcpy(res_, rx_buf_ + 1, _bytes);
 
   return true;
 }
 
-bool ISM330DLC::writeReg(uint8_t addr, uint8_t data)
+bool ISM330DLC::writeReg(uint8_t _addr, uint8_t _data)
 {
-  tx_buf_[0] = addr;
-  tx_buf_[1] = data;
+  tx_buf_[0] = _addr;
+  tx_buf_[1] = _data;
   return spi_.transfer(2);
 }
 

@@ -12,7 +12,7 @@ namespace tim
 class FrequencyMeasure
 {
 public:
-  explicit FrequencyMeasure(const std::chrono::nanoseconds& period = std::chrono::seconds(1));
+  explicit FrequencyMeasure(const std::chrono::nanoseconds& _period = std::chrono::seconds(1));
 
   void count();
 

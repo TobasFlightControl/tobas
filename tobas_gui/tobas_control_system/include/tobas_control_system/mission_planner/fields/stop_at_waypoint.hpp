@@ -23,7 +23,7 @@ public:
   const char* label() const override;
 
   bool getValue() const override;
-  void setValue(bool value) override;
+  void setValue(bool _value) override;
 
 private:
   qt::ComboBox* combobox_;

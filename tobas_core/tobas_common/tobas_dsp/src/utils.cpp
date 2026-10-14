@@ -12,18 +12,18 @@ namespace tobas
 {
 namespace dsp
 {
-double prewarp(double wc, double dt)
+double prewarp(double _wc, double _dt)
 {
-  assert(wc > 0.0);
-  assert(dt > 0.0);
+  assert(_wc > 0.0);
+  assert(_dt > 0.0);
 
-  const auto dt_2 = dt / 2.0;
-  return std::tan(wc * dt_2) / dt_2;
+  const auto dt_2 = _dt / 2.0;
+  return std::tan(_wc * dt_2) / dt_2;
 }
 
-double cutoffFromTimeConst(double tau)
+double cutoffFromTimeConst(double _tau)
 {
-  return 1.0 / (M_2PI * tau);
+  return 1.0 / (M_2PI * _tau);
 }
 }  // namespace dsp
 }  // namespace tobas

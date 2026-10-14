@@ -18,7 +18,7 @@
 
 using namespace std;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
   cxxopts::Options options("uart_read", "Simple UART Reader");
   auto opts = options.add_options();
@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 
   cxxopts::ParseResult result;
   try {
-    result = options.parse(argc, argv);
+    result = options.parse(_argc, _argv);
   }
   catch (const cxxopts::exceptions::exception& e) {
     cerr << "Failed to parse arguments: " << e.what() << endl;

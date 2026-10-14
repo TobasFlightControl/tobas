@@ -21,16 +21,16 @@ public:
   void sync() override;
 
   double lower() const;
-  void lower(double lower);
+  void lower(double _lower);
 
   double upper() const;
-  void upper(double upper);
+  void upper(double _upper);
 
   double effort() const;
-  void effort(double effort);
+  void effort(double _effort);
 
   double velocity() const;
-  void velocity(double velocity);
+  void velocity(double _velocity);
 };
 
 using JointLimitsViewModelPtr = std::shared_ptr<JointLimitsViewModel>;

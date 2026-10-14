@@ -28,19 +28,19 @@ Q_SIGNALS:
 
 public:
   explicit ParamGetterWidget_DoubleTable(
-    const QString& param_name,
-    const QString& title,
-    const QStringList& labels,
-    const QString& description_text = "");
+    const QString& _param_name,
+    const QString& _title,
+    const QStringList& _labels,
+    const QString& _description_text = "");
 
   Eigen::MatrixXd getValue() const override;
-  bool setValue(const Eigen::MatrixXd& src) override;
+  bool setValue(const Eigen::MatrixXd& _src) override;
 
   qt::TableWidget* table();
 
-  void setDecimals(const QVector<int>& decimals);
-  void setMinimum(const QVector<double>& minimum);
-  void setMaximum(const QVector<double>& maximum);
+  void setDecimals(const QVector<int>& _decimals);
+  void setMinimum(const QVector<double>& _minimum);
+  void setMaximum(const QVector<double>& _maximum);
   void setDefault(const QVector<double>& _default);
 
   int count() const;
@@ -67,7 +67,7 @@ private:
   QSettings settings_store_;
 
   QString getCsvPath();
-  bool isValidData(const Eigen::MatrixXd& src);
+  bool isValidData(const Eigen::MatrixXd& _src);
 };
 }  // namespace sa
 }  // namespace gui

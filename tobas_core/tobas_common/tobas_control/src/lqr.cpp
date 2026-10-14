@@ -13,11 +13,11 @@ LQR::LQR()
 {
 }
 
-std::expected<Eigen::VectorXd, std::string> LQR::solve(bool update_gain) noexcept
+std::expected<Eigen::VectorXd, std::string> LQR::solve(bool _update_gain) noexcept
 {
   checkProblemValidity();
 
-  if (update_gain) {
+  if (_update_gain) {
     if (const auto result = updateGainMatrix(); !result) {
       return std::unexpected("Failed to update gain matrix: " + result.error());
     }
@@ -31,18 +31,18 @@ std::expected<Eigen::VectorXd, std::string> LQR::solve(bool update_gain) noexcep
   return u_scaled.cwiseProduct(input_scale).eval();
 }
 
-void LQR::resize(Eigen::Index state_size, Eigen::Index input_size)
+void LQR::resize(Eigen::Index _state_size, Eigen::Index _input_size)
 {
-  dynamics.resize(state_size, input_size);
+  dynamics.resize(_state_size, _input_size);
 
-  state_scale.conservativeResize(state_size);
-  input_scale.conservativeResize(input_size);
+  state_scale.conservativeResize(_state_size);
+  input_scale.conservativeResize(_input_size);
 
-  state_weight.conservativeResize(state_size);
-  input_weight.conservativeResize(input_size);
+  state_weight.conservativeResize(_state_size);
+  input_weight.conservativeResize(_input_size);
 
-  current_state.conservativeResize(state_size);
-  target_state.conservativeResize(state_size);
+  current_state.conservativeResize(_state_size);
+  target_state.conservativeResize(_state_size);
 }
 
 std::expected<void, std::string> LQR::updateGainMatrix() noexcept
@@ -83,15 +83,15 @@ void LQR::checkProblemValidity()
   assert((input_weight.array() > 0.0).all());
 }
 
-std::ostream& operator<<(std::ostream& os, const LQR& arg)
+std::ostream& operator<<(std::ostream& _os, const LQR& _arg)
 {
-  os << "Dynamics:\n" << arg.dynamics << std::endl;
-  os << "Current state:\n" << arg.current_state << std::endl;
-  os << "Target state:\n" << arg.target_state << std::endl;
-  os << "State error:\n" << arg.target_state - arg.current_state << std::endl;
-  os << "Gain:\n" << arg.K_ << std::endl;
+  _os << "Dynamics:\n" << _arg.dynamics << std::endl;
+  _os << "Current state:\n" << _arg.current_state << std::endl;
+  _os << "Target state:\n" << _arg.target_state << std::endl;
+  _os << "State error:\n" << _arg.target_state - _arg.current_state << std::endl;
+  _os << "Gain:\n" << _arg.K_ << std::endl;
 
-  return os;
+  return _os;
 }
 }  // namespace ctrl
 }  // namespace tobas

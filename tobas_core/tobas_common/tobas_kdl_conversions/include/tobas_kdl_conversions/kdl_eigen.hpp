@@ -11,7 +11,7 @@ namespace tobas
 {
 namespace kdl
 {
-void quaternionKDLToEigen(const Quaternion& k, Eigen::Quaterniond& e);
-void quaternionEigenToKDL(const Eigen::Quaterniond& e, Quaternion& k);
+void quaternionKDLToEigen(const Quaternion& _k, Eigen::Quaterniond& _e);
+void quaternionEigenToKDL(const Eigen::Quaterniond& _e, Quaternion& _k);
 }  // namespace kdl
 }  // namespace tobas

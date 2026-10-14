@@ -27,19 +27,19 @@ public:
     UNKNOWN = 3,
   };
 
-  explicit StatusWidget(const QString& text);
+  explicit StatusWidget(const QString& _text);
 
   void reset();
 
-  void setStatus(Status status);
-  void setStatus(uint8_t status);
-  void setStatus(bool ok);
+  void setStatus(Status _status);
+  void setStatus(uint8_t _status);
+  void setStatus(bool _ok);
 
 private:
   qt::FramedLabel* status_;
   QLabel* label_;
 
-  void setStatusText(const QString& text, const QColor& color);
+  void setStatusText(const QString& _text, const QColor& _color);
 };
 }  // namespace ctrl
 }  // namespace gui

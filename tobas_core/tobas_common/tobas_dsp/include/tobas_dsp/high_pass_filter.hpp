@@ -21,12 +21,12 @@ class HighPassFilter : public BaseFilter<T>
 public:
   explicit HighPassFilter();
 
-  void update(const T& u, double dt) override;
+  void update(const T& _u, double _dt) override;
 
   inline const T& getValue() const override;
-  inline void setValue(const T& x) override;
+  inline void setValue(const T& _x) override;
 
-  void setCutoffFrequency(double fc_hz);
+  void setCutoffFrequency(double _fc_hz);
 
 private:
   double wc_ = INFINITY;  ///< [rad/s]
@@ -40,15 +40,15 @@ HighPassFilter<T>::HighPassFilter()
 }
 
 template <typename T>
-void HighPassFilter<T>::update(const T& u, double dt)
+void HighPassFilter<T>::update(const T& _u, double _dt)
 {
-  assert(dt >= 0.0);
+  assert(_dt >= 0.0);
 
-  const auto wc = prewarp(wc_, dt);
+  const auto wc = prewarp(wc_, _dt);
   const auto tau = 2.0 / wc;
 
-  y_ = dt < tau ? ((tau - dt) * y_ + tau * (u - prev_u_)) / (tau + dt) : u;
-  prev_u_ = u;
+  y_ = _dt < tau ? ((tau - _dt) * y_ + tau * (_u - prev_u_)) / (tau + _dt) : _u;
+  prev_u_ = _u;
 }
 
 template <typename T>
@@ -58,19 +58,19 @@ inline const T& HighPassFilter<T>::getValue() const
 }
 
 template <typename T>
-inline void HighPassFilter<T>::setValue(const T& x)
+inline void HighPassFilter<T>::setValue(const T& _x)
 {
-  y_ = prev_u_ = x;
+  y_ = prev_u_ = _x;
 }
 
 template <typename T>
-void HighPassFilter<T>::setCutoffFrequency(double fc_hz)
+void HighPassFilter<T>::setCutoffFrequency(double _fc_hz)
 {
-  if (fc_hz <= 0.0) {
+  if (_fc_hz <= 0.0) {
     wc_ = INFINITY;
   }
   else {
-    wc_ = M_2PI * fc_hz;  // Hz -> rad/s
+    wc_ = M_2PI * _fc_hz;  // Hz -> rad/s
   }
 }
 }  // namespace dsp

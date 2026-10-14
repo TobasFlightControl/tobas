@@ -18,7 +18,7 @@ class ShutdownButton : public QPushButton
   using super = QPushButton;
 
 public:
-  explicit ShutdownButton(int radius);
+  explicit ShutdownButton(int _radius);
 };
 }  // namespace gcs
 }  // namespace gui

@@ -31,7 +31,7 @@ public:
   bool isValid();
 
   YAML::Node dump() const;
-  void load(const YAML::Node& node);
+  void load(const YAML::Node& _node);
 
   double c_lift_0() const;
   double c_lift_alpha() const;

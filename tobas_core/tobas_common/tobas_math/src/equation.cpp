@@ -12,37 +12,37 @@ namespace tobas
 {
 namespace math
 {
-double solveLinearEquation(double a, double b)
+double solveLinearEquation(double _a, double _b)
 {
-  assert(a != 0);
-  return -b / a;
+  assert(_a != 0);
+  return -_b / _a;
 }
 
-std::pair<std::complex<double>, std::complex<double>> solveQuadraticEquation(double a, double b, double c)
+std::pair<std::complex<double>, std::complex<double>> solveQuadraticEquation(double _a, double _b, double _c)
 {
-  assert(a != 0);
+  assert(_a != 0);
 
-  const std::complex<double> d = sqr(b) - 4 * a * c;
+  const std::complex<double> d = sqr(_b) - 4 * _a * _c;
   const auto sqrt_d = sqrt(d);
-  const auto a2 = 2 * a;
+  const auto a2 = 2 * _a;
 
-  return { (-b + sqrt_d) / a2, (-b - sqrt_d) / a2 };
+  return { (-_b + sqrt_d) / a2, (-_b - sqrt_d) / a2 };
 }
 
 std::tuple<std::complex<double>, std::complex<double>, std::complex<double>>
-solveCubicEquation(double a, double b, double c, double d)
+solveCubicEquation(double _a, double _b, double _c, double _d)
 {
-  assert(a != 0);
+  assert(_a != 0);
 
-  const auto real = -b / (3 * a);
+  const auto real = -_b / (3 * _a);
 
-  const auto a2 = a * a;
-  const auto a3 = a2 * a;
-  const auto b2 = b * b;
-  const auto b3 = b2 * b;
+  const auto a2 = _a * _a;
+  const auto a3 = a2 * _a;
+  const auto b2 = _b * _b;
+  const auto b3 = b2 * _b;
 
-  const auto p = (-b2 + 3 * a * c) / (9 * a2);
-  const auto q = (2 * b3 - 9 * a * b * c + 27 * a2 * d) / (54 * a3);
+  const auto p = (-b2 + 3 * _a * _c) / (9 * a2);
+  const auto q = (2 * b3 - 9 * _a * _b * _c + 27 * a2 * _d) / (54 * a3);
 
   const std::complex<double> q2p3 = sqr(q) + cube(p);
   const auto sqrt_q2p3 = sqrt(q2p3);

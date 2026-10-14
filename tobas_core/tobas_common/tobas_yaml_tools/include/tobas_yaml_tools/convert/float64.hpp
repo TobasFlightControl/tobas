@@ -13,19 +13,19 @@ template <typename T>
   requires(std::same_as<T, std::float64_t> && !std::same_as<T, double>)
 struct convert<T>
 {
-  static Node encode(const T& rhs) noexcept
+  static Node encode(const T& _rhs) noexcept
   {
-    return Node(static_cast<double>(rhs));
+    return Node(static_cast<double>(_rhs));
   }
 
-  static bool decode(const Node& node, T& rhs) noexcept
+  static bool decode(const Node& _node, T& _rhs) noexcept
   {
-    if (!node.IsScalar()) {
+    if (!_node.IsScalar()) {
       return false;
     }
 
     try {
-      rhs = static_cast<T>(node.as<double>());
+      _rhs = static_cast<T>(_node.as<double>());
       return true;
     }
     catch (const YAML::Exception&) {

@@ -59,9 +59,9 @@ bool AerodynamicsWidget_ThrustStand::isValid()
   return true;
 }
 
-void AerodynamicsWidget_ThrustStand::copyFrom(const AerodynamicsWidget_Base* src)
+void AerodynamicsWidget_ThrustStand::copyFrom(const AerodynamicsWidget_Base* _src)
 {
-  const auto derived = qt::qConstPointerCast<AerodynamicsWidget_ThrustStand>(src);
+  const auto derived = qt::qConstPointerCast<AerodynamicsWidget_ThrustStand>(_src);
   data_->setValue(derived->data_->getValue());
 }
 
@@ -74,9 +74,9 @@ YAML::Node AerodynamicsWidget_ThrustStand::dump() const
   return node;
 }
 
-void AerodynamicsWidget_ThrustStand::load(const YAML::Node& node)
+void AerodynamicsWidget_ThrustStand::load(const YAML::Node& _node)
 {
-  data_->setValue(node[data_->name()].as<Eigen::MatrixXd>());
+  data_->setValue(_node[data_->name()].as<Eigen::MatrixXd>());
 }
 
 double AerodynamicsWidget_ThrustStand::motorConst() const

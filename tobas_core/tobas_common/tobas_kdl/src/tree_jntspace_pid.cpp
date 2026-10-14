@@ -9,7 +9,7 @@ namespace tobas
 {
 namespace kdl
 {
-TreeJntSpacePID::TreeJntSpacePID(const Tree& tree, const Vector& grav) : super(tree), rne_(tree, grav)
+TreeJntSpacePID::TreeJntSpacePID(const Tree& _tree, const Vector& _grav) : super(_tree), rne_(_tree, _grav)
 {
   resize();
 }
@@ -22,42 +22,45 @@ void TreeJntSpacePID::updateInternalDataStructures()
 }
 
 const JntArray& TreeJntSpacePID::cartToJnt(
-  const JntArray& cur_q,
-  const JntArray& cur_qd,
-  const JntArray& tar_q,
-  const JntArray& tar_qd,
-  const JntArray& qdd_ff)
+  const JntArray& _cur_q,
+  const JntArray& _cur_qd,
+  const JntArray& _tar_q,
+  const JntArray& _tar_qd,
+  const JntArray& _qdd_ff)
 {
-  assert(cur_q.size() == tree_.getNrOfJoints());
-  assert(cur_qd.size() == tree_.getNrOfJoints());
-  assert(tar_q.size() == tree_.getNrOfJoints());
-  assert(tar_qd.size() == tree_.getNrOfJoints());
-  assert(qdd_ff.size() == tree_.getNrOfJoints());
+  assert(_cur_q.size() == tree_.getNrOfJoints());
+  assert(_cur_qd.size() == tree_.getNrOfJoints());
+  assert(_tar_q.size() == tree_.getNrOfJoints());
+  assert(_tar_qd.size() == tree_.getNrOfJoints());
+  assert(_qdd_ff.size() == tree_.getNrOfJoints());
 
   // Compute target joint accelerations.
   // TODO: Add the I term.
-  const auto tar_qdd = qdd_ff + kp_ * (tar_q - cur_q) + kd_ * (tar_qd - cur_qd);
+  const auto tar_qdd = _qdd_ff + kp_ * (_tar_q - _cur_q) + kd_ * (_tar_qd - _cur_qd);
 
   // Compute target joint efforts.
-  return rne_.cartToJnt(cur_q, cur_qd, tar_qdd);
+  return rne_.cartToJnt(_cur_q, _cur_qd, tar_qdd);
 }
 
-const JntArray&
-TreeJntSpacePID::cartToJnt(const JntArray& cur_q, const JntArray& cur_qd, const JntArray& tar_q, const JntArray& tar_qd)
+const JntArray& TreeJntSpacePID::cartToJnt(
+  const JntArray& _cur_q,
+  const JntArray& _cur_qd,
+  const JntArray& _tar_q,
+  const JntArray& _tar_qd)
 {
-  return cartToJnt(cur_q, cur_qd, tar_q, tar_qd, q_zero_);
+  return cartToJnt(_cur_q, _cur_qd, _tar_q, _tar_qd, q_zero_);
 }
 
-void TreeJntSpacePID::setStiffness(double kp)
+void TreeJntSpacePID::setStiffness(double _kp)
 {
-  assert(kp >= 0.0);
-  kp_ = kp;
+  assert(_kp >= 0.0);
+  kp_ = _kp;
 }
 
-void TreeJntSpacePID::setDamping(double kd)
+void TreeJntSpacePID::setDamping(double _kd)
 {
-  assert(kd >= 0.0);
-  kd_ = kd;
+  assert(_kd >= 0.0);
+  kd_ = _kd;
 }
 
 void TreeJntSpacePID::resize()

@@ -14,22 +14,22 @@ namespace tobas
 {
 namespace linux
 {
-bool checkRealtimePriority(pthread_t thread, int tar_policy, int tar_priority)
+bool checkRealtimePriority(pthread_t _thread, int _tar_policy, int _tar_priority)
 {
   int cur_policy;
   sched_param cur_param;
 
-  if (pthread_getschedparam(thread, &cur_policy, &cur_param) != 0) {
+  if (pthread_getschedparam(_thread, &cur_policy, &cur_param) != 0) {
     std::cerr << "Failed to get scheduling parameters." << std::endl;
     return false;
   }
 
-  if (cur_policy != tar_policy) {
+  if (cur_policy != _tar_policy) {
     std::cerr << "Scheduling policy is not reflected." << std::endl;
     return false;
   }
 
-  if (cur_param.sched_priority != tar_priority) {
+  if (cur_param.sched_priority != _tar_priority) {
     std::cerr << "Scheduling priority is not reflected." << std::endl;
     return false;
   }
@@ -37,14 +37,14 @@ bool checkRealtimePriority(pthread_t thread, int tar_policy, int tar_priority)
   return true;
 }
 
-bool setRealtimePriority(int tar_policy, int tar_priority)
+bool setRealtimePriority(int _tar_policy, int _tar_priority)
 {
   if (!isSuperUser()) {
     std::cerr << "Root privileges are required to set real-time priority." << std::endl;
     return false;
   }
 
-  if (tar_priority < 0 || 99 < tar_priority) {
+  if (_tar_priority < 0 || 99 < _tar_priority) {
     std::cerr << "Real-time priority must be between 0 and 99." << std::endl;
     return false;
   }
@@ -52,28 +52,28 @@ bool setRealtimePriority(int tar_policy, int tar_priority)
   const auto this_thread = pthread_self();
 
   sched_param tar_param;
-  tar_param.sched_priority = tar_priority;
+  tar_param.sched_priority = _tar_priority;
 
-  if (pthread_setschedparam(this_thread, tar_policy, &tar_param) != 0) {
+  if (pthread_setschedparam(this_thread, _tar_policy, &tar_param) != 0) {
     std::cerr << "Failed to set scheduling parameters." << std::endl;
     return false;
   }
 
-  if (!checkRealtimePriority(this_thread, tar_policy, tar_priority)) {
+  if (!checkRealtimePriority(this_thread, _tar_policy, _tar_priority)) {
     return false;
   }
 
   return true;
 }
 
-bool setRealtimePriorityFIFO(int priority)
+bool setRealtimePriorityFIFO(int _priority)
 {
-  return setRealtimePriority(SCHED_FIFO, priority);
+  return setRealtimePriority(SCHED_FIFO, _priority);
 }
 
-bool setRealtimePriorityRR(int priority)
+bool setRealtimePriorityRR(int _priority)
 {
-  return setRealtimePriority(SCHED_RR, priority);
+  return setRealtimePriority(SCHED_RR, _priority);
 }
 }  // namespace linux
 }  // namespace tobas

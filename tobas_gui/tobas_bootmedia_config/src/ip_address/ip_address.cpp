@@ -66,14 +66,14 @@ bool IpAddressWidget::onConnected()
   return true;
 }
 
-BaseNetworkWidget* IpAddressWidget::getWidget(int index)
+BaseNetworkWidget* IpAddressWidget::getWidget(int _index)
 {
-  return qt::qPointerCast<BaseNetworkWidget>(tabs_->widget(index));
+  return qt::qPointerCast<BaseNetworkWidget>(tabs_->widget(_index));
 }
 
-std::string IpAddressWidget::networkFilePath(const std::string& name)
+std::string IpAddressWidget::networkFilePath(const std::string& _name)
 {
-  return std::string(kRootPath) + "/etc/systemd/network/20-" + name + ".network";
+  return std::string(kRootPath) + "/etc/systemd/network/20-" + _name + ".network";
 }
 
 void IpAddressWidget::onWriteButtonClicked()

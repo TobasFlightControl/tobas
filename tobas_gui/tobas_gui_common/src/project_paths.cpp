@@ -16,7 +16,7 @@ namespace gui
 {
 namespace cmn
 {
-ProjectPaths::ProjectPaths(const QString& proj_path) : proj_path_(proj_path)
+ProjectPaths::ProjectPaths(const QString& _proj_path) : proj_path_(_proj_path)
 {
 }
 
@@ -25,9 +25,9 @@ const QString& ProjectPaths::getProjPath() const
   return proj_path_;
 }
 
-void ProjectPaths::setProjPath(const QString& proj_path)
+void ProjectPaths::setProjPath(const QString& _proj_path)
 {
-  proj_path_ = proj_path;
+  proj_path_ = _proj_path;
 }
 
 QString ProjectPaths::remoteProjPath() const

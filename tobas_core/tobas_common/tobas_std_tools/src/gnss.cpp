@@ -12,7 +12,7 @@ namespace tobas
 {
 namespace st
 {
-long computeGpsDelayFromToW(uint32_t gps_tow_ms)
+long computeGpsDelayFromToW(uint32_t _gps_tow_ms)
 {
   // Get the current UTC time.
   const auto now = ch::system_clock::now();
@@ -31,7 +31,7 @@ long computeGpsDelayFromToW(uint32_t gps_tow_ms)
   const auto cur_tow_ms = ch::duration_cast<ch::milliseconds>(duration).count();
 
   // Calculate the difference between GPS ToW and the current ToW.
-  const auto diff_ms = cur_tow_ms - gps_tow_ms;
+  const auto diff_ms = cur_tow_ms - _gps_tow_ms;
 
   return diff_ms;
 }

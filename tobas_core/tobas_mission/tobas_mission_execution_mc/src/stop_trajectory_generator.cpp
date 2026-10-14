@@ -17,8 +17,8 @@ namespace
 constexpr double kEps = 1e-6;
 }  // namespace
 
-StopTrajectory::StopTrajectory(double p0, double v0, double a0, double am, double jm)
-  : p0_(p0), v0_(v0), a0_(a0), am_(am), jm_(jm)
+StopTrajectory::StopTrajectory(double _p0, double _v0, double _a0, double _am, double _jm)
+  : p0_(_p0), v0_(_v0), a0_(_a0), am_(_am), jm_(_jm)
 {
   assert(v0_ >= 0.0);
   assert(am_ > 0.0);
@@ -44,13 +44,13 @@ StopTrajectory::StopTrajectory(double p0, double v0, double a0, double am, doubl
   assert(t2_ <= t3_);
 }
 
-traj::TrajectoryPoint StopTrajectory::get(double t) const noexcept
+traj::TrajectoryPoint StopTrajectory::get(double _t) const noexcept
 {
   if (v0_ < kEps) {
     return { p0_, 0.0, 0.0 };
   }
 
-  return { p(t), v(t), a(t) };
+  return { p(_t), v(_t), a(_t) };
 }
 
 double StopTrajectory::duration() const noexcept
@@ -58,20 +58,20 @@ double StopTrajectory::duration() const noexcept
   return t3_;
 }
 
-double StopTrajectory::p(double t) const noexcept
+double StopTrajectory::p(double _t) const noexcept
 {
-  if (t <= 0) {
+  if (_t <= 0) {
     return p0_;
   }
-  else if (t <= t1_) {
-    return p0_ + v0_ * t + (a0_ / 2) * math::sqr(t) - (jm_ / 6) * math::cube(t);
+  else if (_t <= t1_) {
+    return p0_ + v0_ * _t + (a0_ / 2) * math::sqr(_t) - (jm_ / 6) * math::cube(_t);
   }
-  else if (t <= t2_) {
-    const auto dt = t - t1_;
+  else if (_t <= t2_) {
+    const auto dt = _t - t1_;
     return p(t1_) + v(t1_) * dt - (am_ / 2) * math::sqr(dt);
   }
-  else if (t <= t3_) {
-    const auto dt = t - t2_;
+  else if (_t <= t3_) {
+    const auto dt = _t - t2_;
     return p(t2_) + v(t2_) * dt + (a(t2_) / 2) * math::sqr(dt) + (jm_ / 6) * math::cube(dt);
   }
   else {
@@ -79,19 +79,19 @@ double StopTrajectory::p(double t) const noexcept
   }
 }
 
-double StopTrajectory::v(double t) const noexcept
+double StopTrajectory::v(double _t) const noexcept
 {
-  if (t <= 0) {
+  if (_t <= 0) {
     return v0_;
   }
-  else if (t <= t1_) {
-    return v0_ + a0_ * t - (jm_ / 2) * math::sqr(t);
+  else if (_t <= t1_) {
+    return v0_ + a0_ * _t - (jm_ / 2) * math::sqr(_t);
   }
-  else if (t <= t2_) {
-    return v(t1_) - am_ * (t - t1_);
+  else if (_t <= t2_) {
+    return v(t1_) - am_ * (_t - t1_);
   }
-  else if (t <= t3_) {
-    const auto dt = t - t2_;
+  else if (_t <= t3_) {
+    const auto dt = _t - t2_;
     return v(t2_) + a(t2_) * dt + (jm_ / 2) * math::sqr(dt);
   }
   else {
@@ -99,19 +99,19 @@ double StopTrajectory::v(double t) const noexcept
   }
 }
 
-double StopTrajectory::a(double t) const noexcept
+double StopTrajectory::a(double _t) const noexcept
 {
-  if (t <= 0) {
+  if (_t <= 0) {
     return a0_;
   }
-  else if (t <= t1_) {
-    return a0_ - jm_ * t;
+  else if (_t <= t1_) {
+    return a0_ - jm_ * _t;
   }
-  else if (t <= t2_) {
+  else if (_t <= t2_) {
     return -am_;
   }
-  else if (t <= t3_) {
-    return a(t2_) + jm_ * (t - t2_);
+  else if (_t <= t3_) {
+    return a(t2_) + jm_ * (_t - t2_);
   }
   else {
     return 0;

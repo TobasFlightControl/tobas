@@ -19,11 +19,11 @@ class FlightLogItemWidgetGCS : public QWidget
   using self = FlightLogItemWidgetGCS;
 
 Q_SIGNALS:
-  void exportButtonClicked(const QString& log_name);
-  void deleteButtonClicked(const QString& log_name);
+  void exportButtonClicked(const QString& _log_name);
+  void deleteButtonClicked(const QString& _log_name);
 
 public:
-  explicit FlightLogItemWidgetGCS(const QString& log_name);
+  explicit FlightLogItemWidgetGCS(const QString& _log_name);
 
   QString logName() const;
 

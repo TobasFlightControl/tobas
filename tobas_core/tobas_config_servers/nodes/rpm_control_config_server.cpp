@@ -17,7 +17,7 @@ class RpmControlConfigServer : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit RpmControlConfigServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit RpmControlConfigServer(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   tobas_msgs::msg::RpmControlGain gain_;
@@ -26,20 +26,20 @@ private:
   ros2::ServiceClientPtr<tobas_msgs::srv::SetRpmControlGains> config_sc_;
 
   template <size_t Channel>
-  void gainCb(long p);
+  void gainCb(long _p);
 
-  void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
+  void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& _msg);
 };
 
-RpmControlConfigServer::RpmControlConfigServer(const rclcpp::NodeOptions& options)
-  : super(node::kRpmControlConfigServer, nodeOptions_DParam(options))
+RpmControlConfigServer::RpmControlConfigServer(const rclcpp::NodeOptions& _options)
+  : super(node::kRpmControlConfigServer, nodeOptions_DParam(_options))
 {
   rotor_states_sub_ = createSubscriber(topic::kRotorStates, &self::rotorStatesCb, this);
   config_sc_ = create_client<tobas_msgs::srv::SetRpmControlGains>(service::kSetRpmControlGains);
 }
 
 template <size_t Channel>
-void RpmControlConfigServer::gainCb(long p)
+void RpmControlConfigServer::gainCb(long _p)
 {
   if (!config_sc_->service_is_ready()) {
     TOBAS_ERROR("'", service::kSetRpmControlGains, "' is not ready.");
@@ -47,7 +47,7 @@ void RpmControlConfigServer::gainCb(long p)
   }
 
   gain_.channel = Channel;
-  gain_.gain = p;
+  gain_.gain = _p;
 
   const auto req = std::make_shared<tobas_msgs::srv::SetRpmControlGains::Request>();
   req->gains.push_back(gain_);

@@ -16,7 +16,7 @@ namespace gui
 {
 namespace gcs
 {
-RemoteConnectionWidget::RemoteConnectionWidget(const rqt::RosQtBridge& bridge) : bridge_(bridge)
+RemoteConnectionWidget::RemoteConnectionWidget(const rqt::RosQtBridge& _bridge) : bridge_(_bridge)
 {
   const auto rsrc_dir = getResourceDir() / "connection";
   pixmap_connected_ = QPixmap(QString::fromStdString(rsrc_dir / "connected.png"));
@@ -112,9 +112,9 @@ void RemoteConnectionWidget::setUnknown()
   state_ = kUnknown;
 }
 
-void RemoteConnectionWidget::setIconPixmap(const QPixmap& pixmap)
+void RemoteConnectionWidget::setIconPixmap(const QPixmap& _pixmap)
 {
-  icon_->setPixmap(pixmap.scaled(icon_->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+  icon_->setPixmap(_pixmap.scaled(icon_->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 }
 
 void RemoteConnectionWidget::heartbeatCb(const tobas_msgs::msg::Heartbeat::ConstSharedPtr&)

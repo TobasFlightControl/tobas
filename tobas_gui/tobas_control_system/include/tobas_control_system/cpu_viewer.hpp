@@ -21,7 +21,7 @@ class CpuViewerWidget : public QWidget
   using self = CpuViewerWidget;
 
 public:
-  explicit CpuViewerWidget(const rqt::RosQtBridge& bridge);
+  explicit CpuViewerWidget(const rqt::RosQtBridge& _bridge);
 
   void reset();
 
@@ -30,7 +30,7 @@ private:
   qt::ProgressBar* load_;
 
 private Q_SLOTS:
-  void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
+  void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& _cpu);
 };
 }  // namespace ctrl
 }  // namespace gui

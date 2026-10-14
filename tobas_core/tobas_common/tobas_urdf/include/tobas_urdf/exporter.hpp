@@ -10,6 +10,6 @@ namespace tobas
 {
 namespace urdf
 {
-tinyxml2::XMLDocument* exportUrdf(const ::urdf::ModelInterface& model);
+tinyxml2::XMLDocument* exportUrdf(const ::urdf::ModelInterface& _model);
 }  // namespace urdf
 }  // namespace tobas

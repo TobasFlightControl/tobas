@@ -17,7 +17,7 @@ namespace propulsion
 {
 namespace electric
 {
-PropulsionUnitsWidget::PropulsionUnitsWidget(const uadf::Model& uadf) : uadf_(uadf)
+PropulsionUnitsWidget::PropulsionUnitsWidget(const uadf::Model& _uadf) : uadf_(_uadf)
 {
   setTabSize(150, 50);
 }
@@ -73,9 +73,9 @@ YAML::Node PropulsionUnitsWidget::dump() const
   return node;
 }
 
-void PropulsionUnitsWidget::load(const YAML::Node& node)
+void PropulsionUnitsWidget::load(const YAML::Node& _node)
 {
-  for (const auto& pair : node) {
+  for (const auto& pair : _node) {
     const auto link_name = pair.first.as<QString>();
     const auto& sub_node = pair.second;
     widget(link_name)->load(sub_node);
@@ -87,46 +87,46 @@ int PropulsionUnitsWidget::numUnits() const
   return count();
 }
 
-QString PropulsionUnitsWidget::linkName(int index) const
+QString PropulsionUnitsWidget::linkName(int _index) const
 {
-  return tabText(index);
+  return tabText(_index);
 }
 
-int PropulsionUnitsWidget::index(const QString& link_name) const
+int PropulsionUnitsWidget::index(const QString& _link_name) const
 {
   for (int i = 0; i < count(); ++i) {
-    if (linkName(i) == link_name) {
+    if (linkName(i) == _link_name) {
       return i;
     }
   }
 
-  qWarning() << link_name << "is not selected as a propulsion system.";
+  qWarning() << _link_name << "is not selected as a propulsion system.";
   return -1;
 }
 
-PropulsionUnitWidget* PropulsionUnitsWidget::widget(int index)
+PropulsionUnitWidget* PropulsionUnitsWidget::widget(int _index)
 {
-  return qt::qPointerCast<PropulsionUnitWidget>(super::widget(index));
+  return qt::qPointerCast<PropulsionUnitWidget>(super::widget(_index));
 }
 
-const PropulsionUnitWidget* PropulsionUnitsWidget::widget(int index) const
+const PropulsionUnitWidget* PropulsionUnitsWidget::widget(int _index) const
 {
-  return qt::qConstPointerCast<PropulsionUnitWidget>(super::widget(index));
+  return qt::qConstPointerCast<PropulsionUnitWidget>(super::widget(_index));
 }
 
-PropulsionUnitWidget* PropulsionUnitsWidget::widget(const QString& link_name)
+PropulsionUnitWidget* PropulsionUnitsWidget::widget(const QString& _link_name)
 {
-  return widget(index(link_name));
+  return widget(index(_link_name));
 }
 
-const PropulsionUnitWidget* PropulsionUnitsWidget::widget(const QString& link_name) const
+const PropulsionUnitWidget* PropulsionUnitsWidget::widget(const QString& _link_name) const
 {
-  return widget(index(link_name));
+  return widget(index(_link_name));
 }
 
-void PropulsionUnitsWidget::onCopyToAllButtonClicked(const QString& link_name)
+void PropulsionUnitsWidget::onCopyToAllButtonClicked(const QString& _link_name)
 {
-  const auto src_idx = index(link_name);
+  const auto src_idx = index(_link_name);
   const auto src_widget = widget(src_idx);
 
   for (int dst_idx = 0; dst_idx < count(); ++dst_idx) {
@@ -137,7 +137,7 @@ void PropulsionUnitsWidget::onCopyToAllButtonClicked(const QString& link_name)
     dst_widget->copyFrom(src_widget);
   }
 
-  qt::qInfoBox(this, "The settings of '" + link_name + "' have been copied to all the other propulsion units.");
+  qt::qInfoBox(this, "The settings of '" + _link_name + "' have been copied to all the other propulsion units.");
 }
 }  // namespace electric
 }  // namespace propulsion

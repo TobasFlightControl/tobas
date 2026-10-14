@@ -16,10 +16,10 @@ enum KeyMgmt
   SAE,      ///< WPA3-Personal
 };
 
-std::string tokenFromEnum(KeyMgmt key_mgmt);
-bool enumFromToken(const std::string& token, KeyMgmt& dst);
+std::string tokenFromEnum(KeyMgmt _key_mgmt);
+bool enumFromToken(const std::string& _token, KeyMgmt& _dst);
 
-std::string labelFromEnum(KeyMgmt key_mgmt);
-bool enumFromLabel(const std::string& label, KeyMgmt& dst);
+std::string labelFromEnum(KeyMgmt _key_mgmt);
+bool enumFromLabel(const std::string& _label, KeyMgmt& _dst);
 }  // namespace wpa
 }  // namespace tobas

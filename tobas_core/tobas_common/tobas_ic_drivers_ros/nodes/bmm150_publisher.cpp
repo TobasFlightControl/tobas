@@ -15,7 +15,7 @@ namespace tobas
 class Bmm150PublisherNode : public rclcpp::Node
 {
 public:
-  explicit Bmm150PublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit Bmm150PublisherNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   bool initialize();
@@ -30,7 +30,7 @@ private:
   bool initialized_ = false;
 };
 
-Bmm150PublisherNode::Bmm150PublisherNode(const rclcpp::NodeOptions& options) : Node("bmm150_publisher", options)
+Bmm150PublisherNode::Bmm150PublisherNode(const rclcpp::NodeOptions& _options) : Node("bmm150_publisher", _options)
 {
   device_ = get_parameter_or<std::string>("device", "/dev/i2c-1");
 

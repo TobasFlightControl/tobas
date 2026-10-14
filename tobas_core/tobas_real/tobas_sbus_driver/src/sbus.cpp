@@ -17,9 +17,9 @@ namespace tobas
 {
 namespace
 {
-bool isEndByte(uint8_t byte)
+bool isEndByte(uint8_t _byte)
 {
-  switch (byte) {
+  switch (_byte) {
     case 0x00:
     case 0x04:
     case 0x14:
@@ -32,7 +32,7 @@ bool isEndByte(uint8_t byte)
 }
 }  // namespace
 
-SBUS::SBUS(std::function<void(const Packet&)> packet_cb) : packet_cb_(packet_cb)
+SBUS::SBUS(std::function<void(const Packet&)> _packet_cb) : packet_cb_(_packet_cb)
 {
 }
 
@@ -41,9 +41,9 @@ SBUS::~SBUS()
   stop();
 }
 
-bool SBUS::initialize(const char* device)
+bool SBUS::initialize(const char* _device)
 {
-  if (!uart_.initialize(device, true)) {
+  if (!uart_.initialize(_device, true)) {
     return false;
   }
 
@@ -81,7 +81,7 @@ void SBUS::spin()
   read_thread_.join();
 }
 
-void SBUS::readThreadFunc(std::stop_token st)
+void SBUS::readThreadFunc(std::stop_token _st)
 {
   static constexpr size_t kDataSize = 22;
 
@@ -91,7 +91,7 @@ void SBUS::readThreadFunc(std::stop_token st)
 
   // Receive one byte at a time instead of in bulk.
   // The inverter or the Linux UART device may split the data unexpectedly.
-  while (!st.stop_requested()) {
+  while (!_st.stop_requested()) {
     // Start byte
     if (!uart_.receive(&start_byte, 1)) {
       continue;

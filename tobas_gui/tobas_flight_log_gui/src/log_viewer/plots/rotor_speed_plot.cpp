@@ -36,19 +36,19 @@ void RotorSpeedPlotWidget::clear()
   name2idx_.clear();
 }
 
-void RotorSpeedPlotWidget::setTimeScale(double t_start, double t_stop)
+void RotorSpeedPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
   for (auto& plot : plots_) {
-    plot->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+    plot->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
   }
 }
 
 void RotorSpeedPlotWidget::setData(
-  const QVector<tobas_msgs::msg::RotorStateArray>& cur_msgs,
-  const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_msgs)
+  const QVector<tobas_msgs::msg::RotorStateArray>& _cur_msgs,
+  const QVector<tobas_msgs::msg::RotorSpeedArray>& _tar_msgs)
 {
-  if (cur_msgs.size() > 0) {
-    const auto& first_msg = cur_msgs.first();
+  if (_cur_msgs.size() > 0) {
+    const auto& first_msg = _cur_msgs.first();
     if (first_msg.states.size() != num_rotors_) {
       if (!updateInternalDataStructures(first_msg)) {
         return;
@@ -56,8 +56,8 @@ void RotorSpeedPlotWidget::setData(
     }
   }
 
-  const auto [min_cur_speed, max_cur_speed] = updateCurrentSpeedSamples(cur_msgs);
-  const auto [min_tar_speed, max_tar_speed] = updateTargetSpeedSamples(tar_msgs);
+  const auto [min_cur_speed, max_cur_speed] = updateCurrentSpeedSamples(_cur_msgs);
+  const auto [min_tar_speed, max_tar_speed] = updateTargetSpeedSamples(_tar_msgs);
   const auto min_speed = std::min(min_cur_speed, min_tar_speed);
   const auto max_speed = std::max(max_cur_speed, max_tar_speed);
   if (min_speed <= max_speed) {
@@ -69,11 +69,11 @@ void RotorSpeedPlotWidget::setData(
   }
 }
 
-bool RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::RotorStateArray& msg)
+bool RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::RotorStateArray& _msg)
 {
   clear();
 
-  for (const auto& [idx, elem] : std::views::enumerate(msg.states)) {
+  for (const auto& [idx, elem] : std::views::enumerate(_msg.states)) {
     if (elem.link_name.empty()) {
       qWarning() << "Rotor link name is empty.";
       return false;
@@ -113,14 +113,14 @@ bool RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::R
 }
 
 std::pair<double, double>
-RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::msg::RotorStateArray>& msgs)
+RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::msg::RotorStateArray>& _msgs)
 {
   QVector<QVector<double>> t_data(num_rotors_);
   QVector<QVector<double>> speed_data(num_rotors_);
   double min_speed = std::numeric_limits<double>::max();
   double max_speed = 0.0;
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     if (msg.states.size() != num_rotors_) {
       qWarning() << "The number of rotors mismatch.";
       continue;
@@ -157,14 +157,14 @@ RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::msg::R
 }
 
 std::pair<double, double>
-RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::msg::RotorSpeedArray>& msgs)
+RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::msg::RotorSpeedArray>& _msgs)
 {
   QVector<QVector<double>> t_data(num_rotors_);
   QVector<QVector<double>> speed_data(num_rotors_);
   double min_speed = std::numeric_limits<double>::max();
   double max_speed = 0.0;
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     if (msg.speeds.size() != num_rotors_) {
       qWarning() << "The number of rotors mismatch.";
       continue;
@@ -196,10 +196,10 @@ RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::msg::Ro
   return { min_speed, max_speed };
 }
 
-void RotorSpeedPlotWidget::updateVerticalScale(double min_speed, double max_speed)
+void RotorSpeedPlotWidget::updateVerticalScale(double _min_speed, double _max_speed)
 {
-  double scale_min = min_speed;
-  double scale_max = std::max(max_speed, 1000.0);
+  double scale_min = _min_speed;
+  double scale_max = std::max(_max_speed, 1000.0);
   double scale_step = 0.0;
   QwtLinearScaleEngine().autoScale(kMaxVerticalScaleSteps, scale_min, scale_max, scale_step);
 

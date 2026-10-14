@@ -11,9 +11,9 @@ constexpr char kElectricText[] = "electric";
 constexpr char kIceText[] = "ice";
 }  // namespace
 
-std::string textFromEnum(PropulsionSystem cmd_iface)
+std::string textFromEnum(PropulsionSystem _cmd_iface)
 {
-  switch (cmd_iface) {
+  switch (_cmd_iface) {
     case PropulsionSystem::kElectric:
       return kElectricText;
     case PropulsionSystem::kIce:
@@ -23,14 +23,14 @@ std::string textFromEnum(PropulsionSystem cmd_iface)
   }
 }
 
-bool enumFromText(const std::string& text, PropulsionSystem& dst)
+bool enumFromText(const std::string& _text, PropulsionSystem& _dst)
 {
-  if (text == kElectricText) {
-    dst = PropulsionSystem::kElectric;
+  if (_text == kElectricText) {
+    _dst = PropulsionSystem::kElectric;
     return true;
   }
-  else if (text == kIceText) {
-    dst = PropulsionSystem::kIce;
+  else if (_text == kIceText) {
+    _dst = PropulsionSystem::kIce;
     return true;
   }
   else {
@@ -41,19 +41,19 @@ bool enumFromText(const std::string& text, PropulsionSystem& dst)
 
 namespace YAML
 {
-Node convert<tobas::PropulsionSystem>::encode(tobas::PropulsionSystem rhs)
+Node convert<tobas::PropulsionSystem>::encode(tobas::PropulsionSystem _rhs)
 {
   Node node;
-  node = tobas::textFromEnum(rhs);
-  return Node(tobas::textFromEnum(rhs));
+  node = tobas::textFromEnum(_rhs);
+  return Node(tobas::textFromEnum(_rhs));
 }
 
-bool convert<tobas::PropulsionSystem>::decode(const Node& node, tobas::PropulsionSystem& rhs)
+bool convert<tobas::PropulsionSystem>::decode(const Node& _node, tobas::PropulsionSystem& _rhs)
 {
-  if (!node.IsScalar()) {
+  if (!_node.IsScalar()) {
     return false;
   }
 
-  return tobas::enumFromText(node.as<std::string>(), rhs);
+  return tobas::enumFromText(_node.as<std::string>(), _rhs);
 }
 }  // namespace YAML

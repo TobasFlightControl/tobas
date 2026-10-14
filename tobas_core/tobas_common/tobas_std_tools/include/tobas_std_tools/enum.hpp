@@ -24,10 +24,10 @@ struct NamedEnum
   {
   }
 
-  bool operator==(const NamedEnum& other) const
+  bool operator==(const NamedEnum& _other) const
   {
     // Note that comparing pointers such as `char*` with `==` compares addresses, not values.
-    return typeid(*this) == typeid(other) && std::strcmp(name, other.name) == 0 && value == other.value;
+    return typeid(*this) == typeid(_other) && std::strcmp(name, _other.name) == 0 && value == _other.value;
   }
 };
 }  // namespace st

@@ -88,10 +88,10 @@ QString HostnameWidget::getHostname() const
   return hostname_->text();
 }
 
-bool HostnameWidget::writeHostnameFile(const QString& hostname)
+bool HostnameWidget::writeHostnameFile(const QString& _hostname)
 {
   const auto path = hostnameFilePath();
-  const auto content = (hostname + '\n').toStdString();
+  const auto content = (_hostname + '\n').toStdString();
 
   if (!str::writeText(path, content)) {
     qt::qErrorBox(this, "Failed to write hostname to " + QString::fromStdString(path) + ".");
@@ -101,11 +101,11 @@ bool HostnameWidget::writeHostnameFile(const QString& hostname)
   return true;
 }
 
-bool HostnameWidget::writeHostsFile(const QString& hostname)
+bool HostnameWidget::writeHostsFile(const QString& _hostname)
 {
   // Create data.
   inja::json tpl_data;
-  tpl_data["hostname"] = hostname.toStdString();
+  tpl_data["hostname"] = _hostname.toStdString();
 
   // Get paths.
   const auto tpl_path = getPkgShareDir() / "templates/hosts";
@@ -125,24 +125,24 @@ bool HostnameWidget::writeHostsFile(const QString& hostname)
   return true;
 }
 
-void HostnameWidget::onHostnameChanged(const QString& hostname)
+void HostnameWidget::onHostnameChanged(const QString& _hostname)
 {
   // Empty values are not allowed.
-  if (hostname.isEmpty()) {
+  if (_hostname.isEmpty()) {
     warn_text_->setText("Please enter a hostname.");
     write_button_->setEnabled(false);
     return;
   }
 
   // FQDNs are not allowed.
-  if (hostname.contains('.')) {
+  if (_hostname.contains('.')) {
     warn_text_->setText("Dots are not allowed in the static hostname.");
     write_button_->setEnabled(false);
     return;
   }
 
   // Check the byte length assuming ASCII.
-  const auto hostname_bytes = hostname.toUtf8().size();
+  const auto hostname_bytes = _hostname.toUtf8().size();
   if (hostname_bytes > HOST_NAME_MAX) {
     warn_text_->setText("Hostname is too long (max " + QString::number(HOST_NAME_MAX) + " characters).");
     write_button_->setEnabled(false);
@@ -150,7 +150,7 @@ void HostnameWidget::onHostnameChanged(const QString& hostname)
   }
 
   // Allow only lowercase letters, numbers, and hyphens.
-  for (auto ch : hostname) {
+  for (auto ch : _hostname) {
     const auto u = ch.unicode();
     const auto is_lower = (u >= 'a' && u <= 'z');
     const auto is_digit = (u >= '0' && u <= '9');
@@ -163,7 +163,7 @@ void HostnameWidget::onHostnameChanged(const QString& hostname)
   }
 
   // Leading or trailing hyphens are not allowed.
-  if (hostname.startsWith('-') || hostname.endsWith('-')) {
+  if (_hostname.startsWith('-') || _hostname.endsWith('-')) {
     warn_text_->setText("Hostname must not start or end with a hyphen (-).");
     write_button_->setEnabled(false);
     return;

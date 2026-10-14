@@ -18,24 +18,24 @@ namespace
 constexpr char kServerNotReadyMsg[] = "The SSH server is not ready.";
 }  // namespace
 
-SshClient::SshClient(rclcpp::Node::SharedPtr node)
-  : node_(node)
-  , set_endpoint_sc_(node, "ssh/set_endpoint")
-  , connect_sc_(node, "ssh/connect")
-  , execute_sc_(node, "ssh/execute")
-  , sftp_read_sc_(node, "ssh/sftp_read")
-  , sftp_write_sc_(node, "ssh/sftp_write")
-  , list_sc_(node, "ssh/list")
-  , scp_get_ac_(node, "ssh/scp_get")
-  , scp_put_ac_(node, "ssh/scp_put")
+SshClient::SshClient(rclcpp::Node::SharedPtr _node)
+  : node_(_node)
+  , set_endpoint_sc_(_node, "ssh/set_endpoint")
+  , connect_sc_(_node, "ssh/connect")
+  , execute_sc_(_node, "ssh/execute")
+  , sftp_read_sc_(_node, "ssh/sftp_read")
+  , sftp_write_sc_(_node, "ssh/sftp_write")
+  , list_sc_(_node, "ssh/list")
+  , scp_get_ac_(_node, "ssh/scp_get")
+  , scp_put_ac_(_node, "ssh/scp_put")
 {
   endpoint_sub_ = node_->create_subscription<std_msgs::msg::String>(
     "ssh/endpoint",
     rclcpp::QoS(1).transient_local().reliable(),
-    [this](const std_msgs::msg::String::ConstSharedPtr& msg)
+    [this](const std_msgs::msg::String::ConstSharedPtr& _msg)
     {
       const std::lock_guard lock(mutex_);
-      endpoint_ = msg->data;
+      endpoint_ = _msg->data;
     });
 }
 
@@ -51,11 +51,11 @@ bool SshClient::waitForLocalServer()
   return set_endpoint_sc_.waitForService();
 }
 
-bool SshClient::setEndpoint(const std::string& host, const std::string& user)
+bool SshClient::setEndpoint(const std::string& _host, const std::string& _user)
 {
   const auto req = std::make_shared<SetEndpoint::Request>();
-  req->host = host;
-  req->user = user;
+  req->host = _host;
+  req->user = _user;
 
   const auto res = set_endpoint_sc_.sendRequestAndWait(req);
   return static_cast<bool>(res);
@@ -77,12 +77,13 @@ SshClient::Result SshClient::connect()
   return {};
 }
 
-SshClient::Result SshClient::execute(const std::string& command, std::string& output, bool superuser, bool background)
+SshClient::Result
+SshClient::execute(const std::string& _command, std::string& _output, bool _superuser, bool _background)
 {
   const auto req = std::make_shared<Execute::Request>();
-  req->command = command;
-  req->superuser = superuser;
-  req->background = background;
+  req->command = _command;
+  req->superuser = _superuser;
+  req->background = _background;
 
   const auto res = execute_sc_.sendRequestAndWait(req);
   if (!res) {
@@ -93,30 +94,30 @@ SshClient::Result SshClient::execute(const std::string& command, std::string& ou
     return std::unexpected(res->error_output);
   }
 
-  output = res->output;
+  _output = res->output;
   return {};
 }
 
-SshClient::Result SshClient::execute(const std::string& command, bool superuser, bool background)
+SshClient::Result SshClient::execute(const std::string& _command, bool _superuser, bool _background)
 {
   std::string output;
-  return execute(command, output, superuser, background);
+  return execute(_command, output, _superuser, _background);
 }
 
 SshClient::Result SshClient::scpGet(
-  const std::string& remote_path,
-  const std::string& local_path,
-  std::function<void(uint64_t, uint64_t)> callback)
+  const std::string& _remote_path,
+  const std::string& _local_path,
+  std::function<void(uint64_t, uint64_t)> _callback)
 {
   ScpGet::Goal goal;
-  goal.remote_path = remote_path;
-  goal.local_path = local_path;
+  goal.remote_path = _remote_path;
+  goal.local_path = _local_path;
 
   std::optional<rclcpp_action::ClientGoalHandle<ScpGet>::WrappedResult> result;
-  if (callback) {
+  if (_callback) {
     const auto feedback_cb =
-      [callback](const rclcpp_action::ClientGoalHandle<ScpGet>::SharedPtr&, const ScpGet::Feedback::ConstSharedPtr& fb)
-    { callback(fb->total_size, fb->transferred); };
+      [_callback](const rclcpp_action::ClientGoalHandle<ScpGet>::SharedPtr&, const ScpGet::Feedback::ConstSharedPtr& _fb)
+    { _callback(_fb->total_size, _fb->transferred); };
     result = scp_get_ac_.sendGoalAndWait(goal, feedback_cb);
   }
   else {
@@ -134,25 +135,25 @@ SshClient::Result SshClient::scpGet(
 }
 
 SshClient::Result SshClient::scpPut(
-  const std::string& local_dir,
-  const std::string& remote_dir,
-  bool parents,
-  const std::vector<std::string>& exclude_dirs,
-  bool superuser,
-  std::function<void(uint64_t, uint64_t)> callback)
+  const std::string& _local_dir,
+  const std::string& _remote_dir,
+  bool _parents,
+  const std::vector<std::string>& _exclude_dirs,
+  bool _superuser,
+  std::function<void(uint64_t, uint64_t)> _callback)
 {
   ScpPut::Goal goal;
-  goal.local_dir = local_dir;
-  goal.remote_dir = remote_dir;
-  goal.parents = parents;
-  goal.exclude_dirs = exclude_dirs;
-  goal.superuser = superuser;
+  goal.local_dir = _local_dir;
+  goal.remote_dir = _remote_dir;
+  goal.parents = _parents;
+  goal.exclude_dirs = _exclude_dirs;
+  goal.superuser = _superuser;
 
   std::optional<rclcpp_action::ClientGoalHandle<ScpPut>::WrappedResult> result;
-  if (callback) {
+  if (_callback) {
     const auto feedback_cb =
-      [callback](const rclcpp_action::ClientGoalHandle<ScpPut>::SharedPtr&, const ScpPut::Feedback::ConstSharedPtr& fb)
-    { callback(fb->total_size, fb->transferred); };
+      [_callback](const rclcpp_action::ClientGoalHandle<ScpPut>::SharedPtr&, const ScpPut::Feedback::ConstSharedPtr& _fb)
+    { _callback(_fb->total_size, _fb->transferred); };
     result = scp_put_ac_.sendGoalAndWait(goal, feedback_cb);
   }
   else {
@@ -169,11 +170,11 @@ SshClient::Result SshClient::scpPut(
   return {};
 }
 
-SshClient::Result SshClient::sftpRead(const std::string& remote_path, std::string& text, bool superuser)
+SshClient::Result SshClient::sftpRead(const std::string& _remote_path, std::string& _text, bool _superuser)
 {
   const auto req = std::make_shared<SftpRead::Request>();
-  req->remote_path = remote_path;
-  req->superuser = superuser;
+  req->remote_path = _remote_path;
+  req->superuser = _superuser;
 
   const auto res = sftp_read_sc_.sendRequestAndWait(req);
   if (!res) {
@@ -184,16 +185,16 @@ SshClient::Result SshClient::sftpRead(const std::string& remote_path, std::strin
     return std::unexpected(res->message);
   }
 
-  text = res->text;
+  _text = res->text;
   return {};
 }
 
-SshClient::Result SshClient::sftpWrite(const std::string& remote_path, const std::string& text, bool superuser)
+SshClient::Result SshClient::sftpWrite(const std::string& _remote_path, const std::string& _text, bool _superuser)
 {
   const auto req = std::make_shared<SftpWrite::Request>();
-  req->remote_path = remote_path;
-  req->text = text;
-  req->superuser = superuser;
+  req->remote_path = _remote_path;
+  req->text = _text;
+  req->superuser = _superuser;
 
   const auto res = sftp_write_sc_.sendRequestAndWait(req);
   if (!res) {
@@ -207,10 +208,10 @@ SshClient::Result SshClient::sftpWrite(const std::string& remote_path, const std
   return {};
 }
 
-SshClient::Result SshClient::list(const std::string& pardir, std::vector<std::string>& dst)
+SshClient::Result SshClient::list(const std::string& _pardir, std::vector<std::string>& _dst)
 {
   const auto req = std::make_shared<List::Request>();
-  req->pardir = pardir;
+  req->pardir = _pardir;
 
   const auto res = list_sc_.sendRequestAndWait(req);
   if (!res) {
@@ -221,7 +222,7 @@ SshClient::Result SshClient::list(const std::string& pardir, std::vector<std::st
     return std::unexpected(res->message);
   }
 
-  dst = res->entries;
+  _dst = res->entries;
   return {};
 }
 }  // namespace ssh

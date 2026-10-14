@@ -9,6 +9,6 @@ namespace tobas
 {
 namespace cyclonedds
 {
-std::string exportText(const Data& src);
+std::string exportText(const Data& _src);
 }  // namespace cyclonedds
 }  // namespace tobas

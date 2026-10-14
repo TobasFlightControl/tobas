@@ -22,7 +22,7 @@ Q_SIGNALS:
   void unchecked();
 
 public:
-  explicit ToggleButton(const QString& off_text, const QString& on_text, QWidget* parent = nullptr);
+  explicit ToggleButton(const QString& _off_text, const QString& _on_text, QWidget* _parent = nullptr);
 
   bool isChecked() const;
   void setChecked(bool _checked);

@@ -7,9 +7,9 @@ namespace tobas
 {
 namespace qt
 {
-void startThreadAndWait(std::function<void()> func)
+void startThreadAndWait(std::function<void()> _func)
 {
-  const auto thread = QThread::create(std::move(func));
+  const auto thread = QThread::create(std::move(_func));
 
   // Prepare an event loop to catch results from another thread.
   QEventLoop loop;

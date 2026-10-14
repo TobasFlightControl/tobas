@@ -9,10 +9,10 @@ namespace tobas
 {
 namespace uadf
 {
-tinyxml2::XMLDocument* exportUADF(const Model& model)
+tinyxml2::XMLDocument* exportUADF(const Model& _model)
 {
   // Create the base XML.
-  const auto doc = urdf::exportUrdf(*model.urdf);
+  const auto doc = urdf::exportUrdf(*_model.urdf);
 
   // Get the root node.
   const auto robot = doc->RootElement();
@@ -22,10 +22,10 @@ tinyxml2::XMLDocument* exportUADF(const Model& model)
     if (std::strcmp(child->Name(), "joint") == 0) {
       const auto joint_name = child->Attribute("name");
 
-      if (model.thrusts.contains(joint_name)) {
+      if (_model.thrusts.contains(joint_name)) {
         child->SetAttribute("type", "thrust");
 
-        const auto& thrust = model.thrusts.at(joint_name);
+        const auto& thrust = _model.thrusts.at(joint_name);
 
         const auto direction = child->InsertNewChildElement("direction");
         switch (thrust.direction) {
@@ -39,10 +39,10 @@ tinyxml2::XMLDocument* exportUADF(const Model& model)
             throw;
         }
       }
-      else if (model.control_surfaces.contains(joint_name)) {
+      else if (_model.control_surfaces.contains(joint_name)) {
         child->SetAttribute("type", "cs");
       }
-      else if (model.tilts.contains(joint_name)) {
+      else if (_model.tilts.contains(joint_name)) {
         child->SetAttribute("type", "tilt");
       }
     }

@@ -30,18 +30,18 @@ public:
     kServerError,
   };
 
-  inline explicit SyncParamClient(rclcpp::Node::SharedPtr node, const std::string& remote_node_name);
+  inline explicit SyncParamClient(rclcpp::Node::SharedPtr _node, const std::string& _remote_node_name);
 
   template <typename ValueT, typename RepT = int64_t, typename RatioT = std::milli>
   ErrorCode setParam(
-    const std::string& param_name,
-    const ValueT& value,
-    std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1));
+    const std::string& _param_name,
+    const ValueT& _value,
+    std::chrono::duration<RepT, RatioT> _timeout = std::chrono::duration<RepT, RatioT>(-1));
 
   inline bool serviceIsReady() const;
 
   template <typename RepT = int64_t, typename RatioT = std::milli>
-  inline bool waitForService(std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1));
+  inline bool waitForService(std::chrono::duration<RepT, RatioT> _timeout = std::chrono::duration<RepT, RatioT>(-1));
 
   inline ErrorCode errorCode() const;
   inline const char* errorMessage() const;
@@ -54,21 +54,23 @@ private:
   std::string server_error_msg_;
 };
 
-inline SyncParamClient::SyncParamClient(rclcpp::Node::SharedPtr node, const std::string& remote_node_name)
-  : client_(node, remote_node_name)
+inline SyncParamClient::SyncParamClient(rclcpp::Node::SharedPtr _node, const std::string& _remote_node_name)
+  : client_(_node, _remote_node_name)
 {
 }
 
 template <typename ValueT, typename RepT, typename RatioT>
-SyncParamClient::ErrorCode
-SyncParamClient::setParam(const std::string& param_name, const ValueT& value, std::chrono::duration<RepT, RatioT> timeout)
+SyncParamClient::ErrorCode SyncParamClient::setParam(
+  const std::string& _param_name,
+  const ValueT& _value,
+  std::chrono::duration<RepT, RatioT> _timeout)
 {
   if (!client_.service_is_ready()) {
     return error_code_ = kServerNotReady;
   }
 
-  auto future = client_.set_parameters({ rclcpp::Parameter(param_name, value) });
-  if (waitForFuture(future, timeout) != std::future_status::ready) {
+  auto future = client_.set_parameters({ rclcpp::Parameter(_param_name, _value) });
+  if (waitForFuture(future, _timeout) != std::future_status::ready) {
     return error_code_ = kTimeout;
   }
 
@@ -92,9 +94,9 @@ inline bool SyncParamClient::serviceIsReady() const
 }
 
 template <typename RepT, typename RatioT>
-inline bool SyncParamClient::waitForService(std::chrono::duration<RepT, RatioT> timeout)
+inline bool SyncParamClient::waitForService(std::chrono::duration<RepT, RatioT> _timeout)
 {
-  return client_.wait_for_service(timeout);
+  return client_.wait_for_service(_timeout);
 }
 
 inline SyncParamClient::ErrorCode SyncParamClient::errorCode() const

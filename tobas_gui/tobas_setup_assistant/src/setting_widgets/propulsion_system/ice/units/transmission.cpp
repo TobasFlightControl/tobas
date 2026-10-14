@@ -53,9 +53,9 @@ bool TransmissionWidget::isValid()
   return true;
 }
 
-void TransmissionWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
+void TransmissionWidget::copyFrom(const BaseSelectedLinkSettingWidget* _src)
 {
-  const auto derived = qt::qConstPointerCast<TransmissionWidget>(src);
+  const auto derived = qt::qConstPointerCast<TransmissionWidget>(_src);
 
   gear_ratio_->setValue(derived->gear_ratio_->getValue());
 }
@@ -69,9 +69,9 @@ YAML::Node TransmissionWidget::dump() const
   return node;
 }
 
-void TransmissionWidget::load(const YAML::Node& node)
+void TransmissionWidget::load(const YAML::Node& _node)
 {
-  gear_ratio_->setValue(node[gear_ratio_->name()].as<std::pair<int, int>>());
+  gear_ratio_->setValue(_node[gear_ratio_->name()].as<std::pair<int, int>>());
 }
 
 double TransmissionWidget::gearRatio() const

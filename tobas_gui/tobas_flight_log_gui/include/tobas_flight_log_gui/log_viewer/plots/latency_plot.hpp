@@ -24,11 +24,11 @@ public:
   explicit LatencyPlotWidget();
 
   void clear() override;
-  void setTimeScale(double t_start, double t_stop) override;
+  void setTimeScale(double _t_start, double _t_stop) override;
 
   void setData(
-    const QVector<tobas_msgs::msg::Latency>& sampling_time_msgs,
-    const QVector<tobas_msgs::msg::Latency>& ctrl_latency_msgs);
+    const QVector<tobas_msgs::msg::Latency>& _sampling_time_msgs,
+    const QVector<tobas_msgs::msg::Latency>& _ctrl_latency_msgs);
 
 private:
   QwtPlot2* sampling_time_plot_;
@@ -43,8 +43,8 @@ private:
   QwtPlot2* ctrl_latency_hist_plot_;
   qwt::QwtPlotHistogramWrapper ctrl_latency_hist_data_;
 
-  void setSamplingTimeData(const QVector<tobas_msgs::msg::Latency>& msgs);
-  void setControlLatencyData(const QVector<tobas_msgs::msg::Latency>& msgs);
+  void setSamplingTimeData(const QVector<tobas_msgs::msg::Latency>& _msgs);
+  void setControlLatencyData(const QVector<tobas_msgs::msg::Latency>& _msgs);
 };
 }  // namespace log
 }  // namespace gui

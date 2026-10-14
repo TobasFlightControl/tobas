@@ -13,7 +13,7 @@ namespace tobas
 class MultiThreadedExecutorRT : public rclcpp::executors::MultiThreadedExecutor
 {
 public:
-  explicit MultiThreadedExecutorRT(linux::sched_t policy, size_t priority, uint32_t cpu_affinity, size_t num_threads);
+  explicit MultiThreadedExecutorRT(linux::sched_t _policy, size_t _priority, uint32_t _cpu_affinity, size_t _num_threads);
 
   void spin() override;
 

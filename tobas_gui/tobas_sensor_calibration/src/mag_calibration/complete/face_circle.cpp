@@ -17,30 +17,30 @@ namespace
 constexpr int kLineWidth = 10;
 }  // namespace
 
-FaceCircleWidget::FaceCircleWidget(const QString& text) : text_(text)
+FaceCircleWidget::FaceCircleWidget(const QString& _text) : text_(_text)
 {
 }
 
-void FaceCircleWidget::setTextPointSize(int psize)
+void FaceCircleWidget::setTextPointSize(int _psize)
 {
-  if (psize < 0) {
+  if (_psize < 0) {
     qWarning() << "Text point size must be non-negative.";
     return;
   }
 
-  text_psize_ = psize;
+  text_psize_ = _psize;
   update();
 }
 
-void FaceCircleWidget::setProgress(double progress)
+void FaceCircleWidget::setProgress(double _progress)
 {
-  progress_ = std::clamp(progress, 0.0, 1.0);
-  completed_ = progress >= 1.0;
+  progress_ = std::clamp(_progress, 0.0, 1.0);
+  completed_ = _progress >= 1.0;
 }
 
-void FaceCircleWidget::setSelected(bool selected)
+void FaceCircleWidget::setSelected(bool _selected)
 {
-  selected_ = selected;
+  selected_ = _selected;
 }
 
 int FaceCircleWidget::calcMaxTextPointSize() const
@@ -93,92 +93,92 @@ int FaceCircleWidget::getRadius() const
   return getDiameter() / 2;
 }
 
-void FaceCircleWidget::drawCircle(QPainter& painter, const QColor& color)
+void FaceCircleWidget::drawCircle(QPainter& _painter, const QColor& _color)
 {
-  painter.save();
+  _painter.save();
 
   const auto center = getCenter();
   const auto radius = getRadius() - kLineWidth;
 
   // No line.
-  painter.setPen(Qt::NoPen);
+  _painter.setPen(Qt::NoPen);
 
   // Set the brush.
   QRadialGradient gradient(center, radius);
-  gradient.setColorAt(0, color.lighter());
-  gradient.setColorAt(1, color);
-  painter.setBrush(QBrush(gradient));
+  gradient.setColorAt(0, _color.lighter());
+  gradient.setColorAt(1, _color);
+  _painter.setBrush(QBrush(gradient));
 
   // Draw.
-  painter.drawEllipse(center, radius, radius);
+  _painter.drawEllipse(center, radius, radius);
 
-  painter.restore();
+  _painter.restore();
 }
 
-void FaceCircleWidget::drawCircleLowerHalf(QPainter& painter, const QColor& color, double rate)
+void FaceCircleWidget::drawCircleLowerHalf(QPainter& _painter, const QColor& _color, double _rate)
 {
-  painter.save();
+  _painter.save();
 
   const auto center = getCenter();
   const auto radius = getRadius() - kLineWidth;
 
   // No line.
-  painter.setPen(Qt::NoPen);
+  _painter.setPen(Qt::NoPen);
 
   // Set the brush.
   QRadialGradient gradient(center, radius);
-  gradient.setColorAt(0, QColor(color).lighter());
-  gradient.setColorAt(1, color);
-  painter.setBrush(QBrush(gradient));
+  gradient.setColorAt(0, QColor(_color).lighter());
+  gradient.setColorAt(1, _color);
+  _painter.setBrush(QBrush(gradient));
 
   // Clip only the lower part.
-  const auto top = center.y() + radius * (1 - 2 * rate);
+  const auto top = center.y() + radius * (1 - 2 * _rate);
   QRectF clip(0.0, top, width(), height() - top);
-  painter.setClipRect(clip);
+  _painter.setClipRect(clip);
 
   // Draw.
-  painter.drawEllipse(center, radius, radius);
+  _painter.drawEllipse(center, radius, radius);
 
-  painter.restore();
+  _painter.restore();
 }
 
-void FaceCircleWidget::drawOutline(QPainter& painter)
+void FaceCircleWidget::drawOutline(QPainter& _painter)
 {
   constexpr auto kLineColorSelected = Qt::red;
   constexpr auto kLineColorDeselected = Qt::black;
 
-  painter.save();
+  _painter.save();
 
   const auto center = getCenter();
   const auto radius = getRadius() - kLineWidth / 2;
 
   // Set the pen.
   const auto color = selected_ ? kLineColorSelected : kLineColorDeselected;
-  painter.setPen(QPen(color, kLineWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+  _painter.setPen(QPen(color, kLineWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 
   // No fill.
-  painter.setBrush(Qt::NoBrush);
+  _painter.setBrush(Qt::NoBrush);
 
   // Draw.
-  painter.drawEllipse(center, radius, radius);
+  _painter.drawEllipse(center, radius, radius);
 
-  painter.restore();
+  _painter.restore();
 }
 
-void FaceCircleWidget::drawText(QPainter& painter)
+void FaceCircleWidget::drawText(QPainter& _painter)
 {
-  painter.save();
+  _painter.save();
 
   const auto center = getCenter();
 
   if (text_psize_ > 0) {
-    super::drawText(painter, text_, center, text_psize_);
+    super::drawText(_painter, text_, center, text_psize_);
   }
   else {
-    drawMaximumText(painter, text_, center);
+    drawMaximumText(_painter, text_, center);
   }
 
-  painter.restore();
+  _painter.restore();
 }
 }  // namespace sc
 }  // namespace gui

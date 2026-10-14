@@ -10,7 +10,7 @@ namespace tobas
 {
 namespace y_axis_tilt_multicopter
 {
-TranslationalEoM::TranslationalEoM(const kdl::Tree& tree) : mass_holder_(tree), grav_W_(0, 0, -st::kGravity)
+TranslationalEoM::TranslationalEoM(const kdl::Tree& _tree) : mass_holder_(_tree), grav_W_(0, 0, -st::kGravity)
 {
 }
 
@@ -20,17 +20,17 @@ void TranslationalEoM::updateInternalDataStructures()
 }
 
 bool TranslationalEoM::solve(
-  const kdl::Vector& tar_acc_W,
-  double tar_pitch,
-  double tar_yaw,
-  const kdl::Vector& ext_force_W,
-  double& ux_out,
-  double& uz_out,
-  kdl::Rotation& rot_out)
+  const kdl::Vector& _tar_acc_w,
+  double _tar_pitch,
+  double _tar_yaw,
+  const kdl::Vector& _ext_force_w,
+  double& _ux_out,
+  double& _uz_out,
+  kdl::Rotation& _rot_out)
 {
   // Compute the target force viewed from the world coordinate system.
   const auto& mass = mass_holder_.getMass();
-  auto f_W = mass * (tar_acc_W - grav_W_) - ext_force_W;
+  auto f_W = mass * (_tar_acc_w - grav_W_) - _ext_force_w;
 
   // When the acceleration magnitude is small, such as during landing,
   // the rate of change in the tilt-angle solution becomes relatively large.
@@ -40,14 +40,14 @@ bool TranslationalEoM::solve(
   f_W.z(std::max(f_W.z(), mass * kMinVerticalForcePerMass));
 
   // Convert the target force to the local coordinate system before roll.
-  const auto f_L = kdl::Rotation::RPY(0.0, tar_pitch, tar_yaw).inverse(f_W);
+  const auto f_L = kdl::Rotation::RPY(0.0, _tar_pitch, _tar_yaw).inverse(f_W);
   const auto& fx = f_L.x();
   const auto& fy = f_L.y();
   const auto& fz = f_L.z();
 
   // Compute the rotation angle around the third rotation axis.
-  const auto cos_pitch = std::cos(tar_pitch);
-  const auto sin_pitch = std::sin(tar_pitch);
+  const auto cos_pitch = std::cos(_tar_pitch);
+  const auto sin_pitch = std::sin(_tar_pitch);
   const auto den = fx * sin_pitch - fz * cos_pitch;
   if (den == 0.0) {
     return false;  // Free fall is commanded.
@@ -62,11 +62,11 @@ bool TranslationalEoM::solve(
   // Compute the thrust sum viewed from the body coordinate system.
   const auto u = rot_x.inverse(f_L);
   assert(math::isClose(u.y(), 0.0, 1e-3));
-  ux_out = u.x();
-  uz_out = u.z();
+  _ux_out = u.x();
+  _uz_out = u.z();
 
   // Compute the target attitude matrix after solving the nonlinear equation.
-  rot_out = kdl::Rotation::RPY(0.0, tar_pitch, tar_yaw) * rot_x;
+  _rot_out = kdl::Rotation::RPY(0.0, _tar_pitch, _tar_yaw) * rot_x;
 
   return true;
 }

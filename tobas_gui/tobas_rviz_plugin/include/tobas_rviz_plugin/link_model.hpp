@@ -22,24 +22,24 @@ public:
   using SharedPtr = std::shared_ptr<LinkModel>;
   using ConstSharedPtr = std::shared_ptr<const LinkModel>;
 
-  explicit LinkModel(const std::string& name, size_t link_index);
+  explicit LinkModel(const std::string& _name, size_t _link_index);
 
   const std::string& getName() const;
   size_t getLinkIndex() const;
 
   std::shared_ptr<const JointModel> getParentJointModel() const;
-  void setParentJointModel(const std::shared_ptr<const JointModel>& joint);
+  void setParentJointModel(const std::shared_ptr<const JointModel>& _joint);
 
   ConstSharedPtr getParentLinkModel() const;
-  void setParentLinkModel(const ConstSharedPtr& link);
+  void setParentLinkModel(const ConstSharedPtr& _link);
 
   const std::vector<std::shared_ptr<const JointModel>>& getChildJointModels() const;
-  void addChildJointModel(const std::shared_ptr<const JointModel>& joint);
+  void addChildJointModel(const std::shared_ptr<const JointModel>& _joint);
 
   const Eigen::Isometry3d& getJointOriginTransform() const;
   bool jointOriginTransformIsIdentity() const;
   bool parentJointIsFixed() const;
-  void setJointOriginTransform(const Eigen::Isometry3d& transform);
+  void setJointOriginTransform(const Eigen::Isometry3d& _transform);
 
 private:
   const std::string name_;

@@ -9,7 +9,7 @@ namespace gui
 {
 namespace ctrl
 {
-CommandButton::CommandButton(const QString& text) : super(text)
+CommandButton::CommandButton(const QString& _text) : super(_text)
 {
   setMaximumWidth(100);
   setMinimumHeight(35);

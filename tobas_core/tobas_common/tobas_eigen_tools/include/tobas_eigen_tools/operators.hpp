@@ -6,35 +6,35 @@
 #include <eigen3/Eigen/Core>
 
 template <typename A, typename B>
-inline auto operator+(const Eigen::MatrixBase<A>& lhs, const Eigen::DiagonalBase<B>& rhs)
+inline auto operator+(const Eigen::MatrixBase<A>& _lhs, const Eigen::DiagonalBase<B>& _rhs)
 {
-  assert(lhs.rows() == rhs.rows());
-  assert(lhs.cols() == rhs.cols());
+  assert(_lhs.rows() == _rhs.rows());
+  assert(_lhs.cols() == _rhs.cols());
 
-  auto res = lhs.eval();
-  res.diagonal() += rhs.diagonal();
+  auto res = _lhs.eval();
+  res.diagonal() += _rhs.diagonal();
   return res;
 }
 
 template <typename A, typename B>
-inline auto operator-(const Eigen::MatrixBase<A>& lhs, const Eigen::DiagonalBase<B>& rhs)
+inline auto operator-(const Eigen::MatrixBase<A>& _lhs, const Eigen::DiagonalBase<B>& _rhs)
 {
-  assert(lhs.rows() == rhs.rows());
-  assert(lhs.cols() == rhs.cols());
+  assert(_lhs.rows() == _rhs.rows());
+  assert(_lhs.cols() == _rhs.cols());
 
-  auto res = lhs.eval();
-  res.diagonal() -= rhs.diagonal();
+  auto res = _lhs.eval();
+  res.diagonal() -= _rhs.diagonal();
   return res;
 }
 
 template <typename A, typename B>
-inline auto operator+(const Eigen::DiagonalBase<B>& lhs, const Eigen::MatrixBase<A>& rhs)
+inline auto operator+(const Eigen::DiagonalBase<B>& _lhs, const Eigen::MatrixBase<A>& _rhs)
 {
-  return rhs + lhs;
+  return _rhs + _lhs;
 }
 
 template <typename A, typename B>
-inline auto operator-(const Eigen::DiagonalBase<B>& lhs, const Eigen::MatrixBase<A>& rhs)
+inline auto operator-(const Eigen::DiagonalBase<B>& _lhs, const Eigen::MatrixBase<A>& _rhs)
 {
-  return -rhs + lhs;
+  return -_rhs + _lhs;
 }

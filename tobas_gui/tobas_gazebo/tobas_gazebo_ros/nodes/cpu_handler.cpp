@@ -18,7 +18,7 @@ class CpuHandlerNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit CpuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit CpuHandlerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   // Publisher
@@ -30,7 +30,8 @@ private:
   void mainTimerCb();
 };
 
-CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options) : super("cpu_handler", nodeOptions_Default(options))
+CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& _options)
+  : super("cpu_handler", nodeOptions_Default(_options))
 {
   cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(topic::kCpu);
 

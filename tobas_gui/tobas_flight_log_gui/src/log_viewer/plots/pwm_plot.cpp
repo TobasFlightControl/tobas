@@ -54,19 +54,19 @@ void PwmPlotWidget::clear()
   }
 }
 
-void PwmPlotWidget::setTimeScale(double t_start, double t_stop)
+void PwmPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
   for (const auto& plot : plots_) {
-    plot->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+    plot->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
   }
 }
 
-void PwmPlotWidget::setData(const QVector<tobas_msgs::msg::PwmArray>& msgs)
+void PwmPlotWidget::setData(const QVector<tobas_msgs::msg::PwmArray>& _msgs)
 {
   QVector<QVector<double>> times(kPwmChannels);
   QVector<QVector<double>> values(kPwmChannels);
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     for (const auto& elem : msg.pwms) {
       if (elem.channel >= kPwmChannels) {
         qWarning() << "PWM channel" << (int)elem.channel << "is out of range.";

@@ -11,9 +11,9 @@ constexpr char kPwmText[] = "pwm";
 constexpr char kOtherText[] = "other";
 }  // namespace
 
-std::string textFromEnum(HardwareInterface value)
+std::string textFromEnum(HardwareInterface _value)
 {
-  switch (value) {
+  switch (_value) {
     case HardwareInterface::kPwm:
       return kPwmText;
     case HardwareInterface::kOther:
@@ -23,14 +23,14 @@ std::string textFromEnum(HardwareInterface value)
   }
 }
 
-bool enumFromText(const std::string& text, HardwareInterface& dst)
+bool enumFromText(const std::string& _text, HardwareInterface& _dst)
 {
-  if (text == kPwmText) {
-    dst = HardwareInterface::kPwm;
+  if (_text == kPwmText) {
+    _dst = HardwareInterface::kPwm;
     return true;
   }
-  else if (text == kOtherText) {
-    dst = HardwareInterface::kOther;
+  else if (_text == kOtherText) {
+    _dst = HardwareInterface::kOther;
     return true;
   }
   else {
@@ -41,19 +41,19 @@ bool enumFromText(const std::string& text, HardwareInterface& dst)
 
 namespace YAML
 {
-Node convert<tobas::HardwareInterface>::encode(tobas::HardwareInterface rhs)
+Node convert<tobas::HardwareInterface>::encode(tobas::HardwareInterface _rhs)
 {
   Node node;
-  node = tobas::textFromEnum(rhs);
-  return Node(tobas::textFromEnum(rhs));
+  node = tobas::textFromEnum(_rhs);
+  return Node(tobas::textFromEnum(_rhs));
 }
 
-bool convert<tobas::HardwareInterface>::decode(const Node& node, tobas::HardwareInterface& rhs)
+bool convert<tobas::HardwareInterface>::decode(const Node& _node, tobas::HardwareInterface& _rhs)
 {
-  if (!node.IsScalar()) {
+  if (!_node.IsScalar()) {
     return false;
   }
 
-  return tobas::enumFromText(node.as<std::string>(), rhs);
+  return tobas::enumFromText(_node.as<std::string>(), _rhs);
 }
 }  // namespace YAML

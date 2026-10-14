@@ -20,36 +20,36 @@ struct rclcpp::TypeAdapter<tobas::kdl::Tree, tobas_kdl_msgs::msg::Tree>
   using custom_type = tobas::kdl::Tree;
   using ros_message_type = tobas_kdl_msgs::msg::Tree;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.segments.clear();
+    _dst.segments.clear();
 
-    for (const auto& [_, elem] : src.getSegments()) {
-      dst.segments.emplace_back();
-      tobas_kdl_msgs::SegmentAdapter::convert_to_ros_message(elem.segment, dst.segments.back().segment);
-      dst.segments.back().q_nr = elem.q_nr;
+    for (const auto& [_, elem] : _src.getSegments()) {
+      _dst.segments.emplace_back();
+      tobas_kdl_msgs::SegmentAdapter::convert_to_ros_message(elem.segment, _dst.segments.back().segment);
+      _dst.segments.back().q_nr = elem.q_nr;
 
       // Add the parent name unless this is the root link.
-      if (elem.segment.name() != src.getRootName()) {
-        dst.segments.back().parent_name = elem.parent->first;
+      if (elem.segment.name() != _src.getRootName()) {
+        _dst.segments.back().parent_name = elem.parent->first;
       }
     }
 
-    dst.root_name = src.getRootName();
+    _dst.root_name = _src.getRootName();
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas::kdl::Tree tree(src.root_name);
+    tobas::kdl::Tree tree(_src.root_name);
 
     std::unordered_set<std::string> added_segs;  // Link names added to the tree
-    added_segs.insert(src.root_name);            // The root link is included when the tree is created.
+    added_segs.insert(_src.root_name);           // The root link is included when the tree is created.
 
     tobas::kdl::Segment seg;
     size_t q_nr = 0;  // Current movable joint number
 
-    for (size_t _ = 0; _ < src.segments.size(); ++_) {
-      for (const auto& elem : src.segments) {
+    for (size_t _ = 0; _ < _src.segments.size(); ++_) {
+      for (const auto& elem : _src.segments) {
         // Skip links that have already been added.
         if (added_segs.contains(elem.segment.name)) {
           continue;
@@ -80,8 +80,8 @@ struct rclcpp::TypeAdapter<tobas::kdl::Tree, tobas_kdl_msgs::msg::Tree>
       }
 
       // Copy the tree and finish once all links have been added.
-      if (added_segs.size() == src.segments.size()) {
-        dst = tree;
+      if (added_segs.size() == _src.segments.size()) {
+        _dst = tree;
         return;
       }
     }

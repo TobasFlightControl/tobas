@@ -13,15 +13,15 @@ ModelMassHolder::ModelMassHolder()
 {
 }
 
-bool ModelMassHolder::initialize(const gz::sim::Entity& model, const gz::sim::EntityComponentManager& ecm)
+bool ModelMassHolder::initialize(const gz::sim::Entity& _model, const gz::sim::EntityComponentManager& _ecm)
 {
-  if (!model_links_parser_.initialize(model, ecm)) {
+  if (!model_links_parser_.initialize(_model, _ecm)) {
     gzerr << "Failed to initialize model links parser." << std::endl;
     return false;
   }
 
   for (const auto& [link_name, link_entity] : model_links_parser_.getLinks()) {
-    const auto inertial_entity = ecm.Component<gz::sim::components::Inertial>(link_entity);
+    const auto inertial_entity = _ecm.Component<gz::sim::components::Inertial>(link_entity);
     if (!inertial_entity) {
       gzerr << "Failed to get the inertial entity of '" << link_name << "'.";
       return false;

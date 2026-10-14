@@ -13,8 +13,8 @@ namespace gui
 {
 namespace ctrl
 {
-QString commandToText(mission::Type cmd);
-mission::Type textToCommand(const QString& text);
+QString commandToText(mission::Type _cmd);
+mission::Type textToCommand(const QString& _text);
 }  // namespace ctrl
 }  // namespace gui
 }  // namespace tobas

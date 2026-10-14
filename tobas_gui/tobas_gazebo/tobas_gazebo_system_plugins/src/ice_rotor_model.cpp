@@ -16,15 +16,15 @@ namespace tobas
 namespace gazebo
 {
 bool IceRotorModel::initialize(
-  const sdf::ElementConstPtr& sdf,
-  gz::sim::EntityComponentManager& ecm,
-  const gz::sim::Model& model)
+  const sdf::ElementConstPtr& _sdf,
+  gz::sim::EntityComponentManager& _ecm,
+  const gz::sim::Model& _model)
 {
-  if (!getSdfParams(sdf)) {
+  if (!getSdfParams(_sdf)) {
     return false;
   }
 
-  if (!initializeGazeboObjects(ecm, model)) {
+  if (!initializeGazeboObjects(_ecm, _model)) {
     return false;
   }
 
@@ -71,37 +71,37 @@ double IceRotorModel::getPitchAngle() const
   return pitch_angle_.getCurrentPosition();
 }
 
-double IceRotorModel::getSpeed(double engine_speed) const
+double IceRotorModel::getSpeed(double _engine_speed) const
 {
-  return engine_speed / gear_ratio_;
+  return _engine_speed / gear_ratio_;
 }
 
-double IceRotorModel::getVelocity(double engine_speed) const
+double IceRotorModel::getVelocity(double _engine_speed) const
 {
-  return getSpeed(engine_speed) * direction_;
+  return getSpeed(_engine_speed) * direction_;
 }
 
-double IceRotorModel::getThrust(double engine_speed) const
+double IceRotorModel::getThrust(double _engine_speed) const
 {
-  return getMotorConst() * math::sqr(getSpeed(engine_speed));
+  return getMotorConst() * math::sqr(getSpeed(_engine_speed));
 }
 
-double IceRotorModel::getTorque(double engine_speed) const
+double IceRotorModel::getTorque(double _engine_speed) const
 {
-  return getMomentConst() * getThrust(engine_speed);
+  return getMomentConst() * getThrust(_engine_speed);
 }
 
-void IceRotorModel::setTargetPitchAngle(double tar_pitch)
+void IceRotorModel::setTargetPitchAngle(double _tar_pitch)
 {
-  pitch_angle_.setTargetPosition(tar_pitch);
+  pitch_angle_.setTargetPosition(_tar_pitch);
 }
 
 void IceRotorModel::applyWrench(
-  gz::sim::EntityComponentManager& ecm,
-  double engine_speed,
-  const gz::math::Vector3d& wind_vel_W)
+  gz::sim::EntityComponentManager& _ecm,
+  double _engine_speed,
+  const gz::math::Vector3d& _wind_vel_w)
 {
-  assert(engine_speed >= 0.0);
+  assert(_engine_speed >= 0.0);
 
   // Get joint axes.
   const auto& R_W_L = pose_W_->Data().Rot();
@@ -109,48 +109,48 @@ void IceRotorModel::applyWrench(
   const auto axis_W = R_W_L.RotateVector(axis_L);
 
   // Coriolis moment (Gyro effect)
-  const auto I_W = *link_.WorldInertiaMatrix(ecm);  // Assume the center of gravity lies on the rotation axis.
-  const auto L_W = I_W * (getVelocity(engine_speed) * axis_W);  // Angular momentum of the propeller.
+  const auto I_W = *link_.WorldInertiaMatrix(_ecm);  // Assume the center of gravity lies on the rotation axis.
+  const auto L_W = I_W * (getVelocity(_engine_speed) * axis_W);  // Angular momentum of the propeller.
   const auto coriolis_moment_W = -angvel_W_->Data().Cross(L_W);
 
   // External force: Thrust force
-  const auto thrust_force_W = getThrust(engine_speed) * axis_W;
+  const auto thrust_force_W = getThrust(_engine_speed) * axis_W;
 
   // External force: H-force
-  const auto linvel_rel_W = linvel_W_->Data() - wind_vel_W;
+  const auto linvel_rel_W = linvel_W_->Data() - _wind_vel_w;
   const auto linvel_perp_W = linvel_rel_W - (linvel_rel_W.Dot(axis_W) * axis_W);
-  const auto h_force_W = (-getSpeed(engine_speed) * getDragConst()) * linvel_perp_W;
+  const auto h_force_W = (-getSpeed(_engine_speed) * getDragConst()) * linvel_perp_W;
 
   // External moment: Drag torque
-  const auto drag_moment_W = (-direction_ * getTorque(engine_speed)) * axis_W;
+  const auto drag_moment_W = (-direction_ * getTorque(_engine_speed)) * axis_W;
 
   // Apply wrench.
-  link_.AddWorldWrench(ecm, thrust_force_W + h_force_W, gz::math::Vector3d::Zero);
-  parent_link_.AddWorldWrench(ecm, gz::math::Vector3d::Zero, coriolis_moment_W + drag_moment_W);  // No inertial force.
+  link_.AddWorldWrench(_ecm, thrust_force_W + h_force_W, gz::math::Vector3d::Zero);
+  parent_link_.AddWorldWrench(_ecm, gz::math::Vector3d::Zero, coriolis_moment_W + drag_moment_W);  // No inertial force.
 }
 
-void IceRotorModel::updateJointPosition(gz::sim::EntityComponentManager& ecm, double engine_pos)
+void IceRotorModel::updateJointPosition(gz::sim::EntityComponentManager& _ecm, double _engine_pos)
 {
-  const auto pos = engine_pos / gear_ratio_ * direction_;
-  joint_.ResetPosition(ecm, { pos / kRotorSpeedSlowdownSim });
+  const auto pos = _engine_pos / gear_ratio_ * direction_;
+  joint_.ResetPosition(_ecm, { pos / kRotorSpeedSlowdownSim });
 }
 
-void IceRotorModel::step(double dt)
+void IceRotorModel::step(double _dt)
 {
-  pitch_angle_.step(dt);
+  pitch_angle_.step(_dt);
 }
 
-bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
+bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& _sdf)
 {
-  if (!getSdfParam(sdf, "linkName", link_name_)) {
+  if (!getSdfParam(_sdf, "linkName", link_name_)) {
     return false;
   }
 
-  if (!getTurningDirection(sdf, direction_)) {
+  if (!getTurningDirection(_sdf, direction_)) {
     return false;
   }
 
-  if (!getSdfParam(sdf, "gearRatio", gear_ratio_)) {
+  if (!getSdfParam(_sdf, "gearRatio", gear_ratio_)) {
     return false;
   }
   if (gear_ratio_ <= 0.0) {
@@ -158,7 +158,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  if (!getSdfParam(sdf, "numberOfBlades", num_blades_)) {
+  if (!getSdfParam(_sdf, "numberOfBlades", num_blades_)) {
     return false;
   }
   if (num_blades_ <= 0) {
@@ -166,10 +166,10 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  if (!getSdfParam(sdf, "minPitchAngle", pitch_angle_.pos_limit.lower)) {
+  if (!getSdfParam(_sdf, "minPitchAngle", pitch_angle_.pos_limit.lower)) {
     return false;
   }
-  if (!getSdfParam(sdf, "maxPitchAngle", pitch_angle_.pos_limit.upper)) {
+  if (!getSdfParam(_sdf, "maxPitchAngle", pitch_angle_.pos_limit.upper)) {
     return false;
   }
   if (!pitch_angle_.pos_limit.isValid()) {
@@ -177,7 +177,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
     return false;
   }
 
-  if (!getSdfParam(sdf, "maxPitchAngleRate", pitch_angle_.max_vel)) {
+  if (!getSdfParam(_sdf, "maxPitchAngleRate", pitch_angle_.max_vel)) {
     return false;
   }
   if (pitch_angle_.max_vel < 0.0) {
@@ -186,7 +186,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   }
 
   gz::math::Vector2d motor_const;
-  if (!getSdfParam(sdf, "motorConstant", motor_const)) {
+  if (!getSdfParam(_sdf, "motorConstant", motor_const)) {
     return false;
   }
   motor_const_.c0 = motor_const.X();
@@ -197,7 +197,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   }
 
   gz::math::Vector4d moment_const;
-  if (!getSdfParam(sdf, "momentConstant", moment_const)) {
+  if (!getSdfParam(_sdf, "momentConstant", moment_const)) {
     return false;
   }
   moment_const_.a = moment_const.X();
@@ -210,7 +210,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   }
 
   gz::math::Vector2d drag_const;
-  if (!getSdfParam(sdf, "dragConstant", drag_const)) {
+  if (!getSdfParam(_sdf, "dragConstant", drag_const)) {
     return false;
   }
   drag_const_.c0 = drag_const.X();
@@ -223,22 +223,22 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   return true;
 }
 
-bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm, const gz::sim::Model& model)
+bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& _ecm, const gz::sim::Model& _model)
 {
   // Get joint.
-  const auto joint_entity = findJointWithChildLink(ecm, link_name_);
+  const auto joint_entity = findJointWithChildLink(_ecm, link_name_);
   if (joint_entity == gz::sim::kNullEntity) {
     gzerr << "Failed to find the parent joint of rotor link '" << link_name_ << "'." << std::endl;
     return false;
   }
   joint_ = gz::sim::Joint(joint_entity);
-  if (!joint_.Valid(ecm)) {
+  if (!joint_.Valid(_ecm)) {
     gzerr << "Failed to find rotor link '" << link_name_ << "'." << std::endl;
     return false;
   }
 
   // Check joint type.
-  const auto joint_type = joint_.Type(ecm);
+  const auto joint_type = joint_.Type(_ecm);
   if (!joint_type) {
     gzerr << "Failed to get the joint type of '" << link_name_ << "'." << std::endl;
     return false;
@@ -249,33 +249,33 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& ecm
   }
 
   // Get child link.
-  const auto link_entity = model.LinkByName(ecm, link_name_);
+  const auto link_entity = _model.LinkByName(_ecm, link_name_);
   link_ = gz::sim::Link(link_entity);
-  if (!link_.Valid(ecm)) {
+  if (!link_.Valid(_ecm)) {
     gzerr << "Failed to find the child link '" << link_name_ << "'." << std::endl;
     return false;
   }
 
   // Get parent link.
-  const auto parent_link_name = joint_.ParentLinkName(ecm);
+  const auto parent_link_name = joint_.ParentLinkName(_ecm);
   if (!parent_link_name) {
     gzerr << "Failed to get the parent link name of '" << link_name_ << "'." << std::endl;
     return false;
   }
-  const auto parent_link_entity = model.LinkByName(ecm, *parent_link_name);
+  const auto parent_link_entity = _model.LinkByName(_ecm, *parent_link_name);
   parent_link_ = gz::sim::Link(parent_link_entity);
-  if (!parent_link_.Valid(ecm)) {
+  if (!parent_link_.Valid(_ecm)) {
     gzerr << "Failed to find the parent link '" << *parent_link_name << "'." << std::endl;
     return false;
   }
 
   // Create necessary components.
-  jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity, ecm);
-  jnt_vel_ = getComponent<cmp::JointVelocity>(joint_entity, ecm);
-  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
-  linvel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm);
-  angvel_W_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm);
-  inertial_ = getComponent<cmp::Inertial>(link_entity, ecm);
+  jnt_axis_ = getComponent<cmp::JointAxis>(joint_entity, _ecm);
+  jnt_vel_ = getComponent<cmp::JointVelocity>(joint_entity, _ecm);
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, _ecm);
+  linvel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, _ecm);
+  angvel_W_ = getComponent<cmp::WorldAngularVelocity>(link_entity, _ecm);
+  inertial_ = getComponent<cmp::Inertial>(link_entity, _ecm);
 
   return true;
 }

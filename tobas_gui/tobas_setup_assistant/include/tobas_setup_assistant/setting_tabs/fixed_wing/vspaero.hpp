@@ -37,7 +37,7 @@ struct VspaeroData
 };
 
 /** Return parsed coefficients or a diagnostic describing the failure. */
-std::expected<VspaeroData, std::string> parseVspaero(const std::string& stab_path);
+std::expected<VspaeroData, std::string> parseVspaero(const std::string& _stab_path);
 }  // namespace fw
 }  // namespace sa
 }  // namespace gui

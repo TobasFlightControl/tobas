@@ -17,8 +17,8 @@ namespace
 constexpr auto kMinAvailableSize = 500'000'000;  // [byte]
 }  // namespace
 
-RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& options)
-  : super("rosbag_recorder", nodeOptions_Default(options))
+RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& _options)
+  : super("rosbag_recorder", nodeOptions_Default(_options))
   , ns_(std::string(get_namespace()) + "/")
   , rosbag_dir_(linux::isSuperUser() ? kRosbagDirRoot : ros2::expandUser(kRosbagDirHome))
 {
@@ -96,17 +96,17 @@ void RosbagRecorderNode::publishRosbagState()
   rosbag_state_pub_->publish(std::move(rosbag_state));
 }
 
-void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, const StartSrv::Response::SharedPtr& res)
+void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& _req, const StartSrv::Response::SharedPtr& _res)
 {
   if (recording_) {
-    res->success = false;
-    res->message = "Rosbag recording is in progress.";
+    _res->success = false;
+    _res->message = "Rosbag recording is in progress.";
     return;
   }
 
-  if (req->name.empty()) {
-    res->success = false;
-    res->message = "Please specify rosbag name.";
+  if (_req->name.empty()) {
+    _res->success = false;
+    _res->message = "Please specify rosbag name.";
     return;
   }
 
@@ -114,21 +114,21 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
   if (!fs::exists(rosbag_dir_)) {
     std::error_code ec;
     if (!fs::create_directories(rosbag_dir_, ec)) {
-      res->success = false;
-      res->message = "Failed to create " + rosbag_dir_.string() + ": " + ec.message();
+      _res->success = false;
+      _res->message = "Failed to create " + rosbag_dir_.string() + ": " + ec.message();
       return;
     }
   }
 
   // Check that a log with the same name does not exist.
-  file_path_ = rosbag_dir_ / req->name;
+  file_path_ = rosbag_dir_ / _req->name;
   if (fs::exists(file_path_)) {
-    if (req->overwrite) {
+    if (_req->overwrite) {
       fs::remove_all(file_path_);
     }
     else {
-      res->success = false;
-      res->message = file_path_.string() + " already exists.";
+      _res->success = false;
+      _res->message = file_path_.string() + " already exists.";
       return;
     }
   }
@@ -136,22 +136,22 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
   // Check that the storage has enough free space.
   const auto available_size = getDiskAvailableSize();
   if (available_size < kMinAvailableSize) {
-    res->success = false;
-    res->message = "Recording cannot be started because there is not enough available disk space.";
+    _res->success = false;
+    _res->message = "Recording cannot be started because there is not enough available disk space.";
     return;
   }
 
   rosbag2_storage::StorageOptions options;
   options.uri = file_path_;
-  options.max_bagfile_size = req->max_file_size;
-  options.max_cache_size = req->max_cache_size;
+  options.max_bagfile_size = _req->max_file_size;
+  options.max_cache_size = _req->max_cache_size;
 
   try {
     writer_.open(options);
   }
   catch (const std::exception& e) {  // Storage capacity exceeded, etc.
-    res->success = false;
-    res->message = "Failed to open " + options.uri + ": " + e.what();
+    _res->success = false;
+    _res->message = "Failed to open " + options.uri + ": " + e.what();
     return;
   }
 
@@ -161,17 +161,17 @@ void RosbagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
 
   TOBAS_INFO("Rosbag recording has started.");
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 
   publishRosbagState();
 }
 
-void RosbagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const StopSrv::Response::SharedPtr& res)
+void RosbagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const StopSrv::Response::SharedPtr& _res)
 {
   if (!recording_) {
-    res->success = false;
-    res->message = "Rosbag recording is not in progress.";
+    _res->success = false;
+    _res->message = "Rosbag recording is not in progress.";
     return;
   }
 
@@ -179,8 +179,8 @@ void RosbagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const S
     writer_.close();
   }
   catch (const std::exception& e) {
-    res->success = false;
-    res->message = "Failed to close rosbag file: " + std::string(e.what());
+    _res->success = false;
+    _res->message = "Failed to close rosbag file: " + std::string(e.what());
     return;
   }
 
@@ -188,19 +188,19 @@ void RosbagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const S
 
   TOBAS_INFO("Rosbag recording has stopped.");
 
-  res->success = true;
-  res->message.clear();
-  res->path = file_path_.string();
+  _res->success = true;
+  _res->message.clear();
+  _res->path = file_path_.string();
 
   publishRosbagState();
 }
 
-void RosbagRecorderNode::cleanCb(const CleanSrv::Request::ConstSharedPtr&, const CleanSrv::Response::SharedPtr& res)
+void RosbagRecorderNode::cleanCb(const CleanSrv::Request::ConstSharedPtr&, const CleanSrv::Response::SharedPtr& _res)
 {
   const auto clear_dir_res = path::clearDirectory(rosbag_dir_);
 
-  res->success = clear_dir_res.has_value();
-  res->message = clear_dir_res.error();
+  _res->success = clear_dir_res.has_value();
+  _res->message = clear_dir_res.error();
 }
 
 void RosbagRecorderNode::mainTimerCb()

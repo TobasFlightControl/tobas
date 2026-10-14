@@ -27,12 +27,12 @@ public:
 
   std::expected<void, std::string> validate() const;
 
-  std::expected<void, std::string> load(const YAML::Node& node);
+  std::expected<void, std::string> load(const YAML::Node& _node);
   YAML::Node dump() const;
 
-  inline double compute(double phi) const
+  inline double compute(double _phi) const
   {
-    return c0 + c1 * phi;
+    return c0 + c1 * _phi;
   }
 };
 }  // namespace tobas

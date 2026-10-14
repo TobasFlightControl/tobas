@@ -30,10 +30,10 @@ public:
 
   virtual void setToDefaults() = 0;
   virtual bool isValid() = 0;
-  virtual void copyFrom(const AerodynamicsWidget_Base* src) = 0;
+  virtual void copyFrom(const AerodynamicsWidget_Base* _src) = 0;
 
   virtual YAML::Node dump() const = 0;
-  virtual void load(const YAML::Node& node) = 0;
+  virtual void load(const YAML::Node& _node) = 0;
 
   /** [kg*m/rad^2] */
   virtual double motorConst() const = 0;

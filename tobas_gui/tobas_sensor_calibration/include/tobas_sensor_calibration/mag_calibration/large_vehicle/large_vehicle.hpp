@@ -24,10 +24,10 @@ class LargeVehicleMagCalibWidget : public BaseMagCalibWidget
   using self = LargeVehicleMagCalibWidget;
 
 public:
-  explicit LargeVehicleMagCalibWidget(const rqt::RosQtBridge& bridge);
+  explicit LargeVehicleMagCalibWidget(const rqt::RosQtBridge& _bridge);
 
   void reset() override;
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) override;
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns) override;
   void clearRosInterfaces() override;
 
 private:
@@ -41,7 +41,7 @@ private:
 private Q_SLOTS:
   void onStartButtonClicked();
 
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
 };
 }  // namespace sc
 }  // namespace gui

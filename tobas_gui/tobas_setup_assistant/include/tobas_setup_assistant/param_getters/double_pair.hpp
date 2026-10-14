@@ -23,25 +23,25 @@ class ParamGetterWidget_DoublePair : public ParamGetterWidget<std::pair<double, 
   using super = ParamGetterWidget<std::pair<double, double>>;
 
 Q_SIGNALS:
-  void valueChanged(std::pair<double, double> value);
+  void valueChanged(std::pair<double, double> _value);
 
 public:
-  explicit ParamGetterWidget_DoublePair(const QString& param_name, const QString& description_text = "");
+  explicit ParamGetterWidget_DoublePair(const QString& _param_name, const QString& _description_text = "");
 
   std::pair<double, double> getValue() const override;
-  bool setValue(const std::pair<double, double>& src) override;
+  bool setValue(const std::pair<double, double>& _src) override;
 
-  void setDecimals(int decimals);
-  void setMinimum(double minimum);
-  void setMaximum(double maximum);
-  void setSingleStep(double single_step);
-  void setSuffix(const QString& suffix);
+  void setDecimals(int _decimals);
+  void setMinimum(double _minimum);
+  void setMaximum(double _maximum);
+  void setSingleStep(double _single_step);
+  void setSuffix(const QString& _suffix);
 
   double first() const;
   double second() const;
 
 private Q_SLOTS:
-  void onValueChanged(double value);
+  void onValueChanged(double _value);
 
 private:
   qt::DoubleSpinBox* first_;

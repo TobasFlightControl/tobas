@@ -9,14 +9,14 @@ if [ "$(id -un)" != "pi" ]; then
 fi
 
 # Set paths
-COLCON_WS=~/colcon_ws
-RELEASE_DIR=${COLCON_WS}/release
-INSTALL_BASE=${RELEASE_DIR}/install
+colcon_ws=~/colcon_ws
+release_dir=${colcon_ws}/release
+install_base=${release_dir}/install
 
-sudo rm -rf /opt/tobas # Remove it first because source changes were sometimes not picked up otherwise.
-sudo cp -r ${INSTALL_BASE} /opt/tobas
+sudo rm -rf /opt/tobas  # Remove it first because source changes were sometimes not picked up otherwise.
+sudo cp -r ${install_base} /opt/tobas
 if [ $? -ne 0 ]; then
-  echo "Failed to copy ${INSTALL_BASE} to /opt/tobas." >&2
+  echo "Failed to copy ${install_base} to /opt/tobas." >&2
   exit 1
 fi
 

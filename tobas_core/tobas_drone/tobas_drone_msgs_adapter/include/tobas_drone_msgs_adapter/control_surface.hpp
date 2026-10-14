@@ -16,28 +16,28 @@ struct rclcpp::TypeAdapter<tobas::ControlSurface, tobas_drone_msgs::msg::Control
   using custom_type = tobas::ControlSurface;
   using ros_message_type = tobas_drone_msgs::msg::ControlSurface;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.link_name = src.link_name;
+    _dst.link_name = _src.link_name;
 
-    dst.c_lift_delta = src.c_lift_delta;
-    dst.c_drag_abs_delta = src.c_drag_abs_delta;
-    dst.c_side_delta = src.c_side_delta;
-    dst.c_roll_delta = src.c_roll_delta;
-    dst.c_pitch_delta = src.c_pitch_delta;
-    dst.c_yaw_delta = src.c_yaw_delta;
+    _dst.c_lift_delta = _src.c_lift_delta;
+    _dst.c_drag_abs_delta = _src.c_drag_abs_delta;
+    _dst.c_side_delta = _src.c_side_delta;
+    _dst.c_roll_delta = _src.c_roll_delta;
+    _dst.c_pitch_delta = _src.c_pitch_delta;
+    _dst.c_yaw_delta = _src.c_yaw_delta;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.link_name = src.link_name;
+    _dst.link_name = _src.link_name;
 
-    dst.c_lift_delta = src.c_lift_delta;
-    dst.c_drag_abs_delta = src.c_drag_abs_delta;
-    dst.c_side_delta = src.c_side_delta;
-    dst.c_roll_delta = src.c_roll_delta;
-    dst.c_pitch_delta = src.c_pitch_delta;
-    dst.c_yaw_delta = src.c_yaw_delta;
+    _dst.c_lift_delta = _src.c_lift_delta;
+    _dst.c_drag_abs_delta = _src.c_drag_abs_delta;
+    _dst.c_side_delta = _src.c_side_delta;
+    _dst.c_roll_delta = _src.c_roll_delta;
+    _dst.c_pitch_delta = _src.c_pitch_delta;
+    _dst.c_yaw_delta = _src.c_yaw_delta;
   }
 };
 

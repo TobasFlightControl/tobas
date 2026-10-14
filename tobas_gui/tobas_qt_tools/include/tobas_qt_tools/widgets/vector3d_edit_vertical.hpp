@@ -22,20 +22,20 @@ class Vector3dEditVertical : public QWidget
   using super = QWidget;
 
 Q_SIGNALS:
-  void valueChanged(const Eigen::Vector3d& vector);
+  void valueChanged(const Eigen::Vector3d& _vector);
 
 public:
-  explicit Vector3dEditVertical(const QStringList& labels = {}, QWidget* parent = nullptr);
+  explicit Vector3dEditVertical(const QStringList& _labels = {}, QWidget* _parent = nullptr);
 
   Eigen::Vector3d vector() const;
-  void setVector(const Eigen::Vector3d& src);
+  void setVector(const Eigen::Vector3d& _src);
 
-  void setDecimals(int decimals);
-  void setMinimum(double minimum);
-  void setMaximum(double maximum);
-  void setRange(double minimum, double maximum);
-  void setSingleStep(double single_step);
-  void setSuffix(const QString& suffix);
+  void setDecimals(int _decimals);
+  void setMinimum(double _minimum);
+  void setMaximum(double _maximum);
+  void setRange(double _minimum, double _maximum);
+  void setSingleStep(double _single_step);
+  void setSuffix(const QString& _suffix);
 
   double x() const;
   double y() const;
@@ -45,7 +45,7 @@ private:
   std::array<DoubleSpinBox*, 3> spin_boxes_;
 
 private Q_SLOTS:
-  void onValueChanged(double value);
+  void onValueChanged(double _value);
 };
 }  // namespace qt
 }  // namespace tobas

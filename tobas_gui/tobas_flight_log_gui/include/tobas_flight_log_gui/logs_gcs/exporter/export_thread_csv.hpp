@@ -43,7 +43,7 @@ class ExportThreadCsv : public ExportThread
   using HistoryMap = std::map<Time, SerializedDataMap>;
 
 public:
-  explicit ExportThreadCsv(const QString& log_name, const QString& save_path);
+  explicit ExportThreadCsv(const QString& _log_name, const QString& _save_path);
 
   void run() override;
 
@@ -73,15 +73,15 @@ private:
   MessageDecoder<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_decoder_;
 
-  bool openRosBag(const std::string& path);
+  bool openRosBag(const std::string& _path);
 
-  bool rotorLinkNamesValid(const tobas_msgs::msg::RotorStateArray& msg);
-  bool rotorLinkNamesValid(const tobas_msgs::msg::RotorSpeedArray& msg);
+  bool rotorLinkNamesValid(const tobas_msgs::msg::RotorStateArray& _msg);
+  bool rotorLinkNamesValid(const tobas_msgs::msg::RotorSpeedArray& _msg);
 
   std::string makeCsvHeader() const;
-  std::string makeCsvDataRow(Time time, const SerializedDataMap& data);
+  std::string makeCsvDataRow(Time _time, const SerializedDataMap& _data);
 
-  bool exportOldestImuLine(std::ofstream& file, Time before_this_time = INT64_MAX);
+  bool exportOldestImuLine(std::ofstream& _file, Time _before_this_time = INT64_MAX);
 };
 }  // namespace log
 }  // namespace gui

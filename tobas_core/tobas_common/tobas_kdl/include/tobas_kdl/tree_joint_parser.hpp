@@ -17,34 +17,34 @@ class TreeJointParser : public TreeSolverI
   using super = TreeSolverI;
 
 public:
-  explicit TreeJointParser(const Tree& tree);
+  explicit TreeJointParser(const Tree& _tree);
 
   void updateInternalDataStructures() override;
 
-  inline const std::string& jointName(size_t q_nr) const;
-  inline const size_t& jointIndex(const std::string& jnt_name) const;
-  inline const std::string& segmentName(const std::string& jnt_name) const;
+  inline const std::string& jointName(size_t _q_nr) const;
+  inline const size_t& jointIndex(const std::string& _jnt_name) const;
+  inline const std::string& segmentName(const std::string& _jnt_name) const;
 
-  inline const Joint& joint(const std::string& jnt_name) const;
+  inline const Joint& joint(const std::string& _jnt_name) const;
 
   inline const JntArray& lowerLimits() const;
-  inline double lowerLimit(size_t q_nr) const;
-  inline double lowerLimit(const std::string& jnt_name) const;
+  inline double lowerLimit(size_t _q_nr) const;
+  inline double lowerLimit(const std::string& _jnt_name) const;
 
   inline const JntArray& upperLimits() const;
-  inline double upperLimit(size_t q_nr) const;
-  inline double upperLimit(const std::string& jnt_name) const;
+  inline double upperLimit(size_t _q_nr) const;
+  inline double upperLimit(const std::string& _jnt_name) const;
 
   inline const JntArray& maxVelocities() const;
-  inline double maxVelocity(size_t q_nr) const;
-  inline double maxVelocity(const std::string& jnt_name) const;
+  inline double maxVelocity(size_t _q_nr) const;
+  inline double maxVelocity(const std::string& _jnt_name) const;
 
   inline const JntArray& maxEfforts() const;
-  inline double maxEffort(size_t q_nr) const;
-  inline double maxEffort(const std::string& jnt_name) const;
+  inline double maxEffort(size_t _q_nr) const;
+  inline double maxEffort(const std::string& _jnt_name) const;
 
   /** Return whether the joint exists in the `Tree`. */
-  inline bool exist(const std::string& jnt_name) const;
+  inline bool exist(const std::string& _jnt_name) const;
 
 private:
   std::vector<std::string> jnt_names_;
@@ -61,27 +61,27 @@ private:
   /** Get all actuated joint names and order them the same way as RNE. */
   void parseJntNames();
 
-  void parseJntNamesStep(const SegmentMap::const_iterator& seg_it);
+  void parseJntNamesStep(const SegmentMap::const_iterator& _seg_it);
 };
 
-inline const std::string& TreeJointParser::jointName(size_t q_nr) const
+inline const std::string& TreeJointParser::jointName(size_t _q_nr) const
 {
-  return jnt_names_.at(q_nr);
+  return jnt_names_.at(_q_nr);
 }
 
-inline const size_t& TreeJointParser::jointIndex(const std::string& jnt_name) const
+inline const size_t& TreeJointParser::jointIndex(const std::string& _jnt_name) const
 {
-  return jnt_indexes_.at(jnt_name);
+  return jnt_indexes_.at(_jnt_name);
 }
 
-inline const std::string& TreeJointParser::segmentName(const std::string& jnt_name) const
+inline const std::string& TreeJointParser::segmentName(const std::string& _jnt_name) const
 {
-  return seg_names_.at(jnt_name);
+  return seg_names_.at(_jnt_name);
 }
 
-inline const Joint& TreeJointParser::joint(const std::string& jnt_name) const
+inline const Joint& TreeJointParser::joint(const std::string& _jnt_name) const
 {
-  return tree_.getSegment(segmentName(jnt_name))->second.segment.joint();
+  return tree_.getSegment(segmentName(_jnt_name))->second.segment.joint();
 }
 
 inline const JntArray& TreeJointParser::lowerLimits() const
@@ -89,14 +89,14 @@ inline const JntArray& TreeJointParser::lowerLimits() const
   return lower_limits_;
 }
 
-inline double TreeJointParser::lowerLimit(size_t q_nr) const
+inline double TreeJointParser::lowerLimit(size_t _q_nr) const
 {
-  return lower_limits_(q_nr);
+  return lower_limits_(_q_nr);
 }
 
-inline double TreeJointParser::lowerLimit(const std::string& jnt_name) const
+inline double TreeJointParser::lowerLimit(const std::string& _jnt_name) const
 {
-  return lower_limits_(jointIndex(jnt_name));
+  return lower_limits_(jointIndex(_jnt_name));
 }
 
 inline const JntArray& TreeJointParser::upperLimits() const
@@ -104,15 +104,15 @@ inline const JntArray& TreeJointParser::upperLimits() const
   return upper_limits_;
 }
 
-inline double TreeJointParser::upperLimit(size_t q_nr) const
+inline double TreeJointParser::upperLimit(size_t _q_nr) const
 {
-  assert(q_nr < tree_.getNrOfJoints());
-  return upper_limits_(q_nr);
+  assert(_q_nr < tree_.getNrOfJoints());
+  return upper_limits_(_q_nr);
 }
 
-inline double TreeJointParser::upperLimit(const std::string& jnt_name) const
+inline double TreeJointParser::upperLimit(const std::string& _jnt_name) const
 {
-  return upper_limits_(jointIndex(jnt_name));
+  return upper_limits_(jointIndex(_jnt_name));
 }
 
 inline const JntArray& TreeJointParser::maxVelocities() const
@@ -120,15 +120,15 @@ inline const JntArray& TreeJointParser::maxVelocities() const
   return max_velocities_;
 }
 
-inline double TreeJointParser::maxVelocity(size_t q_nr) const
+inline double TreeJointParser::maxVelocity(size_t _q_nr) const
 {
-  assert(q_nr < tree_.getNrOfJoints());
-  return max_velocities_(q_nr);
+  assert(_q_nr < tree_.getNrOfJoints());
+  return max_velocities_(_q_nr);
 }
 
-inline double TreeJointParser::maxVelocity(const std::string& jnt_name) const
+inline double TreeJointParser::maxVelocity(const std::string& _jnt_name) const
 {
-  return max_velocities_(jointIndex(jnt_name));
+  return max_velocities_(jointIndex(_jnt_name));
 }
 
 inline const JntArray& TreeJointParser::maxEfforts() const
@@ -136,19 +136,19 @@ inline const JntArray& TreeJointParser::maxEfforts() const
   return max_efforts_;
 }
 
-inline double TreeJointParser::maxEffort(size_t q_nr) const
+inline double TreeJointParser::maxEffort(size_t _q_nr) const
 {
-  return max_efforts_(q_nr);
+  return max_efforts_(_q_nr);
 }
 
-inline double TreeJointParser::maxEffort(const std::string& jnt_name) const
+inline double TreeJointParser::maxEffort(const std::string& _jnt_name) const
 {
-  return max_efforts_(jointIndex(jnt_name));
+  return max_efforts_(jointIndex(_jnt_name));
 }
 
-inline bool TreeJointParser::exist(const std::string& jnt_name) const
+inline bool TreeJointParser::exist(const std::string& _jnt_name) const
 {
-  return jnt_indexes_.contains(jnt_name);
+  return jnt_indexes_.contains(_jnt_name);
 }
 }  // namespace kdl
 }  // namespace tobas

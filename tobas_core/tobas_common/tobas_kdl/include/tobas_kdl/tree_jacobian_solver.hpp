@@ -16,11 +16,11 @@ class TreeJacobianSolver : public TreeSolverI
   using super = TreeSolverI;
 
 public:
-  explicit TreeJacobianSolver(const Tree& tree);
+  explicit TreeJacobianSolver(const Tree& _tree);
 
   void updateInternalDataStructures() override;
 
-  const Jacobian& jntToJac(const JntArray& q, const std::string& seg_name);
+  const Jacobian& jntToJac(const JntArray& _q, const std::string& _seg_name);
 
 private:
   Jacobian jac_out_;

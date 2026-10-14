@@ -13,16 +13,16 @@
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
-  if ((argc != 2) && (argc != 3)) {
-    std::cerr << "Usage: " << argv[0] << " <video Device> --reset(optional)" << std::endl;
+  if ((_argc != 2) && (_argc != 3)) {
+    std::cerr << "Usage: " << _argv[0] << " <video Device> --reset(optional)" << std::endl;
     return EXIT_FAILURE;
   }
-  const auto device = argv[1];  // e.g. /dev/video0
+  const auto device = _argv[1];  // e.g. /dev/video0
   bool reset_uavcan = false;
-  if (argc == 3) {
-    if (std::string(argv[2]) == "--reset") {
+  if (_argc == 3) {
+    if (std::string(_argv[2]) == "--reset") {
       reset_uavcan = true;
     }
   }

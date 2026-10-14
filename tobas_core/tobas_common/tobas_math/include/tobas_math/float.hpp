@@ -11,18 +11,18 @@ namespace math
 {
 /** Return true when two numbers are nearly equal. This is similar to `numpy.isclose()`. */
 template <typename T>
-inline bool isClose(T x, T y, T abs_tol = 1e-8, T rel_tol = 1e-5)
+inline bool isClose(T _x, T _y, T _abs_tol = 1e-8, T _rel_tol = 1e-5)
 {
-  const auto diff = std::abs(x - y);
-  return diff < abs_tol || diff < rel_tol * std::max(std::abs(x), std::abs(y));
+  const auto diff = std::abs(_x - _y);
+  return diff < _abs_tol || diff < _rel_tol * std::max(std::abs(_x), std::abs(_y));
 }
 
 /** Check whether a decimal value is an integer. */
 template <typename T>
-inline bool isInteger(T x)
+inline bool isInteger(T _x)
 {
   double ip;
-  return modf(x, &ip) == 0.0;
+  return modf(_x, &ip) == 0.0;
 }
 }  // namespace math
 }  // namespace tobas

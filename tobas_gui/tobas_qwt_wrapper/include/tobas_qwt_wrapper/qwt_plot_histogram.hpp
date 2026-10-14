@@ -17,14 +17,14 @@ namespace qwt
 class QwtPlotHistogramWrapper
 {
 public:
-  explicit QwtPlotHistogramWrapper(const QString& title = "");
+  explicit QwtPlotHistogramWrapper(const QString& _title = "");
 
-  void setPen(const QColor& color, qreal width, Qt::PenStyle style = Qt::SolidLine);
-  void setBrush(const QColor& color);
+  void setPen(const QColor& _color, qreal _width, Qt::PenStyle _style = Qt::SolidLine);
+  void setBrush(const QColor& _color);
 
-  void setSamples(const QVector<double>& values, double min_value, double max_value, double bin_width);
+  void setSamples(const QVector<double>& _values, double _min_value, double _max_value, double _bin_width);
 
-  void attach(QwtPlot* plot);
+  void attach(QwtPlot* _plot);
 
   /** Clear samples. */
   void clear();
