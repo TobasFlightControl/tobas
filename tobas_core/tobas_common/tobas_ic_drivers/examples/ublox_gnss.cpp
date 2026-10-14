@@ -84,6 +84,21 @@ int main(int argc, char** argv)
 
   cout << "Detected module: " << *module_name << endl;
 
+  uint16_t measurement_period_ms;
+
+  if (*module_name == "ZED-F9P") {
+    gnss.setReceiverProfile(tobas::ublox::UbloxGnss::F9P);
+    measurement_period_ms = 100;
+  }
+  else if (*module_name == "ZED-X20P") {
+    gnss.setReceiverProfile(tobas::ublox::UbloxGnss::X20P);
+    measurement_period_ms = 40;
+  }
+  else {
+    cerr << "Unknown Device: " << *module_name << endl;
+    return EXIT_FAILURE;
+  }
+  
   if (use_uart) {
     if (!uart_transport->disableReceiveTimeout()) {
       cerr << "Failed to disable UART receive timeout." << endl;
@@ -101,21 +116,6 @@ int main(int argc, char** argv)
       cerr << "Failed to change host UART baud rate." << endl;
       return EXIT_FAILURE;
     }
-  }
-
-  uint16_t measurement_period_ms;
-
-  if (*module_name == "ZED-F9P") {
-    gnss.setReceiverProfile(tobas::ublox::UbloxGnss::F9P);
-    measurement_period_ms = 100;
-  }
-  else if (*module_name == "ZED-X20P") {
-    gnss.setReceiverProfile(tobas::ublox::UbloxGnss::X20P);
-    measurement_period_ms = 40;
-  }
-  else {
-    cerr << "Unsupported GNSS module: " << *module_name << endl;
-    return EXIT_FAILURE;
   }
 
   cout << "Configuring measurement rate." << endl;

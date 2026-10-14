@@ -293,7 +293,7 @@ private:
   const std::unique_ptr<UbxTransport> transport_;
   UbxScanner scanner_;
   tim::Rate scan_rate_;
-  ReceiverProfile receiver_profile_;
+  ReceiverProfile receiver_profile_ = F9P;
   uint8_t tx_buf_[kUbxBufferLength];
 
   template <typename T>

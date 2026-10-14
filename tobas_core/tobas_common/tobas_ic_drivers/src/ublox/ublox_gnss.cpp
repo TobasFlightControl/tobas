@@ -87,7 +87,7 @@ std::optional<std::string> UbloxGnss::getModuleName()
     }
   }
 
-  return std::nullopt;
+  return std::string{};
 }
 
 bool UbloxGnss::update(bool blocking, std::chrono::milliseconds timeout)
@@ -540,7 +540,7 @@ bool UbloxGnss::enableSbas()
 
 bool UbloxGnss::disableSbas()
 {
-  return enableGps(false);
+  return enableSbas(false);
 }
 
 bool UbloxGnss::enableGalileo()
