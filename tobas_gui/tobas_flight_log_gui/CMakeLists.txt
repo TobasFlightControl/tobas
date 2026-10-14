@@ -16,6 +16,7 @@ set(AMENT_DEPENDENCIES
     QuaZip-Qt5
     tobas_string_tools
     tobas_kdl
+    tobas_kdl_msgs
     tobas_ros2_tools
     tobas_msgs
     tobas_debug_msgs

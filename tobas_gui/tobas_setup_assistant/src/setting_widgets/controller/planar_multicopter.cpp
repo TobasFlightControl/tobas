@@ -14,8 +14,8 @@ PlanarMulticopterWidget::PlanarMulticopterWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  do_object_avoidance_ = new QCheckBox("Do Object Avoidance");
-  rows->addWidget(do_object_avoidance_);
+  use_additional_acceleration_ = new QCheckBox("Use Additional Acceleration");
+  rows->addWidget(use_additional_acceleration_);
 
   do_dist_comp_trans_ = new QCheckBox("Do Disturbance Compensation (Translation)");
   rows->addWidget(do_dist_comp_trans_);
@@ -28,7 +28,7 @@ PlanarMulticopterWidget::PlanarMulticopterWidget()
 
 void PlanarMulticopterWidget::setToDefaults()
 {
-  do_object_avoidance_->setChecked(false);
+  use_additional_acceleration_->setChecked(false);
   do_dist_comp_trans_->setChecked(false);
   do_dist_comp_rot_->setChecked(false);
 }
@@ -67,7 +67,7 @@ YAML::Node PlanarMulticopterWidget::staticParams() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node["do_object_avoidance"] = do_object_avoidance_->isChecked();
+  node["use_additional_acceleration"] = use_additional_acceleration_->isChecked();
   node["do_disturbance_compensation_translation"] = do_dist_comp_trans_->isChecked();
   node["do_disturbance_compensation_rotation"] = do_dist_comp_rot_->isChecked();
 
@@ -78,7 +78,7 @@ YAML::Node PlanarMulticopterWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[do_object_avoidance_->text()] = do_object_avoidance_->isChecked();
+  node[use_additional_acceleration_->text()] = use_additional_acceleration_->isChecked();
   node[do_dist_comp_trans_->text()] = do_dist_comp_trans_->isChecked();
   node[do_dist_comp_rot_->text()] = do_dist_comp_rot_->isChecked();
 
@@ -87,7 +87,7 @@ YAML::Node PlanarMulticopterWidget::dump() const
 
 void PlanarMulticopterWidget::load(const YAML::Node& _node)
 {
-  do_object_avoidance_->setChecked(_node[do_object_avoidance_->text()].as<bool>());
+  use_additional_acceleration_->setChecked(_node[use_additional_acceleration_->text()].as<bool>());
   do_dist_comp_trans_->setChecked(_node[do_dist_comp_trans_->text()].as<bool>());
   do_dist_comp_rot_->setChecked(_node[do_dist_comp_rot_->text()].as<bool>());
 }

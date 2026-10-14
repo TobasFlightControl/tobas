@@ -6,6 +6,7 @@
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
 #include "./plots/accel_plot.hpp"
+#include "./plots/additional_accel_plot.hpp"
 #include "./plots/air_pressure_plot.hpp"
 #include "./plots/battery_plot.hpp"
 #include "./plots/cpu_plot.hpp"
@@ -25,7 +26,6 @@
 #include "./plots/propeller_pitch_plot.hpp"
 #include "./plots/pwm_plot.hpp"
 #include "./plots/rc_input_plot.hpp"
-#include "./plots/repulsive_accel_plot.hpp"
 #include "./plots/rotor_link_plot.hpp"
 #include "./plots/rotor_speed_plot.hpp"
 #include "./plots/twist_plot.hpp"
@@ -62,7 +62,7 @@ public:
     const QVector<tobas_msgs::msg::Latency>& _sampling_time_data,
     const QVector<tobas_msgs::msg::Latency>& _ctrl_latency_data,
     const QVector<tobas_msgs::msg::VibrationLevel>& _vibe_data,
-    const QVector<tobas_msgs::msg::RepulsiveAcceleration>& _repulsive_accel_data,
+    const QVector<tobas_kdl_msgs::msg::AccelStamped>& _additional_accel_data,
     const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _dist_force_data,
     const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _obsv_fb_data,
     const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& _mr_ctrl_fb_data);
@@ -93,7 +93,7 @@ private:
   const QVector<tobas_msgs::msg::Latency>& sampling_time_data_;
   const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data_;
   const QVector<tobas_msgs::msg::VibrationLevel>& vibe_data_;
-  const QVector<tobas_msgs::msg::RepulsiveAcceleration>& repulsive_accel_data_;
+  const QVector<tobas_kdl_msgs::msg::AccelStamped>& additional_accel_data_;
   const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_data_;
   const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data_;
   const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& mr_ctrl_fb_data_;
@@ -119,7 +119,7 @@ private:
   PwmPlotWidget* pwm_plot_;
   LatencyPlotWidget* latency_plot_;
   VibrationLevelPlotWidget* vibe_plot_;
-  RepulsiveAccelPlotWidget* repulsive_accel_plot_;
+  AdditionalAccelPlotWidget* additional_accel_plot_;
   DisturbanceForcePlotWidget* dist_force_plot_;
   ObserverFeedbackPlotWidget* obsv_fb_plot_;
   MRControllerFeedbackPlotWidget* mr_ctrl_fb_plot_;

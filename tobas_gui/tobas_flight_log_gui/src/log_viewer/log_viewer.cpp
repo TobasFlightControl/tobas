@@ -47,7 +47,7 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   const auto sampling_time = addData<tobas_msgs::msg::Latency>(topic::kImuSamplingTime);
   const auto ctrl_latency = addData<tobas_msgs::msg::Latency>(topic::kControlLatency);
   const auto vibe = addData<tobas_msgs::msg::VibrationLevel>(topic::kVibrationLevel);
-  const auto repulsive_accel = addData<tobas_msgs::msg::RepulsiveAcceleration>(topic::kRepulsiveAccel);
+  const auto additional_accel = addData<tobas_kdl_msgs::msg::AccelStamped>(topic::kAdditionalAccel);
   const auto dist_force = addData<tobas_kdl_msgs::msg::WrenchStamped>(topic::kDisturbanceForce);
   const auto obsv_fb = addData<tobas_debug_msgs::msg::ObserverFeedback>(topic::kObsvFeedback);
   const auto mr_ctrl_fb = addData<tobas_debug_msgs::msg::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
@@ -81,7 +81,7 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       sampling_time->getValues(),
       ctrl_latency->getValues(),
       vibe->getValues(),
-      repulsive_accel->getValues(),
+      additional_accel->getValues(),
       dist_force->getValues(),
       obsv_fb->getValues(),
       mr_ctrl_fb->getValues());
