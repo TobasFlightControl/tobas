@@ -13,7 +13,7 @@ int main()
   const string invalid_email = "invalid@.com";
 
   cout << boolalpha;
-  cout << valid_email << ": " << tobas::str::isValidEmail(valid_email) << endl;
-  cout << invalid_email << ": " << tobas::str::isValidEmail(invalid_email) << endl;
+  cout << valid_email << ": " << tobas::str::isValidEmail(valid_email) << '\n';
+  cout << invalid_email << ": " << tobas::str::isValidEmail(invalid_email) << '\n';
   cout << noboolalpha;
 }

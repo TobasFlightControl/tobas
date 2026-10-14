@@ -21,7 +21,7 @@ LinkWorldPoseSolver::LinkWorldPoseSolver()
 bool LinkWorldPoseSolver::initialize(const gz::sim::Entity& _model, const gz::sim::EntityComponentManager& _ecm)
 {
   if (!_ecm.Component<gz::sim::components::Model>(_model)) {
-    ignerr << "Model does not exist." << std::endl;
+    ignerr << "Model does not exist.\n";
     return false;
   }
 
@@ -33,24 +33,24 @@ bool LinkWorldPoseSolver::solve(const gz::sim::Entity& _link, const gz::sim::Ent
 {
   const auto world = _ecm.ParentEntity(model_);
   if (!_ecm.Component<gz::sim::components::World>(world)) {
-    ignerr << "Model must be a direct child of the world." << std::endl;
+    ignerr << "Model must be a direct child of the world.\n";
     return false;
   }
 
   if (_ecm.ParentEntity(_link) != model_) {
-    ignerr << "Link must be a direct child of the model." << std::endl;
+    ignerr << "Link must be a direct child of the model.\n";
     return false;
   }
 
   const auto T1 = _ecm.Component<gz::sim::components::Pose>(model_);
   if (!T1) {
-    ignerr << "Model does not have a pose component." << std::endl;
+    ignerr << "Model does not have a pose component.\n";
     return false;
   }
 
   const auto T2 = _ecm.Component<gz::sim::components::Pose>(_link);
   if (!T2) {
-    ignerr << "Link does not have a pose component." << std::endl;
+    ignerr << "Link does not have a pose component.\n";
     return false;
   }
 

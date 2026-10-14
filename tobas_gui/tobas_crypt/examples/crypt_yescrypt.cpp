@@ -8,7 +8,7 @@
 int main(int _argc, char** _argv)
 {
   if (_argc != 2) {
-    std::cerr << "Usage: " << _argv[0] << " <password>" << std::endl;
+    std::cerr << "Usage: " << _argv[0] << " <password>\n";
     return EXIT_FAILURE;
   }
   const auto password = _argv[1];
@@ -16,8 +16,8 @@ int main(int _argc, char** _argv)
   tobas::crypt::Yescrypt crypt;
   const auto hash = crypt.crypt(password);
   if (!hash) {
-    std::cerr << hash.error() << std::endl;
+    std::cerr << hash.error() << '\n';
     return EXIT_FAILURE;
   }
-  std::cout << password << " -> " << *hash << std::endl;
+  std::cout << password << " -> " << *hash << '\n';
 }

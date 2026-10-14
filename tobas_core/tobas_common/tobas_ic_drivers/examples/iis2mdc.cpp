@@ -12,7 +12,7 @@ using namespace std::chrono_literals;
 int main(int _argc, char** _argv)
 {
   if (_argc != 2) {
-    cerr << "Usage: " << _argv[0] << " <I2C Device>" << endl;
+    cerr << "Usage: " << _argv[0] << " <I2C Device>\n";
     return EXIT_FAILURE;
   }
   const auto device = _argv[1];
@@ -21,17 +21,17 @@ int main(int _argc, char** _argv)
   double mx, my, mz;
 
   if (!mag.initialize(device)) {
-    cerr << "Failed to initialize magnetometer." << endl;
+    cerr << "Failed to initialize magnetometer.\n";
     return EXIT_FAILURE;
   }
 
   while (true) {
     if (!mag.readMag(mx, my, mz)) {
-      cerr << "Failed to read magnetic field." << endl;
+      cerr << "Failed to read magnetic field.\n";
       continue;
     }
 
-    cout << "Magnetic Field [gauss]: " << mx << ", " << my << ", " << mz << endl;
+    cout << "Magnetic Field [gauss]: " << mx << ", " << my << ", " << mz << '\n';
 
     this_thread::sleep_for(1s);
   }

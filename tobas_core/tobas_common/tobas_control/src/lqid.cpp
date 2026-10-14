@@ -85,7 +85,6 @@ std::expected<Eigen::VectorXd, std::string> LQID::solve(double _dt, bool _update
   const Eigen::VectorXd r = C * target_state;
   eps_ += (r - y) * _dt;
   eps_ = eps_.cwiseMax(-max_integrated_error).cwiseMin(max_integrated_error);
-  // cout << "Integrated error: " << eps_ << endl;
 
   // Create the augmented state.
   x_tilde_ << current_state, last_u_, eps_;
@@ -150,11 +149,11 @@ std::expected<void, std::string> LQID::updateGainMatrix()
 
 std::ostream& operator<<(std::ostream& _os, const LQID& _arg)
 {
-  _os << "Dynamics:\n" << _arg.dynamics << std::endl;
-  _os << "Current state:\n" << _arg.current_state << std::endl;
-  _os << "Target state:\n" << _arg.target_state << std::endl;
-  _os << "State error:\n" << _arg.target_state - _arg.current_state << std::endl;
-  _os << "Gain:\n" << _arg.K_ << std::endl;
+  _os << "Dynamics:\n" << _arg.dynamics << '\n';
+  _os << "Current state:\n" << _arg.current_state << '\n';
+  _os << "Target state:\n" << _arg.target_state << '\n';
+  _os << "State error:\n" << _arg.target_state - _arg.current_state << '\n';
+  _os << "Gain:\n" << _arg.K_ << '\n';
 
   return _os;
 }

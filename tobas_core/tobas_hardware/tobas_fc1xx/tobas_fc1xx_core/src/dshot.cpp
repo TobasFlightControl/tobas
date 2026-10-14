@@ -181,12 +181,12 @@ double DShot::getCurrent(size_t _ch) noexcept
 
 void DShot::printCurrentState(size_t _ch) noexcept
 {
-  std::cout << "Channel " << _ch << ":" << std::endl;
-  std::cout << "\tValid             : " << std::boolalpha << getValidity(_ch) << std::noboolalpha << std::endl;
-  std::cout << "\tSpeed [rpm]       : " << st::rps2rpm(getSpeed(_ch)) << std::endl;
-  std::cout << "\tTemperature [degC]: " << getTemperature(_ch) << std::endl;
-  std::cout << "\tVoltage [V]       : " << getVoltage(_ch) << std::endl;
-  std::cout << "\tCurrent [A]       : " << getCurrent(_ch) << std::endl;
+  std::cout << "Channel " << _ch << ":\n";
+  std::cout << "\tValid             : " << std::boolalpha << getValidity(_ch) << std::noboolalpha << '\n';
+  std::cout << "\tSpeed [rpm]       : " << st::rps2rpm(getSpeed(_ch)) << '\n';
+  std::cout << "\tTemperature [degC]: " << getTemperature(_ch) << '\n';
+  std::cout << "\tVoltage [V]       : " << getVoltage(_ch) << '\n';
+  std::cout << "\tCurrent [A]       : " << getCurrent(_ch) << '\n';
 }
 
 void DShot::printCurrentStates() noexcept

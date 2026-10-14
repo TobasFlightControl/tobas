@@ -53,7 +53,7 @@ JerkLimitedTrajectory::JerkLimitedTrajectory(double _p0, double _pf, double _max
     }
 
 #ifndef NDEBUG
-    std::cout << "Iter " << iter << ": Accel [m/s^2]" << am_ << ", Velocity [m/s]" << vm_ << std::endl;
+    std::cout << "Iter " << iter << ": Accel [m/s^2]" << am_ << ", Velocity [m/s]" << vm_ << '\n';
 #endif
   }
 

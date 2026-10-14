@@ -16,7 +16,7 @@ std::string dump(const YAML::Node& _node) noexcept
   std::ostringstream res;
   YAML::Emitter emitter(res);
   emitter << _node;
-  res << std::endl;
+  res << '\n';
   return res.str();
 }
 

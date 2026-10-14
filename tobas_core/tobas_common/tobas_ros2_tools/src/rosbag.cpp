@@ -23,7 +23,7 @@ bool reindexRosBag(const std::string& _uri, const std::string& _storage_id) noex
     reindexer.reindex(options);
   }
   catch (const std::exception& e) {
-    std::cerr << "Failed to reindex " << _uri + ": " << e.what() << std::endl;
+    std::cerr << "Failed to reindex " << _uri + ": " << e.what() << '\n';
     return false;
   }
 

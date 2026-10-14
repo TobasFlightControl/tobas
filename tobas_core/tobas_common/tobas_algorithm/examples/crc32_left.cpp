@@ -13,5 +13,5 @@ int main()
   crc.initialize();
 
   const uint8_t data[] = "Example data for CRC calculation";
-  cout << "CRC-32: " << hex << uppercase << crc.compute(data, sizeof(data) - 1) << endl;
+  cout << "CRC-32: " << hex << uppercase << crc.compute(data, sizeof(data) - 1) << '\n';
 }

@@ -19,7 +19,7 @@ BMM350::BMM350()
 bool BMM350::initialize(const char* _i2c_device)
 {
   if (!i2c_.initialize(_i2c_device, 0x14)) {
-    std::cerr << "Failed to initialize I2C device." << std::endl;
+    std::cerr << "Failed to initialize I2C device.\n";
     return false;
   }
 
@@ -94,7 +94,7 @@ bool BMM350::readOtpWord(uint8_t _addr, uint16_t& _word)
   }
 
   if (!done) {
-    std::cerr << "OTP read Timeout" << std::endl;
+    std::cerr << "OTP read Timeout\n";
     return false;
   }
 
@@ -113,14 +113,14 @@ bool BMM350::readOtpRegisters()
   for (uint8_t i = 0; i < OTP_DATA_LENGTH; ++i) {
     uint16_t word = 0;
     if (!readOtpWord(i, word)) {
-      std::cerr << "Failed to read OTP word." << std::endl;
+      std::cerr << "Failed to read OTP word.\n";
       return false;
     }
     otp_data_[i] = word;
   }
 
   if (!i2c_.writeByte(OTP_CMD_REG, OTP_PWR_OFF, false)) {
-    std::cerr << "Failed to power off OTP." << std::endl;
+    std::cerr << "Failed to power off OTP.\n";
     return false;
   }
 
@@ -190,18 +190,18 @@ void BMM350::configure(ODR _odr, Averaging _averaging)
 bool BMM350::applyConfiguration()
 {
   if (!i2c_.writeByte(PAD_CTRL_REG, PAD_DRIVE_STRONGEST, false)) {
-    std::cerr << "Failed to configure pad drive." << std::endl;
+    std::cerr << "Failed to configure pad drive.\n";
     return false;
   }
 
   if (!setOdrPerformance()) {
-    std::cerr << "Failed to set ODR." << std::endl;
+    std::cerr << "Failed to set ODR.\n";
     return false;
   }
 
   axis_en_ = ENABLE_XYZ;
   if (!i2c_.writeByte(PMU_CMD_AXIS_EN_REG, axis_en_, false)) {
-    std::cerr << "Failed to enable all axes." << std::endl;
+    std::cerr << "Failed to enable all axes.\n";
     return false;
   }
 
@@ -224,12 +224,12 @@ bool BMM350::setOdrPerformance(uint8_t _odr, uint8_t _avg)
   reg = static_cast<uint8_t>((_odr & ~AVG_MSK) | ((_avg << AVG_POS) & AVG_MSK));
 
   if (!i2c_.writeByte(PMU_CMD_AGGR_SET_REG, reg, false)) {
-    std::cerr << "Failed to configure ODR/performance." << std::endl;
+    std::cerr << "Failed to configure ODR/performance.\n";
     return false;
   }
 
   if (!i2c_.writeByte(PMU_CMD_REG, PMU_UPD_OAE, false)) {
-    std::cerr << "Failed to apply ODR/performance." << std::endl;
+    std::cerr << "Failed to apply ODR/performance.\n";
     return false;
   }
   // Wait for the setting to take effect with a fixed delay matching the Bosch SensorAPI.
@@ -240,13 +240,13 @@ bool BMM350::setOdrPerformance(uint8_t _odr, uint8_t _avg)
 bool BMM350::enterSuspendMode()
 {
   if (!i2c_.writeByte(CMD_REG, SOFT_RESET_CMD, false)) {
-    std::cerr << "Failed to issue soft-reset." << std::endl;
+    std::cerr << "Failed to issue soft-reset.\n";
     return false;
   }
   delayUs(SOFT_RESET_DELAY_US);
 
   if (!i2c_.writeByte(PMU_CMD_REG, PMU_SUSPEND, false)) {
-    std::cerr << "Failed to enter suspend mode." << std::endl;
+    std::cerr << "Failed to enter suspend mode.\n";
     return false;
   }
   delayUs(GOTO_SUSPEND_DELAY_US);
@@ -262,13 +262,13 @@ bool BMM350::setPowerMode(uint8_t _mode)
 {
   uint8_t last_mode;
   if (!readBytesWithDummy(PMU_CMD_REG, 1, &last_mode)) {
-    std::cerr << "Failed to read PMU command." << std::endl;
+    std::cerr << "Failed to read PMU command.\n";
     return false;
   }
 
   if (last_mode == PMU_NORMAL || last_mode == PMU_UPD_OAE) {
     if (!i2c_.writeByte(PMU_CMD_REG, PMU_SUSPEND, false)) {
-      std::cerr << "Failed to transit PMU to suspend." << std::endl;
+      std::cerr << "Failed to transit PMU to suspend.\n";
       return false;
     }
     // Wait for the suspend transition to complete with a fixed delay compliant with SensorAPI.
@@ -276,7 +276,7 @@ bool BMM350::setPowerMode(uint8_t _mode)
   }
 
   if (!i2c_.writeByte(PMU_CMD_REG, _mode, false)) {
-    std::cerr << "Failed to set PMU mode." << std::endl;
+    std::cerr << "Failed to set PMU mode.\n";
     return false;
   }
 
@@ -291,11 +291,11 @@ bool BMM350::checkWhoAmI()
 {
   uint8_t chip_id = 0;
   if (!readBytesWithDummy(WHO_AM_I_REG, 1, &chip_id)) {
-    std::cerr << "Failed to read chip ID." << std::endl;
+    std::cerr << "Failed to read chip ID.\n";
     return false;
   }
   if (chip_id != CHIP_ID) {
-    std::cerr << "Who-Am-I check failed." << std::endl;
+    std::cerr << "Who-Am-I check failed.\n";
     return false;
   }
   return true;
@@ -323,7 +323,7 @@ bool BMM350::magneticResetAndWait()
   bool restore_normal = false;
 
   if (!getPmuCmdStatus0(status)) {
-    std::cerr << "Failed to read PMU status before magnetic reset." << std::endl;
+    std::cerr << "Failed to read PMU status before magnetic reset.\n";
     return false;
   }
 
@@ -335,7 +335,7 @@ bool BMM350::magneticResetAndWait()
   }
 
   if (!i2c_.writeByte(PMU_CMD_REG, PMU_BR, false)) {
-    std::cerr << "Failed to issue BR." << std::endl;
+    std::cerr << "Failed to issue BR.\n";
     return false;
   }
   delayUs(BR_DELAY_US);
@@ -344,12 +344,12 @@ bool BMM350::magneticResetAndWait()
     return false;
   }
   if (status.pmu_cmd_value != PMU_BR) {
-    std::cerr << "BR command did not complete as expected." << std::endl;
+    std::cerr << "BR command did not complete as expected.\n";
     return false;
   }
 
   if (!i2c_.writeByte(PMU_CMD_REG, PMU_FGR, false)) {
-    std::cerr << "Failed to issue FGR." << std::endl;
+    std::cerr << "Failed to issue FGR.\n";
     return false;
   }
   delayUs(FGR_DELAY_US);
@@ -358,7 +358,7 @@ bool BMM350::magneticResetAndWait()
     return false;
   }
   if (status.pmu_cmd_value != PMU_FGR) {
-    std::cerr << "FGR command did not complete as expected." << std::endl;
+    std::cerr << "FGR command did not complete as expected.\n";
     return false;
   }
 
@@ -413,7 +413,7 @@ float BMM350::compensateZ(float _x, float _y, float _z, float) const
 bool BMM350::readMag(float& _mx, float& _my, float& _mz)
 {
   if (!readRawMagData(raw_)) {
-    std::cerr << "Failed to read magnetic field." << std::endl;
+    std::cerr << "Failed to read magnetic field.\n";
     return false;
   }
 

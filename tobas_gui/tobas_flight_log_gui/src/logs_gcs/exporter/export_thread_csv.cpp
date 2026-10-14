@@ -71,7 +71,7 @@ void ExportThreadCsv::run()
   }
 
   // Write header.
-  csv_file << makeCsvHeader() << std::endl;
+  csv_file << makeCsvHeader() << '\n';
 
   // Read and export data.
   histmap_.clear();
@@ -532,7 +532,7 @@ bool ExportThreadCsv::exportOldestImuLine(std::ofstream& _file, Time _before_thi
   }
 
   // Write data to one row.
-  _file << makeCsvDataRow(imu_time, line_data) << std::endl;
+  _file << makeCsvDataRow(imu_time, line_data) << '\n';
 
   return true;
 }

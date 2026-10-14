@@ -22,20 +22,20 @@ namespace linux
 bool lockMemory()
 {
   if (mlockall(MCL_CURRENT | MCL_FUTURE) != 0) {
-    std::cerr << "mlockall failed: " << st::strError() << std::endl;
+    std::cerr << "mlockall failed: " << st::strError() << '\n';
     return false;
   }
 
   // Turn off malloc trimming.
   if (mallopt(M_TRIM_THRESHOLD, -1) == 0) {
-    std::cerr << "mallopt for trim threshold failed: " << st::strError() << std::endl;
+    std::cerr << "mallopt for trim threshold failed: " << st::strError() << '\n';
     munlockall();
     return false;
   }
 
   // Turn off mmap usage.
   if (mallopt(M_MMAP_MAX, 0) == 0) {
-    std::cerr << "mallopt for mmap failed: " << st::strError() << std::endl;
+    std::cerr << "mallopt for mmap failed: " << st::strError() << '\n';
     mallopt(M_TRIM_THRESHOLD, 1 << 17);
     munlockall();
     return false;
@@ -67,8 +67,8 @@ bool lockAndPrefaultDynamic()
       std::memset(ptr, 0, 64 * page_size);
     }
     catch (const std::bad_alloc& e) {
-      std::cerr << "Caught exception: " << e.what() << std::endl;
-      std::cerr << "Unlocking memory and continuing." << std::endl;
+      std::cerr << "Caught exception: " << e.what() << '\n';
+      std::cerr << "Unlocking memory and continuing.\n";
       for (auto& prefaulter : prefaulters) {
         delete[] prefaulter;
       }
@@ -104,7 +104,7 @@ bool lockAndPrefaultDynamic(size_t _process_max_dynamic_memory)
   void* buf = nullptr;
   const auto pg_sz = sysconf(_SC_PAGESIZE);
   if (posix_memalign(&buf, pg_sz, _process_max_dynamic_memory) != 0) {
-    std::cerr << "proc rt init mem aligning failed: " << st::strError() << std::endl;
+    std::cerr << "proc rt init mem aligning failed: " << st::strError() << '\n';
     return false;
   }
 

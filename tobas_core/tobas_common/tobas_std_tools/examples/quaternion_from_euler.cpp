@@ -11,7 +11,7 @@ using namespace std;
 int main(int _argc, char** _argv)
 {
   if (_argc != 4) {
-    cerr << "Usage: " << _argv[0] << " <Roll> <Pitch> <Yaw> [degree]" << endl;
+    cerr << "Usage: " << _argv[0] << " <Roll> <Pitch> <Yaw> [degree]\n";
     return EXIT_FAILURE;
   }
 
@@ -20,7 +20,7 @@ int main(int _argc, char** _argv)
   const auto yaw = tobas::st::deg2rad(atof(_argv[3]));
 
   const auto [qx, qy, qz, qw] = tobas::st::quaternionFromEuler(roll, pitch, yaw);
-  cout << "Hamilton: " << qw << ", " << qx << ", " << qy << ", " << qz << endl;
+  cout << "Hamilton: " << qw << ", " << qx << ", " << qy << ", " << qz << '\n';
 
   return EXIT_SUCCESS;
 }

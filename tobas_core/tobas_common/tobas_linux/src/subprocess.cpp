@@ -36,7 +36,8 @@ std::expected<pid_t, std::string> createSubprocess(const std::vector<char*>& _ar
     for (const auto& cmd_elem : _argv) {
       std::cout << cmd_elem << " ";
     }
-    std::cout << std::endl;
+    // Flush the diagnostic before execvp replaces the process.
+    std::cout << '\n' << std::flush;
 
     // Add the terminator to the argument list.
     auto argv = _argv;
@@ -46,7 +47,7 @@ std::expected<pid_t, std::string> createSubprocess(const std::vector<char*>& _ar
     execvp(argv.front(), argv.data());
 
     // execvp returns only on failure.
-    std::cerr << "Subprocess failed." << std::endl;
+    std::cerr << "Subprocess failed.\n" << std::flush;
     _exit(127);  // Error code commonly used when an exec call fails.
   }
 }

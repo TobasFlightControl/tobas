@@ -28,13 +28,13 @@ int main()
 
   const auto x = newton.solve(1.5);
   if (!x) {
-    cerr << x.error() << endl;
+    cerr << x.error() << '\n';
     return EXIT_FAILURE;
   }
 
-  cout << "Optimal solution: " << *x << endl;  // 1.3688081
-  cout << "----------" << endl;
-  cout << "f(x*) = " << f(*x) << endl;
+  cout << "Optimal solution: " << *x << '\n';  // 1.3688081
+  cout << "----------\n";
+  cout << "f(x*) = " << f(*x) << '\n';
 
   return EXIT_SUCCESS;
 }

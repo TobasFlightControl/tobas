@@ -13,7 +13,7 @@ int main()
   tobas::fc2xx::PwmBattImu driver;
 
   if (!driver.initialize()) {
-    cerr << "Failed to initialize the driver." << endl;
+    cerr << "Failed to initialize the driver.\n";
     return EXIT_FAILURE;
   }
 
@@ -24,7 +24,7 @@ int main()
 
   while (true) {
     if (const auto result = driver.transfer(); !result) {
-      cerr << "Failed to communicate with the MCU: " << result.error() << endl;
+      cerr << "Failed to communicate with the MCU: " << result.error() << '\n';
       continue;
     }
 
@@ -34,12 +34,12 @@ int main()
     driver.getRawGyro(gx, gy, gz);
     driver.getRawDGyro(dgx, dgy, dgz);
 
-    cout << "-----" << endl;
-    cout << "Voltage [V]     : " << volt << endl;
-    cout << "Current [A]     : " << curr << endl;
-    cout << "Accel [m/s^2]   : " << ax << ", " << ay << ", " << az << endl;
-    cout << "Gyro [rad/s]    : " << gx << ", " << gy << ", " << gz << endl;
-    cout << "D-Gyro [rad/s^2]: " << dgx << ", " << dgy << ", " << dgz << endl;
+    cout << "-----\n";
+    cout << "Voltage [V]     : " << volt << '\n';
+    cout << "Current [A]     : " << curr << '\n';
+    cout << "Accel [m/s^2]   : " << ax << ", " << ay << ", " << az << '\n';
+    cout << "Gyro [rad/s]    : " << gx << ", " << gy << ", " << gz << '\n';
+    cout << "D-Gyro [rad/s^2]: " << dgx << ", " << dgy << ", " << dgz << '\n';
 
     this_thread::sleep_for(10ms);
   }

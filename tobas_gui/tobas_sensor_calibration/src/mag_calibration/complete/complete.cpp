@@ -693,11 +693,11 @@ void CompleteMagCalibWidget::onFinishButtonClicked()
   displayEllipsoidWireFrame(ellipsoid);
 
   // Show debug information.
-  std::cout << "The number of samples before preprocessing: " << cnt_ << std::endl;
-  std::cout << "The number of samples after preprocessing: " << size << std::endl;
-  std::cout << "The number of removed samples: " << cnt_ - size << std::endl;
-  std::cout << "Hard-iron bias: " << hard_bias.transpose() << std::endl;
-  std::cout << "Soft-iron bias: " << soft_bias.transpose() << std::endl;
+  std::cout << "The number of samples before preprocessing: " << cnt_ << '\n';
+  std::cout << "The number of samples after preprocessing: " << size << '\n';
+  std::cout << "The number of removed samples: " << cnt_ - size << '\n';
+  std::cout << "Hard-iron bias: " << hard_bias.transpose() << '\n';
+  std::cout << "Soft-iron bias: " << soft_bias.transpose() << '\n';
 
   resetToPreStart();
   qt::qInfoBox(this, "Magnetometer calibration finished successfully. Please restart the flight controller.");

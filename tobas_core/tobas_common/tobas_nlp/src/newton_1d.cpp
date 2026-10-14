@@ -29,11 +29,11 @@ std::expected<double, std::string> NewtonSolver1d::solve(double _x)
     const auto dfdx = dfdx_(_x);
 
 #ifdef TRACE_SOLVER
-    std::cout << "Iteration: " << iter << std::endl;
-    std::cout << "x = " << _x << std::endl;
-    std::cout << "f(x) = " << f << std::endl;
-    std::cout << "df/dx(x) = " << dfdx << std::endl;
-    std::cout << "----------" << std::endl;
+    std::cout << "Iteration: " << iter << '\n';
+    std::cout << "x = " << _x << '\n';
+    std::cout << "f(x) = " << f << '\n';
+    std::cout << "df/dx(x) = " << dfdx << '\n';
+    std::cout << "----------\n";
 #endif
 
     assert(std::isfinite(f));

@@ -10,8 +10,8 @@ using namespace std;
 int main()
 {
   const string str = "hoge_fuga_hoge_fuga";
-  cout << "Original      : " << str << endl;
-  cout << "lstrip('hoge'): " << tobas::str::lstrip(str, "hoge") << endl;
-  cout << "rstrip('fuga'): " << tobas::str::rstrip(str, "fuga") << endl;
-  cout << "rstrip('piyo'): " << tobas::str::rstrip(str, "piyo") << endl;
+  cout << "Original      : " << str << '\n';
+  cout << "lstrip('hoge'): " << tobas::str::lstrip(str, "hoge") << '\n';
+  cout << "rstrip('fuga'): " << tobas::str::rstrip(str, "fuga") << '\n';
+  cout << "rstrip('piyo'): " << tobas::str::rstrip(str, "piyo") << '\n';
 }

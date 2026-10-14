@@ -11,7 +11,7 @@ using namespace std;
 int main(int _argc, char** _argv)
 {
   if (_argc != 3) {
-    cerr << "Usage: " << _argv[0] << " <Channel> <Period>" << endl;
+    cerr << "Usage: " << _argv[0] << " <Channel> <Period>\n";
     return EXIT_FAILURE;
   }
   const size_t channel = stoul(_argv[1]);
@@ -20,19 +20,19 @@ int main(int _argc, char** _argv)
   tobas::fc2xx::PwmBattImu driver;
 
   if (!driver.initialize()) {
-    cerr << "Failed to initialize PWM driver." << endl;
+    cerr << "Failed to initialize PWM driver.\n";
     return EXIT_FAILURE;
   }
 
   uint16_t periods[tobas::fc2xx::PwmBattImu::kPwmChannels] = {};
   periods[channel] = period;
 
-  cout << "Commanding the PWM period..." << endl;
+  cout << "Commanding the PWM period...\n";
   while (true) {
     driver.setPwmPeriod(periods);
 
     if (const auto result = driver.transfer(); !result) {
-      cerr << "Failed to communicate with the MCU: " << result.error() << endl;
+      cerr << "Failed to communicate with the MCU: " << result.error() << '\n';
       continue;
     }
 

@@ -13,10 +13,10 @@ int main()
 
   const auto res = tobas::path::createFilePath(path);
   if (!res) {
-    cerr << res.error() << endl;
+    cerr << res.error() << '\n';
     return EXIT_FAILURE;
   }
 
-  cout << path << " is created successfully." << endl;
+  cout << path << " is created successfully.\n";
   return EXIT_SUCCESS;
 }

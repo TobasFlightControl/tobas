@@ -36,7 +36,7 @@ VideoDev::~VideoDev()
   if (buffer_mapped_) {
     for (uint32_t i = 0; i < kBufferSize; ++i) {
       if (munmap(buffers_[i].start, buffers_[i].length) < 0) {
-        std::cerr << "Failed to munmap memory" << std::endl;
+        std::cerr << "Failed to munmap memory\n";
       }
     }
     std::free(buffers_);
@@ -61,7 +61,7 @@ bool VideoDev::initialize(
   // Open device.
   fd_ = open(_video_dev, O_RDWR);
   if (fd_ < 0) {
-    std::cerr << "Failed to open video device: " << _video_dev << std::endl;
+    std::cerr << "Failed to open video device: " << _video_dev << '\n';
     return false;
   }
 
@@ -92,7 +92,7 @@ bool VideoDev::initialize(
 
 void VideoDev::displaySupportedFormats()
 {
-  std::cout << "Supported Formats" << std::endl;
+  std::cout << "Supported Formats\n";
   const auto current_format = new v4l2_fmtdesc();
   const auto current_size = new v4l2_frmsizeenum();
   const auto current_interval = new v4l2_frmivalenum();
@@ -112,8 +112,7 @@ void VideoDev::displaySupportedFormats()
            ++current_interval->index) {
         if (current_interval->type == V4L2_FRMIVAL_TYPE_DISCRETE) {
           std::cout << "      Format : " << FCC2S(current_format->pixelformat)
-                    << ", Size: " << current_size->discrete.width << " x " << current_size->discrete.height
-                    << std::endl;
+                    << ", Size: " << current_size->discrete.width << " x " << current_size->discrete.height << '\n';
         }
       }  // interval loop
     }  // size loop
@@ -123,7 +122,7 @@ void VideoDev::displaySupportedFormats()
 bool VideoDev::execUvcControl(const uvc_xu_control_query& _query)
 {
   if (ioctl(fd_, UVCIOC_CTRL_QUERY, &_query) < 0) {
-    std::cerr << "Failed to execute UVC control: " << st::strError() << std::endl;
+    std::cerr << "Failed to execute UVC control: " << st::strError() << '\n';
     return false;
   }
   return true;
@@ -145,7 +144,7 @@ bool VideoDev::takePicture()
 {
   image_address_ = dequeue();
   if (image_address_ < 0) {
-    std::cerr << "Failed to dequeue." << std::endl;
+    std::cerr << "Failed to dequeue.\n";
     return false;
   }
   if (!enqueue(image_address_)) {
@@ -182,15 +181,15 @@ bool VideoDev::checkCapability()
 {
   v4l2_capability cap = {};
   if (ioctl(fd_, VIDIOC_QUERYCAP, &cap) < 0) {
-    std::cerr << "Failed to query capability." << std::endl;
+    std::cerr << "Failed to query capability.\n";
     return false;
   }
   if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
-    std::cerr << "No vide capture capability." << std::endl;
+    std::cerr << "No vide capture capability.\n";
     return false;
   }
   if (!(cap.capabilities & V4L2_CAP_STREAMING)) {
-    std::cerr << "No stream support" << std::endl;
+    std::cerr << "No stream support\n";
     return false;
   }
   return true;
@@ -203,12 +202,12 @@ bool VideoDev::requestDeviceBuffer()
   req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   req.memory = V4L2_MEMORY_MMAP;
   if (ioctl(fd_, VIDIOC_REQBUFS, &req) < 0) {
-    std::cerr << "Failed to request buffer." << std::endl;
+    std::cerr << "Failed to request buffer.\n";
     return false;
   }
   // Check the number of allocated buffers.
   if (req.count < kBufferSize) {
-    std::cerr << "Insufficient buffer memory on device." << std::endl;
+    std::cerr << "Insufficient buffer memory on device.\n";
     return false;
   }
   return true;
@@ -218,7 +217,7 @@ bool VideoDev::mapBuffer()
 {
   buffers_ = static_cast<Buffer*>(std::calloc(kBufferSize, sizeof(*buffers_)));
   if (!buffers_) {
-    std::cerr << "Calloc failed." << std::endl;
+    std::cerr << "Calloc failed.\n";
     return false;
   }
   for (uint32_t i = 0; i < kBufferSize; ++i) {
@@ -227,7 +226,7 @@ bool VideoDev::mapBuffer()
     buf.memory = V4L2_MEMORY_MMAP;
     buf.index = i;
     if (ioctl(fd_, VIDIOC_QUERYBUF, &buf) < 0) {
-      std::cerr << "Failed to query buffer." << std::endl;
+      std::cerr << "Failed to query buffer.\n";
       return false;
     }
     buffers_[i].length = buf.length;
@@ -244,7 +243,7 @@ bool VideoDev::enqueue(uint32_t _i)
   buf.memory = V4L2_MEMORY_MMAP;
   buf.index = _i;
   if (ioctl(fd_, VIDIOC_QBUF, &buf) < 0) {
-    std::cerr << "Failed to query buffer." << std::endl;
+    std::cerr << "Failed to query buffer.\n";
     return false;
   }
   return true;
@@ -262,7 +261,7 @@ bool VideoDev::streamOn()
 {
   v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if (ioctl(fd_, VIDIOC_STREAMON, &type) < 0) {
-    std::cerr << "Stream ON failed." << std::endl;
+    std::cerr << "Stream ON failed.\n";
     return false;
   }
   return true;
@@ -272,7 +271,7 @@ bool VideoDev::streamOff()
 {
   v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if (ioctl(fd_, VIDIOC_STREAMOFF, &type) < 0) {
-    std::cerr << "Stream Off failed." << std::endl;
+    std::cerr << "Stream Off failed.\n";
     return false;
   }
   is_stream_on_ = false;
@@ -282,14 +281,14 @@ bool VideoDev::streamOff()
 int VideoDev::dequeue()
 {
   if (!is_stream_on_) {
-    std::cerr << "Start stream before getting image." << std::endl;
+    std::cerr << "Start stream before getting image.\n";
     return -1;
   }
   v4l2_buffer buf = {};
   buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   buf.memory = V4L2_MEMORY_MMAP;
   if (ioctl(fd_, VIDIOC_DQBUF, &buf) < 0) {
-    std::cerr << "Failed to retrieve Frame" << std::endl;
+    std::cerr << "Failed to retrieve Frame\n";
     return -1;
   }
   return buf.index;
@@ -300,7 +299,7 @@ bool VideoDev::setImgFormat(const char* _pixel_format, uint32_t _width, uint32_t
   v4l2_format fmt_request = {};
   fmt_request.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if (ioctl(fd_, VIDIOC_G_FMT, &fmt_request) < 0) {
-    std::cerr << "Failed to get image format." << std::endl;
+    std::cerr << "Failed to get image format.\n";
     return false;
   }
   fmt_request.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -315,16 +314,16 @@ bool VideoDev::setImgFormat(const char* _pixel_format, uint32_t _width, uint32_t
     fmt_request.fmt.pix.height = _height;
   }
   if (ioctl(fd_, VIDIOC_S_FMT, &fmt_request) < 0) {
-    std::cerr << "Failed to set image format: " << st::strError() << std::endl;
+    std::cerr << "Failed to set image format: " << st::strError() << '\n';
     return false;
   }
   // Check format.
   if (ioctl(fd_, VIDIOC_G_FMT, &fmt_request) < 0) {
-    std::cerr << "Failed to get image format." << std::endl;
+    std::cerr << "Failed to get image format.\n";
     return false;
   }
   if (fmt_request.fmt.pix.pixelformat != v4l2_fourcc(_pixel_format[0], _pixel_format[1], _pixel_format[2], _pixel_format[3])) {
-    std::cerr << "Failed to set image format. The specified format is not supported by the device." << std::endl;
+    std::cerr << "Failed to set image format. The specified format is not supported by the device.\n";
     return false;
   }
   return true;
@@ -335,7 +334,7 @@ bool VideoDev::requestImgFormat()
   v4l2_format fmt_request = {};
   fmt_request.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if (ioctl(fd_, VIDIOC_G_FMT, &fmt_request) < 0) {
-    std::cerr << "Failed to get image format." << std::endl;
+    std::cerr << "Failed to get image format.\n";
     return false;
   }
   fmt_.pixel_format = fmt_request.fmt.pix.pixelformat;

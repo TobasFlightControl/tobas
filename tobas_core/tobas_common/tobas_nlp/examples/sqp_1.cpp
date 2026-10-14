@@ -105,16 +105,16 @@ int main()
 
   const auto x_opt = sqp.solve();
   if (!x_opt) {
-    cerr << x_opt.error() << endl;
+    cerr << x_opt.error() << '\n';
     return EXIT_FAILURE;
   }
 
-  cout << "Optimal solution: " << x_opt->transpose() << endl;  // 4.04092525, 8.41773078
-  cout << "Number of iterations: " << sqp.iterations() << endl;
-  cout << "----------" << endl;
-  cout << "f(x*) = " << f(*x_opt) << endl;
-  cout << "g(x*) = " << g(*x_opt).transpose() << endl;
-  cout << "h(x*) = " << h(*x_opt).transpose() << endl;
+  cout << "Optimal solution: " << x_opt->transpose() << '\n';  // 4.04092525, 8.41773078
+  cout << "Number of iterations: " << sqp.iterations() << '\n';
+  cout << "----------\n";
+  cout << "f(x*) = " << f(*x_opt) << '\n';
+  cout << "g(x*) = " << g(*x_opt).transpose() << '\n';
+  cout << "h(x*) = " << h(*x_opt).transpose() << '\n';
 
   return EXIT_SUCCESS;
 }

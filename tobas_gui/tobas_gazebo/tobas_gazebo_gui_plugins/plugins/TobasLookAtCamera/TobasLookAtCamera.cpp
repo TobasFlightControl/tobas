@@ -87,13 +87,13 @@ void TobasLookAtCamera::initialize()
     const auto camera = std::dynamic_pointer_cast<gz::rendering::Camera>(scene_->NodeByIndex(i));
     if (camera) {
       camera_ = camera;
-      gzdbg << "TobasLookAtCamera is moving camera [" << camera_->Name() << "]" << std::endl;
+      gzdbg << "TobasLookAtCamera is moving camera [" << camera_->Name() << "]\n";
       break;
     }
   }
 
   if (!camera_) {
-    gzerr << "Camera is not available." << std::endl;
+    gzerr << "Camera is not available.\n";
     return;
   }
 

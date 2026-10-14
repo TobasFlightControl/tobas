@@ -173,13 +173,13 @@ std::expected<void, std::string> Tree::validateRecursive(
 bool Tree::addSegment(const Segment& _segment, const std::string& _hook_name)
 {
   if (segments_.contains(_segment.name())) {
-    std::cerr << "Segment '" + _segment.name() + "' already exists in the tree." << std::endl;
+    std::cerr << "Segment '" + _segment.name() + "' already exists in the tree.\n";
     return false;
   }
 
   const auto parent = segments_.find(_hook_name);
   if (parent == segments_.end()) {
-    std::cerr << "Segment '" + _hook_name + "' does not exist in the tree." << std::endl;
+    std::cerr << "Segment '" + _hook_name + "' does not exist in the tree.\n";
     return false;
   }
 
@@ -189,7 +189,7 @@ bool Tree::addSegment(const Segment& _segment, const std::string& _hook_name)
 
   // Check if insertion succeeded.
   if (!retval.second) {
-    std::cerr << "Failed to insert segment '" + _segment.name() + "' into the tree." << std::endl;
+    std::cerr << "Failed to insert segment '" + _segment.name() + "' into the tree.\n";
     return false;
   }
 
@@ -208,17 +208,17 @@ bool Tree::removeSegment(const std::string& _seg_name)
 {
   const auto tar_it = getSegment(_seg_name);
   if (tar_it == segments_.end()) {
-    std::cerr << "Segment '" << _seg_name << "' does not exist in the tree." << std::endl;
+    std::cerr << "Segment '" << _seg_name << "' does not exist in the tree.\n";
     return false;
   }
   if (tar_it == root_seg_) {
-    std::cerr << "Cannot remove root segment '" << _seg_name << "'." << std::endl;
+    std::cerr << "Cannot remove root segment '" << _seg_name << "'.\n";
     return false;
   }
 
   const auto& tar_elem = tar_it->second;
   if (!tar_elem.children.empty()) {
-    std::cerr << "Cannot remove segment '" << _seg_name << "' because it has children." << std::endl;
+    std::cerr << "Cannot remove segment '" << _seg_name << "' because it has children.\n";
     return false;
   }
 
@@ -264,7 +264,7 @@ bool Tree::getSubTree(const std::string& _seg_name, Tree& _tree, bool _root_mass
   // Confirm that the specified segment exists.
   const auto seg_it = getSegment(_seg_name);
   if (seg_it == segments_.end()) {
-    std::cerr << "Segment '" + _seg_name + "' does not exist in the tree." << std::endl;
+    std::cerr << "Segment '" + _seg_name + "' does not exist in the tree.\n";
     return false;
   }
 
@@ -272,7 +272,7 @@ bool Tree::getSubTree(const std::string& _seg_name, Tree& _tree, bool _root_mass
   if (!_root_mass_ok) {
     const auto& segment = seg_it->second.segment;
     if (segment.inertia().getMass() > 0.0) {
-      std::cerr << "KDL does not support a root segment with an inertia." << std::endl;
+      std::cerr << "KDL does not support a root segment with an inertia.\n";
       return false;
     }
   }
@@ -316,15 +316,15 @@ bool Tree::isFixedToRoot(const std::string& _seg_name) const
 std::ostream& operator<<(std::ostream& _os, const Tree& _arg)
 {
   for (const auto& [seg_name, elem] : _arg.segments_) {
-    _os << "Segment:\n" << elem.segment << std::endl;
-    _os << "Number: " << elem.q_nr << std::endl;
+    _os << "Segment:\n" << elem.segment << '\n';
+    _os << "Number: " << elem.q_nr << '\n';
 
     _os << "Parent: ";
     if (seg_name != _arg.getRootName()) {
-      _os << elem.parent->first << std::endl;
+      _os << elem.parent->first << '\n';
     }
     else {
-      _os << "-" << std::endl;
+      _os << "-\n";
     }
   }
 

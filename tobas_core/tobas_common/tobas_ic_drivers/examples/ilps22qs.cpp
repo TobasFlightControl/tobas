@@ -11,7 +11,7 @@ using namespace std;
 int main(int _argc, char** _argv)
 {
   if (_argc != 2) {
-    cerr << "Usage: " << _argv[0] << " <I2C Device>" << endl;
+    cerr << "Usage: " << _argv[0] << " <I2C Device>\n";
     return EXIT_FAILURE;
   }
   const auto device = _argv[1];
@@ -20,23 +20,23 @@ int main(int _argc, char** _argv)
   double pres, temp;
 
   if (!baro.initialize(device)) {
-    cerr << "Failed to initialize barometer." << endl;
+    cerr << "Failed to initialize barometer.\n";
     return EXIT_FAILURE;
   }
 
   while (true) {
     if (!baro.readPressure(pres)) {
-      cerr << "Failed to read pressure." << endl;
+      cerr << "Failed to read pressure.\n";
       continue;
     }
 
     if (!baro.readTemperature(temp)) {
-      cerr << "Failed to read temperature." << endl;
+      cerr << "Failed to read temperature.\n";
       continue;
     }
 
-    cout << "Pressure [hPa]     : " << pres / 100.0 << endl;
-    cout << "Temperature [degC]: " << temp << endl;
+    cout << "Pressure [hPa]     : " << pres / 100.0 << '\n';
+    cout << "Temperature [degC]: " << temp << '\n';
 
     this_thread::sleep_for(1s);
   }

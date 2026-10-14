@@ -31,10 +31,10 @@ LinearEquation LinearEquation::discretise(double _dt) const
 
 std::ostream& operator<<(std::ostream& _os, const LinearEquation& _arg)
 {
-  _os << "A:" << std::endl;
-  _os << _arg.A << std::endl;
-  _os << "b:" << std::endl;
-  _os << _arg.b << std::endl;
+  _os << "A:\n";
+  _os << _arg.A << '\n';
+  _os << "b:\n";
+  _os << _arg.b << '\n';
 
   return _os;
 }

@@ -251,7 +251,7 @@ void BaseNode::setClockType(rclcpp::NodeOptions& _options)
   const auto clock_type = ros2::getEnv("TOBAS_CLOCK_TYPE");
 
   if (!clock_type) {
-    std::cerr << clock_type.error() << std::endl;
+    std::cerr << clock_type.error() << '\n';
     return;
   }
 
@@ -268,7 +268,7 @@ void BaseNode::setClockType(rclcpp::NodeOptions& _options)
     _options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
   }
   else {
-    std::cerr << "Unknown clock type: " << *clock_type << std::endl;
+    std::cerr << "Unknown clock type: " << *clock_type << '\n';
   }
 }
 }  // namespace tobas

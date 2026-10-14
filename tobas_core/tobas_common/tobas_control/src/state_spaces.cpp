@@ -37,22 +37,22 @@ LinearDynamics LinearDynamics::scale(const Eigen::VectorXd& _x_scale, const Eige
 
 std::ostream& operator<<(std::ostream& _os, const LinearDynamics& _arg)
 {
-  _os << "A:" << std::endl;
-  _os << _arg.A << std::endl;
-  _os << "B:" << std::endl;
-  _os << _arg.B << std::endl;
+  _os << "A:\n";
+  _os << _arg.A << '\n';
+  _os << "B:\n";
+  _os << _arg.B << '\n';
 
   return _os;
 }
 
 std::ostream& operator<<(std::ostream& _os, const LinearStateSpace& _arg)
 {
-  _os << "A:" << std::endl;
-  _os << _arg.A << std::endl;
-  _os << "B:" << std::endl;
-  _os << _arg.B << std::endl;
-  _os << "C:" << std::endl;
-  _os << _arg.C << std::endl;
+  _os << "A:\n";
+  _os << _arg.A << '\n';
+  _os << "B:\n";
+  _os << _arg.B << '\n';
+  _os << "C:\n";
+  _os << _arg.C << '\n';
 
   return _os;
 }

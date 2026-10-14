@@ -154,7 +154,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& _sdf)
     return false;
   }
   if (gear_ratio_ <= 0.0) {
-    gzerr << "Gear ratio must be positive." << std::endl;
+    gzerr << "Gear ratio must be positive.\n";
     return false;
   }
 
@@ -162,7 +162,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& _sdf)
     return false;
   }
   if (num_blades_ <= 0) {
-    gzerr << "The number of blades must be positive." << std::endl;
+    gzerr << "The number of blades must be positive.\n";
     return false;
   }
 
@@ -173,7 +173,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& _sdf)
     return false;
   }
   if (!pitch_angle_.pos_limit.isValid()) {
-    gzerr << "Propeller pitch angle limit is invalid." << std::endl;
+    gzerr << "Propeller pitch angle limit is invalid.\n";
     return false;
   }
 
@@ -181,7 +181,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& _sdf)
     return false;
   }
   if (pitch_angle_.max_vel < 0.0) {
-    gzerr << "The maximum propeller pitch angle rate must be non-negative." << std::endl;
+    gzerr << "The maximum propeller pitch angle rate must be non-negative.\n";
     return false;
   }
 
@@ -192,7 +192,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& _sdf)
   motor_const_.c0 = motor_const.X();
   motor_const_.c1 = motor_const.Y();
   if (const auto result = motor_const_.validate(); !result) {
-    gzerr << "Rotor '" << link_name_ << "': " << result.error() << std::endl;
+    gzerr << "Rotor '" << link_name_ << "': " << result.error() << '\n';
     return false;
   }
 
@@ -205,7 +205,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& _sdf)
   moment_const_.c = moment_const.Z();
   moment_const_.phi0 = moment_const.W();
   if (const auto result = moment_const_.validate(); !result) {
-    gzerr << "Rotor '" << link_name_ << "': " << result.error() << std::endl;
+    gzerr << "Rotor '" << link_name_ << "': " << result.error() << '\n';
     return false;
   }
 
@@ -216,7 +216,7 @@ bool IceRotorModel::getSdfParams(const sdf::ElementConstPtr& _sdf)
   drag_const_.c0 = drag_const.X();
   drag_const_.c1 = drag_const.Y();
   if (const auto result = drag_const_.validate(); !result) {
-    gzerr << "Rotor '" << link_name_ << "': " << result.error() << std::endl;
+    gzerr << "Rotor '" << link_name_ << "': " << result.error() << '\n';
     return false;
   }
 
@@ -228,23 +228,23 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& _ec
   // Get joint.
   const auto joint_entity = findJointWithChildLink(_ecm, link_name_);
   if (joint_entity == gz::sim::kNullEntity) {
-    gzerr << "Failed to find the parent joint of rotor link '" << link_name_ << "'." << std::endl;
+    gzerr << "Failed to find the parent joint of rotor link '" << link_name_ << "'.\n";
     return false;
   }
   joint_ = gz::sim::Joint(joint_entity);
   if (!joint_.Valid(_ecm)) {
-    gzerr << "Failed to find rotor link '" << link_name_ << "'." << std::endl;
+    gzerr << "Failed to find rotor link '" << link_name_ << "'.\n";
     return false;
   }
 
   // Check joint type.
   const auto joint_type = joint_.Type(_ecm);
   if (!joint_type) {
-    gzerr << "Failed to get the joint type of '" << link_name_ << "'." << std::endl;
+    gzerr << "Failed to get the joint type of '" << link_name_ << "'.\n";
     return false;
   }
   if (joint_type != sdf::JointType::CONTINUOUS && joint_type != sdf::JointType::REVOLUTE) {
-    gzerr << "Rotor link '" << link_name_ << "' must have a rotating joint." << std::endl;
+    gzerr << "Rotor link '" << link_name_ << "' must have a rotating joint.\n";
     return false;
   }
 
@@ -252,20 +252,20 @@ bool IceRotorModel::initializeGazeboObjects(gz::sim::EntityComponentManager& _ec
   const auto link_entity = _model.LinkByName(_ecm, link_name_);
   link_ = gz::sim::Link(link_entity);
   if (!link_.Valid(_ecm)) {
-    gzerr << "Failed to find the child link '" << link_name_ << "'." << std::endl;
+    gzerr << "Failed to find the child link '" << link_name_ << "'.\n";
     return false;
   }
 
   // Get parent link.
   const auto parent_link_name = joint_.ParentLinkName(_ecm);
   if (!parent_link_name) {
-    gzerr << "Failed to get the parent link name of '" << link_name_ << "'." << std::endl;
+    gzerr << "Failed to get the parent link name of '" << link_name_ << "'.\n";
     return false;
   }
   const auto parent_link_entity = _model.LinkByName(_ecm, *parent_link_name);
   parent_link_ = gz::sim::Link(parent_link_entity);
   if (!parent_link_.Valid(_ecm)) {
-    gzerr << "Failed to find the parent link '" << *parent_link_name << "'." << std::endl;
+    gzerr << "Failed to find the parent link '" << *parent_link_name << "'.\n";
     return false;
   }
 

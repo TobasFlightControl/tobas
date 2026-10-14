@@ -32,7 +32,7 @@ void SimpleJointModel::setTargetPosition(double _tar_pos)
     tar_pos_ = _tar_pos;
   }
   else {
-    gzwarn << "Target joint position is out of range: " << _tar_pos << " ∉ " << pos_limit << std::endl;
+    gzwarn << "Target joint position is out of range: " << _tar_pos << " ∉ " << pos_limit << '\n';
     tar_pos_ = pos_limit.clamp(_tar_pos);
   }
 }

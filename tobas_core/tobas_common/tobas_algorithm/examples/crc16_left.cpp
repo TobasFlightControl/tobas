@@ -14,5 +14,5 @@ int main()
   crc.initialize();
 
   const uint8_t data[] = "0123456789";
-  cout << "CRC-16: " << hex << uppercase << crc.compute(data, sizeof(data) - 1) << endl;
+  cout << "CRC-16: " << hex << uppercase << crc.compute(data, sizeof(data) - 1) << '\n';
 }

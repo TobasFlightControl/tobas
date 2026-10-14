@@ -30,9 +30,9 @@ std::expected<void, std::string> Segment::validate() const
 
 std::ostream& operator<<(std::ostream& _os, const Segment& _arg)
 {
-  _os << "Name: " << _arg.name_ << std::endl;
-  _os << "Joint:\n" << _arg.joint_ << std::endl;
-  _os << "Frame:\n" << _arg.f_tip_ << std::endl;
+  _os << "Name: " << _arg.name_ << '\n';
+  _os << "Joint:\n" << _arg.joint_ << '\n';
+  _os << "Frame:\n" << _arg.f_tip_ << '\n';
   _os << "Inertia:\n" << _arg.I_;
   return _os;
 }

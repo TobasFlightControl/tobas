@@ -34,13 +34,13 @@ I2Cdev::~I2Cdev()
 bool I2Cdev::initialize(const char* _i2c_dev, uint8_t _dev_addr)
 {
   if (_dev_addr >= 0x80) {
-    std::cerr << "Invalid slave address. It must be 7-bit." << std::endl;
+    std::cerr << "Invalid slave address. It must be 7-bit.\n";
     return false;
   }
 
   i2c_fd_ = open(_i2c_dev, O_RDWR);
   if (i2c_fd_ < 0) {
-    std::cerr << "Failed to open I2C device: " << _i2c_dev << std::endl;
+    std::cerr << "Failed to open I2C device: " << _i2c_dev << '\n';
     return false;
   }
 
@@ -55,7 +55,7 @@ bool I2Cdev::initialize(const char* _i2c_dev, uint8_t _dev_addr)
 bool I2Cdev::readBit(uint8_t _reg_addr, uint8_t _bit_pos, bool& _value)
 {
   if (_bit_pos >= 8) {
-    std::cerr << "Bit position must be 0-7." << std::endl;
+    std::cerr << "Bit position must be 0-7.\n";
     return false;
   }
 
@@ -114,7 +114,7 @@ bool I2Cdev::readBytesNoRegAddress(size_t _length, void* _rx)
 bool I2Cdev::writeBit(uint8_t _reg_addr, uint8_t _bit_pos, bool _value, bool _verify)
 {
   if (_bit_pos >= 8) {
-    std::cerr << "Bit position must be 0-7." << std::endl;
+    std::cerr << "Bit position must be 0-7.\n";
     return false;
   }
 
@@ -158,8 +158,7 @@ bool I2Cdev::writeBytes(uint8_t _reg_addr, size_t _length, const void* _tx, bool
     }
 
     if (std::memcmp(_tx, rx_, _length) != 0) {
-      std::cerr << "The " << _length << " bytes written over I2C are not taking effect in the slave’s registers."
-                << std::endl;
+      std::cerr << "The " << _length << " bytes written over I2C are not taking effect in the slave’s registers.\n";
       return false;
     }
   }
@@ -170,7 +169,7 @@ bool I2Cdev::writeBytes(uint8_t _reg_addr, size_t _length, const void* _tx, bool
 bool I2Cdev::checkDataLength(size_t _length) const
 {
   if (_length > kBufSize) {
-    std::cerr << "Data length cannot be greater than buffer size." << std::endl;
+    std::cerr << "Data length cannot be greater than buffer size.\n";
     return false;
   }
 
@@ -183,7 +182,7 @@ bool I2Cdev::selectDevice() const
   // The I2C standard allows sending a command after the slave address,
   // but the Linux I2C driver only checks for an acknowledgment first.
   if (ioctl(i2c_fd_, I2C_SLAVE, dev_addr_) < 0) {
-    std::cerr << "Failed to select I2C device." << std::endl;
+    std::cerr << "Failed to select I2C device.\n";
     return false;
   }
 
@@ -205,17 +204,17 @@ bool I2Cdev::write(uint8_t _reg_addr, size_t _length, const void* _tx)
   const auto req_length = _length + 1;
   const auto res = ::write(i2c_fd_, tx_, req_length);
   if (res < 0) {
-    std::cerr << "I2C write failed: " << st::strError() << std::endl;
+    std::cerr << "I2C write failed: " << st::strError() << '\n';
     switch (errno) {
       case EREMOTEIO:
-        std::cerr << "Please ensure that the correct 7-bit slave address is set." << std::endl;
+        std::cerr << "Please ensure that the correct 7-bit slave address is set.\n";
         break;
     }
     return false;
   }
   if (res != static_cast<ssize_t>(req_length)) {
     std::cerr << "Tried to write " << req_length << " bytes on " << _reg_addr << ", but " << res
-              << " bytes were written." << std::endl;
+              << " bytes were written.\n";
     return false;
   }
 
@@ -236,11 +235,11 @@ bool I2Cdev::read(size_t _length, void* _rx)
   // 8. Stop Condition (Master -> Slave)
   const auto res = ::read(i2c_fd_, _rx, _length);
   if (res < 0) {
-    std::cerr << "I2C read failed: " << st::strError() << std::endl;
+    std::cerr << "I2C read failed: " << st::strError() << '\n';
     return false;
   }
   if (res != static_cast<ssize_t>(_length)) {
-    std::cerr << "Tried to read " << _length << " bytes, but " << res << " bytes were read." << std::endl;
+    std::cerr << "Tried to read " << _length << " bytes, but " << res << " bytes were read.\n";
     return false;
   }
 

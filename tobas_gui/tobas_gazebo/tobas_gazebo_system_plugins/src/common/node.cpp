@@ -28,12 +28,12 @@ BaseNode::~BaseNode()
 
 void BaseNode::initialize(const std::string& _name, const sdf::ElementConstPtr& _sdf)
 {
-  gzmsg << "Initializing '" << _name << "'." << std::endl;
+  gzmsg << "Initializing '" << _name << "'.\n";
 
   name_ = _name;
 
   if (!_sdf->Get<std::string>("robotNamespace", ns_, "/")) {
-    gzwarn << "[" << _name << "] Namespace is not specified." << std::endl;
+    gzwarn << "[" << _name << "] Namespace is not specified.\n";
   }
 
   if (!rclcpp::ok()) {
@@ -72,22 +72,22 @@ void BaseNode::gazeboLog(uint8_t _level, const std::string& _text) const
 {
   switch (_level) {
     case tobas_msgs::msg::Message::LEVEL_DEBUG:
-      tbsdbg << _text << std::endl;
+      tbsdbg << _text << '\n';
       break;
     case tobas_msgs::msg::Message::LEVEL_INFO:
-      tbsmsg << _text << std::endl;
+      tbsmsg << _text << '\n';
       break;
     case tobas_msgs::msg::Message::LEVEL_WARN:
-      tbswarn << _text << std::endl;
+      tbswarn << _text << '\n';
       break;
     case tobas_msgs::msg::Message::LEVEL_ERROR:
-      tbserr << _text << std::endl;
+      tbserr << _text << '\n';
       break;
     case tobas_msgs::msg::Message::LEVEL_FATAL:
-      tbserr << _text << std::endl;
+      tbserr << _text << '\n';
       break;
     default:
-      tbserr << "Invalid log level: " << static_cast<int>(_level) << std::endl;
+      tbserr << "Invalid log level: " << static_cast<int>(_level) << '\n';
       break;
   }
 }

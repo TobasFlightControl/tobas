@@ -10,9 +10,9 @@ using namespace std;
 int main()
 {
   if (tobas::linux::isSuperUser()) {
-    cout << "Running with super privileges." << endl;
+    cout << "Running with super privileges.\n";
   }
   else {
-    cout << "Running with regular privileges." << endl;
+    cout << "Running with regular privileges.\n";
   }
 }

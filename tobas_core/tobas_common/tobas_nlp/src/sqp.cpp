@@ -90,11 +90,11 @@ std::expected<Eigen::VectorXd, std::string> SQP::solve()
     mu_ = qp_.getLagrangeMultipliersEq();
 
 #ifdef TRACE_SOLVER
-    std::cout << "Iteration: " << iter_ << std::endl;
-    std::cout << "x = " << x_.transpose() << std::endl;
-    std::cout << "lambda = " << lam_.transpose() << std::endl;
-    std::cout << "mu = " << mu_.transpose() << std::endl;
-    std::cout << "----------" << std::endl;
+    std::cout << "Iteration: " << iter_ << '\n';
+    std::cout << "x = " << x_.transpose() << '\n';
+    std::cout << "lambda = " << lam_.transpose() << '\n';
+    std::cout << "mu = " << mu_.transpose() << '\n';
+    std::cout << "----------\n";
 #endif
 
     // Termination check.

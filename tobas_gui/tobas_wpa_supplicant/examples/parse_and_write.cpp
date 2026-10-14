@@ -33,7 +33,7 @@ int main()
 
   const auto data = tobas::wpa::parseFromText(input_text);
   if (!data) {
-    std::cerr << data.error() << std::endl;
+    std::cerr << data.error() << '\n';
     return EXIT_FAILURE;
   }
 
@@ -43,6 +43,6 @@ int main()
     return EXIT_FAILURE;
   }
 
-  std::cout << "Configuration file is saved as '" << output_path << "'." << std::endl;
+  std::cout << "Configuration file is saved as '" << output_path << "'.\n";
   return EXIT_SUCCESS;
 }

@@ -23,16 +23,16 @@ bool testImu()
   tobas::stm::ISM330DLC imu;
 
   if (!imu.initialize("/dev/spidev0.0")) {
-    std::cerr << "Failed to initialize IMU." << std::endl;
+    std::cerr << "Failed to initialize IMU.\n";
     return false;
   }
 
   if (!imu.setAccelOutputDataRate(tobas::stm::ISM330DLC::odr_xl_t::ODR_XL_6664HZ)) {
-    std::cerr << "Failed to set accelerometer output data rate." << std::endl;
+    std::cerr << "Failed to set accelerometer output data rate.\n";
     return false;
   }
   if (!imu.setGyroOutputDataRate(tobas::stm::ISM330DLC::odr_g_t::ODR_G_6664HZ)) {
-    std::cerr << "Failed to set gyroscope output data rate." << std::endl;
+    std::cerr << "Failed to set gyroscope output data rate.\n";
     return false;
   }
 
@@ -43,19 +43,19 @@ bool testImu()
 
   for (int _ = 0; _ < 200; ++_) {
     if (!imu.readImu(ax, ay, az, gx, gy, gz)) {
-      std::cerr << "Failed to read IMU." << std::endl;
+      std::cerr << "Failed to read IMU.\n";
       return false;
     }
 
-    std::cout << "Accel [m/s^2]: " << ax << ", " << ay << ", " << az << std::endl;
-    std::cout << "Gyro [rad/s] : " << gx << ", " << gy << ", " << gz << std::endl;
+    std::cout << "Accel [m/s^2]: " << ax << ", " << ay << ", " << az << '\n';
+    std::cout << "Gyro [rad/s] : " << gx << ", " << gy << ", " << gz << '\n';
 
     if (std::hypot(ax, ay, az - tobas::st::kGravity) > 1.0) {
-      std::cerr << "Abnormal accel detected." << std::endl;
+      std::cerr << "Abnormal accel detected.\n";
       return false;
     }
     if (std::hypot(gx, gy, gz) > 0.3) {
-      std::cerr << "Abnormal gyro detected." << std::endl;
+      std::cerr << "Abnormal gyro detected.\n";
       return false;
     }
 
@@ -70,7 +70,7 @@ bool testMagnetometer()
   tobas::stm::IIS2MDC mag;
 
   if (!mag.initialize("/dev/i2c-1")) {
-    std::cerr << "Failed to initialize magnetometer." << std::endl;
+    std::cerr << "Failed to initialize magnetometer.\n";
     return false;
   }
 
@@ -81,14 +81,14 @@ bool testMagnetometer()
 
   for (int _ = 0; _ < 50; ++_) {
     if (!mag.readMag(mx, my, mz)) {
-      std::cerr << "Failed to read magnetic field." << std::endl;
+      std::cerr << "Failed to read magnetic field.\n";
       return false;
     }
 
-    std::cout << "Magnetic Field [gauss]: " << mx << ", " << my << ", " << mz << std::endl;
+    std::cout << "Magnetic Field [gauss]: " << mx << ", " << my << ", " << mz << '\n';
 
     if (std::hypot(mx, my, mz) > 1.5) {  // Allow up to 3 times the standard magnetic field strength (~0.5).
-      std::cerr << "Abnormal magnetic field detected." << std::endl;
+      std::cerr << "Abnormal magnetic field detected.\n";
       return false;
     }
 
@@ -103,7 +103,7 @@ bool testBarometer()
   tobas::stm::ILPS22QS baro;
 
   if (!baro.initialize("/dev/i2c-1")) {
-    std::cerr << "Failed to initialize barometer." << std::endl;
+    std::cerr << "Failed to initialize barometer.\n";
     return false;
   }
 
@@ -114,25 +114,25 @@ bool testBarometer()
 
   for (int _ = 0; _ < 50; ++_) {
     if (!baro.readPressure(pres)) {
-      std::cerr << "Failed to read pressure." << std::endl;
+      std::cerr << "Failed to read pressure.\n";
       return false;
     }
     if (!baro.readTemperature(temp)) {
-      std::cerr << "Failed to read temperature." << std::endl;
+      std::cerr << "Failed to read temperature.\n";
       return false;
     }
 
     const auto pres_hpa = pres / 100.0;
 
-    std::cout << "Pressure [hPa]    : " << pres_hpa << std::endl;
-    std::cout << "Temperature [degC]: " << temp << std::endl;
+    std::cout << "Pressure [hPa]    : " << pres_hpa << '\n';
+    std::cout << "Temperature [degC]: " << temp << '\n';
 
     if (pres_hpa < 900.0 || 1100.0 < pres_hpa) {
-      std::cerr << "Abnormal air pressure detected." << std::endl;
+      std::cerr << "Abnormal air pressure detected.\n";
       return false;
     }
     if (temp < 0.0 || 80.0 < temp) {
-      std::cerr << "Abnormal temperature detected." << std::endl;
+      std::cerr << "Abnormal temperature detected.\n";
       return false;
     }
 
@@ -147,7 +147,7 @@ bool testPowerSensor()
   tobas::fc1xx::Battery batt;
 
   if (!batt.initialize()) {
-    std::cerr << "Failed to initialize ADC." << std::endl;
+    std::cerr << "Failed to initialize ADC.\n";
     return EXIT_FAILURE;
   }
 
@@ -158,19 +158,19 @@ bool testPowerSensor()
 
   for (int _ = 0; _ < 100; ++_) {
     if (!batt.read(volt, curr)) {
-      std::cerr << "Failed to read battery status." << std::endl;
+      std::cerr << "Failed to read battery status.\n";
       return EXIT_FAILURE;
     }
 
-    std::cout << "Voltage [V]: " << volt << std::endl;
-    std::cout << "Current [A]: " << curr << std::endl;
+    std::cout << "Voltage [V]: " << volt << '\n';
+    std::cout << "Current [A]: " << curr << '\n';
 
     if (volt < 5.0 || 50.0 < volt) {
-      std::cerr << "Abnormal voltage detected." << std::endl;
+      std::cerr << "Abnormal voltage detected.\n";
       return false;
     }
     if (curr <= 0.0 || 10.0 < curr) {
-      std::cerr << "Abnormal current detected." << std::endl;
+      std::cerr << "Abnormal current detected.\n";
       return false;
     }
 
@@ -185,32 +185,32 @@ bool testGnssReceiver()
   tobas::ublox::ZEDF9P gnss(std::make_unique<tobas::ublox::UbxTransportSpi>("/dev/spidev1.2"));
 
   if (!gnss.initialize()) {
-    std::cerr << "Failed to initialize GNSS driver." << std::endl;
+    std::cerr << "Failed to initialize GNSS driver.\n";
     return false;
   }
 
   if (!gnss.configureMeasurementRate(1000)) {
-    std::cerr << "Failed to configure measurement rate." << std::endl;
+    std::cerr << "Failed to configure measurement rate.\n";
     return false;
   }
 
   // Enable GNSS.
   if (!gnss.enableGps()) {
-    std::cerr << "Failed to enable GPS." << std::endl;
+    std::cerr << "Failed to enable GPS.\n";
     return false;
   }
   if (!gnss.enableSbas()) {
-    std::cerr << "Failed to enable SBAS." << std::endl;
+    std::cerr << "Failed to enable SBAS.\n";
     return false;
   }
   if (!gnss.enableQzss()) {
-    std::cerr << "Failed to enable QZSS." << std::endl;
+    std::cerr << "Failed to enable QZSS.\n";
     return false;
   }
 
   // Enable messages.
   if (!gnss.enableSpiMessage(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_PVT, true)) {
-    std::cerr << "Failed to enable NAV_PVT message." << std::endl;
+    std::cerr << "Failed to enable NAV_PVT message.\n";
     return false;
   }
 
@@ -218,7 +218,7 @@ bool testGnssReceiver()
 
   while (ch::steady_clock::now() - start_time < 3s) {
     if (!gnss.update(true)) {
-      std::cerr << "Failed to receive a GNSS message." << std::endl;
+      std::cerr << "Failed to receive a GNSS message.\n";
       return false;
     }
 
@@ -234,7 +234,7 @@ bool testGnssReceiver()
     }
   }
 
-  std::cerr << "Timeout before receiving the first GPS message." << std::endl;
+  std::cerr << "Timeout before receiving the first GPS message.\n";
   return false;
 }
 
@@ -245,7 +245,7 @@ bool testSbus()
   tobas::SBUS sbus([&sbus_received](const tobas::SBUS::Packet&) { sbus_received = true; });
 
   if (!sbus.initialize("/dev/ttyAMA0")) {
-    std::cerr << "Failed to initialize S.BUS driver." << std::endl;
+    std::cerr << "Failed to initialize S.BUS driver.\n";
     return false;
   }
 
@@ -259,60 +259,60 @@ bool testSbus()
     std::this_thread::sleep_for(10ms);
   }
 
-  std::cerr << "Timeout before the first S.BUS package." << std::endl;
+  std::cerr << "Timeout before the first S.BUS package.\n";
   return false;
 }
 
 int main()
 {
   // IMU
-  std::cout << "Testing IMU..." << std::endl;
+  std::cout << "Testing IMU...\n";
   if (!testImu()) {
-    std::cerr << "IMU test failed." << std::endl;
+    std::cerr << "IMU test failed.\n";
     return EXIT_FAILURE;
   }
-  std::cout << "IMU test passed." << std::endl;
+  std::cout << "IMU test passed.\n";
 
   // Magnetometer
-  std::cout << "Testing magnetometer..." << std::endl;
+  std::cout << "Testing magnetometer...\n";
   if (!testMagnetometer()) {
-    std::cerr << "Magnetometer test failed." << std::endl;
+    std::cerr << "Magnetometer test failed.\n";
     return EXIT_FAILURE;
   }
-  std::cout << "Magnetometer test passed." << std::endl;
+  std::cout << "Magnetometer test passed.\n";
 
   // Barometer
-  std::cout << "Testing baro..." << std::endl;
+  std::cout << "Testing baro...\n";
   if (!testBarometer()) {
-    std::cerr << "Barometer test failed." << std::endl;
+    std::cerr << "Barometer test failed.\n";
     return EXIT_FAILURE;
   }
-  std::cout << "Barometer test passed." << std::endl;
+  std::cout << "Barometer test passed.\n";
 
   // Power sensor
-  std::cout << "Testing power sensor..." << std::endl;
+  std::cout << "Testing power sensor...\n";
   if (!testPowerSensor()) {
-    std::cerr << "Power sensor test failed." << std::endl;
+    std::cerr << "Power sensor test failed.\n";
     return EXIT_FAILURE;
   }
-  std::cout << "Power sensor test passed." << std::endl;
+  std::cout << "Power sensor test passed.\n";
 
   // GNSS Receiver
-  std::cout << "Testing GNSS receiver..." << std::endl;
+  std::cout << "Testing GNSS receiver...\n";
   if (!testGnssReceiver()) {
-    std::cerr << "GNSS receiver test failed." << std::endl;
+    std::cerr << "GNSS receiver test failed.\n";
     return EXIT_FAILURE;
   }
-  std::cout << "GNSS receiver test passed." << std::endl;
+  std::cout << "GNSS receiver test passed.\n";
 
   // S.BUS
-  std::cout << "Testing S.BUS..." << std::endl;
+  std::cout << "Testing S.BUS...\n";
   if (!testSbus()) {
-    std::cerr << "S.BUS test failed." << std::endl;
+    std::cerr << "S.BUS test failed.\n";
     return EXIT_FAILURE;
   }
-  std::cout << "S.BUS test passed." << std::endl;
+  std::cout << "S.BUS test passed.\n";
 
-  std::cout << tobas::st::kGreenPrefix << "All tests passed." << tobas::st::kColorReset << std::endl;
+  std::cout << tobas::st::kGreenPrefix << "All tests passed." << tobas::st::kColorReset << '\n';
   return EXIT_SUCCESS;
 }

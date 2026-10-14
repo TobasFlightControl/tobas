@@ -15,7 +15,7 @@ template <typename T>
 bool getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name, T& _param)
 {
   if (!_sdf->HasElement(_name)) {
-    gzerr << "Please specify '" << _name << "'." << std::endl;
+    gzerr << "Please specify '" << _name << "'.\n";
     return false;
   }
 
@@ -27,8 +27,7 @@ template <typename T>
 void getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name, T& _param, const T& _dflt)
 {
   if (!_sdf->Get(_name, _param, _dflt)) {
-    gzwarn << "SDF parameter '" << _name << "' is not specified. The default value '" << _dflt << "' is used."
-           << std::endl;
+    gzwarn << "SDF parameter '" << _name << "' is not specified. The default value '" << _dflt << "' is used.\n";
   }
 }
 
@@ -58,7 +57,7 @@ bool getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name, gz:
   std::istringstream iss(str);
   T x, y, z, w;
   if (!(iss >> x >> y >> z >> w)) {
-    gzerr << "Invalid vec4: " << str << std::endl;
+    gzerr << "Invalid vec4: " << str << '\n';
     return false;
   }
 

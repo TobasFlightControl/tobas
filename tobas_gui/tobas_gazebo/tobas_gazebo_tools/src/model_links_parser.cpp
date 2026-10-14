@@ -23,7 +23,7 @@ ModelLinksParser::ModelLinksParser()
 bool ModelLinksParser::initialize(const gz::sim::Entity& _model, const gz::sim::EntityComponentManager& _ecm)
 {
   if (!_ecm.Component<cmp::Model>(_model)) {
-    ignerr << "Model does not exist." << std::endl;
+    ignerr << "Model does not exist.\n";
     return false;
   }
 

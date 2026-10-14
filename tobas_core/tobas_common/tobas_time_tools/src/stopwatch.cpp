@@ -34,7 +34,7 @@ uint64_t Stopwatch::stop()
 
   if (++count_ == samples_) {
     const auto mean_duration = sum_duration_ / samples_;
-    std::cout << "The average duration of " << count_ << " measurements [us]: " << mean_duration << std::endl;
+    std::cout << "The average duration of " << count_ << " measurements [us]: " << mean_duration << '\n';
     count_ = 0;
     sum_duration_ = 0;
   }

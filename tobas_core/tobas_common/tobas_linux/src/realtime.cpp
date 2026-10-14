@@ -22,7 +22,7 @@ bool setThreadPriority(pthread_t _thread, size_t _priority, sched_t _policy)
   param.sched_priority = _priority;
 
   if (pthread_setschedparam(_thread, _policy, &param) != 0) {
-    std::cerr << "Failed to set scheduling policy: " << st::strError() << std::endl;
+    std::cerr << "Failed to set scheduling policy: " << st::strError() << '\n';
     return false;
   }
 
@@ -36,7 +36,7 @@ bool setProcessPriority(pid_t _pid, size_t _priority, sched_t _policy)
   param.sched_priority = _priority;
 
   if (sched_setscheduler(_pid, _policy, &param) != 0) {
-    std::cerr << "Failed to set scheduling policy: " << st::strError() << std::endl;
+    std::cerr << "Failed to set scheduling policy: " << st::strError() << '\n';
     return false;
   }
 
@@ -62,7 +62,7 @@ bool setThreadCPUAffinity(pthread_t _thread, uint32_t _cpu_bit_mask)
   }
 
   if (pthread_setaffinity_np(_thread, sizeof(set), &set) != 0) {
-    std::cerr << "Failed to set CPU affinity: " << st::strError() << std::endl;
+    std::cerr << "Failed to set CPU affinity: " << st::strError() << '\n';
     return false;
   }
 
@@ -83,7 +83,7 @@ bool setProcessCPUAffinity(pid_t _pid, uint32_t _cpu_bit_mask)
   }
 
   if (sched_setaffinity(_pid, sizeof(set), &set) != 0) {
-    std::cerr << "Failed to set CPU affinity: " << st::strError() << std::endl;
+    std::cerr << "Failed to set CPU affinity: " << st::strError() << '\n';
     return false;
   }
 

@@ -11,7 +11,7 @@ using namespace std;
 int main(int _argc, char** _argv)
 {
   if (_argc != 4) {
-    cerr << "Usage: " << _argv[0] << " a b c -> Solve: a x^2 + b x + c = 0" << endl;
+    cerr << "Usage: " << _argv[0] << " a b c -> Solve: a x^2 + b x + c = 0\n";
     return EXIT_FAILURE;
   }
   const auto a = stod(_argv[1]);
@@ -19,5 +19,5 @@ int main(int _argc, char** _argv)
   const auto c = stod(_argv[3]);
 
   const auto [x1, x2] = tobas::math::solveQuadraticEquation(a, b, c);
-  cout << a << " x^2 + " << b << " x + " << c << " = 0 <=> x = " << x1 << ", " << x2 << endl;
+  cout << a << " x^2 + " << b << " x + " << c << " = 0 <=> x = " << x1 << ", " << x2 << '\n';
 }

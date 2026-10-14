@@ -58,7 +58,7 @@ void TobasRenderInfo::onRender()
   }
 
   if (now <= t_last_tick_) {
-    gzwarn << "The steady clock is not advancing." << std::endl;
+    gzwarn << "The steady clock is not advancing.\n";
     return;
   }
 

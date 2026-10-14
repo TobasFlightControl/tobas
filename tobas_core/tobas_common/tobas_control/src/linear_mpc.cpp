@@ -128,8 +128,8 @@ std::expected<Eigen::VectorXd, std::string> LinearMPC::solve()
 
 std::ostream& operator<<(std::ostream& _os, const LinearMPC& _arg)
 {
-  _os << "QuadProgSolver:" << std::endl;
-  _os << _arg.qpsolver_ << std::endl;
+  _os << "QuadProgSolver:\n";
+  _os << _arg.qpsolver_ << '\n';
 
   return _os;
 }

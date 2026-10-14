@@ -119,8 +119,11 @@ int main(int _argc, char** _argv)
                                       "Up/Down   : Move in the positive/negative direction along Z-axis in WCSs\n"
                                       "Left/Right: Turn left/right along Z-axis in WCSs\n"
                                       "Ctrl-C    : Quit\n";
-  std::cout << kInstructionText << std::endl;
-  const auto instruction_timer = node->create_timer(10s, [&]() { std::cout << kInstructionText << std::endl; });
+  // Display instructions immediately before handling keyboard input.
+  std::cout << kInstructionText << '\n' << std::flush;
+  const auto instruction_timer =
+    node->create_timer(10s, [&]() { std::cout << kInstructionText << '\n'
+                                              << std::flush; });
 
   while (rclcpp::ok()) {
     // Update command based on keyboard input.

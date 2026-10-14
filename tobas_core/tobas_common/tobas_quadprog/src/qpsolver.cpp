@@ -63,12 +63,12 @@ bool QuadProgProblem::isFinite() const
 
 std::ostream& operator<<(std::ostream& _os, const QuadProgProblem& _arg)
 {
-  _os << "P:\n" << _arg.P << std::endl;
-  _os << "q:\n" << _arg.q << std::endl;
-  _os << "G:\n" << _arg.G << std::endl;
-  _os << "h:\n" << _arg.h << std::endl;
-  _os << "A:\n" << _arg.A << std::endl;
-  _os << "b:\n" << _arg.b << std::endl;
+  _os << "P:\n" << _arg.P << '\n';
+  _os << "q:\n" << _arg.q << '\n';
+  _os << "G:\n" << _arg.G << '\n';
+  _os << "h:\n" << _arg.h << '\n';
+  _os << "A:\n" << _arg.A << '\n';
+  _os << "b:\n" << _arg.b << '\n';
   return _os;
 }
 
@@ -90,8 +90,8 @@ void QuadProgSolver::setZero()
 
 std::ostream& operator<<(std::ostream& _os, const QuadProgSolver& _arg)
 {
-  _os << "problem:\n" << _arg.problem << std::endl;
-  _os << "x_scale:\n" << _arg.x_scale.transpose() << std::endl;
+  _os << "problem:\n" << _arg.problem << '\n';
+  _os << "x_scale:\n" << _arg.x_scale.transpose() << '\n';
   return _os;
 }
 

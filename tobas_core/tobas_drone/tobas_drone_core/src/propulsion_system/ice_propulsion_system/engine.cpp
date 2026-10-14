@@ -88,7 +88,7 @@ double EngineConfig::computeThrottle(double _torque, double _speed)
 
 std::ostream& operator<<(std::ostream& _os, const EngineConfig& _arg)
 {
-  _os << "Engine Constant: " << _arg.engine_const.first << ", " << _arg.engine_const.second << std::endl;
+  _os << "Engine Constant: " << _arg.engine_const.first << ", " << _arg.engine_const.second << '\n';
   return _os;
 }
 }  // namespace tobas

@@ -26,7 +26,7 @@ std::vector<std::string> readLines(const std::string& _path)
 {
   std::ifstream ifs(_path);
   if (!ifs) {
-    std::cerr << "Failed to open " << _path << ": " << st::strError() << std::endl;
+    std::cerr << "Failed to open " << _path << ": " << st::strError() << '\n';
     return {};
   }
 
@@ -78,7 +78,7 @@ bool atomicOverwrite(const std::string& _path, const std::string& _content)
   // Save existing metadata.
   struct stat st;
   if (stat(_path.c_str(), &st) < 0) {
-    std::cerr << "stat failed on " + _path + ": " << st::strError() << std::endl;
+    std::cerr << "stat failed on " + _path + ": " << st::strError() << '\n';
     return false;
   }
 
@@ -90,18 +90,18 @@ bool atomicOverwrite(const std::string& _path, const std::string& _content)
 
   auto fd = ::mkstemp(tmpc.data());
   if (fd < 0) {
-    std::cerr << "mkstemp failed: " << st::strError() << std::endl;
+    std::cerr << "mkstemp failed: " << st::strError() << '\n';
     return false;
   }
   tmp.assign(tmpc.data());
 
   // Match permissions and owner, overwriting with 0640 for safety.
   if (fchmod(fd, st.st_mode & 0640 ? st.st_mode : 0640) < 0) {
-    std::cerr << "Failed to change mode." << std::endl;
+    std::cerr << "Failed to change mode.\n";
     return false;
   }
   if (fchown(fd, st.st_uid, st.st_gid) < 0) {
-    std::cerr << "Failed to change owner." << std::endl;
+    std::cerr << "Failed to change owner.\n";
     return false;
   }
 
@@ -110,14 +110,14 @@ bool atomicOverwrite(const std::string& _path, const std::string& _content)
   if (wr != static_cast<ssize_t>(_content.size())) {
     ::close(fd);
     ::unlink(tmp.c_str());
-    std::cerr << "write failed" << std::endl;
+    std::cerr << "write failed\n";
     return false;
   }
 
   // Append a newline if missing.
   if (_content.empty() || _content.back() != '\n') {
     if (::write(fd, "\n", 1) != 1) {
-      std::cerr << "write failed: " << st::strError() << std::endl;
+      std::cerr << "write failed: " << st::strError() << '\n';
       return false;
     }
   }
@@ -126,7 +126,7 @@ bool atomicOverwrite(const std::string& _path, const std::string& _content)
   if (::fsync(fd) < 0) {
     ::close(fd);
     ::unlink(tmp.c_str());
-    std::cerr << "fsync failed" << std::endl;
+    std::cerr << "fsync failed\n";
     return false;
   }
   ::close(fd);
@@ -134,7 +134,7 @@ bool atomicOverwrite(const std::string& _path, const std::string& _content)
   // Replace atomically.
   if (::rename(tmp.c_str(), _path.c_str()) < 0) {
     ::unlink(tmp.c_str());
-    std::cerr << "rename failed: " << st::strError() << std::endl;
+    std::cerr << "rename failed: " << st::strError() << '\n';
     return false;
   }
 
@@ -156,7 +156,7 @@ bool setShadowPassword(
   // Generate hash.
   const auto hash = _crypt.crypt(_new_password);
   if (!hash) {
-    std::cerr << "Failed to generate hash: " << hash.error() << std::endl;
+    std::cerr << "Failed to generate hash: " << hash.error() << '\n';
     return false;
   }
 
@@ -192,7 +192,7 @@ bool setShadowPassword(
   }
 
   if (!found) {
-    std::cerr << "user not found in shadow: " << _username << std::endl;
+    std::cerr << "user not found in shadow: " << _username << '\n';
     return false;
   }
 
@@ -201,7 +201,7 @@ bool setShadowPassword(
   for (size_t i = 0; i < lines.size(); ++i) {
     out << lines[i];
     if (i + 1 < lines.size()) {
-      out << std::endl;
+      out << '\n';
     }
   }
 

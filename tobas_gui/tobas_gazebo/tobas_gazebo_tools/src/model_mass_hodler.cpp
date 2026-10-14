@@ -16,7 +16,7 @@ ModelMassHolder::ModelMassHolder()
 bool ModelMassHolder::initialize(const gz::sim::Entity& _model, const gz::sim::EntityComponentManager& _ecm)
 {
   if (!model_links_parser_.initialize(_model, _ecm)) {
-    gzerr << "Failed to initialize model links parser." << std::endl;
+    gzerr << "Failed to initialize model links parser.\n";
     return false;
   }
 

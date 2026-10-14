@@ -58,12 +58,12 @@ bool ILPS22QS::checkWhoAmI()
   uint8_t byte;
 
   if (!i2c_.readByte(WHO_AM_I_REG, byte)) {
-    std::cerr << "Failed to read WHO_AM_I data." << std::endl;
+    std::cerr << "Failed to read WHO_AM_I data.\n";
     return false;
   }
 
   if (byte != WHO_AM_I) {
-    std::cerr << "Barometer is not recognized." << std::endl;
+    std::cerr << "Barometer is not recognized.\n";
     return false;
   }
 
@@ -75,17 +75,17 @@ bool ILPS22QS::configure()
   constexpr auto fs_mode = FS_MODE_1260HPA;
 
   if (!i2c_.writeByte(CTRL_REG1, ODR_100HZ | AVG_32, true)) {
-    std::cerr << "Failed to write to CTRL_REG1." << std::endl;
+    std::cerr << "Failed to write to CTRL_REG1.\n";
     return false;
   }
 
   if (!i2c_.writeByte(CTRL_REG2, fs_mode | LPF_CFG_4 | ENABLE_LPF | BLOCK_DATA_UPDATE, true)) {
-    std::cerr << "Failed to write to CTRL_REG2." << std::endl;
+    std::cerr << "Failed to write to CTRL_REG2.\n";
     return false;
   }
 
   if (!i2c_.writeByte(CTRL_REG3, IF_ADD_INC, true)) {
-    std::cerr << "Failed to write to CTRL_REG3." << std::endl;
+    std::cerr << "Failed to write to CTRL_REG3.\n";
     return false;
   }
 

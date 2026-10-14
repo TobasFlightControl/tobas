@@ -11,7 +11,7 @@ using namespace std;
 int main(int _argc, char** _argv)
 {
   if (_argc != 5) {
-    cerr << "Usage: " << _argv[0] << " a b c d -> Solve: a x^3 + b x^2 + c x + d = 0" << endl;
+    cerr << "Usage: " << _argv[0] << " a b c d -> Solve: a x^3 + b x^2 + c x + d = 0\n";
     return EXIT_FAILURE;
   }
   const auto a = stod(_argv[1]);
@@ -21,5 +21,5 @@ int main(int _argc, char** _argv)
 
   const auto [x1, x2, x3] = tobas::math::solveCubicEquation(a, b, c, d);
   cout << a << " x^3 + " << b << " x^2 + " << c << " x + " << d << " = 0 <=> x = " << x1 << ", " << x2 << ", " << x3
-       << endl;
+       << '\n';
 }

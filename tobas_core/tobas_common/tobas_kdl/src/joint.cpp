@@ -32,15 +32,15 @@ const char* Joint::typeToText(JointType _type)
 
 std::ostream& operator<<(std::ostream& _os, const Joint& _arg)
 {
-  _os << "Name: " << _arg.name << std::endl;
-  _os << "Type: " << Joint::typeToText(_arg.type) << std::endl;
-  _os << "Origin: " << _arg.origin << std::endl;
-  _os << "Axis: " << _arg.axis() << std::endl;
-  _os << "Damping: " << _arg.damping << std::endl;
-  _os << "Friction: " << _arg.friction << std::endl;
-  _os << "Lower Limit: " << _arg.lower_limit << std::endl;
-  _os << "Upper Limit: " << _arg.upper_limit << std::endl;
-  _os << "Max Effort: " << _arg.max_effort << std::endl;
+  _os << "Name: " << _arg.name << '\n';
+  _os << "Type: " << Joint::typeToText(_arg.type) << '\n';
+  _os << "Origin: " << _arg.origin << '\n';
+  _os << "Axis: " << _arg.axis() << '\n';
+  _os << "Damping: " << _arg.damping << '\n';
+  _os << "Friction: " << _arg.friction << '\n';
+  _os << "Lower Limit: " << _arg.lower_limit << '\n';
+  _os << "Upper Limit: " << _arg.upper_limit << '\n';
+  _os << "Max Effort: " << _arg.max_effort << '\n';
   _os << "Max Velocity: " << _arg.max_velocity;
   return _os;
 }

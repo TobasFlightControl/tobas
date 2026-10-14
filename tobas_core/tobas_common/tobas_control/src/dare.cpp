@@ -55,7 +55,7 @@ std::expected<Eigen::MatrixXd, std::string> dare(
     }
   }
 
-  std::cout << "DARE has successfully converged in " << iter << " iterations." << std::endl;
+  std::cout << "DARE has successfully converged in " << iter << " iterations.\n";
   return X_next;
 }
 }  // namespace ctrl

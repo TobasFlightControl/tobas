@@ -127,11 +127,11 @@ void LQD::checkProblemValidity()
 
 std::ostream& operator<<(std::ostream& _os, const LQD& _arg)
 {
-  _os << "Dynamics:\n" << _arg.dynamics << std::endl;
-  _os << "Current state:\n" << _arg.current_state << std::endl;
-  _os << "Target state:\n" << _arg.target_state << std::endl;
-  _os << "State error:\n" << _arg.target_state - _arg.current_state << std::endl;
-  _os << "Gain:\n" << _arg.K_ << std::endl;
+  _os << "Dynamics:\n" << _arg.dynamics << '\n';
+  _os << "Current state:\n" << _arg.current_state << '\n';
+  _os << "Target state:\n" << _arg.target_state << '\n';
+  _os << "State error:\n" << _arg.target_state - _arg.current_state << '\n';
+  _os << "Gain:\n" << _arg.K_ << '\n';
 
   return _os;
 }

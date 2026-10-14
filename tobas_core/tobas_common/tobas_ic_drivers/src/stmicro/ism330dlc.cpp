@@ -87,7 +87,7 @@ bool ISM330DLC::setAccelOutputDataRate(odr_xl_t _odr)
       ctrl1_xl |= ODR_XL_6664HZ;
       break;
     default:
-      std::cerr << "Invalid accelerometer output data rate type: " << (int)_odr << std::endl;
+      std::cerr << "Invalid accelerometer output data rate type: " << (int)_odr << '\n';
       return false;
   }
 
@@ -136,7 +136,7 @@ bool ISM330DLC::setGyroOutputDataRate(odr_g_t _odr)
       ctrl2_g |= ODR_G_6664HZ;
       break;
     default:
-      std::cerr << "Invalid gyroscope output data rate type: " << (int)_odr << std::endl;
+      std::cerr << "Invalid gyroscope output data rate type: " << (int)_odr << '\n';
       return false;
   }
 
@@ -174,7 +174,7 @@ bool ISM330DLC::setAccelFullScale(fs_xl_t _fs)
       acc_scale_ = 0.488;
       break;
     default:
-      std::cerr << "Invalid accelerometer full scale type: " << (int)_fs << std::endl;
+      std::cerr << "Invalid accelerometer full scale type: " << (int)_fs << '\n';
       return false;
   }
 
@@ -220,7 +220,7 @@ bool ISM330DLC::setGyroFullScale(fs_g_t _fs)
       gyro_scale_ = 70.0;
       break;
     default:
-      std::cerr << "Invalid gyroscope full scale type: " << (int)_fs << std::endl;
+      std::cerr << "Invalid gyroscope full scale type: " << (int)_fs << '\n';
       return false;
   }
 
@@ -280,7 +280,7 @@ bool ISM330DLC::checkWhoAmI()
   }
 
   if (res_[0] != WHO_AM_I) {
-    std::cerr << "IMU is not recognized." << std::endl;
+    std::cerr << "IMU is not recognized.\n";
     return false;
   }
 

@@ -19,7 +19,7 @@ int main(int _argc, char** _argv)
   // Force X11.
   tobas::gui::cmn::NonRosArgumentParser arg_parser(_argc, _argv);
   if (!arg_parser.setPlatformXcb()) {
-    std::cerr << "Failed to set display platform." << std::endl;
+    std::cerr << "Failed to set display platform.\n";
     return EXIT_FAILURE;
   }
 

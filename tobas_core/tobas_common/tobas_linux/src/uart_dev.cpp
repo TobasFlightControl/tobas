@@ -85,7 +85,7 @@ bool UARTdev::initialize(const char* _uart_dev, bool _block_mode)
   }
   uart_fd_ = open(_uart_dev, oflag);
   if (uart_fd_ < 0) {
-    std::cerr << "Failed to open UART device '" << _uart_dev << "': " << st::strError() << std::endl;
+    std::cerr << "Failed to open UART device '" << _uart_dev << "': " << st::strError() << '\n';
     return false;
   }
 
@@ -129,7 +129,7 @@ bool UARTdev::initialize(const char* _uart_dev, bool _block_mode)
 
   // Reset input buffer.
   if (tcflush(uart_fd_, TCIFLUSH) != 0) {
-    std::cerr << "Failed to reset input buffer: " << st::strError() << std::endl;
+    std::cerr << "Failed to reset input buffer: " << st::strError() << '\n';
     return false;
   }
 
@@ -163,7 +163,7 @@ bool UARTdev::setDataBits(uint8_t _data_bits)
       flag = CS8;
       break;
     default:
-      std::cerr << "Invalid data bit size." << std::endl;
+      std::cerr << "Invalid data bit size.\n";
       return false;
   }
 
@@ -194,7 +194,7 @@ bool UARTdev::enableParity(ParityMode _mode)
       options_.c_cflag &= ~PARODD;
       break;
     default:
-      std::cerr << "Invalid parity mode." << std::endl;
+      std::cerr << "Invalid parity mode.\n";
       return false;
   }
 
@@ -229,7 +229,7 @@ bool UARTdev::disableHungupClose()
 bool UARTdev::setTimeout(cc_t _msec_100)
 {
   if (!block_mode_ && _msec_100 > 0) {
-    std::cerr << "The timeout configuration is disabled in non-blocking mode." << std::endl;
+    std::cerr << "The timeout configuration is disabled in non-blocking mode.\n";
     return false;
   }
   options_.c_cc[VTIME] = _msec_100;  // FIXME: Not reflected
@@ -239,7 +239,7 @@ bool UARTdev::setTimeout(cc_t _msec_100)
 bool UARTdev::setMinimumChars(uint8_t _num)
 {
   if (!block_mode_ && _num > 0) {
-    std::cerr << "The minimum number of characters configuration is disabled in non-blocking mode." << std::endl;
+    std::cerr << "The minimum number of characters configuration is disabled in non-blocking mode.\n";
     return false;
   }
   options_.c_cc[VMIN] = _num;
@@ -250,11 +250,11 @@ bool UARTdev::send(const uint8_t* _data, size_t _length)
 {
   const auto res = ::write(uart_fd_, _data, _length);
   if (res < 0) {
-    std::cerr << "UART TX failed: " << st::strError() << std::endl;
+    std::cerr << "UART TX failed: " << st::strError() << '\n';
     return false;
   }
   if (res != static_cast<ssize_t>(_length)) {
-    std::cerr << "Tried to transmit " << _length << " bytes, but " << res << " bytes were transmitted." << std::endl;
+    std::cerr << "Tried to transmit " << _length << " bytes, but " << res << " bytes were transmitted.\n";
     return false;
   }
 
@@ -265,11 +265,11 @@ bool UARTdev::receive(uint8_t* _data, size_t _length)
 {
   const auto res = ::read(uart_fd_, _data, _length);
   if (res < 0) {
-    std::cerr << "UART RX failed: " << st::strError() << std::endl;
+    std::cerr << "UART RX failed: " << st::strError() << '\n';
     return false;
   }
   if (res != static_cast<ssize_t>(_length)) {
-    std::cerr << "Tried to receive " << _length << " bytes, but " << res << " bytes were received." << std::endl;
+    std::cerr << "Tried to receive " << _length << " bytes, but " << res << " bytes were received.\n";
     return false;
   }
 
@@ -290,7 +290,7 @@ std::optional<uint8_t> UARTdev::receiveByte()
 bool UARTdev::getConfig()
 {
   if (tcgetattr(uart_fd_, &options_) != 0) {
-    std::cerr << "Failed to get serial port settings." << std::endl;
+    std::cerr << "Failed to get serial port settings.\n";
     return false;
   }
   return true;
@@ -299,7 +299,7 @@ bool UARTdev::getConfig()
 bool UARTdev::setConfig()
 {
   if (tcsetattr(uart_fd_, TCSANOW, &options_) != 0) {
-    std::cerr << "Failed to set serial port settings." << std::endl;
+    std::cerr << "Failed to set serial port settings.\n";
     return false;
   }
 

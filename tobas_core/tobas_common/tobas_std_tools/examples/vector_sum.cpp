@@ -13,6 +13,6 @@ int main()
     vector<float> values(n, 1.0);
     const auto naive_sum = tobas::st::sum(values);
     const auto kahan_sum = tobas::st::fsum(values);
-    cout << "n = " << n << "\t: Naive Summation = " << naive_sum << ", Kahan Summation = " << kahan_sum << endl;
+    cout << "n = " << n << "\t: Naive Summation = " << naive_sum << ", Kahan Summation = " << kahan_sum << '\n';
   }
 }

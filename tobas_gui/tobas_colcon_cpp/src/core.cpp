@@ -73,7 +73,7 @@ std::expected<void, std::string> build(const fs::path& _pkg_path, const fs::path
   }
 
   // Build the Tobas project packages.
-  std::cout << "Executing '" << build_cmd << "' on " << *exec_path << "." << std::endl;
+  std::cout << "Executing '" << build_cmd << "' on " << *exec_path << ".\n" << std::flush;
   if (const auto result = linux::executeCommand(build_cmd); !result) {
     return std::unexpected("Failed to build '" + *pkg_name + "':\n" + result.error());
   }

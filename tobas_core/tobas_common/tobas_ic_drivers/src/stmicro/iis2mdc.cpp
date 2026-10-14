@@ -16,17 +16,17 @@ IIS2MDC::IIS2MDC()
 bool IIS2MDC::initialize(const char* _i2c_device)
 {
   if (!i2c_.initialize(_i2c_device, 0b0011110)) {
-    std::cerr << "Failed to initialize I2C device." << std::endl;
+    std::cerr << "Failed to initialize I2C device.\n";
     return false;
   }
 
   if (!checkWhoAmI()) {
-    std::cerr << "Who-Am-I check failed." << std::endl;
+    std::cerr << "Who-Am-I check failed.\n";
     return false;
   }
 
   if (!configure()) {
-    std::cerr << "Failed to configure magnetometer." << std::endl;
+    std::cerr << "Failed to configure magnetometer.\n";
     return false;
   }
 
@@ -53,12 +53,12 @@ bool IIS2MDC::checkWhoAmI()
   uint8_t byte;
 
   if (!i2c_.readByte(WHO_AM_I_REG, byte)) {
-    std::cerr << "Failed to read WHO_AM_I data." << std::endl;
+    std::cerr << "Failed to read WHO_AM_I data.\n";
     return false;
   }
 
   if (byte != WHO_AM_I) {
-    std::cerr << "Magnetometer is not recognized." << std::endl;
+    std::cerr << "Magnetometer is not recognized.\n";
     return false;
   }
 
@@ -68,17 +68,17 @@ bool IIS2MDC::checkWhoAmI()
 bool IIS2MDC::configure()
 {
   if (!i2c_.writeByte(CFG_REG_A, COMP_TEMP_EN | ODR_100HZ | MD_CONTINUOUS, true)) {
-    std::cerr << "Failed to write to CFG_REG_A." << std::endl;
+    std::cerr << "Failed to write to CFG_REG_A.\n";
     return false;
   }
 
   if (!i2c_.writeByte(CFG_REG_B, LPF, true)) {
-    std::cerr << "Failed to write to CFG_REG_B." << std::endl;
+    std::cerr << "Failed to write to CFG_REG_B.\n";
     return false;
   }
 
   if (!i2c_.writeByte(CFG_REG_C, BDU, true)) {
-    std::cerr << "Failed to write to CFG_REG_C." << std::endl;
+    std::cerr << "Failed to write to CFG_REG_C.\n";
     return false;
   }
 

@@ -121,7 +121,7 @@ void SBUS::readThreadFunc(std::stop_token _st)
     }
     PRINT_DEBUG("End byte: " << HEX_STREAM(end_byte));
     if (!isEndByte(end_byte)) {
-      std::cerr << "Invalid end byte: " << HEX_STREAM(end_byte) << std::endl;
+      std::cerr << "Invalid end byte: " << HEX_STREAM(end_byte) << '\n';
       continue;
     }
 

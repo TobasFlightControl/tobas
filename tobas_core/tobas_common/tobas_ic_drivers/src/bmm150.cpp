@@ -28,37 +28,37 @@ BMM150::BMM150()
 bool BMM150::initialize(const char* _i2c_device)
 {
   if (!i2c_.initialize(_i2c_device, 0x10)) {
-    std::cerr << "Failed to initialize I2C device." << std::endl;
+    std::cerr << "Failed to initialize I2C device.\n";
     return false;
   }
 
   if (!enterSuspendMode()) {
-    std::cerr << "Failed to enter suspend mode." << std::endl;
+    std::cerr << "Failed to enter suspend mode.\n";
     return false;
   }
 
   if (!suspendToSleepMode()) {
-    std::cerr << "Failed to change mode from suspend to sleep." << std::endl;
+    std::cerr << "Failed to change mode from suspend to sleep.\n";
     return false;
   }
 
   if (!checkWhoAmI()) {
-    std::cerr << "Who-Am-I check failed." << std::endl;
+    std::cerr << "Who-Am-I check failed.\n";
     return false;
   }
 
   if (!execSelfTest()) {
-    std::cerr << "Self test failed." << std::endl;
+    std::cerr << "Self test failed.\n";
     return false;
   }
 
   if (!readTrimRegisters()) {
-    std::cerr << "Failed to read trim registers." << std::endl;
+    std::cerr << "Failed to read trim registers.\n";
     return false;
   }
 
   if (!configure()) {
-    std::cerr << "Failed to configure magnetometer." << std::endl;
+    std::cerr << "Failed to configure magnetometer.\n";
     return false;
   }
 
@@ -73,15 +73,15 @@ bool BMM150::readMag(double& _mx, double& _my, double& _mz)
 
   constexpr uint8_t kSelfTestRef = 0x01;
   if ((mag_buf_[0] & 1) != kSelfTestRef) {
-    std::cerr << "Failed in x-axis self test." << std::endl;
+    std::cerr << "Failed in x-axis self test.\n";
     return false;
   }
   if ((mag_buf_[2] & 1) != kSelfTestRef) {
-    std::cerr << "Failed in y-axis self test." << std::endl;
+    std::cerr << "Failed in y-axis self test.\n";
     return false;
   }
   if ((mag_buf_[4] & 1) != kSelfTestRef) {
-    std::cerr << "Failed in z-axis self test." << std::endl;
+    std::cerr << "Failed in z-axis self test.\n";
     return false;
   }
 
@@ -107,7 +107,7 @@ bool BMM150::readMag(double& _mx, double& _my, double& _mz)
 bool BMM150::enterSuspendMode()
 {
   if (!i2c_.writeByte(CFG_REG_A, 0x00, true)) {
-    std::cerr << "Failed to write power control reg." << std::endl;
+    std::cerr << "Failed to write power control reg.\n";
     return false;
   }
 
@@ -118,7 +118,7 @@ bool BMM150::enterSuspendMode()
 bool BMM150::suspendToSleepMode()
 {
   if (!i2c_.writeByte(CFG_REG_A, 0x01), true) {
-    std::cerr << "Failed to write power control reg." << std::endl;
+    std::cerr << "Failed to write power control reg.\n";
     return false;
   }
 
@@ -131,12 +131,12 @@ bool BMM150::checkWhoAmI()
   uint8_t byte;
 
   if (!i2c_.readByte(WHO_AM_I_REG, byte)) {
-    std::cerr << "Failed to read WHO_AM_I data." << std::endl;
+    std::cerr << "Failed to read WHO_AM_I data.\n";
     return false;
   }
 
   if (byte != CHIP_ID) {
-    std::cerr << "Magnetometer is not recognized." << std::endl;
+    std::cerr << "Magnetometer is not recognized.\n";
     return false;
   }
 
@@ -146,7 +146,7 @@ bool BMM150::checkWhoAmI()
 bool BMM150::execSelfTest()
 {
   if (!i2c_.writeByte(CFG_REG_B, ADV_SELF_TEST_NORMAL | ODR_10HZ | OP_SLEEP | SELF_TEST), true) {
-    std::cerr << "Failed to write to CFG_REG_B." << std::endl;
+    std::cerr << "Failed to write to CFG_REG_B.\n";
     return false;
   }
 
@@ -158,17 +158,17 @@ bool BMM150::execSelfTest()
 bool BMM150::configure()
 {
   if (!i2c_.writeByte(CFG_REG_B, ADV_SELF_TEST_NORMAL | ODR_30HZ | OP_NORMAL), true) {
-    std::cerr << "Failed to write to CFG_REG_B." << std::endl;
+    std::cerr << "Failed to write to CFG_REG_B.\n";
     return false;
   }
 
   if (!i2c_.writeByte(CFG_REG_E, REPXY), true) {
-    std::cerr << "Failed to write to CFG_REG_E." << std::endl;
+    std::cerr << "Failed to write to CFG_REG_E.\n";
     return false;
   }
 
   if (!i2c_.writeByte(CFG_REG_F, REPZ), true) {
-    std::cerr << "Failed to write to CFG_REG_F." << std::endl;
+    std::cerr << "Failed to write to CFG_REG_F.\n";
     return false;
   }
 
@@ -184,15 +184,15 @@ bool BMM150::readTrimRegisters()
 
   // Trim register value is read.
   if (!i2c_.readBytes(DIG_X1_REG, sizeof(trim_x1y1), trim_x1y1)) {
-    std::cerr << "Failed to read DIG_X1_REG." << std::endl;
+    std::cerr << "Failed to read DIG_X1_REG.\n";
     return false;
   }
   if (!i2c_.readBytes(DIG_Z4_LSB_REG, sizeof(trim_xyz_data), trim_xyz_data)) {
-    std::cerr << "Failed to read DIG_Z4_REG." << std::endl;
+    std::cerr << "Failed to read DIG_Z4_REG.\n";
     return false;
   }
   if (!i2c_.readBytes(DIG_Z2_LSB_REG, sizeof(trim_xy1xy2), trim_xy1xy2)) {
-    std::cerr << "Failed to read DIG_Z2_LSB_REG." << std::endl;
+    std::cerr << "Failed to read DIG_Z2_LSB_REG.\n";
     return false;
   }
 

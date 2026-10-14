@@ -73,7 +73,7 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& _sdf)
     return false;
   }
   if (engine_const_.first <= 0.0 || engine_const_.second <= 0.0) {
-    gzerr << "Engine constants must be positive." << std::endl;
+    gzerr << "Engine constants must be positive.\n";
     return false;
   }
 
@@ -84,25 +84,25 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& _sdf)
     return false;
   }
   if (time_const_up_ <= 0.0 || time_const_down_ <= 0.0) {
-    gzerr << "The time constant of engine speed convergence must be positive." << std::endl;
+    gzerr << "The time constant of engine speed convergence must be positive.\n";
     return false;
   }
 
   getSdfParam(_sdf, "vibrationForceCoefficient", vibration_force_coef_, 0.0015);
   if (vibration_force_coef_ < 0.0) {
-    gzerr << "The vibration force coefficient must be non-negative." << std::endl;
+    gzerr << "The vibration force coefficient must be non-negative.\n";
     return false;
   }
 
   getSdfParam(_sdf, "vibrationForceVariationRate", vibration_force_variation_rate_, 0.2);
   if (vibration_force_variation_rate_ < 0.0) {
-    gzerr << "The vibration force variation rate must be non-negative." << std::endl;
+    gzerr << "The vibration force variation rate must be non-negative.\n";
     return false;
   }
 
   getSdfParam(_sdf, "vibrationDoubleFrequencyCoefficient", vibration_double_freq_coef_, 1.0);
   if (vibration_double_freq_coef_ < 0.0) {
-    gzerr << "The vibration double frequency coefficient must be non-negative." << std::endl;
+    gzerr << "The vibration double frequency coefficient must be non-negative.\n";
     return false;
   }
 
@@ -118,7 +118,7 @@ double EngineModel::computeSteadySpeed()
 
   const auto speed = newton_.solve(0.0);
   if (!speed) {
-    gzerr << "Failed to solve the engine dynamics equation: " << speed.error() << std::endl;
+    gzerr << "Failed to solve the engine dynamics equation: " << speed.error() << '\n';
     return 0.0;
   }
 

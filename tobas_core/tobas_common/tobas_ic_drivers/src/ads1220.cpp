@@ -82,7 +82,7 @@ bool ADS1220::readCurrent(double&)
   // and read the current data before the switch takes effect.
   // Ref: section 8.5.5, "Sending Commands" (p. 38).
 
-  std::cerr << "Not implemented." << std::endl;
+  std::cerr << "Not implemented.\n";
   return false;
 }
 
@@ -127,7 +127,7 @@ bool ADS1220::configure(uint8_t _rr, uint8_t _tar_cfg)
   tx_buf_[0] = WREG | rrnn;
   tx_buf_[1] = _tar_cfg;
   if (!spi_.transfer(2)) {
-    std::cerr << "Failed to send write register command." << std::endl;
+    std::cerr << "Failed to send write register command.\n";
     return false;
   }
 
@@ -138,16 +138,16 @@ bool ADS1220::configure(uint8_t _rr, uint8_t _tar_cfg)
   // Verify that the configuration is reflected.
   tx_buf_[0] = RREG | rrnn;
   if (!spi_.transfer(2)) {
-    std::cerr << "Failed to send read register command." << std::endl;
+    std::cerr << "Failed to send read register command.\n";
     return false;
   }
 
   const auto cur_cfg = rx_buf_[1];
   if (cur_cfg != _tar_cfg) {
-    std::cerr << "Configuration is not reflected." << std::endl;
-    std::cerr << "Register   : " << std::bitset<2>(_rr >> 2) << std::endl;
-    std::cerr << "Target data: " << std::bitset<8>(_tar_cfg) << std::endl;
-    std::cerr << "Actual data: " << std::bitset<8>(cur_cfg) << std::endl;
+    std::cerr << "Configuration is not reflected.\n";
+    std::cerr << "Register   : " << std::bitset<2>(_rr >> 2) << '\n';
+    std::cerr << "Target data: " << std::bitset<8>(_tar_cfg) << '\n';
+    std::cerr << "Actual data: " << std::bitset<8>(cur_cfg) << '\n';
     return false;
   }
 

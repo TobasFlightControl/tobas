@@ -26,8 +26,8 @@ std::expected<void, std::string> RigidBodyInertia::validate() const
 
 std::ostream& operator<<(std::ostream& _os, const RigidBodyInertia& _arg)
 {
-  _os << "Mass: " << _arg.m_ << std::endl;
-  _os << "Spatial Momentum: " << _arg.h_ << std::endl;
+  _os << "Mass: " << _arg.m_ << '\n';
+  _os << "Spatial Momentum: " << _arg.h_ << '\n';
   _os << "Rotational Inertia: " << _arg.I_;
   return _os;
 }

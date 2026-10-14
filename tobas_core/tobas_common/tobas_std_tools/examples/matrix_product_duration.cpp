@@ -16,7 +16,7 @@ void process(int _n, int _iter)
   tobas::tim::Stopwatch stopwatch(_iter);
 
   for (int i = 0; i < _iter; ++i) {
-    std::cout << "Iter " << i << std::endl;
+    std::cout << "Iter " << i << '\n';
 
     stopwatch.start();
     const auto C = (A * B).eval();
@@ -27,7 +27,7 @@ void process(int _n, int _iter)
 int main(int _argc, char* _argv[])
 {
   if (_argc < 4) {
-    std::cerr << "Usage: " << _argv[0] << " <Scalar> <Matrix Size> <Iterations>" << std::endl;
+    std::cerr << "Usage: " << _argv[0] << " <Scalar> <Matrix Size> <Iterations>\n";
     return EXIT_FAILURE;
   }
 
@@ -54,7 +54,7 @@ int main(int _argc, char* _argv[])
     process<double>(n, iter);
   }
   else {
-    std::cerr << "Invalid scalar type: " << scalar << std::endl;
+    std::cerr << "Invalid scalar type: " << scalar << '\n';
     return EXIT_FAILURE;
   }
 
