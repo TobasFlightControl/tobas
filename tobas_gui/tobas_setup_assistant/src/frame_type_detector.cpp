@@ -105,7 +105,32 @@ FrameTypeDetectionResult FrameTypeDetector::determineFrameType()
     }
     else {
       msg += "  • which has at least one tilt rotors\n";
-      return { FrameType::kUndefined, msg + kIsNotSupported };  // TODO: Support tilt rotor VTOL
+
+      if (eachTiltRotorAxesPerpendicular()) {
+        msg += "  • which has each tilt axis perpendicular to its corresponding propeller rotation axis\n";
+
+        if (allTiltRotorAxesPerpendicular()) {
+          msg += "  • whose tilt axes are always perpendicular to all rotor axes in any combination\n";
+
+          if (allTiltJointAxesAlwaysParallel(kdl::Vector::UnitY(), false)) {
+            msg += "  • whose tilt axes are parallel to the Y axis\n";
+            return { FrameType::kYAxisTiltVtol, {} };
+          }
+          else {
+            msg += "  • whose tilt axes are not parallel to the Y axis\n";
+            return { FrameType::kUndefined, msg + kIsNotSupported };
+          }
+        }
+        else {
+          msg += "  • whose tilt axis and propeller rotation axis may not be perpendicular to each other\n";
+          return { FrameType::kUndefined, msg + kIsNotSupported };
+        }
+      }
+      else {
+        msg += "  • which has a tilt axis that is not perpendicular to the propeller rotation axis\n";
+        return { FrameType::kUndefined,
+                 msg + kIsNotSupported };
+      }
     }
   }
 }

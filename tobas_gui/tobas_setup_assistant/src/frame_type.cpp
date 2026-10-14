@@ -11,6 +11,7 @@
 #define Y_AXIS_TILT_MULTICOPTER "Y Axis Tilt Multicopter"
 #define RANDOM_AXIS_TILT_MULTICOPTER "Random Axis Tilt Multicopter"
 #define FIXED_WING "Fixed Wing"
+#define Y_AXIS_TILT_VTOL "Y Axis Tilt VTOL"
 
 namespace tobas
 {
@@ -33,6 +34,8 @@ std::string textFromEnum(FrameType arg)
       return RANDOM_AXIS_TILT_MULTICOPTER;
     case FrameType::kFixedWing:
       return FIXED_WING;
+    case FrameType::kYAxisTiltVtol:
+      return Y_AXIS_TILT_VTOL;
     default:
       throw;
   }
@@ -62,6 +65,10 @@ bool enumFromText(const std::string& text, FrameType& dst)
   }
   else if (text == FIXED_WING) {
     dst = FrameType::kFixedWing;
+    return true;
+  }
+  else if (text == Y_AXIS_TILT_VTOL) {
+    dst = FrameType::kYAxisTiltVtol;
     return true;
   }
   else {

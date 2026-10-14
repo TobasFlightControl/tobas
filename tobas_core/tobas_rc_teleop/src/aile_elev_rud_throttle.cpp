@@ -50,6 +50,7 @@ void AileElevRudThrottleController::update(const tobas_msgs::RCInput& rcin, cons
   // Create command.
   auto cmd = std::make_unique<tobas_command_msgs::msg::AileElevRudThrottle>();
   cmd->header = rcin.header;
+  cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
 
   // TODO exp, remapDead
   cmd->elevator = remap(rcin.pitch, cmd->MIN_DEFLECTION, cmd->MAX_DEFLECTION);

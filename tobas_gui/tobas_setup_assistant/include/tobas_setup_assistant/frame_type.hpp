@@ -19,6 +19,7 @@ enum class FrameType
   kYAxisTiltMulticopter,
   kRandomAxisTiltMulticopter,
   kFixedWing,
+  kYAxisTiltVtol,
 };
 
 std::string textFromEnum(FrameType arg);
