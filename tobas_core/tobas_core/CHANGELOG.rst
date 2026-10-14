@@ -2,8 +2,8 @@
 Changelog for package tobas_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.7 (2026-10-14)
+-------------------
 * change: Receive external repulsive acceleration
   Remove tobas_object_avoidance and its launch and install dependencies.
   Expose repulsive_acceleration through the remote interface while

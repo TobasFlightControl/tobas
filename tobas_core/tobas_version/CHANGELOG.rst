@@ -2,8 +2,8 @@
 Changelog for package tobas_version
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.7 (2026-10-14)
+-------------------
 * fix: Derive version from package.xml
   Generate the version header with ament_cmake_gen_version_h and use its
   macros for kMajor, kMinor, and kPatch instead of hardcoded values.
