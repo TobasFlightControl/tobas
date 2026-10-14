@@ -5,13 +5,7 @@
 
 #include <tobas_std_tools/check.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace xml
+namespace tobas::gui::sa::xml
 {
 tinyxml2::XMLElement* addNode(
   tinyxml2::XMLElement* _parent,
@@ -50,7 +44,4 @@ tinyxml2::XMLElement* addNodeParam(tinyxml2::XMLElement* _node, const std::strin
 
   return param;
 }
-}  // namespace xml
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::xml

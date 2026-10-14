@@ -11,9 +11,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
-{
-namespace nonplanar_multicopter
+namespace tobas::nonplanar_multicopter
 {
 QpMixer::QpMixer(const Drone& _drone, const kdl::Tree& _tree)
   : super(_drone, _tree), fk_solver_(_tree), inertia_solver_(_tree)
@@ -152,5 +150,4 @@ void QpMixer::resizeAndFill()
   R_.resize(var_size);
   G_.resize(Eigen::NoChange, var_size);
 }
-}  // namespace nonplanar_multicopter
-}  // namespace tobas
+}  // namespace tobas::nonplanar_multicopter

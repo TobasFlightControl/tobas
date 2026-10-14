@@ -22,11 +22,7 @@
 #include "../fields/stop_at_waypoint.hpp"
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class WaypointWidget : public BaseCommandWidget
 {
@@ -96,6 +92,4 @@ private:
 
   void updateToleranceFieldsEnabled();
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

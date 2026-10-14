@@ -10,9 +10,7 @@
 #include <gz/sim/components/Pose.hh>
 #include <gz/sim/components/World.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 LinkWorldPoseSolver::LinkWorldPoseSolver()
 {
@@ -57,5 +55,4 @@ bool LinkWorldPoseSolver::solve(const gz::sim::Entity& _link, const gz::sim::Ent
   pose_out_ = T1->Data() * T2->Data();
   return true;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

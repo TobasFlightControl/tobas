@@ -3,11 +3,7 @@
 
 #include "tobas_gcs/app_button.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 AppButton::AppButton(const QString& _text, const QString& _icon_path)
 {
@@ -21,6 +17,4 @@ AppButton::AppButton(const QString& _text, const QString& _icon_path)
 
   setCheckable(true);
 }
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

@@ -5,9 +5,7 @@
 
 #include <QComboBox>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QComboBox` =====
@@ -40,5 +38,4 @@ public Q_SLOTS:
   void setCurrentIndex(int _index);
   void setCurrentText(const QString& _text);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

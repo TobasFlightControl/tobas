@@ -15,9 +15,7 @@
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 TobasRenderInfo::TobasRenderInfo()
 {
@@ -82,7 +80,6 @@ void TobasRenderInfo::onRender()
     t_last_pub_ = now;
   }
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(tobas::gazebo::TobasRenderInfo, gz::gui::Plugin)

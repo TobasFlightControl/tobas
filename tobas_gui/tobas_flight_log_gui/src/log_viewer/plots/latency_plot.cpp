@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 namespace
 {
@@ -125,6 +121,4 @@ void LatencyPlotWidget::setControlLatencyData(const QVector<tobas_msgs::msg::Lat
   ctrl_latency_hist_data_.setSamples(val_data, kControlLatencyMin, kControlLatencyMax, kBinWidth);
   ctrl_latency_hist_plot_->replot();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

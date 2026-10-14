@@ -3,11 +3,7 @@
 
 #include "tobas_qt_tools/color.hpp"
 
-namespace tobas
-{
-namespace qt
-{
-namespace color
+namespace tobas::qt::color
 {
 namespace
 {
@@ -113,6 +109,4 @@ QColor steelBlue()
 {
   return QColor(70, 130, 180);
 }
-}  // namespace color
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt::color

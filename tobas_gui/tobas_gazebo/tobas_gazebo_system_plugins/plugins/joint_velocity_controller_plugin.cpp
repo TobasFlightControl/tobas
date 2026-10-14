@@ -17,9 +17,7 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class GazeboJointVelocityControllerPlugin : public BaseNode,
                                             public gz::sim::System,
@@ -96,8 +94,7 @@ void GazeboJointVelocityControllerPlugin::commandCb(const tobas_gazebo_msgs::msg
 {
   tar_vel_ = _cmd->data;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboJointVelocityControllerPlugin,

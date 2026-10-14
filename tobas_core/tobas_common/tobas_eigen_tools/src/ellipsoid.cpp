@@ -6,9 +6,7 @@
 #include <eigen3/Eigen/Eigenvalues>
 #include <eigen3/Eigen/LU>
 
-namespace tobas
-{
-namespace eigen
+namespace tobas::eigen
 {
 Ellipsoid::Ellipsoid()
 {
@@ -88,5 +86,4 @@ void Ellipsoid::setSoftBias(const Eigen::Vector6d& _t)
   T_ << txx, txy, tzx, txy, tyy, tyz, tzx, tyz, tzz;
   T_inv_ = T_.inverse();
 }
-}  // namespace eigen
-}  // namespace tobas
+}  // namespace tobas::eigen

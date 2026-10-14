@@ -3,13 +3,7 @@
 
 #include "tobas_urdf_builder_plugin/utils/urdf_clone.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace utils
+namespace tobas::gui::ub::utils
 {
 ::urdf::GeometrySharedPtr clone(const ::urdf::GeometrySharedPtr& _geometry)
 {
@@ -118,7 +112,4 @@ namespace utils
 
   return res;
 }
-}  // namespace utils
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::utils

@@ -5,11 +5,7 @@
 
 #include <yaml-cpp/yaml.h>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 enum class FrameType
 {
@@ -23,9 +19,7 @@ enum class FrameType
 
 std::string textFromEnum(FrameType _arg);
 bool enumFromText(const std::string& _text, FrameType& _dst);
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa
 
 namespace YAML
 {

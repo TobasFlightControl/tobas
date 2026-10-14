@@ -8,9 +8,7 @@
 
 #include "./jntarray.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class JntArrayAcc
 {
@@ -67,5 +65,4 @@ inline void JntArrayAcc::setZero()
   qd.setZero();
   qdd.setZero();
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

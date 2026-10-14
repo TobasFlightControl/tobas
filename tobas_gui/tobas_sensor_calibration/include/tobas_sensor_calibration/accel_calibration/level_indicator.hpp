@@ -8,11 +8,7 @@
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_kdl/vector.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 class LevelIndicatorWidget : public QWidget
 {
@@ -36,6 +32,4 @@ private:
   bool has_raw_data_ = false;
   bool has_calib_data_ = false;
 };
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

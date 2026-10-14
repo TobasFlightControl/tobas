@@ -30,9 +30,7 @@
 #include "tobas_rc_teleop/rate_throttle_vector.hpp"
 #include "tobas_rc_teleop/speed_roll_dpitch.hpp"
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 class RCTeleopNode : public BaseNode
 {
@@ -580,7 +578,6 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin)
     }
   }
 }
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::rc::RCTeleopNode)

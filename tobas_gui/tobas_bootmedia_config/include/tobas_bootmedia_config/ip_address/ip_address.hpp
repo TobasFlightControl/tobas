@@ -10,11 +10,7 @@
 #include "../base.hpp"
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class IpAddressWidget : public BaseConfigWidget
 {
@@ -42,6 +38,4 @@ private:
 private Q_SLOTS:
   void onWriteButtonClicked();
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

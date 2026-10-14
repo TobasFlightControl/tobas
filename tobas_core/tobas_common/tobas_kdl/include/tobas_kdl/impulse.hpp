@@ -6,9 +6,7 @@
 #include "./twist.hpp"
 #include "./wrench.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class Impulse
 {
@@ -34,5 +32,4 @@ inline Wrench operator*(const Twist& _t, const Impulse& _p)
 {
   return Wrench(_t.rot * _p.linear, _t.rot * _p.angular + _t.vel * _p.linear);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

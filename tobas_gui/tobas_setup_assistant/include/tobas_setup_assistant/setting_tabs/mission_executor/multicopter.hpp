@@ -8,13 +8,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace mission
+namespace tobas::gui::sa::mission
 {
 class MulticopterWidget : public BaseExecutorWidget
 {
@@ -53,7 +47,4 @@ private:
 
   qt::DoubleSpinBox* rtl_min_alt_;
 };
-}  // namespace mission
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::mission

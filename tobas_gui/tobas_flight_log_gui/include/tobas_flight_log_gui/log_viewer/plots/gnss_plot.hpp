@@ -9,11 +9,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class GnssPlotWidget : public BasePlotWidget
 {
@@ -42,6 +38,4 @@ private:
   qwt::QwtPlotCurveWrapper north_speed_curve_;
   qwt::QwtPlotCurveWrapper up_speed_curve_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

@@ -9,11 +9,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class PwmPlotWidget : public BasePlotWidget
 {
@@ -31,6 +27,4 @@ private:
   QVector<QwtPlot2*> plots_;
   QVector<qwt::QwtPlotCurveWrapper> curves_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

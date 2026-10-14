@@ -5,9 +5,7 @@
 
 #include <chrono>
 
-namespace tobas
-{
-namespace tim
+namespace tobas::tim
 {
 class Rate
 {
@@ -25,5 +23,4 @@ private:
   std::chrono::microseconds period_ = {};
   std::chrono::steady_clock::time_point last_time_;
 };
-}  // namespace tim
-}  // namespace tobas
+}  // namespace tobas::tim

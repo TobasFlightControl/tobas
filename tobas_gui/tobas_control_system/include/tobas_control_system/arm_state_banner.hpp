@@ -9,11 +9,7 @@
 
 #include <tobas_rqt_bridge/bridge.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class ArmStateBanner : public QLabel
 {
@@ -40,6 +36,4 @@ private Q_SLOTS:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
   void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

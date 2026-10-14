@@ -14,11 +14,7 @@
 
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 class LargeVehicleMagCalibThread : public QThread
 {
@@ -58,6 +54,4 @@ private Q_SLOTS:
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
 };
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

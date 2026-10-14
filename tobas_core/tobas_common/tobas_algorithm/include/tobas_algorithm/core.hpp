@@ -5,9 +5,7 @@
 
 #include <algorithm>
 
-namespace tobas
-{
-namespace algo
+namespace tobas::algo
 {
 /** Calculate the maximum of variadic arguments. Base case. */
 template <typename T>
@@ -42,5 +40,4 @@ double wrapPi(double _angle);
 
 /** Limit the L2 norm of a 2D vector without changing its direction. */
 void clamp2d(double& _x, double& _y, double _max_length);
-}  // namespace algo
-}  // namespace tobas
+}  // namespace tobas::algo

@@ -7,9 +7,7 @@
 
 #include <cstring>
 
-namespace tobas
-{
-namespace keyboard
+namespace tobas::keyboard
 {
 namespace
 {
@@ -46,5 +44,4 @@ signed char KeyboardReader::readKey()
   }
   return buf;
 }
-}  // namespace keyboard
-}  // namespace tobas
+}  // namespace tobas::keyboard

@@ -10,11 +10,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ParamGetterWidget_DoubleTable : public ParamGetterWidget<Eigen::MatrixXd>
 {
@@ -69,6 +65,4 @@ private:
   QString getCsvPath();
   bool isValidData(const Eigen::MatrixXd& _src);
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

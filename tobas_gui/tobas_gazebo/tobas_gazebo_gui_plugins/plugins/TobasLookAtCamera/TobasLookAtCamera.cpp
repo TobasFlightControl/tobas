@@ -13,9 +13,7 @@
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_msg.hpp>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 TobasLookAtCamera::TobasLookAtCamera()
 {
@@ -105,7 +103,6 @@ void TobasLookAtCamera::lookAtPositionCb(const gz::msgs::Vector3d& _msg)
   const std::lock_guard lock(mutex_);
   vector3dMsgToGz(_msg, tar_pos_);
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(tobas::gazebo::TobasLookAtCamera, gz::gui::Plugin)

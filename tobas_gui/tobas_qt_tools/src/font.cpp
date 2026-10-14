@@ -3,9 +3,7 @@
 
 #include "tobas_qt_tools/font.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 DefaultFont::DefaultFont(int _point_size, int _weight, bool _italic)
 {
@@ -19,5 +17,4 @@ DefaultFont::DefaultFont(int _point_size, int _weight, bool _italic)
 
   setItalic(_italic);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

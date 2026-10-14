@@ -12,15 +12,7 @@
 #include "./base.hpp"
 #include "./propeller.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 class AerodynamicsWidget : public BaseSelectedLinkSettingWidget
 {
@@ -48,8 +40,4 @@ private:
 
   std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> getData() const;
 };
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

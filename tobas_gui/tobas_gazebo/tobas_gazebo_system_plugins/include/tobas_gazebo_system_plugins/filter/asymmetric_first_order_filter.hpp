@@ -6,9 +6,7 @@
 #include <cassert>
 #include <cmath>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /** First-order lag filter with different time constants for rise and fall. */
 template <typename T>
@@ -60,5 +58,4 @@ inline const T& AsymmetricFirstOrderFilter<T>::getValue() const
 {
   return value_;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

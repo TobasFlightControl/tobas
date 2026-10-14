@@ -10,9 +10,7 @@
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_math/float.hpp>
 
-namespace tobas
-{
-namespace y_axis_tilt_multicopter
+namespace tobas::y_axis_tilt_multicopter
 {
 Mixer::Mixer(const Drone& _drone, const kdl::Tree& _tree)
   : super(_drone, _tree), fk_solver_(_tree), inertia_solver_(_tree)
@@ -183,5 +181,4 @@ std::expected<MixerSolution, std::string> Mixer::solve(
 
   return MixerSolution{ std::move(thrusts), std::move(tilt_angles) };
 }
-}  // namespace y_axis_tilt_multicopter
-}  // namespace tobas
+}  // namespace tobas::y_axis_tilt_multicopter

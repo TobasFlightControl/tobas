@@ -10,9 +10,7 @@
 #include <tobas_algorithm/crc.hpp>
 #include <tobas_linux/uart_dev.hpp>
 
-namespace tobas
-{
-namespace driver
+namespace tobas::driver
 {
 struct JRE30Packet
 {
@@ -85,5 +83,4 @@ private:
 
   bool checkCRC() const;
 };
-}  // namespace driver
-}  // namespace tobas
+}  // namespace tobas::driver

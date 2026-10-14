@@ -10,11 +10,7 @@
 
 #include "../base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class HostnameWidget : public BaseConfigWidget
 {
@@ -46,6 +42,4 @@ private Q_SLOTS:
   void onHostnameChanged(const QString& _hostname);
   void onWriteButtonClicked();
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

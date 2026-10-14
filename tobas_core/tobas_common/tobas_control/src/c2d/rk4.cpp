@@ -3,9 +3,7 @@
 
 #include "tobas_control/c2d/rk4.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 C2D_RK4::C2D_RK4(Eigen::Index _x_size, Eigen::Index _u_size)
 {
@@ -56,5 +54,4 @@ void C2D_RK4::resize(Eigen::Index _x_size, Eigen::Index _u_size)
     factorials_[i] = factorials_[i - 1] * static_cast<double>(i);
   }
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

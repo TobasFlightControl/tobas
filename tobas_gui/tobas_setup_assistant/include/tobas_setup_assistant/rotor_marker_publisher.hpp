@@ -15,11 +15,7 @@ namespace rclcpp
 class Node;
 }  // namespace rclcpp
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class RotorMarkerPublisher : public QObject
 {
@@ -45,6 +41,4 @@ private:
 private Q_SLOTS:
   void publishTimerCb();
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

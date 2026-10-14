@@ -5,9 +5,7 @@
 
 #include <qwt/qwt_plot_histogram.h>  // <= C++17
 
-namespace tobas
-{
-namespace qwt
+namespace tobas::qwt
 {
 QwtPlotHistogramWrapper::QwtPlotHistogramWrapper(const QString& _title)
 {
@@ -76,5 +74,4 @@ void QwtPlotHistogramWrapper::clear()
   QVector<QwtIntervalSample> empty;
   impl_->setSamples(empty);
 }
-}  // namespace qwt
-}  // namespace tobas
+}  // namespace tobas::qwt

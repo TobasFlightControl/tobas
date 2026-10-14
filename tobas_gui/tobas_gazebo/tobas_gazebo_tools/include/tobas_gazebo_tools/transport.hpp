@@ -8,9 +8,7 @@
 #include <gz/common/Console.hh>
 #include <gz/transport/Node.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /** Receive exactly one Gazebo message. */
 template <typename MsgT, typename RepT = int64_t, typename RatioT = std::milli>
@@ -59,5 +57,4 @@ bool waitForMessage(
 
   return got;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

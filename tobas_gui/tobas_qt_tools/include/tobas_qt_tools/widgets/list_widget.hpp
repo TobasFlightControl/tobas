@@ -5,9 +5,7 @@
 
 #include <QListWidget>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QListWidgetItem` =====
@@ -57,5 +55,4 @@ class ListWidgetItem : public QListWidgetItem
 public:
   virtual bool operator<(const QListWidgetItem& _rhs) const override;
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

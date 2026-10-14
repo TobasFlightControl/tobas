@@ -8,9 +8,7 @@
 #include <QLineEdit>
 #include <QWidget>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class IPv4Edit : public QWidget
 {
@@ -43,5 +41,4 @@ private:
   uint8_t getFieldValue(size_t _idx) const;
   void setFieldValue(size_t _idx, uint8_t _value);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

@@ -7,11 +7,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ParamGetterWidget_Ratio : public ParamGetterWidget<std::pair<int, int>>
 {
@@ -44,6 +40,4 @@ private:
   QLabel* left_text_;
   QLabel* right_text_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

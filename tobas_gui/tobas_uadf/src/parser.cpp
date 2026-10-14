@@ -6,9 +6,7 @@
 #include <tobas_string_tools/stream.hpp>
 #include <tobas_xml_tools/core.hpp>
 
-namespace tobas
-{
-namespace uadf
+namespace tobas::uadf
 {
 Parser::Parser()
 {
@@ -115,5 +113,4 @@ std::expected<Model, std::string> Parser::parseFromPath(const std::string& _uadf
 
   return parseFromText(uadf_text);
 }
-}  // namespace uadf
-}  // namespace tobas
+}  // namespace tobas::uadf

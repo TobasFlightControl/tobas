@@ -5,13 +5,7 @@
 
 #include <QAbstractListModel>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
-{
-namespace map
+namespace tobas::gui::ctrl::map
 {
 template <typename... Args>
 class MapItemModel : public QAbstractListModel
@@ -69,7 +63,4 @@ void MapItemModel<Args...>::clear()
   list_.clear();
   endRemoveRows();
 }
-}  // namespace map
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::map

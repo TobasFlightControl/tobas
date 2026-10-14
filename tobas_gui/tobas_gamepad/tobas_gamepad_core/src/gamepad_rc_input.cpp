@@ -16,9 +16,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/error.hpp>
 
-namespace tobas
-{
-namespace gamepad
+namespace tobas::gamepad
 {
 void GamepadDriver::LibevdevDeleter::operator()(libevdev* _dev) const
 {
@@ -242,5 +240,4 @@ void GamepadDriver::applyAbs(int _code, int _value)
       break;
   }
 }
-}  // namespace gamepad
-}  // namespace tobas
+}  // namespace tobas::gamepad

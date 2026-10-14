@@ -5,9 +5,7 @@
 
 #include <tobas_std_tools/range.hpp>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /** Simple joint model with position and maximum-velocity constraints. */
 class SimpleJointModel
@@ -27,5 +25,4 @@ private:
   double cur_pos_ = 0.0;
   double tar_pos_ = 0.0;
 };
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

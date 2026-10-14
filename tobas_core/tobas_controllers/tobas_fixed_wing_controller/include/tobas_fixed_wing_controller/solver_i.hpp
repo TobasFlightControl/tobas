@@ -5,9 +5,7 @@
 
 #include <string>
 
-namespace tobas
-{
-namespace fixed_wing
+namespace tobas::fixed_wing
 {
 class SolverI
 {
@@ -56,5 +54,4 @@ inline int SolverI::updateError(const SolverI& _arg)
   }
   return error_code_;
 }
-}  // namespace fixed_wing
-}  // namespace tobas
+}  // namespace tobas::fixed_wing

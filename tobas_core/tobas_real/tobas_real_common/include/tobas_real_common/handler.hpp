@@ -3,11 +3,7 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace real
-{
-namespace handler
+namespace tobas::real::handler
 {
 namespace imu
 {
@@ -53,6 +49,4 @@ static constexpr char kKillOffKey[] = "kill/off";
 static constexpr char kGpswOnKey[] = "gpsw/on";
 static constexpr char kGpswOffKey[] = "gpsw/off";
 }  // namespace rcin
-}  // namespace handler
-}  // namespace real
-}  // namespace tobas
+}  // namespace tobas::real::handler

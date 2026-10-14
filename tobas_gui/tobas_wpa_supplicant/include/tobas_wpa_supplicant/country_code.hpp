@@ -3,9 +3,7 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace wpa
+namespace tobas::wpa
 {
 /** Country Codes: https://countrycode.org/ */
 enum CountryCode
@@ -495,5 +493,4 @@ static constexpr char Yemen[] = "YE";
 static constexpr char Zambia[] = "ZM";
 static constexpr char Zimbabwe[] = "ZW";
 }  // namespace country_code
-}  // namespace wpa
-}  // namespace tobas
+}  // namespace tobas::wpa

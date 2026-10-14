@@ -20,9 +20,7 @@
 
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class GazeboBarometerPlugin : public BaseNode,
                               public gz::sim::System,
@@ -123,7 +121,6 @@ void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& _info, const g
   // Publish the pressure message.
   pressure_pub_->publish(std::move(pressure_msg));
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(tobas::gazebo::GazeboBarometerPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

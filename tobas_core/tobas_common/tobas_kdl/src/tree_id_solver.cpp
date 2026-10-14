@@ -5,9 +5,7 @@
 
 #include <cassert>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeIdSolver::TreeIdSolver(const Tree& _tree, const Vector& _grav) : super(_tree), ag_(-_grav, Vector::Zero())
 {
@@ -109,5 +107,4 @@ void TreeIdSolver::rneStep(
     f_.at(par_name) = f_.at(par_name) + Xj * f_.at(cur_name);
   }
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

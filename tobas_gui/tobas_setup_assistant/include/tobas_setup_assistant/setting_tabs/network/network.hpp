@@ -6,13 +6,7 @@
 #include "../base_setting.hpp"
 #include "./network_iface.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace network
+namespace tobas::gui::sa::network
 {
 class NetworkWidget : public BaseSettingWidget
 {
@@ -37,7 +31,4 @@ public:
 private:
   NetworkIfaceWidget* nic_;
 };
-}  // namespace network
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::network

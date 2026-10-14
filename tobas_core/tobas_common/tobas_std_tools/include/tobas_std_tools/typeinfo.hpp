@@ -7,9 +7,7 @@
 
 #include <typeinfo>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 template <typename T>
 const char* getClassName()
@@ -23,5 +21,4 @@ const char* getClassName()
     return typeid(T).name();
   }
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

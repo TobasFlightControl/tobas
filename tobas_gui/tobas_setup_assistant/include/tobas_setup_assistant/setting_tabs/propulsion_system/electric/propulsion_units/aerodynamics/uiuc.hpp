@@ -7,15 +7,7 @@
 #include "./base.hpp"
 #include "tobas_setup_assistant/param_getters/double_table.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 class AerodynamicsWidget_UIUC : public AerodynamicsWidget_Base
 {
@@ -42,8 +34,4 @@ private:
 
   ParamGetterWidget_DoubleTable* data_;
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

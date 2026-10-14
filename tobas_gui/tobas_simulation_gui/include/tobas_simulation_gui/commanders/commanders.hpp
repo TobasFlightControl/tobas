@@ -6,11 +6,7 @@
 #include "./base_pose_commander.hpp"
 #include "./joint_commander.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class CommandersWidget : public QWidget
 {
@@ -28,6 +24,4 @@ private:
   BasePoseCommanderWidget* base_pose_commander_;
   JointCommanderWidget* joint_commander_;
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

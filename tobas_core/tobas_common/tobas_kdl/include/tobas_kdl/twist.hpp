@@ -8,9 +8,7 @@
 #include "./accel.hpp"
 #include "./wrench.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class Twist;
 using TwistMap = std::map<std::string, Twist>;
@@ -168,5 +166,4 @@ inline std::ostream& operator<<(std::ostream& _os, const Twist& _arg)
   _os << "Linear: " << _arg.vel << ", Angular: " << _arg.rot;
   return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

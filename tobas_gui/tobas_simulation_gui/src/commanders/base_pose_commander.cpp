@@ -15,11 +15,7 @@
 
 #include "tobas_simulation_gui/commanders/constants.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 BasePoseCommanderWidget::BasePoseCommanderWidget(const rqt::RosQtBridge& _bridge)
 {
@@ -308,6 +304,4 @@ void BasePoseCommanderWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPt
 
   rcin_ = _rcin;
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

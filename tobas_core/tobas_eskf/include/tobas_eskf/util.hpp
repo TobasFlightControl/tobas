@@ -5,11 +5,8 @@
 
 #include <eigen3/Eigen/Core>
 
-namespace tobas
-{
-namespace eskf
+namespace tobas::eskf
 {
 /** Estimate heading variance from geomagnetic variance (memo: 2-75). */
 double headingVarianceFromMag(const Eigen::Vector3d& _mag, const Eigen::Matrix3d& _cov);
-}  // namespace eskf
-}  // namespace tobas
+}  // namespace tobas::eskf

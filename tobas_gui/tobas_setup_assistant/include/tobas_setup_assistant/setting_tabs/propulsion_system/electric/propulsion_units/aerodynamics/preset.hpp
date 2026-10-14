@@ -12,15 +12,7 @@
 #include "../propeller.hpp"
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 class AerodynamicsWidget_Preset : public AerodynamicsWidget_Base
 {
@@ -64,8 +56,4 @@ private:
   static std::filesystem::path thrustStandDataDir();
   static std::filesystem::path uiucDataDir();
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

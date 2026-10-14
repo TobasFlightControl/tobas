@@ -8,11 +8,7 @@
 #include "./logs_gcs/logs_widget.hpp"
 #include "./recorder/recorder.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class FlightLogWidget : public QWidget
 {
@@ -39,6 +35,4 @@ private Q_SLOTS:
   void onLogSelected(const QString& _log_name);
   void onLogDeselected();
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

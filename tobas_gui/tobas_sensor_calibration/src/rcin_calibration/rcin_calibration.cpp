@@ -17,11 +17,7 @@
 #include <tobas_real_common/handler.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone)
   : drone_(_drone)
@@ -484,6 +480,4 @@ void RCInputCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstShar
 
   arming_ = _arming;
 }
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

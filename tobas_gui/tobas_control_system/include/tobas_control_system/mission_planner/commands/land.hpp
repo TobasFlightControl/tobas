@@ -8,11 +8,7 @@
 #include "../fields/land_speed.hpp"
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class LandWidget : public BaseCommandWidget
 {
@@ -33,6 +29,4 @@ public:
 private:
   field::LandSpeedWidget* speed_;
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

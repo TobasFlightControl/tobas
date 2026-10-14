@@ -32,9 +32,7 @@
 
 #include "tobas_nonplanar_multi_controller/mixer_qp.hpp"
 
-namespace tobas
-{
-namespace nonplanar_multicopter
+namespace tobas::nonplanar_multicopter
 {
 class ControllerNode : public BaseNode
 {
@@ -630,7 +628,6 @@ void ControllerNode::checkTopicsTimerCb()
   topics_received_ = true;
   check_topics_timer_->cancel();
 }
-}  // namespace nonplanar_multicopter
-}  // namespace tobas
+}  // namespace tobas::nonplanar_multicopter
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::nonplanar_multicopter::ControllerNode)

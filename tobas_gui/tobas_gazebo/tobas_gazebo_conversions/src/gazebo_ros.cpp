@@ -3,9 +3,7 @@
 
 #include "tobas_gazebo_conversions/gazebo_ros.hpp"
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 void vectorGazeboToRos(const gz::math::Vector3d& _g, geometry_msgs::msg::Vector3& _m)
 {
@@ -55,5 +53,4 @@ void poseRosToGazebo(const geometry_msgs::msg::Pose& _m, gz::math::Pose3d& _g)
   pointRosToGazebo(_m.position, _g.Pos());
   quaternionRosToGazebo(_m.orientation, _g.Rot());
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

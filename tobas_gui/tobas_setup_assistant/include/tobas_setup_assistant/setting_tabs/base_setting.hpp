@@ -10,11 +10,7 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class BaseSettingWidget : public qt::ScrollArea
 {
@@ -61,6 +57,4 @@ private:
 private Q_SLOTS:
   void initialize();
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

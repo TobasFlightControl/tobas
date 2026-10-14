@@ -5,9 +5,7 @@
 
 #include <tobas_linux/i2c_dev.hpp>
 
-namespace tobas
-{
-namespace stm
+namespace tobas::stm
 {
 /**
  * A linux driver of 3-axis magnetometer.
@@ -92,5 +90,4 @@ private:
   bool checkWhoAmI();
   bool configure();
 };
-}  // namespace stm
-}  // namespace tobas
+}  // namespace tobas::stm

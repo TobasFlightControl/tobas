@@ -5,9 +5,7 @@
 
 #include <string>
 
-namespace tobas
-{
-namespace path
+namespace tobas::path
 {
 namespace detail
 {
@@ -57,5 +55,4 @@ std::string join(const T& _x, const U& _y, const Args&... _args)
 {
   return join(join(_x, _y), _args...);
 }
-}  // namespace path
-}  // namespace tobas
+}  // namespace tobas::path

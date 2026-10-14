@@ -7,9 +7,7 @@
 
 #include <tobas_std_tools/console.hpp>
 
-namespace tobas
-{
-namespace geo
+namespace tobas::geo
 {
 namespace
 {
@@ -56,5 +54,4 @@ MagneticField Geography::magneticField(double _latitude, double _longitude, doub
   constexpr double kNanoTeslaToGauss = 1e-5;
   return { east_ * kNanoTeslaToGauss, north_ * kNanoTeslaToGauss, up_ * kNanoTeslaToGauss, total_ * kNanoTeslaToGauss };
 }
-}  // namespace geo
-}  // namespace tobas
+}  // namespace tobas::geo

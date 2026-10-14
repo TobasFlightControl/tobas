@@ -10,13 +10,7 @@
 #include "./none.hpp"
 #include "tobas_setup_assistant/frame_type.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace mission
+namespace tobas::gui::sa::mission
 {
 class MissionExecutorWidget : public BaseSettingWidget
 {
@@ -55,7 +49,4 @@ private:
   BaseExecutorWidget* selected();
   const BaseExecutorWidget* selected() const;
 };
-}  // namespace mission
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::mission

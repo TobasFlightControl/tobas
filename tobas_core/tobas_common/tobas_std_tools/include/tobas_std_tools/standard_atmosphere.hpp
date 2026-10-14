@@ -5,9 +5,7 @@
 
 // Standard atmosphere.
 // Ref: https://pigeon-poppo.com/standard-atmosphere/
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 /**
  * Calculate geometric altitude from geopotential height.
@@ -119,5 +117,4 @@ double pressureToAltitude(double _pressure);
  * @param _altitude_var Geometric altitude variance [m^2] (output).
  */
 void pressureToAltitude(double _pressure, double _pressure_var, double& _altitude, double& _altitude_var);
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

@@ -12,11 +12,7 @@
 #include "../base.hpp"
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 class MagCalibrationWidget : public BaseWidget
 {
@@ -41,6 +37,4 @@ private:
 
   void setCurrentIndex(int _index);
 };
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

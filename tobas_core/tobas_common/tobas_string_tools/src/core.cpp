@@ -8,9 +8,7 @@
 #include <regex>
 #include <sstream>
 
-namespace tobas
-{
-namespace str
+namespace tobas::str
 {
 std::vector<std::string> split(const std::string& _s, char _c)
 {
@@ -274,5 +272,4 @@ std::string snakeFromTitle(const std::string& _title_case)
 {
   return snakeFromPascal(pascalFromTitle(_title_case));
 }
-}  // namespace str
-}  // namespace tobas
+}  // namespace tobas::str

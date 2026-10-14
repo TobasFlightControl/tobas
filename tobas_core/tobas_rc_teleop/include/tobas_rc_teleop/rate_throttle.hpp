@@ -7,9 +7,7 @@
 
 #include "./base_controller.hpp"
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 class RateThrottleController : public BaseController
 {
@@ -44,5 +42,4 @@ private:
   void headingExpoCb(double _p);
   void throttleExpoCb(double _p);
 };
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

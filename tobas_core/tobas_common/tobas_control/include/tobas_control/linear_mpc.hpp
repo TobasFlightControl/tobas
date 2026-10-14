@@ -14,9 +14,7 @@
 #include "./equations.hpp"
 #include "./state_spaces.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 /**
  * Linear model predictive control.
@@ -110,5 +108,4 @@ private:
   /** Create the overall inequality constraint matrix from the time series of inequality conditions A x <= b. */
   static Eigen::MatrixXd makeConstraintMatrix(const std::vector<LinearEquation>& _ineqs, Eigen::Index _h);
 };
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

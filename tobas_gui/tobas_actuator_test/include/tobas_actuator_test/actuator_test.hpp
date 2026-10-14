@@ -10,11 +10,7 @@
 #include "./joint_test/joint_test.hpp"
 #include "./rotor_test/rotor_test.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace at
+namespace tobas::gui::at
 {
 class ActuatorTestWidget : public qt::VerticalTabWidget
 {
@@ -38,6 +34,4 @@ private:
   BaseWidget* getWidget(int _index);
   const BaseWidget* getWidget(int _index) const;
 };
-}  // namespace at
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::at

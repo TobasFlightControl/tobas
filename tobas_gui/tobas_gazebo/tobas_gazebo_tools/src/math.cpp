@@ -3,9 +3,7 @@
 
 #include "tobas_gazebo_tools/math.hpp"
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 gz::math::Quaterniond quaternionFromAngleAxis(const gz::math::Vector3d& _w)
 {
@@ -33,5 +31,4 @@ gz::math::Matrix3d skewMatrix(const gz::math::Vector3d& _v)
   res(2, 2) = 0;
   return res;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

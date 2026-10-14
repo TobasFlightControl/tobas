@@ -7,11 +7,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class WorldWidget_Standard : public BaseWorldWidget
 {
@@ -27,6 +23,4 @@ private:
 
   static std::filesystem::path worldDirectoryPath();
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

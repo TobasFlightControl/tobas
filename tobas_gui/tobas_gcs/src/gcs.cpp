@@ -38,11 +38,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 namespace
 {
@@ -1053,6 +1049,4 @@ void GroundControlStationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSh
   arming_ = _arming;
   updateWidgetEnabledStates();
 }
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

@@ -8,11 +8,7 @@
 
 #include <tobas_algorithm/binary.hpp>
 
-namespace tobas
-{
-namespace ublox
-{
-namespace payload
+namespace tobas::ublox::payload
 {
 /* ===== Decode Methods ===== */
 
@@ -654,6 +650,4 @@ void NAV_VELNED::print(std::ostream& _os) const
   _os << "Speed accuracy estimate: " << sAcc << "[mm/s]\n";
   _os << "Course / Heading accuracy estimate: " << cAcc << "[deg]\n";
 }
-}  // namespace payload
-}  // namespace ublox
-}  // namespace tobas
+}  // namespace tobas::ublox::payload

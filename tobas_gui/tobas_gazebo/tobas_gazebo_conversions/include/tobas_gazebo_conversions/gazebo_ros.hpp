@@ -12,9 +12,7 @@
 #include <geometry_msgs/msg/quaternion.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 void vectorGazeboToRos(const gz::math::Vector3d& _g, geometry_msgs::msg::Vector3& _m);
 void vectorRosToGazebo(const geometry_msgs::msg::Vector3& _m, gz::math::Vector3d& _g);
@@ -27,5 +25,4 @@ void quaternionRosToGazebo(const geometry_msgs::msg::Quaternion& _m, gz::math::Q
 
 void poseGazeboToRos(const gz::math::Pose3d& _g, geometry_msgs::msg::Pose& _m);
 void poseRosToGazebo(const geometry_msgs::msg::Pose& _m, gz::math::Pose3d& _g);
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

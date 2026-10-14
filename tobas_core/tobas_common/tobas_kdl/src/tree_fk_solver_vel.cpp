@@ -5,9 +5,7 @@
 
 #include <cassert>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeFkSolverVel::TreeFkSolverVel(const Tree& _tree) : super(_tree)
 {
@@ -40,5 +38,4 @@ FrameVel TreeFkSolverVel::recursiveFk(const JntArray& _q, const JntArray& _qd, c
   const auto& parent_it = cur_ele.parent;
   return recursiveFk(_q, _qd, parent_it) * cur_framevel;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

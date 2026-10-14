@@ -5,9 +5,7 @@
 
 #include "./tree_id_solver.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class TreeJntSpacePID : public TreeSolverI
 {
@@ -42,5 +40,4 @@ private:
 
   void resize();
 };
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

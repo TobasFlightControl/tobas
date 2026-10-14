@@ -15,11 +15,7 @@
 #include "./start_thread.hpp"
 #include "./stop_thread.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class FlightLogRecorderWidget : public QWidget
 {
@@ -59,6 +55,4 @@ private Q_SLOTS:
 
   void rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& _rosbag_state);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

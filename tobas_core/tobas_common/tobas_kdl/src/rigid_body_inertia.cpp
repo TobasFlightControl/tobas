@@ -3,9 +3,7 @@
 
 #include "tobas_kdl/rigid_body_inertia.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 RigidBodyInertia::RigidBodyInertia(double _m, const Vector& _oc, const RotationalInertia& _ic) : m_(_m), h_(_m * _oc)
 {
@@ -31,5 +29,4 @@ std::ostream& operator<<(std::ostream& _os, const RigidBodyInertia& _arg)
   _os << "Rotational Inertia: " << _arg.I_;
   return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

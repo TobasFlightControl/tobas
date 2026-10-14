@@ -3,9 +3,7 @@
 
 #include "tobas_qt_tools/widgets/lamp_widget.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 LampWidget::LampWidget(QWidget* _parent) : super(_parent)
 {
@@ -59,5 +57,4 @@ void LampWidget::draw()
                   .arg(c_.g, 2, 16, QLatin1Char('0'))
                   .arg(c_.b, 2, 16, QLatin1Char('0')));
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

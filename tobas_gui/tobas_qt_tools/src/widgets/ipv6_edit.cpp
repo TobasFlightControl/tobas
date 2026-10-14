@@ -12,9 +12,7 @@
 
 #include <tobas_std_tools/check.hpp>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 namespace
 {
@@ -149,5 +147,4 @@ void IPv6Edit::setFieldValue(size_t _idx, uint16_t _value)
 {
   fields_.at(_idx)->setText(QString::number(_value, 16).rightJustified(4, '0'));
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

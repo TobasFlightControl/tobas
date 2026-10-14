@@ -3,16 +3,7 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
+namespace tobas::gui::sa::propulsion
 {
 static constexpr int kDataTableColWidth = 180;
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion

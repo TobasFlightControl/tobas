@@ -11,13 +11,7 @@
 
 #include <rapidcsv.h>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace csv
+namespace tobas::gui::sa::csv
 {
 rapidcsv::Document load(const std::filesystem::path& _path);
 
@@ -31,7 +25,4 @@ std::expected<std::vector<T>, std::string> getColumn(const rapidcsv::Document& _
     return std::unexpected(std::string(e.what()));
   }
 }
-}  // namespace csv
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::csv

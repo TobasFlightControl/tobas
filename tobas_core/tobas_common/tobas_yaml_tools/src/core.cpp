@@ -7,9 +7,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace yaml
+namespace tobas::yaml
 {
 std::string dump(const YAML::Node& _node) noexcept
 {
@@ -50,5 +48,4 @@ std::expected<void, std::string> save(const fs::path& _path, const YAML::Node& _
 
   return {};
 }
-}  // namespace yaml
-}  // namespace tobas
+}  // namespace tobas::yaml

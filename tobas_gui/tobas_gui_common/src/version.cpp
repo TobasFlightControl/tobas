@@ -8,11 +8,7 @@
 #include <tobas_version/version.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 namespace
 {
@@ -120,6 +116,4 @@ bool Version::save(const QString& _path) const
 
   return true;
 }
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

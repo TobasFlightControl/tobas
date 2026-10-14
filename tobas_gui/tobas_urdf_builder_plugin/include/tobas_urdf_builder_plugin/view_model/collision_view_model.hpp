@@ -6,13 +6,7 @@
 #include "./base_view_model.hpp"
 #include "./geometry_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 class CollisionViewModel : public BaseViewModel<::urdf::Collision, CollisionViewModel>
 {
@@ -35,7 +29,4 @@ private:
 
 using CollisionViewModelPtr = std::shared_ptr<CollisionViewModel>;
 using V_CollisionViewModelPtr = std::vector<CollisionViewModelPtr>;
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

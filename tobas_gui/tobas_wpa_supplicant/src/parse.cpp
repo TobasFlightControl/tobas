@@ -10,9 +10,7 @@
 
 #include "tobas_wpa_supplicant/constants.hpp"
 
-namespace tobas
-{
-namespace wpa
+namespace tobas::wpa
 {
 namespace
 {
@@ -872,5 +870,4 @@ std::expected<Data, std::string> parseFromText(const std::string& _text)
 
   return res;
 }
-}  // namespace wpa
-}  // namespace tobas
+}  // namespace tobas::wpa

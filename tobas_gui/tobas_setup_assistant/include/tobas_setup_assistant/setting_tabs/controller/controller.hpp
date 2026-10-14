@@ -11,13 +11,7 @@
 #include "./base.hpp"
 #include "tobas_setup_assistant/frame_type.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace ctrl
+namespace tobas::gui::sa::ctrl
 {
 class ControllerWidget : public BaseSettingWidget
 {
@@ -69,7 +63,4 @@ private:
 private Q_SLOTS:
   void onDontUseBuiltinCtrlCheckBoxToggled(bool _checked);
 };
-}  // namespace ctrl
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::ctrl

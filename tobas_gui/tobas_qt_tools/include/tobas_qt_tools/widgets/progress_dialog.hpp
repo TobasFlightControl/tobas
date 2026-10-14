@@ -6,9 +6,7 @@
 #include <QProgressDialog>
 #include <QTimer>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QProgressDialog` =====
@@ -48,5 +46,4 @@ private:
 private Q_SLOTS:
   void onTimerTimeout();
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

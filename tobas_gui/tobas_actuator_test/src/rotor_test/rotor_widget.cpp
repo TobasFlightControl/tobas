@@ -9,11 +9,7 @@
 
 #include <tobas_qt_tools/util.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace at
+namespace tobas::gui::at
 {
 RotorWidget::RotorWidget()
 {
@@ -170,6 +166,4 @@ void RotorWidget::onGainChanged(int _gain)
   setGainBox(_gain);
   Q_EMIT gainChanged(_gain);
 }
-}  // namespace at
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::at

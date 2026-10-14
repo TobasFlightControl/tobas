@@ -10,11 +10,7 @@
 
 #include "../base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class LoginPasswordWidget : public BaseConfigWidget
 {
@@ -43,6 +39,4 @@ private Q_SLOTS:
   void onTextChanged();
   void onWriteButtonClicked();
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

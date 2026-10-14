@@ -7,9 +7,7 @@
 
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace traj
+namespace tobas::traj
 {
 namespace
 {
@@ -76,5 +74,4 @@ double AccelLimitedTrajectory::duration() const noexcept
 {
   return tf_;
 }
-}  // namespace traj
-}  // namespace tobas
+}  // namespace tobas::traj

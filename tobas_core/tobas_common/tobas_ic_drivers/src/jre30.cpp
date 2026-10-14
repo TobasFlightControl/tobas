@@ -5,9 +5,7 @@
 
 #include <iostream>
 
-namespace tobas
-{
-namespace driver
+namespace tobas::driver
 {
 size_t JRE30Packet_A::packetSize() const
 {
@@ -166,5 +164,4 @@ bool JRE30::checkCRC() const
 
   return true;
 }
-}  // namespace driver
-}  // namespace tobas
+}  // namespace tobas::driver

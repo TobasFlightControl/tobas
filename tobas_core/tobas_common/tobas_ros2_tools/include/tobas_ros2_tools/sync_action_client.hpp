@@ -17,9 +17,7 @@
 // #include <tobas_std_msgs/action/empty.hpp>
 // using ActType = tobas_std_msgs::action::Empty;
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 /**
  * Synchronous action client.
@@ -178,5 +176,4 @@ inline bool SyncActionClient<ActType>::waitForServer(std::chrono::duration<RepT,
 {
   return client_->wait_for_action_server(_timeout);
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

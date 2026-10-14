@@ -9,11 +9,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 BatteryPlotWidget::BatteryPlotWidget() : voltage_curve_("Voltage [V]"), current_curve_("Current [A]")
 {
@@ -81,6 +77,4 @@ void BatteryPlotWidget::setData(const QVector<tobas_msgs::msg::Battery>& _batt_m
   setVerticalScale(*current_plot_, current_range);
   current_plot_->replot();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

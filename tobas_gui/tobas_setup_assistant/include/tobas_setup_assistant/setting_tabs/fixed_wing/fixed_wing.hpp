@@ -8,13 +8,7 @@
 #include "./control_surfaces.hpp"
 #include "./vehicle.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace fw
+namespace tobas::gui::sa::fw
 {
 class FixedWingWidget : public BaseSettingWidget
 {
@@ -43,7 +37,4 @@ private:
   AerodynamicsCoefficientsWidget* aero_coefs_;
   ControlSurfacesWidget* control_surfaces_;
 };
-}  // namespace fw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::fw

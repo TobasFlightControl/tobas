@@ -8,11 +8,7 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 DebugWidget::DebugWidget()
 {
@@ -30,6 +26,4 @@ bool DebugWidget::userDebug() const
 {
   return user_debug_->isChecked();
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

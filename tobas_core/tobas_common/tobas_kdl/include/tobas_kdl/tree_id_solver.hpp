@@ -8,9 +8,7 @@
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /**
  * Recursive newton euler inverse dynamics solver for kinematic trees.
@@ -64,5 +62,4 @@ private:
     const JntArray& _qdd,
     const WrenchMap& _f_ext);
 };
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

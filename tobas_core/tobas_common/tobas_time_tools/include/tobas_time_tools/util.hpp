@@ -9,9 +9,7 @@
 #include <string>
 #include <thread>
 
-namespace tobas
-{
-namespace tim
+namespace tobas::tim
 {
 inline void sleep(double _sec)
 {
@@ -49,5 +47,4 @@ timePointFromUTC(int _year, int _month, int _day, int _hour, int _min, int _sec,
 
 /** Convert a Gregorian date to a fractional year using day precision. */
 double yearFraction(const std::chrono::system_clock::time_point& _tp = std::chrono::system_clock::now());
-}  // namespace tim
-}  // namespace tobas
+}  // namespace tobas::tim

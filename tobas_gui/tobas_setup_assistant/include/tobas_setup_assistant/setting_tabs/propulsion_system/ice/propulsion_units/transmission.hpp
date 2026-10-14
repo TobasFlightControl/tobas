@@ -6,15 +6,7 @@
 #include "./base.hpp"
 #include "tobas_setup_assistant/param_getters/ratio.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 class TransmissionWidget : public BaseSelectedLinkSettingWidget
 {
@@ -36,8 +28,4 @@ public:
 private:
   ParamGetterWidget_Ratio* gear_ratio_;
 };
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

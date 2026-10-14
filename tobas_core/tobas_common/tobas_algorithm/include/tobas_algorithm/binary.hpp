@@ -5,9 +5,7 @@
 
 #include <cstdint>
 
-namespace tobas
-{
-namespace algo
+namespace tobas::algo
 {
 template <typename T>
 inline T extractLowerBits(T _value, uint8_t _n)
@@ -45,5 +43,4 @@ inline uint32_t decodeU32(const uint8_t* _ptr)
 {
   return (_ptr[3] << 24) | (_ptr[2] << 16) | (_ptr[1] << 8) | _ptr[0];
 }
-}  // namespace algo
-}  // namespace tobas
+}  // namespace tobas::algo

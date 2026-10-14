@@ -28,11 +28,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 namespace
 {
@@ -491,6 +487,4 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
 
   qt::qInfoBox(this, "New Tobas project has been generated.");
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

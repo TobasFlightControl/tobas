@@ -12,9 +12,7 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/fixed_wing.hpp>
 
-namespace tobas
-{
-namespace fixed_wing
+namespace tobas::fixed_wing
 {
 namespace
 {
@@ -253,5 +251,4 @@ void MicroDisturbanceEoM::setInputLimits()
     ++cs_idx;
   }
 }
-}  // namespace fixed_wing
-}  // namespace tobas
+}  // namespace tobas::fixed_wing

@@ -10,9 +10,7 @@
 #include <tobas_algorithm/crc.hpp>
 #include <tobas_linux/spi_dev.hpp>
 
-namespace tobas
-{
-namespace fc1xx
+namespace tobas::fc1xx
 {
 /**
  * SPI interface for DShot motor commands and ESC telemetry on FC1XX hardware.
@@ -110,5 +108,4 @@ private:
 
   algo::CRC32Left crc_;
 };
-}  // namespace fc1xx
-}  // namespace tobas
+}  // namespace tobas::fc1xx

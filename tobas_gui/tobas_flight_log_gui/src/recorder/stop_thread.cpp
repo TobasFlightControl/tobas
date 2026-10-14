@@ -6,11 +6,7 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_path_tools/join.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 void RecordStopThread::run()
 {
@@ -44,6 +40,4 @@ void RecordStopThread::clearRosInterfaces()
 {
   sc_.reset();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

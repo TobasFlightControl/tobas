@@ -14,9 +14,7 @@
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace real
+namespace tobas::real
 {
 class CpuHandlerNode : public BaseNode
 {
@@ -213,7 +211,6 @@ void CpuHandlerNode::mainTimerCb()
   cpu_msg->load = load_lpf_.getValue();
   cpu_pub_->publish(std::move(cpu_msg));
 }
-}  // namespace real
-}  // namespace tobas
+}  // namespace tobas::real
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::CpuHandlerNode)

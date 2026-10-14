@@ -22,9 +22,7 @@ bool hasSettingsIdentity()
 }
 }  // namespace
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 MainWidget::MainWidget(const QString& _title, const QString& _icon_path, QWidget* _widget) : widget_(_widget)
 {
@@ -92,5 +90,4 @@ void MainWidget::saveWindowGeometry()
   settings.sync();
   geometry_saved_ = true;
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

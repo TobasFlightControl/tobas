@@ -13,13 +13,7 @@
 
 #include "./stick_panel.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
-{
-namespace rcin
+namespace tobas::gui::ctrl::rcin
 {
 class RCInputViewerWidget : public QWidget
 {
@@ -50,7 +44,4 @@ private:
 private Q_SLOTS:
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin);
 };
-}  // namespace rcin
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::rcin

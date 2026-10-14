@@ -8,11 +8,7 @@
 
 #include "./base_setting.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class FailsafeWidget : public BaseSettingWidget
 {
@@ -74,6 +70,4 @@ private:
 
   qt::SpinBox* esc_no_comm_timeout_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

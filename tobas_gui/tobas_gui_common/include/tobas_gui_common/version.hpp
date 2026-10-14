@@ -5,11 +5,7 @@
 
 #include <QString>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 class Version
 {
@@ -38,6 +34,4 @@ public:
    */
   auto operator<=>(const Version&) const = default;
 };
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

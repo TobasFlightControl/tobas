@@ -14,9 +14,7 @@
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class ElectricRotorCommandHandlerNode : public BaseNode
 {
@@ -107,7 +105,6 @@ void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::Roto
   // Publish control latency.
   latency_pub_.publish(_tar_speeds->header.stamp);
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::gazebo::ElectricRotorCommandHandlerNode)

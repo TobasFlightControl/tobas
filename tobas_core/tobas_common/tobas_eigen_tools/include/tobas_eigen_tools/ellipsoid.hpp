@@ -7,9 +7,7 @@
 
 #include "./typedef.hpp"
 
-namespace tobas
-{
-namespace eigen
+namespace tobas::eigen
 {
 /** axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0 */
 struct EllipsoidCoefficients
@@ -69,5 +67,4 @@ inline Eigen::Vector3d Ellipsoid::toUnitSphere(const Eigen::Vector3d& _x) const
 {
   return T_inv_ * (_x - b_);
 }
-}  // namespace eigen
-}  // namespace tobas
+}  // namespace tobas::eigen

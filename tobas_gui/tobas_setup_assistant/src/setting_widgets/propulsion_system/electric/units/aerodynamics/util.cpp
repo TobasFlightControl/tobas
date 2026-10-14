@@ -7,15 +7,7 @@
 #include <tobas_math/definitions.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 namespace
 {
@@ -51,8 +43,4 @@ double momentConstFromUiuc(const Eigen::VectorXd& _cts, const Eigen::VectorXd& _
   const auto den = M_2PI * _cts;
   return ratioLeastSquare(num, den);
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

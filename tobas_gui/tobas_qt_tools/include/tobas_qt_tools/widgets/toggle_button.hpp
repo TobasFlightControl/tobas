@@ -5,9 +5,7 @@
 
 #include <QPushButton>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /** Simple toggle button whose text changes each time it is pressed. */
 class ToggleButton : public QPushButton
@@ -36,5 +34,4 @@ private:
 private Q_SLOTS:
   void onClicked();
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

@@ -3,9 +3,7 @@
 
 #include "tobas_rviz_plugin/link_updater.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 LinkUpdater::LinkUpdater(const RobotState& _state) : robot_state_(_state)
 {
@@ -35,5 +33,4 @@ bool LinkUpdater::getLinkTransforms(
 
   return true;
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

@@ -5,9 +5,7 @@
 
 #include "./model_links_parser.hpp"
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /** Hold the total mass of the model. */
 class ModelMassHolder
@@ -26,5 +24,4 @@ private:
   double mass_;
   ModelLinksParser model_links_parser_;
 };
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

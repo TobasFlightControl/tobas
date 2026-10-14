@@ -10,11 +10,7 @@
 
 #include "../base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class SshAuthorizedKeysWidget : public BaseConfigWidget
 {
@@ -49,6 +45,4 @@ private Q_SLOTS:
   void onRemoveButtonClicked();
   void onClearButtonClicked();
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

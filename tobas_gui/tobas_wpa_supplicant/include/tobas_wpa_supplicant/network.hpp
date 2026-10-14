@@ -7,9 +7,7 @@
 
 #include "./key_mgmt.hpp"
 
-namespace tobas
-{
-namespace wpa
+namespace tobas::wpa
 {
 struct Network
 {
@@ -19,5 +17,4 @@ struct Network
   bool scan_ssid = false;
   KeyMgmt key_mgmt = NONE;
 };
-}  // namespace wpa
-}  // namespace tobas
+}  // namespace tobas::wpa

@@ -3,9 +3,7 @@
 
 #include "tobas_manipulation/util.hpp"
 
-namespace tobas
-{
-namespace manipulation
+namespace tobas::manipulation
 {
 std::vector<std::string> linkNames(const tobas_msgs::LinkStateArray& _msg)
 {
@@ -42,5 +40,4 @@ findActiveJointNames(const kdl::Tree& _tree, const std::vector<std::string>& _en
 
   return active_joints;
 }
-}  // namespace manipulation
-}  // namespace tobas
+}  // namespace tobas::manipulation

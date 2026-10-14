@@ -9,11 +9,7 @@
 
 #include "./ssh_client.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 class RemoteProjectBuilder
 {
@@ -25,6 +21,4 @@ public:
 private:
   cmn::SshClientWrapper ssh_client_;
 };
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

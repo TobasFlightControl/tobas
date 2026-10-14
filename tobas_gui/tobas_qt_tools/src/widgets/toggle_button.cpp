@@ -3,9 +3,7 @@
 
 #include "tobas_qt_tools/widgets/toggle_button.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 ToggleButton::ToggleButton(const QString& _off_text, const QString& _on_text, QWidget* _parent)
   : super(_parent), off_text_(_off_text), on_text_(_on_text)
@@ -51,5 +49,4 @@ void ToggleButton::onClicked()
     Q_EMIT unchecked();
   }
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

@@ -5,9 +5,7 @@
 
 #include "./data.hpp"
 
-namespace tobas
-{
-namespace wpa
+namespace tobas::wpa
 {
 class Exporter
 {
@@ -19,5 +17,4 @@ public:
 private:
   static const char* countryCodeToString(CountryCode _cc);
 };
-}  // namespace wpa
-}  // namespace tobas
+}  // namespace tobas::wpa

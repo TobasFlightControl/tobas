@@ -7,9 +7,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 class C2D_RK4 : BaseC2D
 {
@@ -26,5 +24,4 @@ private:
   std::array<Eigen::MatrixXd, 5> Ac_dt_pows_;  ///< Array holding powers of Ac*dt
   std::array<double, 5> factorials_;           ///< Array holding factorials
 };
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

@@ -6,9 +6,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 LabeledDoubleSpinBox::LabeledDoubleSpinBox(const QString& _label_text)
 {
@@ -69,5 +67,4 @@ void LabeledDoubleSpinBox::onValueChanged(double _value)
 {
   Q_EMIT valueChanged(_value);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

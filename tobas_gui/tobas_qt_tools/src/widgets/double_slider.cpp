@@ -5,9 +5,7 @@
 
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 namespace
 {
@@ -70,5 +68,4 @@ double DoubleSlider::valueFromSlider(int _slider_value) const
 {
   return math::remap<double>(_slider_value, 0, kRange, min_, max_);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

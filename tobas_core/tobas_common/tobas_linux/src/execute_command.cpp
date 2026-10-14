@@ -11,9 +11,7 @@
 
 #include <tobas_std_tools/error.hpp>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 std::expected<std::string, std::string> executeCommand(std::string _command)
 {
@@ -79,5 +77,4 @@ std::expected<std::string, std::string> executeCommand(std::string _command)
   }
   return std::unexpected(error);
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

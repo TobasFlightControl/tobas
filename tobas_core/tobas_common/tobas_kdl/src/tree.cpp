@@ -5,9 +5,7 @@
 
 #include <iostream>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 Tree::Tree(const std::string& _root_name)
 {
@@ -330,5 +328,4 @@ std::ostream& operator<<(std::ostream& _os, const Tree& _arg)
 
   return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

@@ -5,9 +5,7 @@
 
 #include "./vector_vel.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class RotationVel
 {
@@ -135,5 +133,4 @@ inline RotationVel operator*(const RotationVel& _r1, const Rotation& _r2)
 {
   return RotationVel(_r1.R * _r2, _r1.w);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

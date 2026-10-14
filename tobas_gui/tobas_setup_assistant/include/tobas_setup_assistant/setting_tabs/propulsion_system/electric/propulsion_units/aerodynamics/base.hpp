@@ -8,15 +8,7 @@
 
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 class AerodynamicsWidget_Base : public QWidget
 {
@@ -50,8 +42,4 @@ private:
 private Q_SLOTS:
   void initialize();
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

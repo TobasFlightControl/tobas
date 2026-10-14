@@ -15,11 +15,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 WorldWidget::WorldWidget()
 {
@@ -89,6 +85,4 @@ void WorldWidget::onButtonGroupIdClicked()
 {
   updateEnabled();
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

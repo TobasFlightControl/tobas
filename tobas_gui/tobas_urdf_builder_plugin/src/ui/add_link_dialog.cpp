@@ -9,13 +9,7 @@
 
 #include "tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 AddLinkDialog::AddLinkDialog(UrdfBuilderPanel* _main, const QStringList& _link_names, view_model::LinkViewModel& _link_vm)
   : super(_main), main_(_main), ui_(new Ui::AddLinkDialogUI()), link_vm_(_link_vm)
@@ -98,7 +92,4 @@ void AddLinkDialog::enableOkButton(bool _enable)
 {
   ui_->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(_enable);
 }
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

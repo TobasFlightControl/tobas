@@ -7,13 +7,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace ctrl
+namespace tobas::gui::sa::ctrl
 {
 class CustomFrameWidget : public BaseControllerWidget
 {
@@ -44,7 +38,4 @@ private:
   qt::ComboBox* stabilize_mode_;
   qt::ComboBox* loiter_mode_;
 };
-}  // namespace ctrl
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::ctrl

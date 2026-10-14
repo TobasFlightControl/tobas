@@ -7,9 +7,7 @@
 
 #include "./vector.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class Accel;
 using AccelMap = std::map<std::string, Accel>;
@@ -123,5 +121,4 @@ inline std::ostream& operator<<(std::ostream& _os, const Accel& _arg)
   _os << "Linear: " << _arg.linear << ", Angular: " << _arg.angular;
   return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

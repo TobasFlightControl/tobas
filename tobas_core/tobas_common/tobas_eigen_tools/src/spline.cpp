@@ -3,9 +3,7 @@
 
 #include "tobas_eigen_tools/spline.hpp"
 
-namespace tobas
-{
-namespace eigen
+namespace tobas::eigen
 {
 SplineFunction::SplineFunction(const Eigen::VectorXd& _x_vec, const Eigen::VectorXd& _y_vec, size_t _degree)
   : x_min_(_x_vec.minCoeff())
@@ -36,5 +34,4 @@ Eigen::RowVectorXd SplineFunction::scaledValues(const Eigen::VectorXd& _x_vec) c
 {
   return _x_vec.unaryExpr([this](double _x) { return scaledValue(_x); }).transpose();
 }
-}  // namespace eigen
-}  // namespace tobas
+}  // namespace tobas::eigen

@@ -5,9 +5,7 @@
 
 #include <limits>
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 class SecondOrderVelocityFilter
 {
@@ -43,5 +41,4 @@ inline double SecondOrderVelocityFilter::getTrajectoryAccel() const
 {
   return a_;
 }
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

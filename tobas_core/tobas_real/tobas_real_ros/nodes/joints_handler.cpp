@@ -13,9 +13,7 @@
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/pwm_array.hpp>
 
-namespace tobas
-{
-namespace real
+namespace tobas::real
 {
 /**
  * Receive joint position, velocity, and effort commands and command the appropriate hardware interface.
@@ -293,7 +291,6 @@ void JointsHandlerNode::effortResetTimerCb()
 {
   // TODO
 }
-}  // namespace real
-}  // namespace tobas
+}  // namespace tobas::real
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::JointsHandlerNode)

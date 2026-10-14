@@ -10,11 +10,7 @@
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const rqt::RosQtBridge& _bridge)
   : spinner_(Qt::WindowModal, this), thread_(_bridge)
@@ -88,6 +84,4 @@ void LargeVehicleMagCalibWidget::armingCb(const tobas_msgs::msg::Arming::ConstSh
 {
   arming_ = _arming;
 }
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

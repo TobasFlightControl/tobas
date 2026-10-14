@@ -9,9 +9,7 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class RotorStatesPublisherNode : public BaseNode
 {
@@ -82,7 +80,6 @@ void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::C
     rotor_states_.clear();
   }
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::gazebo::RotorStatesPublisherNode)

@@ -15,9 +15,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace colcon
+namespace tobas::colcon
 {
 std::expected<void, std::string> build(const fs::path& _pkg_path, const fs::path& _ws_path, const BuildOptions& _options)
 {
@@ -96,5 +94,4 @@ std::expected<void, std::string> cleanWorkspace(const fs::path& _ws_path)
   return {};
 }
 
-}  // namespace colcon
-}  // namespace tobas
+}  // namespace tobas::colcon

@@ -5,9 +5,7 @@
 
 #include <QFont>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /** `QFont` that uses the default style by default. */
 class DefaultFont : public QFont
@@ -15,5 +13,4 @@ class DefaultFont : public QFont
 public:
   explicit DefaultFont(int _point_size = -1, int _weight = -1, bool _italic = false);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

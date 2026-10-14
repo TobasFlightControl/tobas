@@ -12,11 +12,7 @@
 #include "tobas_flight_log_gui/log_viewer/plots/utilities/constants.hpp"
 #include "tobas_flight_log_gui/log_viewer/plots/utilities/qwt_plot.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 namespace
 {
@@ -142,6 +138,4 @@ void setSharedZeroCenteredVerticalScale(std::span<QwtPlot2* const> _plots, const
     applyVerticalScale(*plot, scale);
   }
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

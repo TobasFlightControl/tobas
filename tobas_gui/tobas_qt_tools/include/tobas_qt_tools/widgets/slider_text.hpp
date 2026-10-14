@@ -8,9 +8,7 @@
 #include "./double_slider.hpp"
 #include "./slider.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class IntSliderTextWidget : public QWidget
 {
@@ -68,5 +66,4 @@ private Q_SLOTS:
   void onSliderValueChanged();
   void onLineEditReturnPressed();
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

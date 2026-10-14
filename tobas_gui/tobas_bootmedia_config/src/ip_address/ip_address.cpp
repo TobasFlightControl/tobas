@@ -10,11 +10,7 @@
 #include "tobas_bootmedia_config/constants.hpp"
 #include "tobas_bootmedia_config/ip_address/ipv4.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 IpAddressWidget::IpAddressWidget()
 {
@@ -89,6 +85,4 @@ void IpAddressWidget::onWriteButtonClicked()
 
   qt::qInfoBox(this, "IP address configuration was written successfully.");
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

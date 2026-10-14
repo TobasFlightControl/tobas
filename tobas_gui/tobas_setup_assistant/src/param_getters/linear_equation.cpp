@@ -5,11 +5,7 @@
 
 #include <tobas_string_tools/core.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 ParamGetterWidget_LinearEquation::ParamGetterWidget_LinearEquation(
   const QString& _param_name,
@@ -64,6 +60,4 @@ void ParamGetterWidget_LinearEquation::onValueChanged()
 {
   Q_EMIT valueChanged(getValue());
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

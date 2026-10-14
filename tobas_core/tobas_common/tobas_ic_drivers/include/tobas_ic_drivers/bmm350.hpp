@@ -7,9 +7,7 @@
 
 #include <tobas_linux/i2c_dev.hpp>
 
-namespace tobas
-{
-namespace driver
+namespace tobas::driver
 {
 /**
  * A linux driver of 3-axis magnetometer bmm350.
@@ -285,5 +283,4 @@ private:
   ODR odr_ = ODR_100Hz;
   Averaging averaging_ = AVG_4;
 };
-}  // namespace driver
-}  // namespace tobas
+}  // namespace tobas::driver

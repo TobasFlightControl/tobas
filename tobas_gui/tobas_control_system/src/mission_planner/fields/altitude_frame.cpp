@@ -10,13 +10,7 @@
 #include <QHBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
-{
-namespace field
+namespace tobas::gui::ctrl::field
 {
 namespace
 {
@@ -77,7 +71,4 @@ void AltitudeFrameWidget::setValue(mission::AltitudeFrame _value)
 {
   combobox_->setCurrentText(altFrameToText(_value));
 }
-}  // namespace field
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::field

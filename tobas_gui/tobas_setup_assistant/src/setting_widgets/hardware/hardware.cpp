@@ -14,13 +14,7 @@
 #include "tobas_setup_assistant/setting_tabs/hardware/fc1xx.hpp"
 #include "tobas_setup_assistant/setting_tabs/hardware/fc2xx.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace hw
+namespace tobas::gui::sa::hw
 {
 namespace
 {
@@ -295,7 +289,4 @@ void HardwareWidget::onHardwareTypeChanged(int _index)
 
   setCurrentHardware(_index);
 }
-}  // namespace hw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::hw

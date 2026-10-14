@@ -3,10 +3,7 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace pwm_key
+namespace tobas::pwm_key
 {
 static constexpr char kEngineThrottleKey[] = "engine";
-}  // namespace pwm_key
-}  // namespace tobas
+}  // namespace tobas::pwm_key

@@ -5,11 +5,7 @@
 
 #include <QString>
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 struct ProjectEnv
 {
@@ -21,6 +17,4 @@ struct ProjectEnv
 
 ProjectEnv parseProjectEnv(const QString& _text);
 QString exportProjectEnv(const ProjectEnv& _env);
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

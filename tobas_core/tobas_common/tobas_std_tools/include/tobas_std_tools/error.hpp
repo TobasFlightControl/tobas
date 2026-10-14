@@ -6,11 +6,8 @@
 #include <cerrno>
 #include <string>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 /** Return an error string in the form "[Errno errno] strerror(errno)". */
 std::string strError(int _error_number = errno);
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

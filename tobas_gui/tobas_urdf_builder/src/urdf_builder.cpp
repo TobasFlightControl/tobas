@@ -9,11 +9,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
+namespace tobas::gui::ub
 {
 URDFBuilder::URDFBuilder() : rviz_manager_("rviz_urdf_builder")
 {
@@ -24,6 +20,4 @@ URDFBuilder::URDFBuilder() : rviz_manager_("rviz_urdf_builder")
   setLayout(rows);
   rows->addWidget(rviz_manager_.widget());
 }
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub

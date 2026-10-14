@@ -9,11 +9,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/check.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 SettingsWidget::SettingsWidget(const uadf::Model& _uadf, const kdl::Tree& _tree, Signals& _sig) : uadf_(_uadf)
 {
@@ -212,6 +208,4 @@ void SettingsWidget::setPageEnabled(BaseSettingWidget* _page, bool _enabled, con
 {
   setPageEnabled(getIndex(_page), _enabled, _disabled_reason);
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

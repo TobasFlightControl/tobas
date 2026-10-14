@@ -13,9 +13,7 @@
 using namespace std::chrono_literals;
 using namespace tobas_dparam_msgs::srv;
 
-namespace tobas
-{
-namespace dparam
+namespace tobas::dparam
 {
 class DynamicParamServer : public BaseNode
 {
@@ -79,8 +77,7 @@ void DynamicParamServer::callback(
   _res->success = true;
   _res->message.clear();
 }
-}  // namespace dparam
-}  // namespace tobas
+}  // namespace tobas::dparam
 
 int main(int _argc, char* _argv[])
 {

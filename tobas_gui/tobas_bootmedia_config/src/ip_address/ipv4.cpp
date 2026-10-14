@@ -6,11 +6,7 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 IPv4Widget::IPv4Widget(const QString& _name) : name_(_name)
 {
@@ -181,6 +177,4 @@ void IPv4Widget::onMethodChanged(int _index)
       throw std::runtime_error("Invalid method.");
   }
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

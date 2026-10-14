@@ -18,11 +18,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 MediaManagerWidget::MediaManagerWidget()
 {
@@ -273,6 +269,4 @@ void MediaManagerWidget::onScanTimerTimeout()
     connect_btn_->setEnabled(!medias_.empty());
   }
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

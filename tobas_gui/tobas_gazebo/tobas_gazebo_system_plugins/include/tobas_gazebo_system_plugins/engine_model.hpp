@@ -9,9 +9,7 @@
 #include "./filter/asymmetric_first_order_filter.hpp"
 #include "./ice_rotor_model.hpp"
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class EngineModel
 {
@@ -74,5 +72,4 @@ private:
   double calc_f() const;
   double calc_k() const;
 };
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

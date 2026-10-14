@@ -8,11 +8,7 @@
 #include "./base.hpp"
 #include "./int_getter.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ParamGetterWidget_IntRange : public ParamGetterWidget<st::Range<int>>
 {
@@ -47,6 +43,4 @@ private:
   IntGetter* min_;
   IntGetter* max_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

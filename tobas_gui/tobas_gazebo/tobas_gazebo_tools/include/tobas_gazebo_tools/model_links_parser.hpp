@@ -9,9 +9,7 @@
 #include <gz/sim/Entity.hh>
 #include <gz/sim/EntityComponentManager.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /** Hold all links that belong to the model. */
 class ModelLinksParser
@@ -34,5 +32,4 @@ public:
 private:
   std::map<std::string, gz::sim::Entity> links_;
 };
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

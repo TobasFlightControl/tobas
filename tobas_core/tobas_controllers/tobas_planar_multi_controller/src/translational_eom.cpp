@@ -5,9 +5,7 @@
 
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
-{
-namespace planar_multicopter
+namespace tobas::planar_multicopter
 {
 TranslationalEoM::TranslationalEoM(const kdl::Tree& _tree) : mass_holder_(_tree), grav_W_(0, 0, -st::kGravity)
 {
@@ -51,5 +49,4 @@ bool TranslationalEoM::solve(
 
   return true;
 }
-}  // namespace planar_multicopter
-}  // namespace tobas
+}  // namespace tobas::planar_multicopter

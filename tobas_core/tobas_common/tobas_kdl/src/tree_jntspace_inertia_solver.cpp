@@ -5,9 +5,7 @@
 
 #include <cassert>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeJntSpaceInertiaSolver::TreeJntSpaceInertiaSolver(const Tree& _tree)
   : super(_tree), rne_bias_(tree_, kdl::Vector::Zero()), rne_mass_(tree_, kdl::Vector::Zero())
@@ -49,5 +47,4 @@ void TreeJntSpaceInertiaSolver::resize()
   q_zero_ = JntArray::Zero(nj_);
   mass_out_.resize(nj_);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

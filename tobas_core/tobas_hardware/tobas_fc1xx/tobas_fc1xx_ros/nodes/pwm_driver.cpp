@@ -8,9 +8,7 @@
 
 #include <tobas_msgs/msg/pwm_array.hpp>
 
-namespace tobas
-{
-namespace fc1xx
+namespace tobas::fc1xx
 {
 class PwmDriverNode : public BaseNode
 {
@@ -63,7 +61,6 @@ void PwmDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& _pwm
     TOBAS_ERROR("Failed to send PWM command.");
   }
 }
-}  // namespace fc1xx
-}  // namespace tobas
+}  // namespace tobas::fc1xx
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::PwmDriverNode)

@@ -12,11 +12,7 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 namespace
 {
@@ -350,6 +346,4 @@ void ExtraJointsWidget::addLink(const std::string& _link_name)
   // Set to the default values.
   reset(row);
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

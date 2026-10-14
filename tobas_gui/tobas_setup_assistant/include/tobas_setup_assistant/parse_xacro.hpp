@@ -7,13 +7,7 @@
 
 #include <QString>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 std::expected<QString, QString> parseXacroFromPath(const QString& _xacro_path);
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

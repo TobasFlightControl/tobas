@@ -5,11 +5,7 @@
 
 #include <QVBoxLayout>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 HealthViewerWidget::HealthViewerWidget(const rqt::RosQtBridge& _bridge)
 {
@@ -94,6 +90,4 @@ void HealthViewerWidget::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSha
   vibration_level_status_->setStatus(_health->vibration_level);
   user_defined_status_->setStatus(_health->user_defined_condition);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

@@ -5,11 +5,7 @@
 
 #include <QString>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 class ProjectPaths
 {
@@ -106,6 +102,4 @@ public:
 private:
   QString proj_path_;
 };
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

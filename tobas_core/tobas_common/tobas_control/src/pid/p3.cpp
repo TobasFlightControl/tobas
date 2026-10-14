@@ -3,12 +3,9 @@
 
 #include "tobas_control/pid/p3.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 P3::P3()
 {
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

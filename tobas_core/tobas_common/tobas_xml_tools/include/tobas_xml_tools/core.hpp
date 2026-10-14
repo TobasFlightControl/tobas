@@ -8,9 +8,7 @@
 
 #include <tinyxml2.h>
 
-namespace tobas
-{
-namespace xml
+namespace tobas::xml
 {
 std::string xmlDocumentToString(const tinyxml2::XMLDocument* _doc);
 
@@ -33,5 +31,4 @@ void setAttribute(tinyxml2::XMLElement* _elem, const char* _name, const std::opt
     _elem->SetAttribute(_name, *_value);
   }
 }
-}  // namespace xml
-}  // namespace tobas
+}  // namespace tobas::xml

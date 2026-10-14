@@ -5,9 +5,7 @@
 
 #include <rclcpp/node.hpp>
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 /** Wait for `timeout` until `predicate` returns true. */
 bool waitUntil(
@@ -15,5 +13,4 @@ bool waitUntil(
   const std::function<bool()>& _predicate,
   const std::chrono::milliseconds _timeout,
   const std::chrono::milliseconds _interval = std::chrono::milliseconds(10));
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

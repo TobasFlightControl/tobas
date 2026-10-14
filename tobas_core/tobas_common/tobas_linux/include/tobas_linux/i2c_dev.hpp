@@ -6,9 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 class I2Cdev
 {
@@ -103,5 +101,4 @@ private:
   bool write(uint8_t _reg_addr, size_t _length, const void* _tx);
   bool read(size_t _length, void* _rx);
 };
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

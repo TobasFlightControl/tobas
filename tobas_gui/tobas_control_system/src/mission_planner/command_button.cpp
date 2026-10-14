@@ -3,11 +3,7 @@
 
 #include "tobas_control_system/mission_planner/command_button.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 CommandButton::CommandButton(const QString& _text) : super(_text)
 {
@@ -15,6 +11,4 @@ CommandButton::CommandButton(const QString& _text) : super(_text)
   setMinimumHeight(35);
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

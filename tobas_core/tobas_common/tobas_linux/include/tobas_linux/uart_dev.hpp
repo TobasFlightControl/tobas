@@ -9,9 +9,7 @@
 #include <cstdint>
 #include <optional>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 /**
  * UART driver.
@@ -63,5 +61,4 @@ private:
   bool setStandardBaudRate(uint32_t _baud_rate);
   bool setNonStandardBaudRate(uint32_t _baud_rate);
 };
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

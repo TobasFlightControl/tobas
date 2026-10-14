@@ -5,11 +5,7 @@
 
 #include <QPushButton>
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 class ShutdownButton : public QPushButton
 {
@@ -20,6 +16,4 @@ class ShutdownButton : public QPushButton
 public:
   explicit ShutdownButton(int _radius);
 };
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

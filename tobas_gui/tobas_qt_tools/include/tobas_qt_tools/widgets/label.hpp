@@ -5,9 +5,7 @@
 
 #include <QLabel>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QLabel` =====
@@ -29,5 +27,4 @@ public:
   void setTextColor(const QString& _color);
   void setTextColor(Qt::GlobalColor _color);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

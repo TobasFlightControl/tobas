@@ -12,11 +12,7 @@
 #include "./level_indicator.hpp"
 #include "./thread.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 class AccelCalibrationWidget : public BaseWidget
 {
@@ -50,6 +46,4 @@ private Q_SLOTS:
   void rawImuCb(const tobas_msgs::Imu::ConstSharedPtr& _imu_raw);
   void calibratedImuCb(const tobas_msgs::Imu::ConstSharedPtr& _imu_calib);
 };
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

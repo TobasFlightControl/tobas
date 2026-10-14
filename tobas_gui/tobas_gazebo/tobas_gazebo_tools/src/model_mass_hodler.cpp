@@ -5,9 +5,7 @@
 
 #include <gz/sim/components/Inertial.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 ModelMassHolder::ModelMassHolder()
 {
@@ -33,5 +31,4 @@ bool ModelMassHolder::initialize(const gz::sim::Entity& _model, const gz::sim::E
 
   return true;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

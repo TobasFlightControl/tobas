@@ -8,9 +8,7 @@
 
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 bool belongsTo(const gz::sim::Entity& _entity, const gz::sim::Entity& _target, const gz::sim::EntityComponentManager& _ecm)
 {
@@ -42,5 +40,4 @@ gz::sim::Entity findJointWithChildLink(const gz::sim::EntityComponentManager& _e
 
   return res;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

@@ -13,9 +13,7 @@
 #include "./vector.hpp"
 #include "./wrench.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class Frame;
 using FrameMap = std::map<std::string, Frame>;
@@ -364,5 +362,4 @@ inline std::ostream& operator<<(std::ostream& _os, const Frame& _arg)
   _os << "Translation: " << _arg.p << ", Rotation: " << _arg.M;
   return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

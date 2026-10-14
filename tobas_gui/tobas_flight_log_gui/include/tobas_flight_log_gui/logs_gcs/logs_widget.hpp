@@ -9,11 +9,7 @@
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class FlightLogsWidgetGCS : public QWidget
 {
@@ -56,6 +52,4 @@ private Q_SLOTS:
   void onDeleteButtonClicked(const QString& _log_name);
   void onListItemChanged(QListWidgetItem* _item);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

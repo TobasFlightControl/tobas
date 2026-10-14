@@ -5,9 +5,7 @@
 
 #include <QDebug>
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 RDFLoader::RDFLoader(
   const rclcpp::Node::SharedPtr& _node,
@@ -64,5 +62,4 @@ void RDFLoader::urdfUpdateCallback(const std::string& _new_urdf_string)
     new_model_cb_();
   }
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

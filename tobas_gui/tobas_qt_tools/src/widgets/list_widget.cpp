@@ -10,9 +10,7 @@
 #include <QStyledItemDelegate>
 #include <QVariant>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 namespace
 {
@@ -123,5 +121,4 @@ bool ListWidgetItem::operator<(const QListWidgetItem& _rhs) const
   const auto rdata = _rhs.data(Qt::UserRole);
   return ldata.toString() < rdata.toString();
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

@@ -9,13 +9,7 @@
 
 #include <tobas_qt_tools/path.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 SaveUrdfDialog::SaveUrdfDialog(QWidget* _parent, const QString& _dir)
   : QFileDialog(_parent, "Save URDF", _dir, "URDF (*.urdf);;All Files (*)")
@@ -61,7 +55,4 @@ void SaveUrdfDialog::onLineEditTextChanged()
     save_button_->setEnabled(file_name.length() > 0);
   }
 }
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

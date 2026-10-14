@@ -6,11 +6,7 @@
 #include <tobas_qt_tools/widgets/widget.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class PoseViewerWidget : public qt::Widget
 {
@@ -59,6 +55,4 @@ private Q_SLOTS:
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom);
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

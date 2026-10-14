@@ -11,13 +11,7 @@
 
 using GeometryType = decltype(::urdf::Geometry::type);
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 class GeometryViewModel : public BaseViewModel<::urdf::Geometry, GeometryViewModel>
 {
@@ -63,7 +57,4 @@ private:
 };
 
 using GeometryViewModelPtr = std::shared_ptr<GeometryViewModel>;
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

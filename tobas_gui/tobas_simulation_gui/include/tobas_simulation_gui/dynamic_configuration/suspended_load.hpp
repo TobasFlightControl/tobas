@@ -14,11 +14,7 @@
 #include <tobas_gazebo_msgs/srv/attach_suspended_load.hpp>
 #include <tobas_gazebo_msgs/srv/detach_suspended_load.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class SuspendedLoadWidget : public QWidget
 {
@@ -54,6 +50,4 @@ private Q_SLOTS:
   void onAttachButtonClicked();
   void onDetachButtonClicked();
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

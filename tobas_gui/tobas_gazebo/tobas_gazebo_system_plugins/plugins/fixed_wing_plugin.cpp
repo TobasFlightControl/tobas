@@ -31,9 +31,7 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /**
  * Plugin for aerodynamic forces acting on fixed-wing aircraft.
@@ -524,7 +522,6 @@ void GazeboFixedWingPlugin::windSpeedCb(const tobas_msgs::Wind::ConstSharedPtr& 
 {
   vectorKDLToGazebo(_wind->vel, wind_vel_W_);
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(tobas::gazebo::GazeboFixedWingPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPreUpdate)

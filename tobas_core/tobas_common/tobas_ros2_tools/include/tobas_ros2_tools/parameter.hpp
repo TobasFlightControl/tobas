@@ -5,9 +5,7 @@
 
 #include <rclcpp/node.hpp>
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 template <typename T>
 void declareParam(
@@ -28,5 +26,4 @@ void declareParam(
     _node->declare_parameter(_name, _default_value);
   }
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

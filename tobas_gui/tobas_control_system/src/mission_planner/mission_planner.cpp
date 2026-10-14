@@ -33,11 +33,7 @@ namespace fs = std::filesystem;
 
 Q_DECLARE_METATYPE(rclcpp_action::ResultCode);
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 namespace
 {
@@ -867,6 +863,4 @@ void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode _code, const
   mission_executing_ = false;
   setEditMode();
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

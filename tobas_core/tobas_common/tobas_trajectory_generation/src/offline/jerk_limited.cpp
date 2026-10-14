@@ -8,9 +8,7 @@
 
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace traj
+namespace tobas::traj
 {
 namespace
 {
@@ -147,5 +145,4 @@ double JerkLimitedTrajectory::a(double _t) const noexcept
     return -a(2 * t4_ - _t);  // Use point symmetry around t = t4, a = 0.
   }
 }
-}  // namespace traj
-}  // namespace tobas
+}  // namespace tobas::traj

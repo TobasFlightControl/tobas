@@ -5,13 +5,7 @@
 
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace hw
+namespace tobas::gui::sa::hw
 {
 FC2xxWidget::FC2xxWidget()
 {
@@ -139,7 +133,4 @@ bool FC2xxWidget::hasRpmFilter() const
 {
   return true;
 }
-}  // namespace hw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::hw

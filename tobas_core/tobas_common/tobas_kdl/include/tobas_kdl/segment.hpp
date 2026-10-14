@@ -11,9 +11,7 @@
 #include "./rigid_body_inertia.hpp"
 #include "./segment_jacobian.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /**
  * This class encapsulates a simple segment, that is a "rigid body" (i.e., a frame and a rigid body inertia)
@@ -137,5 +135,4 @@ inline const RigidBodyInertia& Segment::inertia() const
 {
   return I_;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

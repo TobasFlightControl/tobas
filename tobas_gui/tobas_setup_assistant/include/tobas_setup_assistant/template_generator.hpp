@@ -6,11 +6,7 @@
 #include <QString>
 #include <inja/inja.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class TemplateGenerator
 {
@@ -24,6 +20,4 @@ private:
 
   inja::Environment env_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

@@ -6,9 +6,7 @@
 #include "./solver_i.hpp"
 #include "./tree.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class TreeSolverI : public SolverI
 {
@@ -22,5 +20,4 @@ protected:
 inline TreeSolverI::TreeSolverI(const Tree& _tree) : tree_(_tree)
 {
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

@@ -6,11 +6,7 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 FrameTypeDetector::FrameTypeDetector(const uadf::Model& _uadf, const kdl::Tree& _tree)
   : uadf_(_uadf), tree_(_tree), jnt_parser_(_tree), axis_solver_(_tree)
@@ -228,6 +224,4 @@ bool FrameTypeDetector::allTiltRotorAxesPerpendicular()
 
   return true;
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

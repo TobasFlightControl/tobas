@@ -3,11 +3,7 @@
 
 #include "tobas_control_system/mission_planner/commands/land.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 LandWidget::LandWidget()
 {
@@ -45,6 +41,4 @@ void LandWidget::speed(double _value)
 {
   setValueOrDefault(speed_, _value);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

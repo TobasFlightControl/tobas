@@ -11,9 +11,7 @@
 
 #include <tobas_std_tools/error.hpp>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 bool setThreadPriority(pthread_t _thread, size_t _priority, sched_t _policy)
 {
@@ -94,5 +92,4 @@ bool setThisProcessCpuAffinity(uint32_t _cpu_bit_mask)
 {
   return setProcessCPUAffinity(getpid(), _cpu_bit_mask);
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

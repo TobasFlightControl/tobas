@@ -5,9 +5,7 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace tim
+namespace tobas::tim
 {
 std::expected<ch::system_clock::time_point, std::string> tmToTimePoint(tm _tm)
 {
@@ -60,5 +58,4 @@ double yearFraction(const ch::system_clock::time_point& _tp)
   const auto days_in_year = is_leap_year ? 366 : 365;  // 366 days in a leap year.
   return year + static_cast<double>(day_of_year) / days_in_year;
 }
-}  // namespace tim
-}  // namespace tobas
+}  // namespace tobas::tim

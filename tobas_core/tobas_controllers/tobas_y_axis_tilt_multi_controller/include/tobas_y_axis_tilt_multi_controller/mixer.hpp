@@ -10,9 +10,7 @@
 
 #include "./mixer_solution.hpp"
 
-namespace tobas
-{
-namespace y_axis_tilt_multicopter
+namespace tobas::y_axis_tilt_multicopter
 {
 /** memo: 3-39 */
 class Mixer : public MixerI
@@ -53,5 +51,4 @@ private:
   Eigen::Matrix5Xd E_;
   Eigen::Vector5d f_;
 };
-}  // namespace y_axis_tilt_multicopter
-}  // namespace tobas
+}  // namespace tobas::y_axis_tilt_multicopter

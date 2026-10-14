@@ -6,9 +6,7 @@
 #include <QColor>
 #include <QProgressBar>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QProgressBar` =====
@@ -32,5 +30,4 @@ public:
   /** Sets the value as a percentage in the current progress range. */
   void setPercentage(double _percentage);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

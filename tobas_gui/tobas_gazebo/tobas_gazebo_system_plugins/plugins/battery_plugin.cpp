@@ -20,9 +20,7 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class GazeboBatteryPlugin : public BaseNode,
                             public gz::sim::System,
@@ -208,7 +206,6 @@ void GazeboBatteryPlugin::chargeCb(
   q_ = capacity_;
   TOBAS_INFO("Battery is charged.");
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(tobas::gazebo::GazeboBatteryPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

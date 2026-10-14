@@ -5,9 +5,7 @@
 
 #include <iostream>
 
-namespace tobas
-{
-namespace stm
+namespace tobas::stm
 {
 ILPS22QS::ILPS22QS()
 {
@@ -107,5 +105,4 @@ void ILPS22QS::setPressureScale(uint8_t _fs_mode)
       throw;
   }
 }
-}  // namespace stm
-}  // namespace tobas
+}  // namespace tobas::stm

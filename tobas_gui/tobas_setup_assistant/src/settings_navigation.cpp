@@ -10,11 +10,7 @@
 #include <QMouseEvent>
 #include <QToolTip>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 namespace
 {
@@ -208,6 +204,4 @@ void SettingsNavigationWidget::onCurrentItemChanged(QListWidgetItem* _item)
     Q_EMIT currentEntryChanged(id.toInt());
   }
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

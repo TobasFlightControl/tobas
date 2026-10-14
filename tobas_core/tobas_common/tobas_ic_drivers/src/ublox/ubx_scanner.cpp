@@ -3,9 +3,7 @@
 
 #include "tobas_ic_drivers/ublox/ubx_scanner.hpp"
 
-namespace tobas
-{
-namespace ublox
+namespace tobas::ublox
 {
 UbxScanner::UbxScanner() : buffer_(kUbxHeaderLength)
 {
@@ -93,5 +91,4 @@ void UbxScanner::update(uint8_t _data)
     }
   }
 }
-}  // namespace ublox
-}  // namespace tobas
+}  // namespace tobas::ublox

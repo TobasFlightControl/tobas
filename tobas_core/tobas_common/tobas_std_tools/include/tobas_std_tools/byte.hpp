@@ -9,9 +9,7 @@
 #include <cstring>
 #include <vector>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 template <typename T>
 inline std::vector<uint8_t> toBytes(const T& _src)
@@ -51,5 +49,4 @@ inline T fromBytes(const std::array<uint8_t, N>& _src)
   fromBytes(_src, res);
   return res;
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

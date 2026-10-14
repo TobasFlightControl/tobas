@@ -5,9 +5,7 @@
 
 #include <urdf_parser/urdf_parser.h>
 
-namespace tobas
-{
-namespace urdf
+namespace tobas::urdf
 {
 Parser::Parser() : oh_(console_bridge::CONSOLE_BRIDGE_LOG_ERROR)
 {
@@ -42,5 +40,4 @@ std::expected<::urdf::ModelInterfaceSharedPtr, std::string> Parser::parseFromTex
 
   return res;
 }
-}  // namespace urdf
-}  // namespace tobas
+}  // namespace tobas::urdf

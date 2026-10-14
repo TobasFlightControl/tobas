@@ -5,9 +5,7 @@
 
 #include "./robot_model.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 /** Joint positions and the link transforms derived from them. */
 class RobotState
@@ -43,5 +41,4 @@ private:
   std::vector<Eigen::Isometry3d> global_link_transforms_;
   std::vector<uint8_t> dirty_joint_transforms_;
 };
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

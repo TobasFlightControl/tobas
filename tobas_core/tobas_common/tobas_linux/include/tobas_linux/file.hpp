@@ -3,11 +3,8 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 int writeFile(const char* _path, const char* _fmt, ...);
 int readFile(const char* _path, const char* _fmt, ...);
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

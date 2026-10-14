@@ -7,9 +7,7 @@
 
 #include "tobas_wpa_supplicant/constants.hpp"
 
-namespace tobas
-{
-namespace wpa
+namespace tobas::wpa
 {
 Exporter::Exporter()
 {
@@ -547,5 +545,4 @@ const char* Exporter::countryCodeToString(CountryCode _cc)
       throw;
   }
 }
-}  // namespace wpa
-}  // namespace tobas
+}  // namespace tobas::wpa

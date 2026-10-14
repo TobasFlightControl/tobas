@@ -10,11 +10,7 @@
 #include <tobas_constants/imu.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 ImuFftPlotWidget::ImuFftPlotWidget()
   : raw_curves_{ "Raw Accel X [m/s²]", "Raw Accel Y [m/s²]", "Raw Accel Z [m/s²]",
@@ -138,6 +134,4 @@ ImuFftPlotWidget::ValueRanges ImuFftPlotWidget::updateSamples(
 
   return ranges;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 MRControllerFeedbackPlotWidget::MRControllerFeedbackPlotWidget()
   : ei_curves_{ "X Integral Error [m*s]",      "Y Integral Error [m*s]",       "Z Integral Error [m*s]",
@@ -69,6 +65,4 @@ void MRControllerFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg
     ei_plots_[i]->replot();
   }
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

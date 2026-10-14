@@ -7,11 +7,7 @@
 
 #include "tobas_gui_common/project_paths.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 RemoteProjectBuilder::RemoteProjectBuilder(rclcpp::Node::SharedPtr _node) : ssh_client_(_node)
 {
@@ -41,6 +37,4 @@ std::expected<QString, QString> RemoteProjectBuilder::build(const QString& _remo
 
   return output;
 }
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

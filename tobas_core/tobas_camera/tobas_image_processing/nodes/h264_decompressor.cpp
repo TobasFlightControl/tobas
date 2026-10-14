@@ -10,9 +10,7 @@
 
 using namespace std::placeholders;
 
-namespace tobas
-{
-namespace camera
+namespace tobas::camera
 {
 /** Subscribe to H.264-compressed ffmpeg_image_transport_msgs/msg/FFMPEGPacket images, decompress them, and publish them. */
 class H264Decompressor : public BaseNode
@@ -73,7 +71,6 @@ void H264Decompressor::callback(const ffmpeg_image_transport_msgs::msg::FFMPEGPa
   decoder_.decodePacket(
     _msg->encoding, &_msg->data[0], _msg->data.size(), _msg->pts, _msg->header.frame_id, _msg->header.stamp);
 }
-}  // namespace camera
-}  // namespace tobas
+}  // namespace tobas::camera
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::H264Decompressor)

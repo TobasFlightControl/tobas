@@ -10,11 +10,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class IPv4Widget : public BaseNetworkWidget
 {
@@ -70,6 +66,4 @@ private:
 private Q_SLOTS:
   void onMethodChanged(int _index);
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

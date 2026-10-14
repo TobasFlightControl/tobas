@@ -15,11 +15,7 @@
 
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace console
+namespace tobas::gui::console
 {
 class FcConsoleWidget : public QWidget
 {
@@ -90,6 +86,4 @@ private:
 
   friend QDebug operator<<(QDebug _debug, Status _status);
 };
-}  // namespace console
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::console

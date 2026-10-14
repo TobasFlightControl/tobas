@@ -24,11 +24,7 @@ namespace rclcpp
 class Node;
 }  // namespace rclcpp
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class JointStatePublisherWidget : public QWidget
 {
@@ -83,6 +79,4 @@ private Q_SLOTS:
   void onCenterButtonClicked();
   void onRandomButtonClicked();
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

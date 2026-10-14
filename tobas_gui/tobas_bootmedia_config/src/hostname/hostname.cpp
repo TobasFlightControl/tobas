@@ -15,11 +15,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 namespace
 {
@@ -186,6 +182,4 @@ void HostnameWidget::onWriteButtonClicked()
 
   qt::qInfoBox(this, "Hostname was written successfully.");
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

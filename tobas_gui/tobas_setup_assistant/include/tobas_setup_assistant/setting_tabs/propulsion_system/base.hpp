@@ -8,13 +8,7 @@
 
 #include <tobas_drone_core/propulsion_system/type.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
+namespace tobas::gui::sa::propulsion
 {
 class BasePropulsionSystemWidget : public QWidget
 {
@@ -35,7 +29,4 @@ public:
 
   virtual QString linkName(int _index) const = 0;
 };
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion

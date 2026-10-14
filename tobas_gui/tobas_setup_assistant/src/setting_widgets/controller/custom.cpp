@@ -12,13 +12,7 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace ctrl
+namespace tobas::gui::sa::ctrl
 {
 namespace
 {
@@ -148,7 +142,4 @@ bool CustomFrameWidget::isValid()
 {
   return true;
 }
-}  // namespace ctrl
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::ctrl

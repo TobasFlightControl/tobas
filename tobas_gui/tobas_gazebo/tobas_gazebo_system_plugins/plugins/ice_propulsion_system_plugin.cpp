@@ -26,9 +26,7 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /** Simulates engine and propellers. */
 class GazeboIcePropulsionSystemPlugin : public BaseNode,
@@ -280,8 +278,7 @@ void GazeboIcePropulsionSystemPlugin::windSpeedGtCb(const tobas_msgs::Wind::Cons
 {
   vectorKDLToGazebo(_wind_gt->vel, wind_vel_W_);
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboIcePropulsionSystemPlugin,

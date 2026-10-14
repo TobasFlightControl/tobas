@@ -9,9 +9,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace gamepad
+namespace tobas::gamepad
 {
 /** Read gamepad input and publish it as RC input messages. */
 class RcInputPublisher : public BaseNode
@@ -86,7 +84,6 @@ void RcInputPublisher::publishFromState(const GamepadState& _state)
   msg->gpsw = _state.gpsw;
   publisher_->publish(std::move(msg));
 }
-}  // namespace gamepad
-}  // namespace tobas
+}  // namespace tobas::gamepad
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::gamepad::RcInputPublisher)

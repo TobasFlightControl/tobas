@@ -23,9 +23,7 @@
 
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class GazeboGroundTruthStatePlugin : public BaseNode,
                                      public gz::sim::System,
@@ -126,8 +124,7 @@ void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& _info, 
   // Publish state message.
   odom_pub_->publish(std::move(odom));
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboGroundTruthStatePlugin,

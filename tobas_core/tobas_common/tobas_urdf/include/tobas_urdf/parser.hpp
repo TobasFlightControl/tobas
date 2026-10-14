@@ -10,9 +10,7 @@
 
 #include <tobas_ros2_tools/console_bridge/output_handler_text.hpp>
 
-namespace tobas
-{
-namespace urdf
+namespace tobas::urdf
 {
 class Parser
 {
@@ -25,5 +23,4 @@ public:
 private:
   console_bridge::OutputHandlerText oh_;
 };
-}  // namespace urdf
-}  // namespace tobas
+}  // namespace tobas::urdf

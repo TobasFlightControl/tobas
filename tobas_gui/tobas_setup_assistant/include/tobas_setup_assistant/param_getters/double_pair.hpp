@@ -9,11 +9,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ParamGetterWidget_DoublePair : public ParamGetterWidget<std::pair<double, double>>
 {
@@ -47,6 +43,4 @@ private:
   qt::DoubleSpinBox* first_;
   qt::DoubleSpinBox* second_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

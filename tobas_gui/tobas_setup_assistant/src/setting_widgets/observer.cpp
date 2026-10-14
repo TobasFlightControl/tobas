@@ -6,11 +6,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 ObserverWidget::ObserverWidget()
 {
@@ -197,6 +193,4 @@ bool ObserverWidget::doGravityEstimation() const
 {
   return do_grav_estimation_->isChecked();
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

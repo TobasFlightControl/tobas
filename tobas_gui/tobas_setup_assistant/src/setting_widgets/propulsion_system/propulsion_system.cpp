@@ -14,13 +14,7 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_system.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_system.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
+namespace tobas::gui::sa::propulsion
 {
 namespace
 {
@@ -216,7 +210,4 @@ void PropulsionSystemWidget::onPropulsionTypeClicked(int _new_idx)
   // Notify other widgets that the propulsion-system type changed.
   Q_EMIT sig_.propulsionTypeChanged(widget(_new_idx)->type());
 }
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion

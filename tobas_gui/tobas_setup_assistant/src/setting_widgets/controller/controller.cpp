@@ -16,13 +16,7 @@
 #include "tobas_setup_assistant/setting_tabs/controller/random_axis_tilt_multicopter.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/y_axis_tilt_multicopter.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace ctrl
+namespace tobas::gui::sa::ctrl
 {
 ControllerWidget::ControllerWidget()
 {
@@ -203,7 +197,4 @@ void ControllerWidget::onDontUseBuiltinCtrlCheckBoxToggled(bool _checked)
     showCtrlWidgetWithFrameType(frame_type_);
   }
 }
-}  // namespace ctrl
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::ctrl

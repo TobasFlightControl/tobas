@@ -6,13 +6,7 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace fw
+namespace tobas::gui::sa::fw
 {
 namespace
 {
@@ -121,7 +115,4 @@ const ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
 {
   return control_surfaces_;
 }
-}  // namespace fw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::fw

@@ -3,9 +3,7 @@
 
 #include "tobas_control/equations.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 LinearEquation LinearEquation::scale(const Eigen::VectorXd& _scale) const
 {
@@ -38,5 +36,4 @@ std::ostream& operator<<(std::ostream& _os, const LinearEquation& _arg)
 
   return _os;
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

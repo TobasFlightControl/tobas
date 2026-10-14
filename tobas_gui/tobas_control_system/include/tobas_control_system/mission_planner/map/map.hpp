@@ -8,11 +8,7 @@
 #include "./items/line.hpp"
 #include "./items/waypoint.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 /**
  * Widget embedding OpenStreetMap.
@@ -59,6 +55,4 @@ private:
 private Q_SLOTS:
   void onWaypointMoved(int _index, double _latitude, double _longitude);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

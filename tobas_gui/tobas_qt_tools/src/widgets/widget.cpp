@@ -6,9 +6,7 @@
 #include <QDebug>
 #include <QPainter>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 QPoint Widget::getCenter() const
 {
@@ -88,5 +86,4 @@ void Widget::drawMaximumText(QPainter& _painter, const QString& _text)
 {
   drawMaximumText(_painter, _text, getCenter());
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

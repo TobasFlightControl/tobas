@@ -9,13 +9,7 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace fw
+namespace tobas::gui::sa::fw
 {
 class AerodynamicsCoefficientsWidget : public QWidget
 {
@@ -75,7 +69,4 @@ private:
   qt::DoubleSpinBox* c_yaw_p_;
   qt::DoubleSpinBox* c_yaw_r_;
 };
-}  // namespace fw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::fw

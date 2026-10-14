@@ -19,11 +19,7 @@
 
 #include "tobas_setup_assistant/rapidcsv.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   const QString& _param_name,
@@ -253,6 +249,4 @@ bool ParamGetterWidget_DoubleTable::isValidData(const Eigen::MatrixXd& _src)
 
   return true;
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

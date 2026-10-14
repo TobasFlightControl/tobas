@@ -16,11 +16,7 @@
 
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace at
+namespace tobas::gui::at
 {
 class JointCommandsPublisherWidget : public QWidget
 {
@@ -66,6 +62,4 @@ private:
 private Q_SLOTS:
   void onValueChanged();
 };
-}  // namespace at
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::at

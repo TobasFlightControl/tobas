@@ -5,9 +5,7 @@
 
 #include <tobas_linux/i2c_dev.hpp>
 
-namespace tobas
-{
-namespace stm
+namespace tobas::stm
 {
 /**
  * A linux driver of full-scale barometer.
@@ -108,5 +106,4 @@ private:
 
   void setPressureScale(uint8_t _fs_mode);
 };
-}  // namespace stm
-}  // namespace tobas
+}  // namespace tobas::stm

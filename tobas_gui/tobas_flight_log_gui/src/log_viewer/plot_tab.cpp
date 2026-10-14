@@ -5,11 +5,7 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 PlotTabWidget::PlotTabWidget(
   const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& _odom_data,
@@ -229,6 +225,4 @@ void PlotTabWidget::onCurrentWidgetChanged(int _index)
 {
   plot(_index);
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

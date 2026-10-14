@@ -7,15 +7,7 @@
 #include "./engine/engine.hpp"
 #include "./propulsion_units/propulsion_units.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 class PropulsionSystemWidget : public BasePropulsionSystemWidget
 {
@@ -43,8 +35,4 @@ public:
 
   QString linkName(int _index) const override;
 };
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

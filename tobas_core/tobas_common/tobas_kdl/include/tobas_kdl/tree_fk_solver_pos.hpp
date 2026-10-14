@@ -9,9 +9,7 @@
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class TreeFkSolverPos : public TreeSolverI
 {
@@ -25,5 +23,4 @@ public:
 private:
   Frame recursiveFk(const JntArray& _q, const SegmentMap::const_iterator& _seg_it);
 };
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

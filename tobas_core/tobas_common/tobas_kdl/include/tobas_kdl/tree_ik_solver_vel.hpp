@@ -12,9 +12,7 @@
 #include "./tree_joint_parser.hpp"
 #include "./tree_solver_i.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class TreeIkSolverVel : public TreeSolverI
 {
@@ -53,5 +51,4 @@ private:
 
   void resize();
 };
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

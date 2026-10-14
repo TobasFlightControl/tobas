@@ -28,11 +28,7 @@
 #include "../message_decoder.hpp"
 #include "./export_thread.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class ExportThreadCsv : public ExportThread
 {
@@ -83,6 +79,4 @@ private:
 
   bool exportOldestImuLine(std::ofstream& _file, Time _before_this_time = INT64_MAX);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

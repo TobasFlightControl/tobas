@@ -8,9 +8,7 @@
 
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 namespace
 {
@@ -128,5 +126,4 @@ void pressureToAltitude(double _pressure, double _pressure_var, double& _altitud
   const auto amp = (kPressureToAltitudeScale / _pressure) * std::pow(_pressure / kSeaLevelPressure, kPressureExponent);
   _altitude_var = math::sqr(amp) * _pressure_var;
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

@@ -5,13 +5,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace mission
+namespace tobas::gui::sa::mission
 {
 class NoneWidget : public BaseExecutorWidget
 {
@@ -32,7 +26,4 @@ public:
 
   bool isValid() override;
 };
-}  // namespace mission
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::mission

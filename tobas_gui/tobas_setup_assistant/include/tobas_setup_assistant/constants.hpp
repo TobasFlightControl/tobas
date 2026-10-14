@@ -3,14 +3,8 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 // ROS parameters
 static constexpr char kRobotDescriptionParam[] = "robot_description";
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

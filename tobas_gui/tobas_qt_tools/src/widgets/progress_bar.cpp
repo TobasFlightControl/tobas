@@ -8,9 +8,7 @@
 
 #include <QPalette>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 ProgressBar::ProgressBar(QWidget* _parent) : super(_parent)
 {
@@ -37,5 +35,4 @@ void ProgressBar::setPercentage(double _percentage)
   const auto clamped = std::clamp(_percentage, static_cast<double>(minimum()), static_cast<double>(maximum()));
   setValue(static_cast<int>(std::lround(clamped)));
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

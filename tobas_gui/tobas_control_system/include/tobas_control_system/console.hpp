@@ -6,11 +6,7 @@
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class ConsoleWidget : public QWidget
 {
@@ -29,6 +25,4 @@ private:
 private Q_SLOTS:
   void messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& _msg);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

@@ -9,9 +9,7 @@
 #include "./jntarray.hpp"
 #include "./segment_jacobian.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class Jacobian;
 using JacobianMap = std::map<std::string, Jacobian>;
@@ -130,5 +128,4 @@ inline Twist Jacobian::operator*(const JntArray& _rhs) const
   const Eigen::Vector6d t = data * _rhs.data;
   return Twist(Vector(t.head<3>()), Vector(t.tail<3>()));
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

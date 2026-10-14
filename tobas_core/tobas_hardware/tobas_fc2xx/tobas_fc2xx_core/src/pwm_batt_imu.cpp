@@ -8,9 +8,7 @@
 
 #include <tobas_std_tools/error.hpp>
 
-namespace tobas
-{
-namespace fc2xx
+namespace tobas::fc2xx
 {
 PwmBattImu::PwmBattImu() : crc_(algo::CRC32Left::CRC_32)
 {
@@ -95,5 +93,4 @@ void PwmBattImu::setTxCrc()
   tx_buf_[kCrcIdx] = crc & 0xFFFF;
   tx_buf_[kCrcIdx + 1] = (crc >> 16) & 0xFFFF;
 }
-}  // namespace fc2xx
-}  // namespace tobas
+}  // namespace tobas::fc2xx

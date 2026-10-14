@@ -8,13 +8,10 @@
 
 #include <rclcpp/node.hpp>
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 bool waitUntilNodeGone(
   const rclcpp::Node::SharedPtr& _node,
   const std::string& _target_fqn,  // FQN = Fully Qualified Name
   std::chrono::milliseconds _timeout = std::chrono::milliseconds(-1));
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

@@ -13,11 +13,7 @@
 #include <tobas_gazebo_msgs/srv/get_wind_params.hpp>
 #include <tobas_gazebo_msgs/srv/set_wind_params.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class WindParamsWidget : public QWidget
 {
@@ -65,6 +61,4 @@ private Q_SLOTS:
   void onResetButtonClicked();
   void onValueChanged();
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

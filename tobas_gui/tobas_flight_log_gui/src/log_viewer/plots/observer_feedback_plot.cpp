@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 ObserverFeedbackPlotWidget::ObserverFeedbackPlotWidget()
   : acc_bias_curves_{ "Accel Bias X [m/s²]", "Accel Bias Y [m/s²]", "Accel Bias Z [m/s²]" }
@@ -174,6 +170,4 @@ void ObserverFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::Ob
   gravity_curve_.setSamples(t_data, gravity_data);
   gravity_plot_->replot();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

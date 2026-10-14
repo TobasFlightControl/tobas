@@ -5,11 +5,7 @@
 
 #include <QToolButton>
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 class AppButton : public QToolButton
 {
@@ -18,6 +14,4 @@ class AppButton : public QToolButton
 public:
   explicit AppButton(const QString& _text, const QString& _icon_path);
 };
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

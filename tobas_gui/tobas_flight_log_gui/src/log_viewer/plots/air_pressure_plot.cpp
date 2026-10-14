@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 AirPressurePlotWidget::AirPressurePlotWidget() : curve_("Pressure [hPa]")
 {
@@ -54,6 +50,4 @@ void AirPressurePlotWidget::setData(const QVector<tobas_msgs::msg::FluidPressure
   setVerticalScale(*plot_, range, kMinPressureScale);
   plot_->replot();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

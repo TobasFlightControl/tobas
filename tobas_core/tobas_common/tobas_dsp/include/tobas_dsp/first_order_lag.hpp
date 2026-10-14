@@ -8,9 +8,7 @@
 
 #include "tobas_dsp/base_filter.hpp"
 
-namespace tobas
-{
-namespace dsp
+namespace tobas::dsp
 {
 /* First-order lag model: `tau * dx/dt = u - x`. */
 template <typename T>
@@ -68,5 +66,4 @@ void FirstOrderLag<T>::setTimeConstant(double _tau)
   assert(_tau > 0.0);
   tau_ = _tau;
 }
-}  // namespace dsp
-}  // namespace tobas
+}  // namespace tobas::dsp

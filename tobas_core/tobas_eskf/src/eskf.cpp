@@ -14,9 +14,7 @@
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace eskf
+namespace tobas::eskf
 {
 namespace
 {
@@ -726,5 +724,4 @@ std::expected<double, std::string> ErrorStateKalmanFilter::measureGravity(
   H_grav_.col(kDeltaGravIdx) = R_B_W.col(2);
   return correct(delta, _grav_cov, H_grav_);
 }
-}  // namespace eskf
-}  // namespace tobas
+}  // namespace tobas::eskf

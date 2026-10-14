@@ -5,9 +5,7 @@
 
 #include <tobas_algorithm/kahan.hpp>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeMassHolder::TreeMassHolder(const Tree& _tree) : super(_tree)
 {
@@ -42,5 +40,4 @@ double TreeMassHolder::computeMass(const SegmentMap::const_iterator& _cur_it) co
 
   return mass_sum.get();
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

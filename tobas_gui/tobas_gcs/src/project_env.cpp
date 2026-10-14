@@ -5,11 +5,7 @@
 
 #include <QStringList>
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 namespace
 {
@@ -62,6 +58,4 @@ QString exportProjectEnv(const ProjectEnv& _env)
   res += kIdPrefix + _env.id + '\n';
   return res;
 }
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

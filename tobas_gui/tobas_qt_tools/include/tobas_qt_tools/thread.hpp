@@ -9,9 +9,7 @@
 #include <QEventLoop>
 #include <QThread>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 namespace detail
 {
@@ -85,5 +83,4 @@ void spinFor(std::chrono::duration<RepType, DurType> _time)
   const auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(_time).count();
   startThreadAndWait([msec]() { QThread::msleep(msec); });
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

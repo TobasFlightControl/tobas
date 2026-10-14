@@ -3,9 +3,7 @@
 
 #include "tobas_kdl_conversions/kdl_msg.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 void vectorKDLToMsg(const Vector& _k, geometry_msgs::msg::Vector3& _m)
 {
@@ -96,5 +94,4 @@ void transformMsgToKDL(const geometry_msgs::msg::Transform& _m, Frame& _k)
   vectorMsgToKDL(_m.translation, _k.p);
   rotationMsgToKDL(_m.rotation, _k.M);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

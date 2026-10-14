@@ -5,9 +5,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace traj
+namespace tobas::traj
 {
 /** Minimum-time trajectory to the destination while satisfying acceleration and velocity constraints. (memo: 3-50) */
 class AccelLimitedTrajectory : public TrajectoryGenerator
@@ -27,5 +25,4 @@ private:
   double ts_;  ///< Switching time
   double tf_;  ///< Arrival time
 };
-}  // namespace traj
-}  // namespace tobas
+}  // namespace tobas::traj

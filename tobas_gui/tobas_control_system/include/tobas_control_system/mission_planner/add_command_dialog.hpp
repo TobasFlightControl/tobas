@@ -9,11 +9,7 @@
 
 #include "./command_type.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class AddCommandDialog : public QDialog
 {
@@ -37,6 +33,4 @@ private Q_SLOTS:
   void onItemDoubleClicked(QListWidgetItem* _item);
   void onOkClicked();
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

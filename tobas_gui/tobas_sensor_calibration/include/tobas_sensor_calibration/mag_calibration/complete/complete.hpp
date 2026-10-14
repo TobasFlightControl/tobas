@@ -23,11 +23,7 @@
 #include "../base.hpp"
 #include "./face_circle.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 class CompleteMagCalibWidget : public BaseMagCalibWidget
 {
@@ -139,6 +135,4 @@ private Q_SLOTS:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _msg);
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _msg);
 };
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

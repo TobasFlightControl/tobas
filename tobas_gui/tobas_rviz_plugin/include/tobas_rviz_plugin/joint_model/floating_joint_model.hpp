@@ -5,9 +5,7 @@
 
 #include "./joint_model.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 class FloatingJointModel : public JointModel
 {
@@ -18,5 +16,4 @@ public:
   void computeTransform(const double* _joint_values, Eigen::Isometry3d& _transform) const override;
   void computeVariablePositions(const Eigen::Isometry3d& _transform, double* _joint_values) const override;
 };
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

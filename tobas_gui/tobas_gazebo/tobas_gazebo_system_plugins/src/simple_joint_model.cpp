@@ -5,9 +5,7 @@
 
 #include <gz/common/Console.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 SimpleJointModel::SimpleJointModel(double _min_pos, double _max_pos, double _max_vel)
   : pos_limit(_min_pos, _max_pos), max_vel(_max_vel)
@@ -50,5 +48,4 @@ void SimpleJointModel::step(double _dt)
   const auto cnd_angle = cur_pos_ + delta_angle;
   cur_pos_ = pos_limit.clamp(cnd_angle);
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

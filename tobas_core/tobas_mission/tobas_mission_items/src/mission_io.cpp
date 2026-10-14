@@ -21,9 +21,7 @@
     (_field) = *field;                                                                                                 \
   } while (false)
 
-namespace tobas
-{
-namespace mission
+namespace tobas::mission
 {
 namespace
 {
@@ -251,5 +249,4 @@ std::expected<Mission, std::string> loadMission(const YAML::Node& _mission_node)
 
   return mission;
 }
-}  // namespace mission
-}  // namespace tobas
+}  // namespace tobas::mission

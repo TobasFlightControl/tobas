@@ -3,9 +3,7 @@
 
 #include "tobas_wpa_supplicant/key_mgmt.hpp"
 
-namespace tobas
-{
-namespace wpa
+namespace tobas::wpa
 {
 namespace
 {
@@ -83,5 +81,4 @@ bool enumFromLabel(const std::string& _label, KeyMgmt& _dst)
     return false;
   }
 }
-}  // namespace wpa
-}  // namespace tobas
+}  // namespace tobas::wpa

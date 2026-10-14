@@ -9,9 +9,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 ProgressDialog::ProgressDialog(const QString& _title, int _num_steps, QWidget* _parent)
   : super(_parent), num_steps_(_num_steps), timer_(this)
@@ -85,5 +83,4 @@ void ProgressDialog::onTimerTimeout()
       .arg(text_)
       .arg(spinner));
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

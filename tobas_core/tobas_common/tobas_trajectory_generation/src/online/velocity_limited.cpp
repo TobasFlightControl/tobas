@@ -6,9 +6,7 @@
 #include <cassert>
 #include <cmath>
 
-namespace tobas
-{
-namespace traj
+namespace tobas::traj
 {
 VelocityLimitedOnlineTrajectoryGenerator::VelocityLimitedOnlineTrajectoryGenerator()
 {
@@ -55,5 +53,4 @@ void VelocityLimitedOnlineTrajectoryGenerator::resetCurrentTrajectoryPoint(doubl
 {
   traj_pos_ = _pos;
 }
-}  // namespace traj
-}  // namespace tobas
+}  // namespace tobas::traj

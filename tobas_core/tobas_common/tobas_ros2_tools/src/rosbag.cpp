@@ -7,9 +7,7 @@
 
 #include <rosbag2_cpp/reindexer.hpp>
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 bool reindexRosBag(const std::string& _uri, const std::string& _storage_id) noexcept
 {
@@ -29,5 +27,4 @@ bool reindexRosBag(const std::string& _uri, const std::string& _storage_id) noex
 
   return true;
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

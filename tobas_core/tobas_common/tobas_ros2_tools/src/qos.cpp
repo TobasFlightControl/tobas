@@ -3,11 +3,7 @@
 
 #include "tobas_ros2_tools/qos.hpp"
 
-namespace tobas
-{
-namespace ros2
-{
-namespace qos
+namespace tobas::ros2::qos
 {
 QoS::QoS(bool _latch, bool _reliable, size_t _queue_size) : rclcpp::QoS(rclcpp::KeepLast(_queue_size))
 {
@@ -29,6 +25,4 @@ QoS::QoS(bool _latch, bool _reliable, size_t _queue_size) : rclcpp::QoS(rclcpp::
 DefaultQoS::DefaultQoS() : QoS(kDefaultLatch, kDefaultReliable, kDefaultQueueSize)
 {
 }
-}  // namespace qos
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2::qos

@@ -3,9 +3,7 @@
 
 #include "tobas_uadf/model.hpp"
 
-namespace tobas
-{
-namespace uadf
+namespace tobas::uadf
 {
 Model::Model()
 {
@@ -88,5 +86,4 @@ std::expected<void, std::string> Model::validate() const
 
   return {};
 }
-}  // namespace uadf
-}  // namespace tobas
+}  // namespace tobas::uadf

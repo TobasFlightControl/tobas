@@ -6,9 +6,7 @@
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /**
  * Compute the `Jd qd` term in `xdd = J qd + Jd qd`.
@@ -36,5 +34,4 @@ private:
   void jntToCartRec(const SegmentMap::const_iterator& _segment, const JntArray& _q, const JntArray& _qd);
 };
 
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

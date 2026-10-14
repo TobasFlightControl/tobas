@@ -11,11 +11,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 SimulationSettingsWidget::SimulationSettingsWidget()
 {
@@ -86,6 +82,4 @@ bool SimulationSettingsWidget::userDebug() const
 {
   return debug_->userDebug();
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

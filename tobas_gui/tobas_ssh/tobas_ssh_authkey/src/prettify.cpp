@@ -3,11 +3,7 @@
 
 #include "tobas_ssh_authkey/prettify.hpp"
 
-namespace tobas
-{
-namespace ssh
-{
-namespace ak
+namespace tobas::ssh::ak
 {
 namespace
 {
@@ -71,6 +67,4 @@ std::expected<std::string, std::string> prettify(const Data& _src)
 
   return std::string(key_type_name) + " " + fp_sha256 + " " + _src.comment;
 }
-}  // namespace ak
-}  // namespace ssh
-}  // namespace tobas
+}  // namespace tobas::ssh::ak

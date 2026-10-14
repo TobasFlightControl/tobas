@@ -10,11 +10,7 @@
 
 #include "./frame_type.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class RobotPropertiesWidget : public qt::ScrollArea
 {
@@ -37,6 +33,4 @@ private:
   qt::FramedLabel* frame_type_;
   qt::FramedLabel* mass_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

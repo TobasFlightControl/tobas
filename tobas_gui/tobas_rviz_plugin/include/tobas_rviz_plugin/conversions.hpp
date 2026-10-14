@@ -7,10 +7,7 @@
 
 #include "./robot_state.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 bool robotStateMsgToRobotState(const tobas_visualization_msgs::msg::RobotState& _robot_state, RobotState& _state);
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

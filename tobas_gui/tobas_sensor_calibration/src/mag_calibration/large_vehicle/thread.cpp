@@ -11,11 +11,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(const rqt::RosQtBridge& _bridge)
 {
@@ -179,6 +175,4 @@ void LargeVehicleMagCalibThread::armingCb(const tobas_msgs::msg::Arming::ConstSh
 {
   arming_ = _arming;
 }
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

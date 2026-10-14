@@ -24,9 +24,7 @@
 #include "./robot_model.hpp"
 #include "./robot_state.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 class RobotStateDisplay : public rviz_common::Display
 {
@@ -95,5 +93,4 @@ private Q_SLOTS:
   void changedUnhighlightColor();
   void changedReload();
 };
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

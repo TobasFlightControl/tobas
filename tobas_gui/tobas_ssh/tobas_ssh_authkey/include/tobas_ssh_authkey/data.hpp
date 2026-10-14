@@ -7,11 +7,7 @@
 
 #include <libssh/libssh.h>
 
-namespace tobas
-{
-namespace ssh
-{
-namespace ak
+namespace tobas::ssh::ak
 {
 struct Data
 {
@@ -19,6 +15,4 @@ struct Data
   ssh_key key = nullptr;
   std::string comment = "";
 };
-}  // namespace ak
-}  // namespace ssh
-}  // namespace tobas
+}  // namespace tobas::ssh::ak

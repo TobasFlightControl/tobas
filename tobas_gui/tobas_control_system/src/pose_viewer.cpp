@@ -9,11 +9,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 namespace
 {
@@ -478,6 +474,4 @@ void PoseViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss)
 
   update();
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

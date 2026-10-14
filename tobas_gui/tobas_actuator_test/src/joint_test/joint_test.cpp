@@ -7,11 +7,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace at
+namespace tobas::gui::at
 {
 JointTestWidget::JointTestWidget(const rqt::RosQtBridge& _bridge, const kdl::Tree& _tree, const Drone& _drone)
   : tree_(_tree), drone_(_drone)
@@ -143,6 +139,4 @@ void JointTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _a
 
   updateActionAvailability();
 }
-}  // namespace at
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::at

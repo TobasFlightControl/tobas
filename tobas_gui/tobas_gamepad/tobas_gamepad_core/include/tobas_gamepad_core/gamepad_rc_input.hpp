@@ -12,9 +12,7 @@
 
 #include <tobas_constants/flight_mode.hpp>
 
-namespace tobas
-{
-namespace gamepad
+namespace tobas::gamepad
 {
 /** RC input state generated from gamepad input. */
 struct GamepadState
@@ -86,5 +84,4 @@ private:
   int fd_ = -1;
   std::unique_ptr<libevdev, LibevdevDeleter> dev_ = {};
 };
-}  // namespace gamepad
-}  // namespace tobas
+}  // namespace tobas::gamepad

@@ -5,9 +5,7 @@
 
 #include <eigen3/Eigen/Core>
 
-namespace tobas
-{
-namespace eigen
+namespace tobas::eigen
 {
 /** Return the matrix that converts ZYX Euler angle rates to angular velocity expressed in the global frame. */
 Eigen::Matrix3d angvelFromEulerrateGlobal(double _pitch, double _yaw);
@@ -55,5 +53,4 @@ Eigen::Vector3d angaccFromEuleraccLocal(
 /** Convert Euler angle acceleration to angular acceleration expressed in the local frame (memo: 2-41). */
 Eigen::Vector3d
 angaccFromEuleraccLocal(double _roll, double _pitch, const Eigen::Vector3d& _drpy, const Eigen::Vector3d& _ddrpy);
-}  // namespace eigen
-}  // namespace tobas
+}  // namespace tobas::eigen

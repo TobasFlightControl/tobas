@@ -13,11 +13,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 namespace
 {
@@ -171,6 +167,4 @@ PosePlotWidget::VerticalScaleRanges PosePlotWidget::updateTargetSamples(
 
   return ranges;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

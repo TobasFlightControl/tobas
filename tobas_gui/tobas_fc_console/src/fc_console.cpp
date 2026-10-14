@@ -22,11 +22,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace console
+namespace tobas::gui::console
 {
 FcConsoleWidget::FcConsoleWidget(QWidget* _parent) : QWidget(_parent)
 {
@@ -425,6 +421,4 @@ QDebug operator<<(QDebug _debug, FcConsoleWidget::Status _status)
 
   return _debug;
 }
-}  // namespace console
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::console

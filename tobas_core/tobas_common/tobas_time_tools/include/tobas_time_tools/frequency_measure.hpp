@@ -5,9 +5,7 @@
 
 #include <chrono>
 
-namespace tobas
-{
-namespace tim
+namespace tobas::tim
 {
 class FrequencyMeasure
 {
@@ -22,5 +20,4 @@ private:
   size_t count_ = 0;
   std::chrono::steady_clock::time_point start_time_;
 };
-}  // namespace tim
-}  // namespace tobas
+}  // namespace tobas::tim

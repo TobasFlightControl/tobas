@@ -23,9 +23,7 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /**
  * Modeling of Wind Phenomena and Analysis of Their Effects on UAV Trajectory Tracking Performance [Siqueira+, 2017].
@@ -215,7 +213,6 @@ void GazeboWindPlugin::setParamsCb(const SetSrv::Request::ConstSharedPtr& _req, 
   _res->success = true;
   TOBAS_INFO("Wind parameters are updated.");
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(tobas::gazebo::GazeboWindPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

@@ -10,13 +10,7 @@
 
 #include "../view_model/urdf_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ogre
+namespace tobas::gui::ub::ogre
 {
 class OgreController
 {
@@ -45,7 +39,4 @@ private:
   std::unordered_set<std::string> highlighted_links_;
   std::unordered_set<std::string> hidden_links_;
 };
-}  // namespace ogre
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ogre

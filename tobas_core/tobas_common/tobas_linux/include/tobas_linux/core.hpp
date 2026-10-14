@@ -7,9 +7,7 @@
 #include <filesystem>
 #include <string>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 /** Get the user name. */
 std::expected<std::string, std::string> userName() noexcept;
@@ -22,5 +20,4 @@ std::expected<std::filesystem::path, std::string> expandUser(const std::string& 
 
 /** Return true when the program is running with root privileges. */
 bool isSuperUser() noexcept;
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

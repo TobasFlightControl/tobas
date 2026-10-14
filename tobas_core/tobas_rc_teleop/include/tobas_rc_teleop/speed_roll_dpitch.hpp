@@ -7,9 +7,7 @@
 
 #include "./base_controller.hpp"
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 class SpeedRollDeltaPitchController : public BaseController
 {
@@ -48,5 +46,4 @@ private:
   void rollExpoCb(double _p);
   void pitchExpoCb(double _p);
 };
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

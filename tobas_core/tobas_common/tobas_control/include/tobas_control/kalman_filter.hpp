@@ -5,9 +5,7 @@
 
 #include "./state_spaces.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 /**
  * Linear Kalman filter.
@@ -108,5 +106,4 @@ inline const Eigen::MatrixXd& IdentityKalmanFilter::covariance() const
 {
   return kf_.covariance();
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

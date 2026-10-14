@@ -3,9 +3,7 @@
 
 #include "tobas_qt_tools/validator/int_validator.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 QValidator::State IntValidator::validate(QString& _input, int& _pos) const
 {
@@ -25,5 +23,4 @@ QValidator::State IntValidator::validate(QString& _input, int& _pos) const
 
   return original_res;
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

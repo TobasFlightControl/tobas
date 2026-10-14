@@ -5,9 +5,7 @@
 
 #include <QHBoxLayout>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 Vector3dEditHorizontal::Vector3dEditHorizontal(QWidget* _parent) : super(_parent)
 {
@@ -94,5 +92,4 @@ void Vector3dEditHorizontal::onValueChanged(double)
 {
   Q_EMIT valueChanged({ x(), y(), z() });
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

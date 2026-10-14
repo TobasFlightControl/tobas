@@ -11,11 +11,7 @@
 
 Q_DECLARE_METATYPE(tobas::gui::cmn::SshClientWrapper::Result);
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 namespace
 {
@@ -360,8 +356,6 @@ QString SshClientWrapper::endpoint() const
 {
   return QString::fromStdString(impl_.endpoint());
 }
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn
 
 #include "ssh_client.moc"  // Required to add this cpp file to MOC.

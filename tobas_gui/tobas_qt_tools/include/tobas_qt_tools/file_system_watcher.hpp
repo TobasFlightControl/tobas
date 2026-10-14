@@ -5,9 +5,7 @@
 
 #include <QFileSystemWatcher>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QFileSystemWatcher` =====
@@ -25,5 +23,4 @@ public:
   /** Delete all watched paths. */
   void clear();
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

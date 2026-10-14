@@ -16,9 +16,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace real
+namespace tobas::real
 {
 class MagnetometerHandlerNode : public BaseNode
 {
@@ -126,7 +124,6 @@ void MagnetometerHandlerNode::setParamsCb(
   _res->success = true;
   _res->message.clear();
 }
-}  // namespace real
-}  // namespace tobas
+}  // namespace tobas::real
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::MagnetometerHandlerNode)

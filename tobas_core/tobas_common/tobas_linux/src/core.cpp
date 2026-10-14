@@ -9,9 +9,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 std::expected<std::string, std::string> userName() noexcept
 {
@@ -59,5 +57,4 @@ bool isSuperUser() noexcept
 {
   return getuid() == 0;
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

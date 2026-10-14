@@ -8,11 +8,8 @@
 
 #include "./data.hpp"
 
-namespace tobas
-{
-namespace wpa
+namespace tobas::wpa
 {
 /** Parse wpa_supplicant configuration text. */
 std::expected<Data, std::string> parseFromText(const std::string& _text);
-}  // namespace wpa
-}  // namespace tobas
+}  // namespace tobas::wpa

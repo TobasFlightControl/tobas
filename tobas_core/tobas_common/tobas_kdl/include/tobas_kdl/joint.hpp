@@ -11,9 +11,7 @@
 #include "./frames.hpp"
 #include "./segment_jacobian.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /**
  * This class encapsulates a simple joint,
@@ -166,5 +164,4 @@ inline Eigen::Matrix3d Joint::rotGrad2(double _q) const
     return Eigen::Matrix3d::Zero();
   }
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

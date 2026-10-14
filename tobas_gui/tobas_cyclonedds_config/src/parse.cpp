@@ -10,9 +10,7 @@
 
 #include "tobas_cyclonedds_config/constants.hpp"
 
-namespace tobas
-{
-namespace cyclonedds
+namespace tobas::cyclonedds
 {
 namespace
 {
@@ -105,5 +103,4 @@ std::expected<Data, std::string> parseFromText(const std::string& _text)
 
   return data;
 }
-}  // namespace cyclonedds
-}  // namespace tobas
+}  // namespace tobas::cyclonedds

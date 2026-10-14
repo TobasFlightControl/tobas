@@ -5,9 +5,7 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 namespace
 {
@@ -21,5 +19,4 @@ void timeChronoToMsg(const ch::steady_clock::duration& _c, builtin_interfaces::m
   _m.sec = nsec / kNanosecondsPerSecond;
   _m.nanosec = nsec % kNanosecondsPerSecond;
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

@@ -16,13 +16,7 @@
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace fw
+namespace tobas::gui::sa::fw
 {
 AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget()
 {
@@ -305,7 +299,4 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
 
   qt::qInfoBox(this, "Coefficients have been loaded successfully.");
 }
-}  // namespace fw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::fw

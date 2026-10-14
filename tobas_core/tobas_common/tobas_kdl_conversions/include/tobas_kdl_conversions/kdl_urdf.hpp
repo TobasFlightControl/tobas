@@ -9,9 +9,7 @@
 #include <tobas_kdl/joint.hpp>
 #include <tobas_kdl/rigid_body_inertia.hpp>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 void vectorKdlToUrdf(const Vector& _k, ::urdf::Vector3& _u);
 void vectorUrdfToKdl(const ::urdf::Vector3& _u, Vector& _k);
@@ -37,5 +35,4 @@ void jointKdlToUrdf(const Joint& _k, ::urdf::Joint& _u);
 void jointUrdfToKdl(const ::urdf::Joint& _u, Joint& _k);
 ::urdf::Joint jointKdlToUrdf(const Joint& _k);
 Joint jointUrdfToKdl(const ::urdf::Joint& _u);
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

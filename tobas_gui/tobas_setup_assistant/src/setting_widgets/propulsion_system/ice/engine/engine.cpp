@@ -3,15 +3,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/engine/engine.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 namespace
 {
@@ -75,8 +67,4 @@ const EngineResponseWidget* EngineWidget::response() const
 {
   return response_;
 }
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

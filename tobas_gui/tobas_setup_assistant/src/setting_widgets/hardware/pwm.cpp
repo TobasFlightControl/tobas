@@ -15,13 +15,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/hardware/constants.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace hw
+namespace tobas::gui::sa::hw
 {
 namespace
 {
@@ -340,7 +334,4 @@ void PwmWidget::onPropulsionTypeChanged(PropulsionSystem _new_prop_type)
 
   prop_type_ = _new_prop_type;
 }
-}  // namespace hw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::hw

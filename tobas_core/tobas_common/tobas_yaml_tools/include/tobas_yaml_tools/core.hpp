@@ -9,9 +9,7 @@
 
 #include <yaml-cpp/yaml.h>
 
-namespace tobas
-{
-namespace yaml
+namespace tobas::yaml
 {
 template <typename T>
 std::expected<T, std::string> load(const std::string& _key, const YAML::Node& _parent) noexcept
@@ -48,5 +46,4 @@ std::string dump(const YAML::Node& _node) noexcept;
 
 std::expected<YAML::Node, std::string> load(const std::filesystem::path& _path) noexcept;
 std::expected<void, std::string> save(const std::filesystem::path& _path, const YAML::Node& _node) noexcept;
-}  // namespace yaml
-}  // namespace tobas
+}  // namespace tobas::yaml

@@ -5,9 +5,7 @@
 
 #include <cstddef>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 /** Lock currently paged memory using mlockall. */
 bool lockMemory();
@@ -20,5 +18,4 @@ bool lockAndPrefaultDynamic();
 
 /** Commit a pool of dynamic memory based on a prefixed size. */
 bool lockAndPrefaultDynamic(size_t _process_max_dynamic_memory);
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

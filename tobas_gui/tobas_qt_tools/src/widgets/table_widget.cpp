@@ -5,9 +5,7 @@
 
 #include <QHeaderView>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 void TableWidget::removeAll()
 {
@@ -28,5 +26,4 @@ void TableWidget::setHeaderSectionsClickable(bool _clickable)
   horizontalHeader()->setSectionsClickable(_clickable);
   verticalHeader()->setSectionsClickable(_clickable);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

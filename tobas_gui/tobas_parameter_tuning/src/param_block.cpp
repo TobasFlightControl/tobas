@@ -19,11 +19,7 @@
 
 using namespace std::placeholders;
 
-namespace tobas
-{
-namespace gui
-{
-namespace param
+namespace tobas::gui::param
 {
 namespace
 {
@@ -400,6 +396,4 @@ void ParamBlockWidget::onDoubleSliderValueChanged(long _value, const std::string
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + _name.c_str() + "'.");
   }
 }
-}  // namespace param
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::param

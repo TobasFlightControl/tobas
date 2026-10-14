@@ -3,9 +3,7 @@
 
 #include "tobas_control/pid/pid3.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 PID3::PID3()
 {
@@ -32,5 +30,4 @@ Eigen::Vector3d PID3::update(
   // PID
   return kp.cwiseProduct(ep) + ki.cwiseProduct(ei_) + kd.cwiseProduct(ed);
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

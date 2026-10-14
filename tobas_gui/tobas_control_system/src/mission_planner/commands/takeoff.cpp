@@ -3,11 +3,7 @@
 
 #include "tobas_control_system/mission_planner/commands/takeoff.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 TakeoffWidget::TakeoffWidget()
 {
@@ -115,6 +111,4 @@ void TakeoffWidget::altitudeTolerance(double _value)
 {
   setValueOrDefault(altitude_tolerance_, _value);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

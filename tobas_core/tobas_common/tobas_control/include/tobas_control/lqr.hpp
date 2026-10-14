@@ -8,9 +8,7 @@
 
 #include "./state_spaces.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 /** Infinite-horizon optimal regulator. */
 class LQR
@@ -40,5 +38,4 @@ private:
 
   void checkProblemValidity();
 };
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

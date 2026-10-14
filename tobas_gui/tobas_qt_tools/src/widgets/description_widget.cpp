@@ -5,9 +5,7 @@
 
 #include "tobas_qt_tools/font.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 DescriptionWidget::DescriptionWidget(const QString& _text, int _point_size, QWidget* _parent) : super(_text, _parent)
 {
@@ -16,5 +14,4 @@ DescriptionWidget::DescriptionWidget(const QString& _text, int _point_size, QWid
   setWordWrap(true);
   setOpenExternalLinks(true);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

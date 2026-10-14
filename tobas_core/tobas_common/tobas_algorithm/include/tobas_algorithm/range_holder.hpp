@@ -5,9 +5,7 @@
 
 #include <limits>
 
-namespace tobas
-{
-namespace algo
+namespace tobas::algo
 {
 /** Stores the minimum value. */
 template <typename T>
@@ -114,5 +112,4 @@ private:
   MinimumHolder<T> min_;
   MaximumHolder<T> max_;
 };
-}  // namespace algo
-}  // namespace tobas
+}  // namespace tobas::algo

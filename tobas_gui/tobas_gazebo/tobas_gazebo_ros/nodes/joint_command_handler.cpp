@@ -10,9 +10,7 @@
 #include <tobas_gazebo_msgs/msg/joint_command.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /** Receive joint position, velocity, and force commands and send them to Gazebo. */
 class JointCommandHandlerNode : public BaseNode
@@ -155,7 +153,6 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
     publishJointCommand(tbs_cmd);
   }
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::gazebo::JointCommandHandlerNode)

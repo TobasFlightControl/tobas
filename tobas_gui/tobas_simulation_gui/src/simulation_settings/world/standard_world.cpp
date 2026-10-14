@@ -8,11 +8,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 WorldWidget_Standard::WorldWidget_Standard()
 {
@@ -46,6 +42,4 @@ fs::path WorldWidget_Standard::worldDirectoryPath()
   const fs::path pkg_path(ament_index_cpp::get_package_share_directory("tobas_gazebo_sim"));
   return pkg_path / "worlds";
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

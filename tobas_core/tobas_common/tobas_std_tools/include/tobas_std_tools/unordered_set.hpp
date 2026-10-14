@@ -6,9 +6,7 @@
 #include <cassert>
 #include <unordered_set>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 /** Return the minimum element. */
 template <typename T>
@@ -35,5 +33,4 @@ T max(const std::unordered_set<T>& _set)
   }
   return res;
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

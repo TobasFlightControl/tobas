@@ -10,11 +10,8 @@
 
 #include "tobas_mission_items/mission.hpp"
 
-namespace tobas
-{
-namespace mission
+namespace tobas::mission
 {
 YAML::Node dumpMission(const Mission& _mission);
 std::expected<Mission, std::string> loadMission(const YAML::Node& _node);
-}  // namespace mission
-}  // namespace tobas
+}  // namespace tobas::mission

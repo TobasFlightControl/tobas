@@ -13,11 +13,7 @@
 
 #include "../fields/base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class BaseCommandWidget : public QWidget
 {
@@ -58,6 +54,4 @@ private Q_SLOTS:
   void onFieldUpdated();
   void onDeleteButtonClicked();
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

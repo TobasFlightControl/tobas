@@ -3,9 +3,7 @@
 
 #include "tobas_kdl/tree_joint_parser.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeJointParser::TreeJointParser(const Tree& _tree) : super(_tree)
 {
@@ -57,5 +55,4 @@ void TreeJointParser::parseJntNamesStep(const SegmentMap::const_iterator& _seg_i
     parseJntNamesStep(child);
   }
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

@@ -9,9 +9,7 @@
 
 #include <eigen3/Eigen/Core>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class JntArray
 {
@@ -200,5 +198,4 @@ inline std::ostream& operator<<(std::ostream& _os, const JntArray& _arg)
   _os << _arg.data.transpose();
   return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

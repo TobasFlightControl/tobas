@@ -6,11 +6,7 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 namespace
 {
@@ -95,6 +91,4 @@ QString RotorsViewerWiddget::bottomText(int _rpm)
 {
   return QString::number(_rpm) + " RPM";
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

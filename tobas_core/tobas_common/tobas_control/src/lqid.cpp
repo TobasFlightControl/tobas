@@ -7,9 +7,7 @@
 
 #include "tobas_control/care.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 LQID::LQID(Eigen::Index _state_size, Eigen::Index _input_size, Eigen::Index _integrate_size)
   : dynamics(_state_size, _input_size)
@@ -157,5 +155,4 @@ std::ostream& operator<<(std::ostream& _os, const LQID& _arg)
 
   return _os;
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

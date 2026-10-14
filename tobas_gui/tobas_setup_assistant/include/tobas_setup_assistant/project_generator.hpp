@@ -15,11 +15,7 @@
 #include "./settings.hpp"
 #include "./template_generator.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ProjectGenerator
 {
@@ -99,6 +95,4 @@ private:
   /** Add Gazebo plugins and related elements to XML. */
   void addXmlElements(tinyxml2::XMLElement* _robot);
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

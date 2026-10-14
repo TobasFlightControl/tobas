@@ -20,13 +20,7 @@ namespace Ui
 class URDFBuilderPanelUI;
 }  // namespace Ui
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 /** Main panel embedded in the RViz window. */
 class UrdfBuilderPanel : public rviz_common::Panel
@@ -97,7 +91,4 @@ private:
 
   static void collectUncheckedLinks(QTreeWidgetItem* _item, QSet<QString>& _set);
 };
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

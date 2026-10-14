@@ -9,9 +9,7 @@
 
 #include <eigen3/Eigen/Geometry>
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 class JointModel;
 
@@ -54,5 +52,4 @@ private:
   bool joint_origin_transform_is_identity_ = true;
   Eigen::Isometry3d joint_origin_transform_ = Eigen::Isometry3d::Identity();
 };
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

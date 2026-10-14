@@ -8,9 +8,7 @@
 
 #include <eigen3/Eigen/Core>
 
-namespace tobas
-{
-namespace quadprog
+namespace tobas::quadprog
 {
 /** Q
  * uadratic problem.
@@ -80,5 +78,4 @@ inline Eigen::Index QuadProgProblem::ineqSize() const
 {
   return b.rows();
 }
-}  // namespace quadprog
-}  // namespace tobas
+}  // namespace tobas::quadprog

@@ -22,9 +22,7 @@
 #include <tobas_ssh_msgs/srv/sftp_read.hpp>
 #include <tobas_ssh_msgs/srv/sftp_write.hpp>
 
-namespace tobas
-{
-namespace ssh
+namespace tobas::ssh
 {
 /**
  * Client for the SSH server.
@@ -86,5 +84,4 @@ private:
   ros2::SyncActionClient<tobas_ssh_msgs::action::ScpGet> scp_get_ac_;
   ros2::SyncActionClient<tobas_ssh_msgs::action::ScpPut> scp_put_ac_;
 };
-}  // namespace ssh
-}  // namespace tobas
+}  // namespace tobas::ssh

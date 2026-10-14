@@ -8,11 +8,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 PropellerPitchPlotWidget::PropellerPitchPlotWidget()
 {
@@ -122,6 +118,4 @@ bool PropellerPitchPlotWidget::updateInternalDataStructures(const tobas_msgs::ms
 
   return true;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

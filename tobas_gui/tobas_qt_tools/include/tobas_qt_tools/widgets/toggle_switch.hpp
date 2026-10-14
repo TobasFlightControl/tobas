@@ -5,9 +5,7 @@
 
 #include "./widget.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class ToggleSwitch : public qt::Widget
 {
@@ -55,5 +53,4 @@ private:
   void drawSwitch(QPainter& _painter);
   void drawText(QPainter& _painter);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

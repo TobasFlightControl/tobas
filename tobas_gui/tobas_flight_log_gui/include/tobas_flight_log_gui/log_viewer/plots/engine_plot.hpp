@@ -9,11 +9,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class EnginePlotWidget : public BasePlotWidget
 {
@@ -31,6 +27,4 @@ private:
   QwtPlot2* throttle_plot_;
   qwt::QwtPlotCurveWrapper throttle_curve_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

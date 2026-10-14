@@ -11,11 +11,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class JointEffortPlotWidget : public BasePlotWidget
 {
@@ -48,6 +44,4 @@ private:
   void updateCurrentSamples(const QVector<tobas_msgs::msg::JointStateArray>& _msgs);
   void updateTargetSamples(const QVector<tobas_msgs::msg::JointCommandArray>& _msgs);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

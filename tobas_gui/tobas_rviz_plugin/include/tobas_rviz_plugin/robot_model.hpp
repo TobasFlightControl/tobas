@@ -13,9 +13,7 @@
 #include "./joint_model/joint_model.hpp"
 #include "./link_model.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 /** Kinematic information required to display a URDF robot. */
 class RobotModel
@@ -74,5 +72,4 @@ private:
   std::vector<int> active_joint_model_start_index_;
   std::vector<JointModel::ConstSharedPtr> joints_of_variable_;
 };
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

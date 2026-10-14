@@ -5,9 +5,7 @@
 
 #include <QDebug>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 void HistoryLineEdit::addHistory(const QString& _text)
 {
@@ -78,5 +76,4 @@ void HistoryLineEdit::showNextHistory()
 
   setCursorPosition(text().size());
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

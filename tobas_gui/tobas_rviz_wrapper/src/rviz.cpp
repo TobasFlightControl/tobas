@@ -15,9 +15,7 @@
 #include <rviz_common/visualization_manager.hpp>
 #include <rviz_common/yaml_config_reader.hpp>
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 RvizFrameManager::RvizFrameManager(int _argc, char** _argv, const std::string& _node_name)
 {
@@ -200,5 +198,4 @@ void RvizFrameManager::removeDefaultColorMaterials()
   material_manager->remove("RVIZ/ShadedBlue", "rviz_rendering");
   material_manager->remove("RVIZ/ShadedCyan", "rviz_rendering");
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

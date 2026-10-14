@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 AccelPlotWidget::AccelPlotWidget()
   : cur_curves_{ "Current Linear Accel X [m/s²]",    "Current Linear Accel Y [m/s²]",
@@ -134,6 +130,4 @@ AccelPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStam
 
   return ranges;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

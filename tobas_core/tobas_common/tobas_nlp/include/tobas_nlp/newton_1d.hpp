@@ -7,9 +7,7 @@
 #include <functional>
 #include <string>
 
-namespace tobas
-{
-namespace nlp
+namespace tobas::nlp
 {
 /**
  * One-dimensional Newton method solver.
@@ -36,5 +34,4 @@ private:
   size_t max_iter_ = 100;
   double abs_tol_ = 1e-10;
 };
-}  // namespace nlp
-}  // namespace tobas
+}  // namespace tobas::nlp

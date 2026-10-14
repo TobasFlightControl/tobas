@@ -6,9 +6,7 @@
 #include <GeographicLib/MagneticModel.hpp>
 #include <GeographicLib/TransverseMercator.hpp>
 
-namespace tobas
-{
-namespace geo
+namespace tobas::geo
 {
 struct PlaneCoordinates
 {
@@ -78,5 +76,4 @@ private:
 
   bool model_expiration_warned_ = false;  ///< Whether the expiration warning has been emitted
 };
-}  // namespace geo
-}  // namespace tobas
+}  // namespace tobas::geo

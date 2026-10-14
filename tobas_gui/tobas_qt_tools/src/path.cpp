@@ -9,9 +9,7 @@
 #include <QTextStream>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 QString getResourcePath()
 {
@@ -80,5 +78,4 @@ std::expected<QString, QString> writeTimestampedFile(
 
   return path;
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

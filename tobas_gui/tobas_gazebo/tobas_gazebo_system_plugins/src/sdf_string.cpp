@@ -7,9 +7,7 @@
 
 #include "tobas_gazebo_system_plugins/inertia.hpp"
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 std::string makeBoxSdf(
   const std::string& _name,
@@ -74,5 +72,4 @@ std::string makeBoxSdf(
     _sy,
     _sz);
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

@@ -8,9 +8,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_math/definitions.hpp>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 CycloidGenerator3d::CycloidGenerator3d()
 {
@@ -106,5 +104,4 @@ double CycloidGenerator3d::computeTheta(double _t) const
   assert(_t >= 0.0);
   return M_2PI * _t / T_;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

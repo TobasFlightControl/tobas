@@ -3,9 +3,7 @@
 
 #include "tobas_ic_drivers/ublox/ubx_transport_uart.hpp"
 
-namespace tobas
-{
-namespace ublox
+namespace tobas::ublox
 {
 UbxTransportUart::UbxTransportUart(const char* _device, uint32_t _baud_rate) : device_(_device), baud_rate_(_baud_rate)
 {
@@ -45,5 +43,4 @@ bool UbxTransportUart::send(const uint8_t* _data, size_t _length) noexcept
 {
   return uart_.send(_data, _length);
 }
-}  // namespace ublox
-}  // namespace tobas
+}  // namespace tobas::ublox

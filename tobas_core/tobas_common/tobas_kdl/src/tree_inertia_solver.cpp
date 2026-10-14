@@ -5,9 +5,7 @@
 
 #include <cassert>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeInertiaSolver::TreeInertiaSolver(const Tree& _tree) : super(_tree)
 {
@@ -36,5 +34,4 @@ RigidBodyInertia TreeInertiaSolver::jntToCartRec(const SegmentMap::const_iterato
 
   return inertia;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

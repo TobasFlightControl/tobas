@@ -10,11 +10,7 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 CpuViewerWidget::CpuViewerWidget(const rqt::RosQtBridge& _bridge)
 {
@@ -78,6 +74,4 @@ void CpuViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& _cpu)
     load_->setFillColor(qt::color::green500());
   }
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

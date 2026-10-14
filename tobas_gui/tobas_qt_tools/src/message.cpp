@@ -6,9 +6,7 @@
 #include <QDebug>
 #include <QMessageBox>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 void qInfoBox(QWidget* _parent, const QString& _msg)
 {
@@ -65,5 +63,4 @@ bool yesOrNo(QWidget* _parent, const QString& _text, QMessageLevel _level)
   // Get the user response and return true for Yes.
   return msg_box.exec() == QMessageBox::StandardButton::Yes;
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

@@ -12,11 +12,7 @@
 #include "../base.hpp"
 #include "./commands_publisher.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace at
+namespace tobas::gui::at
 {
 class JointTestWidget : public BaseWidget
 {
@@ -61,6 +57,4 @@ private Q_SLOTS:
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
 };
-}  // namespace at
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::at

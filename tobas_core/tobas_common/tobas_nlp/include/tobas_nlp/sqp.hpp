@@ -9,9 +9,7 @@
 #include <tobas_eigen_tools/tensor.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
 
-namespace tobas
-{
-namespace nlp
+namespace tobas::nlp
 {
 class SQP
 {
@@ -64,5 +62,4 @@ private:
   size_t max_iter_ = 100;
   double rel_tol_ = 1e-3;
 };
-}  // namespace nlp
-}  // namespace tobas
+}  // namespace tobas::nlp

@@ -7,9 +7,7 @@
 
 #include "./equations.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 /**
  * Create the controllability matrix.
@@ -75,5 +73,4 @@ double firstOrderPos(double _x0, double _xd, double _tau, double _t);
  * @return double Position at time `t`.
  */
 double firstOrderVel(double _x0, double _v0, double _vd, double _tau, double _t);
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

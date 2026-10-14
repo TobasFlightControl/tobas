@@ -8,9 +8,7 @@
 
 #include "./synchronized_string_parameter.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 class RDFLoader
 {
@@ -36,5 +34,4 @@ private:
   urdf::ModelInterfaceSharedPtr urdf_;
   NewModelCallback new_model_cb_;
 };
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

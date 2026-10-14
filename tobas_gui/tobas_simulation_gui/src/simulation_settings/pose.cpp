@@ -11,11 +11,7 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 PoseWidget::PoseWidget()
 {
@@ -94,6 +90,4 @@ double PoseWidget::yaw() const
 {
   return st::deg2rad(rpy_[2]->value());
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

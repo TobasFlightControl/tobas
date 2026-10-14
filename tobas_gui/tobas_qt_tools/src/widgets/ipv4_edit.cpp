@@ -10,9 +10,7 @@
 #include <tobas_qt_tools/validator/int_validator.hpp>
 #include <tobas_std_tools/check.hpp>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 namespace
 {
@@ -128,5 +126,4 @@ void IPv4Edit::setFieldValue(size_t _idx, uint8_t _value)
 {
   fields_.at(_idx)->setText(QString::number(_value));
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

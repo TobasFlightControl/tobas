@@ -12,15 +12,7 @@
 #include "./motor.hpp"
 #include "./propeller.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 class PropulsionUnitWidget : public QWidget
 {
@@ -54,8 +46,4 @@ private:
   PropellerWidget* propeller_;
   AerodynamicsWidget* aerodynamics_;
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

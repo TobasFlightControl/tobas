@@ -9,15 +9,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 class BatteryWidget : public qt::ScrollArea
 {
@@ -49,8 +41,4 @@ private:
   BatteryWidget_Base* selected();
   const BatteryWidget_Base* selected() const;
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

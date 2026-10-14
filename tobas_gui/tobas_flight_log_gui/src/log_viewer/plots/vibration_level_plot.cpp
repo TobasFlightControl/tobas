@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 VibrationLevelPlotWidget::VibrationLevelPlotWidget()
   : curves_{ "Vibration Level X [m/s²]", "Vibration Level Y [m/s²]", "Vibration Level Z [m/s²]" }
@@ -71,6 +67,4 @@ void VibrationLevelPlotWidget::setData(const QVector<tobas_msgs::msg::VibrationL
     plot->replot();
   }
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

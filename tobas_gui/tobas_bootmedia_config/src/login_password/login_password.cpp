@@ -18,11 +18,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 LoginPasswordWidget::LoginPasswordWidget()
 {
@@ -155,6 +151,4 @@ void LoginPasswordWidget::onTextChanged()
   warn_text_->clear();
   write_button_->setEnabled(true);
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

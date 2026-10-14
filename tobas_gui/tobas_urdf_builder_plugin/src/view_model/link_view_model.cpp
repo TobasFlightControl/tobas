@@ -3,13 +3,7 @@
 
 #include "tobas_urdf_builder_plugin/view_model/link_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 LinkViewModel::LinkViewModel(const ::urdf::LinkSharedPtr& _model)
   : BaseViewModel<::urdf::Link, LinkViewModel>(_model)
@@ -149,7 +143,4 @@ void LinkViewModel::remove(const CollisionViewModelPtr& _collision)
 
   sync();
 }
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

@@ -7,11 +7,7 @@
 
 #include "./export_thread.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class ExportThreadRosbag : public ExportThread
 {
@@ -28,6 +24,4 @@ private:
 
   bool addZipEntry(QuaZip& _zip, const QString& _abs_path, const QString& _zip_path);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

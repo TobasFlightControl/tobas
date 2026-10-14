@@ -8,9 +8,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 AngleThrottleVectorController::AngleThrottleVectorController()
 {
@@ -166,5 +164,4 @@ void AngleThrottleVectorController::thrustAngleExpoCb(double _p)
 {
   thrust_angle_expo_ = _p / kExpoScale;
 }
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

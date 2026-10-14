@@ -7,11 +7,7 @@
 #include "../param_getters/spin_box.hpp"
 #include "./base_setting.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class RcInputWidget : public BaseSettingWidget
 {
@@ -40,6 +36,4 @@ private:
   ParamGetterWidget_DoubleSpinBox* arm_duration_;
   ParamGetterWidget_DoubleSpinBox* disarm_duration_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

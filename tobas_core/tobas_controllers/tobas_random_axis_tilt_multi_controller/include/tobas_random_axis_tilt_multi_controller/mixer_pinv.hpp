@@ -10,9 +10,7 @@
 
 #include "./mixer_solution.hpp"
 
-namespace tobas
-{
-namespace random_axis_tilt_multicopter
+namespace tobas::random_axis_tilt_multicopter
 {
 /** Solve tilt-rotor multicopter mixing by variable transformation (memo: 3-16). */
 class PinvMixer : public MixerI
@@ -62,5 +60,4 @@ private:
   Eigen::Matrix6Xd E_;
   Eigen::Vector6d f_;
 };
-}  // namespace random_axis_tilt_multicopter
-}  // namespace tobas
+}  // namespace tobas::random_axis_tilt_multicopter

@@ -7,11 +7,7 @@
 
 #include <rclcpp/serialization.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 template <typename MsgType>
 class MessageDecoder
@@ -40,6 +36,4 @@ const MsgType& MessageDecoder<MsgType>::decode(const SerializedDataPtr& _ser_dat
   ser_.deserialize_message(&ser_msg, &msg_);
   return msg_;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

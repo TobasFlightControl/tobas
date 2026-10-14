@@ -5,9 +5,7 @@
 
 #include <QCheckBox>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QCheckBox` =====
@@ -28,5 +26,4 @@ public:
   /** Display only the text normally even when disabled. */
   void setDisabledTextNormal();
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

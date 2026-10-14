@@ -12,9 +12,7 @@
 #include "./vector.hpp"
 #include "./wrench.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class Rotation;
 using RotationMap = std::map<std::string, Rotation>;
@@ -303,5 +301,4 @@ inline std::ostream& operator<<(std::ostream& _os, const Rotation& _arg)
   _os << _arg.data.reshaped(1, 9);
   return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

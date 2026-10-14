@@ -5,9 +5,7 @@
 
 #include <QWidget>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class MainWidget : public QWidget
 {
@@ -26,5 +24,4 @@ private:
   void restoreWindowGeometry();
   void saveWindowGeometry();
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

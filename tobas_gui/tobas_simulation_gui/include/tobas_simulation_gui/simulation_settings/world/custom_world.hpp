@@ -9,11 +9,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class CustomWorldWidget : public BaseWorldWidget
 {
@@ -35,6 +31,4 @@ private:
 private Q_SLOTS:
   void onBrowseButtonClicked();
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

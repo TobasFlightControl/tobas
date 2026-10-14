@@ -7,9 +7,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_real_common/ros_interface.hpp>
 
-namespace tobas
-{
-namespace rqt
+namespace tobas::rqt
 {
 RosQtBridge::RosQtBridge(QObject* _parent) : super(_parent)
 {
@@ -58,5 +56,4 @@ void RosQtBridge::add(
   const auto cb = [this](const typename MsgType::ConstSharedPtr& _msg) { (this->*SignalType)(_msg); };
   subs_[_base_topic] = _node->create_subscription<MsgType>(topic, qos, cb);
 }
-}  // namespace rqt
-}  // namespace tobas
+}  // namespace tobas::rqt

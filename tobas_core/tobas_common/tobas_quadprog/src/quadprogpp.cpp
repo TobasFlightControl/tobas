@@ -56,9 +56,7 @@ void vectorQpToEigen(const Vector<double>& _q, Eigen::VectorXd& _e)
 }
 }  // namespace quadprogpp
 
-namespace tobas
-{
-namespace quadprog
+namespace tobas::quadprog
 {
 QuadProgppSolver::QuadProgppSolver() : super()
 {
@@ -91,5 +89,4 @@ std::expected<Eigen::VectorXd, std::string> QuadProgppSolver::solve()
   // Restore the solution to the original scale.
   return x_scaled.cwiseProduct(x_scale).eval();
 }
-}  // namespace quadprog
-}  // namespace tobas
+}  // namespace tobas::quadprog

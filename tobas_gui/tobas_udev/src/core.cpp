@@ -5,9 +5,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace udv
+namespace tobas::udv
 {
 namespace
 {
@@ -64,5 +62,4 @@ std::string getBlockLabel(udev* _u, const fs::path& _devnode)
   }
   return getPropertyValue(dev, "ID_FS_LABEL");
 }
-}  // namespace udv
-}  // namespace tobas
+}  // namespace tobas::udv

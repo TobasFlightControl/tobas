@@ -5,11 +5,7 @@
 
 #include <rclcpp/qos.hpp>
 
-namespace tobas
-{
-namespace ros2
-{
-namespace qos
+namespace tobas::ros2::qos
 {
 static constexpr bool kDefaultLatch = false;
 static constexpr bool kDefaultReliable = false;
@@ -27,6 +23,4 @@ class DefaultQoS : public QoS
 public:
   explicit DefaultQoS();
 };
-}  // namespace qos
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2::qos

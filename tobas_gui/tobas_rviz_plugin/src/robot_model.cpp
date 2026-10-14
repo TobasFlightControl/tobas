@@ -14,9 +14,7 @@
 #include "tobas_rviz_plugin/joint_model/revolute_joint_model.hpp"
 #include "tobas_rviz_plugin/order_robot_model_items.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 namespace
 {
@@ -476,5 +474,4 @@ LinkModel::SharedPtr RobotModel::constructLinkModel(const urdf::LinkConstSharedP
   return new_link_model;
 }
 
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

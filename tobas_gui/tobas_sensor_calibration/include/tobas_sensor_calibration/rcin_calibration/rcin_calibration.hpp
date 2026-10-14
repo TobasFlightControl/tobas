@@ -17,12 +17,7 @@
 
 #include "../base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-
-namespace sc
+namespace tobas::gui::sc
 {
 class RCInputCalibrationWidget : public BaseWidget
 {
@@ -78,6 +73,4 @@ private Q_SLOTS:
   void sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& _sbus);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
 };
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

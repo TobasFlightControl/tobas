@@ -6,11 +6,7 @@
 #include <QDir>
 #include <QFileInfo>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 TemplateGenerator::TemplateGenerator(const QString& _tpl_dir) : tpl_dir_(_tpl_dir)
 {
@@ -32,6 +28,4 @@ void TemplateGenerator::generate(
   const auto temp = env_.parse_template(tpl_path.toStdString());
   env_.write(temp, _data, out_path.toStdString());
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

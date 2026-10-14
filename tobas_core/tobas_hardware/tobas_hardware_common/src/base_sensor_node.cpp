@@ -3,9 +3,7 @@
 
 #include "tobas_hardware_common/base_sensor_node.hpp"
 
-namespace tobas
-{
-namespace hardware
+namespace tobas::hardware
 {
 BaseSensorNode::BaseSensorNode(const std::string& _name, const rclcpp::NodeOptions& _options)
   : super(_name, nodeOptions_Default(_options))
@@ -23,5 +21,4 @@ void BaseSensorNode::stopMainTimerSrvCb(const Empty::Request::ConstSharedPtr&, c
 {
   main_timer_->cancel();
 }
-}  // namespace hardware
-}  // namespace tobas
+}  // namespace tobas::hardware

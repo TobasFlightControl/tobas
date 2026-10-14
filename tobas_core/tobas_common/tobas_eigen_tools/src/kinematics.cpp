@@ -8,9 +8,7 @@
 
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace eigen
+namespace tobas::eigen
 {
 namespace
 {
@@ -180,5 +178,4 @@ angaccFromEuleraccLocal(double _roll, double _pitch, const Eigen::Vector3d& _drp
 {
   return angaccFromEuleraccLocal(_roll, _pitch, _drpy.x(), _drpy.y(), _drpy.z(), _ddrpy.x(), _ddrpy.y(), _ddrpy.z());
 }
-}  // namespace eigen
-}  // namespace tobas
+}  // namespace tobas::eigen

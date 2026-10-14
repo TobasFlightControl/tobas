@@ -8,9 +8,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 template <typename T>
 class Buffer
@@ -112,5 +110,4 @@ inline const T& Buffer<T>::getOldest() const
   assert(cur_ > 0);
   return isFull() ? get(cur_ % max_size_) : get(0);
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

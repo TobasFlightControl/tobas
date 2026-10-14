@@ -7,9 +7,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace path
+namespace tobas::path
 {
 bool isReadable(const fs::path& _file_path)
 {
@@ -102,5 +100,4 @@ std::expected<void, std::string> clearDirectory(const fs::path& _dir_path)
 
   return {};
 }
-}  // namespace path
-}  // namespace tobas
+}  // namespace tobas::path

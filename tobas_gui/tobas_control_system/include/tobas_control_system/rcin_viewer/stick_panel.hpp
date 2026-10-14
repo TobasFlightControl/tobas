@@ -7,13 +7,7 @@
 #include <QString>
 #include <QWidget>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
-{
-namespace rcin
+namespace tobas::gui::ctrl::rcin
 {
 class StickPanel : public QWidget
 {
@@ -39,7 +33,4 @@ private:
   QRect fieldRect() const;
   QString axisText(double _value) const;
 };
-}  // namespace rcin
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::rcin

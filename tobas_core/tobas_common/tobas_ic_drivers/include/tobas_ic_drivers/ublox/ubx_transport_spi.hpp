@@ -11,9 +11,7 @@
 
 #include "./ubx_transport.hpp"
 
-namespace tobas
-{
-namespace ublox
+namespace tobas::ublox
 {
 class UbxTransportSpi final : public UbxTransport
 {
@@ -39,5 +37,4 @@ private:
   uint8_t tx_buf_[kSpiBufSize];
   uint8_t rx_buf_[kSpiBufSize];
 };
-}  // namespace ublox
-}  // namespace tobas
+}  // namespace tobas::ublox

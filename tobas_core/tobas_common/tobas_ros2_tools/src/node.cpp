@@ -8,9 +8,7 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 namespace
 {
@@ -76,5 +74,4 @@ bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& _node, const std::string& 
 
   return false;
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

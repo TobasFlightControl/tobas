@@ -11,11 +11,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class RotorSpeedPlotWidget : public BasePlotWidget
 {
@@ -48,6 +44,4 @@ private:
   std::pair<double, double> updateTargetSpeedSamples(const QVector<tobas_msgs::msg::RotorSpeedArray>& _msgs);
   void updateVerticalScale(double _min_speed, double _max_speed);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

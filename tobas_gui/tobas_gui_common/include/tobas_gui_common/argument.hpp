@@ -6,11 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 /**
  * Edit command-line arguments.
@@ -34,6 +30,4 @@ private:
   int argc_;                 ///< Memory allocation is required for `argc`.
   std::vector<char*> argv_;  ///< Memory allocation is required for `argv`.
 };
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

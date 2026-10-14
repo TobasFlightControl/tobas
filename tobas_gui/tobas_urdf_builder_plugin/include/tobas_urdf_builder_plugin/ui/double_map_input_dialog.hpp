@@ -8,13 +8,7 @@
 #include <QDialog>
 #include <QDoubleSpinBox>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 class DoubleMapInputDialog : public QDialog
 {
@@ -35,7 +29,4 @@ private:
   std::map<QString, double> field2value_;
   std::map<QDoubleSpinBox*, QString> spinbox2field_;
 };
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

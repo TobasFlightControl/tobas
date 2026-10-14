@@ -12,9 +12,7 @@
 
 #include <geometry_msgs/msg/transform_stamped.hpp>
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 class TransformListener
 {
@@ -28,5 +26,4 @@ private:
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
 };
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

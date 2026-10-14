@@ -5,11 +5,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 JointEffortPlotWidget::JointEffortPlotWidget()
 {
@@ -133,6 +129,4 @@ void JointEffortPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::J
     tar_curves_[i].setSamples(times[i], values[i]);
   }
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

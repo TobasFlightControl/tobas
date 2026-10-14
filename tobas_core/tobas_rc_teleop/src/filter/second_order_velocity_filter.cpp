@@ -8,9 +8,7 @@
 
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 SecondOrderVelocityFilter::SecondOrderVelocityFilter()
 {
@@ -47,5 +45,4 @@ void SecondOrderVelocityFilter::resetCurrentTrajectoryPoint(double _v, double _a
   v_ = _v;
   a_ = _a;
 }
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

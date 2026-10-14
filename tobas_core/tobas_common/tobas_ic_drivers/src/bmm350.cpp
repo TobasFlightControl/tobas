@@ -8,9 +8,7 @@
 #include <iostream>
 #include <thread>
 
-namespace tobas
-{
-namespace driver
+namespace tobas::driver
 {
 BMM350::BMM350()
 {
@@ -501,5 +499,4 @@ void BMM350::delayUs(uint32_t _period_us)
 {
   std::this_thread::sleep_for(std::chrono::microseconds(_period_us));
 }
-}  // namespace driver
-}  // namespace tobas
+}  // namespace tobas::driver

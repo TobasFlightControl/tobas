@@ -5,9 +5,7 @@
 
 #include "./widget.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class CircleWidget : public qt::Widget
 {
@@ -43,5 +41,4 @@ private:
   void drawCircle(QPainter& _painter);
   void drawText(QPainter& _painter);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

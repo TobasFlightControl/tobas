@@ -8,9 +8,7 @@
 #include "tobas_gazebo_system_plugins/engine_model.hpp"
 #include "tobas_gazebo_system_plugins/sdf.hpp"
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 EngineModel::EngineModel(const IceRotorModelMap& _rotors) : rotors_(_rotors), rnd_gen_(rnd_dev_())
 {
@@ -160,5 +158,4 @@ double EngineModel::calc_k() const
   }
   return res;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

@@ -6,9 +6,7 @@
 #include <array>
 #include <cstddef>
 
-namespace tobas
-{
-namespace str
+namespace tobas::str
 {
 /** Concatenate `char` and `char*`. */
 template <size_t N>
@@ -21,5 +19,4 @@ inline constexpr auto concat(char _c, const char (&_s)[N])
   }
   return out;  // Returning `data()` would release `std::array` and leave a dangling pointer.
 }
-}  // namespace str
-}  // namespace tobas
+}  // namespace tobas::str

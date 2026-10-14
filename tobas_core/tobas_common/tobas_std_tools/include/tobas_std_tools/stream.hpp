@@ -6,9 +6,7 @@
 #include <sstream>
 #include <string>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 template <typename T>
 inline void addToStream(std::stringstream& _ss, const T& _t)
@@ -30,5 +28,4 @@ inline std::string buildString(const Args&... _args)
   addToStream(ss, _args...);
   return ss.str();
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

@@ -9,9 +9,7 @@
 
 #include "./future.hpp"
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 /**
  * Synchronous parameter client.
@@ -121,5 +119,4 @@ inline const char* SyncParamClient::errorMessage() const
       return "Unexpected error.";
   }
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

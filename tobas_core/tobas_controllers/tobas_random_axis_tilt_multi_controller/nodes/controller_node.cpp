@@ -34,9 +34,7 @@
 
 #include "tobas_random_axis_tilt_multi_controller/mixer_pinv.hpp"
 
-namespace tobas
-{
-namespace random_axis_tilt_multicopter
+namespace tobas::random_axis_tilt_multicopter
 {
 class ControllerNode : public BaseNode
 {
@@ -641,7 +639,6 @@ void ControllerNode::checkTopicsTimerCb()
   topics_received_ = true;
   check_topics_timer_->cancel();
 }
-}  // namespace random_axis_tilt_multicopter
-}  // namespace tobas
+}  // namespace tobas::random_axis_tilt_multicopter
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::random_axis_tilt_multicopter::ControllerNode)

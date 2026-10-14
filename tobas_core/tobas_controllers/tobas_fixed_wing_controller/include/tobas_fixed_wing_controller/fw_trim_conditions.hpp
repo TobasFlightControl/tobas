@@ -10,9 +10,7 @@
 #include "./fw_stability_derivatives_cog.hpp"
 #include "./solver_i.hpp"
 
-namespace tobas
-{
-namespace fixed_wing
+namespace tobas::fixed_wing
 {
 /** Compute the longitudinal trim state. */
 class TrimConditions : public SolverI
@@ -142,5 +140,4 @@ inline double TrimConditions::maximumSpeed(double _rho) const
 {
   return speedLimit(_rho).upper;
 }
-}  // namespace fixed_wing
-}  // namespace tobas
+}  // namespace tobas::fixed_wing

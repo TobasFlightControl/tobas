@@ -7,9 +7,7 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/fixed_wing.hpp>
 
-namespace tobas
-{
-namespace fixed_wing
+namespace tobas::fixed_wing
 {
 TrimConditions::TrimConditions(const Drone& _drone, const kdl::Tree& _tree)
   : drone_(_drone), tree_(_tree), inertia_solver_(_tree), asd_cog_(_drone, _tree)
@@ -156,5 +154,4 @@ double TrimConditions::takeOffSpeed(double _rho) const
   constexpr double alpha_zero = 0.0;
   return std::sqrt(c / (a_ * alpha_zero + b_));
 }
-}  // namespace fixed_wing
-}  // namespace tobas
+}  // namespace tobas::fixed_wing

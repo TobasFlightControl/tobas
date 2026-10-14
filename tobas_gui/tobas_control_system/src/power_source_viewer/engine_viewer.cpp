@@ -12,11 +12,7 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 EngineViewerWidget::EngineViewerWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone) : drone_(_drone)
 {
@@ -107,6 +103,4 @@ void EngineViewerWidget::engineStateCb(const tobas_msgs::msg::EngineState::Const
   updateFuelQuantity(_engine_state->fuel_quantity);
   updateOilTemperature(_engine_state->oil_temperature);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

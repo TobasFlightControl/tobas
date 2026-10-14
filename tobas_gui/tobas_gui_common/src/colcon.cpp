@@ -7,11 +7,7 @@
 
 #include <tobas_qt_tools/thread.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 namespace
 {
@@ -56,8 +52,6 @@ colconBuild(const QString& _pkg_path, const QString& _ws_path, const colcon::Bui
 
   return {};
 }
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn
 
 #include "colcon.moc"

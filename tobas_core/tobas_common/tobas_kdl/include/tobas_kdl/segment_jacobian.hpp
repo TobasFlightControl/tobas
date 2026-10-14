@@ -7,9 +7,7 @@
 #include "./segment_inertia.hpp"
 #include "./wrench.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /** Jacobian for one segment. */
 class SegmentJacobian
@@ -82,5 +80,4 @@ inline double SegmentJacobian::dot(const SegmentInertia& _rhs) const
 {
   return linear.dot(_rhs.linear) + angular.dot(_rhs.angular);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

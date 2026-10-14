@@ -7,9 +7,7 @@
 #include <tobas_constants/throttle.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 RateThrottleVectorController::RateThrottleVectorController()
 {
@@ -105,5 +103,4 @@ void RateThrottleVectorController::throttleExpoCb(double _p)
 {
   throt_expo_ = _p / kExpoScale;
 }
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

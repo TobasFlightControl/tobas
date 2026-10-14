@@ -6,13 +6,7 @@
 #include <yaml-cpp/yaml.h>
 #include <QWidget>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace hw
+namespace tobas::gui::sa::hw
 {
 class BaseHardwareWidget : public QWidget
 {
@@ -70,7 +64,4 @@ public:
 
   virtual bool hasRpmFilter() const = 0;
 };
-}  // namespace hw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::hw

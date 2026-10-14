@@ -5,9 +5,7 @@
 
 #include <iostream>
 
-namespace tobas
-{
-namespace driver
+namespace tobas::driver
 {
 CxGb400::CxGb400() : linux::VideoDev::VideoDev()
 {
@@ -390,5 +388,4 @@ bool CxGb400::interpretCameraError(uint32_t _error_status, CameraErrorStatusDigi
   return (_error_status >> _digit) & 1;
 }
 
-}  // namespace driver
-}  // namespace tobas
+}  // namespace tobas::driver

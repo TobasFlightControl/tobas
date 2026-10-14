@@ -10,9 +10,7 @@
 
 #include "tobas_qt_tools/cast.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 TabBar::TabBar()
 {
@@ -133,5 +131,4 @@ void TabWidget::removeAllTabs()
     first_widget->deleteLater();          // Free memory.
   }
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

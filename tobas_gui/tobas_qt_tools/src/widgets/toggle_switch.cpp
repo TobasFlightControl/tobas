@@ -7,9 +7,7 @@
 #include <QPainter>
 #include <QResizeEvent>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 ToggleSwitch::ToggleSwitch(QWidget* _parent) : super(_parent)
 {
@@ -165,5 +163,4 @@ void ToggleSwitch::drawText(QPainter& _painter)
     drawMaximumText(_painter, text_, center);
   }
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

@@ -9,15 +9,7 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/lipo.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/other.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 namespace
 {
@@ -136,8 +128,4 @@ const BatteryWidget_Base* BatteryWidget::selected() const
 {
   return qt::qConstPointerCast<BatteryWidget_Base>(batteries_->currentWidget());
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

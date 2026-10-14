@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 CpuPlotWidget::CpuPlotWidget()
   : freq_curve_("Frequency [GHz]"), temp_curve_("Temperature [degC]"), load_curve_("Load [%]")
@@ -84,6 +80,4 @@ void CpuPlotWidget::setData(const QVector<tobas_msgs::msg::Cpu>& _msgs)
   load_curve_.setSamples(t_data, load_data);
   load_plot_->replot();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

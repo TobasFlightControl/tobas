@@ -8,11 +8,7 @@
 
 #include <tobas_std_tools/vector.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 NonRosArgumentParser::NonRosArgumentParser(int _argc, char** _argv)
 {
@@ -59,6 +55,4 @@ bool NonRosArgumentParser::setPlatformXcb()
 
   return true;
 }
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

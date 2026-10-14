@@ -9,9 +9,7 @@
 
 #include "tobas_control/util.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 std::expected<Eigen::MatrixXd, std::string> dare(
   const Eigen::MatrixXd& _a,
@@ -58,5 +56,4 @@ std::expected<Eigen::MatrixXd, std::string> dare(
   std::cout << "DARE has successfully converged in " << iter << " iterations.\n";
   return X_next;
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

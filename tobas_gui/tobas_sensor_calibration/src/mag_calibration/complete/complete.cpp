@@ -28,11 +28,7 @@
 
 #include "tobas_sensor_calibration/util.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 namespace
 {
@@ -806,6 +802,4 @@ void CompleteMagCalibWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStam
 {
   odom_ = _msg;
 }
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

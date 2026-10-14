@@ -6,9 +6,7 @@
 #include <gz/math/Quaternion.hh>
 #include <gz/math/Vector3.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 template <typename T>
 bool allGreaterEqual(const gz::math::Vector3<T>& _v, T _x)
@@ -43,5 +41,4 @@ gz::math::Quaterniond quaternionFromAngleAxis(const gz::math::Vector3d& _w);
 
 /** Compute the skew-symmetric matrix representing the cross product of a 3D vector. */
 gz::math::Matrix3d skewMatrix(const gz::math::Vector3d& _v);
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

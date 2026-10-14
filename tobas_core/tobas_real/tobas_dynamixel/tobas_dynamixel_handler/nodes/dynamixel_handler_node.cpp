@@ -23,9 +23,7 @@ using namespace std::chrono_literals;
 namespace ch = std::chrono;
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace dxl
+namespace tobas::dxl
 {
 struct DynamixelConfig
 {
@@ -714,7 +712,6 @@ void DynamixelHandlerNode::publishCurrentStatesTimerCb()
   // Publish motor states message.
   motor_states_pub_->publish(std::move(motor_states));
 }
-}  // namespace dxl
-}  // namespace tobas
+}  // namespace tobas::dxl
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::dxl::DynamixelHandlerNode)

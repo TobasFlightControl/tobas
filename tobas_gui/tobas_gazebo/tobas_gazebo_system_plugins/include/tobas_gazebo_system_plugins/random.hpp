@@ -9,9 +9,7 @@
 
 #include "./common/definitions.hpp"
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class NormalDistribution3d
 {
@@ -49,5 +47,4 @@ private:
 
 /** Generate a random point on the unit sphere. */
 gz::math::Vector3d createUnitSpherePoint(std::random_device& _rnd_dev);
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

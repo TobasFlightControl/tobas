@@ -3,9 +3,7 @@
 
 #include "tobas_ros2_tools/tf_listener.hpp"
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 TransformListener::TransformListener(rclcpp::Node::SharedPtr _node)
   : tf_buffer_(_node->get_clock()), tf_listener_(tf_buffer_, _node)
@@ -22,5 +20,4 @@ TransformListener::lookupTransform(const std::string& _parent, const std::string
     return std::unexpected(std::string(e.what()));
   }
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

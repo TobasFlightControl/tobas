@@ -9,9 +9,7 @@ using namespace tobas_ssh_msgs::srv;
 using namespace tobas_ssh_msgs::action;
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace ssh
+namespace tobas::ssh
 {
 namespace
 {
@@ -225,5 +223,4 @@ SshClient::Result SshClient::list(const std::string& _pardir, std::vector<std::s
   _dst = res->entries;
   return {};
 }
-}  // namespace ssh
-}  // namespace tobas
+}  // namespace tobas::ssh

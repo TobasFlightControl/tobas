@@ -15,11 +15,7 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace param
+namespace tobas::gui::param
 {
 ParameterTuningWidget::ParameterTuningWidget()
   : file_names_{ "imu_filter_dynamic.yaml", "observer_dynamic.yaml", "controller_dynamic.yaml", "rc_teleop_dynamic.yaml" }
@@ -200,6 +196,4 @@ void ParameterTuningWidget::onDefaultButtonClicked()
 
   qt::qInfoBox(this, "Dynamic parameters have been set to their default values successfully.");
 }
-}  // namespace param
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::param

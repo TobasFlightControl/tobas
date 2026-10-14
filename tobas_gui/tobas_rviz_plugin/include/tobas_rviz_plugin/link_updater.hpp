@@ -7,9 +7,7 @@
 
 #include "./robot_state.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 /** Update the links of an `rviz::Robot` using a `RobotState`. */
 class LinkUpdater : public rviz_default_plugins::robot::LinkUpdater
@@ -27,5 +25,4 @@ public:
 private:
   const RobotState& robot_state_;
 };
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

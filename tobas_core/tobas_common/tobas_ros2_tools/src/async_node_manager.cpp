@@ -8,9 +8,7 @@
 #include <rclcpp/node_options.hpp>
 #include <rclcpp/utilities.hpp>
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 AsyncNodeManager::AsyncNodeManager(int _argc, char** _argv, const std::string& _node_name)
 {
@@ -65,5 +63,4 @@ void AsyncNodeManager::initialize(rclcpp::Context::SharedPtr _context, const std
   executor_->add_node(node_);
   executor_thread_.emplace([this]() { executor_->spin(); });
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

@@ -24,11 +24,7 @@
 #include "./settings.hpp"
 #include "./signals.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class SetupAssistantWidget : public QWidget
 {
@@ -83,6 +79,4 @@ private Q_SLOTS:
   void onSaveButtonClicked();
   void onSaveAsButtonClicked();
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

@@ -7,11 +7,7 @@
 
 #include <rclcpp/serialization.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 template <typename MsgType>
 class MessageDecoderCache
@@ -54,6 +50,4 @@ void MessageDecoderCache<MsgType>::clearCache()
 {
   cache_map_.clear();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

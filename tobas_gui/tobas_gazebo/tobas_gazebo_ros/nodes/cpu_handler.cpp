@@ -8,9 +8,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class CpuHandlerNode : public BaseNode
 {
@@ -50,7 +48,6 @@ void CpuHandlerNode::mainTimerCb()
   // Publish ROS message.
   cpu_pub_->publish(std::move(cpu_msg));
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::gazebo::CpuHandlerNode)

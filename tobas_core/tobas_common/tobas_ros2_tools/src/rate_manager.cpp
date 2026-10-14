@@ -3,9 +3,7 @@
 
 #include "tobas_ros2_tools/rate_manager.hpp"
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 RateManager::RateManager(double _update_rate)
   : interval_(rclcpp::Duration::from_nanoseconds(1'000'000'000 / _update_rate))
@@ -34,5 +32,4 @@ bool RateManager::update(const rclcpp::Time& _time)
     return true;
   }
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

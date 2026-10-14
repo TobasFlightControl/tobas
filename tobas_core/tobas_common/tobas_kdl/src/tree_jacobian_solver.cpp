@@ -5,9 +5,7 @@
 
 #include <cassert>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeJacobianSolver::TreeJacobianSolver(const Tree& _tree) : super(_tree)
 {
@@ -65,5 +63,4 @@ void TreeJacobianSolver::resize()
 {
   jac_out_ = Jacobian::Zero(tree_.getNrOfJoints());
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

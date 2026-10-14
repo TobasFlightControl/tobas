@@ -10,11 +10,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class LatencyPlotWidget : public BasePlotWidget
 {
@@ -46,6 +42,4 @@ private:
   void setSamplingTimeData(const QVector<tobas_msgs::msg::Latency>& _msgs);
   void setControlLatencyData(const QVector<tobas_msgs::msg::Latency>& _msgs);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

@@ -11,13 +11,7 @@
 #include "./dshot.hpp"
 #include "./pwm.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace hw
+namespace tobas::gui::sa::hw
 {
 class HardwareWidget : public BaseSettingWidget
 {
@@ -103,7 +97,4 @@ private:
 private Q_SLOTS:
   void onHardwareTypeChanged(int _index);
 };
-}  // namespace hw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::hw

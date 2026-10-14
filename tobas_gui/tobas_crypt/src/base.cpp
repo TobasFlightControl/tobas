@@ -9,9 +9,7 @@
 
 #include <tobas_std_tools/error.hpp>
 
-namespace tobas
-{
-namespace crypt
+namespace tobas::crypt
 {
 std::expected<std::string, std::string> Crypt::crypt(const std::string& _password) const
 {
@@ -30,5 +28,4 @@ std::expected<std::string, std::string> Crypt::crypt(const std::string& _passwor
 
   return std::string(out);
 }
-}  // namespace crypt
-}  // namespace tobas
+}  // namespace tobas::crypt

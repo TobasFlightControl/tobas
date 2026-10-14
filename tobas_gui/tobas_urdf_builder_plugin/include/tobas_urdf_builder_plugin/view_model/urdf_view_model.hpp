@@ -9,13 +9,7 @@
 #include "./joint_view_model.hpp"
 #include "./link_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 class URDFViewModel
 {
@@ -66,7 +60,4 @@ private:
 
   static void removeTextureTagsWithoutFilename(tinyxml2::XMLElement* _element);
 };
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

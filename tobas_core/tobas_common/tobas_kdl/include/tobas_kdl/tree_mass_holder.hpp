@@ -5,9 +5,7 @@
 
 #include "./tree_solver_i.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /** Hold the total mass of the tree. */
 class TreeMassHolder : public TreeSolverI
@@ -34,5 +32,4 @@ inline const double& TreeMassHolder::getMass() const
 {
   return mass_;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

@@ -8,9 +8,7 @@
 
 #include <tobas_math/float.hpp>
 
-namespace tobas
-{
-namespace eigen
+namespace tobas::eigen
 {
 /** Convert a 3D vector between FLU (Front-Left-Up) and FRD (Front-Right-Down). Equivalent to applying Rx(pi). */
 inline void vectorFrdToFlu(const Eigen::Vector3d& _src, Eigen::Vector3d& _dst)
@@ -136,5 +134,4 @@ projectPointOnToLine(const Eigen::Vector3d& _x0, const Eigen::Vector3d& _v, cons
   assert(math::isClose(_v.norm(), 1.0));
   return _x0 + _v.dot(_p - _x0) * _v;
 }
-}  // namespace eigen
-}  // namespace tobas
+}  // namespace tobas::eigen

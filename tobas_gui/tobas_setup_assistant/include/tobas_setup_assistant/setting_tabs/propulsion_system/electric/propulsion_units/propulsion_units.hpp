@@ -8,15 +8,7 @@
 
 #include "./propulsion_unit.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 class PropulsionUnitsWidget : public qt::TabWidget
 {
@@ -53,8 +45,4 @@ private:
 private Q_SLOTS:
   void onCopyToAllButtonClicked(const QString& _link_name);
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

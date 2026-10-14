@@ -14,9 +14,7 @@
 
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class GazeboLookAtPositionPlugin : public BaseNode,
                                    public gz::sim::System,
@@ -71,8 +69,7 @@ void GazeboLookAtPositionPlugin::PostUpdate(const gz::sim::UpdateInfo&, const gz
   vector3dGzToMsg(pose_W_->Data().Pos(), lookat_pos_);
   lookat_pos_pub_.Publish(lookat_pos_);
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboLookAtPositionPlugin,

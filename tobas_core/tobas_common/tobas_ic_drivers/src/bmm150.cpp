@@ -7,9 +7,7 @@
 #include <iostream>
 #include <thread>
 
-namespace tobas
-{
-namespace driver
+namespace tobas::driver
 {
 namespace
 {
@@ -332,5 +330,4 @@ int16_t BMM150::compensateZ(int16_t _mag_data_z, uint16_t _data_r_hall)
     return kOverflowOutput;
   }
 }
-}  // namespace driver
-}  // namespace tobas
+}  // namespace tobas::driver

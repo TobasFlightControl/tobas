@@ -5,9 +5,7 @@
 
 #include <eigen3/Eigen/Core>
 
-namespace tobas
-{
-namespace quadprog
+namespace tobas::quadprog
 {
 /**
  * Create equivalent matrix inequalities (`A @ x <= b`) from variable ranges (`lb <= x <= ub`).
@@ -23,5 +21,4 @@ void matIneqFromRange(
   Eigen::MatrixXd& _a,
   Eigen::VectorXd& _b,
   double _inf = 1E+12);
-}  // namespace quadprog
-}  // namespace tobas
+}  // namespace tobas::quadprog

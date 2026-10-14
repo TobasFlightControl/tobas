@@ -5,11 +5,7 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 SensorCalibrationWidget::SensorCalibrationWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone) : drone_(_drone)
 {
@@ -120,6 +116,4 @@ void SensorCalibrationWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPt
     setCompleted(rcin_calib_);
   }
 }
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

@@ -11,11 +11,7 @@
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class SbusWidget : public QWidget
 {
@@ -38,6 +34,4 @@ private:
 private Q_SLOTS:
   void onScanTimerTimeout();
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

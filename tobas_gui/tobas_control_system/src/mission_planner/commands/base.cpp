@@ -14,11 +14,7 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 BaseCommandWidget::BaseCommandWidget()
 {
@@ -121,6 +117,4 @@ void BaseCommandWidget::onDeleteButtonClicked()
 {
   Q_EMIT deleteButtonClicked();
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

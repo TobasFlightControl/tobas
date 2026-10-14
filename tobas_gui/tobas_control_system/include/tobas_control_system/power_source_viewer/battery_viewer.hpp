@@ -10,11 +10,7 @@
 #include <tobas_qt_tools/widgets/progress_bar.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class BatteryViewerWidget : public QWidget
 {
@@ -41,6 +37,4 @@ private:
 private Q_SLOTS:
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& _battery);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

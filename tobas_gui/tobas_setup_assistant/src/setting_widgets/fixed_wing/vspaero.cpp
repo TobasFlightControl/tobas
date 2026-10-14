@@ -8,13 +8,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace fw
+namespace tobas::gui::sa::fw
 {
 std::expected<VspaeroData, std::string> parseVspaero(const std::string& _stab_path)
 {
@@ -101,7 +95,4 @@ std::expected<VspaeroData, std::string> parseVspaero(const std::string& _stab_pa
 
   return data;
 }
-}  // namespace fw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::fw

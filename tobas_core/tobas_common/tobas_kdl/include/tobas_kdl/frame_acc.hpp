@@ -8,9 +8,7 @@
 #include "./twist_acc.hpp"
 #include "./vector_acc.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class FrameAcc
 {
@@ -168,5 +166,4 @@ inline FrameAcc operator*(const Frame& _lhs, const FrameAcc& _rhs)
 {
   return FrameAcc(_lhs.M * _rhs.M, _lhs.M * _rhs.p + _lhs.p);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

@@ -5,9 +5,7 @@
 
 #include <cstring>
 
-namespace tobas
-{
-namespace ublox
+namespace tobas::ublox
 {
 UbxTransportSpi::UbxTransportSpi(const char* _device) : device_(_device)
 {
@@ -36,5 +34,4 @@ bool UbxTransportSpi::send(const uint8_t* _data, size_t _length) noexcept
   std::memcpy(tx_buf_, _data, _length);
   return spi_.transfer(_length);
 }
-}  // namespace ublox
-}  // namespace tobas
+}  // namespace tobas::ublox

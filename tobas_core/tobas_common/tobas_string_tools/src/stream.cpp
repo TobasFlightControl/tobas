@@ -6,9 +6,7 @@
 #include <fstream>
 #include <sstream>
 
-namespace tobas
-{
-namespace str
+namespace tobas::str
 {
 bool readText(const std::string& _path, std::string& _text)
 {
@@ -38,5 +36,4 @@ bool writeText(const std::string& _path, const std::string& _text)
 
   return true;
 }
-}  // namespace str
-}  // namespace tobas
+}  // namespace tobas::str

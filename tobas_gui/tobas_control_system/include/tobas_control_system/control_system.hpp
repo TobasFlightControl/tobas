@@ -14,11 +14,7 @@
 #include "./rcin_viewer/rcin_viewer.hpp"
 #include "./rotors_viewer/rotors_viewer.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class ControlSystemWidget : public QWidget
 {
@@ -46,6 +42,4 @@ private:
   HealthViewerWidget* health_viewer_;
   MissionPlannerWidget* mission_planner_;
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

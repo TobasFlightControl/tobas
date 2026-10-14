@@ -8,9 +8,7 @@
 
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
-{
-namespace stm
+namespace tobas::stm
 {
 ISM330DLC::ISM330DLC()
 {
@@ -286,5 +284,4 @@ bool ISM330DLC::checkWhoAmI()
 
   return true;
 }
-}  // namespace stm
-}  // namespace tobas
+}  // namespace tobas::stm

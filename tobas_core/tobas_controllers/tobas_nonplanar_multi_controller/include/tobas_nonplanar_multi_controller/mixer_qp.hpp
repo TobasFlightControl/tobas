@@ -9,9 +9,7 @@
 #include <tobas_quadprog/dual_active_set.hpp>
 #include <tobas_tools/mixer_i.hpp>
 
-namespace tobas
-{
-namespace nonplanar_multicopter
+namespace tobas::nonplanar_multicopter
 {
 /** Thrust mixing for nonplanar multicopters with constraints (memo: 2-49). */
 class QpMixer : public MixerI
@@ -55,5 +53,4 @@ private:
 
   void resizeAndFill();
 };
-}  // namespace nonplanar_multicopter
-}  // namespace tobas
+}  // namespace tobas::nonplanar_multicopter

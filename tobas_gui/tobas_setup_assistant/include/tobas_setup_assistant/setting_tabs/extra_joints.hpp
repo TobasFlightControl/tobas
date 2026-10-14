@@ -15,11 +15,7 @@
 
 #include "./base_setting.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ExtraJointsWidget : public BaseSettingWidget
 {
@@ -81,6 +77,4 @@ private:
   void reset(int _row);
   void addLink(const std::string& _link_name);
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

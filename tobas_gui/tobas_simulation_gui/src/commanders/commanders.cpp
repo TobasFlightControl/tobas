@@ -9,11 +9,7 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 CommandersWidget::CommandersWidget(const rqt::RosQtBridge& _bridge, const kdl::Tree& _tree, const Drone& _drone)
 {
@@ -57,6 +53,4 @@ void CommandersWidget::clearRosInterfaces()
   base_pose_commander_->clearRosInterfaces();
   joint_commander_->clearRosInterfaces();
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

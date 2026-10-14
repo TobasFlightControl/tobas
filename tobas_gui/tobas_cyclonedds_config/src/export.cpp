@@ -7,9 +7,7 @@
 
 #include "tobas_cyclonedds_config/constants.hpp"
 
-namespace tobas
-{
-namespace cyclonedds
+namespace tobas::cyclonedds
 {
 namespace
 {
@@ -83,5 +81,4 @@ std::string exportText(const Data& _src)
 
   return xml::xmlDocumentToString(&doc);
 }
-}  // namespace cyclonedds
-}  // namespace tobas
+}  // namespace tobas::cyclonedds

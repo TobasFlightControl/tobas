@@ -11,9 +11,7 @@
 #include "./base_controller.hpp"
 #include "./filter/second_order_velocity_filter.hpp"
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 class PosVelAccAngleController : public BaseController
 {
@@ -73,5 +71,4 @@ private:
   void attitudeExpoCb(double _p);
   void headingExpoCb(double _p);
 };
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

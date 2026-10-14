@@ -8,9 +8,7 @@
 
 #include <tobas_math/definitions.hpp>
 
-namespace tobas
-{
-namespace dsp
+namespace tobas::dsp
 {
 double prewarp(double _wc, double _dt)
 {
@@ -25,5 +23,4 @@ double cutoffFromTimeConst(double _tau)
 {
   return 1.0 / (M_2PI * _tau);
 }
-}  // namespace dsp
-}  // namespace tobas
+}  // namespace tobas::dsp

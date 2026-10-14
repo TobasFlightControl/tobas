@@ -9,9 +9,7 @@
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace tim
+namespace tobas::tim
 {
 Rate::Rate()
 {
@@ -45,5 +43,4 @@ void Rate::setInterval(const ch::microseconds& _period)
 {
   period_ = std::max(_period, 0us);
 }
-}  // namespace tim
-}  // namespace tobas
+}  // namespace tobas::tim

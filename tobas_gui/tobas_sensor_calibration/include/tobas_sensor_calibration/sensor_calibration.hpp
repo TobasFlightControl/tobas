@@ -9,11 +9,7 @@
 #include "./mag_calibration/mag_calibration.hpp"
 #include "./rcin_calibration/rcin_calibration.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 class SensorCalibrationWidget : public qt::VerticalTabWidget
 {
@@ -51,6 +47,4 @@ private Q_SLOTS:
   void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& _msg);
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _msg);
 };
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

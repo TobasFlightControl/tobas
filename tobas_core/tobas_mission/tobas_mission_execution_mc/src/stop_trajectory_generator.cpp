@@ -8,9 +8,7 @@
 
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace mission
+namespace tobas::mission
 {
 namespace
 {
@@ -117,5 +115,4 @@ double StopTrajectory::a(double _t) const noexcept
     return 0;
   }
 }
-}  // namespace mission
-}  // namespace tobas
+}  // namespace tobas::mission

@@ -13,11 +13,7 @@
 
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 class AccelCalibrationThread : public QThread
 {
@@ -54,6 +50,4 @@ private Q_SLOTS:
   void imuCb(const tobas_msgs::Imu::ConstSharedPtr& _imu_raw);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
 };
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

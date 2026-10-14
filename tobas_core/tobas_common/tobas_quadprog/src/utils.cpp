@@ -5,9 +5,7 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
-namespace tobas
-{
-namespace quadprog
+namespace tobas::quadprog
 {
 void matIneqFromRange(
   const Eigen::VectorXd& _lb,
@@ -40,5 +38,4 @@ void matIneqFromRange(
     ++row;
   }
 }
-}  // namespace quadprog
-}  // namespace tobas
+}  // namespace tobas::quadprog

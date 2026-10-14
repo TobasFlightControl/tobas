@@ -7,9 +7,7 @@
 #include "./frame.hpp"
 #include "./twist.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /** represents both linear and angular damping. */
 class TaskSpaceDamping
@@ -58,5 +56,4 @@ inline Accel TaskSpaceDamping::operator*(const Twist& _rhs)
 {
   return Accel(linear.hadamard(_rhs.vel), angular.hadamard(_rhs.rot));
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

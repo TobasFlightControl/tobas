@@ -7,9 +7,7 @@
 #include "./moving_stat.hpp"
 #include "./welford.hpp"
 
-namespace tobas
-{
-namespace dsp
+namespace tobas::dsp
 {
 /** Online variance calculation for high-frequency noise components in a signal. */
 template <typename Scalar, int Size, size_t Length>
@@ -88,5 +86,4 @@ NoiseVarianceFilter<Scalar, Size, Length>::noiseVariance() const
     return moving_stat_.variance();
   }
 }
-}  // namespace dsp
-}  // namespace tobas
+}  // namespace tobas::dsp

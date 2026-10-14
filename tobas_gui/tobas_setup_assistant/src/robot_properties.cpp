@@ -5,11 +5,7 @@
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 RobotPropertiesWidget::RobotPropertiesWidget(const uadf::Model& _uadf, const kdl::Tree& _tree)
   : uadf_(_uadf), tree_(_tree), mass_holder_(_tree)
@@ -39,6 +35,4 @@ void RobotPropertiesWidget::setFrameType(FrameType _type)
   const auto text = QString::fromStdString(textFromEnum(_type));
   frame_type_->setText(text);
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

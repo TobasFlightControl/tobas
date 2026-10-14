@@ -5,9 +5,7 @@
 
 #include "./slider.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class DoubleSlider : public Slider
 {
@@ -42,5 +40,4 @@ private:
 
   double valueFromSlider(int _slider_value) const;
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

@@ -13,9 +13,7 @@
 
 #include "./declare.hpp"
 
-namespace tobas
-{
-namespace rqt
+namespace tobas::rqt
 {
 class RosQtBridge : public QObject
 {
@@ -65,5 +63,4 @@ private:
     bool _reliable = ros2::qos::kDefaultReliable,
     size_t _queue_size = ros2::qos::kDefaultQueueSize);
 };
-}  // namespace rqt
-}  // namespace tobas
+}  // namespace tobas::rqt

@@ -7,9 +7,7 @@
 #include "./utilities/rall1d.hpp"
 #include "./vector.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class VectorVel
 {
@@ -191,5 +189,4 @@ inline VectorVel operator*(const Rotation& _r, const VectorVel& _x)
 {
   return VectorVel(_r * _x.p, _r * _x.v);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

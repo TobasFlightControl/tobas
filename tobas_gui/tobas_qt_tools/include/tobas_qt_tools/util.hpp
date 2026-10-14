@@ -9,9 +9,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /** Recursively scan child widgets and block all signals. */
 void blockSignalsRec(QObject* _obj, bool _block);
@@ -42,5 +40,4 @@ void clearLayout(QLayout* _layout);
 
 /** Create a `QVBoxLayout` with a `ScrollWidget` between them. */
 QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* _parent);
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

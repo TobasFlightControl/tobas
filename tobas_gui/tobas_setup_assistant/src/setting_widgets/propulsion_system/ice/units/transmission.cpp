@@ -7,15 +7,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 TransmissionWidget::TransmissionWidget()
 {
@@ -79,8 +71,4 @@ double TransmissionWidget::gearRatio() const
   const auto [engine_gear, propeller_gear] = gear_ratio_->getValue();
   return static_cast<double>(engine_gear) / static_cast<double>(propeller_gear);
 }
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

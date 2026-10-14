@@ -5,13 +5,10 @@
 
 #include <chrono>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 static constexpr auto kCheckTopicWarnStartTime = std::chrono::seconds(3);
 static constexpr double kWarnPeriod = 3.0;              // [s]
 static constexpr double kErrorPeriod = 1.0;             // [s]
 static constexpr double kRotorSpeedSlowdownSim = 30.0;  // [-]
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

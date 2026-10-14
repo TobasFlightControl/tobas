@@ -15,9 +15,7 @@
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_std_tools/timestamped_buffer.hpp>
 
-namespace tobas
-{
-namespace eskf
+namespace tobas::eskf
 {
 /**
  * Error-state Kalman filter.
@@ -562,5 +560,4 @@ double ErrorStateKalmanFilter::correct(
   const double anomaly_score = (_delta_meas.transpose() * Sigma_inv * _delta_meas)(0) / M;
   return anomaly_score;
 }
-}  // namespace eskf
-}  // namespace tobas
+}  // namespace tobas::eskf

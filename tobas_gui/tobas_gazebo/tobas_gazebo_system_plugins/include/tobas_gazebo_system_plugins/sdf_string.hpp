@@ -5,9 +5,7 @@
 
 #include <string>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 std::string makeBoxSdf(
   const std::string& _name,
@@ -21,5 +19,4 @@ std::string makeBoxSdf(
   double _rr = 0.0,
   double _rp = 0.0,
   double _ry = 0.0);
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

@@ -6,13 +6,7 @@
 #include <yaml-cpp/yaml.h>
 #include <QWidget>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace mission
+namespace tobas::gui::sa::mission
 {
 class BaseExecutorWidget : public QWidget
 {
@@ -33,7 +27,4 @@ public:
   /** Return true when user settings are valid. */
   virtual bool isValid() = 0;
 };
-}  // namespace mission
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::mission

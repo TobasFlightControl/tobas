@@ -8,11 +8,7 @@
 
 #include <tobas_qt_tools/widgets/framed_label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class StatusWidget : public QWidget
 {
@@ -41,6 +37,4 @@ private:
 
   void setStatusText(const QString& _text, const QColor& _color);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

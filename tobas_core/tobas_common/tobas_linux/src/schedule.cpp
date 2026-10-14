@@ -10,9 +10,7 @@
 
 #include "tobas_linux/core.hpp"
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 bool checkRealtimePriority(pthread_t _thread, int _tar_policy, int _tar_priority)
 {
@@ -75,5 +73,4 @@ bool setRealtimePriorityRR(int _priority)
 {
   return setRealtimePriority(SCHED_RR, _priority);
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

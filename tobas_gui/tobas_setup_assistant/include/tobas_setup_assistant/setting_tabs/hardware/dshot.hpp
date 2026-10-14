@@ -12,13 +12,7 @@
 
 #include "tobas_setup_assistant/signals.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace hw
+namespace tobas::gui::sa::hw
 {
 class DShotWidget : public qt::TableWidget
 {
@@ -65,7 +59,4 @@ private Q_SLOTS:
   void onPropulsionTypeChanged(PropulsionSystem _new_prop_type);
   void onBidirectionalButtonToggled(QPushButton* _button, bool _checked);
 };
-}  // namespace hw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::hw

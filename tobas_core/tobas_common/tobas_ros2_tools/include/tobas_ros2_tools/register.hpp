@@ -8,9 +8,7 @@
 #include "./definitions.hpp"
 #include "./qos.hpp"
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 template <typename MsgType>
 PublisherPtr<MsgType> createPublisher(
@@ -58,5 +56,4 @@ ros2::TimerPtr createTimer(
 {
   return _node->create_timer(_period, std::bind(_fp, _obj));
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

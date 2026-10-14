@@ -6,13 +6,7 @@
 #include <urdf_model/joint.h>
 #include <urdf_model/link.h>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace utils
+namespace tobas::gui::ub::utils
 {
 /**
  * Default clone function.
@@ -35,7 +29,4 @@ std::shared_ptr<T> clone(const std::shared_ptr<T>& _ptr)
 ::urdf::JointCalibrationSharedPtr clone(const ::urdf::JointCalibrationSharedPtr& _calibration);
 ::urdf::JointSharedPtr clone(const ::urdf::JointSharedPtr& _joint);
 ::urdf::LinkSharedPtr clone(const ::urdf::LinkSharedPtr& _link);
-}  // namespace utils
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::utils

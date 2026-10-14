@@ -3,9 +3,7 @@
 
 #include "tobas_kdl/joint.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 std::expected<void, std::string> Joint::validate() const
 {
@@ -44,5 +42,4 @@ std::ostream& operator<<(std::ostream& _os, const Joint& _arg)
   _os << "Max Velocity: " << _arg.max_velocity;
   return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

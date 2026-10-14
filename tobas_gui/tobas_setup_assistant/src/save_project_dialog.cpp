@@ -14,11 +14,7 @@
 #include <tobas_qt_tools/path.hpp>
 #include <tobas_ros2_tools/package.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 SaveProjectDialog::SaveProjectDialog(QWidget* _parent, const QString& _dir, const QString& _dflt_name)
   : super(_parent, "Save Tobas Project", _dir)
@@ -128,6 +124,4 @@ void SaveProjectDialog::onProjectPathChanged()
   warn_text_->clear();
   save_button_->setEnabled(true);
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

@@ -8,9 +8,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_math/float.hpp>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 std::tuple<double, double, double, double> quaternionFromEuler(double _roll, double _pitch, double _yaw)
 {
@@ -49,5 +47,4 @@ std::tuple<double, double, double> eulerFromQuaternion(double _x, double _y, dou
 
   return { roll, pitch, yaw };
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

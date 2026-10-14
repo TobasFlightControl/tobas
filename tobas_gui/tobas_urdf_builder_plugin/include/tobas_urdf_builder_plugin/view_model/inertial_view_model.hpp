@@ -7,13 +7,7 @@
 
 #include "./base_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 struct Inertia
 {
@@ -49,7 +43,4 @@ public:
 };
 
 using InertialViewModelPtr = std::shared_ptr<InertialViewModel>;
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

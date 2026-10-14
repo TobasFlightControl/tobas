@@ -5,9 +5,7 @@
 
 #include <tobas_eigen_tools/linalg.hpp>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 std::expected<void, std::string> RotationalInertia::validate() const
 {
@@ -38,5 +36,4 @@ std::expected<void, std::string> RotationalInertia::validate() const
 
   return {};
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

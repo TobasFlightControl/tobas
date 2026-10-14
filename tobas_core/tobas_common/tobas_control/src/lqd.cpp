@@ -7,9 +7,7 @@
 
 #include "tobas_control/care.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 LQD::LQD()
 {
@@ -135,5 +133,4 @@ std::ostream& operator<<(std::ostream& _os, const LQD& _arg)
 
   return _os;
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

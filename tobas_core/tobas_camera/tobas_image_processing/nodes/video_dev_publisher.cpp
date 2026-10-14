@@ -10,9 +10,7 @@
 #include <sensor_msgs/msg/compressed_image.hpp>
 #include <sensor_msgs/msg/image.hpp>
 
-namespace tobas
-{
-namespace camera
+namespace tobas::camera
 {
 /** Use the VideoDev class from the tobas_linux package to control a UVC camera, capture images, and publish them. */
 class VideoDevPublisherNode : public BaseNode
@@ -125,7 +123,6 @@ void VideoDevPublisherNode::timerCallback()
     img_publisher_->publish(std::move(message));
   }
 }
-}  // namespace camera
-}  // namespace tobas
+}  // namespace tobas::camera
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::VideoDevPublisherNode)

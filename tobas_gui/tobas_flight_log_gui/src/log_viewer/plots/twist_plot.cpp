@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 TwistPlotWidget::TwistPlotWidget()
   : cur_curves_{ "Current Linear Velocity X [m/s]",    "Current Linear Velocity Y [m/s]",
@@ -135,6 +131,4 @@ TwistPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg::OdometryStam
 
   return ranges;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

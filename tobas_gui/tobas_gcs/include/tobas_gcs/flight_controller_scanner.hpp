@@ -10,11 +10,7 @@
 #include <QTimer>
 #include <QVector>
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 struct DiscoveredFlightController
 {
@@ -51,6 +47,4 @@ private Q_SLOTS:
   void onFinished(int _exit_code, QProcess::ExitStatus _exit_status);
   void onErrorOccurred(QProcess::ProcessError _error);
 };
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

@@ -6,15 +6,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 BatteryWidget_Other::BatteryWidget_Other()
 {
@@ -137,8 +129,4 @@ double BatteryWidget_Other::internalRegistance()
 {
   return static_cast<double>(registance_->getValue()) * 1e-3;
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

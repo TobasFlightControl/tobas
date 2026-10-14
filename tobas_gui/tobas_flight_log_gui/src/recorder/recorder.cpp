@@ -20,11 +20,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& _bridge) : spinner_(Qt::WindowModal, this)
 {
@@ -203,6 +199,4 @@ void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::
 
   rosbag_state_ = _rosbag_state;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

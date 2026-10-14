@@ -9,11 +9,7 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 DynamicConfigWidget::DynamicConfigWidget()
 {
@@ -57,6 +53,4 @@ void DynamicConfigWidget::clearRosInterfaces()
   fixed_load_->clearRosInterfaces();
   suspended_load_->clearRosInterfaces();
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

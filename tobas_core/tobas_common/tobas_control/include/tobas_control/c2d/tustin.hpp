@@ -5,9 +5,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 /**
  * Bilinear transform.
@@ -27,5 +25,4 @@ private:
   Eigen::Index x_size_, u_size_;
   Eigen::MatrixXd I_;  ///< Identity matrix
 };
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

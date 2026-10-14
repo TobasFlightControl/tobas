@@ -10,11 +10,7 @@
 #define SI_NO_CONVERSION
 #include <SimpleIni.h>
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 namespace
 {
@@ -182,6 +178,4 @@ bool saveNetwork(const std::string& _path, const Network& _network)
 
   return true;
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

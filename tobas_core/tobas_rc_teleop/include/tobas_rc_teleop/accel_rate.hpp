@@ -8,9 +8,7 @@
 
 #include "./base_controller.hpp"
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 class AccelRateController : public BaseController
 {
@@ -58,5 +56,4 @@ private:
   void attitudeExpoCb(double _p);
   void headingExpoCb(double _p);
 };
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

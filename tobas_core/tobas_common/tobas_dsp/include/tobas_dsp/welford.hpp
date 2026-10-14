@@ -5,9 +5,7 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
-namespace tobas
-{
-namespace dsp
+namespace tobas::dsp
 {
 /**
  * Sequential mean and variance calculation using Welford's algorithm (memo: 2-65).
@@ -95,5 +93,4 @@ inline size_t Welford<Scalar, Size>::count() const
 {
   return n_;
 }
-}  // namespace dsp
-}  // namespace tobas
+}  // namespace tobas::dsp

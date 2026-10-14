@@ -5,9 +5,7 @@
 
 #include <QFormLayout>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 Vector3dEditVertical::Vector3dEditVertical(const QStringList& _labels, QWidget* _parent) : super(_parent)
 {
@@ -95,5 +93,4 @@ void Vector3dEditVertical::onValueChanged(double)
 {
   Q_EMIT valueChanged({ x(), y(), z() });
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

@@ -5,11 +5,7 @@
 
 #include <qwt/qwt_plot.h>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class QwtPlot2 : public QwtPlot
 {
@@ -25,6 +21,4 @@ public:
 
   void setupIndexedLabelPlot(const QStringList& _labels);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

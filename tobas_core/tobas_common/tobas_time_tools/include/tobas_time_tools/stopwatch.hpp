@@ -5,9 +5,7 @@
 
 #include <chrono>
 
-namespace tobas
-{
-namespace tim
+namespace tobas::tim
 {
 class Stopwatch
 {
@@ -27,5 +25,4 @@ private:
   uint64_t sum_duration_ = 0;
   std::chrono::steady_clock::time_point start_time_;
 };
-}  // namespace tim
-}  // namespace tobas
+}  // namespace tobas::tim

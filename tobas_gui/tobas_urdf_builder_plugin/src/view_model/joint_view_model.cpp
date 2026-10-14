@@ -3,13 +3,7 @@
 
 #include "tobas_urdf_builder_plugin/view_model/joint_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 JointViewModel::JointViewModel(const ::urdf::JointSharedPtr& _model)
   : BaseViewModel<::urdf::Joint, JointViewModel>(_model)
@@ -151,7 +145,4 @@ bool JointViewModel::isFixed() const
 {
   return model_->type == ::urdf::Joint::FIXED;
 }
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

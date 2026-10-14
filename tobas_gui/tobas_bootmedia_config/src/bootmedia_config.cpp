@@ -16,11 +16,7 @@
 #include "tobas_bootmedia_config/wifi_client/wifi_client.hpp"
 #include "tobas_bootmedia_config/wifi_hotspot/wifi_hotspot.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 BootmediaConfigWidget::BootmediaConfigWidget()
 {
@@ -106,6 +102,4 @@ void BootmediaConfigWidget::onMediaDisconnected()
   reset();
   setTabsEnabled(false);
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

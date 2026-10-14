@@ -6,9 +6,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-namespace tobas
-{
-namespace traj
+namespace tobas::traj
 {
 LinearSpline::LinearSpline(double _p0, double _pf, double _t) : p0_(_p0), T_(_t)
 {
@@ -33,5 +31,4 @@ double LinearSpline::duration() const noexcept
 {
   return T_;
 }
-}  // namespace traj
-}  // namespace tobas
+}  // namespace tobas::traj

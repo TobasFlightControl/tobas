@@ -9,9 +9,7 @@
 
 #include <tobas_std_tools/error.hpp>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 std::expected<pid_t, std::string> createSubprocess(const std::vector<char*>& _argv)
 {
@@ -62,5 +60,4 @@ std::expected<pid_t, std::string> createSubprocess(const std::string& _command)
 
   return createSubprocess(argv);
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

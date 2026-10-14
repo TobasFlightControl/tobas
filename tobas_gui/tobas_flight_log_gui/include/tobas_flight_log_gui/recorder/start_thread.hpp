@@ -12,11 +12,7 @@
 
 #include <tobas_msgs/srv/bag_record_start.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class RecordStartThread : public QThread
 {
@@ -37,6 +33,4 @@ private:
 
   std::string log_name_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

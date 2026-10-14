@@ -3,9 +3,7 @@
 
 #include "tobas_control/c2d/euler.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 C2D_Euler::C2D_Euler(Eigen::Index _x_size, Eigen::Index _u_size)
   : x_size_(_x_size), u_size_(_u_size), I_(Eigen::MatrixXd::Identity(_x_size, _x_size))
@@ -20,5 +18,4 @@ LinearDynamics C2D_Euler::convert(const LinearDynamics& _cont, double _dt)
 
   return LinearDynamics(I_ + _cont.A * _dt, _cont.B * _dt);
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

@@ -5,9 +5,7 @@
 
 #include <tobas_drone_core/propulsion_system/turning_direction.hpp>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 bool getTurningDirection(const sdf::ElementConstPtr& _sdf, int& _dst)
 {
@@ -26,5 +24,4 @@ bool getTurningDirection(const sdf::ElementConstPtr& _sdf, int& _dst)
   _dst = sign(direction_enum);
   return true;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

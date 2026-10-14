@@ -3,9 +3,7 @@
 
 #include "tobas_qt_tools/widgets/scroll_area.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 ScrollArea::ScrollArea(QWidget* _parent) : QScrollArea(_parent)
 {
@@ -44,5 +42,4 @@ void ScrollArea::setBackgroundTransparent()
   _widget->setAttribute(Qt::WA_TranslucentBackground);
   _widget->setAutoFillBackground(false);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

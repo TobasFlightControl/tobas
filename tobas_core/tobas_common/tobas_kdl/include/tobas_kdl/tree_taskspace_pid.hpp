@@ -12,9 +12,7 @@
 #include "./tree_id_solver.hpp"
 #include "./tree_ik_solver_acc.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class TreeTaskSpacePID : public TreeSolverI
 {
@@ -50,5 +48,4 @@ private:
   TaskSpaceStiffness kp_;
   TaskSpaceDamping kd_;
 };
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

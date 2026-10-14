@@ -6,9 +6,7 @@
 #include <eigen3/Eigen/Core>
 #include <gz/math/Vector3.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 template <typename T>
 void vector3GazeboToEigen(const gz::math::Vector3<T>& _g, Eigen::Matrix<T, 3, 1>& _e)
@@ -45,5 +43,4 @@ void matrix3EigenToGazebo(const gz::math::Matrix3<T>& _g, Eigen::Matrix<T, 3, 3>
     }
   }
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

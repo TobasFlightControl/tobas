@@ -5,17 +5,14 @@
 
 #include <yaml-cpp/yaml.h>
 
-namespace tobas
-{
-namespace mission
+namespace tobas::mission
 {
 enum AltitudeFrame : uint8_t
 {
   kRelativeToLaunch,
   kMeanSeaLevel,
 };
-}  // namespace mission
-}  // namespace tobas
+}  // namespace tobas::mission
 
 namespace YAML
 {

@@ -45,11 +45,7 @@
 #include "./shutdown_button.hpp"
 #include "./vehicle_configuration.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 class GroundControlStationWidget : public QWidget
 {
@@ -159,6 +155,4 @@ private Q_SLOTS:
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
 };
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

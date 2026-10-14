@@ -7,15 +7,7 @@
 
 #include "tobas_setup_assistant/param_getters/double_table.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 class EngineDynamicsWidget : public QWidget
 {
@@ -35,8 +27,4 @@ public:
 private:
   ParamGetterWidget_DoubleTable* data_;
 };
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

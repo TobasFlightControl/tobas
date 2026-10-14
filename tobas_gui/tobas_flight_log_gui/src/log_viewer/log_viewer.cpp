@@ -17,11 +17,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 namespace
 {
@@ -231,6 +227,4 @@ void FlightLogViewerWidget::onPlaybackTimeChanged(double _time_from_start)
 {
   setPlotData(_time_from_start);
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

@@ -9,11 +9,7 @@
 
 #include "tobas_flight_log_gui/constants.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 FlightLogItemWidgetFC::FlightLogItemWidgetFC(const QString& _log_name)
 {
@@ -53,6 +49,4 @@ void FlightLogItemWidgetFC::onDeleteButtonClicked()
 {
   Q_EMIT deleteButtonClicked(logName());
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

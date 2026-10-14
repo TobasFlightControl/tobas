@@ -5,9 +5,7 @@
 
 #include "tobas_rviz_plugin/link_model.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 namespace
 {
@@ -124,5 +122,4 @@ std::vector<JointModel::ConstSharedPtr> JointModel::getDescendantJointModels() c
   return lockAll(descendant_joint_models_);
 }
 
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

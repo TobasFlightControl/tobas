@@ -9,11 +9,7 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/util.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 BaseSettingWidget::BaseSettingWidget()
 {
@@ -70,6 +66,4 @@ void BaseSettingWidget::initialize()
   title_->setText(title());
   description_->setText(description());
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

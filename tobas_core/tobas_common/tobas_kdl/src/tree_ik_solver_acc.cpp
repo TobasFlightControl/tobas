@@ -8,9 +8,7 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_quadprog/utils.hpp>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeIkSolverAcc::TreeIkSolverAcc(const Tree& _tree) : super(_tree), jnt2jac_(tree_), jnt2jdqd_(tree_), jntparser_(tree_)
 {
@@ -120,5 +118,4 @@ void TreeIkSolverAcc::resize()
   qp_solver_.problem.G.conservativeResize(0, tree_.getNrOfJoints());
   qp_solver_.problem.h.conservativeResize(0);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

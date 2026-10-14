@@ -8,9 +8,7 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 long computeGpsDelayFromToW(uint32_t _gps_tow_ms)
 {
@@ -35,5 +33,4 @@ long computeGpsDelayFromToW(uint32_t _gps_tow_ms)
 
   return diff_ms;
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

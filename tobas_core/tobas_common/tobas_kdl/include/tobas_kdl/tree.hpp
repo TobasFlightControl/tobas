@@ -12,9 +12,7 @@
 
 #include "./segment.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class TreeElement;
 using SegmentMap = std::map<std::string, TreeElement>;
@@ -176,5 +174,4 @@ inline bool Tree::hasSegment(const std::string& _seg_name) const
 {
   return segments_.contains(_seg_name);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

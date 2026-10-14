@@ -10,9 +10,7 @@
 #include <tobas_dparam_msgs/srv/set_int.hpp>
 #include <tobas_dparam_msgs/srv/set_string.hpp>
 
-namespace tobas
-{
-namespace dparam
+namespace tobas::dparam
 {
 class DynamicParamClient
 {
@@ -71,5 +69,4 @@ DynamicParamClient::setParam(ros2::SyncServiceClient<SrvType>& _sc, const std::s
 
   return error_code_ = kNoError;
 }
-}  // namespace dparam
-}  // namespace tobas
+}  // namespace tobas::dparam

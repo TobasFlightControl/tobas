@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 GnssPlotWidget::GnssPlotWidget()
   : latitude_curve_("Latitude [deg]")
@@ -135,6 +131,4 @@ void GnssPlotWidget::setData(const QVector<tobas_msgs::msg::Gnss>& _gnss_msgs)
   up_speed_curve_.setSamples(t_data, up_speed_data);
   up_speed_plot_->replot();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

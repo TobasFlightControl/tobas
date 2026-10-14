@@ -10,13 +10,7 @@
 
 #include "tobas_setup_assistant/frame_type.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace ctrl
+namespace tobas::gui::sa::ctrl
 {
 class BaseControllerWidget : public QWidget
 {
@@ -42,7 +36,4 @@ public:
   /** Return true when user settings are valid. */
   virtual bool isValid() = 0;
 };
-}  // namespace ctrl
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::ctrl

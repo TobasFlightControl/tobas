@@ -10,9 +10,7 @@
 
 class QwtPlotHistogram;
 
-namespace tobas
-{
-namespace qwt
+namespace tobas::qwt
 {
 class QwtPlotHistogramWrapper
 {
@@ -32,5 +30,4 @@ public:
 private:
   std::shared_ptr<QwtPlotHistogram> impl_;
 };
-}  // namespace qwt
-}  // namespace tobas
+}  // namespace tobas::qwt

@@ -5,9 +5,7 @@
 
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class LabeledDoubleSpinBox : public QWidget
 {
@@ -36,5 +34,4 @@ private Q_SLOTS:
 private:
   qt::DoubleSpinBox* data_;
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

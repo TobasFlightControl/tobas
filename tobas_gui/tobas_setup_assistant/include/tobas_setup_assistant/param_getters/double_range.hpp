@@ -8,11 +8,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ParamGetterWidget_DoubleRange : public ParamGetterWidget<st::Range<double>>
 {
@@ -48,6 +44,4 @@ private:
   qt::LabeledDoubleSpinBox* min_;
   qt::LabeledDoubleSpinBox* max_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

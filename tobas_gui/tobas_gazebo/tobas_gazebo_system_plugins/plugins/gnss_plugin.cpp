@@ -30,9 +30,7 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /** Plugin that publishes GNSS position and velocity data. */
 class GazeboGnssPlugin : public BaseNode,
@@ -297,7 +295,6 @@ void GazeboGnssPlugin::loseFixCb(const LoseFixSrv::Request::ConstSharedPtr&, con
 
   _res->success = true;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(tobas::gazebo::GazeboGnssPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

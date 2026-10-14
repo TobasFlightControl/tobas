@@ -6,9 +6,7 @@
 #include <cstddef>
 #include <utility>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 namespace detail
 {
@@ -24,5 +22,4 @@ void staticFor(Func&& _f)
 {
   detail::staticForImpl(std::make_index_sequence<N>{}, std::forward<Func>(_f));
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

@@ -3,11 +3,7 @@
 
 #include "tobas_ssh_authkey/export.hpp"
 
-namespace tobas
-{
-namespace ssh
-{
-namespace ak
+namespace tobas::ssh::ak
 {
 std::expected<std::string, std::string> exportLine(const Data& _src)
 {
@@ -34,6 +30,4 @@ std::expected<std::string, std::string> exportLine(const Data& _src)
 
   return line;
 }
-}  // namespace ak
-}  // namespace ssh
-}  // namespace tobas
+}  // namespace tobas::ssh::ak

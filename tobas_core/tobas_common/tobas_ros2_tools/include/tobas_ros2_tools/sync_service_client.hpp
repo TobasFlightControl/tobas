@@ -12,9 +12,7 @@
 
 #include "./future.hpp"
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 /**
  * Synchronous service client.
@@ -97,5 +95,4 @@ inline bool SyncServiceClient<SrvType>::waitForService(std::chrono::duration<Rep
 {
   return client_->wait_for_service(_timeout);
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

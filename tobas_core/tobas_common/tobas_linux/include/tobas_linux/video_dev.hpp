@@ -9,9 +9,7 @@
 #include <cstdint>
 #include <string>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 /**
  * Video device driver. Controls UVC cameras using V4L2 (Video for Linux 2).
@@ -109,5 +107,4 @@ private:
   /** Request the image format. */
   bool requestImgFormat();
 };
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

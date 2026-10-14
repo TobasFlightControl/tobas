@@ -5,9 +5,7 @@
 
 #include <chrono>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class RateManager
 {
@@ -21,5 +19,4 @@ private:
   const int update_rate_;
   std::chrono::steady_clock::duration next_time_;
 };
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

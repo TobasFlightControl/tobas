@@ -5,11 +5,7 @@
 
 #include <stdexcept>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 namespace
 {
@@ -53,6 +49,4 @@ mission::Type textToCommand(const QString& _text)
     throw std::runtime_error("Invalid command text: " + _text.toStdString());
   }
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

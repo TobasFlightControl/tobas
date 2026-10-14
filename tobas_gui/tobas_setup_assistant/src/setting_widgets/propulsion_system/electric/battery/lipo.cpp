@@ -3,15 +3,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/lipo.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 BatteryWidget_LiPo::BatteryWidget_LiPo()
 {
@@ -113,8 +105,4 @@ double BatteryWidget_LiPo::internalRegistance()
 {
   return num_cells_->getValue() * registance_->getValue() * 1e-3;
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

@@ -9,9 +9,7 @@
 
 #define PACKED __attribute__((__packed__))  // Struct member variables are contiguous in memory.
 
-namespace tobas
-{
-namespace driver
+namespace tobas::driver
 {
 /** A linux driver of cx_gb400 camera. */
 class CxGb400 : public linux::VideoDev
@@ -312,7 +310,6 @@ private:
 
   bool interpretCameraError(uint32_t _error_status, CameraErrorStatusDigit _digit);
 };
-}  // namespace driver
-}  // namespace tobas
+}  // namespace tobas::driver
 
 #undef PACKED

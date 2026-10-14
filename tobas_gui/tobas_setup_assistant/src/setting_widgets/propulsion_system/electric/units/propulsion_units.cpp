@@ -7,15 +7,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 PropulsionUnitsWidget::PropulsionUnitsWidget(const uadf::Model& _uadf) : uadf_(_uadf)
 {
@@ -139,8 +131,4 @@ void PropulsionUnitsWidget::onCopyToAllButtonClicked(const QString& _link_name)
 
   qt::qInfoBox(this, "The settings of '" + _link_name + "' have been copied to all the other propulsion units.");
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

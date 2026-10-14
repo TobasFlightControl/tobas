@@ -6,9 +6,7 @@
 #include <QTimer>
 #include <QWheelEvent>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 DoubleSpinBox::DoubleSpinBox(QWidget* _parent) : super(_parent)
 {
@@ -26,5 +24,4 @@ void DoubleSpinBox::focusInEvent(QFocusEvent* _event)
   super::focusInEvent(_event);
   QTimer::singleShot(0, this, &DoubleSpinBox::selectAll);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

@@ -22,9 +22,7 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class GazeboJointStateBroadcasterPlugin : public BaseNode,
                                           public gz::sim::System,
@@ -119,8 +117,7 @@ void GazeboJointStateBroadcasterPlugin::PostUpdate(
 
   js_pub_->publish(std::move(js));
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboJointStateBroadcasterPlugin,

@@ -10,9 +10,7 @@
 
 #include "tobas_qt_tools/font.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 PositionBarWidget::PositionBarWidget(QWidget* _parent) : super(_parent)
 {
@@ -351,5 +349,4 @@ void VPositionBarWidget::drawTextCommon(QPainter& _painter)
   _painter.translate(width() / 2, height() / 2);
   _painter.rotate(90);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

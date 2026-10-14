@@ -3,9 +3,7 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /**
  * Common structure-update interface for kinematics and dynamics solvers.
@@ -26,5 +24,4 @@ public:
   {
   }
 };
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

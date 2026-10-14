@@ -7,11 +7,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ParamGetterWidget_LineEdit : public ParamGetterWidget<QString>
 {
@@ -35,6 +31,4 @@ private Q_SLOTS:
 private:
   QLineEdit* line_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

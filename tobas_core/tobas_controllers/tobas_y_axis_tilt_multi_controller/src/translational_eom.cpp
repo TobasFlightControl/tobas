@@ -6,9 +6,7 @@
 #include <tobas_math/float.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
-{
-namespace y_axis_tilt_multicopter
+namespace tobas::y_axis_tilt_multicopter
 {
 TranslationalEoM::TranslationalEoM(const kdl::Tree& _tree) : mass_holder_(_tree), grav_W_(0, 0, -st::kGravity)
 {
@@ -70,5 +68,4 @@ bool TranslationalEoM::solve(
 
   return true;
 }
-}  // namespace y_axis_tilt_multicopter
-}  // namespace tobas
+}  // namespace tobas::y_axis_tilt_multicopter

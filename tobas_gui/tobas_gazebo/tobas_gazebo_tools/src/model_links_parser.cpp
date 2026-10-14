@@ -12,9 +12,7 @@
 
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 ModelLinksParser::ModelLinksParser()
 {
@@ -40,5 +38,4 @@ bool ModelLinksParser::initialize(const gz::sim::Entity& _model, const gz::sim::
 
   return true;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

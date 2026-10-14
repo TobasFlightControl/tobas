@@ -17,13 +17,7 @@
 #include "tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"
 #include "tobas_urdf_builder_plugin/utils/widget_item.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 namespace
 {
@@ -572,10 +566,7 @@ void UrdfBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* _item, QSet<QStrin
     collectUncheckedLinks(_item->child(i), _set);
   }
 }
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui
 
 // A class derived from `rviz_common::Panel` can be embedded in the RViz window.
 PLUGINLIB_EXPORT_CLASS(tobas::gui::ub::ui::UrdfBuilderPanel, rviz_common::Panel)

@@ -9,13 +9,7 @@
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_urdf/exporter.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 URDFViewModel::URDFViewModel() : urdf_(new ::urdf::Model())
 {
@@ -314,7 +308,4 @@ void URDFViewModel::removeTextureTagsWithoutFilename(tinyxml2::XMLElement* _elem
     removeTextureTagsWithoutFilename(child);
   }
 }
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

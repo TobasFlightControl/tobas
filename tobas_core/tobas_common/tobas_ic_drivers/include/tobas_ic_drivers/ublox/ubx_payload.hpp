@@ -7,11 +7,7 @@
 #include <iostream>
 #include <vector>
 
-namespace tobas
-{
-namespace ublox
-{
-namespace payload
+namespace tobas::ublox::payload
 {
 /** GNSSfix Type */
 enum FixType : uint8_t
@@ -522,6 +518,4 @@ struct NAV_VELNED : public Payload
   void decode(const uint8_t* _p) override;
   void print(std::ostream& _os) const override;
 };
-}  // namespace payload
-}  // namespace ublox
-}  // namespace tobas
+}  // namespace tobas::ublox::payload

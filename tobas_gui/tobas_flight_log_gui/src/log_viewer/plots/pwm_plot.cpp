@@ -9,11 +9,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 namespace
 {
@@ -82,6 +78,4 @@ void PwmPlotWidget::setData(const QVector<tobas_msgs::msg::PwmArray>& _msgs)
     plot->replot();
   }
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

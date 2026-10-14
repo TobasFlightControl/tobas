@@ -9,11 +9,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class ObserverFeedbackPlotWidget : public BasePlotWidget
 {
@@ -47,6 +43,4 @@ private:
   qwt::QwtPlotCurveWrapper baro_alt_bias_curve_;
   qwt::QwtPlotCurveWrapper gravity_curve_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

@@ -8,9 +8,7 @@
 #include <builtin_interfaces/msg/duration.hpp>
 #include <builtin_interfaces/msg/time.hpp>
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 inline int64_t nanoseconds(const builtin_interfaces::msg::Time& _stamp)
 {
@@ -64,8 +62,7 @@ inline std::chrono::steady_clock::time_point chronoFromRosTime(const builtin_int
 }
 
 void timeChronoToMsg(const std::chrono::steady_clock::duration& _c, builtin_interfaces::msg::Time& _m);
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2
 
 inline rclcpp::Duration operator-(const builtin_interfaces::msg::Time& _lhs, const builtin_interfaces::msg::Time& _rhs)
 {

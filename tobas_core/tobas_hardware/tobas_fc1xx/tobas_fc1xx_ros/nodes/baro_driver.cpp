@@ -10,9 +10,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace fc1xx
+namespace tobas::fc1xx
 {
 class BaroDriverNode : public hardware::BaseSensorNode
 {
@@ -69,7 +67,6 @@ void BaroDriverNode::mainTimerCb()
   // Publish message.
   baro_pub_->publish(std::move(msg));
 }
-}  // namespace fc1xx
-}  // namespace tobas
+}  // namespace tobas::fc1xx
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::BaroDriverNode)

@@ -5,9 +5,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace traj
+namespace tobas::traj
 {
 /** Cubic polynomial trajectory generation. (Introduction to ROBOTICS, p.192) */
 class CubicSpline : public TrajectoryGenerator
@@ -22,5 +20,4 @@ private:
   const double T_;
   double a0_, a1_, a2_, a3_;
 };
-}  // namespace traj
-}  // namespace tobas
+}  // namespace tobas::traj

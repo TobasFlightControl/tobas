@@ -15,9 +15,7 @@
 
 #include <tobas_std_tools/error.hpp>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 bool lockMemory()
 {
@@ -113,5 +111,4 @@ bool lockAndPrefaultDynamic(size_t _process_max_dynamic_memory)
 
   return true;
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

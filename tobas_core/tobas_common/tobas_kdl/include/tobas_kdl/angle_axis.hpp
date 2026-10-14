@@ -7,9 +7,7 @@
 
 #include "./frames.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class AngleAxis
 {
@@ -64,5 +62,4 @@ inline std::ostream& operator<<(std::ostream& _os, const AngleAxis& _arg)
   _os << "Angle: " << _arg.angle() << ", Axis: " << _arg.axis();
   return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

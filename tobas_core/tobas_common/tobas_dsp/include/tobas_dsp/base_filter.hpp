@@ -3,9 +3,7 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace dsp
+namespace tobas::dsp
 {
 template <typename T>
 class BaseFilter
@@ -16,5 +14,4 @@ public:
   virtual const T& getValue() const = 0;
   virtual void setValue(const T& _x) = 0;
 };
-}  // namespace dsp
-}  // namespace tobas
+}  // namespace tobas::dsp

@@ -7,13 +7,7 @@
 
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 void InertialViewModel::sync()
 {
@@ -99,7 +93,4 @@ void InertialViewModel::buildInertiaSphere(double _radius)
   model_->iyz = 0.0;
   model_->izz = model_->ixx;
 }
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

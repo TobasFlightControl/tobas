@@ -7,13 +7,7 @@
 
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace ctrl
+namespace tobas::gui::sa::ctrl
 {
 PlanarMulticopterWidget::PlanarMulticopterWidget()
 {
@@ -102,7 +96,4 @@ bool PlanarMulticopterWidget::isValid()
 {
   return true;
 }
-}  // namespace ctrl
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::ctrl

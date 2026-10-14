@@ -8,9 +8,7 @@
 
 #include "./state_spaces.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 /** Linear quadratic derivative control. (memo: 2-22) */
 class LQD
@@ -42,5 +40,4 @@ private:
 
   void checkProblemValidity();
 };
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

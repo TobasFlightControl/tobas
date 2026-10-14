@@ -8,9 +8,7 @@
 #include <filesystem>
 #include <string>
 
-namespace tobas
-{
-namespace path
+namespace tobas::path
 {
 /** Return true when the file is readable. */
 bool isReadable(const std::filesystem::path& _file_path);
@@ -32,5 +30,4 @@ std::expected<size_t, std::string> computeDirectorySize(const std::filesystem::p
 
 /** Remove all files and subdirectories in a directory. */
 std::expected<void, std::string> clearDirectory(const std::filesystem::path& _dir_path);
-}  // namespace path
-}  // namespace tobas
+}  // namespace tobas::path

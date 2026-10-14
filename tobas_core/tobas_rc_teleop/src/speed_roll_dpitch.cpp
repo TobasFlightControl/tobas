@@ -9,9 +9,7 @@
 #include <tobas_constants/throttle.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 SpeedRollDeltaPitchController::SpeedRollDeltaPitchController()
 {
@@ -109,5 +107,4 @@ void SpeedRollDeltaPitchController::pitchExpoCb(double _p)
 {
   pitch_expo_ = _p / kExpoScale;
 }
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

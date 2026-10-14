@@ -8,9 +8,7 @@
 #include "./base_controller.hpp"
 #include "./filter/second_order_velocity_filter.hpp"
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 class PosVelAccYawController : public BaseController
 {
@@ -56,5 +54,4 @@ private:
   void verticalVelocityExpoCb(double _p);
   void headingExpoCb(double _p);
 };
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

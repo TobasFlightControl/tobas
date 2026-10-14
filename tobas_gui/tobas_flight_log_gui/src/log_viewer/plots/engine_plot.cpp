@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 EnginePlotWidget::EnginePlotWidget() : throttle_curve_("Throttle [%]")
 {
@@ -51,6 +47,4 @@ void EnginePlotWidget::setData(const QVector<tobas_msgs::msg::IcePropulsionSyste
   throttle_curve_.setSamples(t_data, throttle_data);
   throttle_plot_->replot();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

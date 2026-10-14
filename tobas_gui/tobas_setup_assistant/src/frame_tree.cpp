@@ -3,11 +3,7 @@
 
 #include "tobas_setup_assistant/frame_tree.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 FrameTreeWidget::FrameTreeWidget(const kdl::Tree& _tree, RvizWidget* _rviz) : tree_(_tree), rviz_(_rviz)
 {
@@ -69,6 +65,4 @@ void FrameTreeWidget::addTreeItemsRec(QTreeWidgetItem* _parent_item)
     addTreeItemsRec(child_item);
   }
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

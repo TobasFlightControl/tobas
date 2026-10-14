@@ -11,13 +11,7 @@
 #include <urdf/model.h>
 #include <rviz_default_plugins/robot/link_updater.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ogre
+namespace tobas::gui::ub::ogre
 {
 class StaticLinkUpdater : public rviz_default_plugins::robot::LinkUpdater
 {
@@ -42,7 +36,4 @@ private:
 
   Ogre::Matrix4 findTransform(const ::urdf::LinkConstSharedPtr& _link);
 };
-}  // namespace ogre
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ogre

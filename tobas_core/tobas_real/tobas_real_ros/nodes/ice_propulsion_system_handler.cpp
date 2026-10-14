@@ -14,9 +14,7 @@
 #include <tobas_msgs/msg/pwm_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 
-namespace tobas
-{
-namespace real
+namespace tobas::real
 {
 class IcePropulsionSystemHandlerNode : public BaseNode
 {
@@ -269,7 +267,6 @@ void IcePropulsionSystemHandlerNode::autoStopTimerCb()
       " have elapsed since the last command.");
   }
 }
-}  // namespace real
-}  // namespace tobas
+}  // namespace tobas::real
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::IcePropulsionSystemHandlerNode);

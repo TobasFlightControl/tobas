@@ -10,9 +10,7 @@
 #include <tobas_linux/spi_dev.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
-{
-namespace fc2xx
+namespace tobas::fc2xx
 {
 class PwmBattImu
 {
@@ -110,5 +108,4 @@ inline void PwmBattImu::getFilteredDGyro(double& _x, double& _y, double& _z) con
   _y = -static_cast<int16_t>(rx_buf_[17]) * kDGyroScale;
   _z = -static_cast<int16_t>(rx_buf_[19]) * kDGyroScale;
 }
-}  // namespace fc2xx
-}  // namespace tobas
+}  // namespace tobas::fc2xx

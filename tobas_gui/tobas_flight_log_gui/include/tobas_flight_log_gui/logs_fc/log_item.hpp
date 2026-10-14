@@ -6,11 +6,7 @@
 #include <QLabel>
 #include <QPushButton>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class FlightLogItemWidgetFC : public QWidget
 {
@@ -36,6 +32,4 @@ private Q_SLOTS:
   void onDownloadButtonClicked();
   void onDeleteButtonClicked();
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

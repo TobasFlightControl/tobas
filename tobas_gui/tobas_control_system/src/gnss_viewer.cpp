@@ -8,11 +8,7 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 GnssViewerWidget::GnssViewerWidget(const rqt::RosQtBridge& _bridge)
 {
@@ -78,6 +74,4 @@ void GnssViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss)
   setStatus(_gnss->fix_type);
   setNSats(_gnss->num_satellites_used);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

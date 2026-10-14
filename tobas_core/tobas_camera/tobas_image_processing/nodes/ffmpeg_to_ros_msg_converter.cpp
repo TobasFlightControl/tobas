@@ -11,9 +11,7 @@
 #include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/image.hpp>
 
-namespace tobas
-{
-namespace camera
+namespace tobas::camera
 {
 class FFmpegToROSMsgConverter : public BaseNode
 {
@@ -262,7 +260,6 @@ bool FFmpegToROSMsgConverter::convertFrameToMessage(
 
   return true;
 }
-}  // namespace camera
-}  // namespace tobas
+}  // namespace tobas::camera
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::FFmpegToROSMsgConverter)

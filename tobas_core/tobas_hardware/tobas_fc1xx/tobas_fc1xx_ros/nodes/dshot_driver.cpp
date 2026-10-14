@@ -19,9 +19,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace fc1xx
+namespace tobas::fc1xx
 {
 class DShotDriverNode : public BaseNode
 {
@@ -287,7 +285,6 @@ void DShotDriverNode::autoStopTimerCb()
       " have elapsed since the last command.");
   }
 }
-}  // namespace fc1xx
-}  // namespace tobas
+}  // namespace tobas::fc1xx
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::DShotDriverNode)

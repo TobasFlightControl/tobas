@@ -6,9 +6,7 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/unsupported/Eigen/Splines>
 
-namespace tobas
-{
-namespace eigen
+namespace tobas::eigen
 {
 /**
  * Polynomial interpolation class that accepts arbitrary horizontal-axis values.
@@ -32,5 +30,4 @@ private:
   double scaledValue(double _x) const;
   Eigen::RowVectorXd scaledValues(const Eigen::VectorXd& _x_vec) const;
 };
-}  // namespace eigen
-}  // namespace tobas
+}  // namespace tobas::eigen

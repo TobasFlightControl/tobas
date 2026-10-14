@@ -5,9 +5,7 @@
 
 #include "tobas_gazebo_conversions/gazebo_eigen.hpp"
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 void vectorGazeboToKDL(const gz::math::Vector3d& _g, kdl::Vector& _k)
 {
@@ -57,5 +55,4 @@ void poseKDLToGazebo(const kdl::Frame& _k, gz::math::Pose3d& _g)
   vectorKDLToGazebo(_k.p, _g.Pos());
   rotationKDLToGazebo(_k.M, _g.Rot());
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

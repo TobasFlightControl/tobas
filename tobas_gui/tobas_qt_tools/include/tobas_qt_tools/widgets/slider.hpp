@@ -5,9 +5,7 @@
 
 #include <QSlider>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QSlider` =====
@@ -26,5 +24,4 @@ public:
 protected:
   void wheelEvent(QWheelEvent* _event) override;
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

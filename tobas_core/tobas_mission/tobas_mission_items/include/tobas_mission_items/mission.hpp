@@ -8,9 +8,7 @@
 
 #include "./mission_items.hpp"
 
-namespace tobas
-{
-namespace mission
+namespace tobas::mission
 {
 enum Type : uint8_t
 {
@@ -30,5 +28,4 @@ struct Mission
 {
   std::vector<MissionItem> items;
 };
-}  // namespace mission
-}  // namespace tobas
+}  // namespace tobas::mission

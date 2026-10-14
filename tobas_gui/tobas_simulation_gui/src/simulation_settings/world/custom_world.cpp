@@ -10,11 +10,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 CustomWorldWidget::CustomWorldWidget()
 {
@@ -59,6 +55,4 @@ void CustomWorldWidget::onBrowseButtonClicked()
   const auto par_dir = QFileInfo(file_path).absolutePath();
   settings_store_.setValue(kLastOpenedDirKey, par_dir);
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

@@ -8,11 +8,7 @@
 #include "./battery_viewer.hpp"
 #include "./engine_viewer.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class PowerSourceViewerWidget : public qt::StackedWidget
 {
@@ -30,6 +26,4 @@ private:
   BatteryViewerWidget* battery_viewer_;
   EngineViewerWidget* engine_viewer_;
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

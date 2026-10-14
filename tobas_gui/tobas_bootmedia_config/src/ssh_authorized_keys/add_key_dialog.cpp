@@ -6,11 +6,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 AddSshKeyDialog::AddSshKeyDialog(QWidget* _parent) : super(_parent)
 {
@@ -62,6 +58,4 @@ void AddSshKeyDialog::onTextChanged()
 {
   enableOkButton(isAcceptable());
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

@@ -20,11 +20,7 @@
 #include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class BasePoseCommanderWidget : public QWidget
 {
@@ -76,6 +72,4 @@ private Q_SLOTS:
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom);
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin);
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

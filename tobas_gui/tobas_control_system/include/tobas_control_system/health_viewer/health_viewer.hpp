@@ -8,11 +8,7 @@
 
 #include "./status.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class HealthViewerWidget : public qt::ScrollArea
 {
@@ -46,6 +42,4 @@ private:
 private Q_SLOTS:
   void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

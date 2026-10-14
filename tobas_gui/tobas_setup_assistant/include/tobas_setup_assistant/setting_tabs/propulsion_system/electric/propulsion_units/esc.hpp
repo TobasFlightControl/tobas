@@ -6,15 +6,7 @@
 #include "./base.hpp"
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 class ESCWidget : public BaseSelectedLinkSettingWidget
 {
@@ -36,8 +28,4 @@ public:
 private:
   ParamGetterWidget_SpinBox* max_cont_current_;
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

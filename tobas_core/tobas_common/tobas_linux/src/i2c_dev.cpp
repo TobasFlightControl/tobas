@@ -16,9 +16,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 I2Cdev::I2Cdev()
 {
@@ -245,5 +243,4 @@ bool I2Cdev::read(size_t _length, void* _rx)
 
   return true;
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

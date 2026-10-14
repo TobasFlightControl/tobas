@@ -7,9 +7,7 @@
 
 #include <tobas_linux/spi_dev.hpp>
 
-namespace tobas
-{
-namespace driver
+namespace tobas::driver
 {
 /**
  * A linux driver of 2-channel ADC.
@@ -102,5 +100,4 @@ private:
   bool sendStandAloneCommand(uint8_t _cmd);
   bool configure(uint8_t _rr, uint8_t _tar_cfg);
 };
-}  // namespace driver
-}  // namespace tobas
+}  // namespace tobas::driver

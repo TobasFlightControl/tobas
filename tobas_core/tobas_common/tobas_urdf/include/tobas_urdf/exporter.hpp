@@ -6,10 +6,7 @@
 #include <tinyxml2.h>
 #include <urdf_model/model.h>
 
-namespace tobas
-{
-namespace urdf
+namespace tobas::urdf
 {
 tinyxml2::XMLDocument* exportUrdf(const ::urdf::ModelInterface& _model);
-}  // namespace urdf
-}  // namespace tobas
+}  // namespace tobas::urdf

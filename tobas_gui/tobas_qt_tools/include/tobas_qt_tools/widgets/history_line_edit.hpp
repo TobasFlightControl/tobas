@@ -7,9 +7,7 @@
 #include <QLineEdit>
 #include <QStringList>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class HistoryLineEdit : public QLineEdit
 {
@@ -31,5 +29,4 @@ private:
   QStringList history_;
   int history_index_ = 0;
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

@@ -11,11 +11,7 @@
 
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 namespace
 {
@@ -238,6 +234,4 @@ void LevelIndicatorWidget::paintEvent(QPaintEvent*)
     painter.drawText(calib_text_rect, Qt::AlignCenter, "Calibrated: Waiting...");
   }
 }
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

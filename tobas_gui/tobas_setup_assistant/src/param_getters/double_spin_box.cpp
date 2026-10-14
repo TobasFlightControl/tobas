@@ -5,11 +5,7 @@
 
 #include <tobas_string_tools/core.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 ParamGetterWidget_DoubleSpinBox::ParamGetterWidget_DoubleSpinBox(
   const QString& _param_name,
@@ -65,6 +61,4 @@ void ParamGetterWidget_DoubleSpinBox::onValueChanged(double _value)
 {
   Q_EMIT valueChanged(_value);
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

@@ -11,11 +11,7 @@
 #include <tobas_constants/path.hpp>
 #include <tobas_qt_tools/path.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 ExportThreadRosbag::ExportThreadRosbag(const QString& _log_name, const QString& _save_path)
   : log_name_(_log_name), save_path_(_save_path)
@@ -134,6 +130,4 @@ bool ExportThreadRosbag::addZipEntry(QuaZip& _zip, const QString& _abs_path, con
 
   return true;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

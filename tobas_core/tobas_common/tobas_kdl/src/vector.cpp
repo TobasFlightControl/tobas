@@ -5,9 +5,7 @@
 
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 bool Vector::isParallel(const Vector& _rhs, bool _same_direction_only, double _angle_tol_rad) const
 {
@@ -32,5 +30,4 @@ bool Vector::isParallel(const Vector& _rhs, bool _same_direction_only, double _a
     return cos2 > thresh;
   }
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

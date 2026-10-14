@@ -39,9 +39,7 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /**
  * Gazebo IMU plugin.
@@ -373,7 +371,6 @@ void GazeboImuPlugin::configureImuRpmFilter(
   _res->success = true;
   _res->message.clear();
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(tobas::gazebo::GazeboImuPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

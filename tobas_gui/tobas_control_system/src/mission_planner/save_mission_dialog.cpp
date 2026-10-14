@@ -10,11 +10,7 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/path.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 SaveMissionDialog::SaveMissionDialog(QWidget* _parent, const QString& _dir)
   : QFileDialog(_parent, "Save Mission", _dir, "Mission (*.mission);;All Files (*)")
@@ -60,6 +56,4 @@ void SaveMissionDialog::onLineEditTextChanged()
     save_button_->setEnabled(file_name.length() > 0);
   }
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

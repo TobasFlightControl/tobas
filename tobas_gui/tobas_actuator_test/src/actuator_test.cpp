@@ -5,11 +5,7 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace at
+namespace tobas::gui::at
 {
 ActuatorTestWidget::ActuatorTestWidget(const rqt::RosQtBridge& _bridge, const kdl::Tree& _tree, const Drone& _drone)
   : drone_(_drone)
@@ -74,6 +70,4 @@ const BaseWidget* ActuatorTestWidget::getWidget(int _index) const
 {
   return qt::qConstPointerCast<BaseWidget>(widget(_index));
 }
-}  // namespace at
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::at

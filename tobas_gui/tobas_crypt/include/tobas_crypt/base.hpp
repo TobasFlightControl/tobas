@@ -6,9 +6,7 @@
 #include <expected>
 #include <string>
 
-namespace tobas
-{
-namespace crypt
+namespace tobas::crypt
 {
 class Crypt
 {
@@ -18,5 +16,4 @@ public:
 private:
   virtual std::expected<std::string, std::string> createSalt() const = 0;
 };
-}  // namespace crypt
-}  // namespace tobas
+}  // namespace tobas::crypt

@@ -10,15 +10,7 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/util.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand()
 {
@@ -98,8 +90,4 @@ double AerodynamicsWidget_ThrustStand::momentConst() const
   const auto torques = data_mat.col(2).eval();
   return momentConstFromThrustStand(thrusts, torques);
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

@@ -6,9 +6,7 @@
 #include <QStyleOptionTab>
 #include <QStylePainter>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 QSize VerticalTabBar::tabSizeHint(int _index) const
 {
@@ -68,5 +66,4 @@ void VerticalTabWidget::clearTabBackgroundColor(int _index)
 {
   tab_bar_->clearTabBackgroundColor(_index);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

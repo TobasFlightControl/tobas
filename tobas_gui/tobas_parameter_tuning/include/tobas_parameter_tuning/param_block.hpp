@@ -17,11 +17,7 @@
 
 #include <tobas_dparam_msgs/srv/get_params.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace param
+namespace tobas::gui::param
 {
 struct IntConfig
 {
@@ -102,6 +98,4 @@ private Q_SLOTS:
   void onDoubleHomeButtonClicked(const std::string& _name);
   void onDoubleSliderValueChanged(long _value, const std::string& _name);
 };
-}  // namespace param
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::param

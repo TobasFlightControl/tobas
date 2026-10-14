@@ -7,11 +7,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class SaveMissionDialog : public QFileDialog
 {
@@ -30,6 +26,4 @@ private:
   QPushButton* save_button_;
   QLineEdit* line_edit_;
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

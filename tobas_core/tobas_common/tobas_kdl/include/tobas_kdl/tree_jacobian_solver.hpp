@@ -7,9 +7,7 @@
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class TreeJacobianSolver : public TreeSolverI
 {
@@ -27,5 +25,4 @@ private:
 
   void resize();
 };
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

@@ -6,9 +6,7 @@
 #include <gz/sim/Util.hh>
 #include <gz/sim/World.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 std::expected<gz::sim::World, const char*> getWorld(const gz::sim::EntityComponentManager& _ecm)
 {
@@ -55,5 +53,4 @@ getWorldSphericalCoordinates(const gz::sim::EntityComponentManager& _ecm)
 
   return *sc;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

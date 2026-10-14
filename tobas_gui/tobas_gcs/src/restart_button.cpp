@@ -3,11 +3,7 @@
 
 #include "tobas_gcs/restart_button.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 RestartButton::RestartButton(int _radius) : super("↻")
 {
@@ -50,6 +46,4 @@ RestartButton::RestartButton(int _radius) : super("↻")
   qss = qss.arg(_radius).arg(font_size).arg(diameter);
   setStyleSheet(qss);
 }
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

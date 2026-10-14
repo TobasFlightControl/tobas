@@ -9,11 +9,7 @@
 
 #include "tobas_gui_common/constants.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 LoadProjectDialog::LoadProjectDialog(QWidget* _parent, const QString& _dir)
   : QFileDialog(_parent, "Select Tobas Project (*.TBS)", _dir, "Tobas Project (*.TBS)")
@@ -45,6 +41,4 @@ void LoadProjectDialog::onItemActivated(const QModelIndex& _index)
     accept();
   }
 }
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

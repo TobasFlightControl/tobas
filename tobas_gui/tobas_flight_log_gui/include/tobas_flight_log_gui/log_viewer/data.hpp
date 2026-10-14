@@ -10,11 +10,7 @@
 
 #include "./message_decoder.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class DataI
 {
@@ -74,6 +70,4 @@ private:
   QVector<MsgType> values_;
   MessageDecoderCache<MsgType> decoder_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

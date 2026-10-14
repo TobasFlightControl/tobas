@@ -8,9 +8,7 @@
 
 #include "./state_spaces.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 /**
  * Linear quadratic integral control. (Introduction to Drone Engineering: p.213)
@@ -71,5 +69,4 @@ inline const Eigen::VectorXd& LQID::getIntegralError() const
 {
   return eps_;
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

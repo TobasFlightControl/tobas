@@ -40,9 +40,7 @@
 using namespace std::chrono_literals;
 using VH = tobas_msgs::msg::VehicleHealth;
 
-namespace tobas
-{
-namespace mission
+namespace tobas::mission
 {
 namespace
 {
@@ -1406,7 +1404,6 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& _gh)
   _gh->succeed(res);
   is_executing_ = false;
 }
-}  // namespace mission
-}  // namespace tobas
+}  // namespace tobas::mission
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::mission::MulticopterMissionExecutorNode)

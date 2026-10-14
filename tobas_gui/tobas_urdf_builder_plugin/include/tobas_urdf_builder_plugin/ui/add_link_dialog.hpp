@@ -15,13 +15,7 @@ class AddLinkDialogUI;
 using AddLinkDialogUIPtr = std::shared_ptr<AddLinkDialogUI>;
 }  // namespace Ui
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 class UrdfBuilderPanel;
 
@@ -48,7 +42,4 @@ private:
   void checkValidity();
   void enableOkButton(bool _enable);
 };
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

@@ -8,9 +8,7 @@
 #include <gz/rendering/Scene.hh>
 #include <gz/transport/Node.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class TobasRenderInfo : public gz::gui::Plugin
 {
@@ -39,5 +37,4 @@ private:
   double fps_ema_ = NAN;
   gz::msgs::Double fps_msg_;
 };
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

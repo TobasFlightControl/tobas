@@ -8,11 +8,7 @@
 
 #include <tobas_qt_tools/util.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 ControlSystemWidget::ControlSystemWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone) : drone_(_drone)
 {
@@ -89,6 +85,4 @@ void ControlSystemWidget::clearRosInterfaces()
   mission_planner_->clearRosInterfaces();
   arm_state_banner_->setConnected(false);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

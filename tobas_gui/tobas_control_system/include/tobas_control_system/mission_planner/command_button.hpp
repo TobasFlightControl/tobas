@@ -5,11 +5,7 @@
 
 #include <QPushButton>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class CommandButton : public QPushButton
 {
@@ -20,6 +16,4 @@ class CommandButton : public QPushButton
 public:
   explicit CommandButton(const QString& _text);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

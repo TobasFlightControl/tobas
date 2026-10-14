@@ -8,9 +8,7 @@
 
 #include "./frames.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class RotationalInertia
 {
@@ -132,5 +130,4 @@ inline std::ostream& operator<<(std::ostream& _os, const RotationalInertia& _arg
       << ", Iyz: " << _arg.iyz() << ", Izx: " << _arg.ixz();
   return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

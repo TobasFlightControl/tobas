@@ -5,9 +5,7 @@
 
 #include <string>
 
-namespace tobas
-{
-namespace yaml
+namespace tobas::yaml
 {
 /**
  * Convert a floating-point value to a YAML-compatible string.
@@ -15,5 +13,4 @@ namespace yaml
  * e.g. 100 -> 100.0, 0.000012345 -> 1.2345e-05
  */
 std::string format(double _value, int _prec = 9);
-}  // namespace yaml
-}  // namespace tobas
+}  // namespace tobas::yaml

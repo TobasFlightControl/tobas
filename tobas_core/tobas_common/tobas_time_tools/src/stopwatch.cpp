@@ -8,9 +8,7 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace tim
+namespace tobas::tim
 {
 Stopwatch::Stopwatch(size_t _samples) : samples_(std::max(_samples, 1UL))
 {
@@ -46,5 +44,4 @@ bool Stopwatch::isRunning() const
 {
   return running_;
 }
-}  // namespace tim
-}  // namespace tobas
+}  // namespace tobas::tim

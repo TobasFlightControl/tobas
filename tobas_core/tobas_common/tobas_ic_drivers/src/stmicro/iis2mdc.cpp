@@ -5,9 +5,7 @@
 
 #include <iostream>
 
-namespace tobas
-{
-namespace stm
+namespace tobas::stm
 {
 IIS2MDC::IIS2MDC()
 {
@@ -84,5 +82,4 @@ bool IIS2MDC::configure()
 
   return true;
 }
-}  // namespace stm
-}  // namespace tobas
+}  // namespace tobas::stm

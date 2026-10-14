@@ -9,9 +9,7 @@
 #include <gz/rendering/Scene.hh>
 #include <gz/transport/Node.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /**
  * Gazebo GUI plugin that points the camera at a target position received over Gazebo transport.
@@ -46,5 +44,4 @@ private:
 
   std::mutex mutex_;
 };
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

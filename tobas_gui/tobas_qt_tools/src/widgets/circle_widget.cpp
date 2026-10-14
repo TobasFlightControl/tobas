@@ -6,9 +6,7 @@
 #include <QDebug>
 #include <QPainter>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 CircleWidget::CircleWidget(QWidget* _parent) : super(_parent)
 {
@@ -147,5 +145,4 @@ void CircleWidget::drawText(QPainter& _painter)
 
   _painter.restore();
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

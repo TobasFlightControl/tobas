@@ -10,13 +10,7 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 DoubleMapInputDialog::DoubleMapInputDialog(QWidget* _parent, const QString& _title, const QStringList& _field_names)
   : super(_parent)
@@ -67,7 +61,4 @@ void DoubleMapInputDialog::onSpinBoxValueChanged(double _value)
   const auto field_name = spinbox2field_.at(obj);
   field2value_[field_name] = _value;
 }
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

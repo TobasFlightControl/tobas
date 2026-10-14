@@ -11,9 +11,7 @@
 #include <tobas_kdl/tree.hpp>
 #include <tobas_urdf/parser.hpp>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class TreeParser
 {
@@ -30,5 +28,4 @@ private:
   /** Recursive function to walk through tree. */
   static void addChildrenToTree(const ::urdf::LinkConstSharedPtr& _root, Tree& _tree);
 };
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

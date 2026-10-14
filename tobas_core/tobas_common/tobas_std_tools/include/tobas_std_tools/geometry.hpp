@@ -5,9 +5,7 @@
 
 #include <tuple>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 /**
  * Calculate a quaternion (X,Y,Z,W) from ZYX Euler angles (Roll,Pitch,Yaw).
@@ -22,5 +20,4 @@ std::tuple<double, double, double, double> quaternionFromEuler(double _roll, dou
  * @see https://qiita.com/aa_debdeb/items/abe90a9bd0b4809813da
  */
 std::tuple<double, double, double> eulerFromQuaternion(double _x, double _y, double _z, double _w);
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

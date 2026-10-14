@@ -8,9 +8,7 @@
 #include "./tree_fk_solver_pos.hpp"
 #include "./tree_solver_i.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class TreeJointAxisSolver : public TreeSolverI
 {
@@ -28,5 +26,4 @@ private:
   TreeFkSolverPos fk_solver_;
 };
 
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

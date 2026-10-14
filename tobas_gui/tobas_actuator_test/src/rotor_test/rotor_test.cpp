@@ -16,11 +16,7 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace at
+namespace tobas::gui::at
 {
 namespace
 {
@@ -337,6 +333,4 @@ void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _a
   arming_ = _arming;
   updateActionAvailability();
 }
-}  // namespace at
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::at

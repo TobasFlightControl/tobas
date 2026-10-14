@@ -5,9 +5,7 @@
 
 #include <X11/XKBlib.h>  // Including this in the header may cause `#define` conflicts.
 
-namespace tobas
-{
-namespace keyboard
+namespace tobas::keyboard
 {
 XkbControlsPtr getKeyboardControls()
 {
@@ -40,5 +38,4 @@ std::expected<uint16_t, const char*> getKeyboardRepeatInterval()
 
   return keyboard->repeat_interval;
 }
-}  // namespace keyboard
-}  // namespace tobas
+}  // namespace tobas::keyboard

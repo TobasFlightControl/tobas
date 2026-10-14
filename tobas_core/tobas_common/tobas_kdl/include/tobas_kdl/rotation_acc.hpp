@@ -5,9 +5,7 @@
 
 #include "./twist_acc.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class RotationAcc
 {
@@ -148,5 +146,4 @@ inline RotationAcc operator*(const Rotation& _lhs, const RotationAcc& _rhs)
 {
   return RotationAcc(_lhs * _rhs.R, _lhs * _rhs.w, _lhs * _rhs.dw);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

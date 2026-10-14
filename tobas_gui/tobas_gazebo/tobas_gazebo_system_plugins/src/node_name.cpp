@@ -5,9 +5,7 @@
 
 #include <cctype>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 std::string sanitizeNodeName(std::string _str)
 {
@@ -22,5 +20,4 @@ std::string sanitizeNodeName(std::string _str)
 
   return _str;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

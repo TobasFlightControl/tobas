@@ -7,9 +7,7 @@
 #include <cstddef>
 
 // Ref: https://qiita.com/tobira-code/items/dbcffc41f54201130b6c
-namespace tobas
-{
-namespace algo
+namespace tobas::algo
 {
 class CRC
 {
@@ -137,5 +135,4 @@ public:
 protected:
   void createTable() noexcept override;
 };
-}  // namespace algo
-}  // namespace tobas
+}  // namespace tobas::algo

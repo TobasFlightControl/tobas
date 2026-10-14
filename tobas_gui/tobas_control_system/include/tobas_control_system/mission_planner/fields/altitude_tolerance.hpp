@@ -7,13 +7,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
-{
-namespace field
+namespace tobas::gui::ctrl::field
 {
 class AltitudeToleranceWidget : public FieldWidget<double>
 {
@@ -28,7 +22,4 @@ public:
 private:
   qt::DoubleSpinBox* spin_box_;
 };
-}  // namespace field
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::field

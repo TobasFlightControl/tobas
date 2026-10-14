@@ -10,15 +10,7 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 PropellerWidget::PropellerWidget()
 {
@@ -151,8 +143,4 @@ double PropellerWidget::meanChord() const
   // Calculate the mean chord length simply as the average of the minimum and maximum values.
   return (minChord() + maxChord()) / 2;
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

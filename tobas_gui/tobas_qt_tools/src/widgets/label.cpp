@@ -7,9 +7,7 @@
 
 #include <QColor>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 namespace
 {
@@ -38,5 +36,4 @@ void Label::setTextColor(Qt::GlobalColor _color)
 {
   setTextColor(toCssColor(_color));
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

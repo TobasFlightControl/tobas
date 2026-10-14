@@ -7,15 +7,7 @@
 #include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 class PropellerWidget : public BaseSelectedLinkSettingWidget
 {
@@ -63,8 +55,4 @@ private:
   ParamGetterWidget_SpinBox* min_chord_;
   ParamGetterWidget_SpinBox* max_chord_;
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

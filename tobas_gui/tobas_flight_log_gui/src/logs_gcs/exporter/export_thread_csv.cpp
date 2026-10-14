@@ -16,11 +16,7 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_string_tools/chars.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 ExportThreadCsv::ExportThreadCsv(const QString& _log_name, const QString& _save_path)
   : log_name_(_log_name), save_path_(_save_path)
@@ -536,6 +532,4 @@ bool ExportThreadCsv::exportOldestImuLine(std::ofstream& _file, Time _before_thi
 
   return true;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

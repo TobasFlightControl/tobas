@@ -5,9 +5,7 @@
 
 #include <QFormLayout>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QFormLayout` =====
@@ -50,5 +48,4 @@ public:
   /** Show or hide the specified row. */
   void setVisible(int _row, bool _visible);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

@@ -10,11 +10,7 @@
 #include "tobas_sensor_calibration/mag_calibration/complete/complete.hpp"
 #include "tobas_sensor_calibration/mag_calibration/large_vehicle/large_vehicle.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 namespace
 {
@@ -93,6 +89,4 @@ void MagCalibrationWidget::setCurrentIndex(int _index)
   btn_group_->button(_index)->setChecked(true);
   stack_->setCurrentIndex(_index);
 }
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

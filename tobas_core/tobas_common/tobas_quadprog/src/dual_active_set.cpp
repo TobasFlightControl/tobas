@@ -12,9 +12,7 @@
 
 // #define TRACE_SOLVER
 
-namespace tobas
-{
-namespace quadprog
+namespace tobas::quadprog
 {
 namespace
 {
@@ -545,5 +543,4 @@ double DualActiveSetSolver::distance(double _a, double _b)
     return a1 * M_SQRT2;
   }
 }
-}  // namespace quadprog
-}  // namespace tobas
+}  // namespace tobas::quadprog

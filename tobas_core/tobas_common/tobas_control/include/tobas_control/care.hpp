@@ -8,9 +8,7 @@
 
 #include <eigen3/Eigen/Core>
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 /**
  * Solve the continuous-time algebraic Riccati equation.
@@ -30,5 +28,4 @@ std::expected<Eigen::MatrixXd, std::string> care_ArimotoPotter(
  */
 Eigen::MatrixXd
 care_Schur(const Eigen::MatrixXd& _a, const Eigen::MatrixXd& _b, const Eigen::MatrixXd& _q, const Eigen::MatrixXd& _r);
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

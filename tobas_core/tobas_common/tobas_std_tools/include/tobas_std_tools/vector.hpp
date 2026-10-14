@@ -35,9 +35,7 @@ std::ostream& operator<<(std::ostream& _os, const std::vector<T>& _vec)
 }
 }  // namespace std
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 /** Naive Summation． The worst-case round-off error scales with O(nε). */
 template <typename T>
@@ -323,5 +321,4 @@ void eraseIndex(std::vector<T>& _vec, size_t _idx)
   assert(_idx < _vec.size());
   _vec.erase(_vec.begin() + static_cast<std::ptrdiff_t>(_idx));
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

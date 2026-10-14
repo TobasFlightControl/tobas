@@ -6,9 +6,7 @@
 #include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_quadprog/utils.hpp>
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 namespace
 {
@@ -83,5 +81,4 @@ double firstOrderVel(double _x0, double _v0, double _vd, double _tau, double _t)
 {
   return _x0 + _vd * _t + _tau * std::expm1(-_t / (_tau + kEps)) * (_vd - _v0);
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

@@ -37,9 +37,7 @@
 #include "tobas_planar_multi_controller/mixer_qp.hpp"
 #include "tobas_planar_multi_controller/translational_eom.hpp"
 
-namespace tobas
-{
-namespace planar_multicopter
+namespace tobas::planar_multicopter
 {
 class ControllerNode : public BaseNode
 {
@@ -793,7 +791,6 @@ void ControllerNode::checkTopicsTimerCb()
   topics_received_ = true;
   check_topics_timer_->cancel();
 }
-}  // namespace planar_multicopter
-}  // namespace tobas
+}  // namespace tobas::planar_multicopter
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::planar_multicopter::ControllerNode)

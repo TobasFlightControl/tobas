@@ -7,9 +7,7 @@
 
 namespace rfs = rcpputils::fs;
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 int createTemporalFile(std::string& _path)
 {
@@ -22,5 +20,4 @@ int createTemporalFile(std::string& _path)
   // `mkstemp()` replaces the X part of the template with random characters and creates a temporary file.
   return mkstemp(_path.data());
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

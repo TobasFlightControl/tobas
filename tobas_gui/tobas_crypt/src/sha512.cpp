@@ -12,9 +12,7 @@
 
 #include <tobas_std_tools/error.hpp>
 
-namespace tobas
-{
-namespace crypt
+namespace tobas::crypt
 {
 Sha512::Sha512(int _rounds) : rounds_(_rounds)
 {
@@ -50,5 +48,4 @@ std::expected<std::string, std::string> Sha512::createSalt() const
 
   return "$6$rounds=" + std::to_string(rounds_) + "$" + salt;
 }
-}  // namespace crypt
-}  // namespace tobas
+}  // namespace tobas::crypt

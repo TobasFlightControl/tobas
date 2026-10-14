@@ -10,9 +10,7 @@
 #include "./base_controller.hpp"
 #include "./filter/second_order_velocity_filter.hpp"
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 class PosVelAccPitchYawController : public BaseController
 {
@@ -64,5 +62,4 @@ private:
   void pitchExpoCb(double _p);
   void yawExpoCb(double _p);
 };
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

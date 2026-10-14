@@ -8,9 +8,7 @@
 #include "tobas_rviz_plugin/conversions.hpp"
 #include "tobas_rviz_plugin/link_updater.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 RobotStateDisplay::RobotStateDisplay()
 {
@@ -434,5 +432,4 @@ void RobotStateDisplay::changedReload()
     reset();
   }
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

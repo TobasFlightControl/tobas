@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 RotorLinkPlotWidget::RotorLinkPlotWidget()
 {
@@ -119,6 +115,4 @@ bool RotorLinkPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::Ro
 
   return true;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

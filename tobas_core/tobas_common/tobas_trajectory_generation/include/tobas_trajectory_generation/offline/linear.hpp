@@ -5,9 +5,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace traj
+namespace tobas::traj
 {
 /** Linear trajectory generation. */
 class LinearSpline : public TrajectoryGenerator
@@ -22,5 +20,4 @@ private:
   const double p0_, T_;
   double v_;
 };
-}  // namespace traj
-}  // namespace tobas
+}  // namespace tobas::traj

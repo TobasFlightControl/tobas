@@ -29,11 +29,7 @@
 #include "../base.hpp"
 #include "./rotor_widget.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace at
+namespace tobas::gui::at
 {
 class RotorTestWidget : public BaseWidget
 {
@@ -96,6 +92,4 @@ private Q_SLOTS:
   void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& _cur_states);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
 };
-}  // namespace at
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::at

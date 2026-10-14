@@ -5,9 +5,7 @@
 
 #include <string>
 
-namespace tobas
-{
-namespace wpa
+namespace tobas::wpa
 {
 enum KeyMgmt
 {
@@ -21,5 +19,4 @@ bool enumFromToken(const std::string& _token, KeyMgmt& _dst);
 
 std::string labelFromEnum(KeyMgmt _key_mgmt);
 bool enumFromLabel(const std::string& _label, KeyMgmt& _dst);
-}  // namespace wpa
-}  // namespace tobas
+}  // namespace tobas::wpa

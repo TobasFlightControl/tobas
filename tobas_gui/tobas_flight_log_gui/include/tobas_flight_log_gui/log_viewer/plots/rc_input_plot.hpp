@@ -9,11 +9,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class RcInputPlotWidget : public BasePlotWidget
 {
@@ -46,6 +42,4 @@ private:
   qwt::QwtPlotCurveWrapper enable_curve_;
   qwt::QwtPlotCurveWrapper kill_curve_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

@@ -5,9 +5,7 @@
 
 #include <cassert>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeJntSpacePID::TreeJntSpacePID(const Tree& _tree, const Vector& _grav) : super(_tree), rne_(_tree, _grav)
 {
@@ -67,5 +65,4 @@ void TreeJntSpacePID::resize()
 {
   q_zero_ = JntArray::Zero(tree_.getNrOfJoints());
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

@@ -5,9 +5,7 @@
 
 #include <cmath>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 static constexpr double kGravity = 9.80665;           // [m/s^2] Gravitational acceleration.
 static constexpr double kStandardAirDensity = 1.225;  // [kg/m^3] Air density in the standard atmosphere.
@@ -21,5 +19,4 @@ static constexpr double kRpsToRpm = 30.0 / M_PI;  // rad/s -> RPM
 
 static constexpr double kFeetToMeter = 0.3048;
 static constexpr double kMeterToFeet = 1 / kFeetToMeter;
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

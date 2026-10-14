@@ -8,9 +8,7 @@
 #include "tobas_math/complex.hpp"
 #include "tobas_math/core.hpp"
 
-namespace tobas
-{
-namespace math
+namespace tobas::math
 {
 double solveLinearEquation(double _a, double _b)
 {
@@ -57,5 +55,4 @@ solveCubicEquation(double _a, double _b, double _c, double _d)
   const auto x3 = real + omega2 * cbrt_plus + omega * cbrt_minus;
   return { x1, x2, x3 };
 }
-}  // namespace math
-}  // namespace tobas
+}  // namespace tobas::math

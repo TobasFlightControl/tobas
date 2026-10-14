@@ -10,9 +10,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 std::expected<const char*, std::string> getEnv(const char* _name)
 {
@@ -39,5 +37,4 @@ fs::path expandUser(const char* _path)
 {
   return rcutils_expand_user(_path, rcutils_get_default_allocator());
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

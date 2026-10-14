@@ -10,13 +10,7 @@
 #include <tobas_yaml_tools/convert/range.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace fw
+namespace tobas::gui::sa::fw
 {
 VehicleParametersWidget::VehicleParametersWidget()
 {
@@ -121,7 +115,4 @@ st::Range<double> VehicleParametersWidget::alphaLimit() const
 {
   return alpha_limit_->getValue();
 }
-}  // namespace fw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::fw

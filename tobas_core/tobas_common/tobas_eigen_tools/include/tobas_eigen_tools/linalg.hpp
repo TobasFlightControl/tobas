@@ -11,9 +11,7 @@
 
 #include "./core.hpp"
 
-namespace tobas
-{
-namespace eigen
+namespace tobas::eigen
 {
 /** Calculate the matrix rank. */
 template <typename Derived>
@@ -138,5 +136,4 @@ Eigen::Matrix<Scalar, M, 1> minimizeWeightedNorm(
   // QR decomposition does not give the least-squares solution for underdetermined problems.
   return left.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(right);
 }
-}  // namespace eigen
-}  // namespace tobas
+}  // namespace tobas::eigen

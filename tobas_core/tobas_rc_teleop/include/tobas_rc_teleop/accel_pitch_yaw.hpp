@@ -9,9 +9,7 @@
 
 #include "./base_controller.hpp"
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 class AccelPitchYawController : public BaseController
 {
@@ -58,5 +56,4 @@ private:
   void pitchExpoCb(double _p);
   void yawExpoCb(double _p);
 };
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

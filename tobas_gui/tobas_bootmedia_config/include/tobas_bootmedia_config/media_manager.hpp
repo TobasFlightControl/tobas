@@ -11,11 +11,7 @@
 
 #include "./bootmedia.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class MediaManagerWidget : public QWidget
 {
@@ -49,6 +45,4 @@ private Q_SLOTS:
   void onDisconnectButtonClicked();
   void onScanTimerTimeout();
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

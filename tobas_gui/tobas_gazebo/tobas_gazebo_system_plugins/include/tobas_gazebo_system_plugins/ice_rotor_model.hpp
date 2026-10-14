@@ -18,9 +18,7 @@
 
 #include "./simple_joint_model.hpp"
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class IceRotorModel;
 using IceRotorModelMap = std::map<std::string, IceRotorModel>;
@@ -81,5 +79,4 @@ private:
   bool getSdfParams(const sdf::ElementConstPtr& _sdf);
   bool initializeGazeboObjects(gz::sim::EntityComponentManager& _ecm, const gz::sim::Model& _model);
 };
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

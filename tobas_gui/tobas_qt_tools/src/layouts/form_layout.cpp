@@ -7,9 +7,7 @@
 #include <QLabel>
 #include <QWidget>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 void FormLayout::addVAlignedRow(QWidget* _label, QWidget* _field)
 {
@@ -75,5 +73,4 @@ void FormLayout::setVisible(int _row, bool _visible)
   getLabel(_row)->setVisible(_visible);
   getWidget(_row)->setVisible(_visible);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

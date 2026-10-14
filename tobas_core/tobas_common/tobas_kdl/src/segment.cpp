@@ -3,9 +3,7 @@
 
 #include "tobas_kdl/segment.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 std::expected<void, std::string> Segment::validate() const
 {
@@ -36,5 +34,4 @@ std::ostream& operator<<(std::ostream& _os, const Segment& _arg)
   _os << "Inertia:\n" << _arg.I_;
   return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

@@ -7,13 +7,7 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace utils
+namespace tobas::gui::ub::utils
 {
 int timeNowMilliseconds()
 {
@@ -21,7 +15,4 @@ int timeNowMilliseconds()
   const auto ms = ch::duration_cast<ch::milliseconds>(now);
   return static_cast<int>(ms.count());
 }
-}  // namespace utils
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::utils

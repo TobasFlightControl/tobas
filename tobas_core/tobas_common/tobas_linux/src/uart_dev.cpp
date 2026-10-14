@@ -17,9 +17,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 namespace
 {
@@ -342,5 +340,4 @@ bool UARTdev::setNonStandardBaudRate(uint32_t _baud_rate)
 
   return true;
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

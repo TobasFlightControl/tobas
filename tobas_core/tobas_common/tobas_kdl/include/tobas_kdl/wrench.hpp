@@ -5,9 +5,7 @@
 
 #include "./vector.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class Wrench;
 using Wrenches = std::vector<Wrench>;
@@ -142,5 +140,4 @@ inline std::ostream& operator<<(std::ostream& _os, const Wrench& _arg)
   _os << "Force: " << _arg.force << ", Torque: " << _arg.torque;
   return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

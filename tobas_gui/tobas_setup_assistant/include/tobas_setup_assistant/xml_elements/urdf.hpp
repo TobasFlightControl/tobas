@@ -10,13 +10,7 @@
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/aerodynamics.hpp>
 #include <tobas_drone_core/propulsion_system/turning_direction.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace xml
+namespace tobas::gui::sa::xml
 {
 void addBatteryPlugin(
   tinyxml2::XMLElement* _robot,
@@ -155,7 +149,4 @@ void addGazeboFixedLoadPlugin(tinyxml2::XMLElement* _robot, const std::string& _
 void addGazeboSuspendedLoadPlugin(tinyxml2::XMLElement* _robot, const std::string& _ns, const std::string& _link_name);
 
 void addBaseStaticJoint(tinyxml2::XMLElement* _robot, const std::string& _root_link_name);
-}  // namespace xml
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::xml

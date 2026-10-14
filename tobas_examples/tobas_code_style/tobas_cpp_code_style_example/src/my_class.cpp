@@ -35,9 +35,7 @@
 
 #define MY_MACRO(x) (x)
 
-namespace tobas
-{
-namespace my_namespace
+namespace tobas::my_namespace
 {
 namespace
 {
@@ -86,5 +84,4 @@ MyClass::ErrorCode MyClass::longMethod(int _primitive_input, const std::string& 
 
   return ErrorCode::kNoError;
 }
-}  // namespace my_namespace
-}  // namespace tobas
+}  // namespace tobas::my_namespace

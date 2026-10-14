@@ -10,13 +10,7 @@
 #include "./base_view_model.hpp"
 #include "./joint_limits_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 class JointViewModel : public BaseViewModel<::urdf::Joint, JointViewModel>
 {
@@ -54,7 +48,4 @@ private:
 
 using JointViewModelPtr = std::shared_ptr<JointViewModel>;
 using V_JointViewModelPtr = std::vector<JointViewModelPtr>;
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

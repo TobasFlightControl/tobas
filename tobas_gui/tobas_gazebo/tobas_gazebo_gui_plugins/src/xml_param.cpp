@@ -5,9 +5,7 @@
 
 #include <gz/common/Console.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 bool getXmlParam(const tinyxml2::XMLElement* _elem, const char* _name, double& _param)
 {
@@ -29,5 +27,4 @@ bool getXmlParam(const tinyxml2::XMLElement* _elem, const char* _name, double& _
 
   return true;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

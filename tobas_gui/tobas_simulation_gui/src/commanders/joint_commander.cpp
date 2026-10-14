@@ -15,11 +15,7 @@
 
 #include "tobas_simulation_gui/commanders/constants.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 JointCommanderWidget::JointCommanderWidget(const kdl::Tree& _tree, const Drone& _drone)
   : tree_(_tree), drone_(_drone), rnd_gen_(rnd_dev_()), joint_parser_(_tree)
@@ -381,6 +377,4 @@ void JointCommanderWidget::onPublishCommandTimerTimeout()
 {
   publishCurrentCommand();
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

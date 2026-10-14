@@ -10,9 +10,7 @@
 #include <tobas_kdl/tree.hpp>
 #include <tobas_msgs_adapter/link_state_array.hpp>
 
-namespace tobas
-{
-namespace manipulation
+namespace tobas::manipulation
 {
 std::vector<std::string> linkNames(const tobas_msgs::LinkStateArray& _msg);
 
@@ -22,5 +20,4 @@ std::vector<std::string> linkNames(const tobas_msgs::LinkStateArray& _msg);
  */
 std::expected<std::vector<std::string>, std::string>
 findActiveJointNames(const kdl::Tree& _tree, const std::vector<std::string>& _endpoints);
-}  // namespace manipulation
-}  // namespace tobas
+}  // namespace tobas::manipulation

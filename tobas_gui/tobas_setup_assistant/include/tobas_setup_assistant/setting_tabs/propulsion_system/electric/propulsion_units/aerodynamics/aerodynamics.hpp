@@ -10,15 +10,7 @@
 #include "../propeller.hpp"
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 class AerodynamicsWidget : public BaseSelectedLinkSettingWidget
 {
@@ -53,8 +45,4 @@ private:
   AerodynamicsWidget_Base* selected();
   const AerodynamicsWidget_Base* selected() const;
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

@@ -9,11 +9,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class BatteryPlotWidget : public BasePlotWidget
 {
@@ -34,6 +30,4 @@ private:
   qwt::QwtPlotCurveWrapper voltage_curve_;
   qwt::QwtPlotCurveWrapper current_curve_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

@@ -5,13 +5,7 @@
 
 #include "ui_update_link_dialog.h"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 void UpdateLinkDialog::defineConnections()
 {
@@ -340,7 +334,4 @@ void UpdateLinkDialog::defineConnections()
   connect(ui_->BuildInertiaCylinderButton, &QPushButton::released, this, &self::onBuildInertiaCylinderButtonClicked);
   connect(ui_->BuildInertiaSphereButton, &QPushButton::released, this, &self::onBuildInertiaSphereButtonClicked);
 }
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

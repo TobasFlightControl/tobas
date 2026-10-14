@@ -20,11 +20,7 @@
 #include "./commands/commands.hpp"
 #include "./map/map.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class MissionPlannerWidget : public QWidget
 {
@@ -131,6 +127,4 @@ private Q_SLOTS:
   void actionFeedbackCb(uint32_t _cur_cmd_idx);
   void actionResultCb(rclcpp_action::ResultCode _code, const QString& _message, uint32_t _last_cmd_idx);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

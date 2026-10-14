@@ -7,9 +7,7 @@
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_tools/mixer_i.hpp>
 
-namespace tobas
-{
-namespace planar_multicopter
+namespace tobas::planar_multicopter
 {
 /** Thrust mixing for multicopters using a pseudoinverse matrix. */
 class PinvMixer : public MixerI
@@ -35,5 +33,4 @@ private:
   Eigen::Matrix4Xd E_;
   Eigen::Vector4d f_;
 };
-}  // namespace planar_multicopter
-}  // namespace tobas
+}  // namespace tobas::planar_multicopter

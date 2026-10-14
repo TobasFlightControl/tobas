@@ -7,9 +7,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 AccelAngleController::AccelAngleController()
 {
@@ -185,5 +183,4 @@ void AccelAngleController::headingExpoCb(double _p)
 {
   head_expo_ = _p / kExpoScale;
 }
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

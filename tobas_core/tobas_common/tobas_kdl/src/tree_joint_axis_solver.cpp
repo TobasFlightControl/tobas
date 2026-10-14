@@ -5,9 +5,7 @@
 
 #include <cassert>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeJointAxisSolver::TreeJointAxisSolver(const Tree& _tree) : super(_tree), fk_solver_(_tree)
 {
@@ -33,5 +31,4 @@ Vector TreeJointAxisSolver::jntToCart(const JntArray& _q_in, const std::string& 
   const auto par_frame = fk_solver_.jntToCart(_q_in, par_name);
   return par_frame.M * cur_jnt.axis();
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

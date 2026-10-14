@@ -6,9 +6,7 @@
 #include "./accel.hpp"
 #include "./frame.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /** represents both linear and angular stiffness. */
 class TaskSpaceStiffness
@@ -51,5 +49,4 @@ inline Accel TaskSpaceStiffness::operator*(const Frame& _rhs)
 {
   return Accel(linear.hadamard(_rhs.p), angular.hadamard(_rhs.M.getRot()));
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

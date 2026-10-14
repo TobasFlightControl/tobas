@@ -6,11 +6,7 @@
 #include <qwt/qwt_plot_legenditem.h>
 #include <qwt/qwt_scale_draw.h>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 namespace
 {
@@ -103,6 +99,4 @@ void QwtPlot2::setupIndexedLabelPlot(const QStringList& _labels)
 
   setAxisScaleDraw(QwtPlot::yLeft, new IndexedLabelScaleDraw(_labels));
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

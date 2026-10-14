@@ -14,9 +14,7 @@
 #include <tobas_msgs/srv/configure_imu_low_pass_filter.hpp>
 #include <tobas_msgs_adapter/imu.hpp>
 
-namespace tobas
-{
-namespace fc1xx
+namespace tobas::fc1xx
 {
 class ImuDriverNode : public hardware::BaseSensorNode
 {
@@ -173,7 +171,6 @@ void ImuDriverNode::mainTimerCb()
   // Publish sampling time.
   sampling_time_pub_.publish(cur_time);
 }
-}  // namespace fc1xx
-}  // namespace tobas
+}  // namespace tobas::fc1xx
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::ImuDriverNode)

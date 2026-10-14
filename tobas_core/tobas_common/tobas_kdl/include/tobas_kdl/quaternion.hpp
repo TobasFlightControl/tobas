@@ -10,9 +10,7 @@
 #include "./rotation.hpp"
 #include "./vector.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class Quaternion
 {
@@ -171,5 +169,4 @@ inline std::ostream& operator<<(std::ostream& _os, const Quaternion& _arg)
   _os << "w: " << _arg.w << ", x: " << _arg.x << ", y: " << _arg.y << ", z: " << _arg.z;
   return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

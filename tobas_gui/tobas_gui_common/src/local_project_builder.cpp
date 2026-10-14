@@ -12,11 +12,7 @@
 
 #include "tobas_gui_common/project_paths.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 namespace
 {
@@ -65,8 +61,6 @@ std::expected<void, QString> buildLocalProject(const QString& _proj_path)
     return std::unexpected(message);
   }
 }
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn
 
 #include "local_project_builder.moc"

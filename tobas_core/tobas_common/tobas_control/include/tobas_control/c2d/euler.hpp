@@ -5,9 +5,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 class C2D_Euler : BaseC2D
 {
@@ -20,5 +18,4 @@ private:
   const Eigen::Index x_size_, u_size_;
   const Eigen::MatrixXd I_;  ///< Identity matrix
 };
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

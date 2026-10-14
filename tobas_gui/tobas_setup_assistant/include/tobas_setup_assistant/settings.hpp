@@ -18,11 +18,7 @@
 #include "./setting_tabs/rc_input.hpp"
 #include "./settings_navigation.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class SettingsWidget : public QWidget
 {
@@ -65,6 +61,4 @@ private:
   void setPageEnabled(int _idx, bool _enabled, const QString& _disabled_reason = {});
   void setPageEnabled(BaseSettingWidget* _page, bool _enabled, const QString& _disabled_reason = {});
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

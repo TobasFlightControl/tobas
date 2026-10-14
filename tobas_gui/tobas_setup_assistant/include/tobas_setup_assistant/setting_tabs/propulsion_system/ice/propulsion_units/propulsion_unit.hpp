@@ -11,15 +11,7 @@
 #include "./propeller.hpp"
 #include "./transmission.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 class PropulsionUnitWidget : public QWidget
 {
@@ -51,8 +43,4 @@ private:
   PropellerWidget* propeller_;
   AerodynamicsWidget* aerodynamics_;
 };
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

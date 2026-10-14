@@ -14,9 +14,7 @@
 
 #include "./mixer_solution.hpp"
 
-namespace tobas
-{
-namespace random_axis_tilt_multicopter
+namespace tobas::random_axis_tilt_multicopter
 {
 /** Solve tilt-rotor multicopter mixing with SQP (memo: 3-12). */
 class SqpMixer : public MixerI
@@ -99,5 +97,4 @@ private:
   Eigen::Tensor3Xd calc_dC_dtheta(const Eigen::VectorXd& _theta);
   Eigen::Tensor4Xd calc_dC_dtheta_2(const Eigen::VectorXd& _theta);
 };
-}  // namespace random_axis_tilt_multicopter
-}  // namespace tobas
+}  // namespace tobas::random_axis_tilt_multicopter

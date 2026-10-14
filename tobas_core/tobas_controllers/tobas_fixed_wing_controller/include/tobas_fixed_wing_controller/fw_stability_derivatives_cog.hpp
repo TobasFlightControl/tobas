@@ -8,9 +8,7 @@
 
 #include "./solver_i.hpp"
 
-namespace tobas
-{
-namespace fixed_wing
+namespace tobas::fixed_wing
 {
 /**
  * Convert the reference frame of aerodynamic stability derivatives
@@ -61,5 +59,4 @@ inline const double& StabilityDerivativesCG::cYawDelta(const std::string& _link_
 {
   return c_yaw_delta_cg_.at(_link_name);
 }
-}  // namespace fixed_wing
-}  // namespace tobas
+}  // namespace tobas::fixed_wing

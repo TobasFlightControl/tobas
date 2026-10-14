@@ -12,11 +12,7 @@
 #include <tobas_qt_tools/color.hpp>
 #include <tobas_qt_tools/font.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 namespace
 {
@@ -136,6 +132,4 @@ void ArmStateBanner::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedP
   health_ = _health;
   updateState();
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

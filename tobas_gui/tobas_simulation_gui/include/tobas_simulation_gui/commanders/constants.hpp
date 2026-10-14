@@ -3,15 +3,9 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 static constexpr int kHeaderButtonWidth = 100;
 static constexpr int kHeaderButtonHeight = 40;
 static constexpr int kCommandButtonHeight = 40;
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

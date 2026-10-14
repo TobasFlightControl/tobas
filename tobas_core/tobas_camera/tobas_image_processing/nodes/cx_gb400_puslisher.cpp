@@ -28,9 +28,7 @@
 using namespace std::chrono_literals;
 using namespace std::placeholders;
 
-namespace tobas
-{
-namespace camera
+namespace tobas::camera
 {
 class CxGb400PublisherNode : public BaseNode
 {
@@ -417,7 +415,6 @@ void CxGb400PublisherNode::takePictureToSdCb(
     _res->message = "The camera rejected the request to take a picture and save it to the SD card.";
   }
 }
-}  // namespace camera
-}  // namespace tobas
+}  // namespace tobas::camera
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::CxGb400PublisherNode)

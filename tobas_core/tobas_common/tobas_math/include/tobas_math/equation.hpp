@@ -6,9 +6,7 @@
 #include <complex>
 #include <tuple>
 
-namespace tobas
-{
-namespace math
+namespace tobas::math
 {
 /** Solve: a x + b = 0 (a != 0) */
 double solveLinearEquation(double _a, double _b);
@@ -23,5 +21,4 @@ std::pair<std::complex<double>, std::complex<double>> solveQuadraticEquation(dou
  */
 std::tuple<std::complex<double>, std::complex<double>, std::complex<double>>
 solveCubicEquation(double _a, double _b, double _c, double _d);
-}  // namespace math
-}  // namespace tobas
+}  // namespace tobas::math

@@ -10,13 +10,7 @@
 #include "../view_model/link_view_model.hpp"
 #include "../view_model/visual_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 class LinkTreeWidgetItem : public QTreeWidgetItem
 {
@@ -50,7 +44,4 @@ public:
 private:
   view_model::CollisionViewModelPtr vm_;
 };
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

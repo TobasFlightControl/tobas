@@ -8,11 +8,7 @@
 
 #include <tobas_std_tools/check.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 namespace
 {
@@ -162,6 +158,4 @@ void PlaybackControlWidget::onTimerTimeout()
 
   slider_->setValue(next_time);
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

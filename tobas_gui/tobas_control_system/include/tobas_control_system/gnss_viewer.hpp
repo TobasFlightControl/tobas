@@ -6,11 +6,7 @@
 #include <tobas_qt_tools/widgets/framed_label.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class GnssViewerWidget : public QWidget
 {
@@ -33,6 +29,4 @@ private:
 private Q_SLOTS:
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

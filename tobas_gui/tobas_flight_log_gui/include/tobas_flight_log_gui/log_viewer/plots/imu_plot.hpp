@@ -9,11 +9,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class ImuPlotWidget : public BasePlotWidget
 {
@@ -41,6 +37,4 @@ private:
   static ValueRanges
   updateSamples(const QVector<tobas_msgs::msg::Imu>& _msgs, std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& _curves);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

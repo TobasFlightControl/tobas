@@ -11,9 +11,7 @@
 
 #include "tobas_quadprog/dual_active_set.hpp"
 
-namespace tobas
-{
-namespace quadprog
+namespace tobas::quadprog
 {
 PrimalDualInteriorPointSolver::PrimalDualInteriorPointSolver()
 {
@@ -154,5 +152,4 @@ double PrimalDualInteriorPointSolver::findAlpha(const Eigen::VectorXd& _dlam, co
 
   return lb;
 }
-}  // namespace quadprog
-}  // namespace tobas
+}  // namespace tobas::quadprog

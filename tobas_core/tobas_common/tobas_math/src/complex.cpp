@@ -3,9 +3,7 @@
 
 #include "tobas_math/complex.hpp"
 
-namespace tobas
-{
-namespace math
+namespace tobas::math
 {
 std::complex<double> cbrt(const std::complex<double>& _z)
 {
@@ -17,5 +15,4 @@ std::complex<double> cbrt(const std::complex<double>& _z)
 
   return std::polar(cbrt_r, cbrt_theta);  // Convert from polar coordinates to a complex number.
 }
-}  // namespace math
-}  // namespace tobas
+}  // namespace tobas::math

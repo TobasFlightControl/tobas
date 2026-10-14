@@ -11,11 +11,7 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 namespace
 {
@@ -221,6 +217,4 @@ double FailsafeWidget::escNoCommunicationTimeout() const
 {
   return esc_no_comm_timeout_->value() * 1e-3;
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

@@ -8,9 +8,7 @@
 
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace traj
+namespace tobas::traj
 {
 CubicSpline::CubicSpline(double _p0, double _pf, double _t) : T_(_t)
 {
@@ -43,5 +41,4 @@ double CubicSpline::duration() const noexcept
 {
   return T_;
 }
-}  // namespace traj
-}  // namespace tobas
+}  // namespace tobas::traj

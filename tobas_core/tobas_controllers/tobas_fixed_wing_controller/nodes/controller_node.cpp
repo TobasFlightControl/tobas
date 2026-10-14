@@ -26,9 +26,7 @@
 
 #include "tobas_fixed_wing_controller/fw_micro_disturbance_eom.hpp"
 
-namespace tobas
-{
-namespace fixed_wing
+namespace tobas::fixed_wing
 {
 class ControllerNode : public BaseNode
 {
@@ -545,7 +543,6 @@ void ControllerNode::checkTopicsTimerCb()
   topics_received_ = true;
   check_topics_timer_->cancel();
 }
-}  // namespace fixed_wing
-}  // namespace tobas
+}  // namespace tobas::fixed_wing
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fixed_wing::ControllerNode)

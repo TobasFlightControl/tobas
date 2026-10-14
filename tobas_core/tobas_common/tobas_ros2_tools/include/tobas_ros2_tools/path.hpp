@@ -5,9 +5,7 @@
 
 #include <string>
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 /**
  * Create a temporary file.
@@ -16,5 +14,4 @@ namespace ros2
  * @return File descriptor.
  */
 int createTemporalFile(std::string& _path);
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

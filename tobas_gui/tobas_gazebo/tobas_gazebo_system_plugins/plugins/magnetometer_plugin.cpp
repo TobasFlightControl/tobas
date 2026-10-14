@@ -23,9 +23,7 @@
 
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /**
  * Gazebo Magnetometer plugin.
@@ -165,8 +163,7 @@ void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& _sdf)
   noise_stddev_ = getSdfParam<double>(_sdf, "noiseStddev", kNonNegative);
   hard_bias_norm_ = getSdfParam<double>(_sdf, "hardBiasNorm", kNonNegative);
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboMagnetometerPlugin,

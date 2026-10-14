@@ -9,11 +9,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class DisturbanceForcePlotWidget : public BasePlotWidget
 {
@@ -35,6 +31,4 @@ private:
   std::array<QwtPlot2*, kNumAxes> plots_;
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> curves_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

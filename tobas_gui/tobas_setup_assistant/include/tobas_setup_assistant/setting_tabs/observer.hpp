@@ -7,11 +7,7 @@
 
 #include "./base_setting.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ObserverWidget : public BaseSettingWidget
 {
@@ -58,6 +54,4 @@ private:
   QCheckBox* do_baro_alt_bias_estimation_;
   QCheckBox* do_grav_estimation_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

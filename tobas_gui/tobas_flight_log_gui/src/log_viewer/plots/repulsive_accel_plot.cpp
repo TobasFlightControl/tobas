@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 RepulsiveAccelPlotWidget::RepulsiveAccelPlotWidget() : curves_{ "Accel X [m/s²]", "Accel Y [m/s²]", "Accel Z [m/s²]" }
 {
@@ -70,6 +66,4 @@ void RepulsiveAccelPlotWidget::setData(const QVector<tobas_msgs::msg::RepulsiveA
     plot->replot();
   }
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

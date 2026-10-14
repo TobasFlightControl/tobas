@@ -5,9 +5,7 @@
 
 #include <QWidget>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QWidget` =====
@@ -43,5 +41,4 @@ protected:
   /** Draw text at the maximum size that fits within the frame. */
   void drawMaximumText(QPainter& _painter, const QString& _text);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

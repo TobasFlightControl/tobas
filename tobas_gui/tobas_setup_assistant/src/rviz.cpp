@@ -15,11 +15,7 @@
 #include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/util.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 RvizWidget::RvizWidget(const uadf::Model& _uadf, const kdl::Tree& _tree)
   : uadf_(_uadf), tree_(_tree), rviz_manager_("rviz_robot_state_display")
@@ -134,6 +130,4 @@ void RvizWidget::onInertiaBoxToggled(bool _checked)
 {
   enable_inertia_->setBool(_checked);
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

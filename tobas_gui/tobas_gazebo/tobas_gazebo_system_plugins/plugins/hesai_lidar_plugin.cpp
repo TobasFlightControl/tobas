@@ -13,9 +13,7 @@
 
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /**
  * Bridge Gazebo GPU LiDAR so it can be used from ROS 2 like a Hesai LiDAR.
@@ -247,7 +245,6 @@ void HesaiLidarPlugin::setupPointCloudMsg(const gz::msgs::PointCloudPacked& _msg
   point_cloud_msg_->is_dense = false;  // Trying to be consistent with the Hesai ROS 2 driver
   point_cloud_msg_->data.resize(params_.vertical_samples * params_.horizontal_samples * point_step_);
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(tobas::gazebo::HesaiLidarPlugin, gz::sim::System, gz::sim::ISystemConfigure)

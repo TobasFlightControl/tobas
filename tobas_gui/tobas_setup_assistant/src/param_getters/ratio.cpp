@@ -3,11 +3,7 @@
 
 #include "tobas_setup_assistant/param_getters/ratio.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 ParamGetterWidget_Ratio::ParamGetterWidget_Ratio(const QString& _param_name, const QString& _description_text)
   : super(_param_name, _description_text)
@@ -70,6 +66,4 @@ void ParamGetterWidget_Ratio::onValueChanged()
 {
   Q_EMIT valueChanged(getValue());
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

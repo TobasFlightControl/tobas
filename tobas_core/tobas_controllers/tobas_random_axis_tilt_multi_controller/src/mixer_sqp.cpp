@@ -13,9 +13,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
-{
-namespace random_axis_tilt_multicopter
+namespace tobas::random_axis_tilt_multicopter
 {
 SqpMixer::SqpMixer(const Drone& _drone, const kdl::Tree& _tree)
   : super(_drone, _tree), joint_parser_(_tree), fk_solver_(_tree), inertia_solver_(_tree), np_mixer_(_drone, _tree)
@@ -401,5 +399,4 @@ Eigen::Tensor4Xd SqpMixer::calc_dC_dtheta_2(const Eigen::VectorXd& _theta)
 {
   return B_ * calc_dN_dtheta_2(_theta);
 }
-}  // namespace random_axis_tilt_multicopter
-}  // namespace tobas
+}  // namespace tobas::random_axis_tilt_multicopter

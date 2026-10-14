@@ -7,11 +7,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ParamGetterWidget_LinearEquation : public ParamGetterWidget<std::pair<double, double>>
 {
@@ -44,6 +40,4 @@ private:
   qt::DoubleSpinBox* c1_;
   QLabel* suffix_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

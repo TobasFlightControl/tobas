@@ -5,13 +5,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace csv
+namespace tobas::gui::sa::csv
 {
 rapidcsv::Document load(const fs::path& _path)
 {
@@ -30,7 +24,4 @@ rapidcsv::Document load(const fs::path& _path)
 
   return rapidcsv::Document(_path, label_params, separator_params, converter_params, line_reader_params);
 }
-}  // namespace csv
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::csv

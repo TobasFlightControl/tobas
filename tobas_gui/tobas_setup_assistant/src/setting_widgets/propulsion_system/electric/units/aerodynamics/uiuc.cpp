@@ -10,15 +10,7 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/util.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(const PropellerWidget* _propeller) : propeller_(_propeller)
 {
@@ -94,8 +86,4 @@ double AerodynamicsWidget_UIUC::momentConst() const
   const auto d = propeller_->diameter();
   return momentConstFromUiuc(ct, cp, d);
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

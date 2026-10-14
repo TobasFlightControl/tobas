@@ -14,9 +14,7 @@
 
 #include <tobas_std_tools/error.hpp>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 namespace
 {
@@ -343,5 +341,4 @@ bool VideoDev::requestImgFormat()
   fmt_.bytes_per_line = fmt_request.fmt.pix.bytesperline;
   return true;
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

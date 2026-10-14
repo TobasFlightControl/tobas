@@ -11,11 +11,7 @@
 #include <tobas_string_tools/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 namespace
 {
@@ -145,6 +141,4 @@ QString AuthorInformationWidget::authorEmail() const
 {
   return email_->getValue();
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

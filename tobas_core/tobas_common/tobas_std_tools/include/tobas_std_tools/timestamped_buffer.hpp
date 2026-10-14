@@ -7,9 +7,7 @@
 #include <chrono>
 #include <map>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 /** Buffer that keeps only data within the specified duration. */
 template <typename T>
@@ -125,5 +123,4 @@ public:
   double variance() const;
   double stddev() const;
 };
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

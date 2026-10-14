@@ -8,11 +8,7 @@
 #include "./base.hpp"
 #include "./media_manager.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class BootmediaConfigWidget : public QWidget
 {
@@ -40,6 +36,4 @@ private Q_SLOTS:
   void onMediaConnected();
   void onMediaDisconnected();
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

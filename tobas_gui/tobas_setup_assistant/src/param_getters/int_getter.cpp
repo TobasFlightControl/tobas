@@ -10,11 +10,7 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_string_tools/core.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 IntGetter::IntGetter(const QString& _name)
 {
@@ -71,6 +67,4 @@ void IntGetter::onValueChanged(int _value)
 {
   Q_EMIT valueChanged(_value);
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

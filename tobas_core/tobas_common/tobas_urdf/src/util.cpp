@@ -9,9 +9,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace urdf
+namespace tobas::urdf
 {
 std::expected<fs::path, std::string> resolveUri(const std::string& _uri)
 {
@@ -35,5 +33,4 @@ std::expected<fs::path, std::string> resolveUri(const std::string& _uri)
     return std::unexpected("Invalid URI.");
   }
 }
-}  // namespace urdf
-}  // namespace tobas
+}  // namespace tobas::urdf

@@ -5,9 +5,7 @@
 
 #include <QTableWidget>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `TableWidget` =====
@@ -31,5 +29,4 @@ public:
   /** Set clickability in bulk. */
   void setHeaderSectionsClickable(bool _clickable);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

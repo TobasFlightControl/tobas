@@ -5,13 +5,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace hw
+namespace tobas::gui::sa::hw
 {
 class FC2xxWidget : public BaseHardwareWidget
 {
@@ -55,7 +49,4 @@ public:
 
   bool hasRpmFilter() const override;
 };
-}  // namespace hw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::hw

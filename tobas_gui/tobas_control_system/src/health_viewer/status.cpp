@@ -9,11 +9,7 @@
 
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 StatusWidget::StatusWidget(const QString& _text)
 {
@@ -79,6 +75,4 @@ void StatusWidget::setStatusText(const QString& _text, const QColor& _color)
   pal.setColor(QPalette::WindowText, _color);
   status_->setPalette(pal);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

@@ -6,9 +6,7 @@
 #include <gz/math/Quaternion.hh>
 #include <gz/math/Vector3.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class Wrench
 {
@@ -117,5 +115,4 @@ inline Wrench operator*(const gz::math::Quaterniond& _lhs, const Wrench& _rhs)
 {
   return Wrench(_lhs.RotateVector(_rhs.force), _lhs.RotateVector(_rhs.torque));
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

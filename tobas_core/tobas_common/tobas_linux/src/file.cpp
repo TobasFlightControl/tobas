@@ -10,9 +10,7 @@
 #include <cstdarg>
 #include <cstdio>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 int writeFile(const char* _path, const char* _fmt, ...)
 {
@@ -63,5 +61,4 @@ int readFile(const char* _path, const char* _fmt, ...)
 
   return ret;
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

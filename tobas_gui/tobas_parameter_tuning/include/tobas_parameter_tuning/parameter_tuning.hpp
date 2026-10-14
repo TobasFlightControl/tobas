@@ -11,11 +11,7 @@
 
 #include "./param_block.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace param
+namespace tobas::gui::param
 {
 class ParameterTuningWidget : public QWidget
 {
@@ -57,6 +53,4 @@ private Q_SLOTS:
   void onResetButtonClicked();
   void onDefaultButtonClicked();
 };
-}  // namespace param
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::param

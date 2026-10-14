@@ -6,11 +6,7 @@
 #include <QMap>
 #include <QSet>
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 namespace
 {
@@ -154,6 +150,4 @@ void FlightControllerScanner::onErrorOccurred(QProcess::ProcessError)
   }
   Q_EMIT failed(message);
 }
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

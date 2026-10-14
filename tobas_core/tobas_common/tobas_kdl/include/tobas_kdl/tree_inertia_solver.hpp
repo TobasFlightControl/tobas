@@ -7,9 +7,7 @@
 #include "./rigid_body_inertia.hpp"
 #include "./tree_solver_i.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class TreeInertiaSolver : public TreeSolverI
 {
@@ -24,5 +22,4 @@ public:
 private:
   RigidBodyInertia jntToCartRec(const SegmentMap::const_iterator& _cur_it, const JntArray& _q);
 };
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

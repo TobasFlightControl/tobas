@@ -5,9 +5,7 @@
 
 #include <cmath>
 
-namespace tobas
-{
-namespace math
+namespace tobas::math
 {
 /** Return true when two numbers are nearly equal. This is similar to `numpy.isclose()`. */
 template <typename T>
@@ -24,5 +22,4 @@ inline bool isInteger(T _x)
   double ip;
   return modf(_x, &ip) == 0.0;
 }
-}  // namespace math
-}  // namespace tobas
+}  // namespace tobas::math

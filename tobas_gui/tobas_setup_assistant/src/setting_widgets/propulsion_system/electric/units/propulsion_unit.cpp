@@ -6,15 +6,7 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/util.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 PropulsionUnitWidget::PropulsionUnitWidget()
 {
@@ -112,8 +104,4 @@ const AerodynamicsWidget* PropulsionUnitWidget::aerodynamics() const
 {
   return aerodynamics_;
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

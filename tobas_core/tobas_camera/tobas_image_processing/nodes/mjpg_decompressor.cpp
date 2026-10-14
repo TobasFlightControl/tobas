@@ -10,9 +10,7 @@
 #include <sensor_msgs/msg/compressed_image.hpp>
 #include <sensor_msgs/msg/image.hpp>
 
-namespace tobas
-{
-namespace camera
+namespace tobas::camera
 {
 /** Subscribe to sensor_msgs::msg::CompressedImage images, decompress them, and publish them as `sensor_msgs::msg::Image`. */
 class MjpgDecompressor : public BaseNode
@@ -59,7 +57,6 @@ void MjpgDecompressor::msgCb(const sensor_msgs::msg::CompressedImage::ConstShare
     TOBAS_WARN("Could not convert to image!");
   }
 }
-}  // namespace camera
-}  // namespace tobas
+}  // namespace tobas::camera
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::MjpgDecompressor)

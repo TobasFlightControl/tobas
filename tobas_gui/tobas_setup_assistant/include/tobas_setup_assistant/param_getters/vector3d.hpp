@@ -7,11 +7,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ParamGetterWidget_Vector3d : public ParamGetterWidget<Eigen::Vector3d>
 {
@@ -41,6 +37,4 @@ private Q_SLOTS:
 private:
   qt::Vector3dEditHorizontal* vector3d_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

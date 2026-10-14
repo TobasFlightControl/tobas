@@ -6,11 +6,7 @@
 #include <QFileDialog>
 #include <QSortFilterProxyModel>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 class LoadProjectDialog : public QFileDialog
 {
@@ -25,6 +21,4 @@ private:
 private Q_SLOTS:
   void onItemActivated(const QModelIndex& _index);
 };
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

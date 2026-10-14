@@ -7,11 +7,7 @@
 
 #include <QWidget>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class BaseWorldWidget : public QWidget
 {
@@ -20,6 +16,4 @@ class BaseWorldWidget : public QWidget
 public:
   virtual std::filesystem::path worldPath() const = 0;
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

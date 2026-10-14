@@ -9,11 +9,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class CpuPlotWidget : public BasePlotWidget
 {
@@ -36,6 +32,4 @@ private:
   qwt::QwtPlotCurveWrapper temp_curve_;
   qwt::QwtPlotCurveWrapper load_curve_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

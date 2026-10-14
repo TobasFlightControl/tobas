@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 DisturbanceForcePlotWidget::DisturbanceForcePlotWidget()
   : curves_{ "Force X [N]", "Force Y [N]", "Force Z [N]", "Torque X [Nm]", "Torque Y [Nm]", "Torque Z [Nm]" }
@@ -79,6 +75,4 @@ void DisturbanceForcePlotWidget::setData(const QVector<tobas_kdl_msgs::msg::Wren
     plot->replot();
   }
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

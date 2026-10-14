@@ -6,9 +6,7 @@
 #include <QColor>
 #include <QWidget>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class PositionBarWidget : public QWidget
 {
@@ -110,5 +108,4 @@ protected:
 private:
   void drawTextCommon(QPainter& _painter);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

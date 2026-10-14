@@ -8,9 +8,7 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace quadprog
+namespace tobas::quadprog
 {
 QpOasesSolver::QpOasesSolver()
 {
@@ -81,5 +79,4 @@ std::expected<Eigen::VectorXd, std::string> QpOasesSolver::solve()
   Eigen::VectorXd x_scaled = Eigen::Map<Eigen::VectorXd>(x_opt, var_size);
   return x_scaled.cwiseProduct(x_scale).eval();
 }
-}  // namespace quadprog
-}  // namespace tobas
+}  // namespace tobas::quadprog

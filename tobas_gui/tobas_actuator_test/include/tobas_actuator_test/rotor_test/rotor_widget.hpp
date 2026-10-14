@@ -9,11 +9,7 @@
 
 #include <tobas_qt_tools/widgets/framed_label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace at
+namespace tobas::gui::at
 {
 class RotorWidget : public QWidget
 {
@@ -60,6 +56,4 @@ private Q_SLOTS:
   void onTargetRPMChanged(int _rpm);
   void onGainChanged(int _gain);
 };
-}  // namespace at
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::at

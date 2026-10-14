@@ -9,9 +9,7 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 std::string SynchronizedStringParameter::loadInitialValue(
   const rclcpp::Node::SharedPtr& _node,
@@ -119,5 +117,4 @@ void SynchronizedStringParameter::stringCallback(const std_msgs::msg::String::Co
   }
   content_ = _msg->data;
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

@@ -8,13 +8,7 @@
 #include <QLineEdit>
 #include <QRadioButton>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace network
+namespace tobas::gui::sa::network
 {
 class NetworkIfaceWidget : public QWidget
 {
@@ -42,7 +36,4 @@ private:
 private Q_SLOTS:
   void onOtherButtonToggled(bool _checked);
 };
-}  // namespace network
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::network

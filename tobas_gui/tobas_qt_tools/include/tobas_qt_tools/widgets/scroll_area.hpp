@@ -5,9 +5,7 @@
 
 #include <QScrollArea>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QScrollArea` =====
@@ -27,5 +25,4 @@ public:
   /** Make the background transparent. */
   void setBackgroundTransparent();
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

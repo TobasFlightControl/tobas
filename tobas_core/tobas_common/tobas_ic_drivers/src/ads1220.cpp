@@ -12,9 +12,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace driver
+namespace tobas::driver
 {
 ADS1220::ADS1220()
 {
@@ -153,5 +151,4 @@ bool ADS1220::configure(uint8_t _rr, uint8_t _tar_cfg)
 
   return true;
 }
-}  // namespace driver
-}  // namespace tobas
+}  // namespace tobas::driver

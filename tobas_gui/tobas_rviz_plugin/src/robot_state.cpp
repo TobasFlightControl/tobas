@@ -5,9 +5,7 @@
 
 #include <QDebug>
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 RobotState::RobotState(const RobotModel& _robot_model) : robot_model_(_robot_model)
 {
@@ -158,5 +156,4 @@ bool RobotState::checkLinkTransforms() const
   }
   return true;
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

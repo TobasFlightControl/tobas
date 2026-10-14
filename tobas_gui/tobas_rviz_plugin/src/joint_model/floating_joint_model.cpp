@@ -5,9 +5,7 @@
 
 #include <eigen3/Eigen/Geometry>
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 FloatingJointModel::FloatingJointModel(const std::string& _name, size_t _joint_index, size_t _first_variable_index)
   : JointModel(_name, _joint_index, _first_variable_index)
@@ -48,5 +46,4 @@ void FloatingJointModel::computeVariablePositions(const Eigen::Isometry3d& _tran
   _joint_values[5] = q.z();
   _joint_values[6] = q.w();
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

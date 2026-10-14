@@ -3,11 +3,7 @@
 
 #include "tobas_setup_assistant/param_getters/int_range.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 ParamGetterWidget_IntRange::ParamGetterWidget_IntRange(const QString& _param_name, const QString& _description_text)
   : super(_param_name, _description_text)
@@ -80,6 +76,4 @@ void ParamGetterWidget_IntRange::onValueChanged(int)
 {
   Q_EMIT valueChanged({ min(), max() });
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

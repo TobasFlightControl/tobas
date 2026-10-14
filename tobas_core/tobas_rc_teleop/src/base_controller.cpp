@@ -5,9 +5,7 @@
 
 #include <tobas_path_tools/join.hpp>
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 BaseController::BaseController()
 {
@@ -18,5 +16,4 @@ std::string BaseController::addMode(const std::string& _text, FlightMode _mode)
 {
   return path::join(textFromEnum(_mode), _text);
 }
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

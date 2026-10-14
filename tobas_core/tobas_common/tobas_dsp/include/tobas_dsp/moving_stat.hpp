@@ -7,9 +7,7 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
-namespace tobas
-{
-namespace dsp
+namespace tobas::dsp
 {
 /** Sequential moving mean and moving covariance calculation for vectors (memo: 2-66). */
 template <typename Scalar, int Size, size_t Length>
@@ -93,5 +91,4 @@ inline const MovingStatistics<Scalar, Size, Length>::CovType& MovingStatistics<S
 {
   return v_;
 }
-}  // namespace dsp
-}  // namespace tobas
+}  // namespace tobas::dsp

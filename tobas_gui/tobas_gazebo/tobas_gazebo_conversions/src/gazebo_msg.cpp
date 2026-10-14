@@ -3,9 +3,7 @@
 
 #include "tobas_gazebo_conversions/gazebo_msg.hpp"
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 void vector3dGzToMsg(const gz::math::Vector3d& _g, gz::msgs::Vector3d& _m)
 {
@@ -20,5 +18,4 @@ void vector3dMsgToGz(const gz::msgs::Vector3d& _m, gz::math::Vector3d& _g)
   _g.Y(_m.y());
   _g.Z(_m.z());
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

@@ -12,9 +12,7 @@
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace ublox
+namespace tobas::ublox
 {
 ZEDF9P::ZEDF9P(std::unique_ptr<UbxTransport> _transport) : transport_(std::move(_transport)), scan_rate_(50us)
 {
@@ -742,5 +740,4 @@ uint32_t ZEDF9P::configKeyID(CfgSize _size, CfgGroup _group, uint8_t _id)
 {
   return (_size << 28) | (_group << 16) | _id;
 }
-}  // namespace ublox
-}  // namespace tobas
+}  // namespace tobas::ublox

@@ -9,9 +9,7 @@
 
 #include "./jntarray.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /** This class represents a fixed `nj` matrix containing the joint-space inertia matrix. */
 class JntSpaceInertiaMatrix
@@ -99,5 +97,4 @@ inline void Multiply(const JntSpaceInertiaMatrix& _src, const JntArray& _vec, Jn
 {
   _dest.data = _src.data.lazyProduct(_vec.data);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

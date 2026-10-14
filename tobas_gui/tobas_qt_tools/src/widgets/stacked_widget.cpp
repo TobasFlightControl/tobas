@@ -5,9 +5,7 @@
 
 #include <QApplication>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 void StackedWidget::clear()
 {
@@ -29,5 +27,4 @@ void StackedWidget::setCurrentIndex(int _index)
   // Update the screen.
   update();
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

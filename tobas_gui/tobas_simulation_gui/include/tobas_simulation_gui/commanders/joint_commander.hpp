@@ -17,11 +17,7 @@
 
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class JointCommanderWidget : public QWidget
 {
@@ -80,6 +76,4 @@ private Q_SLOTS:
 
   void onPublishCommandTimerTimeout();
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

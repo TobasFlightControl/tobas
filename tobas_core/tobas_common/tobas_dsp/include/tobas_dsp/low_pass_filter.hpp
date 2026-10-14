@@ -11,9 +11,7 @@
 #include "./base_filter.hpp"
 #include "./utils.hpp"
 
-namespace tobas
-{
-namespace dsp
+namespace tobas::dsp
 {
 /**
  * First order low-pass filter.
@@ -78,5 +76,4 @@ void LowPassFilter<T>::setCutoffFrequency(double _fc_hz)
     wc_ = M_2PI * _fc_hz;  // Hz -> rad/s
   }
 }
-}  // namespace dsp
-}  // namespace tobas
+}  // namespace tobas::dsp

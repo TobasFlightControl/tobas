@@ -5,9 +5,7 @@
 
 #include <cstdint>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class RGBColor
 {
@@ -79,5 +77,4 @@ constexpr RGBColor RGBColor::Yellow()
 {
   return RGBColor(255, 255, 0);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

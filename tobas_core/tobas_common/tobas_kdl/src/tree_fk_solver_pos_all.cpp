@@ -5,9 +5,7 @@
 
 #include <cassert>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeFkSolverPosAll::TreeFkSolverPosAll(const Tree& _tree) : super(_tree)
 {
@@ -57,5 +55,4 @@ void TreeFkSolverPosAll::recursiveFk(
     recursiveFk(_q, frames_out_.at(cur_name), child_it);
   }
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

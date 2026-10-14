@@ -5,9 +5,7 @@
 
 #include <QWidget>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 enum QMessageLevel
 {
@@ -22,5 +20,4 @@ void qErrorBox(QWidget* _parent, const QString& _msg);
 
 /** Show a dialog with a Yes/No question and return true for Yes. */
 bool yesOrNo(QWidget* _parent, const QString& _text, QMessageLevel _level);
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

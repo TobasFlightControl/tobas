@@ -16,11 +16,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 SshAuthorizedKeysWidget::SshAuthorizedKeysWidget()
 {
@@ -219,6 +215,4 @@ void SshAuthorizedKeysWidget::onClearButtonClicked()
     return;
   }
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

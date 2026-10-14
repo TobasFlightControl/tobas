@@ -6,11 +6,7 @@
 #include <limits>
 #include <span>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class QwtPlot2;
 
@@ -55,6 +51,4 @@ void setSharedVerticalScale(std::span<QwtPlot2* const> _plots, const VerticalSca
 
 /** Apply one shared zero-centered vertical scale to multiple plots. */
 void setSharedZeroCenteredVerticalScale(std::span<QwtPlot2* const> _plots, const VerticalScaleRange& _range);
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

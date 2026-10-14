@@ -5,9 +5,7 @@
 
 #include <cassert>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeJacAccSolver::TreeJacAccSolver(const Tree& _tree) : super(_tree)
 {
@@ -82,5 +80,4 @@ void TreeJacAccSolver::jntToCartRec(const SegmentMap::const_iterator& _segment, 
     jntToCartRec(child, _q, _qd);
   }
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

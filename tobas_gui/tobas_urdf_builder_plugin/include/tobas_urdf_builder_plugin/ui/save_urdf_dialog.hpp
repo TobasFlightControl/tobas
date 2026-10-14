@@ -7,13 +7,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 class SaveUrdfDialog : public QFileDialog
 {
@@ -32,7 +26,4 @@ private:
   QPushButton* save_button_;
   QLineEdit* line_edit_;
 };
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

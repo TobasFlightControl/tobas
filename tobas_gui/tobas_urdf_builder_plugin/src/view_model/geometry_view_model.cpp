@@ -19,13 +19,7 @@ static const std::map<QString, GeometryType> kGeometryNameToTypeMap = {
   { "Mesh", ::urdf::Geometry::MESH },
 };
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 namespace
 {
@@ -209,7 +203,4 @@ void GeometryViewModel::load()
     }
   }
 }
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

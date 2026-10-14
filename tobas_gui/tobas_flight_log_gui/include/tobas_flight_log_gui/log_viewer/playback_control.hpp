@@ -8,11 +8,7 @@
 #include <QSlider>
 #include <QTimer>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class PlaybackControlWidget : public QWidget
 {
@@ -57,6 +53,4 @@ private Q_SLOTS:
   void onSliderReleased();
   void onTimerTimeout();
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

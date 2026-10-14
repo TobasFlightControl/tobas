@@ -9,9 +9,7 @@
 
 #include <tobas_std_tools/typeinfo.hpp>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 template <typename T>
 T* qPointerCast(QObject* _obj)
@@ -44,5 +42,4 @@ const T* qConstPointerCast(const QObject* _obj)
 
   return casted;
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

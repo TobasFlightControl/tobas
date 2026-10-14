@@ -6,11 +6,7 @@
 #include "../param_getters/line_edit.hpp"
 #include "./base_setting.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class AuthorInformationWidget : public BaseSettingWidget
 {
@@ -37,6 +33,4 @@ private:
   ParamGetterWidget_LineEdit* name_;
   ParamGetterWidget_LineEdit* email_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

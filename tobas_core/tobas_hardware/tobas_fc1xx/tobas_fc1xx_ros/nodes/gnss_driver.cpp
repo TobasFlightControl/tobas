@@ -12,9 +12,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace fc1xx
+namespace tobas::fc1xx
 {
 class GnssDriverNode : public hardware::BaseSensorNode
 {
@@ -250,7 +248,6 @@ void GnssDriverNode::mainTimerCb()
   // Publish GNSS message.
   gnss_pub_->publish(std::move(gnss_msg));
 }
-}  // namespace fc1xx
-}  // namespace tobas
+}  // namespace tobas::fc1xx
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::GnssDriverNode)

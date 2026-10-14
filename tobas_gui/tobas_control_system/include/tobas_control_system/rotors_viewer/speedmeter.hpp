@@ -5,11 +5,7 @@
 
 #include <QtQuickWidgets/QQuickWidget>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class SpeedmeterWidget : public QQuickWidget
 {
@@ -40,6 +36,4 @@ private:
   QObject* getTopTextObject() const;
   QObject* getBottomTextObject() const;
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

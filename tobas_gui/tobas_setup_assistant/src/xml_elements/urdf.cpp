@@ -9,13 +9,7 @@
 
 #include <tobas_constants/frame.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace xml
+namespace tobas::gui::sa::xml
 {
 namespace
 {
@@ -437,7 +431,4 @@ void addBaseStaticJoint(tinyxml2::XMLElement* _robot, const std::string& _root_l
   joint->InsertNewChildElement("parent")->SetAttribute("link", frame::kWorld);
   joint->InsertNewChildElement("child")->SetAttribute("link", _root_link_name.c_str());
 }
-}  // namespace xml
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::xml

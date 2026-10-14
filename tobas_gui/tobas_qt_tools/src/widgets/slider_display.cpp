@@ -8,9 +8,7 @@
 
 #include "tobas_qt_tools/font.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 namespace
 {
@@ -239,5 +237,4 @@ void DoubleSliderDisplay::onSliderValueChanged(double _value)
   updateValueText(_value);
   Q_EMIT valueChanged(_value);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

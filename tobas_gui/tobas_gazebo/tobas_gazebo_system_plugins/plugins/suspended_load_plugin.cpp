@@ -30,9 +30,7 @@
 
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class GazeboSuspendedLoadPlugin : public BaseNode,
                                   public gz::sim::System,
@@ -369,8 +367,7 @@ void GazeboSuspendedLoadPlugin::detachLoadCb(
 
   TOBAS_INFO(loadName(), " has been detached from the vehicle successfully.");
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboSuspendedLoadPlugin,

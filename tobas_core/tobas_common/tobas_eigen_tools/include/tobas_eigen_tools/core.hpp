@@ -11,9 +11,7 @@
 
 #include <tobas_math/float.hpp>
 
-namespace tobas
-{
-namespace eigen
+namespace tobas::eigen
 {
 /**
  * Create a block diagonal matrix.
@@ -255,5 +253,4 @@ inline Scalar variance(const Eigen::Vector<Scalar, Size>& _v)
 {
   return varianceCol(_v)(0);
 }
-}  // namespace eigen
-}  // namespace tobas
+}  // namespace tobas::eigen

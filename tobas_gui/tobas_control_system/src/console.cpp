@@ -8,11 +8,7 @@
 #include <QScrollBar>
 #include <QVBoxLayout>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 namespace
 {
@@ -136,6 +132,4 @@ void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& _m
     sb->setValue(old_scroll + 1);
   }
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

@@ -3,9 +3,7 @@
 
 #include "tobas_gazebo_system_plugins/random.hpp"
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 NormalDistribution3d::NormalDistribution3d(
   std::random_device& _rnd_dev,
@@ -64,5 +62,4 @@ gz::math::Vector3d createUnitSpherePoint(std::random_device& _rnd_dev)
 
   return gz::math::Vector3d(std::sin(phi) * std::cos(theta), std::sin(phi) * std::sin(theta), std::cos(phi));
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

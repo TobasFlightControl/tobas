@@ -9,9 +9,7 @@
 #include <QTimer>
 #include <QWidget>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class WaitSpinnerWidget : public QWidget
 {
@@ -89,5 +87,4 @@ private:
   void updateTimer();
   void updatePosition();
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

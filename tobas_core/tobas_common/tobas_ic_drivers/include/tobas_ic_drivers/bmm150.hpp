@@ -5,9 +5,7 @@
 
 #include <tobas_linux/i2c_dev.hpp>
 
-namespace tobas
-{
-namespace driver
+namespace tobas::driver
 {
 /**
  * A linux driver of 3-axis magnetometer bmm150.
@@ -168,5 +166,4 @@ private:
    */
   int16_t compensateZ(int16_t _mag_data_z, uint16_t _data_r_hall);
 };
-}  // namespace driver
-}  // namespace tobas
+}  // namespace tobas::driver

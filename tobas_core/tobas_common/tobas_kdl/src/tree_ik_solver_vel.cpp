@@ -10,9 +10,7 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_quadprog/utils.hpp>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeIkSolverVel::TreeIkSolverVel(const Tree& _tree) : super(_tree), jnt2jac_(tree_), jntparser_(tree_)
 {
@@ -111,5 +109,4 @@ void TreeIkSolverVel::resize()
   qp_solver_.problem.G.conservativeResize(0, tree_.getNrOfJoints());
   qp_solver_.problem.h.conservativeResize(0);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

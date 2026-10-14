@@ -5,9 +5,7 @@
 
 #include <cmath>
 
-namespace tobas
-{
-namespace traj
+namespace tobas::traj
 {
 /**
  * Online update of the minimum-time trajectory that reaches the target state while satisfying constraints.
@@ -88,5 +86,4 @@ inline void JerkLimitedOnlineTrajectoryGenerator::setTargetAcceleration(double _
 {
   tar_acc_ = _tar_acc;
 }
-}  // namespace traj
-}  // namespace tobas
+}  // namespace tobas::traj

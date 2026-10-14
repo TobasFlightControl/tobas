@@ -11,15 +11,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 EngineDynamicsWidget::EngineDynamicsWidget()
 {
@@ -92,8 +84,4 @@ std::pair<double, double> EngineDynamicsWidget::engineConstant() const
 
   return { A, B };
 }
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

@@ -10,9 +10,7 @@
 
 #include <eigen3/Eigen/Geometry>
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 class LinkModel;
 class JointModel;
@@ -129,5 +127,4 @@ private:
 
   const size_t first_variable_index_;  ///< The index of this joint's first variable, in the complete robot state
 };
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

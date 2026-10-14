@@ -9,13 +9,7 @@
 #include "../utils/constants.hpp"
 #include "./base_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 class MaterialViewModel : public BaseViewModel<::urdf::Material, MaterialViewModel>
 {
@@ -36,7 +30,4 @@ public:
 };
 
 using MaterialViewModelPtr = std::shared_ptr<MaterialViewModel>;
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

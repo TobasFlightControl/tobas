@@ -5,13 +5,7 @@
 
 #include "tobas_urdf_builder_plugin/utils/time.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 MaterialViewModel::MaterialViewModel(const ::urdf::MaterialSharedPtr& _model)
   : BaseViewModel<::urdf::Material, MaterialViewModel>(_model)
@@ -69,7 +63,4 @@ void MaterialViewModel::textureFileName(const QString& _filename)
 {
   model_->texture_filename = _filename.toStdString();
 }
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

@@ -3,11 +3,7 @@
 
 #include "tobas_setup_assistant/param_getters/combo_box.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 ParamGetterWidget_ComboBox::ParamGetterWidget_ComboBox(const QString& _param_name, const QString& _description_text)
   : super(_param_name, _description_text)
@@ -64,6 +60,4 @@ void ParamGetterWidget_ComboBox::onTextChanged(const QString& _text)
 {
   Q_EMIT textChanged(_text);
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

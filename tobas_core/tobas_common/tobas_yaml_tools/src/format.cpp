@@ -8,9 +8,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_math/float.hpp>
 
-namespace tobas
-{
-namespace yaml
+namespace tobas::yaml
 {
 std::string format(int _value)
 {
@@ -37,5 +35,4 @@ std::string format(double _value, int _prec)
     return std::format("{:.{}g}", _value, _prec);
   }
 }
-}  // namespace yaml
-}  // namespace tobas
+}  // namespace tobas::yaml

@@ -3,13 +3,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/mission_executor/none.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace mission
+namespace tobas::gui::sa::mission
 {
 NoneWidget::NoneWidget()
 {
@@ -47,7 +41,4 @@ bool NoneWidget::isValid()
 {
   return true;
 }
-}  // namespace mission
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::mission

@@ -5,15 +5,7 @@
 
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 /** Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019] */
 class BladeTheory
@@ -49,8 +41,4 @@ private:
   /** Horizontal force coefficient (divided by mu) */
   double C_H() const;
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

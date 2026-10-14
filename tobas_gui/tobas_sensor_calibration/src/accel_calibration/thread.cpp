@@ -10,11 +10,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 AccelCalibrationThread::AccelCalibrationThread(const rqt::RosQtBridge& _bridge)
 {
@@ -155,6 +151,4 @@ void AccelCalibrationThread::armingCb(const tobas_msgs::msg::Arming::ConstShared
 {
   arming_ = _arming;
 }
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

@@ -5,11 +5,7 @@
 
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class IntGetter : public QWidget
 {
@@ -37,6 +33,4 @@ private Q_SLOTS:
 private:
   qt::SpinBox* data_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

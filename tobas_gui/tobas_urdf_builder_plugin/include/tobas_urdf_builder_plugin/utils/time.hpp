@@ -3,16 +3,7 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace utils
+namespace tobas::gui::ub::utils
 {
 int timeNowMilliseconds();
-}  // namespace utils
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::utils

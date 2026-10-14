@@ -7,11 +7,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ParamGetterWidget_SpinBox : public ParamGetterWidget<int>
 {
@@ -40,6 +36,4 @@ private Q_SLOTS:
 private:
   qt::SpinBox* spin_box_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

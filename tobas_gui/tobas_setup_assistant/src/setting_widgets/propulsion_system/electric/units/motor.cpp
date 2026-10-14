@@ -7,15 +7,7 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 MotorWidget::MotorWidget()
 {
@@ -117,8 +109,4 @@ double MotorWidget::minimumSpeed() const
 {
   return st::rpm2rps(min_speed_->getValue());
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

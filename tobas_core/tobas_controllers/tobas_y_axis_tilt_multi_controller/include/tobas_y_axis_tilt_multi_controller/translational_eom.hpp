@@ -5,9 +5,7 @@
 
 #include <tobas_kdl/tree_mass_holder.hpp>
 
-namespace tobas
-{
-namespace y_axis_tilt_multicopter
+namespace tobas::y_axis_tilt_multicopter
 {
 /** memo: 3-38 */
 class TranslationalEoM
@@ -37,5 +35,4 @@ private:
 
   const kdl::Vector grav_W_;
 };
-}  // namespace y_axis_tilt_multicopter
-}  // namespace tobas
+}  // namespace tobas::y_axis_tilt_multicopter

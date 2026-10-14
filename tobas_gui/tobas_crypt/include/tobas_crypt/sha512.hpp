@@ -5,9 +5,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace crypt
+namespace tobas::crypt
 {
 class Sha512 : public Crypt
 {
@@ -19,5 +17,4 @@ private:
 
   std::expected<std::string, std::string> createSalt() const override;
 };
-}  // namespace crypt
-}  // namespace tobas
+}  // namespace tobas::crypt

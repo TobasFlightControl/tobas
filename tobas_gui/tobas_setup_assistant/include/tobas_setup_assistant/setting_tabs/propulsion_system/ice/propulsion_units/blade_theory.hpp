@@ -6,15 +6,7 @@
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/aerodynamics.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 /** Approximate variable-pitch propeller aerodynamic parameters with blade theory and Taylor expansion (memo: 3-36). */
 class BladeTheory
@@ -47,8 +39,4 @@ private:
   /** dlam / dtheta */
   double lambdaDeriv() const;
 };
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

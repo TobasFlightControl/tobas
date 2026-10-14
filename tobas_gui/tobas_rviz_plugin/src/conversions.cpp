@@ -6,9 +6,7 @@
 #include <QDebug>
 #include <tf2_eigen/tf2_eigen.hpp>
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 namespace
 {
@@ -68,5 +66,4 @@ bool robotStateMsgToRobotState(const tobas_visualization_msgs::msg::RobotState& 
   _state.update();
   return joint_state_valid || multi_dof_state_valid;
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

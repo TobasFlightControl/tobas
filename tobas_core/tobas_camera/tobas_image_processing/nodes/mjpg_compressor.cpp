@@ -16,9 +16,7 @@
 
 using namespace std::placeholders;
 
-namespace tobas
-{
-namespace camera
+namespace tobas::camera
 {
 /** Subscribe to sensor_msgs/msg/CompressedImage images, reduce their data size, and publish the result. */
 class MjpgCompressor : public BaseNode
@@ -137,7 +135,6 @@ void MjpgCompressor::callback(const sensor_msgs::msg::CompressedImage::ConstShar
     encoder_.encodeImage(*message);
   }
 }
-}  // namespace camera
-}  // namespace tobas
+}  // namespace tobas::camera
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::MjpgCompressor)

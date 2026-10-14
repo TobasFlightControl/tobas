@@ -5,9 +5,7 @@
 
 #include <cmath>
 
-namespace tobas
-{
-namespace math
+namespace tobas::math
 {
 /** Square a value. */
 template <typename T>
@@ -107,5 +105,4 @@ T wrap(T _x, T _n) noexcept
   // This also cancels the half period added at the start.
   return _x - _n;
 }
-}  // namespace math
-}  // namespace tobas
+}  // namespace tobas::math

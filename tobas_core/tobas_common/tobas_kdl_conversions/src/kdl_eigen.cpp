@@ -3,9 +3,7 @@
 
 #include "tobas_kdl_conversions/kdl_eigen.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 void quaternionKDLToEigen(const Quaternion& _k, Eigen::Quaterniond& _e)
 {
@@ -22,5 +20,4 @@ void quaternionEigenToKDL(const Eigen::Quaterniond& _e, Quaternion& _k)
   _k.z = _e.z();
   _k.w = _e.w();
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

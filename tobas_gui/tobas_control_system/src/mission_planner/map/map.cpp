@@ -14,11 +14,7 @@
 #include "tobas_control_system/mission_planner/system_info.hpp"
 #include "tobas_control_system/util.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 namespace
 {
@@ -183,6 +179,4 @@ void MapWidget::onWaypointMoved(int _index, double _latitude, double _longitude)
 {
   Q_EMIT waypointMoved(_index, _latitude, _longitude);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

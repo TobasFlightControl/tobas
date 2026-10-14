@@ -8,9 +8,7 @@
 
 #include <tobas_math/definitions.hpp>
 
-namespace tobas
-{
-namespace algo
+namespace tobas::algo
 {
 double wrapPi(double _angle)
 {
@@ -32,5 +30,4 @@ void clamp2d(double& _x, double& _y, double _max_length)
     _y *= scale;
   }
 }
-}  // namespace algo
-}  // namespace tobas
+}  // namespace tobas::algo

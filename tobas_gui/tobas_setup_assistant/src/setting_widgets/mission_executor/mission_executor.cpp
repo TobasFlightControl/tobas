@@ -7,13 +7,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace mission
+namespace tobas::gui::sa::mission
 {
 namespace
 {
@@ -134,7 +128,4 @@ const BaseExecutorWidget* MissionExecutorWidget::selected() const
 {
   return qt::qConstPointerCast<BaseExecutorWidget>(stack_->currentWidget());
 }
-}  // namespace mission
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::mission

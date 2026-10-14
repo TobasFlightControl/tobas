@@ -11,15 +11,7 @@
 #include <tobas_yaml_tools/convert/range.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 PropellerWidget::PropellerWidget()
 {
@@ -214,8 +206,4 @@ double PropellerWidget::meanChord() const
   // Calculate the mean chord length simply as the average of the minimum and maximum values.
   return (minChord() + maxChord()) / 2;
 }
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

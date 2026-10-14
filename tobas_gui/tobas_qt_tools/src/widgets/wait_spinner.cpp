@@ -7,9 +7,7 @@
 
 #include <QPainter>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 namespace
 {
@@ -255,5 +253,4 @@ void WaitSpinnerWidget::updatePosition()
     move(parentWidget()->width() / 2 - width() / 2, parentWidget()->height() / 2 - height() / 2);
   }
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

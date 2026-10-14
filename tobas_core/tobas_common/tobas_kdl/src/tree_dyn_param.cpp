@@ -3,9 +3,7 @@
 
 #include "tobas_kdl/tree_dyn_param.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeDynParam::TreeDynParam(const Tree& _tree, const Vector& _grav)
   : super(_tree), rne_coriolis_(tree_, kdl::Vector::Zero()), rne_gravity_(tree_, _grav)
@@ -35,5 +33,4 @@ void TreeDynParam::resize()
 {
   q_zero_ = JntArray::Zero(tree_.getNrOfJoints());
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

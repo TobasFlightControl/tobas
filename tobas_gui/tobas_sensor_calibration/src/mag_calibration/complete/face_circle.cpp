@@ -6,11 +6,7 @@
 #include <QDebug>
 #include <QPainter>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 namespace
 {
@@ -180,6 +176,4 @@ void FaceCircleWidget::drawText(QPainter& _painter)
 
   _painter.restore();
 }
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

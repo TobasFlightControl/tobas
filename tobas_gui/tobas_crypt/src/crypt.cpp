@@ -15,9 +15,7 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace crypt
+namespace tobas::crypt
 {
 namespace
 {
@@ -212,5 +210,4 @@ bool setShadowPassword(
 
   return true;
 }
-}  // namespace crypt
-}  // namespace tobas
+}  // namespace tobas::crypt

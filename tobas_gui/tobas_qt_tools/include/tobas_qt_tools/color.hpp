@@ -5,11 +5,7 @@
 
 #include <QColor>
 
-namespace tobas
-{
-namespace qt
-{
-namespace color
+namespace tobas::qt::color
 {
 QColor gray10();
 QColor gray20();
@@ -38,6 +34,4 @@ QColor cyan500();
 QColor magenta500();
 
 QColor steelBlue();
-}  // namespace color
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt::color

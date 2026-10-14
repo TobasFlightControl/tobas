@@ -11,9 +11,7 @@
 #include <tobas_std_tools/error.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
-{
-namespace fc1xx
+namespace tobas::fc1xx
 {
 namespace
 {
@@ -195,5 +193,4 @@ void DShot::printCurrentStates() noexcept
     printCurrentState(ch);
   }
 }
-}  // namespace fc1xx
-}  // namespace tobas
+}  // namespace tobas::fc1xx

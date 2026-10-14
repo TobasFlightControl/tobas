@@ -10,9 +10,7 @@
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 class BaseController
 {
@@ -86,5 +84,4 @@ inline double BaseController::expo(double _x, double _exp)
   assert(std::abs(_exp) < 1.0);
   return (1.0 + _exp) * _x - _exp * math::sign(_x) * math::sqr(_x);
 }
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

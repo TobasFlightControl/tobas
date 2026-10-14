@@ -8,9 +8,7 @@
 #include "./fw_trim_conditions.hpp"
 #include "./solver_i.hpp"
 
-namespace tobas
-{
-namespace fixed_wing
+namespace tobas::fixed_wing
 {
 /**
  * Small-disturbance equations of motion around the trim state.
@@ -402,5 +400,4 @@ inline const double& MicroDisturbanceEoM::r_delta(size_t _cs_idx) const
 {
   return B_(kStateIdx_r, drone_.prop->numRotors() + _cs_idx);
 }
-}  // namespace fixed_wing
-}  // namespace tobas
+}  // namespace tobas::fixed_wing

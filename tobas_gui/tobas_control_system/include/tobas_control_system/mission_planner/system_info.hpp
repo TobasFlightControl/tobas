@@ -6,11 +6,7 @@
 #include <QObject>
 #include <QString>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 /** QML constructor arguments. */
 class SystemInfo : public QObject
@@ -32,6 +28,4 @@ public:
 private:
   QString home_dir_;
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

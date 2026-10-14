@@ -11,11 +11,7 @@
 #include "./playback_control.hpp"
 #include "./plot_tab.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class FlightLogViewerWidget : public QWidget
 {
@@ -57,6 +53,4 @@ std::shared_ptr<Data<MsgType>> FlightLogViewerWidget::addData(const std::string&
   data_.push_back(res);
   return res;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

@@ -18,11 +18,7 @@
 #include "../fields/rtl_min_altitude.hpp"
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class ReturnToLaunchWidget : public BaseCommandWidget
 {
@@ -73,6 +69,4 @@ private:
   field::AcceptanceRadiusWidget* acceptance_radius_;
   field::AltitudeToleranceWidget* altitude_tolerance_;
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

@@ -13,9 +13,7 @@
 
 #define PACKED __attribute__((__packed__))  // Struct member variables are contiguous in memory.
 
-namespace tobas
-{
-namespace ublox
+namespace tobas::ublox
 {
 /**
  * A Linux driver of u-blox ZED-F9P using UBX protocol.
@@ -346,7 +344,6 @@ bool ZEDF9P::cfgValSetSingle(CfgSize _size, CfgGroup _group, uint8_t _id, T _val
   cfg.data[0].value = _value;
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
-}  // namespace ublox
-}  // namespace tobas
+}  // namespace tobas::ublox
 
 #undef PACKED

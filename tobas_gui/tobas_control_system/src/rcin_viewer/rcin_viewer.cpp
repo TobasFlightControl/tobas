@@ -11,13 +11,7 @@
 #include <tobas_qt_tools/color.hpp>
 #include <tobas_qt_tools/util.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
-{
-namespace rcin
+namespace tobas::gui::ctrl::rcin
 {
 RCInputViewerWidget::RCInputViewerWidget(const rqt::RosQtBridge& _bridge)
 {
@@ -115,7 +109,4 @@ void RCInputViewerWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _
     _rcin->sub_mode ? qt::color::lightBlue() : qt::color::gray90());
   setMode(_rcin->mode);
 }
-}  // namespace rcin
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::rcin

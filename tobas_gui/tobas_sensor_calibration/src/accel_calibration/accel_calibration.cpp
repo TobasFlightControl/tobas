@@ -9,11 +9,7 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 AccelCalibrationWidget::AccelCalibrationWidget(const rqt::RosQtBridge& _bridge)
   : spinner_(Qt::WindowModal, this), thread_(_bridge)
@@ -113,6 +109,4 @@ void AccelCalibrationWidget::calibratedImuCb(const tobas_msgs::Imu::ConstSharedP
   imu_calib_ = _imu_calib;
   level_indicator_->setCalibratedAccel(_imu_calib->accel, dt);
 }
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

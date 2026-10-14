@@ -17,11 +17,7 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 std::expected<VehicleConfiguration, QString>
 loadVehicleConfiguration(const rclcpp::Node::SharedPtr& _node, const std::string& _ns, int _timeout_ms)
@@ -80,6 +76,4 @@ loadVehicleConfiguration(const rclcpp::Node::SharedPtr& _node, const std::string
 
   return VehicleConfiguration{ *received->tree, *received->drone };
 }
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

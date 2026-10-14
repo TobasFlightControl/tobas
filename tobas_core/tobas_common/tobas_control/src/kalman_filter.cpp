@@ -10,9 +10,7 @@
 
 #include "tobas_control/util.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 KalmanFilter::KalmanFilter()
 {
@@ -130,5 +128,4 @@ void IdentityKalmanFilter::update()
 
   kf_.update();
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

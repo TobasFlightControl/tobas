@@ -8,13 +8,7 @@
 #include <QLabel>
 #include <QLineEdit>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 class StringInputDialog : public QDialog
 {
@@ -45,7 +39,4 @@ private:
 
   void enableOkButton(bool _enable);
 };
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

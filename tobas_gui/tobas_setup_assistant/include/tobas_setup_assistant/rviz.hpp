@@ -11,11 +11,7 @@
 #include <tobas_rviz_wrapper/rviz.hpp>
 #include <tobas_uadf/model.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class RvizWidget : public QWidget
 {
@@ -54,6 +50,4 @@ private Q_SLOTS:
   void onCollisionBoxToggled(bool _checked);
   void onInertiaBoxToggled(bool _checked);
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

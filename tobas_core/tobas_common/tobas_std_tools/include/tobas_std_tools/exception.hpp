@@ -6,9 +6,7 @@
 #include <exception>
 #include <string>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 class NotImplementedError : public std::exception
 {
@@ -20,5 +18,4 @@ public:
 private:
   std::string msg_;
 };
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

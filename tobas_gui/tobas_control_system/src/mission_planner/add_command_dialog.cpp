@@ -8,11 +8,7 @@
 #include <QVBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 AddCommandDialog::AddCommandDialog(QWidget* _parent) : super(_parent)
 {
@@ -70,6 +66,4 @@ void AddCommandDialog::onOkClicked()
 
   acceptWithItem(cur_item);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

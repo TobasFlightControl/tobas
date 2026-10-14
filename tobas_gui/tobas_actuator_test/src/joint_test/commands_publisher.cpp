@@ -8,11 +8,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace at
+namespace tobas::gui::at
 {
 JointCommandsPublisherWidget::JointCommandsPublisherWidget(const kdl::Tree& _tree, const Drone& _drone)
   : tree_(_tree), drone_(_drone), joint_parser_(_tree)
@@ -263,6 +259,4 @@ void JointCommandsPublisherWidget::onValueChanged()
 {
   publishCurrentValues();
 }
-}  // namespace at
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::at

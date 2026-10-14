@@ -10,9 +10,7 @@
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 
-namespace tobas
-{
-namespace dxl
+namespace tobas::dxl
 {
 /** Bridge between `tobas_msgs` and `tobas_dynamixel_msgs`. */
 class DynamixelBridgeNode : public BaseNode
@@ -129,7 +127,6 @@ void DynamixelBridgeNode::jointEffCommandsCb(const tobas_msgs::msg::JointCommand
     motor_eff_pub_->publish(std::move(commands_out));
   }
 }
-}  // namespace dxl
-}  // namespace tobas
+}  // namespace tobas::dxl
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::dxl::DynamixelBridgeNode)

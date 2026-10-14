@@ -12,13 +12,7 @@
 #include "./base.hpp"
 #include "tobas_setup_assistant/signals.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
+namespace tobas::gui::sa::propulsion
 {
 class PropulsionSystemWidget : public BaseSettingWidget
 {
@@ -67,7 +61,4 @@ private:
 private Q_SLOTS:
   void onPropulsionTypeClicked(int _new_idx);
 };
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion

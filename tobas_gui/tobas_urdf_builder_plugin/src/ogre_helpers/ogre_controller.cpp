@@ -14,13 +14,7 @@
 #include "tobas_urdf_builder_plugin/ogre_helpers/static_link_updater.hpp"
 #include "tobas_urdf_builder_plugin/utils/constants.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ogre
+namespace tobas::gui::ub::ogre
 {
 namespace
 {
@@ -198,7 +192,4 @@ void OgreController::setInertiaVisible(bool _visible)
 {
   pimpl_->rviz.robot->setInertiaVisible(_visible);
 }
-}  // namespace ogre
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ogre

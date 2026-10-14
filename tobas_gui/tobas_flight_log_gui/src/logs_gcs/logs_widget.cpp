@@ -23,11 +23,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 FlightLogsWidgetGCS::FlightLogsWidgetGCS() : spinner_(Qt::WindowModal, this)
 {
@@ -303,6 +299,4 @@ void FlightLogsWidgetGCS::onListItemChanged(QListWidgetItem* _item)
   const auto log_widget = qt::qConstPointerCast<FlightLogItemWidgetGCS>(log_list_->itemWidget(_item));
   Q_EMIT logSelected(log_widget->logName());
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

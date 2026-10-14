@@ -12,11 +12,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 RotorSpeedPlotWidget::RotorSpeedPlotWidget()
 {
@@ -207,6 +203,4 @@ void RotorSpeedPlotWidget::updateVerticalScale(double _min_speed, double _max_sp
     plot->setAxisScale(QwtPlot::yLeft, scale_min, scale_max, scale_step);
   }
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

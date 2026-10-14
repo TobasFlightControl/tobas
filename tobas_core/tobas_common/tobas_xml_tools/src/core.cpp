@@ -3,9 +3,7 @@
 
 #include "tobas_xml_tools/core.hpp"
 
-namespace tobas
-{
-namespace xml
+namespace tobas::xml
 {
 std::string xmlDocumentToString(const tinyxml2::XMLDocument* _doc)
 {
@@ -13,5 +11,4 @@ std::string xmlDocumentToString(const tinyxml2::XMLDocument* _doc)
   _doc->Print(&printer);
   return printer.CStr();
 }
-}  // namespace xml
-}  // namespace tobas
+}  // namespace tobas::xml

@@ -10,11 +10,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class PropellerPitchPlotWidget : public BasePlotWidget
 {
@@ -38,6 +34,4 @@ private:
 
   bool updateInternalDataStructures(const tobas_msgs::msg::IcePropulsionSystemCommand& _msg);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

@@ -5,9 +5,7 @@
 
 #include "tobas_rviz_plugin/joint_model/joint_model.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 LinkModel::LinkModel(const std::string& _name, size_t _link_index) : name_(_name), link_index_(_link_index)
 {
@@ -76,5 +74,4 @@ void LinkModel::setJointOriginTransform(const Eigen::Isometry3d& _transform)
     joint_origin_transform_.linear().isIdentity() &&
     joint_origin_transform_.translation().norm() < std::numeric_limits<double>::epsilon();
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

@@ -9,11 +9,7 @@
 
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class SaveProjectDialog : public QFileDialog
 {
@@ -36,6 +32,4 @@ private:
 private Q_SLOTS:
   void onProjectPathChanged();
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

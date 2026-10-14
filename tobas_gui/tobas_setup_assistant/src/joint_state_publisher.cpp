@@ -16,11 +16,7 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_std_tools/vector.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 JointStatePublisherWidget::JointStatePublisherWidget(
   rclcpp::Node::SharedPtr _node,
@@ -196,6 +192,4 @@ void JointStatePublisherWidget::onRandomButtonClicked()
     slider->setValue(value);
   }
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

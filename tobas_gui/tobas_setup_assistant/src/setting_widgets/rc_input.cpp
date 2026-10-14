@@ -6,11 +6,7 @@
 #include <tobas_constants/rc_input.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 RcInputWidget::RcInputWidget()
 {
@@ -105,6 +101,4 @@ double RcInputWidget::disarmDuration() const
 {
   return disarm_duration_->getValue();
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

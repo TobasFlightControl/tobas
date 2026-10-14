@@ -3,9 +3,7 @@
 
 #include "tobas_qt_tools/string.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 QString boolToText(bool _arg)
 {
@@ -50,5 +48,4 @@ bool containsControlChars(const QStringView& _s)
   }
   return false;
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

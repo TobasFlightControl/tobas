@@ -6,9 +6,7 @@
 #include <expected>
 #include <filesystem>
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 /** Return the path of the package that `path` belongs to. */
 std::expected<std::filesystem::path, std::string> getPackagePathOf(const std::filesystem::path& _path);
@@ -24,5 +22,4 @@ bool isAlreadyBuiltAndInstalled(const std::filesystem::path& _pkg_path);
 
 /** Check whether the package name is valid. */
 bool isValidPackageName(const std::string& _pkg_name);
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

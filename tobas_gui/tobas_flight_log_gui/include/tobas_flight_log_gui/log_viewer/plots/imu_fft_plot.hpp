@@ -11,11 +11,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class ImuFftPlotWidget : public BasePlotWidget
 {
@@ -47,6 +43,4 @@ private:
     std::array<Eigen::FFT<double>, kNumAxes>& _ffts,
     std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& _curves);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

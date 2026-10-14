@@ -5,9 +5,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace traj
+namespace tobas::traj
 {
 /**
  * Minimum-time trajectory to the destination while satisfying jerk, acceleration, and velocity constraints.
@@ -35,5 +33,4 @@ private:
   /** Acceleration when pd is positive. */
   double a(double _t) const noexcept;
 };
-}  // namespace traj
-}  // namespace tobas
+}  // namespace tobas::traj

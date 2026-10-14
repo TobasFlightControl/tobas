@@ -5,9 +5,7 @@
 
 #include <limits>
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 PlanarJointModel::PlanarJointModel(const std::string& _name, size_t _joint_index, size_t _first_variable_index)
   : JointModel(_name, _joint_index, _first_variable_index)
@@ -51,5 +49,4 @@ void PlanarJointModel::computeVariablePositions(const Eigen::Isometry3d& _transf
     _joint_values[2] = (std::acos(q.w()) * 2.0f) * (q.z() * s);
   }
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

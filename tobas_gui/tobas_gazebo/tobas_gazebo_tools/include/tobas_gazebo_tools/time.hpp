@@ -5,9 +5,7 @@
 
 #include <gz/msgs/time.pb.h>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 inline int64_t nanoseconds(const gz::msgs::Time& _stamp)
 {
@@ -28,5 +26,4 @@ inline double seconds(const gz::msgs::Time& _stamp)
 {
   return static_cast<double>(nanoseconds(_stamp)) * 1e-9;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

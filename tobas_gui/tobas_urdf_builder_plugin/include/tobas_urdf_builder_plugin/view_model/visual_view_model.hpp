@@ -7,13 +7,7 @@
 #include "./geometry_view_model.hpp"
 #include "./material_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 class VisualViewModel : public BaseViewModel<::urdf::Visual, VisualViewModel>
 {
@@ -38,7 +32,4 @@ private:
 
 using VisualViewModelPtr = std::shared_ptr<VisualViewModel>;
 using V_VisualViewModelPtr = std::vector<VisualViewModelPtr>;
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

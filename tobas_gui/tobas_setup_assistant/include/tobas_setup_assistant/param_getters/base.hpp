@@ -13,11 +13,7 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 /** Base class for widgets that retrieve user parameters. */
 template <typename T>
@@ -61,6 +57,4 @@ std::string ParamGetterWidget<T>::name() const
 {
   return label_->text().toStdString();
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

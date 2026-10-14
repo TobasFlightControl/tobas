@@ -15,9 +15,7 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 void vectorKDLToMsg(const Vector& _k, geometry_msgs::msg::Vector3& _m);
 void vectorMsgToKDL(const geometry_msgs::msg::Vector3& _m, Vector& _k);
@@ -39,5 +37,4 @@ void poseMsgToKDL(const geometry_msgs::msg::Pose& _m, Frame& _k);
 
 void transformKDLToMsg(const Frame& _k, geometry_msgs::msg::Transform& _m);
 void transformMsgToKDL(const geometry_msgs::msg::Transform& _m, Frame& _k);
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

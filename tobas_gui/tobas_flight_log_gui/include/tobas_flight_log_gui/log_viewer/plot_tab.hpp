@@ -31,11 +31,7 @@
 #include "./plots/twist_plot.hpp"
 #include "./plots/vibration_level_plot.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class PlotTabWidget : public qt::TabWidget
 {
@@ -133,6 +129,4 @@ private:
 private Q_SLOTS:
   void onCurrentWidgetChanged(int _index);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

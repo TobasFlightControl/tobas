@@ -6,10 +6,7 @@
 #include <expected>
 #include <string>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 std::expected<std::string, std::string> getWorldName();
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

@@ -12,11 +12,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class PosePlotWidget : public BasePlotWidget
 {
@@ -53,6 +49,4 @@ private:
     const QVector<tobas_msgs::msg::OdometryStamped>& _setpoint_msgs,
     const VerticalScaleRanges& _current_ranges);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

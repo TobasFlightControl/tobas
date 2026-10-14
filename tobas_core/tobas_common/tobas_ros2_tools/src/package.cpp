@@ -7,9 +7,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 namespace
 {
@@ -133,5 +131,4 @@ bool isValidPackageName(const std::string& _pkg_name)
 
   return true;
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

@@ -10,13 +10,7 @@
 
 #include <tobas_qt_tools/color.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
-{
-namespace rcin
+namespace tobas::gui::ctrl::rcin
 {
 StickPanel::StickPanel(const QString& _title, const QString& _x_label, const QString& _y_label)
   : title_(_title), x_label_(_x_label), y_label_(_y_label)
@@ -90,7 +84,4 @@ QString StickPanel::axisText(double _value) const
 
   return QString::number(std::lround(_value * 100.0));
 }
-}  // namespace rcin
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::rcin

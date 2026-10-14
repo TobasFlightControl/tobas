@@ -7,9 +7,7 @@
 
 #include <cstdint>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 class SPIdev
 {
@@ -27,5 +25,4 @@ private:
   spi_ioc_transfer spi_transfer_;
   int spi_fd_ = -1;
 };
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

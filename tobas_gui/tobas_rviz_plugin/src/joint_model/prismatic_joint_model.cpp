@@ -3,9 +3,7 @@
 
 #include "tobas_rviz_plugin/joint_model/prismatic_joint_model.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 PrismaticJointModel::PrismaticJointModel(const std::string& _name, size_t _joint_index, size_t _first_variable_index)
   : JointModel(_name, _joint_index, _first_variable_index)
@@ -53,5 +51,4 @@ void PrismaticJointModel::setAxis(const Eigen::Vector3d& _axis)
 {
   axis_ = _axis;
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

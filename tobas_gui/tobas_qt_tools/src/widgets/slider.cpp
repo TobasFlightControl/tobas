@@ -5,13 +5,10 @@
 
 #include <QWheelEvent>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 void Slider::wheelEvent(QWheelEvent* _event)
 {
   _event->ignore();
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

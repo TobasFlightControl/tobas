@@ -10,11 +10,7 @@
 
 #include <tobas_rqt_bridge/bridge.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 class RemoteConnectionWidget : public QWidget
 {
@@ -67,6 +63,4 @@ private Q_SLOTS:
   void heartbeatCb(const tobas_msgs::msg::Heartbeat::ConstSharedPtr& _msg);
   void onTimeout();
 };
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

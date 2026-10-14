@@ -9,11 +9,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class AirPressurePlotWidget : public BasePlotWidget
 {
@@ -31,6 +27,4 @@ private:
   QwtPlot2* plot_;
   qwt::QwtPlotCurveWrapper curve_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

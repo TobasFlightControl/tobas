@@ -3,10 +3,7 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace frame
+namespace tobas::frame
 {
 static constexpr char kWorld[] = "world";
-}  // namespace frame
-}  // namespace tobas
+}  // namespace tobas::frame

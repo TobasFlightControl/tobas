@@ -3,9 +3,7 @@
 
 #include "tobas_qt_tools/widgets/check_box.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 CheckBox::CheckBox(const QString& _text, bool _checked, QWidget* _parent) : super(_text, _parent)
 {
@@ -20,5 +18,4 @@ void CheckBox::setDisabledTextNormal()
   pal.setColor(QPalette::Disabled, QPalette::Text, normal);
   setPalette(pal);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

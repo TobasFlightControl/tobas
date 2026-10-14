@@ -34,9 +34,7 @@
 #include "tobas_y_axis_tilt_multi_controller/mixer.hpp"
 #include "tobas_y_axis_tilt_multi_controller/translational_eom.hpp"
 
-namespace tobas
-{
-namespace y_axis_tilt_multicopter
+namespace tobas::y_axis_tilt_multicopter
 {
 class ControllerNode : public BaseNode
 {
@@ -735,7 +733,6 @@ void ControllerNode::checkTopicsTimerCb()
   topics_received_ = true;
   check_topics_timer_->cancel();
 }
-}  // namespace y_axis_tilt_multicopter
-}  // namespace tobas
+}  // namespace tobas::y_axis_tilt_multicopter
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::y_axis_tilt_multicopter::ControllerNode)

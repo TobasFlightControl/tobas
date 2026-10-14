@@ -5,15 +5,7 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 ESCWidget::ESCWidget()
 {
@@ -71,8 +63,4 @@ double ESCWidget::maxContinuousCurrent() const
 {
   return max_cont_current_->getValue();
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

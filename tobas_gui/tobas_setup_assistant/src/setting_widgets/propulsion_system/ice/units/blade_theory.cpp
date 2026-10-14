@@ -7,15 +7,7 @@
 #include <tobas_math/definitions.hpp>
 #include <tobas_std_tools/check.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 namespace
 {
@@ -93,8 +85,4 @@ double BladeTheory::lambdaDeriv() const
   const auto a_B_sigma = a * B * sigma();
   return (2 * B / 3) / std::sqrt(1 + (64 * theta_) / (3 * a_B_sigma));
 }
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

@@ -3,11 +3,7 @@
 
 #include "tobas_setup_assistant/param_getters/double_pair.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 ParamGetterWidget_DoublePair::ParamGetterWidget_DoublePair(const QString& _param_name, const QString& _description_text)
   : super(_param_name, _description_text)
@@ -81,6 +77,4 @@ void ParamGetterWidget_DoublePair::onValueChanged(double)
 {
   Q_EMIT valueChanged({ first(), second() });
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

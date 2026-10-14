@@ -10,11 +10,7 @@
 
 #include "tobas_gcs/util.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 RemoteConnectionWidget::RemoteConnectionWidget(const rqt::RosQtBridge& _bridge) : bridge_(_bridge)
 {
@@ -130,6 +126,4 @@ void RemoteConnectionWidget::onTimeout()
   }
   setDisonnected();
 }
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

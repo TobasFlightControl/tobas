@@ -9,9 +9,7 @@
 
 #include "./bridge.hpp"
 
-namespace tobas
-{
-namespace rqt
+namespace tobas::rqt
 {
 namespace detail
 {
@@ -59,5 +57,4 @@ auto waitForMessage(const RosQtBridge& _bridge, int _timeout_ms)
   QObject::disconnect(connection);
   return res;
 }
-}  // namespace rqt
-}  // namespace tobas
+}  // namespace tobas::rqt

@@ -12,9 +12,7 @@
 #include <utility>
 #include <vector>
 
-namespace tobas
-{
-namespace traj
+namespace tobas::traj
 {
 /**
  * Arc-length parameterized point on a Catmull-Rom path.
@@ -186,5 +184,4 @@ private:
     return 0.5 * (points_[_idx + 1] - points_[_idx - 1]);
   }
 };
-}  // namespace traj
-}  // namespace tobas
+}  // namespace tobas::traj

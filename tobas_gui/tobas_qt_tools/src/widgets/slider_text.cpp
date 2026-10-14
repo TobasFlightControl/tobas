@@ -8,9 +8,7 @@
 #include <QIntValidator>
 #include <QLabel>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 namespace
 {
@@ -135,5 +133,4 @@ void DoubleSliderTextWidget::setLineEditText(double _value)
   const QSignalBlocker block(line_edit_);
   line_edit_->setText(QString::number(_value, 'f', decimals_));
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

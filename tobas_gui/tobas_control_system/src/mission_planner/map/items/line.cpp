@@ -3,13 +3,7 @@
 
 #include "tobas_control_system/mission_planner/map/items/line.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
-{
-namespace map
+namespace tobas::gui::ctrl::map
 {
 QString LineModel::modelName() const
 {
@@ -20,7 +14,4 @@ QByteArrayList LineModel::argNames() const
 {
   return { "latitude_1", "longitude_1", "latitude_2", "longitude_2" };
 }
-}  // namespace map
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::map

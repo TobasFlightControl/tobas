@@ -5,9 +5,7 @@
 
 #include <cassert>
 
-namespace tobas
-{
-namespace fixed_wing
+namespace tobas::fixed_wing
 {
 StabilityDerivativesCG::StabilityDerivativesCG(const Drone& _drone, const kdl::Tree& _tree)
   : drone_(_drone), tree_(_tree), inertia_solver_(_tree)
@@ -50,5 +48,4 @@ int StabilityDerivativesCG::update(const kdl::JntArray& _q)
 
   return error_code_;
 }
-}  // namespace fixed_wing
-}  // namespace tobas
+}  // namespace tobas::fixed_wing

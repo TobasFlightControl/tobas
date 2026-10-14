@@ -11,9 +11,7 @@
 #include <tobas_eigen_tools/operators.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
-{
-namespace random_axis_tilt_multicopter
+namespace tobas::random_axis_tilt_multicopter
 {
 PinvMixer::PinvMixer(const Drone& _drone, const kdl::Tree& _tree)
   : super(_drone, _tree), fk_solver_(_tree), inertia_solver_(_tree)
@@ -199,5 +197,4 @@ void PinvMixer::setTiltAxisSingularDeclinationUB(double _ub_rad)
   assert(_ub_rad >= 0.0);
   cfg_.singular_declination_ub = _ub_rad;
 }
-}  // namespace random_axis_tilt_multicopter
-}  // namespace tobas
+}  // namespace tobas::random_axis_tilt_multicopter

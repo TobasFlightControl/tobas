@@ -16,11 +16,7 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 WindParamsWidget::WindParamsWidget()
 {
@@ -179,6 +175,4 @@ void WindParamsWidget::onValueChanged()
 {
   sendGuiParams();
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

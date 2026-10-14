@@ -19,11 +19,7 @@
 #include "tobas_flight_log_gui/constants.hpp"
 #include "tobas_flight_log_gui/logs_fc/log_item.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 FlightLogsWidgetFC::FlightLogsWidgetFC() : spinner_(Qt::WindowModal, this)
 {
@@ -236,6 +232,4 @@ void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& _log_name)
 
   removeLog(_log_name);
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

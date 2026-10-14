@@ -18,11 +18,8 @@ std::ostream& operator<<(std::ostream& _os, const std::complex<T>& _z)
   return _os;
 }
 
-namespace tobas
-{
-namespace math
+namespace tobas::math
 {
 /** Calculate the cube root of a complex number. */
 std::complex<double> cbrt(const std::complex<double>& _z);
-}  // namespace math
-}  // namespace tobas
+}  // namespace tobas::math

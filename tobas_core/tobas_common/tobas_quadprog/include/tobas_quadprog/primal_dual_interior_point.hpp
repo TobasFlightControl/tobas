@@ -5,9 +5,7 @@
 
 #include "./qpsolver.hpp"
 
-namespace tobas
-{
-namespace quadprog
+namespace tobas::quadprog
 {
 /** A Condensed and Sparse QP Formulation for Predictive Control [Jerez+, 2011] */
 class PrimalDualInteriorPointSolver : public QuadProgSolver
@@ -43,5 +41,4 @@ private:
   std::expected<void, std::string> initialize(const QuadProgProblem& _scaled);
   double findAlpha(const Eigen::VectorXd& _dlam, const Eigen::VectorXd& _ds) const;
 };
-}  // namespace quadprog
-}  // namespace tobas
+}  // namespace tobas::quadprog

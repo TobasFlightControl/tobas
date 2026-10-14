@@ -8,11 +8,7 @@
 #include <tobas_constants/rc_input.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 RcInputPlotWidget::RcInputPlotWidget()
   : roll_curve_("Roll")
@@ -177,6 +173,4 @@ void RcInputPlotWidget::setData(const QVector<tobas_msgs::msg::RCInput>& _msgs)
   kill_curve_.setSamples(t_data, kill_data);
   kill_plot_->replot();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

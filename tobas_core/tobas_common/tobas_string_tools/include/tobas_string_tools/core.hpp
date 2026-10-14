@@ -8,9 +8,7 @@
 #include <utility>
 #include <vector>
 
-namespace tobas
-{
-namespace str
+namespace tobas::str
 {
 /** Split a string and return a vector. */
 std::vector<std::string> split(const std::string& _s, char _c);
@@ -78,5 +76,4 @@ std::string snakeFromPascal(const std::string& _pascal_case);
 
 /** Convert Title Case to snake_case. */
 std::string snakeFromTitle(const std::string& _title_case);
-}  // namespace str
-}  // namespace tobas
+}  // namespace tobas::str

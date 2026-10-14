@@ -8,9 +8,7 @@
 #include <gz/sim/Entity.hh>
 #include <gz/sim/EntityComponentManager.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /** Get the component directly under an entity. Create a new one if it does not exist. */
 template <typename CompType>
@@ -30,5 +28,4 @@ bool belongsTo(
   const gz::sim::EntityComponentManager& _ecm);
 
 gz::sim::Entity findJointWithChildLink(const gz::sim::EntityComponentManager& _ecm, const std::string& _link_name);
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

@@ -12,11 +12,7 @@
 
 #include <tobas_msgs/msg/engine_state.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class EngineViewerWidget : public QWidget
 {
@@ -43,6 +39,4 @@ private:
 private Q_SLOTS:
   void engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& _engine_state);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

@@ -9,9 +9,7 @@
 
 #include "tobas_control/util.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 std::expected<Eigen::MatrixXd, std::string> care_ArimotoPotter(
   const Eigen::MatrixXd& _a,
@@ -111,5 +109,4 @@ care_Schur(const Eigen::MatrixXd& _a, const Eigen::MatrixXd& _b, const Eigen::Ma
 
   return X * M.inverse();
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

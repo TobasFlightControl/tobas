@@ -5,11 +5,7 @@
 
 #include <tobas_qt_tools/widgets/widget.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 class FaceCircleWidget : public qt::Widget
 {
@@ -46,6 +42,4 @@ private:
   void drawOutline(QPainter& _painter);
   void drawText(QPainter& _painter);
 };
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

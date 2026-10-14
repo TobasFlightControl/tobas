@@ -12,11 +12,7 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 BatteryViewerWidget::BatteryViewerWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone) : drone_(_drone)
 {
@@ -99,6 +95,4 @@ void BatteryViewerWidget::batteryCb(const tobas_msgs::msg::Battery::ConstSharedP
   updateVoltage(_battery->voltage);
   updateCurrent(_battery->current);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

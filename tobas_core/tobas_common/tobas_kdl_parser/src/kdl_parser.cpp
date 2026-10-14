@@ -5,9 +5,7 @@
 
 #include <tobas_kdl_conversions/kdl_urdf.hpp>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeParser::TreeParser()
 {
@@ -84,5 +82,4 @@ void TreeParser::addChildrenToTree(const ::urdf::LinkConstSharedPtr& _root, Tree
     addChildrenToTree(child, _tree);
   }
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

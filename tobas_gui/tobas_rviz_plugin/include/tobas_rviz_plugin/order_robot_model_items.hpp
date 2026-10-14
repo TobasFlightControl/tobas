@@ -6,9 +6,7 @@
 #include "./joint_model/joint_model.hpp"
 #include "./link_model.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 struct OrderLinksByIndex
 {
@@ -25,5 +23,4 @@ struct OrderJointsByIndex
     return _a->getJointIndex() < _b->getJointIndex();
   }
 };
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

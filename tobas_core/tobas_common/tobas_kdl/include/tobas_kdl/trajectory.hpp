@@ -5,9 +5,7 @@
 
 #include "./frames.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /** Generate a 3D cycloid. */
 class CycloidGenerator3d
@@ -72,5 +70,4 @@ private:
 
   double computeTheta(double _t) const;
 };
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

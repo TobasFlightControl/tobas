@@ -5,9 +5,7 @@
 
 #include <eigen3/Eigen/LU>  // Required for `inverse()`.
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 C2D_Tustin::C2D_Tustin(Eigen::Index _x_size, Eigen::Index _u_size)
 {
@@ -42,5 +40,4 @@ void C2D_Tustin::resize(Eigen::Index _x_size, Eigen::Index _u_size)
   u_size_ = _u_size;
   I_ = Eigen::MatrixXd::Identity(_x_size, _x_size);
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

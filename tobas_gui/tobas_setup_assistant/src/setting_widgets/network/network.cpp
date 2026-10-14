@@ -7,13 +7,7 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace network
+namespace tobas::gui::sa::network
 {
 namespace
 {
@@ -84,7 +78,4 @@ QString NetworkWidget::networkInterface() const
   return nic_->networkInterface();
 }
 
-}  // namespace network
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::network

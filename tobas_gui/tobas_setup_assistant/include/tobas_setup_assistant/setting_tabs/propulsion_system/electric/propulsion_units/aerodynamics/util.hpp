@@ -5,15 +5,7 @@
 
 #include <eigen3/Eigen/Core>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 static constexpr char kRpmColName[] = "RPM";
 static constexpr char kThrustColName[] = "Thrust [N]";
@@ -26,8 +18,4 @@ double momentConstFromThrustStand(const Eigen::VectorXd& _thrusts, const Eigen::
 
 double motorConstFromUiuc(const Eigen::VectorXd& _cts, double _d);
 double momentConstFromUiuc(const Eigen::VectorXd& _cts, const Eigen::VectorXd& _cps, double _d);
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

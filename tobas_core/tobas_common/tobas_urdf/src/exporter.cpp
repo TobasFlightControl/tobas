@@ -5,9 +5,7 @@
 
 #include <urdf_parser/urdf_parser.h>
 
-namespace tobas
-{
-namespace urdf
+namespace tobas::urdf
 {
 tinyxml2::XMLDocument* exportUrdf(const ::urdf::ModelInterface& _model)
 {
@@ -17,5 +15,4 @@ tinyxml2::XMLDocument* exportUrdf(const ::urdf::ModelInterface& _model)
   return ::urdf::exportURDF(_model);
 #pragma GCC diagnostic pop
 }
-}  // namespace urdf
-}  // namespace tobas
+}  // namespace tobas::urdf

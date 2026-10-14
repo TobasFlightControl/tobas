@@ -5,13 +5,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace ctrl
+namespace tobas::gui::sa::ctrl
 {
 class FixedWingWidget : public BaseControllerWidget
 {
@@ -37,7 +31,4 @@ public:
 
   bool isValid() override;
 };
-}  // namespace ctrl
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::ctrl

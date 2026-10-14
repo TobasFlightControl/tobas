@@ -6,9 +6,7 @@
 #include <QIcon>
 #include <QLineEdit>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class PasswordEdit : public QLineEdit
 {
@@ -37,5 +35,4 @@ private:
 private Q_SLOTS:
   void onIconToggled(bool _on);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

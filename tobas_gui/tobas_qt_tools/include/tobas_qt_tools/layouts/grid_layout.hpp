@@ -5,9 +5,7 @@
 
 #include <QGridLayout>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QFormLayout` =====
@@ -22,5 +20,4 @@ public:
 
   void clear();
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

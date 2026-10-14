@@ -10,9 +10,7 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_math/float.hpp>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class Vector;
 using VectorMap = std::map<std::string, Vector>;
@@ -429,5 +427,4 @@ inline std::ostream& operator<<(std::ostream& _os, const Vector& _arg)
   _os << _arg.data.transpose();
   return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

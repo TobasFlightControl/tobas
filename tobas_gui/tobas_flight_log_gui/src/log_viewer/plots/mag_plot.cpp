@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 MagPlotWidget::MagPlotWidget() : curves_{ "Mag X [-]", "Mag Y [-]", "Mag Z [-]" }
 {
@@ -70,6 +66,4 @@ void MagPlotWidget::setData(const QVector<tobas_msgs::msg::MagneticField>& _msgs
     plot->replot();
   }
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

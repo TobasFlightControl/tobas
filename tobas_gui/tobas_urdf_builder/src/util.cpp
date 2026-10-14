@@ -7,16 +7,10 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
+namespace tobas::gui::ub
 {
 fs::path getPkgShareDir()
 {
   return ament_index_cpp::get_package_share_directory("tobas_urdf_builder");
 }
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub

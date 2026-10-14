@@ -7,13 +7,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 StringInputDialog::StringInputDialog(
   QWidget* _parent,
@@ -78,7 +72,4 @@ void StringInputDialog::enableOkButton(bool _enable)
 {
   button_box_->button(QDialogButtonBox::Ok)->setEnabled(_enable);
 }
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

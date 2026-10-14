@@ -5,9 +5,7 @@
 
 #include <qwt/qwt_plot_curve.h>  // <= C++17
 
-namespace tobas
-{
-namespace qwt
+namespace tobas::qwt
 {
 QwtPlotCurveWrapper::QwtPlotCurveWrapper(const QString& _title)
 {
@@ -58,5 +56,4 @@ void QwtPlotCurveWrapper::clear()
   QVector<double> empty;
   setSamples(empty, empty);
 }
-}  // namespace qwt
-}  // namespace tobas
+}  // namespace tobas::qwt

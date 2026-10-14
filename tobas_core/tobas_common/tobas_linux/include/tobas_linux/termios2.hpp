@@ -5,9 +5,7 @@
 
 #include <cinttypes>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 /**
  * Set a non-standard baud rate.
@@ -16,5 +14,4 @@ namespace linux
  * @see pySerial: https://github.com/pyserial/pyserial
  */
 bool setNonStandardBaudRate(int _fd, uint32_t _baud_rate);
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

@@ -9,11 +9,7 @@
 
 #include "./frame_type.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 struct FrameTypeDetectionResult
 {
@@ -50,6 +46,4 @@ private:
   kdl::TreeJointParser jnt_parser_;
   kdl::TreeJointAxisSolver axis_solver_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

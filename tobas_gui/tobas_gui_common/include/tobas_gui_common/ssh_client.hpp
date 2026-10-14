@@ -9,11 +9,7 @@
 
 #include <tobas_ssh_client/ssh_client.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 /** SSH client wrapper that does not stop the GUI. */
 class SshClientWrapper
@@ -52,6 +48,4 @@ private:
 
   QString endpoint() const;
 };
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

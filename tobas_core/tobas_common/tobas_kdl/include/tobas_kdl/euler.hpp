@@ -10,9 +10,7 @@
 #include "./rotation.hpp"
 #include "./vector.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /** ZYX Euler angles. */
 class Euler
@@ -147,5 +145,4 @@ inline std::ostream& operator<<(std::ostream& _os, const Euler& _arg)
   _os << "roll: " << _arg.roll << ", pitch: " << _arg.pitch << ", yaw: " << _arg.yaw;
   return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

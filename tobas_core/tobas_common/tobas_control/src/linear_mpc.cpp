@@ -5,9 +5,7 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 LinearMPC::LinearMPC()
 {
@@ -385,5 +383,4 @@ Eigen::MatrixXd LinearMPC::makeConstraintMatrix(const std::vector<LinearEquation
 
   return res;
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

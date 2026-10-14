@@ -3,9 +3,7 @@
 
 #include "tobas_rviz_plugin/joint_model/fixed_joint_model.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 FixedJointModel::FixedJointModel(const std::string& _name, size_t _joint_index, size_t _first_variable_index)
   : JointModel(_name, _joint_index, _first_variable_index)
@@ -25,5 +23,4 @@ void FixedJointModel::computeTransform(const double*, Eigen::Isometry3d& _transf
 void FixedJointModel::computeVariablePositions(const Eigen::Isometry3d&, double*) const
 {
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

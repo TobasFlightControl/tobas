@@ -11,11 +11,7 @@
 #include "../base.hpp"
 #include "./thread.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 class LargeVehicleMagCalibWidget : public BaseMagCalibWidget
 {
@@ -43,6 +39,4 @@ private Q_SLOTS:
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
 };
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

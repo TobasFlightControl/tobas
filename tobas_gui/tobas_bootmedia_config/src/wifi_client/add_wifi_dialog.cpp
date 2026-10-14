@@ -10,11 +10,7 @@
 
 #include "tobas_bootmedia_config/constants.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 AddWifiDialog::AddWifiDialog(QWidget* _parent) : super(_parent)
 {
@@ -118,6 +114,4 @@ void AddWifiDialog::onChanged()
 
   enableOkButton(true);
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

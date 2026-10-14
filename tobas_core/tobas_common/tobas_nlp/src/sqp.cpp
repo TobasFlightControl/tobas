@@ -9,9 +9,7 @@
 
 // #define TRACE_SOLVER
 
-namespace tobas
-{
-namespace nlp
+namespace tobas::nlp
 {
 SQP::SQP()
 {
@@ -127,5 +125,4 @@ void SQP::setVariableScales(const Eigen::VectorXd& _x_scale)
   assert((_x_scale.array() > 0.0).all());
   qp_.x_scale = _x_scale;
 }
-}  // namespace nlp
-}  // namespace tobas
+}  // namespace tobas::nlp

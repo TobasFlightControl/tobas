@@ -7,11 +7,7 @@
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_path_tools/join.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 void RecordStartThread::run()
 {
@@ -51,6 +47,4 @@ void RecordStartThread::setLogName(const std::string& _log_name)
 {
   log_name_ = _log_name;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

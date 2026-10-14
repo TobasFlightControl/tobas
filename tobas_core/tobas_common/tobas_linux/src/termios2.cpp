@@ -14,9 +14,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 bool setNonStandardBaudRate(int _fd, uint32_t _baud_rate)
 {
@@ -40,5 +38,4 @@ bool setNonStandardBaudRate(int _fd, uint32_t _baud_rate)
 
   return true;
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

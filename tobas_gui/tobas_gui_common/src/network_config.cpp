@@ -6,11 +6,7 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 namespace
 {
@@ -44,6 +40,4 @@ std::expected<void, QString> saveNetworkConfig(const QString& _path, const Netwo
 
   return {};
 }
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

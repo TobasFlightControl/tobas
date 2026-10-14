@@ -5,9 +5,7 @@
 
 #include "tobas_qt_tools/widgets/scroll_area.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 void blockSignalsRec(QObject* _obj, bool _block)
 {
@@ -110,5 +108,4 @@ QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* _parent)
 
   return rows;
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

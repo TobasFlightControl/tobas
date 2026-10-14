@@ -5,9 +5,7 @@
 
 #include <ranges>
 
-namespace tobas
-{
-namespace planar_multicopter
+namespace tobas::planar_multicopter
 {
 PinvMixer::PinvMixer(const Drone& _drone, const kdl::Tree& _tree)
   : super(_drone, _tree), fk_solver_(_tree), inertia_solver_(_tree)
@@ -76,5 +74,4 @@ std::expected<Eigen::VectorXd, std::string> PinvMixer::solve(
   return thrustDeadband(thrusts);
 }
 
-}  // namespace planar_multicopter
-}  // namespace tobas
+}  // namespace tobas::planar_multicopter

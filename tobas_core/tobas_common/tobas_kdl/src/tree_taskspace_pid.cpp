@@ -6,9 +6,7 @@
 #include <cassert>
 #include <ranges>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 namespace
 {
@@ -123,5 +121,4 @@ void TreeTaskSpacePID::setAngularDamping(double _kd)
   assert(_kd >= 0.0);
   kd_.angular.fill(_kd);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

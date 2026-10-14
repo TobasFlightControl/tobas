@@ -17,13 +17,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace fw
+namespace tobas::gui::sa::fw
 {
 namespace
 {
@@ -320,7 +314,4 @@ void ControlSurfacesWidget::setToDefault(int _row)
   pitchCoef(_row, 0.0);
   yawCoef(_row, 0.0);
 }
-}  // namespace fw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::fw

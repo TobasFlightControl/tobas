@@ -7,9 +7,7 @@
 
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 gz::math::MassMatrix3d boxInertia(double _sx, double _sy, double _sz, double _mass)
 {
@@ -28,5 +26,4 @@ gz::math::MassMatrix3d boxInertia(double _sx, double _sy, double _sz, double _ma
 
   return { _mass, { ixx, iyy, izz }, gz::math::Vector3d::Zero };
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

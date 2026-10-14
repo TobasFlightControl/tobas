@@ -7,9 +7,7 @@
 #include <tobas_math/float.hpp>
 #include <tobas_math/linalg.hpp>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 namespace
 {
@@ -247,5 +245,4 @@ std::pair<double, Vector> Rotation::getAngleAxis() const
   const auto angle = std::atan2(axis.norm() / 2, f);
   return { angle, axis.normalized() };
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

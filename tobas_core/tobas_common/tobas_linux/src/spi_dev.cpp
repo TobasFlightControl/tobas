@@ -9,9 +9,7 @@
 
 #include <cstring>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 SPIdev::SPIdev() noexcept
 {
@@ -56,5 +54,4 @@ bool SPIdev::transfer(uint32_t _length) noexcept
 
   return true;
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

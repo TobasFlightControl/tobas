@@ -11,13 +11,7 @@
 #include "./joint_view_model.hpp"
 #include "./visual_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 class LinkViewModel;
 using LinkViewModelPtr = std::shared_ptr<LinkViewModel>;
@@ -51,7 +45,4 @@ private:
   V_VisualViewModelPtr visuals_;
   V_CollisionViewModelPtr collisions_;
 };
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

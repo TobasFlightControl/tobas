@@ -18,13 +18,7 @@
 #include "tobas_urdf_builder_plugin/utils/constants.hpp"
 #include "tobas_urdf_builder_plugin/utils/widget_item.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 UpdateLinkDialog::UpdateLinkDialog(UrdfBuilderPanel* _main)
   : super(_main)
@@ -887,7 +881,4 @@ void UpdateLinkDialog::arrangeVisualGeometryTypeFrames(const std::map<QString, Q
   }
   _map.at(_type)->show();
 }
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

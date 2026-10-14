@@ -3,11 +3,7 @@
 
 #include "tobas_setup_assistant/frame_type.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 namespace
 {
@@ -69,9 +65,7 @@ bool enumFromText(const std::string& _text, FrameType& _dst)
     return false;
   }
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa
 
 namespace YAML
 {

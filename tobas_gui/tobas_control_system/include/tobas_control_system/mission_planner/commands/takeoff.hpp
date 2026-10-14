@@ -13,11 +13,7 @@
 #include "../fields/takeoff_max_speed.hpp"
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class TakeoffWidget : public BaseCommandWidget
 {
@@ -53,6 +49,4 @@ private:
   field::TakeoffMaxJerkWidget* max_jerk_;
   field::AltitudeToleranceWidget* altitude_tolerance_;
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

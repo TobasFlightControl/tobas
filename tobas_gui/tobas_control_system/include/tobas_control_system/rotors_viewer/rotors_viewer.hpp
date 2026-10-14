@@ -10,11 +10,7 @@
 
 #include "./speedmeter.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class RotorsViewerWiddget : public QWidget
 {
@@ -42,6 +38,4 @@ private Q_SLOTS:
   void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& _msg);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& _msg);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

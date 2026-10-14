@@ -8,9 +8,7 @@
 
 #include <QStringList>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /** boolean -> "true" or "false" */
 QString boolToText(bool _arg);
@@ -21,5 +19,4 @@ std::vector<std::string> stringListFromQtToStd(const QStringList& _src);
 bool isControlChar(const QChar& _c);
 
 bool containsControlChars(const QStringView& _s);
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

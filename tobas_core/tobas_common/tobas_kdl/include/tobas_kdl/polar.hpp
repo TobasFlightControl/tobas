@@ -5,9 +5,7 @@
 
 #include "./vector.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /**
  * Spherical coordinate system.
@@ -53,5 +51,4 @@ inline std::ostream& operator<<(std::ostream& _os, const SphericalCoordinate& _a
 {
   _os << "rho: " << _arg.rho << ", phi: " << _arg.phi << ", theta: " << _arg.theta;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

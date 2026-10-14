@@ -5,11 +5,7 @@
 
 #include <QListWidget>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 /**
  * Grouped, single-selection navigation list.
@@ -55,6 +51,4 @@ private:
   void setListItemEnabled(QListWidgetItem* _item, bool _enabled);
   void onCurrentItemChanged(QListWidgetItem* _item);
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

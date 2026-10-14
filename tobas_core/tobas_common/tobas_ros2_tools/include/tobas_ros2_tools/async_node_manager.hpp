@@ -10,9 +10,7 @@
 #include <rclcpp/executors/single_threaded_executor.hpp>
 #include <rclcpp/node.hpp>
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 /** Create and manage a ROS node that runs on a thread separate from the main thread. */
 class AsyncNodeManager
@@ -45,5 +43,4 @@ inline rclcpp::Node::ConstSharedPtr AsyncNodeManager::node() const
 {
   return node_;
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

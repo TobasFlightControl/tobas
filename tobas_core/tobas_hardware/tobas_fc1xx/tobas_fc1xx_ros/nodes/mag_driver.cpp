@@ -10,9 +10,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace fc1xx
+namespace tobas::fc1xx
 {
 class MagDriverNode : public hardware::BaseSensorNode
 {
@@ -72,7 +70,6 @@ void MagDriverNode::mainTimerCb()
   // Publish the message.
   mag_pub_->publish(std::move(msg));
 }
-}  // namespace fc1xx
-}  // namespace tobas
+}  // namespace tobas::fc1xx
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::MagDriverNode)

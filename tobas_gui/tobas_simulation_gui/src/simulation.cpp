@@ -24,11 +24,7 @@
 
 #include "tobas_simulation_gui/gazebo.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 SimulationWidget::SimulationWidget(const rqt::RosQtBridge& _bridge) : spinner_(Qt::WindowModal, this)
 {
@@ -358,6 +354,4 @@ void SimulationWidget::onLaunchProcessErrorOccurred(QProcess::ProcessError _erro
   const auto process = qt::qPointerCast<QProcess>(sender());
   finalizeLaunchProcess(process, -1, QProcess::CrashExit);
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

@@ -5,9 +5,7 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
-namespace tobas
-{
-namespace quadprog
+namespace tobas::quadprog
 {
 QuadProgProblem::QuadProgProblem(Eigen::Index _var_size, Eigen::Index _eq_size, Eigen::Index _ineq_size)
 {
@@ -133,5 +131,4 @@ void QuadProgSolver::checkProblemValidity() const
   assert(x_scale.size() == problem.varSize());
   assert((x_scale.array() > 0).all());
 }
-}  // namespace quadprog
-}  // namespace tobas
+}  // namespace tobas::quadprog

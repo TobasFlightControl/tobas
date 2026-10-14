@@ -7,11 +7,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 FlightLogWidget::FlightLogWidget(const rqt::RosQtBridge& _bridge)
 {
@@ -103,6 +99,4 @@ void FlightLogWidget::onLogDeselected()
 
   log_viewer_->reset();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

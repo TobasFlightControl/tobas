@@ -3,9 +3,7 @@
 
 #include "tobas_rviz_plugin/joint_model/revolute_joint_model.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 RevoluteJointModel::RevoluteJointModel(const std::string& _name, size_t _joint_index, size_t _first_variable_index)
   : JointModel(_name, _joint_index, _first_variable_index)
@@ -75,5 +73,4 @@ void RevoluteJointModel::setAxis(const Eigen::Vector3d& _axis)
   xz_ = axis_.x() * axis_.z();
   yz_ = axis_.y() * axis_.z();
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

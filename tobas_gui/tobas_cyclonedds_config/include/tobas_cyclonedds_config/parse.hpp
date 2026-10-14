@@ -8,10 +8,7 @@
 
 #include "./data.hpp"
 
-namespace tobas
-{
-namespace cyclonedds
+namespace tobas::cyclonedds
 {
 std::expected<Data, std::string> parseFromText(const std::string& _text);
-}  // namespace cyclonedds
-}  // namespace tobas
+}  // namespace tobas::cyclonedds

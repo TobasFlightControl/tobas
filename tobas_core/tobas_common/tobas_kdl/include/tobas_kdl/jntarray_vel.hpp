@@ -7,9 +7,7 @@
 #include "./jntarray.hpp"
 #include "./utilities/utility.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class JntArrayVel
 {
@@ -93,5 +91,4 @@ inline JntArrayVel JntArrayVel::operator/(const doubleVel& _rhs) const
   assert(_rhs.t != 0);
   return JntArrayVel(q / _rhs.t, qd / _rhs.t - q * (_rhs.grad / sqr(_rhs.t)));
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

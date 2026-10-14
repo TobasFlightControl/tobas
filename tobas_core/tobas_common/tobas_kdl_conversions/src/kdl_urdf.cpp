@@ -3,9 +3,7 @@
 
 #include "tobas_kdl_conversions/kdl_urdf.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 void vectorKdlToUrdf(const Vector& _k, ::urdf::Vector3& _u)
 {
@@ -173,5 +171,4 @@ Joint jointUrdfToKdl(const ::urdf::Joint& _u)
   jointUrdfToKdl(_u, k);
   return k;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

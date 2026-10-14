@@ -7,9 +7,7 @@
 #include <gz/sim/Entity.hh>
 #include <gz/sim/EntityComponentManager.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class LinkWorldPoseSolver
 {
@@ -29,5 +27,4 @@ private:
   gz::sim::Entity model_;
   gz::math::Pose3d pose_out_;
 };
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

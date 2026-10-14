@@ -5,9 +5,7 @@
 
 #include "./vector.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /** Force generated on a segment per unit joint acceleration. */
 class SegmentInertia
@@ -35,5 +33,4 @@ inline SegmentInertia SegmentInertia::Zero()
 {
   return SegmentInertia(Vector::Zero(), Vector::Zero());
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

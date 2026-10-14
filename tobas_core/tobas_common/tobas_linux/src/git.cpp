@@ -5,9 +5,7 @@
 
 #include <tobas_linux/execute_command.hpp>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 std::expected<std::string, std::string> getGitUserName()
 {
@@ -28,5 +26,4 @@ std::expected<std::string, std::string> getGitUserEmail()
 
   return result;
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

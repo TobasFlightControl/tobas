@@ -5,9 +5,7 @@
 
 #include <QIntValidator>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QFormLayout` =====
@@ -24,5 +22,4 @@ public:
 
   State validate(QString& _input, int& _pos) const override;
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

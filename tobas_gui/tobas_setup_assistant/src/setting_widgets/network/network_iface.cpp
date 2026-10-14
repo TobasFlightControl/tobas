@@ -11,13 +11,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace network
+namespace tobas::gui::sa::network
 {
 namespace
 {
@@ -138,7 +132,4 @@ void NetworkIfaceWidget::onOtherButtonToggled(bool _checked)
     other_nic_name_->selectAll();
   }
 }
-}  // namespace network
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::network

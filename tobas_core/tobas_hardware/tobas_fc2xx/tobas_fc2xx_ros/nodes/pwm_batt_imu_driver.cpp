@@ -24,9 +24,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace fc2xx
+namespace tobas::fc2xx
 {
 class PwmBattImuDriverNode : public BaseNode
 {
@@ -207,7 +205,6 @@ void PwmBattImuDriverNode::mainTimerCb()
   // Publish the sampling time.
   sampling_time_pub_.publish(cur_time);
 }
-}  // namespace fc2xx
-}  // namespace tobas
+}  // namespace tobas::fc2xx
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc2xx::PwmBattImuDriverNode)

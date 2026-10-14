@@ -6,9 +6,7 @@
 #include <tobas_dparam_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 
-namespace tobas
-{
-namespace dparam
+namespace tobas::dparam
 {
 DynamicParamClient::DynamicParamClient(
   rclcpp::Node::SharedPtr _node,
@@ -61,5 +59,4 @@ const char* DynamicParamClient::errorMessage() const
       return "Unexpected error.";
   }
 }
-}  // namespace dparam
-}  // namespace tobas
+}  // namespace tobas::dparam

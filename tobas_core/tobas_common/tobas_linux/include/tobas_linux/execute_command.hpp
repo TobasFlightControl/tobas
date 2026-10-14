@@ -6,11 +6,8 @@
 #include <expected>
 #include <string>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 /** Execute a shell command and return its output or an error description. */
 std::expected<std::string, std::string> executeCommand(std::string _command);
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

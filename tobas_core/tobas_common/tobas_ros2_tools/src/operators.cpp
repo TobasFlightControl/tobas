@@ -3,9 +3,7 @@
 
 #include "tobas_ros2_tools/operators.hpp"
 
-namespace geometry_msgs
-{
-namespace msg
+namespace geometry_msgs::msg
 {
 Vector3 operator*(double _lhs, const Vector3& _rhs)
 {
@@ -69,5 +67,4 @@ Vector3 operator-(const Point& _lhs, const Point& _rhs)
   res.z = _lhs.z - _rhs.z;
   return res;
 }
-}  // namespace msg
-}  // namespace geometry_msgs
+}  // namespace geometry_msgs::msg

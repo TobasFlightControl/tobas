@@ -33,11 +33,7 @@
 #include "tobas_setup_assistant/util.hpp"
 #include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 namespace
 {
@@ -1140,6 +1136,4 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* _robot)
   // Base  joint for debug
   xml::addBaseStaticJoint(_robot, tree_.getRootName());
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

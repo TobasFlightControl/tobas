@@ -10,11 +10,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class WorldWidget : public QWidget
 {
@@ -41,6 +37,4 @@ private:
 private Q_SLOTS:
   void onButtonGroupIdClicked();
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

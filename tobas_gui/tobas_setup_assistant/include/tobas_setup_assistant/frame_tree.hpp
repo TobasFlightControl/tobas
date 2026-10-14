@@ -9,11 +9,7 @@
 
 #include "./rviz.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class FrameTreeWidget : public QTreeWidget
 {
@@ -38,6 +34,4 @@ private:
 
   void addTreeItemsRec(QTreeWidgetItem* _parent_item);
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

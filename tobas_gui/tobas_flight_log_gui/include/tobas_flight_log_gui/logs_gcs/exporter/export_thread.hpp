@@ -5,11 +5,7 @@
 
 #include <QThread>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class ExportThread : public QThread
 {
@@ -18,6 +14,4 @@ class ExportThread : public QThread
 Q_SIGNALS:
   void finished(bool _success, const QString& _message);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

@@ -3,11 +3,8 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 bool setRealtimePriorityFIFO(int _priority);
 bool setRealtimePriorityRR(int _priority);
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

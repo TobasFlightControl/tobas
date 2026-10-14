@@ -3,9 +3,7 @@
 
 #include "tobas_control/state_spaces.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 LinearDynamics LinearDynamics::scale(const Eigen::VectorXd& _x_scale, const Eigen::VectorXd& _u_scale) const
 {
@@ -56,5 +54,4 @@ std::ostream& operator<<(std::ostream& _os, const LinearStateSpace& _arg)
 
   return _os;
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

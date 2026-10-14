@@ -5,9 +5,7 @@
 
 #include <string>
 
-namespace tobas
-{
-namespace my_namespace
+namespace tobas::my_namespace
 {
 /** This is a short description that fits on a single line. */
 struct MyStruct
@@ -89,5 +87,4 @@ inline int MyClass::shortMethod() const
 {
   return private_data_member_;
 }
-}  // namespace my_namespace
-}  // namespace tobas
+}  // namespace tobas::my_namespace

@@ -18,13 +18,7 @@ class UpdateLinkDialogUI;
 using UpdateLinkDialogUIPtr = std::shared_ptr<UpdateLinkDialogUI>;
 }  // namespace Ui
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 class UrdfBuilderPanel;
 
@@ -112,7 +106,4 @@ private:
 
   static void arrangeVisualGeometryTypeFrames(const std::map<QString, QFrame*>& _map, const QString& _type);
 };
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

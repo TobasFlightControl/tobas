@@ -7,13 +7,7 @@
 
 #include "../utils/urdf_clone.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 /**
  * Wrapper for a URDF element class.
@@ -51,7 +45,4 @@ public:
 protected:
   ModelPtr model_;
 };
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

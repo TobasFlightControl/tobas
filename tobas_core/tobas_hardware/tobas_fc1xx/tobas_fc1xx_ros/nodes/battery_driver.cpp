@@ -11,9 +11,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace fc1xx
+namespace tobas::fc1xx
 {
 class BatteryDriverNode : public hardware::BaseSensorNode
 {
@@ -76,7 +74,6 @@ void BatteryDriverNode::mainTimerCb()
   msg->current = static_cast<double>(current_);
   battery_pub_->publish(std::move(msg));
 }
-}  // namespace fc1xx
-}  // namespace tobas
+}  // namespace tobas::fc1xx
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::BatteryDriverNode)

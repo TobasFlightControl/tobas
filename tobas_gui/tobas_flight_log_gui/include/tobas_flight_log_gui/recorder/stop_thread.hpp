@@ -12,11 +12,7 @@
 
 #include <tobas_msgs/srv/bag_record_stop.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class RecordStopThread : public QThread
 {
@@ -34,6 +30,4 @@ public:
 private:
   std::optional<ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop>> sc_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

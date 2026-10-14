@@ -3,11 +3,7 @@
 
 #include "tobas_control_system/mission_planner/commands/waypoint.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 WaypointWidget::WaypointWidget()
 {
@@ -261,6 +257,4 @@ void WaypointWidget::updateToleranceFieldsEnabled()
   acceptance_radius_->setEnabled(spline_segment_end_);
   altitude_tolerance_->setEnabled(spline_segment_end_);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

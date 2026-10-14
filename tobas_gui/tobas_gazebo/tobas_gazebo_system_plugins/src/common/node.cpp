@@ -10,9 +10,7 @@
 #define tbswarn gzwarn << "[" << name_ << "] "
 #define tbserr gzerr << "[" << name_ << "] "
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 BaseNode::BaseNode()
 {
@@ -96,5 +94,4 @@ std::string BaseNode::createID(const char* _file, int _line)
 {
   return std::string(_file) + ":" + std::to_string(_line);
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
