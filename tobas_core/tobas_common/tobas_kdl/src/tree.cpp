@@ -62,8 +62,8 @@ Tree& Tree::operator=(const Tree& _arg)
 
 Tree Tree::FloatingBase(const std::string& _world_name, const std::string& _base_name)
 {
-  const std::string prefix = "floating_base_";
-  const std::string jnt_suffix = "_joint";
+  static const std::string prefix = "floating_base_";
+  static const std::string jnt_suffix = "_joint";
 
   Tree tree(_world_name);
 
