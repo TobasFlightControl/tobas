@@ -11,18 +11,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(AMENT_DEPENDENCIES)
-
 find_package(ament_cmake REQUIRED)
-
-foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
-  find_package(${dependency} REQUIRED)
-endforeach()
+find_package(ament_cmake_gen_version_h REQUIRED)
 
 include_directories(include)
 
 add_library(${PROJECT_NAME} INTERFACE)
-ament_target_dependencies(${PROJECT_NAME} INTERFACE ${AMENT_DEPENDENCIES})
+ament_generate_version_header(${PROJECT_NAME} HEADER_PATH "${PROJECT_NAME}/version.h" INSTALL_PATH "include")
 
 file(GLOB_RECURSE EXEC_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/*.cpp)
 set(TARGETS_TO_INSTALL "")
@@ -46,6 +41,5 @@ install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(TARGETS ${TARGETS_TO_INSTALL} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()
