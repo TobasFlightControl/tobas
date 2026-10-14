@@ -287,7 +287,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
       }
     }
     else {
-      health->radio_link = tobas_msgs::msg::VehicleHealth::UNKNOWN;
+      health->radio_link = tobas_msgs::msg::VehicleHealth::FAILED;
       health->ok = false;
     }
   }
