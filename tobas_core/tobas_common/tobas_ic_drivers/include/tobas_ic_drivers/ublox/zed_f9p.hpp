@@ -318,7 +318,7 @@ private:
   static size_t spliceMemory(uint8_t* _dest, const void* _src, size_t _size, size_t _dest_offset = 0);
 
   /** Configuration Key ID | 6.2 Configuration Items */
-  static uint32_t configKeyID(CfgSize _size, CfgGroup _group, uint8_t _id);
+  static uint32_t configKeyID(CfgSize _size, CfgGroup _group, uint16_t _id);
 };
 
 inline ZEDF9P::UbxClass ZEDF9P::latestClass() const
