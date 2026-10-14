@@ -266,7 +266,7 @@ void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& _req, 
 void DShotDriverNode::autoStopTimerCb()
 {
   for (size_t ch = 0; ch < DShot::kChannelSize; ++ch) {
-    dshot_.setThrottle(ch, DShot::DSHOT_CMD_MOTOR_STOP);
+    dshot_.setThrottle(ch, dshot::DSHOT_CMD_MOTOR_STOP);
   }
 
   if (const auto result = transfer(); result) {

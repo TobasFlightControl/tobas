@@ -32,7 +32,7 @@ bool DShot::initialize() noexcept
   half_num_poles_.fill(1);
 
   for (size_t ch = 0; ch < kChannelSize; ++ch) {
-    setThrottle(ch, DSHOT_CMD_MOTOR_STOP);
+    setThrottle(ch, dshot::DSHOT_CMD_MOTOR_STOP);
   }
 
   return true;
