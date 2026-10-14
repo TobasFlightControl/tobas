@@ -125,11 +125,6 @@ def generate_launch_description():
                     namespace=DRONE_NAME,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "mission_executor_static.yaml"])],
                 ),
-                ComposableNode(
-                    package="tobas_object_avoidance",
-                    plugin="tobas::ObjectAvoidance",
-                    namespace=DRONE_NAME,
-                ),
             ],
         )
     )
