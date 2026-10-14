@@ -2,6 +2,9 @@
 Changelog for package tobas_rotor_anomaly_detection
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.6 (2026-10-03)
 -------------------
 

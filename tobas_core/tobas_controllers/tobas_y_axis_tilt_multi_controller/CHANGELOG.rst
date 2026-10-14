@@ -2,6 +2,9 @@
 Changelog for package tobas_y_axis_tilt_multi_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.6 (2026-10-03)
 -------------------
 

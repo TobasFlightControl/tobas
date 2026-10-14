@@ -2,6 +2,9 @@
 Changelog for package tobas_examples_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.6 (2026-10-03)
 -------------------
 * fix: Handle Python packages without tests
