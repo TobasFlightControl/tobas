@@ -83,7 +83,7 @@ void SBUS::spin()
 
 void SBUS::readThreadFunc(std::stop_token _st)
 {
-  static constexpr size_t kDataSize = 22;
+  constexpr size_t kDataSize = 22;
 
   uint8_t start_byte, end_byte, flags;
   std::array<uint8_t, kDataSize> data;
