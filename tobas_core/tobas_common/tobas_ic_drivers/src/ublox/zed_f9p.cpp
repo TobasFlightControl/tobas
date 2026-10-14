@@ -738,6 +738,6 @@ size_t ZEDF9P::spliceMemory(uint8_t* _dest, const void* _src, size_t _size, size
 
 uint32_t ZEDF9P::configKeyID(CfgSize _size, CfgGroup _group, uint16_t _id)
 {
-  return (_size << 28) | (_group << 16) | _id;
+  return (_size << 28) | (_group << 16) | (_id & 0x0FFF);
 }
 }  // namespace tobas::ublox
