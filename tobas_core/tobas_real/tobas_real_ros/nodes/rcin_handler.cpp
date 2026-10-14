@@ -5,6 +5,7 @@
 
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/rc_input.hpp>
+#include <tobas_constants/time.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
@@ -92,11 +93,6 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& _options)
 
   // Register publishers and subscribers if getting configuration is successful.
   registerPubSub();
-
-  // The longest S.BUS period is 14 ms.
-  // Treat the receiver as abnormal if 3 or more frames are missing.
-  // Always publish some message because subscribers are harder to implement as event-driven logic if messages may stop.
-  timeout_timer_ = createWallTimer(14ms * 3, &self::timeoutTimerCb, this);
 }
 
 bool RCInputHandlerNode::getConfig()
@@ -213,6 +209,13 @@ FlightMode RCInputHandlerNode::getClosestFlightMode(uint16_t _period)
 
 void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& _sbus)
 {
+  if (!timeout_timer_) {
+    // The longest S.BUS period is 14 ms.
+    // Treat the receiver as abnormal if 3 or more frames are missing.
+    // Always publish some message because subscribers are harder to implement as event-driven logic if messages may stop.
+    timeout_timer_ = createWallTimer(14ms * 3, &self::timeoutTimerCb, this);
+  }
+
   timeout_timer_->reset();
 
   auto rcin_msg = std::make_unique<tobas_msgs::RCInput>();
@@ -254,6 +257,8 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& _sb
 
 void RCInputHandlerNode::timeoutTimerCb()
 {
+  TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Timed out waiting for S.BUS frames.");
+
   auto rcin_msg = std::make_unique<tobas_msgs::RCInput>();
   rcin_msg->header.stamp = now();
   rcin_msg->status = tobas_msgs::msg::RCInput::STATUS_TIMEOUT;
