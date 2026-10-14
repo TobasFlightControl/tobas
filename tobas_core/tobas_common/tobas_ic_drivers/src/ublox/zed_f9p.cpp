@@ -62,34 +62,34 @@ bool ZEDF9P::update(bool _blocking)
 
 bool ZEDF9P::enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable)
 {
-  constexpr char kNotImplemented[] = "Not implemented.";
-  constexpr char kNotReceivable[] = "Not receivable.";
+  constexpr char kNotImplemented[] = "Not implemented.\n";
+  constexpr char kNotReceivable[] = "Not receivable.\n";
 
   CfgValSet<uint8_t, 1> cfg;
 
   switch (_cls) {
     case CLASS_ACK: {
-      std::cerr << kNotReceivable << '\n';
+      std::cerr << kNotReceivable;
       return false;
     }
     case CLASS_CFG: {
-      std::cerr << kNotReceivable << '\n';
+      std::cerr << kNotReceivable;
       return false;
     }
     case CLASS_INF: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_LOG: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_MGA: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_MON: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_NAV: {
@@ -137,7 +137,7 @@ bool ZEDF9P::enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable)
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x91);  // CFG-MSGOUT-UBX_NAV_RELPOSNED_SPI
           break;
         case NAV_RESETODO:
-          std::cerr << kNotReceivable << '\n';
+          std::cerr << kNotReceivable;
           return false;
         case NAV_SAT:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x19);  // CFG-MSGOUT-UBX_NAV_SAT_SPI
@@ -185,29 +185,29 @@ bool ZEDF9P::enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable)
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x46);  // CFG-MSGOUT-UBX_NAV_VELNED_SPI
           break;
         default:
-          std::cerr << kNotImplemented << '\n';  // TODO
+          std::cerr << kNotImplemented;  // TODO
           return false;
       }
       break;
     }
     case CLASS_NAV2: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_RXM: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_SEC: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_TIM: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_UPD: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     default: {
