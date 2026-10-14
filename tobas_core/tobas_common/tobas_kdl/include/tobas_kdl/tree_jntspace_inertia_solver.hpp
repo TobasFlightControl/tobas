@@ -36,5 +36,4 @@ private:
 
   void resize();
 };
-
 }  // namespace tobas::kdl

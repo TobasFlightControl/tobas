@@ -1,5 +1,30 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
+// Source: https://github.com/orocos/orocos_kinematics_dynamics/blob/HEAD/orocos_kdl/src/chainfksolvervel_recursive.cpp
+// Modified by Tobas, Inc.
+
+// Copyright  (C)  2007  Francois Cauwe <francois at cauwe dot org>
+// Copyright  (C)  2007  Ruben Smits <ruben dot smits at intermodalics dot eu>
+
+// Version: 1.0
+// Author: Francois Cauwe <francois at cauwe dot org>
+// Author: Ruben Smits <ruben dot smits at intermodalics dot eu>
+// Maintainer: Ruben Smits <ruben dot smits at intermodalics dot eu>
+// URL: http://www.orocos.org/kdl
+
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tobas_kdl/tree_fk_solver_vel.hpp"
 

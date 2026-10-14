@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (C) 2026 Tobas, Inc.
+# Source: https://github.com/moveit/moveit_msgs/blob/HEAD/msg/RobotState.msg
+# Modified by Tobas, Inc.
 
 # This message contains information about the robot state, i.e. the positions of its joints and links.
 sensor_msgs/JointState joint_state

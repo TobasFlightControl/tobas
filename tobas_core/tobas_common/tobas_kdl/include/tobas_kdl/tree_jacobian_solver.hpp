@@ -1,5 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
+// Source: https://github.com/orocos/orocos_kinematics_dynamics/blob/HEAD/orocos_kdl/src/treejnttojacsolver.hpp
+// Modified by Tobas, Inc.
+
+/*
+ * TreeJntToJacSolver.hpp
+ *
+ *  Created on: Nov 27, 2008
+ *      Author: rubensmits
+ */
 
 #pragma once
 

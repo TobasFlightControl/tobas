@@ -40,4 +40,8 @@ install(
 )
 pluginlib_export_plugin_description_file(rviz_common rviz_plugin_description.xml)
 
+# Include license texts and third-party notices to satisfy redistribution requirements.
+install(FILES ../../LICENSE ../../THIRD_PARTY_NOTICES.txt DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY ../../LICENSES DESTINATION share/${PROJECT_NAME})
+
 ament_package()

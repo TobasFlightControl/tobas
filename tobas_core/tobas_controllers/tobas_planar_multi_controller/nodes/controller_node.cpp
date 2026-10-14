@@ -23,6 +23,7 @@
 #include <tobas_command_msgs_adapter/rate_throttle.hpp>
 #include <tobas_debug_msgs_adapter/multicopter_controller_feedback.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
+#include <tobas_kdl_msgs_adapter/accel_stamped.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_msgs/msg/arming.hpp>
@@ -32,7 +33,6 @@
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/odometry_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
-#include <tobas_msgs_adapter/repulsive_acceleration.hpp>
 
 #include "tobas_planar_multi_controller/mixer_qp.hpp"
 #include "tobas_planar_multi_controller/translational_eom.hpp"
@@ -55,7 +55,7 @@ private:
   TreeJointStateConverter js_converter_;
 
   // Static parameters
-  bool do_object_avoidance_;
+  bool use_additional_acceleration_;
   bool do_dist_comp_trans_;
   bool do_dist_comp_rot_;
 
@@ -87,8 +87,8 @@ private:
   bool topics_received_ = false;
   CommandPriorityHandler cmd_priority_handler_;
   tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_;
-  /** Virtual repulsive acceleration from obstacles. */
-  tobas_msgs::RepulsiveAcceleration::ConstSharedPtr repulsive_accel_;
+  /** Additional linear acceleration expressed in the global frame. */
+  tobas_kdl_msgs::AccelStamped::ConstSharedPtr additional_accel_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;  ///< Estimated external force.
   tobas_msgs::msg::LandedState::ConstSharedPtr landed_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
@@ -114,7 +114,7 @@ private:
   ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
-  ros2::SubscriberPtr<tobas_msgs::RepulsiveAcceleration> repulsive_accel_sub_;
+  ros2::SubscriberPtr<tobas_kdl_msgs::AccelStamped> additional_accel_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::LandedState> landed_sub_;
@@ -154,7 +154,7 @@ private:
   void droneCb(const Drone::ConstSharedPtr& _drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& _tree);
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom);
-  void repulsiveAccelCb(const tobas_msgs::RepulsiveAcceleration::ConstSharedPtr& _repulsive_accel);
+  void additionalAccelCb(const tobas_kdl_msgs::AccelStamped::ConstSharedPtr& _additional_accel);
   void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& _dist_force);
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _js);
   void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& _landed);
@@ -181,7 +181,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& _options)
   pitch_filt_.setMaxVelocity(kModeTransitionMaxAttiRate);
 
   // Get static parameters.
-  do_object_avoidance_ = getBoolParam("do_object_avoidance");
+  use_additional_acceleration_ = getBoolParam("use_additional_acceleration");
   do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_translation");
   do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rotation");
 
@@ -211,8 +211,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& _options)
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
-  if (do_object_avoidance_) {
-    repulsive_accel_sub_ = createSubscriber(topic::kRepulsiveAccel, &self::repulsiveAccelCb, this);
+  if (use_additional_acceleration_) {
+    additional_accel_sub_ = createSubscriber(topic::kAdditionalAccel, &self::additionalAccelCb, this);
   }
   if (do_dist_comp_trans_ || do_dist_comp_rot_) {
     dist_force_sub_ = createSubscriber(topic::kDisturbanceForce, &self::disturbanceForceCb, this);
@@ -455,9 +455,9 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     // Compute target acceleration.
     acc_cmd_->accel = pos_cmd_->acc + kp.hadamard(ep) + ki.hadamard(trans_ctrl_.ei) + kd.hadamard(ed);
 
-    // Add repulsive acceleration from obstacles.
-    if (repulsive_accel_) {
-      acc_cmd_->accel += repulsive_accel_->accel;
+    // Add externally supplied linear acceleration in the global frame.
+    if (additional_accel_) {
+      acc_cmd_->accel += additional_accel_->accel.linear;
     }
 
     // Pass yaw through as-is.
@@ -601,9 +601,9 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   }
 }
 
-void ControllerNode::repulsiveAccelCb(const tobas_msgs::RepulsiveAcceleration::ConstSharedPtr& _repulsive_accel)
+void ControllerNode::additionalAccelCb(const tobas_kdl_msgs::AccelStamped::ConstSharedPtr& _additional_accel)
 {
-  repulsive_accel_ = _repulsive_accel;
+  additional_accel_ = _additional_accel;
 }
 
 void ControllerNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& _dist_force)

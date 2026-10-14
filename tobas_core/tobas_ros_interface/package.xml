@@ -12,6 +12,7 @@
 
 	<depend>tobas_node</depend>
 	<depend>tobas_tools</depend>
+	<depend>tobas_kdl_msgs</depend>
 	<depend>tobas_msgs</depend>
 	<depend>tobas_drone_msgs</depend>
 	<depend>tobas_real_common</depend>

@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (C) 2026 Tobas, Inc.
+# Source: https://github.com/moveit/moveit_msgs/blob/HEAD/msg/DisplayRobotState.msg
+# Modified by Tobas, Inc.
 
 # The robot state to display.
 RobotState state

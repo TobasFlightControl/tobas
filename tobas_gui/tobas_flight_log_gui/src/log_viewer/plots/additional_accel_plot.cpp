@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_flight_log_gui/log_viewer/plots/repulsive_accel_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/additional_accel_plot.hpp"
 
 #include <QVBoxLayout>
 
@@ -9,7 +9,7 @@
 
 namespace tobas::gui::log
 {
-RepulsiveAccelPlotWidget::RepulsiveAccelPlotWidget() : curves_{ "Accel X [m/s²]", "Accel Y [m/s²]", "Accel Z [m/s²]" }
+AdditionalAccelPlotWidget::AdditionalAccelPlotWidget() : curves_{ "Accel X [m/s²]", "Accel Y [m/s²]", "Accel Z [m/s²]" }
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -23,7 +23,7 @@ RepulsiveAccelPlotWidget::RepulsiveAccelPlotWidget() : curves_{ "Accel X [m/s²]
   }
 }
 
-void RepulsiveAccelPlotWidget::clear()
+void AdditionalAccelPlotWidget::clear()
 {
   for (size_t i = 0; i < kNumAxes; ++i) {
     curves_[i].clear();
@@ -31,14 +31,14 @@ void RepulsiveAccelPlotWidget::clear()
   }
 }
 
-void RepulsiveAccelPlotWidget::setTimeScale(double _t_start, double _t_stop)
+void AdditionalAccelPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
   for (size_t i = 0; i < kNumAxes; ++i) {
     plots_[i]->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
   }
 }
 
-void RepulsiveAccelPlotWidget::setData(const QVector<tobas_msgs::msg::RepulsiveAcceleration>& _msgs)
+void AdditionalAccelPlotWidget::setData(const QVector<tobas_kdl_msgs::msg::AccelStamped>& _msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> acc_data;
@@ -47,13 +47,13 @@ void RepulsiveAccelPlotWidget::setData(const QVector<tobas_msgs::msg::RepulsiveA
   for (const auto& msg : _msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
 
-    acc_data[0].push_back(msg.accel.x);
-    acc_data[1].push_back(msg.accel.y);
-    acc_data[2].push_back(msg.accel.z);
+    acc_data[0].push_back(msg.accel.linear.x);
+    acc_data[1].push_back(msg.accel.linear.y);
+    acc_data[2].push_back(msg.accel.linear.z);
 
-    range.include(msg.accel.x);
-    range.include(msg.accel.y);
-    range.include(msg.accel.z);
+    range.include(msg.accel.linear.x);
+    range.include(msg.accel.linear.y);
+    range.include(msg.accel.linear.z);
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
