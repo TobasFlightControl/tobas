@@ -16,6 +16,7 @@
 #include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/pwm_array.hpp>
+#include <tobas_msgs/msg/repulsive_acceleration.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 
 #include "./ros_interface.hpp"
@@ -25,6 +26,7 @@ namespace tobas
 void RosInterfaceNode::registerTopicsIfaceToLogic()
 {
   addTopicIfaceToLogic<tobas_kdl_msgs::msg::FrameWithCovarianceStamped>(topic::kExternalPose, topic::kExternalPose);
+  addTopicIfaceToLogic<tobas_msgs::msg::RepulsiveAcceleration>(topic::kRepulsiveAccel, topic::kRepulsiveAccel);
   addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeedArray>(topic::kRotorSpeedsCmd, topic::kRotorSpeedsCmd);
   addTopicIfaceToLogic<tobas_msgs::msg::IcePropulsionSystemCommand>(
     topic::kIcePropulsionSystemCmd, topic::kIcePropulsionSystemCmd);

@@ -139,12 +139,6 @@ def generate_launch_description():
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "mission_executor_static.yaml"])],
                     extra_arguments=[{"use_intra_process_comms": True}],
                 ),
-                ComposableNode(
-                    package="tobas_object_avoidance",
-                    plugin="tobas::ObjectAvoidance",
-                    namespace=namespace,
-                    extra_arguments=[{"use_intra_process_comms": True}],
-                ),
             ],
         )
     )

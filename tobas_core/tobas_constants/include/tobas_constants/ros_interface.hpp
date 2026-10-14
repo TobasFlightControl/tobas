@@ -37,7 +37,6 @@ static constexpr char kArming[] = "arming";
 static constexpr char kVehicleHealth[] = "vehicle_health";
 static constexpr char kUserDefinedHealthStatus[] = "user_defined_health_status";
 static constexpr char kVibrationLevel[] = "vibration_level";
-static constexpr char kObjectOctomap[] = "object_octomap";
 static constexpr char kRepulsiveAccel[] = "repulsive_acceleration";
 static constexpr char kDisturbanceForce[] = "disturbance_force";
 static constexpr char kLanded[] = "landed";
