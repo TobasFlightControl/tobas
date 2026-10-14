@@ -4,16 +4,18 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
+#include <cstdint>
 #include <expected>
 #include <string>
 
 #include <tobas_algorithm/crc.hpp>
 #include <tobas_linux/spi_dev.hpp>
 
-namespace tobas::fc2xx
+namespace tobas::t2
 {
 /**
- * SPI interface for DShot motor commands and ESC telemetry on FC2XX hardware.
+ * SPI interface for DShot motor commands and ESC telemetry on Tobas T2 hardware.
  *
  * @see https://betaflight.com/docs/development/api/dshot
  */
@@ -63,10 +65,10 @@ public:
 
   explicit DShot() noexcept;
 
-  bool initialize() noexcept;
+  bool initialize(const char* _spi_device) noexcept;
   std::expected<void, std::string> transfer() noexcept;
 
-  /** Set the DShot throttle directory. */
+  /** Set the DShot throttle directly. */
   void setThrottle(size_t _ch, uint16_t _throttle) noexcept;
   /** Set the target motor rotating speed [rad/s]. */
   void setTargetSpeed(size_t _ch, double _rps) noexcept;
@@ -108,4 +110,4 @@ private:
 
   algo::CRC32Left crc_;
 };
-}  // namespace tobas::fc2xx
+}  // namespace tobas::t2

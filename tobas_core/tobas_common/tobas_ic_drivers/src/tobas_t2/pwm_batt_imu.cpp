@@ -1,24 +1,24 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_fc2xx_core/pwm_batt_imu.hpp"
+#include "tobas_ic_drivers/tobas_t2/pwm_batt_imu.hpp"
 
 #include <cstring>
 #include <format>
 
 #include <tobas_std_tools/error.hpp>
 
-namespace tobas::fc2xx
+namespace tobas::t2
 {
 PwmBattImu::PwmBattImu() : crc_(algo::CRC32Left::CRC_32)
 {
   crc_.initialize();
 }
 
-bool PwmBattImu::initialize()
+bool PwmBattImu::initialize(const char* _spi_device)
 {
   // Initialize the SPI device.
-  if (!spi_.initialize("/dev/spidev0.1", tx_buf_, rx_buf_, 12'000'000)) {
+  if (!spi_.initialize(_spi_device, tx_buf_, rx_buf_, 12'000'000)) {
     return false;
   }
 
@@ -43,7 +43,7 @@ std::expected<void, std::string> PwmBattImu::transfer()
 
   // Check CRC.
   const uint32_t cs = (rx_buf_[kCrcIdx + 1] << 16) | rx_buf_[kCrcIdx];
-  const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint16_t) * kCrcIdx);
+  const auto cr = crc_.compute(reinterpret_cast<const uint8_t*>(rx_buf_), sizeof(uint16_t) * kCrcIdx);
   if (cs != cr) {
     return std::unexpected(std::format("CRC mismatch: received 0x{:08X}, computed 0x{:08X}.", cs, cr));
   }
@@ -89,8 +89,8 @@ void PwmBattImu::configureRpmFilter(
 
 void PwmBattImu::setTxCrc()
 {
-  const auto crc = crc_.compute((uint8_t*)tx_buf_, sizeof(uint16_t) * kCrcIdx);
+  const auto crc = crc_.compute(reinterpret_cast<const uint8_t*>(tx_buf_), sizeof(uint16_t) * kCrcIdx);
   tx_buf_[kCrcIdx] = crc & 0xFFFF;
   tx_buf_[kCrcIdx + 1] = (crc >> 16) & 0xFFFF;
 }
-}  // namespace tobas::fc2xx
+}  // namespace tobas::t2

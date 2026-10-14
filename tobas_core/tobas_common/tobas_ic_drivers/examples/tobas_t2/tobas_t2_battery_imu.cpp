@@ -1,18 +1,25 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <cstdlib>
 #include <iostream>
 #include <thread>
 
-#include "tobas_fc2xx_core/pwm_batt_imu.hpp"
+#include <tobas_ic_drivers/tobas_t2/pwm_batt_imu.hpp>
 
 using namespace std;
 
-int main()
+int main(int _argc, char** _argv)
 {
-  tobas::fc2xx::PwmBattImu driver;
+  if (_argc != 2) {
+    cerr << "Usage: " << _argv[0] << " <SPI Device>\n";
+    return EXIT_FAILURE;
+  }
+  const auto device = _argv[1];
 
-  if (!driver.initialize()) {
+  tobas::t2::PwmBattImu driver;
+
+  if (!driver.initialize(device)) {
     cerr << "Failed to initialize the driver.\n";
     return EXIT_FAILURE;
   }

@@ -1,17 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_fc2xx_core/dshot.hpp"
+#include "tobas_ic_drivers/tobas_t2/dshot.hpp"
 
+#include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <format>
 #include <iostream>
+#include <numbers>
 
-#include <tobas_math/definitions.hpp>
 #include <tobas_std_tools/error.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas::fc2xx
+namespace tobas::t2
 {
 namespace
 {
@@ -23,10 +25,10 @@ DShot::DShot() noexcept : crc_(algo::CRC32Left::CRC_32)
   crc_.initialize();
 }
 
-bool DShot::initialize() noexcept
+bool DShot::initialize(const char* _spi_device) noexcept
 {
   // Initialize SPI communication.
-  if (!spi_.initialize("/dev/spidev0.0", tx_buf_, rx_buf_, 12'000'000)) {
+  if (!spi_.initialize(_spi_device, tx_buf_, rx_buf_, 12'000'000)) {
     return false;
   }
 
@@ -49,7 +51,7 @@ bool DShot::initialize() noexcept
 std::expected<void, std::string> DShot::transfer() noexcept
 {
   // Compute CRC.
-  tx_buf_[kChannelSize] = crc_.compute((uint8_t*)tx_buf_, sizeof(uint32_t) * kChannelSize);
+  tx_buf_[kChannelSize] = crc_.compute(reinterpret_cast<const uint8_t*>(tx_buf_), sizeof(uint32_t) * kChannelSize);
 
   // Transfer.
   if (!spi_.transfer(sizeof(tx_buf_))) {
@@ -58,7 +60,7 @@ std::expected<void, std::string> DShot::transfer() noexcept
 
   // Check CRC.
   const auto cs = rx_buf_[kChannelSize];
-  const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint32_t) * kChannelSize);
+  const auto cr = crc_.compute(reinterpret_cast<const uint8_t*>(rx_buf_), sizeof(uint32_t) * kChannelSize);
   if (cs != cr) {
     return std::unexpected(std::format("CRC mismatch: received 0x{:08X}, computed 0x{:08X}.", cs, cr));
   }
@@ -172,7 +174,7 @@ double DShot::getSpeed(size_t _ch) noexcept
   const auto eperiod_us = (base << exp);
 
   const auto period_us = eperiod_us * half_num_poles_.at(_ch);
-  return (M_2PI * 1e+6) / static_cast<double>(period_us);
+  return ((2.0 * std::numbers::pi) * 1e+6) / static_cast<double>(period_us);
 }
 
 double DShot::getTemperature(size_t _ch) noexcept
@@ -205,8 +207,8 @@ void DShot::printCurrentState(size_t _ch) noexcept
 
 void DShot::printCurrentStates() noexcept
 {
-  for (size_t ch = 0; ch < fc2xx::DShot::kChannelSize; ++ch) {
+  for (size_t ch = 0; ch < DShot::kChannelSize; ++ch) {
     printCurrentState(ch);
   }
 }
-}  // namespace tobas::fc2xx
+}  // namespace tobas::t2

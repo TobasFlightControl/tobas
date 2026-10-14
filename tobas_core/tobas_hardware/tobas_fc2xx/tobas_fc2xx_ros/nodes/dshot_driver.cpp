@@ -8,8 +8,8 @@
 
 #include <tobas_constants/time.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
-#include <tobas_fc2xx_core/dshot.hpp>
 #include <tobas_hardware_common/constants.hpp>
+#include <tobas_ic_drivers/tobas_t2/dshot.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_tools/control_latency_publisher.hpp>
 
@@ -33,7 +33,7 @@ public:
   explicit DShotDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
-  DShot dshot_;
+  t2::DShot dshot_;
 
   bool is_commanded_ = false;
   ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
@@ -75,7 +75,7 @@ DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& _options)
 
 void DShotDriverNode::initialize()
 {
-  if (!dshot_.initialize()) {
+  if (!dshot_.initialize("/dev/spidev0.0")) {
     TOBAS_ERROR("Failed to initialize DShot driver. Retrying...");
     return;
   }
@@ -268,7 +268,7 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
 void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& _req, const SetGains::Response::SharedPtr& _res)
 {
   for (const auto& gain : _req->gains) {
-    if (gain.channel >= DShot::kChannelSize) {
+    if (gain.channel >= t2::DShot::kChannelSize) {
       _res->success = false;
       _res->message = "Channel '" + std::to_string(gain.channel) + "' is out of range.";
       return;
@@ -288,8 +288,8 @@ void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& _req, 
 
 void DShotDriverNode::autoStopTimerCb()
 {
-  for (size_t ch = 0; ch < DShot::kChannelSize; ++ch) {
-    dshot_.setThrottle(ch, DShot::DSHOT_CMD_MOTOR_STOP);
+  for (size_t ch = 0; ch < t2::DShot::kChannelSize; ++ch) {
+    dshot_.setThrottle(ch, t2::DShot::DSHOT_CMD_MOTOR_STOP);
   }
 
   if (const auto result = transfer(); result) {

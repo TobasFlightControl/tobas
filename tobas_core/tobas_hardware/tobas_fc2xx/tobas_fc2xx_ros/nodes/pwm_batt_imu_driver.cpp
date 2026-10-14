@@ -9,8 +9,8 @@
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
-#include <tobas_fc2xx_core/pwm_batt_imu.hpp>
 #include <tobas_hardware_common/constants.hpp>
+#include <tobas_ic_drivers/tobas_t2/pwm_batt_imu.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_real_common/ros_interface.hpp>
 #include <tobas_time_tools/util.hpp>
@@ -37,8 +37,8 @@ public:
   explicit PwmBattImuDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
-  PwmBattImu driver_;
-  uint16_t pwm_periods_[PwmBattImu::kPwmChannels] = {};
+  t2::PwmBattImu driver_;
+  uint16_t pwm_periods_[t2::PwmBattImu::kPwmChannels] = {};
   clock::time_point last_comm_time_;
 
   ros2::PublisherPtr<tobas_msgs::msg::Battery> batt_pub_;
@@ -79,7 +79,7 @@ PwmBattImuDriverNode::PwmBattImuDriverNode(const rclcpp::NodeOptions& _options)
 
 bool PwmBattImuDriverNode::initialize()
 {
-  if (!driver_.initialize()) {
+  if (!driver_.initialize("/dev/spidev0.1")) {
     TOBAS_ERROR("Failed to initialize the driver. Retrying...");
     return false;
   }
@@ -114,7 +114,7 @@ std::expected<void, std::string> PwmBattImuDriverNode::transfer()
 void PwmBattImuDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& _pwms)
 {
   for (const auto& elem : _pwms->pwms) {
-    if (elem.channel >= PwmBattImu::kPwmChannels) {
+    if (elem.channel >= t2::PwmBattImu::kPwmChannels) {
       TOBAS_ERROR("PWM channel ", elem.channel, " is out of range.");
       continue;
     }

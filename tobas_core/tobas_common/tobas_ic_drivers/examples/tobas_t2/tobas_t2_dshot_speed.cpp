@@ -2,36 +2,39 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <cmath>
+#include <cstdlib>
 #include <iostream>
+#include <string>
 #include <thread>
 
 #include <tobas_std_tools/unit_conversions.hpp>
 
-#include "tobas_fc2xx_core/dshot.hpp"
+#include <tobas_ic_drivers/tobas_t2/dshot.hpp>
 
 using namespace std;
 
 int main(int _argc, char** _argv)
 {
   // Parse arguments.
-  if (_argc != 7) {
-    cerr << "Usage: " << _argv[0] << " <Channel> <KV> <Prop Diameter> <Poles> <Gain> <Target RPM>\n";
+  if (_argc != 8) {
+    cerr << "Usage: " << _argv[0] << " <SPI Device> <Channel> <KV> <Prop Diameter> <Poles> <Gain> <Target RPM>\n";
     return EXIT_FAILURE;
   }
-  const auto channel = stoul(_argv[1]);
-  const auto kv = stoul(_argv[2]);  // [rpm/V]
-  const auto d = stoul(_argv[3]);   // [inch]
-  const auto poles = stoul(_argv[4]);
-  const auto gain = stoul(_argv[5]);
-  const auto tar_rpm = stoul(_argv[6]);
-  if (channel >= tobas::fc2xx::DShot::kChannelSize) {
+  const auto device = _argv[1];
+  const auto channel = stoul(_argv[2]);
+  const auto kv = stoul(_argv[3]);  // [rpm/V]
+  const auto d = stoul(_argv[4]);   // [inch]
+  const auto poles = stoul(_argv[5]);
+  const auto gain = stoul(_argv[6]);
+  const auto tar_rpm = stoul(_argv[7]);
+  if (channel >= tobas::t2::DShot::kChannelSize) {
     cerr << "DShot channel is out of range.\n";
     return EXIT_FAILURE;
   }
 
   // Initialize driver.
-  tobas::fc2xx::DShot dshot;
-  if (!dshot.initialize()) {
+  tobas::t2::DShot dshot;
+  if (!dshot.initialize(device)) {
     cerr << "Failed to initialize DShot driver.\n";
     return EXIT_FAILURE;
   }

@@ -1,30 +1,34 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <cstdlib>
 #include <iostream>
+#include <string>
 #include <thread>
 
-#include "tobas_fc2xx_core/dshot.hpp"
+#include <tobas_ic_drivers/tobas_t2/dshot.hpp>
 
 using namespace std;
 
 int main(int _argc, char** _argv)
 {
   // Parse arguments.
-  if (_argc != 3) {
-    cerr << "Usage: " << _argv[0] << " <Channel> <Throttle>\n";
+  if (_argc != 4) {
+    cerr << "Usage: " << _argv[0] << " <SPI Device> <Channel> <Throttle>\n";
     return EXIT_FAILURE;
   }
-  const auto channel = stoul(_argv[1]);
-  const auto throttle = stoul(_argv[2]);
-  if (channel >= tobas::fc2xx::DShot::kChannelSize) {
+  const auto device = _argv[1];
+  const auto channel = stoul(_argv[2]);
+  const auto throttle = stoul(_argv[3]);
+
+  if (channel >= tobas::t2::DShot::kChannelSize) {
     cerr << "DShot channel is out of range.\n";
     return EXIT_FAILURE;
   }
 
   // Initialize driver.
-  tobas::fc2xx::DShot dshot;
-  if (!dshot.initialize()) {
+  tobas::t2::DShot dshot;
+  if (!dshot.initialize(device)) {
     cerr << "Failed to initialize DShot driver.\n";
     return EXIT_FAILURE;
   }

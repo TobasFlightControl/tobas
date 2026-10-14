@@ -19,7 +19,6 @@ set(AMENT_DEPENDENCIES
     tobas_drone_msgs_adapter
     tobas_real_common
     tobas_hardware_common
-    tobas_fc2xx_core
 )
 
 find_package(ament_cmake REQUIRED)

@@ -10,7 +10,6 @@
 
 	<depend>tobas_ic_drivers</depend>
 	<depend>tobas_sbus_driver</depend>
-	<depend>tobas_fc2xx_core</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

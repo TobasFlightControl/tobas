@@ -4,9 +4,9 @@
 #include <cmath>
 #include <iostream>
 
-#include <tobas_fc2xx_core/pwm_batt_imu.hpp>
 #include <tobas_ic_drivers/stmicro/iis2mdc.hpp>
 #include <tobas_ic_drivers/stmicro/ilps22qs.hpp>
+#include <tobas_ic_drivers/tobas_t2/pwm_batt_imu.hpp>
 #include <tobas_ic_drivers/ublox/ubx_transport_spi.hpp>
 #include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_sbus_driver/sbus.hpp>
@@ -19,9 +19,9 @@ namespace ch = std::chrono;
 
 bool testBattImu()
 {
-  tobas::fc2xx::PwmBattImu driver;
+  tobas::t2::PwmBattImu driver;
 
-  if (!driver.initialize()) {
+  if (!driver.initialize("/dev/spidev0.1")) {
     std::cerr << "Failed to initialize ADC.\n";
     return EXIT_FAILURE;
   }

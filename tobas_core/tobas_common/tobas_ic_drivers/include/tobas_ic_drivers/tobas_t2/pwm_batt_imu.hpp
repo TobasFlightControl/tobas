@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
 #include <expected>
 #include <string>
 
@@ -10,8 +12,9 @@
 #include <tobas_linux/spi_dev.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas::fc2xx
+namespace tobas::t2
 {
+/** SPI interface for PWM output, battery monitoring, and IMU data on Tobas T2 hardware. */
 class PwmBattImu
 {
 public:
@@ -19,7 +22,7 @@ public:
 
   explicit PwmBattImu();
 
-  bool initialize();
+  bool initialize(const char* _spi_device);
 
   std::expected<void, std::string> transfer();
 
@@ -108,4 +111,4 @@ inline void PwmBattImu::getFilteredDGyro(double& _x, double& _y, double& _z) con
   _y = -static_cast<int16_t>(rx_buf_[17]) * kDGyroScale;
   _z = -static_cast<int16_t>(rx_buf_[19]) * kDGyroScale;
 }
-}  // namespace tobas::fc2xx
+}  // namespace tobas::t2
