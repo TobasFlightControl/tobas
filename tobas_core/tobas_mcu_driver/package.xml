@@ -1,0 +1,20 @@
+<package format="3">
+
+	<name>tobas_mcu_driver</name>
+	<version>2.17.0</version>
+	<description>C++ drivers for Tobas microcontroller command and telemetry interfaces.</description>
+	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+	<license>GPL-3.0-or-later</license>
+
+	<buildtool_depend>ament_cmake</buildtool_depend>
+
+	<depend>tobas_algorithm</depend>
+	<depend>tobas_dshot</depend>
+	<depend>tobas_linux</depend>
+	<depend>tobas_std_tools</depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

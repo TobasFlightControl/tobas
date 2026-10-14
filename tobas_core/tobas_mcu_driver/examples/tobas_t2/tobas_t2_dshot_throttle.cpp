@@ -6,7 +6,7 @@
 #include <string>
 #include <thread>
 
-#include <tobas_ic_drivers/tobas_t2/dshot.hpp>
+#include <tobas_mcu_driver/tobas_t2/dshot.hpp>
 
 using namespace std;
 

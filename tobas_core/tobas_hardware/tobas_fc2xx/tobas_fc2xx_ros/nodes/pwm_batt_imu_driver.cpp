@@ -10,7 +10,7 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_hardware_common/constants.hpp>
-#include <tobas_ic_drivers/tobas_t2/pwm_batt_imu.hpp>
+#include <tobas_mcu_driver/tobas_t2/pwm_batt_imu.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_real_common/ros_interface.hpp>
 #include <tobas_time_tools/util.hpp>

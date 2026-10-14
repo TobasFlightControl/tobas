@@ -13,6 +13,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(AMENT_DEPENDENCIES
     tobas_ic_drivers
+    tobas_mcu_driver
     tobas_tools
     tobas_node
     tobas_msgs_adapter

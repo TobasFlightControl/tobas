@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_ic_drivers/tobas_t2/dshot.hpp"
+#include "tobas_mcu_driver/tobas_t2/dshot.hpp"
 
 #include <algorithm>
 #include <cassert>

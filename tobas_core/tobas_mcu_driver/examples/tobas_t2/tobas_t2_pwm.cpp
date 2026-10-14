@@ -6,7 +6,7 @@
 #include <string>
 #include <thread>
 
-#include <tobas_ic_drivers/tobas_t2/pwm_batt_imu.hpp>
+#include <tobas_mcu_driver/tobas_t2/pwm_batt_imu.hpp>
 
 using namespace std;
 

@@ -15,11 +15,7 @@
 
 namespace tobas::t2
 {
-/**
- * SPI interface for DShot motor commands and ESC telemetry on Tobas T2 hardware.
- *
- * @see https://betaflight.com/docs/development/api/dshot
- */
+/** SPI interface for DShot motor commands and ESC telemetry on Tobas T2 hardware. */
 class DShot
 {
 public:

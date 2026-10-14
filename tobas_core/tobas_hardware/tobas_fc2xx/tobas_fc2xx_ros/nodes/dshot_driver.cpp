@@ -9,7 +9,7 @@
 #include <tobas_constants/time.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
 #include <tobas_hardware_common/constants.hpp>
-#include <tobas_ic_drivers/tobas_t2/dshot.hpp>
+#include <tobas_mcu_driver/tobas_t2/dshot.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_tools/control_latency_publisher.hpp>
 

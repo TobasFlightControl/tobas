@@ -9,7 +9,7 @@
 
 #include <tobas_std_tools/unit_conversions.hpp>
 
-#include <tobas_ic_drivers/tobas_t2/dshot.hpp>
+#include <tobas_mcu_driver/tobas_t2/dshot.hpp>
 
 using namespace std;
 
