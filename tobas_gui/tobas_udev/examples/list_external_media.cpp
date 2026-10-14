@@ -9,7 +9,7 @@ int main()
 {
   const auto udev_ctx = udev_new();
   if (!udev_ctx) {
-    std::cerr << "udev init failed." << std::endl;
+    std::cerr << "udev init failed.\n";
     return EXIT_FAILURE;
   }
 
@@ -47,7 +47,7 @@ int main()
     // Release the device.
     udev_device_unref(disk);
 
-    std::cout << vendor << " " << model << " (" << label1 << ", " << label2 << ") (" << devnode << ")" << std::endl;
+    std::cout << vendor << " " << model << " (" << label1 << ", " << label2 << ") (" << devnode << ")\n";
   }
 
   udev_enumerate_unref(en);

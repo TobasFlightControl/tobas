@@ -32,16 +32,16 @@ struct rclcpp::TypeAdapter<tobas_kdl_msgs::WrenchStamped, tobas_kdl_msgs::msg::W
   using custom_type = tobas_kdl_msgs::WrenchStamped;
   using ros_message_type = tobas_kdl_msgs::msg::WrenchStamped;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
-    tobas_kdl_msgs::WrenchAdapter::convert_to_ros_message(src.wrench, dst.wrench);
+    _dst.header = _src.header;
+    tobas_kdl_msgs::WrenchAdapter::convert_to_ros_message(_src.wrench, _dst.wrench);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
-    tobas_kdl_msgs::WrenchAdapter::convert_to_custom(src.wrench, dst.wrench);
+    _dst.header = _src.header;
+    tobas_kdl_msgs::WrenchAdapter::convert_to_custom(_src.wrench, _dst.wrench);
   }
 };
 

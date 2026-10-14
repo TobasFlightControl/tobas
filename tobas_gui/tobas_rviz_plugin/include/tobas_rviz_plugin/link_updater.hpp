@@ -7,25 +7,22 @@
 
 #include "./robot_state.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 /** Update the links of an `rviz::Robot` using a `RobotState`. */
 class LinkUpdater : public rviz_default_plugins::robot::LinkUpdater
 {
 public:
-  explicit LinkUpdater(const RobotState& state);
+  explicit LinkUpdater(const RobotState& _state);
 
   bool getLinkTransforms(
-    const std::string& link_name,
-    Ogre::Vector3& visual_position,
-    Ogre::Quaternion& visual_orientation,
-    Ogre::Vector3& collision_position,
-    Ogre::Quaternion& collision_orientation) const override;
+    const std::string& _link_name,
+    Ogre::Vector3& _visual_position,
+    Ogre::Quaternion& _visual_orientation,
+    Ogre::Vector3& _collision_position,
+    Ogre::Quaternion& _collision_orientation) const override;
 
 private:
   const RobotState& robot_state_;
 };
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

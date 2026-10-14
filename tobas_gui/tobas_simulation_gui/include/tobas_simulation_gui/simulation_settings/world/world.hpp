@@ -10,11 +10,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class WorldWidget : public QWidget
 {
@@ -31,7 +27,7 @@ private:
   QVector<QRadioButton*> buttons_;
   QVector<BaseWorldWidget*> widgets_;
 
-  void addRow(qt::FormLayout* form, QButtonGroup* btn_group, BaseWorldWidget* widget, const QString& label);
+  void addRow(qt::FormLayout* _form, QButtonGroup* _btn_group, BaseWorldWidget* _widget, const QString& _label);
 
   void updateEnabled();
 
@@ -41,6 +37,4 @@ private:
 private Q_SLOTS:
   void onButtonGroupIdClicked();
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

@@ -9,11 +9,7 @@
 
 #include <tobas_ssh_authkey/data.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class AddSshKeyDialog : public QDialog
 {
@@ -23,7 +19,7 @@ class AddSshKeyDialog : public QDialog
   using super = QDialog;
 
 public:
-  explicit AddSshKeyDialog(QWidget* parent);
+  explicit AddSshKeyDialog(QWidget* _parent);
 
   QString getKey() const;
 
@@ -32,11 +28,9 @@ private:
   QDialogButtonBox* btn_box_;
 
   bool isAcceptable() const;
-  void enableOkButton(bool enable);
+  void enableOkButton(bool _enable);
 
 private Q_SLOTS:
   void onTextChanged();
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

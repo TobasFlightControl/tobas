@@ -6,13 +6,7 @@
 #include <urdf_model/joint.h>
 #include <urdf_model/link.h>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace utils
+namespace tobas::gui::ub::utils
 {
 /**
  * Default clone function.
@@ -20,22 +14,19 @@ namespace utils
  * so specialization or overloading is required.
  */
 template <typename T>
-std::shared_ptr<T> clone(const std::shared_ptr<T>& ptr)
+std::shared_ptr<T> clone(const std::shared_ptr<T>& _ptr)
 {
-  if (!ptr) {
+  if (!_ptr) {
     return nullptr;
   }
 
-  return std::make_shared<T>(*ptr);
+  return std::make_shared<T>(*_ptr);
 }
 
-::urdf::GeometrySharedPtr clone(const ::urdf::GeometrySharedPtr& geometry);
-::urdf::VisualSharedPtr clone(const ::urdf::VisualSharedPtr& visual);
-::urdf::CollisionSharedPtr clone(const ::urdf::CollisionSharedPtr& collision);
-::urdf::JointCalibrationSharedPtr clone(const ::urdf::JointCalibrationSharedPtr& calibration);
-::urdf::JointSharedPtr clone(const ::urdf::JointSharedPtr& joint);
-::urdf::LinkSharedPtr clone(const ::urdf::LinkSharedPtr& link);
-}  // namespace utils
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+::urdf::GeometrySharedPtr clone(const ::urdf::GeometrySharedPtr& _geometry);
+::urdf::VisualSharedPtr clone(const ::urdf::VisualSharedPtr& _visual);
+::urdf::CollisionSharedPtr clone(const ::urdf::CollisionSharedPtr& _collision);
+::urdf::JointCalibrationSharedPtr clone(const ::urdf::JointCalibrationSharedPtr& _calibration);
+::urdf::JointSharedPtr clone(const ::urdf::JointSharedPtr& _joint);
+::urdf::LinkSharedPtr clone(const ::urdf::LinkSharedPtr& _link);
+}  // namespace tobas::gui::ub::utils

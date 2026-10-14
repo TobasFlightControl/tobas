@@ -14,9 +14,7 @@
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class ElectricRotorCommandHandlerNode : public BaseNode
 {
@@ -24,7 +22,7 @@ class ElectricRotorCommandHandlerNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit ElectricRotorCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit ElectricRotorCommandHandlerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
@@ -37,28 +35,28 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
 
-  void droneCb(const Drone::ConstSharedPtr& drone);
-  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
-  void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds);
+  void droneCb(const Drone::ConstSharedPtr& _drone);
+  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& _battery);
+  void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& _tar_speeds);
 };
 
-ElectricRotorCommandHandlerNode::ElectricRotorCommandHandlerNode(const rclcpp::NodeOptions& options)
-  : super("gazebo_electric_rotor_command_handler", nodeOptions_Default(options)), latency_pub_(this)
+ElectricRotorCommandHandlerNode::ElectricRotorCommandHandlerNode(const rclcpp::NodeOptions& _options)
+  : super("gazebo_electric_rotor_command_handler", nodeOptions_Default(_options)), latency_pub_(this)
 {
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
 }
 
-void ElectricRotorCommandHandlerNode::droneCb(const Drone::ConstSharedPtr& drone)
+void ElectricRotorCommandHandlerNode::droneCb(const Drone::ConstSharedPtr& _drone)
 {
-  if (!drone->prop) {
+  if (!_drone->prop) {
     return;
   }
 
-  if (drone->prop->type() != PropulsionSystem::kElectric) {
+  if (_drone->prop->type() != PropulsionSystem::kElectric) {
     return;
   }
 
-  eprop_ = std::static_pointer_cast<ElectricPropulsionSystemConfig>(drone->prop);
+  eprop_ = std::static_pointer_cast<ElectricPropulsionSystemConfig>(_drone->prop);
 
   // Register publishers.
   throttle_pubs_.clear();
@@ -72,12 +70,12 @@ void ElectricRotorCommandHandlerNode::droneCb(const Drone::ConstSharedPtr& drone
   tar_speeds_sub_ = createSubscriber(topic::kRotorSpeedsCmd, &self::targetSpeedsCb, this);
 }
 
-void ElectricRotorCommandHandlerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
+void ElectricRotorCommandHandlerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& _battery)
 {
-  battery_ = battery;
+  battery_ = _battery;
 }
 
-void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
+void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& _tar_speeds)
 {
   if (!eprop_) {
     TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Drone message has not been received yet.");
@@ -88,7 +86,7 @@ void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::Roto
     return;
   }
 
-  for (const auto& speed : tar_speeds->speeds) {
+  for (const auto& speed : _tar_speeds->speeds) {
     // Check link name.
     if (!throttle_pubs_.contains(speed.link_name)) {
       TOBAS_ERROR("Electric rotor '" + speed.link_name + "' does not exist.");
@@ -97,7 +95,7 @@ void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::Roto
 
     // Create throttle message.
     auto throttle = std::make_unique<tobas_gazebo_msgs::msg::Throttle>();
-    throttle->header = tar_speeds->header;
+    throttle->header = _tar_speeds->header;
     throttle->data = eprop_->getRotor(speed.link_name)->throttleFromSpeed(speed.speed, battery_->voltage);
 
     // Publish throttle message.
@@ -105,9 +103,8 @@ void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::Roto
   }
 
   // Publish control latency.
-  latency_pub_.publish(tar_speeds->header.stamp);
+  latency_pub_.publish(_tar_speeds->header.stamp);
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::gazebo::ElectricRotorCommandHandlerNode)

@@ -17,16 +17,16 @@ struct rclcpp::TypeAdapter<tobas::EngineConfig, tobas_drone_msgs::msg::EngineCon
   using custom_type = tobas::EngineConfig;
   using ros_message_type = tobas_drone_msgs::msg::EngineConfig;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    tobas_std_msgs::PairFloat64Adapter::convert_to_ros_message(src.engine_const, dst.engine_const);
-    dst.hw_iface = static_cast<uint8_t>(src.hw_iface);
+    tobas_std_msgs::PairFloat64Adapter::convert_to_ros_message(_src.engine_const, _dst.engine_const);
+    _dst.hw_iface = static_cast<uint8_t>(_src.hw_iface);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas_std_msgs::PairFloat64Adapter::convert_to_custom(src.engine_const, dst.engine_const);
-    dst.hw_iface = static_cast<tobas::HardwareInterface>(src.hw_iface);
+    tobas_std_msgs::PairFloat64Adapter::convert_to_custom(_src.engine_const, _dst.engine_const);
+    _dst.hw_iface = static_cast<tobas::HardwareInterface>(_src.hw_iface);
   }
 };
 

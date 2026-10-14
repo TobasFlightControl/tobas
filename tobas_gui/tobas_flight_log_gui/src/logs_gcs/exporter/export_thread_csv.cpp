@@ -16,14 +16,10 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_string_tools/chars.hpp>
 
-namespace tobas
+namespace tobas::gui::log
 {
-namespace gui
-{
-namespace log
-{
-ExportThreadCsv::ExportThreadCsv(const QString& log_name, const QString& save_path)
-  : log_name_(log_name), save_path_(save_path)
+ExportThreadCsv::ExportThreadCsv(const QString& _log_name, const QString& _save_path)
+  : log_name_(_log_name), save_path_(_save_path)
 {
 }
 
@@ -71,7 +67,7 @@ void ExportThreadCsv::run()
   }
 
   // Write header.
-  csv_file << makeCsvHeader() << std::endl;
+  csv_file << makeCsvHeader() << '\n';
 
   // Read and export data.
   histmap_.clear();
@@ -178,26 +174,26 @@ void ExportThreadCsv::run()
   Q_EMIT finished(true, "");
 }
 
-bool ExportThreadCsv::openRosBag(const std::string& path)
+bool ExportThreadCsv::openRosBag(const std::string& _path)
 {
   try {
-    reader_.open(path);
+    reader_.open(_path);
   }
   catch (const std::exception& e) {
-    qWarning() << "Failed to open" << QString::fromStdString(path) + ":" << e.what();
+    qWarning() << "Failed to open" << QString::fromStdString(_path) + ":" << e.what();
     return false;
   }
 
   return true;
 }
 
-bool ExportThreadCsv::rotorLinkNamesValid(const tobas_msgs::msg::RotorStateArray& msg)
+bool ExportThreadCsv::rotorLinkNamesValid(const tobas_msgs::msg::RotorStateArray& _msg)
 {
-  if (msg.states.size() != rotor_link_names_.size()) {
+  if (_msg.states.size() != rotor_link_names_.size()) {
     return false;
   }
 
-  for (const auto [elem, link_name] : std::views::zip(msg.states, rotor_link_names_)) {
+  for (const auto [elem, link_name] : std::views::zip(_msg.states, rotor_link_names_)) {
     if (elem.link_name != link_name) {
       return false;
     }
@@ -206,13 +202,13 @@ bool ExportThreadCsv::rotorLinkNamesValid(const tobas_msgs::msg::RotorStateArray
   return true;
 }
 
-bool ExportThreadCsv::rotorLinkNamesValid(const tobas_msgs::msg::RotorSpeedArray& msg)
+bool ExportThreadCsv::rotorLinkNamesValid(const tobas_msgs::msg::RotorSpeedArray& _msg)
 {
-  if (msg.speeds.size() != rotor_link_names_.size()) {
+  if (_msg.speeds.size() != rotor_link_names_.size()) {
     return false;
   }
 
-  for (const auto [elem, link_name] : std::views::zip(msg.speeds, rotor_link_names_)) {
+  for (const auto [elem, link_name] : std::views::zip(_msg.speeds, rotor_link_names_)) {
     if (elem.link_name != link_name) {
       return false;
     }
@@ -274,16 +270,16 @@ std::string ExportThreadCsv::makeCsvHeader() const
   return csv_header;
 }
 
-std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& data)
+std::string ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedDataMap& _data)
 {
   std::string res;
 
   // Time
-  res += std::to_string(time * 1e-9) + ',';
+  res += std::to_string(_time * 1e-9) + ',';
 
   // Pose, Twist, Accel
-  const auto odom_it = data.find(topic::kOdometry);
-  if (odom_it != data.end()) {
+  const auto odom_it = _data.find(topic::kOdometry);
+  if (odom_it != _data.end()) {
     const auto& msg = odom_cov_decoder_.decode(odom_it->second);
 
     const auto& pos = msg.odom.odom.frame.trans;
@@ -308,8 +304,8 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // IMU
-  const auto imu_raw_it = data.find(topic::kImuRaw);
-  if (imu_raw_it != data.end()) {
+  const auto imu_raw_it = _data.find(topic::kImuRaw);
+  if (imu_raw_it != _data.end()) {
     const auto& msg = imu_decoder_.decode(imu_raw_it->second);
     const auto& accel = msg.accel;
     const auto& gyro = msg.gyro;
@@ -323,8 +319,8 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Magnetic Field
-  const auto mag_it = data.find(topic::kMagneticField);
-  if (mag_it != data.end()) {
+  const auto mag_it = _data.find(topic::kMagneticField);
+  if (mag_it != _data.end()) {
     const auto& msg = mag_decoder_.decode(mag_it->second);
     const auto& mag = msg.mag;
     res += std::to_string(mag.x) + ',' + std::to_string(mag.y) + ',' + std::to_string(mag.z) + ',';
@@ -334,8 +330,8 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // GNSS
-  const auto gnss_it = data.find(topic::kGnss);
-  if (gnss_it != data.end()) {
+  const auto gnss_it = _data.find(topic::kGnss);
+  if (gnss_it != _data.end()) {
     const auto& msg = gnss_decoder_.decode(gnss_it->second);
     if (msg.fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
       res += std::to_string(msg.latitude) + ',' + std::to_string(msg.longitude) + ',' + std::to_string(msg.height_msl) +
@@ -351,8 +347,8 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // RC Input
-  const auto rcin_it = data.find(topic::kRcInput);
-  if (rcin_it != data.end()) {
+  const auto rcin_it = _data.find(topic::kRcInput);
+  if (rcin_it != _data.end()) {
     const auto& msg = rcin_decoder_.decode(rcin_it->second);
     if (msg.status == tobas_msgs::msg::RCInput::STATUS_OK) {
       res += std::to_string(msg.roll) + ',' + std::to_string(msg.pitch) + ',' + std::to_string(msg.throttle) + ',' +
@@ -368,8 +364,8 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Battery
-  const auto batt_it = data.find(topic::kBattery);
-  if (batt_it != data.end()) {
+  const auto batt_it = _data.find(topic::kBattery);
+  if (batt_it != _data.end()) {
     const auto& msg = battery_decoder_.decode(batt_it->second);
     res += std::to_string(msg.voltage) + ',' + std::to_string(msg.current) + ',';
   }
@@ -378,8 +374,8 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Engine
-  const auto ice_cmd_it = data.find(topic::kIcePropulsionSystemCmd);
-  if (ice_cmd_it != data.end()) {
+  const auto ice_cmd_it = _data.find(topic::kIcePropulsionSystemCmd);
+  if (ice_cmd_it != _data.end()) {
     const auto& msg = ice_cmd_decoder_.decode(ice_cmd_it->second);
     res += std::to_string(msg.engine_throttle * 100) + ',';
   }
@@ -388,8 +384,8 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // CPU
-  const auto cpu_it = data.find(topic::kCpu);
-  if (cpu_it != data.end()) {
+  const auto cpu_it = _data.find(topic::kCpu);
+  if (cpu_it != _data.end()) {
     const auto& msg = cpu_decoder_.decode(cpu_it->second);
     res += std::to_string(msg.frequency) + ',' + std::to_string(msg.temperature) + ',' +
            std::to_string(msg.load * 100) + ',';
@@ -399,8 +395,8 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Target Rotor Speeds
-  const auto rotor_speeds_cmd_it = data.find(topic::kRotorSpeedsCmd);
-  if (rotor_speeds_cmd_it != data.end()) {
+  const auto rotor_speeds_cmd_it = _data.find(topic::kRotorSpeedsCmd);
+  if (rotor_speeds_cmd_it != _data.end()) {
     const auto& msg = rotor_speeds_decoder_.decode(rotor_speeds_cmd_it->second);
     for (const auto& elem : msg.speeds) {
       res += std::to_string(st::rps2rpm(elem.speed)) + ',';
@@ -411,8 +407,8 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Rotor States
-  const auto rotor_states_it = data.find(topic::kRotorStates);
-  if (rotor_states_it != data.end()) {
+  const auto rotor_states_it = _data.find(topic::kRotorStates);
+  if (rotor_states_it != _data.end()) {
     const auto& msg = rotor_states_decoder_.decode(rotor_states_it->second);
     for (const auto& elem : msg.states) {
       res += std::to_string(st::rps2rpm(elem.speed)) + ',';
@@ -427,8 +423,8 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Control Latency
-  const auto ctrl_latency_it = data.find(topic::kControlLatency);
-  if (ctrl_latency_it != data.end()) {
+  const auto ctrl_latency_it = _data.find(topic::kControlLatency);
+  if (ctrl_latency_it != _data.end()) {
     const auto& msg = latency_decoder_.decode(ctrl_latency_it->second);
     res += std::to_string(ros2::microseconds(msg.data)) + ',';
   }
@@ -437,8 +433,8 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Vibration Level
-  const auto vibe_it = data.find(topic::kVibrationLevel);
-  if (vibe_it != data.end()) {
+  const auto vibe_it = _data.find(topic::kVibrationLevel);
+  if (vibe_it != _data.end()) {
     const auto& msg = vibe_decoder_.decode(vibe_it->second);
     const auto& vibe = msg.data;
     res += std::to_string(vibe.x) + ',' + std::to_string(vibe.y) + ',' + std::to_string(vibe.z) + ',';
@@ -448,8 +444,8 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Repulsive Acceleration
-  const auto repulsive_accel_it = data.find(topic::kRepulsiveAccel);
-  if (repulsive_accel_it != data.end()) {
+  const auto repulsive_accel_it = _data.find(topic::kRepulsiveAccel);
+  if (repulsive_accel_it != _data.end()) {
     const auto& msg = repulsive_accel_decoder_.decode(repulsive_accel_it->second);
     const auto& accel = msg.accel;
     res += std::to_string(accel.x) + ',' + std::to_string(accel.y) + ',' + std::to_string(accel.z) + ',';
@@ -459,8 +455,8 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Disturbance Force
-  const auto dist_force_it = data.find(topic::kDisturbanceForce);
-  if (dist_force_it != data.end()) {
+  const auto dist_force_it = _data.find(topic::kDisturbanceForce);
+  if (dist_force_it != _data.end()) {
     const auto& msg = wrench_decoder_.decode(dist_force_it->second);
     const auto& force = msg.wrench.force;
     const auto& torque = msg.wrench.torque;
@@ -472,8 +468,8 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Observer Feedback
-  const auto obsv_fb_it = data.find(topic::kObsvFeedback);
-  if (obsv_fb_it != data.end()) {
+  const auto obsv_fb_it = _data.find(topic::kObsvFeedback);
+  if (obsv_fb_it != _data.end()) {
     const auto& msg = obsv_fb_decoder_.decode(obsv_fb_it->second);
     const auto& ab = msg.accel_bias;
     const auto& gb = msg.gyro_bias;
@@ -492,8 +488,8 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   }
 
   // Multirotor Controller Feedback
-  const auto mr_ctrl_fb_it = data.find(topic::kMRCtrlFeedback);
-  if (mr_ctrl_fb_it != data.end()) {
+  const auto mr_ctrl_fb_it = _data.find(topic::kMRCtrlFeedback);
+  if (mr_ctrl_fb_it != _data.end()) {
     const auto& msg = mr_ctrl_fb_decoder_.decode(mr_ctrl_fb_it->second);
     const auto& pos_ie = msg.position_integral_error;
     const auto& rot_ie = msg.angle_integral_error;
@@ -507,11 +503,11 @@ std::string ExportThreadCsv::makeCsvDataRow(Time time, const SerializedDataMap& 
   return res;
 }
 
-bool ExportThreadCsv::exportOldestImuLine(std::ofstream& file, Time before_this_time)
+bool ExportThreadCsv::exportOldestImuLine(std::ofstream& _file, Time _before_this_time)
 {
   // Check whether any IMU data older than the time threshold exists.
   Time imu_time = -1;
-  for (auto it = histmap_.begin(); it != histmap_.end() && it->first < before_this_time; ++it) {
+  for (auto it = histmap_.begin(); it != histmap_.end() && it->first < _before_this_time; ++it) {
     if (it->second.contains(topic::kImuRaw)) {
       imu_time = it->first;
       break;
@@ -532,10 +528,8 @@ bool ExportThreadCsv::exportOldestImuLine(std::ofstream& file, Time before_this_
   }
 
   // Write data to one row.
-  file << makeCsvDataRow(imu_time, line_data) << std::endl;
+  _file << makeCsvDataRow(imu_time, line_data) << '\n';
 
   return true;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

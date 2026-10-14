@@ -9,22 +9,16 @@
 
 #include "./ssh_client.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 class RemoteProjectBuilder
 {
 public:
-  explicit RemoteProjectBuilder(rclcpp::Node::SharedPtr node);
+  explicit RemoteProjectBuilder(rclcpp::Node::SharedPtr _node);
 
-  std::expected<QString, QString> build(const QString& remote_proj_path);
+  std::expected<QString, QString> build(const QString& _remote_proj_path);
 
 private:
   cmn::SshClientWrapper ssh_client_;
 };
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

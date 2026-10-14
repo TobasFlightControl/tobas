@@ -3,11 +3,8 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /** Process all queued events. */
 void processAllQueuedEvents();
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

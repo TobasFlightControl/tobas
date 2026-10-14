@@ -21,27 +21,27 @@ struct rclcpp::TypeAdapter<tobas::IcePropulsionSystemConfig, tobas_drone_msgs::m
   using custom_type = tobas::IcePropulsionSystemConfig;
   using ros_message_type = tobas_drone_msgs::msg::IcePropulsionSystemConfig;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    tobas_drone_msgs::EngineConfigAdapter::convert_to_ros_message(src.engine, dst.engine);
+    tobas_drone_msgs::EngineConfigAdapter::convert_to_ros_message(_src.engine, _dst.engine);
 
-    dst.rotors.clear();
-    for (const auto& [_, src_rotor] : src.rotors) {
+    _dst.rotors.clear();
+    for (const auto& [_, src_rotor] : _src.rotors) {
       const auto src_irotor = std::static_pointer_cast<tobas::IceRotorConfig>(src_rotor);
-      dst.rotors.emplace_back();
-      tobas_drone_msgs::IceRotorConfigAdapter::convert_to_ros_message(*src_irotor, dst.rotors.back());
+      _dst.rotors.emplace_back();
+      tobas_drone_msgs::IceRotorConfigAdapter::convert_to_ros_message(*src_irotor, _dst.rotors.back());
     }
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas_drone_msgs::EngineConfigAdapter::convert_to_custom(src.engine, dst.engine);
+    tobas_drone_msgs::EngineConfigAdapter::convert_to_custom(_src.engine, _dst.engine);
 
-    dst.rotors.clear();
-    for (const auto& src_irotor : src.rotors) {
+    _dst.rotors.clear();
+    for (const auto& src_irotor : _src.rotors) {
       const auto dst_irotor = std::make_shared<tobas::IceRotorConfig>();
       tobas_drone_msgs::IceRotorConfigAdapter::convert_to_custom(src_irotor, *dst_irotor);
-      dst.rotors[src_irotor.rotor.link_name] = dst_irotor;
+      _dst.rotors[src_irotor.rotor.link_name] = dst_irotor;
     }
   }
 };

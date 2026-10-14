@@ -6,9 +6,7 @@
 #include <GeographicLib/MagneticModel.hpp>
 #include <GeographicLib/TransverseMercator.hpp>
 
-namespace tobas
-{
-namespace geo
+namespace tobas::geo
 {
 struct PlaneCoordinates
 {
@@ -33,7 +31,7 @@ struct MagneticField
 class Geography final
 {
 public:
-  explicit Geography(const std::string& name = "wmm2025");
+  explicit Geography(const std::string& _name = "wmm2025");
 
   Geography(const Geography&) = delete;
   Geography& operator=(const Geography&) = delete;
@@ -44,20 +42,21 @@ public:
    * Project geodetic coordinates onto a GRS80 Gauss-Kruger plane.
    * The origin is assigned zero easting and northing. The central scale factor is 0.9999.
    */
-  PlaneCoordinates geodeticToPlane(double latitude, double longitude, double origin_latitude, double origin_longitude);
+  PlaneCoordinates
+  geodeticToPlane(double _latitude, double _longitude, double _origin_latitude, double _origin_longitude);
 
   /** Reverse a GRS80 Gauss-Kruger projection with a zero-valued origin. */
-  GeodeticCoordinates planeToGeodetic(double east, double north, double origin_latitude, double origin_longitude);
+  GeodeticCoordinates planeToGeodetic(double _east, double _north, double _origin_latitude, double _origin_longitude);
 
   /**
    * Evaluate WMM2025 at the specified geodetic position and decimal year.
    *
-   * @param latitude Geodetic latitude [deg].
-   * @param longitude Geodetic longitude [deg].
-   * @param height_wgs84 Height above the WGS 84 ellipsoid [m].
-   * @param decimal_year Decimal year.
+   * @param _latitude Geodetic latitude [deg].
+   * @param _longitude Geodetic longitude [deg].
+   * @param _height_wgs84 Height above the WGS 84 ellipsoid [m].
+   * @param _decimal_year Decimal year.
    */
-  MagneticField magneticField(double latitude, double longitude, double height_wgs84, double decimal_year);
+  MagneticField magneticField(double _latitude, double _longitude, double _height_wgs84, double _decimal_year);
 
 private:
   GeographicLib::TransverseMercator plane_projection_;
@@ -77,5 +76,4 @@ private:
 
   bool model_expiration_warned_ = false;  ///< Whether the expiration warning has been emitted
 };
-}  // namespace geo
-}  // namespace tobas
+}  // namespace tobas::geo

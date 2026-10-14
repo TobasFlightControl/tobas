@@ -6,11 +6,7 @@
 #include <limits>
 #include <span>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class QwtPlot2;
 
@@ -18,10 +14,10 @@ class VerticalScaleRange
 {
 public:
   /** Extend the range with a value, ignoring NaN and infinity. */
-  void include(double value);
+  void include(double _value);
 
   /** Merge another nonempty range into this range. */
-  void include(const VerticalScaleRange& other);
+  void include(const VerticalScaleRange& _other);
 
   /** Check whether the range contains no finite values. */
   bool empty() const;
@@ -41,20 +37,18 @@ private:
 };
 
 /** Configure a plot's vertical scale from a value range and minimum half-range. */
-void setVerticalScale(QwtPlot2& plot, const VerticalScaleRange& range, double minimum_half_range = 0.0);
+void setVerticalScale(QwtPlot2& _plot, const VerticalScaleRange& _range, double _minimum_half_range = 0.0);
 
 /** Configure a target-centered scale containing current and target values with a minimum half-range. */
 void setTargetCenteredVerticalScale(
-  QwtPlot2& plot,
-  const VerticalScaleRange& range,
-  const VerticalScaleRange& target_range,
-  double minimum_half_range);
+  QwtPlot2& _plot,
+  const VerticalScaleRange& _range,
+  const VerticalScaleRange& _target_range,
+  double _minimum_half_range);
 
 /** Apply one automatically resolved vertical scale to multiple plots. */
-void setSharedVerticalScale(std::span<QwtPlot2* const> plots, const VerticalScaleRange& range);
+void setSharedVerticalScale(std::span<QwtPlot2* const> _plots, const VerticalScaleRange& _range);
 
 /** Apply one shared zero-centered vertical scale to multiple plots. */
-void setSharedZeroCenteredVerticalScale(std::span<QwtPlot2* const> plots, const VerticalScaleRange& range);
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+void setSharedZeroCenteredVerticalScale(std::span<QwtPlot2* const> _plots, const VerticalScaleRange& _range);
+}  // namespace tobas::gui::log

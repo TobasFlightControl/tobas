@@ -10,18 +10,18 @@ int main()
 {
   const auto name = tobas::git::getGitConfigValue("user.name");
   if (!name) {
-    std::cerr << name.error() << std::endl;
+    std::cerr << name.error() << '\n';
     return EXIT_FAILURE;
   }
 
   const auto email = tobas::git::getGitConfigValue("user.email");
   if (!email) {
-    std::cerr << email.error() << std::endl;
+    std::cerr << email.error() << '\n';
     return EXIT_FAILURE;
   }
 
-  std::cout << "Git User Name: " << *name << std::endl;
-  std::cout << "Git Email: " << *email << std::endl;
+  std::cout << "Git User Name: " << *name << '\n';
+  std::cout << "Git Email: " << *email << '\n';
 
   return EXIT_SUCCESS;
 }

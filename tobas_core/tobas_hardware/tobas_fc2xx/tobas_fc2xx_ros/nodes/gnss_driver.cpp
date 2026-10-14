@@ -11,9 +11,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace fc2xx
+namespace tobas::fc2xx
 {
 class GnssDriverNode : public BaseNode
 {
@@ -21,7 +19,7 @@ class GnssDriverNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit GnssDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit GnssDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   ublox::UbloxGnss gnss_;
@@ -42,8 +40,8 @@ private:
   void mainTimerCb();
 };
 
-GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc2xx_gnss_driver", nodeOptions_Default(options))
+GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& _options)
+  : super("fc2xx_gnss_driver", nodeOptions_Default(_options))
   , gnss_(std::make_unique<ublox::UbxTransportSpi>("/dev/spidev1.0"))
 {
   if (!initialize()) {
@@ -255,7 +253,6 @@ void GnssDriverNode::mainTimerCb()
   // Publish GNSS message.
   gnss_pub_->publish(std::move(gnss_msg));
 }
-}  // namespace fc2xx
-}  // namespace tobas
+}  // namespace tobas::fc2xx
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc2xx::GnssDriverNode)

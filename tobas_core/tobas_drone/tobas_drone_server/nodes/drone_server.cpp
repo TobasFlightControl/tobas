@@ -20,7 +20,7 @@ class DroneServerNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit DroneServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit DroneServerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   Drone drone_;
@@ -30,8 +30,8 @@ private:
   void initialPublishTimerCb();
 };
 
-DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options)
-  : super("drone_server", nodeOptions_Default(options))
+DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& _options)
+  : super("drone_server", nodeOptions_Default(_options))
 {
   // Load a drone configuration.
   const auto tbsdrn_path = getStringParam("tbsdrn_path");

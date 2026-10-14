@@ -6,15 +6,7 @@
 #include "./base.hpp"
 #include "tobas_setup_assistant/param_getters/double_table.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 /**
  * Obtain thrust and torque coefficients from Thrust Stand experimental data.
@@ -32,10 +24,10 @@ public:
 
   void setToDefaults() override;
   bool isValid() override;
-  void copyFrom(const AerodynamicsWidget_Base* src) override;
+  void copyFrom(const AerodynamicsWidget_Base* _src) override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   double motorConst() const override;
   double momentConst() const override;
@@ -43,8 +35,4 @@ public:
 private:
   ParamGetterWidget_DoubleTable* data_;
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

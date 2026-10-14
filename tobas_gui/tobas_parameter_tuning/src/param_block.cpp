@@ -19,31 +19,27 @@
 
 using namespace std::placeholders;
 
-namespace tobas
-{
-namespace gui
-{
-namespace param
+namespace tobas::gui::param
 {
 namespace
 {
 template <typename Config>
-void updateButtonStates(const Config& config)
+void updateButtonStates(const Config& _config)
 {
-  const auto value = config.slider->value();
-  config.down_button_->setEnabled(value > config.slider->minimum());
-  config.up_button_->setEnabled(value < config.slider->maximum());
-  config.reset_button_->setEnabled(value != config.initial_value);
-  config.home_button_->setEnabled(value != config.default_value);
+  const auto value = _config.slider->value();
+  _config.down_button_->setEnabled(value > _config.slider->minimum());
+  _config.up_button_->setEnabled(value < _config.slider->maximum());
+  _config.reset_button_->setEnabled(value != _config.initial_value);
+  _config.home_button_->setEnabled(value != _config.default_value);
 }
 }  // namespace
 
-ParamBlockWidget::ParamBlockWidget(const std::string& node_name, const QString& label) : node_name_(node_name)
+ParamBlockWidget::ParamBlockWidget(const std::string& _node_name, const QString& _label) : node_name_(_node_name)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  label_ = new QLabel(label);
+  label_ = new QLabel(_label);
   label_->setFont(qt::DefaultFont(12, QFont::Bold));
   qt::addWidgetCenter(label_, rows);
 
@@ -51,12 +47,12 @@ ParamBlockWidget::ParamBlockWidget(const std::string& node_name, const QString& 
   rows->addLayout(form_);
 }
 
-void ParamBlockWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void ParamBlockWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  const auto get_param_srv = path::join(ns, kRemoteIfaceNS, node_name_, service::kGetDynamicParams);
-  get_param_sc_.emplace(node, get_param_srv);
+  const auto get_param_srv = path::join(_ns, kRemoteIfaceNS, node_name_, service::kGetDynamicParams);
+  get_param_sc_.emplace(_node, get_param_srv);
 
-  dparam_cli_.emplace(node, node_name_, ns);
+  dparam_cli_.emplace(_node, node_name_, _ns);
 }
 
 void ParamBlockWidget::clearRosInterfaces()
@@ -211,18 +207,18 @@ bool ParamBlockWidget::load()
   return true;
 }
 
-bool ParamBlockWidget::save(const QString& path)
+bool ParamBlockWidget::save(const QString& _path)
 {
   const auto config = createCurrentConfig();
 
   // Confirm that the configuration file exists.
-  if (!QFileInfo(path).isFile()) {
-    qt::qErrorBox(this, path + " does not exist on PC.");
+  if (!QFileInfo(_path).isFile()) {
+    qt::qErrorBox(this, _path + " does not exist on PC.");
     return false;
   }
 
   // Save to the PC.
-  if (!yaml::save(path.toStdString(), config)) {
+  if (!yaml::save(_path.toStdString(), config)) {
     qt::qErrorBox(this, "Failed to save configuration to PC.");
     return false;
   }
@@ -297,109 +293,107 @@ YAML::Node ParamBlockWidget::createCurrentConfig() const
 }
 
 template <typename Config>
-bool ParamBlockWidget::setValue(const std::string& name, const Config& config, int32_t value)
+bool ParamBlockWidget::setValue(const std::string& _name, const Config& _config, int32_t _value)
 {
-  if (config.slider->value() == value) {
+  if (_config.slider->value() == _value) {
     return true;
   }
 
-  if (dparam_cli_->setInt(name, value) != dparam::DynamicParamClient::kNoError) {
+  if (dparam_cli_->setInt(_name, _value) != dparam::DynamicParamClient::kNoError) {
     qWarning() << dparam_cli_->errorMessage();
-    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + name.c_str() + "'.");
+    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + _name.c_str() + "'.");
     return false;
   }
 
-  const QSignalBlocker block(config.slider);
-  config.slider->setValue(value);
-  config.line_edit->setText(QString::number(config.step * value) + config.prefix);
-  updateButtonStates(config);
+  const QSignalBlocker block(_config.slider);
+  _config.slider->setValue(_value);
+  _config.line_edit->setText(QString::number(_config.step * _value) + _config.prefix);
+  updateButtonStates(_config);
 
   return true;
 }
 
-void ParamBlockWidget::onIntDownButtonClicked(const std::string& name)
+void ParamBlockWidget::onIntDownButtonClicked(const std::string& _name)
 {
-  auto& config = int_configs_.at(name);
+  auto& config = int_configs_.at(_name);
   config.slider->setValue(config.slider->value() - 1);
 }
 
-void ParamBlockWidget::onIntUpButtonClicked(const std::string& name)
+void ParamBlockWidget::onIntUpButtonClicked(const std::string& _name)
 {
-  auto& config = int_configs_.at(name);
+  auto& config = int_configs_.at(_name);
   config.slider->setValue(config.slider->value() + 1);
 }
 
-void ParamBlockWidget::onIntResetButtonClicked(const std::string& name)
+void ParamBlockWidget::onIntResetButtonClicked(const std::string& _name)
 {
-  auto& config = int_configs_.at(name);
+  auto& config = int_configs_.at(_name);
   config.slider->setValue(config.initial_value);
 }
 
-void ParamBlockWidget::onIntHomeButtonClicked(const std::string& name)
+void ParamBlockWidget::onIntHomeButtonClicked(const std::string& _name)
 {
-  auto& config = int_configs_.at(name);
+  auto& config = int_configs_.at(_name);
   config.slider->setValue(config.default_value);
 }
 
-void ParamBlockWidget::onIntSliderValueChanged(long value, const std::string& name)
+void ParamBlockWidget::onIntSliderValueChanged(long _value, const std::string& _name)
 {
-  auto& config = int_configs_.at(name);
-  config.line_edit->setText(QString::number(config.step * value) + config.prefix);
+  auto& config = int_configs_.at(_name);
+  config.line_edit->setText(QString::number(config.step * _value) + config.prefix);
   updateButtonStates(config);
 
-  if (dparam_cli_->setInt(name, value) != dparam::DynamicParamClient::kNoError) {
-    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + name.c_str() + "'.");
+  if (dparam_cli_->setInt(_name, _value) != dparam::DynamicParamClient::kNoError) {
+    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + _name.c_str() + "'.");
   }
 }
 
-void ParamBlockWidget::onDoubleDownButtonClicked(const std::string& name)
+void ParamBlockWidget::onDoubleDownButtonClicked(const std::string& _name)
 {
-  auto& config = double_configs_.at(name);
+  auto& config = double_configs_.at(_name);
   config.slider->setValue(config.slider->value() - 1);
 }
 
-void ParamBlockWidget::onDoubleUpButtonClicked(const std::string& name)
+void ParamBlockWidget::onDoubleUpButtonClicked(const std::string& _name)
 {
-  auto& config = double_configs_.at(name);
+  auto& config = double_configs_.at(_name);
   config.slider->setValue(config.slider->value() + 1);
 }
 
-void ParamBlockWidget::onDoubleResetButtonClicked(const std::string& name)
+void ParamBlockWidget::onDoubleResetButtonClicked(const std::string& _name)
 {
   if (!qt::yesOrNo(
         this,
-        "Are you sure you want to reset parameter '" + QString::fromStdString(name) + "' to its initial value?",
+        "Are you sure you want to reset parameter '" + QString::fromStdString(_name) + "' to its initial value?",
         qt::WARN)) {
     return;
   }
 
-  auto& config = double_configs_.at(name);
+  auto& config = double_configs_.at(_name);
   config.slider->setValue(config.initial_value);
 }
 
-void ParamBlockWidget::onDoubleHomeButtonClicked(const std::string& name)
+void ParamBlockWidget::onDoubleHomeButtonClicked(const std::string& _name)
 {
   if (!qt::yesOrNo(
         this,
-        "Are you sure you want to reset parameter '" + QString::fromStdString(name) + "' to its default value?",
+        "Are you sure you want to reset parameter '" + QString::fromStdString(_name) + "' to its default value?",
         qt::WARN)) {
     return;
   }
 
-  auto& config = double_configs_.at(name);
+  auto& config = double_configs_.at(_name);
   config.slider->setValue(config.default_value);
 }
 
-void ParamBlockWidget::onDoubleSliderValueChanged(long value, const std::string& name)
+void ParamBlockWidget::onDoubleSliderValueChanged(long _value, const std::string& _name)
 {
-  auto& config = double_configs_.at(name);
-  config.line_edit->setText(QString::number(config.step * value) + config.prefix);
+  auto& config = double_configs_.at(_name);
+  config.line_edit->setText(QString::number(config.step * _value) + config.prefix);
   updateButtonStates(config);
 
-  if (dparam_cli_->setDouble(name, value) != dparam::DynamicParamClient::kNoError) {
-    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + name.c_str() + "'.");
+  if (dparam_cli_->setDouble(_name, _value) != dparam::DynamicParamClient::kNoError) {
+    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + _name.c_str() + "'.");
   }
 }
-}  // namespace param
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::param

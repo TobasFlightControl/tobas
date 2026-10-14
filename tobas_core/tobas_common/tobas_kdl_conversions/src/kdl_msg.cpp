@@ -3,98 +3,95 @@
 
 #include "tobas_kdl_conversions/kdl_msg.hpp"
 
-namespace tobas
+namespace tobas::kdl
 {
-namespace kdl
+void vectorKDLToMsg(const Vector& _k, geometry_msgs::msg::Vector3& _m)
 {
-void vectorKDLToMsg(const Vector& k, geometry_msgs::msg::Vector3& m)
-{
-  m.x = k.x();
-  m.y = k.y();
-  m.z = k.z();
+  _m.x = _k.x();
+  _m.y = _k.y();
+  _m.z = _k.z();
 }
 
-void vectorMsgToKDL(const geometry_msgs::msg::Vector3& m, Vector& k)
+void vectorMsgToKDL(const geometry_msgs::msg::Vector3& _m, Vector& _k)
 {
-  k.x(m.x);
-  k.y(m.y);
-  k.z(m.z);
+  _k.x(_m.x);
+  _k.y(_m.y);
+  _k.z(_m.z);
 }
 
-void pointKDLToMsg(const Vector& k, geometry_msgs::msg::Point& m)
+void pointKDLToMsg(const Vector& _k, geometry_msgs::msg::Point& _m)
 {
-  m.x = k.x();
-  m.y = k.y();
-  m.z = k.z();
+  _m.x = _k.x();
+  _m.y = _k.y();
+  _m.z = _k.z();
 }
 
-void pointMsgToKDL(const geometry_msgs::msg::Point& m, Vector& k)
+void pointMsgToKDL(const geometry_msgs::msg::Point& _m, Vector& _k)
 {
-  k.x(m.x);
-  k.y(m.y);
-  k.z(m.z);
+  _k.x(_m.x);
+  _k.y(_m.y);
+  _k.z(_m.z);
 }
 
-void twistKDLToMsg(const Twist& k, geometry_msgs::msg::Twist& m)
+void twistKDLToMsg(const Twist& _k, geometry_msgs::msg::Twist& _m)
 {
-  vectorKDLToMsg(k.vel, m.linear);
-  vectorKDLToMsg(k.rot, m.angular);
+  vectorKDLToMsg(_k.vel, _m.linear);
+  vectorKDLToMsg(_k.rot, _m.angular);
 }
 
-void twistMsgToKDL(const geometry_msgs::msg::Twist& m, Twist& k)
+void twistMsgToKDL(const geometry_msgs::msg::Twist& _m, Twist& _k)
 {
-  vectorMsgToKDL(m.linear, k.vel);
-  vectorMsgToKDL(m.angular, k.rot);
+  vectorMsgToKDL(_m.linear, _k.vel);
+  vectorMsgToKDL(_m.angular, _k.rot);
 }
 
-void rotationKDLToMsg(const Rotation& k, geometry_msgs::msg::Quaternion& m)
+void rotationKDLToMsg(const Rotation& _k, geometry_msgs::msg::Quaternion& _m)
 {
-  k.getQuaternion(m.x, m.y, m.z, m.w);
+  _k.getQuaternion(_m.x, _m.y, _m.z, _m.w);
 }
 
-void rotationMsgToKDL(const geometry_msgs::msg::Quaternion& m, Rotation& k)
+void rotationMsgToKDL(const geometry_msgs::msg::Quaternion& _m, Rotation& _k)
 {
-  k = Rotation::Quaternion(m.x, m.y, m.z, m.w);
+  _k = Rotation::Quaternion(_m.x, _m.y, _m.z, _m.w);
 }
 
-void quaternionKDLToMsg(const Quaternion& k, geometry_msgs::msg::Quaternion& m)
+void quaternionKDLToMsg(const Quaternion& _k, geometry_msgs::msg::Quaternion& _m)
 {
-  m.x = k.x;
-  m.y = k.y;
-  m.z = k.z;
-  m.w = k.w;
+  _m.x = _k.x;
+  _m.y = _k.y;
+  _m.z = _k.z;
+  _m.w = _k.w;
 }
 
-void quaternionMsgToKDL(const geometry_msgs::msg::Quaternion& m, Quaternion& k)
+void quaternionMsgToKDL(const geometry_msgs::msg::Quaternion& _m, Quaternion& _k)
 {
-  k.x = m.x;
-  k.y = m.y;
-  k.z = m.z;
-  k.w = m.w;
+  _k.x = _m.x;
+  _k.y = _m.y;
+  _k.z = _m.z;
+  _k.w = _m.w;
 }
 
-void poseKDLToMsg(const Frame& k, geometry_msgs::msg::Pose& m)
+void poseKDLToMsg(const Frame& _k, geometry_msgs::msg::Pose& _m)
 {
-  pointKDLToMsg(k.p, m.position);
-  rotationKDLToMsg(k.M, m.orientation);
+  pointKDLToMsg(_k.p, _m.position);
+  rotationKDLToMsg(_k.M, _m.orientation);
 }
 
-void poseMsgToKDL(const geometry_msgs::msg::Pose& m, Frame& k)
+void poseMsgToKDL(const geometry_msgs::msg::Pose& _m, Frame& _k)
 {
-  pointMsgToKDL(m.position, k.p);
-  rotationMsgToKDL(m.orientation, k.M);
+  pointMsgToKDL(_m.position, _k.p);
+  rotationMsgToKDL(_m.orientation, _k.M);
 }
 
-void transformKDLToMsg(const Frame& k, geometry_msgs::msg::Transform& m)
+void transformKDLToMsg(const Frame& _k, geometry_msgs::msg::Transform& _m)
 {
-  vectorKDLToMsg(k.p, m.translation);
-  rotationKDLToMsg(k.M, m.rotation);
+  vectorKDLToMsg(_k.p, _m.translation);
+  rotationKDLToMsg(_k.M, _m.rotation);
 }
 
-void transformMsgToKDL(const geometry_msgs::msg::Transform& m, Frame& k)
+void transformMsgToKDL(const geometry_msgs::msg::Transform& _m, Frame& _k)
 {
-  vectorMsgToKDL(m.translation, k.p);
-  rotationMsgToKDL(m.rotation, k.M);
+  vectorMsgToKDL(_m.translation, _k.p);
+  rotationMsgToKDL(_m.rotation, _k.M);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

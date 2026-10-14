@@ -8,33 +8,31 @@
 #include <QIntValidator>
 #include <QLabel>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 namespace
 {
 constexpr int kValueWidth = 100;
 }  // namespace
 
-IntSliderTextWidget::IntSliderTextWidget(int minimum, int maximum, QWidget* parent) : super(parent)
+IntSliderTextWidget::IntSliderTextWidget(int _minimum, int _maximum, QWidget* _parent) : super(_parent)
 {
   const auto cols = new QHBoxLayout();
   setLayout(cols);
 
-  cols->addWidget(new QLabel(QString::number(minimum)));
+  cols->addWidget(new QLabel(QString::number(_minimum)));
 
   slider_ = new Slider(Qt::Horizontal);
-  slider_->setRange(minimum, maximum);
+  slider_->setRange(_minimum, _maximum);
   connect(slider_, &Slider::valueChanged, this, &self::onSliderValueChanged);
   cols->addWidget(slider_);
 
-  cols->addWidget(new QLabel(QString::number(maximum)));
+  cols->addWidget(new QLabel(QString::number(_maximum)));
 
   line_edit_ = new QLineEdit();
   line_edit_->setFixedWidth(kValueWidth);
   line_edit_->setAlignment(Qt::AlignRight);
-  line_edit_->setValidator(new QIntValidator(minimum, maximum));
+  line_edit_->setValidator(new QIntValidator(_minimum, _maximum));
   connect(line_edit_, &QLineEdit::returnPressed, this, &self::onLineEditReturnPressed);
   cols->addWidget(line_edit_);
 }
@@ -44,10 +42,10 @@ int IntSliderTextWidget::get() const
   return slider_->value();
 }
 
-void IntSliderTextWidget::set(int value)
+void IntSliderTextWidget::set(int _value)
 {
-  setSliderValue(value);
-  setLineEditText(value);
+  setSliderValue(_value);
+  setLineEditText(_value);
 }
 
 void IntSliderTextWidget::onSliderValueChanged()
@@ -64,37 +62,37 @@ void IntSliderTextWidget::onLineEditReturnPressed()
   Q_EMIT valueChanged(value);
 }
 
-void IntSliderTextWidget::setSliderValue(int value)
+void IntSliderTextWidget::setSliderValue(int _value)
 {
   const QSignalBlocker block(slider_);
-  slider_->setValue(value);
+  slider_->setValue(_value);
 }
 
-void IntSliderTextWidget::setLineEditText(int value)
+void IntSliderTextWidget::setLineEditText(int _value)
 {
   const QSignalBlocker block(line_edit_);
-  line_edit_->setText(QString::number(value));
+  line_edit_->setText(QString::number(_value));
 }
 
-DoubleSliderTextWidget::DoubleSliderTextWidget(double minimum, double maximum, int decimals, QWidget* parent)
-  : super(parent), decimals_(decimals)
+DoubleSliderTextWidget::DoubleSliderTextWidget(double _minimum, double _maximum, int _decimals, QWidget* _parent)
+  : super(_parent), decimals_(_decimals)
 {
   const auto cols = new QHBoxLayout();
   setLayout(cols);
 
-  cols->addWidget(new QLabel(QString::number(minimum, 'f', decimals)));
+  cols->addWidget(new QLabel(QString::number(_minimum, 'f', _decimals)));
 
   slider_ = new DoubleSlider(Qt::Horizontal);
-  slider_->setRange(minimum, maximum);
+  slider_->setRange(_minimum, _maximum);
   connect(slider_, &Slider::valueChanged, this, &self::onSliderValueChanged);
   cols->addWidget(slider_);
 
-  cols->addWidget(new QLabel(QString::number(maximum, 'f', decimals)));
+  cols->addWidget(new QLabel(QString::number(_maximum, 'f', _decimals)));
 
   line_edit_ = new QLineEdit();
   line_edit_->setFixedWidth(kValueWidth);
   line_edit_->setAlignment(Qt::AlignRight);
-  line_edit_->setValidator(new QDoubleValidator(minimum, maximum, decimals));
+  line_edit_->setValidator(new QDoubleValidator(_minimum, _maximum, _decimals));
   connect(line_edit_, &QLineEdit::returnPressed, this, &self::onLineEditReturnPressed);
   cols->addWidget(line_edit_);
 }
@@ -104,10 +102,10 @@ double DoubleSliderTextWidget::get() const
   return slider_->value();
 }
 
-void DoubleSliderTextWidget::set(double value)
+void DoubleSliderTextWidget::set(double _value)
 {
-  setSliderValue(value);
-  setLineEditText(value);
+  setSliderValue(_value);
+  setLineEditText(_value);
 }
 
 void DoubleSliderTextWidget::onSliderValueChanged()
@@ -124,16 +122,15 @@ void DoubleSliderTextWidget::onLineEditReturnPressed()
   Q_EMIT valueChanged(value);
 }
 
-void DoubleSliderTextWidget::setSliderValue(double value)
+void DoubleSliderTextWidget::setSliderValue(double _value)
 {
   const QSignalBlocker block(slider_);
-  slider_->setValue(value);
+  slider_->setValue(_value);
 }
 
-void DoubleSliderTextWidget::setLineEditText(double value)
+void DoubleSliderTextWidget::setLineEditText(double _value)
 {
   const QSignalBlocker block(line_edit_);
-  line_edit_->setText(QString::number(value, 'f', decimals_));
+  line_edit_->setText(QString::number(_value, 'f', decimals_));
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

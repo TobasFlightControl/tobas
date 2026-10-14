@@ -21,12 +21,12 @@ public:
    * 1. The priority is greater than or equal to the current priority.
    * 2. A fixed time has passed since the last highest-priority command was received.
    *
-   * @param new_priority Received command priority.
-   * @param cur_time Current time.
+   * @param _new_priority Received command priority.
+   * @param _cur_time Current time.
    * @return true if the command is accepted.
    * @return false if the command is not accepted.
    */
-  bool update(uint8_t new_priority, const rclcpp::Time& cur_time);
+  bool update(uint8_t _new_priority, const rclcpp::Time& _cur_time);
 
 private:
   uint8_t cur_priority_ = 0;

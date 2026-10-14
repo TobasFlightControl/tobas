@@ -6,15 +6,7 @@
 #include <yaml-cpp/yaml.h>
 #include <QWidget>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 class BaseSelectedLinkSettingWidget : public QWidget
 {
@@ -24,13 +16,9 @@ public:
   virtual const char* name() const = 0;
   virtual void setToDefaults() = 0;
   virtual bool isValid() = 0;
-  virtual void copyFrom(const BaseSelectedLinkSettingWidget* src) = 0;
+  virtual void copyFrom(const BaseSelectedLinkSettingWidget* _src) = 0;
 
   virtual YAML::Node dump() const = 0;
-  virtual void load(const YAML::Node& node) = 0;
+  virtual void load(const YAML::Node& _node) = 0;
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

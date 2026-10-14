@@ -3,30 +3,28 @@
 
 #include "tobas_algorithm/crc.hpp"
 
-namespace tobas
-{
-namespace algo
+namespace tobas::algo
 {
 void CRC::initialize() noexcept
 {
   createTable();
 }
 
-CRC16::CRC16(uint16_t poly, uint16_t init_value, uint16_t out_xor) noexcept
-  : poly_(poly), init_value_(init_value), out_xor_(out_xor)
+CRC16::CRC16(uint16_t _poly, uint16_t _init_value, uint16_t _out_xor) noexcept
+  : poly_(_poly), init_value_(_init_value), out_xor_(_out_xor)
 {
 }
 
-CRC32::CRC32(uint32_t poly, uint32_t init_value, uint32_t out_xor) noexcept
-  : poly_(poly), init_value_(init_value), out_xor_(out_xor)
+CRC32::CRC32(uint32_t _poly, uint32_t _init_value, uint32_t _out_xor) noexcept
+  : poly_(_poly), init_value_(_init_value), out_xor_(_out_xor)
 {
 }
 
-uint16_t CRC16Right::compute(const uint8_t* buf, size_t len) const noexcept
+uint16_t CRC16Right::compute(const uint8_t* _buf, size_t _len) const noexcept
 {
   uint16_t c = init_value_;
-  for (size_t i = 0; i < len; ++i) {
-    c = table_[(c ^ buf[i]) & 0xFF] ^ (c >> 8);
+  for (size_t i = 0; i < _len; ++i) {
+    c = table_[(c ^ _buf[i]) & 0xFF] ^ (c >> 8);
   }
   return c ^ out_xor_;
 }
@@ -42,11 +40,11 @@ void CRC16Right::createTable() noexcept
   }
 }
 
-uint32_t CRC32Right::compute(const uint8_t* buf, size_t len) const noexcept
+uint32_t CRC32Right::compute(const uint8_t* _buf, size_t _len) const noexcept
 {
   uint32_t c = init_value_;
-  for (size_t i = 0; i < len; ++i) {
-    c = table_[(c ^ buf[i]) & 0xFF] ^ (c >> 8);
+  for (size_t i = 0; i < _len; ++i) {
+    c = table_[(c ^ _buf[i]) & 0xFF] ^ (c >> 8);
   }
   return c ^ out_xor_;
 }
@@ -62,11 +60,11 @@ void CRC32Right::createTable() noexcept
   }
 }
 
-uint16_t CRC16Left::compute(const uint8_t* buf, size_t len) const noexcept
+uint16_t CRC16Left::compute(const uint8_t* _buf, size_t _len) const noexcept
 {
   uint16_t c = init_value_ ^ 0xFFFF;
-  for (size_t i = 0; i < len; ++i) {
-    c = (c << 8) ^ table_[((c >> 8) ^ buf[i]) & 0xFF];
+  for (size_t i = 0; i < _len; ++i) {
+    c = (c << 8) ^ table_[((c >> 8) ^ _buf[i]) & 0xFF];
   }
   return c ^ out_xor_;
 }
@@ -82,11 +80,11 @@ void CRC16Left::createTable() noexcept
   }
 }
 
-uint32_t CRC32Left::compute(const uint8_t* buf, size_t len) const noexcept
+uint32_t CRC32Left::compute(const uint8_t* _buf, size_t _len) const noexcept
 {
   uint32_t c = init_value_ ^ 0xFFFFFFFF;
-  for (size_t i = 0; i < len; ++i) {
-    c = (c << 8) ^ table_[((c >> 24) ^ buf[i]) & 0xFF];
+  for (size_t i = 0; i < _len; ++i) {
+    c = (c << 8) ^ table_[((c >> 24) ^ _buf[i]) & 0xFF];
   }
   return c ^ out_xor_;
 }
@@ -101,5 +99,4 @@ void CRC32Left::createTable() noexcept
     table_[i] = c;
   }
 }
-}  // namespace algo
-}  // namespace tobas
+}  // namespace tobas::algo

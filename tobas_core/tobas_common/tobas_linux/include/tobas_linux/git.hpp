@@ -6,14 +6,11 @@
 #include <expected>
 #include <string>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 /** Return the Git user name. */
 std::expected<std::string, std::string> getGitUserName();
 
 /** Return the Git email address. */
 std::expected<std::string, std::string> getGitUserEmail();
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

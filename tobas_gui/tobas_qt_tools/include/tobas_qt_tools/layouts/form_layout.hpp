@@ -5,9 +5,7 @@
 
 #include <QFormLayout>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QFormLayout` =====
@@ -21,16 +19,16 @@ public:
   using QFormLayout::QFormLayout;
 
   /** Add a row with the label centered on the left. */
-  void addVAlignedRow(QWidget* label, QWidget* field);
+  void addVAlignedRow(QWidget* _label, QWidget* _field);
 
   /** Add a row with the label centered on the left. */
-  void addVAlignedRow(QWidget* label, QLayout* field);
+  void addVAlignedRow(QWidget* _label, QLayout* _field);
 
   /** Add a row with the label centered on the left. */
-  void addVAlignedRow(const QString& label_text, QWidget* field);
+  void addVAlignedRow(const QString& _label_text, QWidget* _field);
 
   /** Add a row with the label centered on the left. */
-  void addVAlignedRow(const QString& label_text, QLayout* field);
+  void addVAlignedRow(const QString& _label_text, QLayout* _field);
 
   /** Add an expanding stretch. */
   void addStretch();
@@ -39,16 +37,15 @@ public:
   void clear();
 
   /** Get the label of the specified row. */
-  QWidget* getLabel(int row);
+  QWidget* getLabel(int _row);
 
   /** Get the widget of the specified row. */
-  QWidget* getWidget(int row);
+  QWidget* getWidget(int _row);
 
   /** Enable or disable the specified row. */
-  void setEnabled(int row, bool enabled);
+  void setEnabled(int _row, bool _enabled);
 
   /** Show or hide the specified row. */
-  void setVisible(int row, bool visible);
+  void setVisible(int _row, bool _visible);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

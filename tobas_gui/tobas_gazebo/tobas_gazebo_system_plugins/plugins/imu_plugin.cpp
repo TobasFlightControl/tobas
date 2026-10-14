@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
 #include <cmath>
 #include <optional>
 
@@ -38,9 +39,7 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /**
  * Gazebo IMU plugin.
@@ -58,12 +57,12 @@ public:
   explicit GazeboImuPlugin();
 
   void Configure(
-    const gz::sim::Entity& model_entity,
-    const sdf::ElementConstPtr& sdf,
-    gz::sim::EntityComponentManager& ecm,
+    const gz::sim::Entity& _model_entity,
+    const sdf::ElementConstPtr& _sdf,
+    gz::sim::EntityComponentManager& _ecm,
     gz::sim::EventManager&) override;
 
-  void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
+  void PostUpdate(const gz::sim::UpdateInfo& _info, const gz::sim::EntityComponentManager& _ecm) override;
 
 private:
   // SDF parameters
@@ -109,17 +108,17 @@ private:
   ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuLowPassFilter> config_lowpass_filter_ss_;
   ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuRpmFilter> config_rpm_filter_ss_;
 
-  void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, double dt);
+  void getSdfParams(const sdf::ElementConstPtr& _sdf);
+  void addNoise(gz::math::Vector3d& _acc, gz::math::Vector3d& _gyro, double _dt);
 
-  void engineStateCb(const tobas_gazebo_msgs::msg::EngineState::ConstSharedPtr& msg);
+  void engineStateCb(const tobas_gazebo_msgs::msg::EngineState::ConstSharedPtr& _msg);
 
   void configureImuLowPassFilterCb(
-    const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
-    const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res);
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& _req,
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& _res);
   void configureImuRpmFilter(
-    const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& req,
-    const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& res);
+    const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& _req,
+    const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& _res);
 };
 
 GazeboImuPlugin::GazeboImuPlugin() : normal_(rnd_dev_, 0.0, 1.0)
@@ -130,36 +129,36 @@ GazeboImuPlugin::GazeboImuPlugin() : normal_(rnd_dev_, 0.0, 1.0)
 }
 
 void GazeboImuPlugin::Configure(
-  const gz::sim::Entity& model_entity,
-  const sdf::ElementConstPtr& sdf,
-  gz::sim::EntityComponentManager& ecm,
+  const gz::sim::Entity& _model_entity,
+  const sdf::ElementConstPtr& _sdf,
+  gz::sim::EntityComponentManager& _ecm,
   gz::sim::EventManager&)
 {
   constexpr char kDebugTopic[] = "gazebo/imu_debug";
 
-  initialize("gazebo_imu_plugin", sdf);
-  getSdfParams(sdf);
+  initialize("gazebo_imu_plugin", _sdf);
+  getSdfParams(_sdf);
 
   rate_manager_.emplace(update_rate_);
 
-  const gz::sim::Model model(model_entity);
-  const auto link_entity = model.LinkByName(ecm, link_name_);
+  const gz::sim::Model model(_model_entity);
+  const auto link_entity = model.LinkByName(_ecm, link_name_);
   if (link_entity == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link '", link_name_, "'.");
   }
 
-  const auto world = gz::sim::worldEntity(ecm);
+  const auto world = gz::sim::worldEntity(_ecm);
   if (world == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to get the world component.");
   }
 
-  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
-  acc_B_ = getComponent<cmp::LinearAcceleration>(link_entity, ecm);
-  gyro_B_ = getComponent<cmp::AngularVelocity>(link_entity, ecm);
-  dgyro_B_ = getComponent<cmp::AngularAcceleration>(link_entity, ecm);
-  grav_W_ = getComponent<cmp::Gravity>(world, ecm);
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, _ecm);
+  acc_B_ = getComponent<cmp::LinearAcceleration>(link_entity, _ecm);
+  gyro_B_ = getComponent<cmp::AngularVelocity>(link_entity, _ecm);
+  dgyro_B_ = getComponent<cmp::AngularAcceleration>(link_entity, _ecm);
+  grav_W_ = getComponent<cmp::Gravity>(world, _ecm);
 
-  if (!mass_holder_.initialize(model_entity, ecm)) {
+  if (!mass_holder_.initialize(_model_entity, _ecm)) {
     TOBAS_EXIT("Failed to initialize model mass holder.");
   }
 
@@ -174,8 +173,8 @@ void GazeboImuPlugin::Configure(
   for (const auto& link_name : rotor_link_names_) {
     const auto topic = path::join(kRotorStateGtTopicNS, link_name);
     const ros2::qos::QoS qos(false, false, 1);
-    const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
-    { rotor_vibration_forces_[link_name] = msg->vibration_force; };
+    const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& _msg)
+    { rotor_vibration_forces_[link_name] = _msg->vibration_force; };
     const auto sub = node_->create_subscription<tobas_gazebo_msgs::msg::RotorState>(topic, qos, cb);
     rotor_state_subs_.push_back(sub);
   }
@@ -186,10 +185,14 @@ void GazeboImuPlugin::Configure(
     service::kConfigureImuRpmFilter, &self::configureImuRpmFilter, this);
 }
 
-void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
+void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& _info, const gz::sim::EntityComponentManager&)
 {
+  if (_info.paused || _info.dt <= ch::steady_clock::duration::zero()) {
+    return;
+  }
+
   if (rotor_vibration_forces_.size() < rotor_link_names_.size()) {
-    if (info.simTime > kCheckTopicWarnStartTime) {
+    if (_info.simTime > kCheckTopicWarnStartTime) {
       const auto num_not_received = rotor_link_names_.size() - rotor_vibration_forces_.size();
       TOBAS_WARN_THROTTLE(kWarnPeriod, std::to_string(num_not_received), " rotor states are not received yet.");
     }
@@ -211,7 +214,7 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   auto gyro_meas = gyro_B;
 
   // Get delta time.
-  const auto dt = ch::duration<double>(info.dt).count();
+  const auto dt = ch::duration<double>(_info.dt).count();
 
   // Add noise to the true values.
   addNoise(acc_meas, gyro_meas, dt);
@@ -240,13 +243,13 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   }
 
   // Publish rate filter.
-  if (!rate_manager_->update(info.simTime)) {
+  if (!rate_manager_->update(_info.simTime)) {
     return;
   }
 
   // Get current time.
   builtin_interfaces::msg::Time cur_time;
-  ros2::timeChronoToMsg(info.simTime, cur_time);
+  ros2::timeChronoToMsg(_info.simTime, cur_time);
 
   // Publish raw IMU message.
   auto imu_raw_msg = std::make_unique<tobas_msgs::Imu>();
@@ -277,24 +280,24 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   debug_pub_->publish(std::move(debug_msg));
 }
 
-void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& _sdf)
 {
-  link_name_ = getSdfParam<std::string>(sdf, "linkName");
-  offset_ = getSdfParam<gz::math::Vector3d>(sdf, "offset");
-  update_rate_ = getSdfParam<int>(sdf, "updateRate", kNonNegative);
+  link_name_ = getSdfParam<std::string>(_sdf, "linkName");
+  offset_ = getSdfParam<gz::math::Vector3d>(_sdf, "offset");
+  update_rate_ = getSdfParam<int>(_sdf, "updateRate", kNonNegative);
 
-  acc_noise_density_ = getSdfParam<double>(sdf, "accelNoiseDensity", kNonNegative);
-  acc_random_walk_ = getSdfParam<double>(sdf, "accelRandomWalk", kNonNegative);
-  acc_bias_corr_time_ = getSdfParam<double>(sdf, "accelBiasCorrelationTime", kPositive);
+  acc_noise_density_ = getSdfParam<double>(_sdf, "accelNoiseDensity", kNonNegative);
+  acc_random_walk_ = getSdfParam<double>(_sdf, "accelRandomWalk", kNonNegative);
+  acc_bias_corr_time_ = getSdfParam<double>(_sdf, "accelBiasCorrelationTime", kPositive);
 
-  gyro_noise_density_ = getSdfParam<double>(sdf, "gyroNoiseDensity", kNonNegative);
-  gyro_random_walk_ = getSdfParam<double>(sdf, "gyroRandomWalk", kNonNegative);
-  gyro_bias_corr_time_ = getSdfParam<double>(sdf, "gyroBiasCorrelationTime", kPositive);
+  gyro_noise_density_ = getSdfParam<double>(_sdf, "gyroNoiseDensity", kNonNegative);
+  gyro_random_walk_ = getSdfParam<double>(_sdf, "gyroRandomWalk", kNonNegative);
+  gyro_bias_corr_time_ = getSdfParam<double>(_sdf, "gyroBiasCorrelationTime", kPositive);
 
-  rotor_link_names_ = getSdfParam<std::vector<std::string>>(sdf, "rotorLinkNames");
+  rotor_link_names_ = getSdfParam<std::vector<std::string>>(_sdf, "rotorLinkNames");
 }
 
-void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, double dt)
+void GazeboImuPlugin::addNoise(gz::math::Vector3d& _acc, gz::math::Vector3d& _gyro, double _dt)
 {
   // TODO: Consider acceleration ratio and gyro vibration more carefully.
   constexpr double kVibrationAccVerHorRate = 1.0;
@@ -316,59 +319,58 @@ void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro
   // Accel
   const auto tau_a = acc_bias_corr_time_;
   // Discrete-time std. dev equivalent to an "integrating" sampler with integration time dt
-  const auto sigma_a_d = acc_noise_density_ / std::sqrt(dt);  // [m/s^2]
+  const auto sigma_a_d = acc_noise_density_ / std::sqrt(_dt);  // [m/s^2]
   const auto sigma_b_a = acc_random_walk_;
   // Compute exact covariance of the process after dt [Maybeck 4-114] (memo: 2-32).
-  const auto sigma_b_a_d = sigma_b_a * std::sqrt(tau_a / 2 * (1 - std::exp(-2 * dt / tau_a)));  // [m/s^2]
+  const auto sigma_b_a_d = sigma_b_a * std::sqrt(-tau_a / 2 * std::expm1(-2 * _dt / tau_a));  // [m/s^2]
   // Compute state-transition.
-  const auto phi_a_d = std::exp(-dt / tau_a);
+  const auto phi_a_d = std::exp(-_dt / tau_a);
   // Simulate accelerometer noise processes and add them to the true linear acceleration.
   acc_bias_ = phi_a_d * acc_bias_ + sigma_b_a_d * normal_.get();
-  acc += sigma_a_d * normal_.get() + acc_bias_ + vibration_acc;
+  _acc += sigma_a_d * normal_.get() + acc_bias_ + vibration_acc;
 
   // Gyro
   const auto tau_g = gyro_bias_corr_time_;
   // Discrete-time std. dev equivalent to an "integrating" sampler with integration time dt.
-  const auto sigma_g_d = gyro_noise_density_ / std::sqrt(dt);  // [rad/s]
+  const auto sigma_g_d = gyro_noise_density_ / std::sqrt(_dt);  // [rad/s]
   const auto sigma_b_g = gyro_random_walk_;
   // Compute exact covariance of the process after dt [Maybeck 4-114] (memo: 2-32).
-  const auto sigma_b_g_d = sigma_b_g * std::sqrt(tau_g / 2 * (1 - std::exp(-2 * dt / tau_g)));  // [rad/s]
+  const auto sigma_b_g_d = sigma_b_g * std::sqrt(-tau_g / 2 * std::expm1(-2 * _dt / tau_g));  // [rad/s]
   // Compute state-transition.
-  const auto phi_g_d = std::exp(-dt / tau_g);
+  const auto phi_g_d = std::exp(-_dt / tau_g);
   // Simulate gyroscope noise processes and add them to the true angular rate.
   gyro_bias_ = phi_g_d * gyro_bias_ + sigma_b_g_d * normal_.get();
-  gyro += sigma_g_d * normal_.get() + gyro_bias_ + vibration_gyro;
+  _gyro += sigma_g_d * normal_.get() + gyro_bias_ + vibration_gyro;
 }
 
-void GazeboImuPlugin::engineStateCb(const tobas_gazebo_msgs::msg::EngineState::ConstSharedPtr& msg)
+void GazeboImuPlugin::engineStateCb(const tobas_gazebo_msgs::msg::EngineState::ConstSharedPtr& _msg)
 {
-  engine_vibration_force_ = msg->vibration_force;
+  engine_vibration_force_ = _msg->vibration_force;
 }
 
 void GazeboImuPlugin::configureImuLowPassFilterCb(
-  const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
-  const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res)
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& _req,
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& _res)
 {
-  acc_lpf_.setCutoffFrequency(req->accel_cutoff);
-  gyro_lpf_.setCutoffFrequency(req->gyro_cutoff);
-  dgyro_lpf_.setCutoffFrequency(req->dgyro_cutoff);
+  acc_lpf_.setCutoffFrequency(_req->accel_cutoff);
+  gyro_lpf_.setCutoffFrequency(_req->gyro_cutoff);
+  dgyro_lpf_.setCutoffFrequency(_req->dgyro_cutoff);
 
   lpf_initialized_ = true;
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
 
 void GazeboImuPlugin::configureImuRpmFilter(
   const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr&,
-  const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& res)
+  const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& _res)
 {
   // TODO: Implement an RPM filter. In discrete time the update frequency is insufficient,
   // so it may be better to create a continuous-time transfer function before signal generation.
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(tobas::gazebo::GazeboImuPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

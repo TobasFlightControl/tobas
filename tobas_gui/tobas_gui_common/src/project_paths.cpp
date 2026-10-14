@@ -10,13 +10,9 @@
 
 #include "tobas_gui_common/constants.hpp"
 
-namespace tobas
+namespace tobas::gui::cmn
 {
-namespace gui
-{
-namespace cmn
-{
-ProjectPaths::ProjectPaths(const QString& proj_path) : proj_path_(proj_path)
+ProjectPaths::ProjectPaths(const QString& _proj_path) : proj_path_(_proj_path)
 {
 }
 
@@ -25,9 +21,9 @@ const QString& ProjectPaths::getProjPath() const
   return proj_path_;
 }
 
-void ProjectPaths::setProjPath(const QString& proj_path)
+void ProjectPaths::setProjPath(const QString& _proj_path)
 {
-  proj_path_ = proj_path;
+  proj_path_ = _proj_path;
 }
 
 QString ProjectPaths::remoteProjPath() const
@@ -171,6 +167,4 @@ QString ProjectPaths::versionPath() const
 {
   return QDir(proj_path_).filePath("version");
 }
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

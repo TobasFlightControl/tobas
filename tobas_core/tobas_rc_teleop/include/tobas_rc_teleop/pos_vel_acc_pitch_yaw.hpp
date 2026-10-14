@@ -10,9 +10,7 @@
 #include "./base_controller.hpp"
 #include "./filter/second_order_velocity_filter.hpp"
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 class PosVelAccPitchYawController : public BaseController
 {
@@ -26,9 +24,9 @@ public:
   bool requireAttitude() override;
   bool requireHeading() override;
 
-  void initialize(BaseNode* node, FlightMode mode) override;
-  void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) override;
-  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
+  void initialize(BaseNode* _node, FlightMode _mode) override;
+  void reset(const builtin_interfaces::msg::Time& _stamp, const tobas_msgs::Odometry& _setpoint, bool _landed) override;
+  void update(const tobas_msgs::RCInput& _rcin, const tobas_msgs::Odometry& _odom, bool _landed) override;
 
 private:
   rclcpp::Time t_last_rcin_;
@@ -51,18 +49,17 @@ private:
   // Publisher
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccPitchYaw> cmd_pub_;
 
-  void maxHorizontalVelocityCb(double p);
-  void maxHorizontalJerkCb(double p);
-  void maxVerticalVelocityCb(double p);
-  void maxVerticalJerkCb(double p);
-  void maxPitchCb(double p);
-  void maxPitchRateCb(double p);
-  void maxYawRateCb(double p);
-  void maxPositionErrorDown(double p);
-  void horizontalVelocityExpoCb(double p);
-  void verticalVelocityExpoCb(double p);
-  void pitchExpoCb(double p);
-  void yawExpoCb(double p);
+  void maxHorizontalVelocityCb(double _p);
+  void maxHorizontalJerkCb(double _p);
+  void maxVerticalVelocityCb(double _p);
+  void maxVerticalJerkCb(double _p);
+  void maxPitchCb(double _p);
+  void maxPitchRateCb(double _p);
+  void maxYawRateCb(double _p);
+  void maxPositionErrorDown(double _p);
+  void horizontalVelocityExpoCb(double _p);
+  void verticalVelocityExpoCb(double _p);
+  void pitchExpoCb(double _p);
+  void yawExpoCb(double _p);
 };
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

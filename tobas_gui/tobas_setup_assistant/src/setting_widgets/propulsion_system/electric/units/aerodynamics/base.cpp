@@ -8,15 +8,7 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 AerodynamicsWidget_Base::AerodynamicsWidget_Base()
 {
@@ -33,8 +25,4 @@ void AerodynamicsWidget_Base::initialize()
 {
   description_->setText(description());
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

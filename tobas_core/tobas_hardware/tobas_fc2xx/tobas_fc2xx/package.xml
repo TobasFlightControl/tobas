@@ -8,7 +8,6 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<exec_depend>tobas_fc2xx_core</exec_depend>
 	<exec_depend>tobas_fc2xx_ros</exec_depend>
 	<exec_depend>tobas_fc2xx_test</exec_depend>
 

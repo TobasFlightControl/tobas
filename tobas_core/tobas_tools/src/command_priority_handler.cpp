@@ -14,20 +14,20 @@ CommandPriorityHandler::CommandPriorityHandler()
 {
 }
 
-bool CommandPriorityHandler::update(uint8_t new_priority, const rclcpp::Time& cur_time)
+bool CommandPriorityHandler::update(uint8_t _new_priority, const rclcpp::Time& _cur_time)
 {
   constexpr auto kHighestLevelTimeout = 500ms;
 
-  if (new_priority >= cur_priority_ || cur_time - t_last_highest_priority_ > kHighestLevelTimeout) {
-    if (new_priority > cur_priority_) {
-      std::cout << "Command priority up: " << (int)cur_priority_ << " -> " << (int)new_priority << std::endl;
+  if (_new_priority >= cur_priority_ || _cur_time - t_last_highest_priority_ > kHighestLevelTimeout) {
+    if (_new_priority > cur_priority_) {
+      std::cout << "Command priority up: " << (int)cur_priority_ << " -> " << (int)_new_priority << '\n';
     }
-    else if (new_priority < cur_priority_) {
-      std::cout << "Command priority down: " << (int)cur_priority_ << " -> " << (int)new_priority << std::endl;
+    else if (_new_priority < cur_priority_) {
+      std::cout << "Command priority down: " << (int)cur_priority_ << " -> " << (int)_new_priority << '\n';
     }
 
-    cur_priority_ = new_priority;
-    t_last_highest_priority_ = cur_time;
+    cur_priority_ = _new_priority;
+    t_last_highest_priority_ = _cur_time;
     return true;
   }
   else {

@@ -18,13 +18,7 @@ class UpdateLinkDialogUI;
 using UpdateLinkDialogUIPtr = std::shared_ptr<UpdateLinkDialogUI>;
 }  // namespace Ui
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 class UrdfBuilderPanel;
 
@@ -39,32 +33,32 @@ Q_SIGNALS:
   void Changed();
 
 public:
-  explicit UpdateLinkDialog(UrdfBuilderPanel* main);
+  explicit UpdateLinkDialog(UrdfBuilderPanel* _main);
 
-  void done(int code) override;
+  void done(int _code) override;
 
-  void readFromVM(const view_model::LinkViewModelPtr& link_vm);
-  void setTabsEnabled(bool enabled);
+  void readFromVM(const view_model::LinkViewModelPtr& _link_vm);
+  void setTabsEnabled(bool _enabled);
 
   const view_model::LinkViewModelPtr& viewModel() const;
 
 private Q_SLOTS:
-  void onVisualGeometryTypeComboBoxIndexChanged(int index);
-  void onCollisionGeometryTypeComboBoxIndexChanged(int index);
-  void onJointParentComboBoxIndexChanged(int index);
-  void onJointTypeComboBoxIndexChanged(int index);
+  void onVisualGeometryTypeComboBoxIndexChanged(int _index);
+  void onCollisionGeometryTypeComboBoxIndexChanged(int _index);
+  void onJointParentComboBoxIndexChanged(int _index);
+  void onJointTypeComboBoxIndexChanged(int _index);
   void onJointSpinBoxValueChanged(double);
   void onVisualSpinBoxValueChanged(double);
   void onCollisionSpinBoxValueChanged(double);
   void onInertialSpinBoxValueChanged(double);
-  void onLinkNameLineEditTextChanged(const QString& text);
-  void onJointNameLineEditTextChanged(const QString& text);
-  void onVisualNameLineEditTextChanged(const QString& text);
-  void onVisualGeometryMeshPathLineEditTextChanged(const QString& text);
-  void onCollisionNameLineEditTextChanged(const QString& text);
-  void onCollisionGeometryMeshPathEditTextChanged(const QString& text);
-  void onMaterialNameLineEditTextChanged(const QString& text);
-  void onMaterialTexturePathLineEditTextChanged(const QString& text);
+  void onLinkNameLineEditTextChanged(const QString& _text);
+  void onJointNameLineEditTextChanged(const QString& _text);
+  void onVisualNameLineEditTextChanged(const QString& _text);
+  void onVisualGeometryMeshPathLineEditTextChanged(const QString& _text);
+  void onCollisionNameLineEditTextChanged(const QString& _text);
+  void onCollisionGeometryMeshPathEditTextChanged(const QString& _text);
+  void onMaterialNameLineEditTextChanged(const QString& _text);
+  void onMaterialTexturePathLineEditTextChanged(const QString& _text);
   void onVisualListWidgetItemClicked(QListWidgetItem*);
   void onCollisionListWidgetItemClicked(QListWidgetItem*);
   void onRenameLinkButtonClicked();
@@ -97,22 +91,19 @@ private:
 
   void defineConnections();
 
-  void readFromVM(const view_model::JointViewModelPtr& joint);
-  void readFromVM(const view_model::VisualViewModelPtr& visual);
-  void readFromVM(const view_model::CollisionViewModelPtr& collision);
-  void readFromVM(const view_model::InertialViewModelPtr& inertial);
+  void readFromVM(const view_model::JointViewModelPtr& _joint);
+  void readFromVM(const view_model::VisualViewModelPtr& _visual);
+  void readFromVM(const view_model::CollisionViewModelPtr& _collision);
+  void readFromVM(const view_model::InertialViewModelPtr& _inertial);
 
-  void readFromUI(const view_model::JointViewModelPtr& joint) const;
-  void readFromUI(const view_model::VisualViewModelPtr& visual) const;
-  void readFromUI(const view_model::CollisionViewModelPtr& collision) const;
-  void readFromUI(const view_model::InertialViewModelPtr& inertial) const;
+  void readFromUI(const view_model::JointViewModelPtr& _joint) const;
+  void readFromUI(const view_model::VisualViewModelPtr& _visual) const;
+  void readFromUI(const view_model::CollisionViewModelPtr& _collision) const;
+  void readFromUI(const view_model::InertialViewModelPtr& _inertial) const;
 
-  void blockSignals(bool block);
+  void blockSignals(bool _block);
   void emitChanged();
 
-  static void arrangeVisualGeometryTypeFrames(const std::map<QString, QFrame*>& map, const QString& type);
+  static void arrangeVisualGeometryTypeFrames(const std::map<QString, QFrame*>& _map, const QString& _type);
 };
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

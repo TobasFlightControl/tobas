@@ -9,11 +9,7 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 DynamicConfigWidget::DynamicConfigWidget()
 {
@@ -44,11 +40,11 @@ void DynamicConfigWidget::reset()
   suspended_load_->reset();
 }
 
-void DynamicConfigWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void DynamicConfigWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  wind_params_->initializeRosInterfaces(node, ns);
-  fixed_load_->initializeRosInterfaces(node, ns);
-  suspended_load_->initializeRosInterfaces(node, ns);
+  wind_params_->initializeRosInterfaces(_node, _ns);
+  fixed_load_->initializeRosInterfaces(_node, _ns);
+  suspended_load_->initializeRosInterfaces(_node, _ns);
 }
 
 void DynamicConfigWidget::clearRosInterfaces()
@@ -57,6 +53,4 @@ void DynamicConfigWidget::clearRosInterfaces()
   fixed_load_->clearRosInterfaces();
   suspended_load_->clearRosInterfaces();
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

@@ -6,26 +6,18 @@
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/aerodynamics.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 /** Approximate variable-pitch propeller aerodynamic parameters with blade theory and Taylor expansion (memo: 3-36). */
 class BladeTheory
 {
 public:
   explicit BladeTheory(
-    int num_blades,
-    double radius,
-    double blade_chord,
-    double pitch_angle,
-    double air_density = st::kStandardAirDensity);
+    int _num_blades,
+    double _radius,
+    double _blade_chord,
+    double _pitch_angle,
+    double _air_density = st::kStandardAirDensity);
 
   VppMotorConstant motorConst() const;
   VppMomentConstant momentConst() const;
@@ -47,8 +39,4 @@ private:
   /** dlam / dtheta */
   double lambdaDeriv() const;
 };
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

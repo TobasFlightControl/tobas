@@ -7,36 +7,33 @@
 
 #include <QColor>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 namespace
 {
-QString toCssColor(Qt::GlobalColor c)
+QString toCssColor(Qt::GlobalColor _c)
 {
-  if (c == Qt::transparent) {
+  if (_c == Qt::transparent) {
     return "transparent";
   }
   else {
-    return QColor(c).name(QColor::HexRgb);
+    return QColor(_c).name(QColor::HexRgb);
   }
 }
 }  // namespace
 
-Label::Label(const QString& text, int point_size, int weight, bool italic, QWidget* parent) : super(text, parent)
+Label::Label(const QString& _text, int _point_size, int _weight, bool _italic, QWidget* _parent) : super(_text, _parent)
 {
-  setFont(DefaultFont(point_size, weight, italic));
+  setFont(DefaultFont(_point_size, _weight, _italic));
 }
 
-void Label::setTextColor(const QString& color)
+void Label::setTextColor(const QString& _color)
 {
-  setStyleSheet("color: " + color + ";");
+  setStyleSheet("color: " + _color + ";");
 }
 
-void Label::setTextColor(Qt::GlobalColor color)
+void Label::setTextColor(Qt::GlobalColor _color)
 {
-  setTextColor(toCssColor(color));
+  setTextColor(toCssColor(_color));
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

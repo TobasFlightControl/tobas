@@ -10,11 +10,7 @@
 #include <tobas_constants/imu.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 ImuFftPlotWidget::ImuFftPlotWidget()
   : raw_curves_{ "Raw Accel X [m/s²]", "Raw Accel Y [m/s²]", "Raw Accel Z [m/s²]",
@@ -61,14 +57,14 @@ void ImuFftPlotWidget::setTimeScale(double, double)
 }
 
 void ImuFftPlotWidget::setData(
-  const QVector<tobas_msgs::msg::Imu>& raw_msgs,
-  const QVector<tobas_msgs::msg::Imu>& filt_msgs)
+  const QVector<tobas_msgs::msg::Imu>& _raw_msgs,
+  const QVector<tobas_msgs::msg::Imu>& _filt_msgs)
 {
   // Calculate raw and filtered spectra in parallel.
   auto f1 =
-    std::async(std::launch::async, [this, raw_msgs] { return updateSamples(raw_msgs, raw_ffts_, raw_curves_); });
+    std::async(std::launch::async, [this, _raw_msgs] { return updateSamples(_raw_msgs, raw_ffts_, raw_curves_); });
   auto f2 =
-    std::async(std::launch::async, [this, filt_msgs] { return updateSamples(filt_msgs, filt_ffts_, filt_curves_); });
+    std::async(std::launch::async, [this, _filt_msgs] { return updateSamples(_filt_msgs, filt_ffts_, filt_curves_); });
   auto ranges = f1.get();
   const auto filt_ranges = f2.get();
 
@@ -83,14 +79,14 @@ void ImuFftPlotWidget::setData(
 }
 
 ImuFftPlotWidget::ValueRanges ImuFftPlotWidget::updateSamples(
-  const QVector<tobas_msgs::msg::Imu>& msgs,
-  std::array<Eigen::FFT<double>, kNumAxes>& ffts,
-  std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& curves)
+  const QVector<tobas_msgs::msg::Imu>& _msgs,
+  std::array<Eigen::FFT<double>, kNumAxes>& _ffts,
+  std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& _curves)
 {
-  const auto n = static_cast<size_t>(msgs.size());
+  const auto n = static_cast<size_t>(_msgs.size());
 
   if (n < 2) {
-    for (auto& curve : curves) {
+    for (auto& curve : _curves) {
       curve.clear();
     }
     return {};
@@ -98,7 +94,7 @@ ImuFftPlotWidget::ValueRanges ImuFftPlotWidget::updateSamples(
 
   // Collect data.
   std::array<std::vector<double>, kNumAxes> imu_data;
-  for (const auto& imu : msgs) {
+  for (const auto& imu : _msgs) {
     const auto& accel = imu.accel;
     imu_data[0].push_back(accel.x);
     imu_data[1].push_back(accel.y);
@@ -116,7 +112,7 @@ ImuFftPlotWidget::ValueRanges ImuFftPlotWidget::updateSamples(
   for (size_t i = 0; i < kNumAxes; ++i) {
     // Fourier transform.
     std::vector<Eigen::dcomplex> spec;
-    ffts[i].fwd(spec, imu_data.at(i));
+    _ffts[i].fwd(spec, imu_data.at(i));
     assert(spec.size() == n / 2 + 1);
 
     // Calculate frequency and amplitude from the FFT result.
@@ -133,11 +129,9 @@ ImuFftPlotWidget::ValueRanges ImuFftPlotWidget::updateSamples(
       ranges[i / kNumAxesPerGroup].include(amp);
     }
 
-    curves[i].setSamples(freqs, amps);
+    _curves[i].setSamples(freqs, amps);
   }
 
   return ranges;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

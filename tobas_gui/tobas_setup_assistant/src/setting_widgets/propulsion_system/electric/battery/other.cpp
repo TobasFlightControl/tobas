@@ -6,15 +6,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 BatteryWidget_Other::BatteryWidget_Other()
 {
@@ -98,14 +90,14 @@ YAML::Node BatteryWidget_Other::dump() const
   return node;
 }
 
-void BatteryWidget_Other::load(const YAML::Node& node)
+void BatteryWidget_Other::load(const YAML::Node& _node)
 {
-  nominal_voltage_->setValue(node[nominal_voltage_->name()].as<double>());
-  max_voltage_->setValue(node[max_voltage_->name()].as<double>());
-  sag_voltage_->setValue(node[sag_voltage_->name()].as<double>());
-  max_current_->setValue(node[max_current_->name()].as<double>());
-  capacity_->setValue(node[capacity_->name()].as<int>());
-  registance_->setValue(node[registance_->name()].as<int>());
+  nominal_voltage_->setValue(_node[nominal_voltage_->name()].as<double>());
+  max_voltage_->setValue(_node[max_voltage_->name()].as<double>());
+  sag_voltage_->setValue(_node[sag_voltage_->name()].as<double>());
+  max_current_->setValue(_node[max_current_->name()].as<double>());
+  capacity_->setValue(_node[capacity_->name()].as<int>());
+  registance_->setValue(_node[registance_->name()].as<int>());
 }
 
 double BatteryWidget_Other::nominalVoltage()
@@ -137,8 +129,4 @@ double BatteryWidget_Other::internalRegistance()
 {
   return static_cast<double>(registance_->getValue()) * 1e-3;
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

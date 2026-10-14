@@ -9,18 +9,14 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
+namespace tobas::ssh::ak
 {
-namespace ssh
-{
-namespace ak
-{
-std::expected<Data, std::string> parseLine(const std::string& line)
+std::expected<Data, std::string> parseLine(const std::string& _line)
 {
   Data res;
 
   // Split by spaces.
-  const auto tokens = str::split(str::trim(line), ' ');
+  const auto tokens = str::split(str::trim(_line), ' ');
   if (tokens.size() < 2) {
     return std::unexpected("too few tokens");
   }
@@ -55,11 +51,11 @@ std::expected<Data, std::string> parseLine(const std::string& line)
   return res;
 }
 
-std::expected<std::vector<Data>, std::string> parseFile(const fs::path& path)
+std::expected<std::vector<Data>, std::string> parseFile(const fs::path& _path)
 {
-  std::ifstream file(path);
+  std::ifstream file(_path);
   if (!file) {
-    return std::unexpected("Failed to open " + path.string() + ".");
+    return std::unexpected("Failed to open " + _path.string() + ".");
   }
 
   size_t row = 0;
@@ -87,6 +83,4 @@ std::expected<std::vector<Data>, std::string> parseFile(const fs::path& path)
   file.close();
   return res;
 }
-}  // namespace ak
-}  // namespace ssh
-}  // namespace tobas
+}  // namespace tobas::ssh::ak

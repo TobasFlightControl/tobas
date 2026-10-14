@@ -5,19 +5,16 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace crypt
+namespace tobas::crypt
 {
 class Sha512 : public Crypt
 {
 public:
-  explicit Sha512(int rounds = 500000);
+  explicit Sha512(int _rounds = 500000);
 
 private:
   const int rounds_;
 
   std::expected<std::string, std::string> createSalt() const override;
 };
-}  // namespace crypt
-}  // namespace tobas
+}  // namespace tobas::crypt

@@ -5,13 +5,7 @@
 
 #include <QVBoxLayout>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace ctrl
+namespace tobas::gui::sa::ctrl
 {
 FixedWingWidget::FixedWingWidget()
 {
@@ -74,7 +68,4 @@ bool FixedWingWidget::isValid()
   // TODO: Conditions on the number and signs of control surfaces.
   return true;
 }
-}  // namespace ctrl
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::ctrl

@@ -5,63 +5,59 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 PlotTabWidget::PlotTabWidget(
-  const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_data,
-  const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_data,
-  const QVector<tobas_msgs::msg::Imu>& imu_raw_data,
-  const QVector<tobas_msgs::msg::Imu>& imu_filt_data,
-  const QVector<tobas_msgs::msg::MagneticField>& mag_data,
-  const QVector<tobas_msgs::msg::FluidPressure>& pressure_data,
-  const QVector<tobas_msgs::msg::Gnss>& gnss_data,
-  const QVector<tobas_msgs::msg::RCInput>& rcin_data,
-  const QVector<tobas_msgs::msg::Battery>& battery_data,
-  const QVector<tobas_msgs::msg::Cpu>& cpu_data,
-  const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data,
-  const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_rotor_speeds_data,
-  const QVector<tobas_msgs::msg::JointStateArray>& cur_joint_states_data,
-  const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_positions_data,
-  const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_velocities_data,
-  const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_efforts_data,
-  const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data,
-  const QVector<tobas_msgs::msg::PwmArray>& pwm_data,
-  const QVector<tobas_msgs::msg::Latency>& sampling_time_data,
-  const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data,
-  const QVector<tobas_msgs::msg::VibrationLevel>& vibe_data,
-  const QVector<tobas_msgs::msg::RepulsiveAcceleration>& repulsive_accel_data,
-  const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_data,
-  const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data,
-  const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& mr_ctrl_fb_data)
-  : odom_data_(odom_data)
-  , setpoint_data_(setpoint_data)
-  , imu_raw_data_(imu_raw_data)
-  , imu_filt_data_(imu_filt_data)
-  , mag_data_(mag_data)
-  , pressure_data_(pressure_data)
-  , gnss_data_(gnss_data)
-  , rcin_data_(rcin_data)
-  , battery_data_(battery_data)
-  , cpu_data_(cpu_data)
-  , cur_rotor_states_data_(cur_rotor_states_data)
-  , tar_rotor_speeds_data_(tar_rotor_speeds_data)
-  , cur_joint_states_data_(cur_joint_states_data)
-  , tar_joint_positions_data_(tar_joint_positions_data)
-  , tar_joint_velocities_data_(tar_joint_velocities_data)
-  , tar_joint_efforts_data_(tar_joint_efforts_data)
-  , ice_cmd_data_(ice_cmd_data)
-  , pwm_data_(pwm_data)
-  , sampling_time_data_(sampling_time_data)
-  , ctrl_latency_data_(ctrl_latency_data)
-  , vibe_data_(vibe_data)
-  , repulsive_accel_data_(repulsive_accel_data)
-  , dist_force_data_(dist_force_data)
-  , obsv_fb_data_(obsv_fb_data)
-  , mr_ctrl_fb_data_(mr_ctrl_fb_data)
+  const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& _odom_data,
+  const QVector<tobas_msgs::msg::OdometryStamped>& _setpoint_data,
+  const QVector<tobas_msgs::msg::Imu>& _imu_raw_data,
+  const QVector<tobas_msgs::msg::Imu>& _imu_filt_data,
+  const QVector<tobas_msgs::msg::MagneticField>& _mag_data,
+  const QVector<tobas_msgs::msg::FluidPressure>& _pressure_data,
+  const QVector<tobas_msgs::msg::Gnss>& _gnss_data,
+  const QVector<tobas_msgs::msg::RCInput>& _rcin_data,
+  const QVector<tobas_msgs::msg::Battery>& _battery_data,
+  const QVector<tobas_msgs::msg::Cpu>& _cpu_data,
+  const QVector<tobas_msgs::msg::RotorStateArray>& _cur_rotor_states_data,
+  const QVector<tobas_msgs::msg::RotorSpeedArray>& _tar_rotor_speeds_data,
+  const QVector<tobas_msgs::msg::JointStateArray>& _cur_joint_states_data,
+  const QVector<tobas_msgs::msg::JointCommandArray>& _tar_joint_positions_data,
+  const QVector<tobas_msgs::msg::JointCommandArray>& _tar_joint_velocities_data,
+  const QVector<tobas_msgs::msg::JointCommandArray>& _tar_joint_efforts_data,
+  const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& _ice_cmd_data,
+  const QVector<tobas_msgs::msg::PwmArray>& _pwm_data,
+  const QVector<tobas_msgs::msg::Latency>& _sampling_time_data,
+  const QVector<tobas_msgs::msg::Latency>& _ctrl_latency_data,
+  const QVector<tobas_msgs::msg::VibrationLevel>& _vibe_data,
+  const QVector<tobas_msgs::msg::RepulsiveAcceleration>& _repulsive_accel_data,
+  const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _dist_force_data,
+  const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _obsv_fb_data,
+  const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& _mr_ctrl_fb_data)
+  : odom_data_(_odom_data)
+  , setpoint_data_(_setpoint_data)
+  , imu_raw_data_(_imu_raw_data)
+  , imu_filt_data_(_imu_filt_data)
+  , mag_data_(_mag_data)
+  , pressure_data_(_pressure_data)
+  , gnss_data_(_gnss_data)
+  , rcin_data_(_rcin_data)
+  , battery_data_(_battery_data)
+  , cpu_data_(_cpu_data)
+  , cur_rotor_states_data_(_cur_rotor_states_data)
+  , tar_rotor_speeds_data_(_tar_rotor_speeds_data)
+  , cur_joint_states_data_(_cur_joint_states_data)
+  , tar_joint_positions_data_(_tar_joint_positions_data)
+  , tar_joint_velocities_data_(_tar_joint_velocities_data)
+  , tar_joint_efforts_data_(_tar_joint_efforts_data)
+  , ice_cmd_data_(_ice_cmd_data)
+  , pwm_data_(_pwm_data)
+  , sampling_time_data_(_sampling_time_data)
+  , ctrl_latency_data_(_ctrl_latency_data)
+  , vibe_data_(_vibe_data)
+  , repulsive_accel_data_(_repulsive_accel_data)
+  , dist_force_data_(_dist_force_data)
+  , obsv_fb_data_(_obsv_fb_data)
+  , mr_ctrl_fb_data_(_mr_ctrl_fb_data)
 {
   pose_plot_ = new PosePlotWidget();
   twist_plot_ = new TwistPlotWidget();
@@ -128,11 +124,11 @@ void PlotTabWidget::clear()
   }
 }
 
-void PlotTabWidget::setTimeScale(double t_start, double t_stop)
+void PlotTabWidget::setTimeScale(double _t_start, double _t_stop)
 {
   for (int i = 0; i < count(); ++i) {
     const auto plot = qt::qPointerCast<BasePlotWidget>(widget(i));
-    plot->setTimeScale(t_start, t_stop);
+    plot->setTimeScale(_t_start, _t_stop);
   }
 }
 
@@ -141,9 +137,9 @@ void PlotTabWidget::plot()
   plot(currentIndex());
 }
 
-void PlotTabWidget::plot(int index)
+void PlotTabWidget::plot(int _index)
 {
-  const auto cur_widget = widget(index);
+  const auto cur_widget = widget(_index);
 
   if (cur_widget == pose_plot_) {
     pose_plot_->setData(odom_data_, setpoint_data_);
@@ -221,14 +217,12 @@ void PlotTabWidget::plot(int index)
     mr_ctrl_fb_plot_->setData(mr_ctrl_fb_data_);
   }
   else {
-    qWarning() << "Invalid index:" << index;
+    qWarning() << "Invalid index:" << _index;
   }
 }
 
-void PlotTabWidget::onCurrentWidgetChanged(int index)
+void PlotTabWidget::onCurrentWidgetChanged(int _index)
 {
-  plot(index);
+  plot(_index);
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

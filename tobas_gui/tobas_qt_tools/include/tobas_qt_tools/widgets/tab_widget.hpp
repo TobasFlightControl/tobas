@@ -7,9 +7,7 @@
 #include <QTabWidget>
 #include <QWheelEvent>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class TabBar : public QTabBar
 {
@@ -20,16 +18,16 @@ class TabBar : public QTabBar
 public:
   explicit TabBar();
 
-  void enableWheelEvent(bool enable);
+  void enableWheelEvent(bool _enable);
 
-  void setTabBackgroundColor(int index, const QColor& color);
-  void clearTabBackgroundColor(int index);
+  void setTabBackgroundColor(int _index, const QColor& _color);
+  void clearTabBackgroundColor(int _index);
 
 protected:
   QMap<int, QColor> colors_;
 
-  void wheelEvent(QWheelEvent* event) override;
-  void paintEvent(QPaintEvent* event) override;
+  void wheelEvent(QWheelEvent* _event) override;
+  void paintEvent(QPaintEvent* _event) override;
 
 private:
   bool enable_wheel_event_ = true;
@@ -46,24 +44,24 @@ class TabWidget : public QTabWidget
   using super = QTabWidget;
 
 public:
-  explicit TabWidget(QWidget* parent = nullptr);
+  explicit TabWidget(QWidget* _parent = nullptr);
 
   /**
    * Ignore mouse wheel events.
    *
    * @note Must be called before TabBar settings such as `setMovable`.
    */
-  virtual void enableWheelEvent(bool enable);
+  virtual void enableWheelEvent(bool _enable);
 
-  virtual void setTabBackgroundColor(int index, const QColor& color);
-  virtual void clearTabBackgroundColor(int index);
+  virtual void setTabBackgroundColor(int _index, const QColor& _color);
+  virtual void clearTabBackgroundColor(int _index);
 
-  void setTabEnabled(QWidget* tab, bool enabled);
-  void setTabVisible(QWidget* tab, bool visible);
+  void setTabEnabled(QWidget* _tab, bool _enabled);
+  void setTabVisible(QWidget* _tab, bool _visible);
 
-  void setTabWidth(int width);
-  void setTabHeight(int height);
-  void setTabSize(int width, int height);
+  void setTabWidth(int _width);
+  void setTabHeight(int _height);
+  void setTabSize(int _width, int _height);
 
   /** Delete all tabs and free memory. */
   void removeAllTabs();
@@ -71,5 +69,4 @@ public:
 private:
   TabBar* tab_bar_;
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

@@ -22,9 +22,7 @@
 #include <tobas_ssh_msgs/srv/sftp_read.hpp>
 #include <tobas_ssh_msgs/srv/sftp_write.hpp>
 
-namespace tobas
-{
-namespace ssh
+namespace tobas::ssh
 {
 /**
  * Client for the SSH server.
@@ -36,7 +34,7 @@ class SshClient
 public:
   using Result = std::expected<void, std::string>;
 
-  explicit SshClient(rclcpp::Node::SharedPtr node);
+  explicit SshClient(rclcpp::Node::SharedPtr _node);
 
   /** Wait for the local server that communicates directly with the SSH server. */
   bool waitForLocalServer();
@@ -44,31 +42,31 @@ public:
   /** Latest endpoint published by the server, or empty before the first message arrives. */
   std::string endpoint() const;
 
-  bool setEndpoint(const std::string& host, const std::string& user);
+  bool setEndpoint(const std::string& _host, const std::string& _user);
 
   Result connect();
 
-  Result execute(const std::string& command, std::string& output, bool superuser = false, bool background = false);
-  Result execute(const std::string& command, bool superuser = false, bool background = false);
+  Result execute(const std::string& _command, std::string& _output, bool _superuser = false, bool _background = false);
+  Result execute(const std::string& _command, bool _superuser = false, bool _background = false);
 
   Result scpGet(
-    const std::string& remote_path,
-    const std::string& local_path,
-    std::function<void(uint64_t, uint64_t)> callback = nullptr);
+    const std::string& _remote_path,
+    const std::string& _local_path,
+    std::function<void(uint64_t, uint64_t)> _callback = nullptr);
 
   Result scpPut(
-    const std::string& local_dir,
-    const std::string& remote_dir,
-    bool parents,
-    const std::vector<std::string>& exclude_dirs,
-    bool superuser = false,
-    std::function<void(uint64_t, uint64_t)> callback = nullptr);
+    const std::string& _local_dir,
+    const std::string& _remote_dir,
+    bool _parents,
+    const std::vector<std::string>& _exclude_dirs,
+    bool _superuser = false,
+    std::function<void(uint64_t, uint64_t)> _callback = nullptr);
 
-  Result sftpRead(const std::string& remote_path, std::string& text, bool superuser = false);
+  Result sftpRead(const std::string& _remote_path, std::string& _text, bool _superuser = false);
 
-  Result sftpWrite(const std::string& remote_path, const std::string& text, bool superuser = false);
+  Result sftpWrite(const std::string& _remote_path, const std::string& _text, bool _superuser = false);
 
-  Result list(const std::string& pardir, std::vector<std::string>& dst);
+  Result list(const std::string& _pardir, std::vector<std::string>& _dst);
 
 private:
   const rclcpp::Node::SharedPtr node_;
@@ -86,5 +84,4 @@ private:
   ros2::SyncActionClient<tobas_ssh_msgs::action::ScpGet> scp_get_ac_;
   ros2::SyncActionClient<tobas_ssh_msgs::action::ScpPut> scp_put_ac_;
 };
-}  // namespace ssh
-}  // namespace tobas
+}  // namespace tobas::ssh

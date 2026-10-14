@@ -5,16 +5,13 @@
 
 #include "tobas_qt_tools/font.hpp"
 
-namespace tobas
+namespace tobas::qt
 {
-namespace qt
+DescriptionWidget::DescriptionWidget(const QString& _text, int _point_size, QWidget* _parent) : super(_text, _parent)
 {
-DescriptionWidget::DescriptionWidget(const QString& text, int point_size, QWidget* parent) : super(text, parent)
-{
-  setFont(DefaultFont(point_size));
+  setFont(DefaultFont(_point_size));
   setAlignment(Qt::AlignTop);
   setWordWrap(true);
   setOpenExternalLinks(true);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

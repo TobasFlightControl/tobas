@@ -11,11 +11,7 @@
 
 #include "../base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class WifiHotspotWidget : public BaseConfigWidget
 {
@@ -43,16 +39,14 @@ private:
   QString getSsid() const;
   QString getPsk() const;
 
-  bool checkSsid(QString& msg) const;
-  bool checkPsk(QString& msg) const;
+  bool checkSsid(QString& _msg) const;
+  bool checkPsk(QString& _msg) const;
 
-  static bool isValidAsciiPsk(const QString& psk);
-  static bool isValid64HexPsk(const QString& psk);
+  static bool isValidAsciiPsk(const QString& _psk);
+  static bool isValid64HexPsk(const QString& _psk);
 
 private Q_SLOTS:
   void onTextChanged();
   void onWriteButtonClicked();
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

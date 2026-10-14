@@ -3,13 +3,11 @@
 
 #include "tobas_qt_tools/thread.hpp"
 
-namespace tobas
+namespace tobas::qt
 {
-namespace qt
+void startThreadAndWait(std::function<void()> _func)
 {
-void startThreadAndWait(std::function<void()> func)
-{
-  const auto thread = QThread::create(std::move(func));
+  const auto thread = QThread::create(std::move(_func));
 
   // Prepare an event loop to catch results from another thread.
   QEventLoop loop;
@@ -22,5 +20,4 @@ void startThreadAndWait(std::function<void()> func)
 
   QObject::disconnect(conn);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

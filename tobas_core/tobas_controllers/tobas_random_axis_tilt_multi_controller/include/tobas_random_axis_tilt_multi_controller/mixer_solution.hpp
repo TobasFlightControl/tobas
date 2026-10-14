@@ -5,14 +5,11 @@
 
 #include <eigen3/Eigen/Core>
 
-namespace tobas
-{
-namespace random_axis_tilt_multicopter
+namespace tobas::random_axis_tilt_multicopter
 {
 struct MixerSolution
 {
   Eigen::VectorXd thrusts;
   Eigen::VectorXd tilt_angles;
 };
-}  // namespace random_axis_tilt_multicopter
-}  // namespace tobas
+}  // namespace tobas::random_axis_tilt_multicopter

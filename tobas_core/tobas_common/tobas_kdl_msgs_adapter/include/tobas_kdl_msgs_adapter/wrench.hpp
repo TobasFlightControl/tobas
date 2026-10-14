@@ -18,16 +18,16 @@ struct rclcpp::TypeAdapter<tobas::kdl::Wrench, tobas_kdl_msgs::msg::Wrench>
   using custom_type = tobas::kdl::Wrench;
   using ros_message_type = tobas_kdl_msgs::msg::Wrench;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.force, dst.force);
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.torque, dst.torque);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.force, _dst.force);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.torque, _dst.torque);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.force, dst.force);
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.torque, dst.torque);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.force, _dst.force);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.torque, _dst.torque);
   }
 };
 

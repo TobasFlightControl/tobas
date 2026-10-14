@@ -12,6 +12,6 @@ int main()
   const string input = "This is a test. Testing is fun.";
   const auto output = tobas::str::replace(input, "is", "was");
 
-  cout << "Input : " << input << endl;
-  cout << "Output: " << output << endl;
+  cout << "Input : " << input << '\n';
+  cout << "Output: " << output << '\n';
 }

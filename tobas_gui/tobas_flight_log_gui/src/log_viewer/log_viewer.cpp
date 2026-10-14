@@ -17,11 +17,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 namespace
 {
@@ -124,12 +120,12 @@ void FlightLogViewerWidget::reset()
   playback_ctrl_->reset();
 }
 
-void FlightLogViewerWidget::setLogName(const QString& log_name)
+void FlightLogViewerWidget::setLogName(const QString& _log_name)
 {
   reset();
 
   // Update the absolute rosbag path.
-  log_path_ = ros2::expandUser(kRosbagDirHome) / log_name.toStdString();
+  log_path_ = ros2::expandUser(kRosbagDirHome) / _log_name.toStdString();
 
   // Open the rosbag.
   if (!open(log_path_)) {
@@ -152,20 +148,20 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
   setPlotData(0.0);
 }
 
-bool FlightLogViewerWidget::open(const std::string& rosbag_path)
+bool FlightLogViewerWidget::open(const std::string& _rosbag_path)
 {
   try {
-    reader_.open(rosbag_path);
+    reader_.open(_rosbag_path);
   }
   catch (const std::exception& e) {
-    qWarning() << "Failed to open" << QString::fromStdString(rosbag_path) + ":" << e.what();
+    qWarning() << "Failed to open" << QString::fromStdString(_rosbag_path) + ":" << e.what();
     return false;
   }
 
   return true;
 }
 
-void FlightLogViewerWidget::setPlotData(double time_from_start)
+void FlightLogViewerWidget::setPlotData(double _time_from_start)
 {
   if (log_path_.empty()) {
     qWarning() << "Log path is not set.";
@@ -178,9 +174,9 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   }
 
   const auto& metadata = reader_.get_metadata();
-  const auto record_start_time = metadata.starting_time.time_since_epoch().count();              // [ns]
-  const auto window_start_time = record_start_time + static_cast<long>(time_from_start * 1e+9);  // [ns]
-  const auto window_stop_time = window_start_time + static_cast<long>(kWindowDuration * 1e+9);   // [ns]
+  const auto record_start_time = metadata.starting_time.time_since_epoch().count();               // [ns]
+  const auto window_start_time = record_start_time + static_cast<long>(_time_from_start * 1e+9);  // [ns]
+  const auto window_stop_time = window_start_time + static_cast<long>(kWindowDuration * 1e+9);    // [ns]
 
   // Move to the initial time.
   reader_.seek(window_start_time);
@@ -227,10 +223,8 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   }
 }
 
-void FlightLogViewerWidget::onPlaybackTimeChanged(double time_from_start)
+void FlightLogViewerWidget::onPlaybackTimeChanged(double _time_from_start)
 {
-  setPlotData(time_from_start);
+  setPlotData(_time_from_start);
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

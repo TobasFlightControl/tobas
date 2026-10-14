@@ -16,29 +16,27 @@
 
 using namespace std::placeholders;
 
-namespace tobas
-{
-namespace camera
+namespace tobas::camera
 {
 /** Subscribe to sensor_msgs/msg/CompressedImage images, reduce their data size, and publish the result. */
 class MjpgCompressor : public BaseNode
 {
 public:
-  explicit MjpgCompressor(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit MjpgCompressor(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   void setFfmpegParameters();
   void packetReady(
-    const std::string& frame_id,
-    const rclcpp::Time& stamp,
-    const std::string& codec,
-    uint32_t width,
-    uint32_t height,
-    uint64_t pts,
-    uint8_t flags,
-    uint8_t* data,
-    size_t sz);
-  void callback(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& msg);
+    const std::string& _frame_id,
+    const rclcpp::Time& _stamp,
+    const std::string& _codec,
+    uint32_t _width,
+    uint32_t _height,
+    uint64_t _pts,
+    uint8_t _flags,
+    uint8_t* _data,
+    size_t _sz);
+  void callback(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& _msg);
 
   std::string encoding_;      ///< Encoding of the published image, either MJPG or H.264.
   double resize_rate_ = 1.0;  ///< Resize ratio
@@ -51,8 +49,8 @@ private:
   ros2::SubscriberPtr<sensor_msgs::msg::CompressedImage> mjpg_sub_;
 };
 
-MjpgCompressor::MjpgCompressor(const rclcpp::NodeOptions& options)
-  : BaseNode("mjpg_compressor", nodeOptions_Default(options))
+MjpgCompressor::MjpgCompressor(const rclcpp::NodeOptions& _options)
+  : BaseNode("mjpg_compressor", nodeOptions_Default(_options))
 {
   const auto mjpg_topic = getStringParam("mjpg_topic", "image_compressed");
   const auto resized_topic = getStringParam("resized_topic", "mjpg_resized");
@@ -83,31 +81,31 @@ void MjpgCompressor::setFfmpegParameters()
 }
 
 void MjpgCompressor::packetReady(
-  const std::string& frame_id,
-  const rclcpp::Time& stamp,
-  const std::string& codec,
-  uint32_t width,
-  uint32_t height,
-  uint64_t pts,
-  uint8_t flags,
-  uint8_t* data,
-  size_t sz)
+  const std::string& _frame_id,
+  const rclcpp::Time& _stamp,
+  const std::string& _codec,
+  uint32_t _width,
+  uint32_t _height,
+  uint64_t _pts,
+  uint8_t _flags,
+  uint8_t* _data,
+  size_t _sz)
 {
   auto msg = std::make_unique<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>();
-  msg->header.frame_id = frame_id;
-  msg->header.stamp = stamp;
-  msg->encoding = codec;
-  msg->width = width;
-  msg->height = height;
-  msg->pts = pts;
-  msg->flags = flags;
-  msg->data.assign(data, data + sz);
+  msg->header.frame_id = _frame_id;
+  msg->header.stamp = _stamp;
+  msg->encoding = _codec;
+  msg->width = _width;
+  msg->height = _height;
+  msg->pts = _pts;
+  msg->flags = _flags;
+  msg->data.assign(_data, _data + _sz);
   ffmpeg_packet_pub_->publish(std::move(msg));
 }
 
-void MjpgCompressor::callback(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& msg)
+void MjpgCompressor::callback(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& _msg)
 {
-  cv::Mat image = cv::imdecode(cv::Mat(msg->data), 1);
+  cv::Mat image = cv::imdecode(cv::Mat(_msg->data), 1);
   cv::Mat image_resized;
   if (resize_rate_ < 1.0) {
     cv::resize(image, image_resized, cv::Size(), resize_rate_, resize_rate_);
@@ -137,7 +135,6 @@ void MjpgCompressor::callback(const sensor_msgs::msg::CompressedImage::ConstShar
     encoder_.encodeImage(*message);
   }
 }
-}  // namespace camera
-}  // namespace tobas
+}  // namespace tobas::camera
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::MjpgCompressor)

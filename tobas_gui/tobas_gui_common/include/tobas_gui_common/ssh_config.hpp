@@ -7,11 +7,7 @@
 
 #include <QString>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 struct SshConfig
 {
@@ -19,8 +15,6 @@ struct SshConfig
   QString user;
 };
 
-std::expected<SshConfig, QString> loadSshConfig(const QString& path);
-std::expected<void, QString> saveSshConfig(const QString& path, const SshConfig& config);
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+std::expected<SshConfig, QString> loadSshConfig(const QString& _path);
+std::expected<void, QString> saveSshConfig(const QString& _path, const SshConfig& _config);
+}  // namespace tobas::gui::cmn

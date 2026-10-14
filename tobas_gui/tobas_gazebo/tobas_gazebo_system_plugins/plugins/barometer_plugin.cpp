@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
 #include <optional>
 
 #include <gz/sim/Model.hh>
@@ -19,9 +20,7 @@
 
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class GazeboBarometerPlugin : public BaseNode,
                               public gz::sim::System,
@@ -32,12 +31,12 @@ public:
   explicit GazeboBarometerPlugin();
 
   void Configure(
-    const gz::sim::Entity& model_entity,
-    const sdf::ElementConstPtr& sdf,
-    gz::sim::EntityComponentManager& ecm,
+    const gz::sim::Entity& _model_entity,
+    const sdf::ElementConstPtr& _sdf,
+    gz::sim::EntityComponentManager& _ecm,
     gz::sim::EventManager&) override;
 
-  void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
+  void PostUpdate(const gz::sim::UpdateInfo& _info, const gz::sim::EntityComponentManager& _ecm) override;
 
 private:
   gz::math::Vector3d offset_;  ///< B_Pos_BS
@@ -58,42 +57,46 @@ GazeboBarometerPlugin::GazeboBarometerPlugin() : rnd_gen_(rnd_dev_())
 }
 
 void GazeboBarometerPlugin::Configure(
-  const gz::sim::Entity& model_entity,
-  const sdf::ElementConstPtr& sdf,
-  gz::sim::EntityComponentManager& ecm,
+  const gz::sim::Entity& _model_entity,
+  const sdf::ElementConstPtr& _sdf,
+  gz::sim::EntityComponentManager& _ecm,
   gz::sim::EventManager&)
 {
-  initialize("gazebo_barometer_plugin", sdf);
+  initialize("gazebo_barometer_plugin", _sdf);
 
-  offset_ = getSdfParam<gz::math::Vector3d>(sdf, "offset", gz::math::Vector3d::Zero);
+  offset_ = getSdfParam<gz::math::Vector3d>(_sdf, "offset", gz::math::Vector3d::Zero);
 
-  const auto sc = getWorldSphericalCoordinates(ecm);
+  const auto sc = getWorldSphericalCoordinates(_ecm);
   if (!sc) {
     TOBAS_EXIT(sc.error());
   }
   alt_0_ = sc->ElevationReference();
 
-  const gz::sim::Model model(model_entity);
-  const auto link_name = getSdfParam<std::string>(sdf, "linkName");
-  const auto link_enitty = model.LinkByName(ecm, link_name);
+  const gz::sim::Model model(_model_entity);
+  const auto link_name = getSdfParam<std::string>(_sdf, "linkName");
+  const auto link_enitty = model.LinkByName(_ecm, link_name);
   if (link_enitty == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link '", link_name, "'.");
   }
 
-  pose_W_ = getComponent<cmp::WorldPose>(link_enitty, ecm);
+  pose_W_ = getComponent<cmp::WorldPose>(link_enitty, _ecm);
 
-  const auto update_rate = getSdfParam<int>(sdf, "updateRate", kNonNegative);
+  const auto update_rate = getSdfParam<int>(_sdf, "updateRate", kNonNegative);
   rate_manager_.emplace(update_rate);
 
-  const auto noise_stddev = getSdfParam<double>(sdf, "noiseStddev", kNonNegative);
+  const auto noise_stddev = getSdfParam<double>(_sdf, "noiseStddev", kNonNegative);
   pressure_noise_ = NormalDistribution(0.0, noise_stddev);
 
   pressure_pub_ = createPublisher<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);
 }
 
-void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
+void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& _info, const gz::sim::EntityComponentManager&)
 {
-  if (!rate_manager_->update(info.simTime)) {
+  if (_info.paused || _info.dt <= std::chrono::steady_clock::duration::zero()) {
+    return;
+  }
+
+  if (!rate_manager_->update(_info.simTime)) {
     return;
   }
 
@@ -112,13 +115,12 @@ void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz
 
   // Create a pressure message.
   auto pressure_msg = std::make_unique<tobas_msgs::msg::FluidPressure>();
-  ros2::timeChronoToMsg(info.simTime, pressure_msg->header.stamp);
+  ros2::timeChronoToMsg(_info.simTime, pressure_msg->header.stamp);
   pressure_msg->pressure = pressure;
 
   // Publish the pressure message.
   pressure_pub_->publish(std::move(pressure_msg));
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(tobas::gazebo::GazeboBarometerPlugin, gz::sim::System, gz::sim::ISystemConfigure, gz::sim::ISystemPostUpdate)

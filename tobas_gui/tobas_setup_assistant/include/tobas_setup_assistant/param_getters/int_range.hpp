@@ -8,11 +8,7 @@
 #include "./base.hpp"
 #include "./int_getter.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ParamGetterWidget_IntRange : public ParamGetterWidget<st::Range<int>>
 {
@@ -22,18 +18,18 @@ class ParamGetterWidget_IntRange : public ParamGetterWidget<st::Range<int>>
   using super = ParamGetterWidget<ValueType>;
 
 Q_SIGNALS:
-  void valueChanged(const ValueType& value);
+  void valueChanged(const ValueType& _value);
 
 public:
-  explicit ParamGetterWidget_IntRange(const QString& param_name, const QString& description_text = "");
+  explicit ParamGetterWidget_IntRange(const QString& _param_name, const QString& _description_text = "");
 
   ValueType getValue() const override;
-  bool setValue(const ValueType& src) override;
+  bool setValue(const ValueType& _src) override;
 
-  void setMinimum(int minimum);
-  void setMaximum(int maximum);
-  void setSingleStep(int single_step);
-  void setSuffix(const QString& suffix);
+  void setMinimum(int _minimum);
+  void setMaximum(int _maximum);
+  void setSingleStep(int _single_step);
+  void setSuffix(const QString& _suffix);
 
   int min() const;
   int max() const;
@@ -41,12 +37,10 @@ public:
   bool isValid() const;
 
 private Q_SLOTS:
-  void onValueChanged(int value);
+  void onValueChanged(int _value);
 
 private:
   IntGetter* min_;
   IntGetter* max_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

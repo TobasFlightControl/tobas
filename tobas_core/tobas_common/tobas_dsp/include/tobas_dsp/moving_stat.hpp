@@ -7,9 +7,7 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
-namespace tobas
-{
-namespace dsp
+namespace tobas::dsp
 {
 /** Sequential moving mean and moving covariance calculation for vectors (memo: 2-66). */
 template <typename Scalar, int Size, size_t Length>
@@ -21,8 +19,8 @@ class MovingStatistics
 public:
   explicit MovingStatistics();
 
-  void initialize(const std::array<DataType, Length>& init_data);
-  inline void add(const DataType& x);
+  void initialize(const std::array<DataType, Length>& _init_data);
+  inline void add(const DataType& _x_new);
 
   inline const DataType& mean() const;
   inline const CovType& variance() const;
@@ -41,21 +39,21 @@ MovingStatistics<Scalar, Size, Length>::MovingStatistics()
 }
 
 template <typename Scalar, int Size, size_t Length>
-void MovingStatistics<Scalar, Size, Length>::initialize(const std::array<DataType, Length>& init_data)
+void MovingStatistics<Scalar, Size, Length>::initialize(const std::array<DataType, Length>& _init_data)
 {
   que_.clear();
-  for (const auto& x : init_data) {
+  for (const auto& x : _init_data) {
     que_.push_back(x);
   }
 
   DataType data_sum = DataType::Zero();
-  for (const auto& x : init_data) {
+  for (const auto& x : _init_data) {
     data_sum += x;
   }
   m_ = data_sum / Length;
 
   CovType cov_sum = CovType::Zero();
-  for (const auto& x : init_data) {
+  for (const auto& x : _init_data) {
     const DataType d = x - m_;
     cov_sum += d * d.transpose();
   }
@@ -64,22 +62,22 @@ void MovingStatistics<Scalar, Size, Length>::initialize(const std::array<DataTyp
 }
 
 template <typename Scalar, int Size, size_t Length>
-inline void MovingStatistics<Scalar, Size, Length>::add(const DataType& x_new)
+inline void MovingStatistics<Scalar, Size, Length>::add(const DataType& _x_new)
 {
   const DataType& x_old = que_.front();
 
   // Update mean and variance.
-  const DataType d = (x_new - x_old) / Length;
+  const DataType d = (_x_new - x_old) / Length;
   m_ += d;
 
   const DataType diff_old = x_old - m_;
-  const DataType diff_new = x_new - m_;
+  const DataType diff_new = _x_new - m_;
   v_ += d * d.transpose() + (diff_new * diff_new.transpose() - diff_old * diff_old.transpose()) / Length;
   eigen::symmetrise(v_);
 
   // Update the queue.
   que_.pop_front();
-  que_.push_back(x_new);
+  que_.push_back(_x_new);
 }
 
 template <typename Scalar, int Size, size_t Length>
@@ -93,5 +91,4 @@ inline const MovingStatistics<Scalar, Size, Length>::CovType& MovingStatistics<S
 {
   return v_;
 }
-}  // namespace dsp
-}  // namespace tobas
+}  // namespace tobas::dsp

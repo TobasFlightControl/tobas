@@ -6,9 +6,7 @@
 #include <cstring>
 #include <typeinfo>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 /** Class modeled after Python `enum.Enum`. It maps enum values to names. */
 struct NamedEnum
@@ -24,14 +22,13 @@ struct NamedEnum
   {
   }
 
-  bool operator==(const NamedEnum& other) const
+  bool operator==(const NamedEnum& _other) const
   {
     // Note that comparing pointers such as `char*` with `==` compares addresses, not values.
-    return typeid(*this) == typeid(other) && std::strcmp(name, other.name) == 0 && value == other.value;
+    return typeid(*this) == typeid(_other) && std::strcmp(name, _other.name) == 0 && value == _other.value;
   }
 };
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st
 
 #define DEFINE_NAMED_ENUM(Derived)                                                                                     \
   struct Derived : public st::NamedEnum                                                                                \

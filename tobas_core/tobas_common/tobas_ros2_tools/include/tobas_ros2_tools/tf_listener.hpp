@@ -12,21 +12,18 @@
 
 #include <geometry_msgs/msg/transform_stamped.hpp>
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 class TransformListener
 {
 public:
-  explicit TransformListener(rclcpp::Node::SharedPtr node);
+  explicit TransformListener(rclcpp::Node::SharedPtr _node);
 
   std::expected<geometry_msgs::msg::TransformStamped, std::string>
-  lookupTransform(const std::string& parent, const std::string& child, const rclcpp::Time& time = rclcpp::Time(0));
+  lookupTransform(const std::string& _parent, const std::string& _child, const rclcpp::Time& _time = rclcpp::Time(0));
 
 private:
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
 };
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

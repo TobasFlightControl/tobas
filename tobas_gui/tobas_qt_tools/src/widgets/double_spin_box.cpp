@@ -6,25 +6,22 @@
 #include <QTimer>
 #include <QWheelEvent>
 
-namespace tobas
+namespace tobas::qt
 {
-namespace qt
-{
-DoubleSpinBox::DoubleSpinBox(QWidget* parent) : super(parent)
+DoubleSpinBox::DoubleSpinBox(QWidget* _parent) : super(_parent)
 {
   setMinimum(std::numeric_limits<double>::lowest());
   setMaximum(std::numeric_limits<double>::max());
 }
 
-void DoubleSpinBox::wheelEvent(QWheelEvent* event)
+void DoubleSpinBox::wheelEvent(QWheelEvent* _event)
 {
-  event->ignore();
+  _event->ignore();
 }
 
-void DoubleSpinBox::focusInEvent(QFocusEvent* event)
+void DoubleSpinBox::focusInEvent(QFocusEvent* _event)
 {
-  super::focusInEvent(event);
+  super::focusInEvent(_event);
   QTimer::singleShot(0, this, &DoubleSpinBox::selectAll);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

@@ -40,29 +40,29 @@ std::expected<void, std::string> VehicleParameters::validate() const
   return {};
 }
 
-std::expected<void, std::string> VehicleParameters::load(const YAML::Node& node)
+std::expected<void, std::string> VehicleParameters::load(const YAML::Node& _node)
 {
-  if (!node.IsDefined() || !node.IsMap()) {
+  if (!_node.IsDefined() || !_node.IsMap()) {
     return std::unexpected("Configuration node must be a map.");
   }
 
-  if (const auto result = yaml::load(kWingSurfaceKey, node, wing_surface); !result) {
+  if (const auto result = yaml::load(kWingSurfaceKey, _node, wing_surface); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kWingSpanKey, node, wing_span); !result) {
+  if (const auto result = yaml::load(kWingSpanKey, _node, wing_span); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kMACKey, node, mac); !result) {
+  if (const auto result = yaml::load(kMACKey, _node, mac); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kAeroCenterKey, node, ac.data); !result) {
+  if (const auto result = yaml::load(kAeroCenterKey, _node, ac.data); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kAlphaLimitLKey, node, alpha_limit); !result) {
+  if (const auto result = yaml::load(kAlphaLimitLKey, _node, alpha_limit); !result) {
     return result;
   }
 

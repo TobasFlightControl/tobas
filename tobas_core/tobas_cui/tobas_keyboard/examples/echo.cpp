@@ -18,15 +18,20 @@ int main()
   while (true) {
     const auto c = keyboard.readKey();
     if (c < 0) {
-      cout << "Failed to read keyboard." << endl;
+      cout << "Failed to read keyboard.\n";
     }
     else if (c == 0) {
     }
     else if (c < 0x21) {
-      cout << "Special Command : " << HEX_STREAM(c) << endl;
+      cout << "Special Command : " << HEX_STREAM(c) << '\n';
     }
     else {
-      cout << "Normal Character: " << c << endl;
+      cout << "Normal Character: " << c << '\n';
+    }
+
+    // Show each key immediately, including when stdout is redirected.
+    if (c != 0) {
+      cout << flush;
     }
 
     this_thread::sleep_for(10ms);

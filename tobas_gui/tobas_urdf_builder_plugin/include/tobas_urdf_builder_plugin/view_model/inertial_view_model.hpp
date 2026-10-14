@@ -7,13 +7,7 @@
 
 #include "./base_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 struct Inertia
 {
@@ -30,26 +24,23 @@ public:
   void sync() override;
 
   const ::urdf::Pose& origin() const;
-  void origin(const ::urdf::Pose& origin);
+  void origin(const ::urdf::Pose& _origin);
 
   double mass() const;
-  void mass(double mass);
+  void mass(double _mass);
 
   Inertia inertia() const;
-  void inertia(const Inertia& inertia);
+  void inertia(const Inertia& _inertia);
 
   /** Inertia wrt. CoM of a box. */
-  void buildInertiaBox(double x, double y, double z);
+  void buildInertiaBox(double _x, double _y, double _z);
 
   /** Inertia wrt. CoM of a cylinder. */
-  void buildInertiaCylinder(double radius, double length);
+  void buildInertiaCylinder(double _radius, double _length);
 
   /** Inertia wrt. CoM of a sphere. */
-  void buildInertiaSphere(double radius);
+  void buildInertiaSphere(double _radius);
 };
 
 using InertialViewModelPtr = std::shared_ptr<InertialViewModel>;
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

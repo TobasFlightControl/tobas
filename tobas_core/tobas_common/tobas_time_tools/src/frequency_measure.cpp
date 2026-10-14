@@ -7,11 +7,9 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
+namespace tobas::tim
 {
-namespace tim
-{
-FrequencyMeasure::FrequencyMeasure(const ch::nanoseconds& period) : period_(period)
+FrequencyMeasure::FrequencyMeasure(const ch::nanoseconds& _period) : period_(_period)
 {
 }
 
@@ -30,11 +28,10 @@ void FrequencyMeasure::count()
   const auto dur = end_time - start_time_;
   if (dur > period_) {
     const auto freq = count_ / ch::duration<double>(dur).count();
-    std::cout << freq << " Hz" << std::endl;
+    std::cout << freq << " Hz\n";
 
     // Reset.
     count_ = 0;
   }
 }
-}  // namespace tim
-}  // namespace tobas
+}  // namespace tobas::tim

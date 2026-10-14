@@ -9,9 +9,7 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class RotorStatesPublisherNode : public BaseNode
 {
@@ -19,7 +17,7 @@ class RotorStatesPublisherNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit RotorStatesPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit RotorStatesPublisherNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   Drone::ConstSharedPtr drone_;
@@ -29,37 +27,37 @@ private:
   ros2::SubscriberPtr<Drone> drone_sub_;
   std::map<std::string, ros2::SubscriberPtr<tobas_msgs::msg::RotorState>> rotor_state_subs_;
 
-  void droneCb(const Drone::ConstSharedPtr& drone);
-  void rotorStateCb(const tobas_msgs::msg::RotorState::ConstSharedPtr& rotor_state);
+  void droneCb(const Drone::ConstSharedPtr& _drone);
+  void rotorStateCb(const tobas_msgs::msg::RotorState::ConstSharedPtr& _rotor_state);
 };
 
-RotorStatesPublisherNode::RotorStatesPublisherNode(const rclcpp::NodeOptions& options)
-  : super("gazebo_rotor_states_publisher", nodeOptions_Default(options))
+RotorStatesPublisherNode::RotorStatesPublisherNode(const rclcpp::NodeOptions& _options)
+  : super("gazebo_rotor_states_publisher", nodeOptions_Default(_options))
 {
   rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(topic::kRotorStates);
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
 }
 
-void RotorStatesPublisherNode::droneCb(const Drone::ConstSharedPtr& drone)
+void RotorStatesPublisherNode::droneCb(const Drone::ConstSharedPtr& _drone)
 {
-  if (!drone->prop) {
+  if (!_drone->prop) {
     return;
   }
 
   rotor_states_.clear();
   rotor_state_subs_.clear();
 
-  for (const auto& [link_name, _] : drone->prop->rotors) {
+  for (const auto& [link_name, _] : _drone->prop->rotors) {
     const auto topic = path::join(gazebo::kRotorStateTopicNS, link_name);
     rotor_state_subs_[link_name] = createSubscriber(topic, &self::rotorStateCb, this);
   }
 
-  drone_ = drone;
+  drone_ = _drone;
 }
 
-void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::ConstSharedPtr& rotor_state)
+void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::ConstSharedPtr& _rotor_state)
 {
-  const auto& link_name = rotor_state->link_name;
+  const auto& link_name = _rotor_state->link_name;
 
   if (rotor_states_.contains(link_name)) {
     TOBAS_WARN("Rotor '", link_name, "' is already updated.");
@@ -67,7 +65,7 @@ void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::C
   }
 
   // Store rotor state.
-  rotor_states_[link_name] = *rotor_state;
+  rotor_states_[link_name] = *_rotor_state;
 
   if (rotor_states_.size() == drone_->prop->numRotors()) {
     // Publish rotor states.
@@ -82,7 +80,6 @@ void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::C
     rotor_states_.clear();
   }
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::gazebo::RotorStatesPublisherNode)

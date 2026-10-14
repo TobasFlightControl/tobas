@@ -12,13 +12,9 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
+namespace tobas::gui::ctrl
 {
-namespace gui
-{
-namespace ctrl
-{
-EngineViewerWidget::EngineViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
+EngineViewerWidget::EngineViewerWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone) : drone_(_drone)
 {
   fuel_quantity_ = new qt::ProgressBar();
   oil_temp_ = new qt::ProgressBar();
@@ -35,7 +31,7 @@ EngineViewerWidget::EngineViewerWidget(const rqt::RosQtBridge& bridge, const Dro
   setLayout(form);
 
   // Connection
-  connect(&bridge, &rqt::RosQtBridge::engineStateReceived, this, &self::engineStateCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::engineStateReceived, this, &self::engineStateCb, Qt::QueuedConnection);
 }
 
 void EngineViewerWidget::reset()
@@ -56,13 +52,13 @@ void EngineViewerWidget::updateInternalDataStructures()
   }
 }
 
-void EngineViewerWidget::updateFuelQuantity(double fuel_quantity)
+void EngineViewerWidget::updateFuelQuantity(double _fuel_quantity)
 {
   constexpr double kMaxFuelQuantity = 100.0;  // TODO: Include fuel capacity in `EngineConfig`.
-  const auto fuel_rate = math::remap(fuel_quantity, 0.0, kMaxFuelQuantity, 0.0, 100.0);
+  const auto fuel_rate = math::remap(_fuel_quantity, 0.0, kMaxFuelQuantity, 0.0, 100.0);
   fuel_quantity_->setPercentage(fuel_rate);
   fuel_quantity_->setFormat(
-    std::format("{:.2f} L ({:.0f} %)", fuel_quantity, std::clamp(fuel_rate, 0.0, 100.0)).c_str());
+    std::format("{:.2f} L ({:.0f} %)", _fuel_quantity, std::clamp(fuel_rate, 0.0, 100.0)).c_str());
 
   if (fuel_rate > 20.0) {
     fuel_quantity_->setFillColor(qt::color::green500());
@@ -75,22 +71,22 @@ void EngineViewerWidget::updateFuelQuantity(double fuel_quantity)
   }
 }
 
-void EngineViewerWidget::updateOilTemperature(double oil_temp)
+void EngineViewerWidget::updateOilTemperature(double _oil_temp)
 {
   constexpr double kMinOilTemp = 0.0;    // [degC]
   constexpr double kMaxOilTemp = 130.0;  // [degC]
-  const auto oil_temp_rate = math::remap(oil_temp, kMinOilTemp, kMaxOilTemp, 0.0, 100.0);
+  const auto oil_temp_rate = math::remap(_oil_temp, kMinOilTemp, kMaxOilTemp, 0.0, 100.0);
   oil_temp_->setPercentage(oil_temp_rate);
-  oil_temp_->setFormat(std::format("{:.1f} ℃", oil_temp).c_str());
+  oil_temp_->setFormat(std::format("{:.1f} ℃", _oil_temp).c_str());
 
   // TODO: Include the proper oil temperature range in `EngineConfig`.
-  if (oil_temp < 60.0) {
+  if (_oil_temp < 60.0) {
     oil_temp_->setFillColor(qt::color::cyan500());
   }
-  else if (oil_temp < 100.0) {
+  else if (_oil_temp < 100.0) {
     oil_temp_->setFillColor(qt::color::green500());
   }
-  else if (oil_temp < 120.0) {
+  else if (_oil_temp < 120.0) {
     oil_temp_->setFillColor(qt::color::yellow500());
   }
   else {
@@ -98,15 +94,13 @@ void EngineViewerWidget::updateOilTemperature(double oil_temp)
   }
 }
 
-void EngineViewerWidget::engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state)
+void EngineViewerWidget::engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& _engine_state)
 {
   if (!iprop_) {
     return;
   }
 
-  updateFuelQuantity(engine_state->fuel_quantity);
-  updateOilTemperature(engine_state->oil_temperature);
+  updateFuelQuantity(_engine_state->fuel_quantity);
+  updateOilTemperature(_engine_state->oil_temperature);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

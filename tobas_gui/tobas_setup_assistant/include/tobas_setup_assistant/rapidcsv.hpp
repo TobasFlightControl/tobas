@@ -11,27 +11,18 @@
 
 #include <rapidcsv.h>
 
-namespace tobas
+namespace tobas::gui::sa::csv
 {
-namespace gui
-{
-namespace sa
-{
-namespace csv
-{
-rapidcsv::Document load(const std::filesystem::path& path);
+rapidcsv::Document load(const std::filesystem::path& _path);
 
 template <typename T>
-std::expected<std::vector<T>, std::string> getColumn(const rapidcsv::Document& doc, const std::string& name)
+std::expected<std::vector<T>, std::string> getColumn(const rapidcsv::Document& _doc, const std::string& _name)
 {
   try {
-    return doc.GetColumn<T>(name);
+    return _doc.GetColumn<T>(_name);
   }
   catch (const std::exception& e) {
     return std::unexpected(std::string(e.what()));
   }
 }
-}  // namespace csv
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::csv

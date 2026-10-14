@@ -6,19 +6,16 @@
 #include <exception>
 #include <string>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 class NotImplementedError : public std::exception
 {
 public:
-  NotImplementedError(const std::string& msg = "");
+  NotImplementedError(const std::string& _msg = "");
 
   virtual const char* what() const noexcept;
 
 private:
   std::string msg_;
 };
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

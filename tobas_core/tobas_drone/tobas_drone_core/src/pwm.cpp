@@ -29,25 +29,25 @@ std::expected<void, std::string> PwmConfig::validate() const
   return {};
 }
 
-std::expected<void, std::string> PwmConfig::load(const YAML::Node& node)
+std::expected<void, std::string> PwmConfig::load(const YAML::Node& _node)
 {
-  if (!node.IsDefined() || !node.IsMap()) {
+  if (!_node.IsDefined() || !_node.IsMap()) {
     return std::unexpected("Configuration node must be a map.");
   }
 
-  if (const auto result = yaml::load(kChannelKey, node, channel); !result) {
+  if (const auto result = yaml::load(kChannelKey, _node, channel); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kNameKey, node, name); !result) {
+  if (const auto result = yaml::load(kNameKey, _node, name); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kPeriodRangeKey, node, period_range); !result) {
+  if (const auto result = yaml::load(kPeriodRangeKey, _node, period_range); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kValueRangeKey, node, value_range); !result) {
+  if (const auto result = yaml::load(kValueRangeKey, _node, value_range); !result) {
     return result;
   }
 

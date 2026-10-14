@@ -18,14 +18,14 @@ struct rclcpp::TypeAdapter<tobas::kdl::RotationalInertia, tobas_kdl_msgs::msg::R
   using custom_type = tobas::kdl::RotationalInertia;
   using ros_message_type = tobas_kdl_msgs::msg::RotationalInertia;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    tobas_kdl_msgs::matrix3dEigenToStd(src.data, dst.data);
+    tobas_kdl_msgs::matrix3dEigenToStd(_src.data, _dst.data);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas_kdl_msgs::matrix3dStdToEigen(src.data, dst.data);
+    tobas_kdl_msgs::matrix3dStdToEigen(_src.data, _dst.data);
   }
 };
 

@@ -10,16 +10,14 @@
 #include <rclcpp/executors/single_threaded_executor.hpp>
 #include <rclcpp/node.hpp>
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 /** Create and manage a ROS node that runs on a thread separate from the main thread. */
 class AsyncNodeManager
 {
 public:
-  explicit AsyncNodeManager(int argc, char** argv, const std::string& node_name);
-  explicit AsyncNodeManager(rclcpp::Context::SharedPtr context, const std::string& node_name);
+  explicit AsyncNodeManager(int _argc, char** _argv, const std::string& _node_name);
+  explicit AsyncNodeManager(rclcpp::Context::SharedPtr _context, const std::string& _node_name);
   ~AsyncNodeManager();
 
   void shutdown();
@@ -33,7 +31,7 @@ private:
   std::optional<rclcpp::executors::SingleThreadedExecutor> executor_;
   std::optional<std::thread> executor_thread_;
 
-  void initialize(rclcpp::Context::SharedPtr context, const std::string& node_name);
+  void initialize(rclcpp::Context::SharedPtr _context, const std::string& _node_name);
 };
 
 inline rclcpp::Node::SharedPtr AsyncNodeManager::node()
@@ -45,5 +43,4 @@ inline rclcpp::Node::ConstSharedPtr AsyncNodeManager::node() const
 {
   return node_;
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

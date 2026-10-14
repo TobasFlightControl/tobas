@@ -12,12 +12,12 @@ int main()
   const char* cmd = "date";
   const auto result = tobas::linux::executeCommand(cmd);
   if (!result) {
-    cerr << "Command failed: " << result.error() << endl;
+    cerr << "Command failed: " << result.error() << '\n';
     return EXIT_FAILURE;
   }
 
-  cout << "Command: " << cmd << endl;
-  cout << "Result : " << *result << endl;
+  cout << "Command: " << cmd << '\n';
+  cout << "Result : " << *result << '\n';
 
   return EXIT_SUCCESS;
 }

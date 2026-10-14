@@ -6,21 +6,17 @@
 #include <QMap>
 #include <QSet>
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 namespace
 {
 constexpr char kServiceType[] = "_tobas-fc._tcp";
 
-QMap<QString, QString> parseTxtField(const QString& txt)
+QMap<QString, QString> parseTxtField(const QString& _txt)
 {
   QMap<QString, QString> res;
 
-  for (const auto& record : txt.split('"', Qt::SkipEmptyParts)) {
+  for (const auto& record : _txt.split('"', Qt::SkipEmptyParts)) {
     const auto separator = record.indexOf('=');
     if (separator < 0) {
       continue;
@@ -33,10 +29,10 @@ QMap<QString, QString> parseTxtField(const QString& txt)
   return res;
 }
 
-std::optional<QString> getOptionalValue(const QMap<QString, QString>& map, const QString& key)
+std::optional<QString> getOptionalValue(const QMap<QString, QString>& _map, const QString& _key)
 {
-  const auto it = map.find(key);
-  if (it == map.end()) {
+  const auto it = _map.find(_key);
+  if (it == _map.end()) {
     return std::nullopt;
   }
   else {
@@ -50,12 +46,12 @@ std::optional<QString> getOptionalValue(const QMap<QString, QString>& map, const
   }
 }
 
-QVector<DiscoveredFlightController> parseAvahiBrowseResult(const QString& output)
+QVector<DiscoveredFlightController> parseAvahiBrowseResult(const QString& _output)
 {
   QVector<DiscoveredFlightController> flight_controllers;
   QSet<QString> addresses;
 
-  for (const auto& line : output.split('\n', Qt::SkipEmptyParts)) {
+  for (const auto& line : _output.split('\n', Qt::SkipEmptyParts)) {
     const auto fields = line.split(';');
     if (fields.size() < 10) {
       continue;
@@ -96,7 +92,7 @@ QVector<DiscoveredFlightController> parseAvahiBrowseResult(const QString& output
 }
 }  // namespace
 
-FlightControllerScanner::FlightControllerScanner(QObject* parent) : super(parent)
+FlightControllerScanner::FlightControllerScanner(QObject* _parent) : super(_parent)
 {
   constexpr int kScanInterval = 5000;  // [ms]
   scan_timer_.setInterval(kScanInterval);
@@ -127,13 +123,13 @@ void FlightControllerScanner::scanOnce()
   process_.start("avahi-browse", { "--parsable", "--resolve", "--terminate", QString::fromUtf8(kServiceType) });
 }
 
-void FlightControllerScanner::onFinished(int exit_code, QProcess::ExitStatus exit_status)
+void FlightControllerScanner::onFinished(int _exit_code, QProcess::ExitStatus _exit_status)
 {
   if (failure_reported_) {
     return;
   }
 
-  if (exit_code != 0 || exit_status != QProcess::NormalExit) {
+  if (_exit_code != 0 || _exit_status != QProcess::NormalExit) {
     auto message = QString::fromUtf8(process_.readAllStandardError()).trimmed();
     if (message.isEmpty()) {
       message = "avahi-browse exited unexpectedly.";
@@ -154,6 +150,4 @@ void FlightControllerScanner::onErrorOccurred(QProcess::ProcessError)
   }
   Q_EMIT failed(message);
 }
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

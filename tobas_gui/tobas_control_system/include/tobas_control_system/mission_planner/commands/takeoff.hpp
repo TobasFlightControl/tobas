@@ -13,11 +13,7 @@
 #include "../fields/takeoff_max_speed.hpp"
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class TakeoffWidget : public BaseCommandWidget
 {
@@ -29,7 +25,7 @@ public:
   const char* name() const override;
 
   mission::Takeoff dump() const;
-  void load(const mission::Takeoff& src);
+  void load(const mission::Takeoff& _src);
 
   double altitude() const;
   mission::AltitudeFrame altitudeFrame() const;
@@ -38,12 +34,12 @@ public:
   double maxJerk() const;
   double altitudeTolerance() const;
 
-  void altitude(double value);
-  void altitudeFrame(mission::AltitudeFrame value);
-  void maxSpeed(double value);
-  void maxAccel(double value);
-  void maxJerk(double value);
-  void altitudeTolerance(double value);
+  void altitude(double _value);
+  void altitudeFrame(mission::AltitudeFrame _value);
+  void maxSpeed(double _value);
+  void maxAccel(double _value);
+  void maxJerk(double _value);
+  void altitudeTolerance(double _value);
 
 private:
   field::AltitudeWidget* altitude_;
@@ -53,6 +49,4 @@ private:
   field::TakeoffMaxJerkWidget* max_jerk_;
   field::AltitudeToleranceWidget* altitude_tolerance_;
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

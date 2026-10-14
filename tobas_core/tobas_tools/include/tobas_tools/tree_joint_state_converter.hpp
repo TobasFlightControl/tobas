@@ -19,11 +19,11 @@ class TreeJointStateConverter : public kdl::TreeSolverI
   using super = kdl::TreeSolverI;
 
 public:
-  explicit TreeJointStateConverter(const kdl::Tree& tree);
+  explicit TreeJointStateConverter(const kdl::Tree& _tree);
 
   void updateInternalDataStructures() override;
 
-  std::expected<void, std::string> convert(const tobas_msgs::msg::JointStateArray& msg);
+  std::expected<void, std::string> convert(const tobas_msgs::msg::JointStateArray& _msg);
 
   inline const kdl::JntArray& getPosition() const;
   inline const kdl::JntArray& getVelocity() const;

@@ -3,18 +3,14 @@
 
 #include "tobas_gcs/shutdown_button.hpp"
 
-namespace tobas
+namespace tobas::gui::gcs
 {
-namespace gui
-{
-namespace gcs
-{
-ShutdownButton::ShutdownButton(int radius) : super("⏻")
+ShutdownButton::ShutdownButton(int _radius) : super("⏻")
 {
   setCheckable(true);
 
-  const auto font_size = radius * 3 / 2;
-  const auto diameter = radius * 2;
+  const auto font_size = _radius * 3 / 2;
+  const auto diameter = _radius * 2;
 
   // Set the button appearance with a style sheet.
   QString qss = R"(
@@ -47,9 +43,7 @@ ShutdownButton::ShutdownButton(int radius) : super("⏻")
       color: rgba(255,255,255,0.5);
     }
   )";
-  qss = qss.arg(radius).arg(font_size).arg(diameter);
+  qss = qss.arg(_radius).arg(font_size).arg(diameter);
   setStyleSheet(qss);
 }
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

@@ -10,11 +10,7 @@
 #include <QTimer>
 #include <QVector>
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 struct DiscoveredFlightController
 {
@@ -32,11 +28,11 @@ class FlightControllerScanner : public QObject
   using super = QObject;
 
 Q_SIGNALS:
-  void finished(const QVector<DiscoveredFlightController>& flight_controllers);
-  void failed(const QString& message);
+  void finished(const QVector<DiscoveredFlightController>& _flight_controllers);
+  void failed(const QString& _message);
 
 public:
-  explicit FlightControllerScanner(QObject* parent);
+  explicit FlightControllerScanner(QObject* _parent);
 
   void start();
   void stop();
@@ -48,9 +44,7 @@ private:
 
 private Q_SLOTS:
   void scanOnce();
-  void onFinished(int exit_code, QProcess::ExitStatus exit_status);
-  void onErrorOccurred(QProcess::ProcessError error);
+  void onFinished(int _exit_code, QProcess::ExitStatus _exit_status);
+  void onErrorOccurred(QProcess::ProcessError _error);
 };
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

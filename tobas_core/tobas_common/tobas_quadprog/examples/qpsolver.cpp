@@ -25,40 +25,40 @@ int main()
   quadprog.x_scale = x_scale;
   const auto quadprog_result = quadprog.solve();
   if (!quadprog_result) {
-    cerr << "QuadProgppSolver failed: " << quadprog_result.error() << endl;
+    cerr << "QuadProgppSolver failed: " << quadprog_result.error() << '\n';
     return EXIT_FAILURE;
   }
-  cout << "QuadProg++ solution: " << quadprog_result->transpose() << endl;
+  cout << "QuadProg++ solution: " << quadprog_result->transpose() << '\n';
 
   tobas::quadprog::QpOasesSolver qpoases;
   qpoases.problem = problem;
   qpoases.x_scale = x_scale;
   const auto qpoases_result = qpoases.solve();
   if (!qpoases_result) {
-    cerr << "QpOasesSolver failed: " << qpoases_result.error() << endl;
+    cerr << "QpOasesSolver failed: " << qpoases_result.error() << '\n';
     return EXIT_FAILURE;
   }
-  cout << "qpOASES solution: " << qpoases_result->transpose() << endl;
+  cout << "qpOASES solution: " << qpoases_result->transpose() << '\n';
 
   tobas::quadprog::DualActiveSetSolver das;
   das.problem = problem;
   das.x_scale = x_scale;
   const auto das_result = das.solve();
   if (!das_result) {
-    cerr << "DualActiveSetSolver failed: " << das_result.error() << endl;
+    cerr << "DualActiveSetSolver failed: " << das_result.error() << '\n';
     return EXIT_FAILURE;
   }
-  cout << "DualActiveSet solution: " << das_result->transpose() << endl;
+  cout << "DualActiveSet solution: " << das_result->transpose() << '\n';
 
   tobas::quadprog::PrimalDualInteriorPointSolver ipm;
   ipm.problem = problem;
   ipm.x_scale = x_scale;
   const auto ipm_result = ipm.solve();
   if (!ipm_result) {
-    cerr << "PrimalDualInteriorPointSolver failed: " << ipm_result.error() << endl;
+    cerr << "PrimalDualInteriorPointSolver failed: " << ipm_result.error() << '\n';
     return EXIT_FAILURE;
   }
-  cout << "PrimalDualInteriorPointSolver solution: " << ipm_result->transpose() << endl;
+  cout << "PrimalDualInteriorPointSolver solution: " << ipm_result->transpose() << '\n';
 
   return EXIT_SUCCESS;
 }

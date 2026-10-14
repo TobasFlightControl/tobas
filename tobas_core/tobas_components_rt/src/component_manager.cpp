@@ -21,20 +21,20 @@ std::mutex& componentOperationMutex()
 }  // namespace
 
 void ThreadSafeComponentManager::on_load_node(
-  const std::shared_ptr<rmw_request_id_t> request_header,
-  const LoadNode::Request::SharedPtr request,
-  LoadNode::Response::SharedPtr response)
+  const std::shared_ptr<rmw_request_id_t> _request_header,
+  const LoadNode::Request::SharedPtr _request,
+  LoadNode::Response::SharedPtr _response)
 {
   const std::lock_guard lock(componentOperationMutex());
-  ComponentManager::on_load_node(request_header, request, response);
+  ComponentManager::on_load_node(_request_header, _request, _response);
 }
 
 void ThreadSafeComponentManager::on_unload_node(
-  const std::shared_ptr<rmw_request_id_t> request_header,
-  const UnloadNode::Request::SharedPtr request,
-  UnloadNode::Response::SharedPtr response)
+  const std::shared_ptr<rmw_request_id_t> _request_header,
+  const UnloadNode::Request::SharedPtr _request,
+  UnloadNode::Response::SharedPtr _response)
 {
   const std::lock_guard lock(componentOperationMutex());
-  ComponentManager::on_unload_node(request_header, request, response);
+  ComponentManager::on_unload_node(_request_header, _request, _response);
 }
 }  // namespace tobas

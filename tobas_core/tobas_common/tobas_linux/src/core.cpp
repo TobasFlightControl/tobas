@@ -9,9 +9,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 std::expected<std::string, std::string> userName() noexcept
 {
@@ -41,17 +39,17 @@ std::expected<fs::path, std::string> homeDir() noexcept
   }
 }
 
-std::expected<fs::path, std::string> expandUser(const std::string& path) noexcept
+std::expected<fs::path, std::string> expandUser(const std::string& _path) noexcept
 {
-  if (path.substr(0, 2) == "~/") {
+  if (_path.substr(0, 2) == "~/") {
     const auto home = homeDir();
     if (!home) {
       return std::unexpected(home.error());
     }
-    return *home / path.substr(2);
+    return *home / _path.substr(2);
   }
   else {
-    return path;
+    return _path;
   }
 }
 
@@ -59,5 +57,4 @@ bool isSuperUser() noexcept
 {
   return getuid() == 0;
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

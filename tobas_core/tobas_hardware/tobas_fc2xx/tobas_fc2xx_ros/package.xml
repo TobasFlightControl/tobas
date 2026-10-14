@@ -9,13 +9,13 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<depend>tobas_ic_drivers</depend>
+	<depend>tobas_mcu_driver</depend>
 	<depend>tobas_tools</depend>
 	<depend>tobas_node</depend>
 	<depend>tobas_msgs_adapter</depend>
 	<depend>tobas_drone_msgs_adapter</depend>
 	<depend>tobas_real_common</depend>
 	<depend>tobas_hardware_common</depend>
-	<depend>tobas_fc2xx_core</depend>
 
 	<exec_depend>launch</exec_depend>
 	<exec_depend>launch_ros</exec_depend>

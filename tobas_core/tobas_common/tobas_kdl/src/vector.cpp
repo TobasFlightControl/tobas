@@ -5,32 +5,29 @@
 
 #include <tobas_math/core.hpp>
 
-namespace tobas
+namespace tobas::kdl
 {
-namespace kdl
+bool Vector::isParallel(const Vector& _rhs, bool _same_direction_only, double _angle_tol_rad) const
 {
-bool Vector::isParallel(const Vector& rhs, bool same_direction_only, double angle_tol_rad) const
-{
-  assert(angle_tol_rad > 0.0);
+  assert(_angle_tol_rad > 0.0);
 
   const auto na2 = squaredNorm();
-  const auto nb2 = rhs.squaredNorm();
+  const auto nb2 = _rhs.squaredNorm();
 
   // Parallelism is undefined for zero vectors.
   [[maybe_unused]] constexpr double kZeroTol = 1e-12;
   assert(na2 > kZeroTol);
   assert(nb2 > kZeroTol);
 
-  const auto dot = this->dot(rhs);
+  const auto dot = this->dot(_rhs);
   const auto cos2 = math::sqr(dot) / (na2 * nb2);
-  const auto thresh = math::sqr(std::cos(angle_tol_rad));
+  const auto thresh = math::sqr(std::cos(_angle_tol_rad));
 
-  if (same_direction_only) {
+  if (_same_direction_only) {
     return cos2 > thresh && dot > 0.0;
   }
   else {
     return cos2 > thresh;
   }
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

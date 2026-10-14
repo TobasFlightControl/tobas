@@ -13,59 +13,59 @@ namespace tobas
 /**
  * Compute the angle of attack (`alpha`).
  *
- * @param u,w Aircraft velocity relative to wind in the FRD coordinate system [m/s].
+ * @param _u,w Aircraft velocity relative to wind in the FRD coordinate system [m/s].
  * @return double Angle of attack [rad].
  */
-inline double angleOfAttack(double u, double w)
+inline double angleOfAttack(double _u, double _w)
 {
-  return u > kMinAirSpeedThresh ? std::atan(w / u) : 0;
+  return _u > kMinAirSpeedThresh ? std::atan(_w / _u) : 0;
 }
 
 /**
  * Compute the angle of attack (`alpha`).
  *
- * @param linvel_B Aircraft velocity relative to wind in the FRD coordinate system [m/s].
+ * @param _linvel_b Aircraft velocity relative to wind in the FRD coordinate system [m/s].
  * @return double Angle of attack [rad].
  */
-inline double angleOfAttack(const Eigen::Vector3d& linvel_B)
+inline double angleOfAttack(const Eigen::Vector3d& _linvel_b)
 {
-  return angleOfAttack(linvel_B.x(), linvel_B.z());
+  return angleOfAttack(_linvel_b.x(), _linvel_b.z());
 }
 
 /**
  * Compute the sideslip angle (`beta`).
  *
- * @param u,v,w Aircraft velocity relative to wind in the FRD coordinate system [m/s].
+ * @param _u,v,w Aircraft velocity relative to wind in the FRD coordinate system [m/s].
  * @return double Sideslip angle [rad].
  */
-inline double angleOfSideSlip(double u, double v, double w)
+inline double angleOfSideSlip(double _u, double _v, double _w)
 {
-  const auto V = std::hypot(u, v, w);
-  return V > kMinAirSpeedThresh ? std::asin(v / V) : 0;
+  const auto V = std::hypot(_u, _v, _w);
+  return V > kMinAirSpeedThresh ? std::asin(_v / V) : 0;
 }
 
 /**
  * Compute the sideslip angle (`beta`).
  *
- * @param linvel_B Aircraft velocity relative to wind in the FRD coordinate system [m/s].
+ * @param _linvel_b Aircraft velocity relative to wind in the FRD coordinate system [m/s].
  * @return double Sideslip angle [rad].
  */
-inline double angleOfSideSlip(const Eigen::Vector3d& linvel_B)
+inline double angleOfSideSlip(const Eigen::Vector3d& _linvel_b)
 {
-  return angleOfSideSlip(linvel_B.x(), linvel_B.y(), linvel_B.z());
+  return angleOfSideSlip(_linvel_b.x(), _linvel_b.y(), _linvel_b.z());
 }
 
 /**
  * Compute dynamic pressure (`q_bar`).
  *
- * @param rho Air density [kg/m^3].
- * @param V Magnitude of aircraft velocity relative to wind [m/s].
+ * @param _rho Air density [kg/m^3].
+ * @param _v Magnitude of aircraft velocity relative to wind [m/s].
  * @return double Dynamic pressure [Pa].
  */
-inline double dynamicPressure(double rho, double V)
+inline double dynamicPressure(double _rho, double _v)
 {
-  assert(rho > 0);
-  assert(V >= 0);
-  return rho * math::sqr(V) / 2;
+  assert(_rho > 0);
+  assert(_v >= 0);
+  return _rho * math::sqr(_v) / 2;
 }
 }  // namespace tobas

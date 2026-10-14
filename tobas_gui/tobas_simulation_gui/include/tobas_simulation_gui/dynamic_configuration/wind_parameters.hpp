@@ -13,11 +13,7 @@
 #include <tobas_gazebo_msgs/srv/get_wind_params.hpp>
 #include <tobas_gazebo_msgs/srv/set_wind_params.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class WindParamsWidget : public QWidget
 {
@@ -31,7 +27,7 @@ public:
   explicit WindParamsWidget();
 
   void reset();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:
@@ -52,11 +48,11 @@ private:
   double getGustDuration() const;     // [s]
   double getGustInterval() const;     // [s]
 
-  void setMeanSpeed(double value);
-  void setDirection(double value_rad);
-  void setGustSpeedFactor(double value);
-  void setGustDuration(double value);
-  void setGustInterval(double value);
+  void setMeanSpeed(double _value);
+  void setDirection(double _value_rad);
+  void setGustSpeedFactor(double _value);
+  void setGustDuration(double _value);
+  void setGustInterval(double _value);
 
   void setParamsToDefault();
   bool sendGuiParams();
@@ -65,6 +61,4 @@ private Q_SLOTS:
   void onResetButtonClicked();
   void onValueChanged();
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

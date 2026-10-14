@@ -7,32 +7,30 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace ptree
+namespace tobas::ptree
 {
 PropertyTree::PropertyTree()
 {
 }
 
-std::expected<void, std::string> PropertyTree::initialize(const fs::path& file_path)
+std::expected<void, std::string> PropertyTree::initialize(const fs::path& _file_path)
 {
-  if (file_path.empty()) {
+  if (_file_path.empty()) {
     return std::unexpected("Invalid file path.");
   }
 
   // Load the file if it exists.
-  if (fs::is_regular_file(file_path)) {
+  if (fs::is_regular_file(_file_path)) {
     try {
-      boost::property_tree::json_parser::read_json(file_path, root_node_);
+      boost::property_tree::json_parser::read_json(_file_path, root_node_);
     }
     catch (const std::exception& e) {
       return std::unexpected("Read json failed: " + std::string(e.what()));
     }
   }
 
-  file_path_ = file_path;
-  parent_dir_ = file_path.parent_path();
+  file_path_ = _file_path;
+  parent_dir_ = _file_path.parent_path();
 
   return {};
 }
@@ -60,14 +58,13 @@ std::expected<void, std::string> PropertyTree::save()
   return {};
 }
 
-std::string PropertyTree::sectionedKey(const std::string& section, const std::string& key)
+std::string PropertyTree::sectionedKey(const std::string& _section, const std::string& _key)
 {
-  if (section.empty()) {
-    return key;
+  if (_section.empty()) {
+    return _key;
   }
   else {
-    return section + "." + key;
+    return _section + "." + _key;
   }
 }
-}  // namespace ptree
-}  // namespace tobas
+}  // namespace tobas::ptree

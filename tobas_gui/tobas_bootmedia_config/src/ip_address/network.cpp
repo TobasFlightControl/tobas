@@ -10,11 +10,7 @@
 #define SI_NO_CONVERSION
 #include <SimpleIni.h>
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 namespace
 {
@@ -26,10 +22,10 @@ constexpr char kAddressKey[] = "Address";
 constexpr char kGatewayKey[] = "Gateway";
 constexpr char kDnsKey[] = "DNS";
 
-std::optional<uint32_t> ipv4StringToInt(const std::string& text)
+std::optional<uint32_t> ipv4StringToInt(const std::string& _text)
 {
   in_addr addr{};
-  if (inet_pton(AF_INET, text.c_str(), &addr) != 1) {
+  if (inet_pton(AF_INET, _text.c_str(), &addr) != 1) {
     return std::nullopt;
   }
   return ntohl(addr.s_addr);
@@ -46,29 +42,29 @@ std::string ipv4IntToString(uint32_t _addr)
   return std::string(buffer);
 }
 
-std::optional<uint8_t> prefixStringToInt(const std::string& text)
+std::optional<uint8_t> prefixStringToInt(const std::string& _text)
 {
   uint32_t prefix{};
-  const auto [ptr, ec] = std::from_chars(text.data(), text.data() + text.size(), prefix);
-  if (ec != std::errc{} || ptr != text.data() + text.size() || prefix > 32) {
+  const auto [ptr, ec] = std::from_chars(_text.data(), _text.data() + _text.size(), prefix);
+  if (ec != std::errc{} || ptr != _text.data() + _text.size() || prefix > 32) {
     return std::nullopt;
   }
   return static_cast<uint8_t>(prefix);
 }
 
-std::expected<Network::Manual, std::string> parseAddressLine(const std::string& text)
+std::expected<Network::Manual, std::string> parseAddressLine(const std::string& _text)
 {
-  const auto slash_pos = text.find('/');
+  const auto slash_pos = _text.find('/');
   if (slash_pos == std::string::npos) {
     return std::unexpected("Missing '/' in address.");
   }
 
-  const auto address = ipv4StringToInt(text.substr(0, slash_pos));
+  const auto address = ipv4StringToInt(_text.substr(0, slash_pos));
   if (!address) {
     return std::unexpected("Failed to get IPv4 address.");
   }
 
-  const auto prefix = prefixStringToInt(text.substr(slash_pos + 1));
+  const auto prefix = prefixStringToInt(_text.substr(slash_pos + 1));
   if (!prefix) {
     return std::unexpected("Failed to get IPv4 prefix.");
   }
@@ -81,14 +77,14 @@ std::string prefixIntToString(uint8_t _prefix)
 }
 }  // namespace
 
-std::expected<Network, std::string> loadNetwork(const std::string& path)
+std::expected<Network, std::string> loadNetwork(const std::string& _path)
 {
   Network network;
   CSimpleIniCaseA ini;
   ini.SetUnicode(true);
   ini.SetMultiKey(true);
 
-  if (ini.LoadFile(path.c_str()) != SI_OK) {
+  if (ini.LoadFile(_path.c_str()) != SI_OK) {
     return std::unexpected("INI load failed.");
   }
 
@@ -154,34 +150,32 @@ std::expected<Network, std::string> loadNetwork(const std::string& path)
   return network;
 }
 
-bool saveNetwork(const std::string& path, const Network& network)
+bool saveNetwork(const std::string& _path, const Network& _network)
 {
   CSimpleIniCaseA ini;
   ini.SetUnicode(true);
   ini.SetMultiKey(true);
 
-  ini.SetValue(kMatchSection, kNameKey, network.name.c_str());
+  ini.SetValue(kMatchSection, kNameKey, _network.name.c_str());
 
-  if (network.automatic) {
+  if (_network.automatic) {
     ini.SetValue(kNetworkSection, kDhcpKey, "yes");
   }
   else {
-    const auto address_text = ipv4IntToString(network.manual.address) + prefixIntToString(network.manual.prefix);
-    const auto gateway_text = ipv4IntToString(network.manual.gateway);
+    const auto address_text = ipv4IntToString(_network.manual.address) + prefixIntToString(_network.manual.prefix);
+    const auto gateway_text = ipv4IntToString(_network.manual.gateway);
     ini.SetValue(kNetworkSection, kAddressKey, address_text.c_str());
     ini.SetValue(kNetworkSection, kGatewayKey, gateway_text.c_str());
-    for (const auto& dns : network.manual.dns) {
+    for (const auto& dns : _network.manual.dns) {
       const auto dns_text = ipv4IntToString(dns);
       ini.SetValue(kNetworkSection, kDnsKey, dns_text.c_str());
     }
   }
 
-  if (ini.SaveFile(path.c_str()) != SI_OK) {
+  if (ini.SaveFile(_path.c_str()) != SI_OK) {
     return false;
   }
 
   return true;
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

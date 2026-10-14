@@ -8,8 +8,8 @@
 
 #include <tobas_constants/time.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
-#include <tobas_fc2xx_core/dshot.hpp>
 #include <tobas_hardware_common/constants.hpp>
+#include <tobas_mcu_driver/tobas_t2/dshot.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_tools/control_latency_publisher.hpp>
 
@@ -20,9 +20,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace fc2xx
+namespace tobas::fc2xx
 {
 class DShotDriverNode : public BaseNode
 {
@@ -32,10 +30,10 @@ class DShotDriverNode : public BaseNode
   using SetGains = tobas_msgs::srv::SetRpmControlGains;
 
 public:
-  explicit DShotDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit DShotDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
-  DShot dshot_;
+  t2::DShot dshot_;
 
   bool is_commanded_ = false;
   ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
@@ -60,16 +58,16 @@ private:
   void publishCurrentRotorStates();
   void publishErrorRotorStates();
 
-  void droneCb(const Drone::ConstSharedPtr& drone);
-  void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds);
+  void droneCb(const Drone::ConstSharedPtr& _drone);
+  void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& _tar_speeds);
 
-  void setGainsCb(const SetGains::Request::ConstSharedPtr& req, const SetGains::Response::SharedPtr& res);
+  void setGainsCb(const SetGains::Request::ConstSharedPtr& _req, const SetGains::Response::SharedPtr& _res);
 
   void autoStopTimerCb();
 };
 
-DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc2xx_dshot_driver", nodeOptions_Default(options)), latency_pub_(this)
+DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& _options)
+  : super("fc2xx_dshot_driver", nodeOptions_Default(_options)), latency_pub_(this)
 {
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
   set_gains_ss_ = createService<SetGains>(service::kSetRpmControlGains, &self::setGainsCb, this);
@@ -77,7 +75,7 @@ DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options)
 
 void DShotDriverNode::initialize()
 {
-  if (!dshot_.initialize()) {
+  if (!dshot_.initialize("/dev/spidev0.0")) {
     TOBAS_ERROR("Failed to initialize DShot driver. Retrying...");
     return;
   }
@@ -216,29 +214,29 @@ void DShotDriverNode::publishErrorRotorStates()
   rotor_states_pub_->publish(std::move(rotor_states));
 }
 
-void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& drone)
+void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& _drone)
 {
   if (eprop_) {
     TOBAS_WARN("DShot driver cannot be re-initialized.");
     return;
   }
 
-  if (!drone->prop) {
+  if (!_drone->prop) {
     return;
   }
-  if (drone->prop->type() != PropulsionSystem::kElectric) {
+  if (_drone->prop->type() != PropulsionSystem::kElectric) {
     return;
   }
 
-  eprop_ = std::static_pointer_cast<ElectricPropulsionSystemConfig>(drone->prop);
+  eprop_ = std::static_pointer_cast<ElectricPropulsionSystemConfig>(_drone->prop);
 
   initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
 }
 
-void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
+void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& _tar_speeds)
 {
   // Set target speeds of each channel.
-  for (const auto& elem : tar_speeds->speeds) {
+  for (const auto& elem : _tar_speeds->speeds) {
     const auto erotor = eprop_->getRotor(elem.link_name);
     if (!erotor) {
       TOBAS_ERROR("Rotor '" + elem.link_name + "' does not exist.");
@@ -258,7 +256,7 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
   }
 
   // Publish the control latency.
-  latency_pub_.publish(tar_speeds->header.stamp);
+  latency_pub_.publish(_tar_speeds->header.stamp);
 
   // Reset the timeout timer.
   auto_stop_timer_->reset();
@@ -267,31 +265,31 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
   is_commanded_ = true;
 }
 
-void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, const SetGains::Response::SharedPtr& res)
+void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& _req, const SetGains::Response::SharedPtr& _res)
 {
-  for (const auto& gain : req->gains) {
-    if (gain.channel >= DShot::kChannelSize) {
-      res->success = false;
-      res->message = "Channel '" + std::to_string(gain.channel) + "' is out of range.";
+  for (const auto& gain : _req->gains) {
+    if (gain.channel >= t2::DShot::kChannelSize) {
+      _res->success = false;
+      _res->message = "Channel '" + std::to_string(gain.channel) + "' is out of range.";
       return;
     }
     dshot_.setRpmControlGain(gain.channel, gain.gain);
   }
 
   if (const auto result = transfer(); !result) {
-    res->success = false;
-    res->message = result.error();
+    _res->success = false;
+    _res->message = result.error();
     return;
   }
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
 
 void DShotDriverNode::autoStopTimerCb()
 {
-  for (size_t ch = 0; ch < DShot::kChannelSize; ++ch) {
-    dshot_.setThrottle(ch, DShot::DSHOT_CMD_MOTOR_STOP);
+  for (size_t ch = 0; ch < t2::DShot::kChannelSize; ++ch) {
+    dshot_.setThrottle(ch, dshot::DSHOT_CMD_MOTOR_STOP);
   }
 
   if (const auto result = transfer(); result) {
@@ -310,7 +308,6 @@ void DShotDriverNode::autoStopTimerCb()
       " have elapsed since the last command.");
   }
 }
-}  // namespace fc2xx
-}  // namespace tobas
+}  // namespace tobas::fc2xx
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc2xx::DShotDriverNode)

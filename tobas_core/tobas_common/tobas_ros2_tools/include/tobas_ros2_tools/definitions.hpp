@@ -12,9 +12,7 @@
 #include <rclcpp_action/client.hpp>
 #include <rclcpp_action/server.hpp>
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 template <typename MsgType>
 using PublisherPtr = typename rclcpp::Publisher<MsgType>::SharedPtr;
@@ -31,5 +29,4 @@ using ActionClientPtr = typename rclcpp_action::Client<ActType>::SharedPtr;
 
 using TimerPtr = rclcpp::TimerBase::SharedPtr;
 using ParamHandlePtr = std::shared_ptr<rclcpp::ParameterCallbackHandle>;
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

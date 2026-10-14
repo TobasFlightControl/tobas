@@ -5,18 +5,16 @@
 
 #include <urdf_parser/urdf_parser.h>
 
-namespace tobas
-{
-namespace urdf
+namespace tobas::urdf
 {
 Parser::Parser() : oh_(console_bridge::CONSOLE_BRIDGE_LOG_ERROR)
 {
 }
 
-std::expected<::urdf::ModelInterfaceSharedPtr, std::string> Parser::parseFromPath(const std::string& path)
+std::expected<::urdf::ModelInterfaceSharedPtr, std::string> Parser::parseFromPath(const std::string& _path)
 {
   console_bridge::useOutputHandler(&oh_);
-  const auto res = ::urdf::parseURDFFile(path);
+  const auto res = ::urdf::parseURDFFile(_path);
   console_bridge::restorePreviousOutputHandler();
 
   if (!res) {
@@ -28,10 +26,10 @@ std::expected<::urdf::ModelInterfaceSharedPtr, std::string> Parser::parseFromPat
   return res;
 }
 
-std::expected<::urdf::ModelInterfaceSharedPtr, std::string> Parser::parseFromText(const std::string& xml)
+std::expected<::urdf::ModelInterfaceSharedPtr, std::string> Parser::parseFromText(const std::string& _xml)
 {
   console_bridge::useOutputHandler(&oh_);
-  const auto res = ::urdf::parseURDF(xml);
+  const auto res = ::urdf::parseURDF(_xml);
   console_bridge::restorePreviousOutputHandler();
 
   if (!res) {
@@ -42,5 +40,4 @@ std::expected<::urdf::ModelInterfaceSharedPtr, std::string> Parser::parseFromTex
 
   return res;
 }
-}  // namespace urdf
-}  // namespace tobas
+}  // namespace tobas::urdf

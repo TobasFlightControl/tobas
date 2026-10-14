@@ -6,10 +6,7 @@
 #include <expected>
 #include <string>
 
-namespace tobas
+namespace tobas::git
 {
-namespace git
-{
-std::expected<std::string, std::string> getGitConfigValue(const char* key);
-}  // namespace git
-}  // namespace tobas
+std::expected<std::string, std::string> getGitConfigValue(const char* _key);
+}  // namespace tobas::git

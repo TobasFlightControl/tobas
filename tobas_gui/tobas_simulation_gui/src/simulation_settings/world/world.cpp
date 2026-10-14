@@ -15,11 +15,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 WorldWidget::WorldWidget()
 {
@@ -50,14 +46,14 @@ fs::path WorldWidget::worldPath() const
   return widgets_.at(findCurrentRow())->worldPath();
 }
 
-void WorldWidget::addRow(qt::FormLayout* form, QButtonGroup* btn_group, BaseWorldWidget* widget, const QString& label)
+void WorldWidget::addRow(qt::FormLayout* _form, QButtonGroup* _btn_group, BaseWorldWidget* _widget, const QString& _label)
 {
-  const auto button = new QRadioButton(label);
-  btn_group->addButton(button, rowCount());
-  form->addVAlignedRow(button, widget);
+  const auto button = new QRadioButton(_label);
+  _btn_group->addButton(button, rowCount());
+  _form->addVAlignedRow(button, _widget);
 
   buttons_.append(button);
-  widgets_.append(widget);
+  widgets_.append(_widget);
 }
 
 void WorldWidget::updateEnabled()
@@ -89,6 +85,4 @@ void WorldWidget::onButtonGroupIdClicked()
 {
   updateEnabled();
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

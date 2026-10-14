@@ -9,11 +9,7 @@
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class FlightLogsWidgetGCS : public QWidget
 {
@@ -22,15 +18,15 @@ class FlightLogsWidgetGCS : public QWidget
   using self = FlightLogsWidgetGCS;
 
 Q_SIGNALS:
-  void logSelected(const QString& log_name);
+  void logSelected(const QString& _log_name);
   void logDeselected();
 
 public:
   explicit FlightLogsWidgetGCS();
 
-  void addLog(const QString& log_name);
-  void removeLog(const QString& log_name);
-  QListWidgetItem* findLog(const QString& log_name);
+  void addLog(const QString& _log_name);
+  void removeLog(const QString& _log_name);
+  QListWidgetItem* findLog(const QString& _log_name);
 
   void clearLogs();
 
@@ -45,17 +41,15 @@ private:
   qt::WaitSpinnerWidget spinner_;
 
   QString currentLogName() const;
-  void setCurrentLogName(const QString& log_name);
+  void setCurrentLogName(const QString& _log_name);
 
   void sortLogs();
 
 private Q_SLOTS:
   void onReadButtonClicked();
   void onCleanButtonClicked();
-  void onExportButtonClicked(const QString& log_name);
-  void onDeleteButtonClicked(const QString& log_name);
-  void onListItemChanged(QListWidgetItem* item);
+  void onExportButtonClicked(const QString& _log_name);
+  void onDeleteButtonClicked(const QString& _log_name);
+  void onListItemChanged(QListWidgetItem* _item);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

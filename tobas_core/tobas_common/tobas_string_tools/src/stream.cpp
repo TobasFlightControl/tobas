@@ -6,13 +6,11 @@
 #include <fstream>
 #include <sstream>
 
-namespace tobas
+namespace tobas::str
 {
-namespace str
+bool readText(const std::string& _path, std::string& _text)
 {
-bool readText(const std::string& path, std::string& text)
-{
-  std::ifstream file(path);
+  std::ifstream file(_path);
   if (!file) {
     return false;
   }
@@ -21,22 +19,21 @@ bool readText(const std::string& path, std::string& text)
   oss << file.rdbuf();
   file.close();
 
-  text = oss.str();
+  _text = oss.str();
 
   return true;
 }
 
-bool writeText(const std::string& path, const std::string& text)
+bool writeText(const std::string& _path, const std::string& _text)
 {
-  std::ofstream file(path);
+  std::ofstream file(_path);
   if (!file) {
     return false;
   }
 
-  file << text;
+  file << _text;
   file.close();
 
   return true;
 }
-}  // namespace str
-}  // namespace tobas
+}  // namespace tobas::str

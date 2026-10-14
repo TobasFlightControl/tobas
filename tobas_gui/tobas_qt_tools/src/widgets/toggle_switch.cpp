@@ -7,11 +7,9 @@
 #include <QPainter>
 #include <QResizeEvent>
 
-namespace tobas
+namespace tobas::qt
 {
-namespace qt
-{
-ToggleSwitch::ToggleSwitch(QWidget* parent) : super(parent)
+ToggleSwitch::ToggleSwitch(QWidget* _parent) : super(_parent)
 {
 }
 
@@ -40,39 +38,39 @@ const QColor& ToggleSwitch::getOffColor() const
   return off_color_;
 }
 
-void ToggleSwitch::setChecked(bool checked)
+void ToggleSwitch::setChecked(bool _checked)
 {
-  checked_ = checked;
+  checked_ = _checked;
   update();
 }
 
-void ToggleSwitch::setText(const QString& text)
+void ToggleSwitch::setText(const QString& _text)
 {
-  text_ = text;
+  text_ = _text;
   update();
 }
 
-void ToggleSwitch::setTextPointSize(int point_size)
+void ToggleSwitch::setTextPointSize(int _point_size)
 {
-  text_psize_ = point_size;
+  text_psize_ = _point_size;
   update();
 }
 
-void ToggleSwitch::setOnColor(const QColor& color)
+void ToggleSwitch::setOnColor(const QColor& _color)
 {
-  on_color_ = color;
+  on_color_ = _color;
   update();
 }
 
-void ToggleSwitch::setOffColor(const QColor& color)
+void ToggleSwitch::setOffColor(const QColor& _color)
 {
-  off_color_ = color;
+  off_color_ = _color;
   update();
 }
 
-void ToggleSwitch::ignoreMousePressEvent(bool ignore)
+void ToggleSwitch::ignoreMousePressEvent(bool _ignore)
 {
-  ignore_mouse_press_event_ = ignore;
+  ignore_mouse_press_event_ = _ignore;
 }
 
 QPoint ToggleSwitch::getTextCenter() const
@@ -120,10 +118,10 @@ void ToggleSwitch::mousePressEvent(QMouseEvent*)
   Q_EMIT toggled(checked_);  // Notify that the toggle state changed.
 }
 
-void ToggleSwitch::resizeEvent(QResizeEvent* event)
+void ToggleSwitch::resizeEvent(QResizeEvent* _event)
 {
-  const auto w = event->size().width();
-  const auto h = event->size().height();
+  const auto w = _event->size().width();
+  const auto h = _event->size().height();
 
   // Keep the aspect ratio wider than 2:1.
   // If adjusted by the shorter length, the widget can disappear, so keep the shorter length fixed and adjust the other side.
@@ -131,39 +129,38 @@ void ToggleSwitch::resizeEvent(QResizeEvent* event)
     resize(w, w / 2);
   }
 
-  super::resizeEvent(event);
+  super::resizeEvent(_event);
 }
 
-void ToggleSwitch::drawBackground(QPainter& painter)
+void ToggleSwitch::drawBackground(QPainter& _painter)
 {
   if (checked_) {
-    painter.setBrush(on_color_);
+    _painter.setBrush(on_color_);
   }
   else {
-    painter.setBrush(off_color_);
+    _painter.setBrush(off_color_);
   }
 
-  painter.setPen(Qt::NoPen);
-  painter.drawRoundedRect(0, 0, width(), height(), height() / 2, height() / 2);
+  _painter.setPen(Qt::NoPen);
+  _painter.drawRoundedRect(0, 0, width(), height(), height() / 2, height() / 2);
 }
 
-void ToggleSwitch::drawSwitch(QPainter& painter)
+void ToggleSwitch::drawSwitch(QPainter& _painter)
 {
-  painter.setBrush(Qt::white);
+  _painter.setBrush(Qt::white);
   const auto x = checked_ ? 0 : width() - height();
-  painter.drawEllipse(x, 0, height(), height());  // Draw the switch part.
+  _painter.drawEllipse(x, 0, height(), height());  // Draw the switch part.
 }
 
-void ToggleSwitch::drawText(QPainter& painter)
+void ToggleSwitch::drawText(QPainter& _painter)
 {
   const auto center = getTextCenter();
 
   if (text_psize_ > 0) {
-    super::drawText(painter, text_, center, text_psize_);
+    super::drawText(_painter, text_, center, text_psize_);
   }
   else {
-    drawMaximumText(painter, text_, center);
+    drawMaximumText(_painter, text_, center);
   }
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

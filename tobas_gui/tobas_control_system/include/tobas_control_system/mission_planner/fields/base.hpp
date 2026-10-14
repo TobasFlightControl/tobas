@@ -5,13 +5,7 @@
 
 #include <QWidget>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
-{
-namespace field
+namespace tobas::gui::ctrl::field
 {
 class BaseFieldWidget : public QWidget
 {
@@ -29,9 +23,6 @@ class FieldWidget : public BaseFieldWidget
 {
 public:
   virtual T getValue() const = 0;
-  virtual void setValue(T value) = 0;
+  virtual void setValue(T _value) = 0;
 };
-}  // namespace field
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::field

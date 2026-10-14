@@ -9,41 +9,39 @@
 
 #include "tobas_control/util.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 std::expected<Eigen::MatrixXd, std::string> care_ArimotoPotter(
-  const Eigen::MatrixXd& A,
-  const Eigen::MatrixXd& B,
-  const Eigen::MatrixXd& Q,
-  const Eigen::MatrixXd& R) noexcept
+  const Eigen::MatrixXd& _a,
+  const Eigen::MatrixXd& _b,
+  const Eigen::MatrixXd& _q,
+  const Eigen::MatrixXd& _r) noexcept
 {
-  const auto n = A.rows();
-  [[maybe_unused]] const auto l = B.cols();
+  const auto n = _a.rows();
+  [[maybe_unused]] const auto l = _b.cols();
 
-  assert(A.rows() == n && A.cols() == n);
-  assert(eigen::isFinite(A));
+  assert(_a.rows() == n && _a.cols() == n);
+  assert(eigen::isFinite(_a));
 
-  assert(B.rows() == n && B.cols() == l);
-  assert(eigen::isFinite(B));
+  assert(_b.rows() == n && _b.cols() == l);
+  assert(eigen::isFinite(_b));
 
-  assert(Q.rows() == n && Q.cols() == n);
-  assert(eigen::isFinite(Q));
-  assert(eigen::isSemiPositiveDefinite(Q));
+  assert(_q.rows() == n && _q.cols() == n);
+  assert(eigen::isFinite(_q));
+  assert(eigen::isSemiPositiveDefinite(_q));
 
-  assert(R.rows() == l && R.cols() == l);
-  assert(eigen::isFinite(R));
-  assert(eigen::isPositiveDefinite(R));
+  assert(_r.rows() == l && _r.cols() == l);
+  assert(eigen::isFinite(_r));
+  assert(eigen::isPositiveDefinite(_r));
 
   // TODO: Check stabilizability.
 
   // Make Hamilton matrix.
   Eigen::MatrixXd H(n * 2, n * 2);
-  H.topLeftCorner(n, n) = A;
-  H.topRightCorner(n, n) = -B * R.inverse() * B.transpose();
-  H.bottomLeftCorner(n, n) = -Q;
-  H.bottomRightCorner(n, n) = -A.transpose();
+  H.topLeftCorner(n, n) = _a;
+  H.topRightCorner(n, n) = -_b * _r.inverse() * _b.transpose();
+  H.bottomLeftCorner(n, n) = -_q;
+  H.bottomRightCorner(n, n) = -_a.transpose();
 
   // Get eigenvalues and eigenvectors.
   const Eigen::EigenSolver<Eigen::MatrixXd> es(H);
@@ -78,30 +76,30 @@ std::expected<Eigen::MatrixXd, std::string> care_ArimotoPotter(
 }
 
 Eigen::MatrixXd
-care_Schur(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B, const Eigen::MatrixXd& Q, const Eigen::MatrixXd& R)
+care_Schur(const Eigen::MatrixXd& _a, const Eigen::MatrixXd& _b, const Eigen::MatrixXd& _q, const Eigen::MatrixXd& _r)
 {
-  const auto n = A.rows();
-  [[maybe_unused]] const auto l = B.cols();
+  const auto n = _a.rows();
+  [[maybe_unused]] const auto l = _b.cols();
 
-  assert(A.rows() == n && A.cols() == n);
-  assert(B.rows() == n && B.cols() == l);
-  assert(Q.rows() == n && Q.cols() == n);
-  assert(R.rows() == l && R.cols() == l);
+  assert(_a.rows() == n && _a.cols() == n);
+  assert(_b.rows() == n && _b.cols() == l);
+  assert(_q.rows() == n && _q.cols() == n);
+  assert(_r.rows() == l && _r.cols() == l);
 
-  assert(eigen::isFinite(A));
-  assert(eigen::isFinite(B));
-  assert(eigen::isFinite(Q));
-  assert(eigen::isFinite(R));
+  assert(eigen::isFinite(_a));
+  assert(eigen::isFinite(_b));
+  assert(eigen::isFinite(_q));
+  assert(eigen::isFinite(_r));
 
-  assert(isControllable(A, B));
-  assert(eigen::isSemiPositiveDefinite(Q));
-  assert(eigen::isPositiveDefinite(R));
+  assert(isControllable(_a, _b));
+  assert(eigen::isSemiPositiveDefinite(_q));
+  assert(eigen::isPositiveDefinite(_r));
 
   Eigen::MatrixXd H(n * 2, n * 2);
-  H.topLeftCorner(n, n) = A;
-  H.topRightCorner(n, n) = -B * R.inverse() * B.transpose();
-  H.bottomLeftCorner(n, n) = -Q;
-  H.bottomRightCorner(n, n) = -A.transpose();
+  H.topLeftCorner(n, n) = _a;
+  H.topRightCorner(n, n) = -_b * _r.inverse() * _b.transpose();
+  H.bottomLeftCorner(n, n) = -_q;
+  H.bottomRightCorner(n, n) = -_a.transpose();
 
   const Eigen::RealSchur<Eigen::MatrixXd> schur(H);
 
@@ -111,5 +109,4 @@ care_Schur(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B, const Eigen::Matr
 
   return X * M.inverse();
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

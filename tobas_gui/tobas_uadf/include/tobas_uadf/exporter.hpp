@@ -7,10 +7,7 @@
 
 #include "./model.hpp"
 
-namespace tobas
+namespace tobas::uadf
 {
-namespace uadf
-{
-tinyxml2::XMLDocument* exportUADF(const Model& model);
-}  // namespace uadf
-}  // namespace tobas
+tinyxml2::XMLDocument* exportUADF(const Model& _model);
+}  // namespace tobas::uadf

@@ -9,9 +9,7 @@
 
 #include <sensor_msgs/msg/compressed_image.hpp>
 
-namespace tobas
-{
-namespace camera
+namespace tobas::camera
 {
 class CompressedImageViewer : public BaseNode
 {
@@ -39,10 +37,10 @@ CompressedImageViewer::~CompressedImageViewer()
   cv::destroyWindow("view");
 }
 
-void CompressedImageViewer::msgCb(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& msg)
+void CompressedImageViewer::msgCb(const sensor_msgs::msg::CompressedImage::ConstSharedPtr& _msg)
 {
   try {
-    cv::Mat image = cv::imdecode(cv::Mat(msg->data), 1);  // Convert the compressed image data to cv::Mat.
+    cv::Mat image = cv::imdecode(cv::Mat(_msg->data), 1);  // Convert the compressed image data to cv::Mat.
     cv::imshow("view", image);
     cv::waitKey(10);
   }
@@ -50,7 +48,6 @@ void CompressedImageViewer::msgCb(const sensor_msgs::msg::CompressedImage::Const
     TOBAS_WARN("Could not convert to image!");
   }
 }
-}  // namespace camera
-}  // namespace tobas
+}  // namespace tobas::camera
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::CompressedImageViewer)

@@ -11,9 +11,7 @@
 
 #include "tobas_ic_drivers/ublox/ubx_transport.hpp"
 
-namespace tobas
-{
-namespace ublox
+namespace tobas::ublox
 {
 class UbxTransportUart final : public UbxTransport
 {
@@ -40,5 +38,4 @@ private:
   linux::UARTdev uart_;
   uint8_t data_;
 };
-}  // namespace ublox
-}  // namespace tobas
+}  // namespace tobas::ublox

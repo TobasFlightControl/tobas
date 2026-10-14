@@ -9,11 +9,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class BatteryPlotWidget : public BasePlotWidget
 {
@@ -23,9 +19,9 @@ public:
   explicit BatteryPlotWidget();
 
   void clear() override;
-  void setTimeScale(double t_start, double t_stop) override;
+  void setTimeScale(double _t_start, double _t_stop) override;
 
-  void setData(const QVector<tobas_msgs::msg::Battery>& batt_msgs);
+  void setData(const QVector<tobas_msgs::msg::Battery>& _batt_msgs);
 
 private:
   QwtPlot2* voltage_plot_;
@@ -34,6 +30,4 @@ private:
   qwt::QwtPlotCurveWrapper voltage_curve_;
   qwt::QwtPlotCurveWrapper current_curve_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

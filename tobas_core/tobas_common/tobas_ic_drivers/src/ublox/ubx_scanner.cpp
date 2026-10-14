@@ -3,9 +3,7 @@
 
 #include "tobas_ic_drivers/ublox/ubx_scanner.hpp"
 
-namespace tobas
-{
-namespace ublox
+namespace tobas::ublox
 {
 UbxScanner::UbxScanner() : buffer_(kUbxHeaderLength)
 {
@@ -18,15 +16,15 @@ void UbxScanner::reset()
   state_ = kSync1;
 }
 
-void UbxScanner::update(uint8_t data)
+void UbxScanner::update(uint8_t _data)
 {
   if (state_ != kDone) {
-    buffer_[pos_++] = data;
+    buffer_[pos_++] = _data;
   }
 
   switch (state_) {
     case kSync1: {
-      if (data == kUbxSync1) {
+      if (_data == kUbxSync1) {
         state_ = kSync2;
       }
       else {
@@ -35,7 +33,7 @@ void UbxScanner::update(uint8_t data)
       break;
     }
     case kSync2: {
-      switch (data) {
+      switch (_data) {
         case kUbxSync1:
           state_ = kSync1;
           break;
@@ -57,12 +55,12 @@ void UbxScanner::update(uint8_t data)
       break;
     }
     case kLength1: {
-      payload_length_ = data;
+      payload_length_ = _data;
       state_ = kLength2;
       break;
     }
     case kLength2: {
-      payload_length_ += data << 8;
+      payload_length_ += _data << 8;
       // Grow the buffer to fit the complete message, including its checksum.
       const auto msg_length = messageLength();
       if (msg_length > buffer_.size()) {
@@ -93,5 +91,4 @@ void UbxScanner::update(uint8_t data)
     }
   }
 }
-}  // namespace ublox
-}  // namespace tobas
+}  // namespace tobas::ublox

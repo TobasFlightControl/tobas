@@ -8,20 +8,14 @@
 #include "./control_surfaces.hpp"
 #include "./vehicle.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace fw
+namespace tobas::gui::sa::fw
 {
 class FixedWingWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
 public:
-  explicit FixedWingWidget(const uadf::Model& uadf);
+  explicit FixedWingWidget(const uadf::Model& _uadf);
 
   const char* name() const override;
   const char* title() const override;
@@ -32,7 +26,7 @@ public:
   bool isValid() override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   const VehicleParametersWidget* vehicle() const;
   const AerodynamicsCoefficientsWidget* aeroCoefs() const;
@@ -43,7 +37,4 @@ private:
   AerodynamicsCoefficientsWidget* aero_coefs_;
   ControlSurfacesWidget* control_surfaces_;
 };
-}  // namespace fw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::fw

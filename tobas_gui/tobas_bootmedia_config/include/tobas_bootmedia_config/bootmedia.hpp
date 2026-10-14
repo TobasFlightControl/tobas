@@ -6,11 +6,7 @@
 #include <QMetaType>
 #include <QString>
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class BootMedia
 {
@@ -21,8 +17,6 @@ public:
 
   QString string() const;
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm
 
 Q_DECLARE_METATYPE(tobas::gui::bm::BootMedia);

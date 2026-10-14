@@ -6,25 +6,25 @@
 #include <chrono>
 #include <iostream>
 
-std::ostream& operator<<(std::ostream& os, const tm& arg);
+std::ostream& operator<<(std::ostream& _os, const tm& _arg);
 
-double operator-(tm lhs, tm rhs);
+double operator-(tm _lhs, tm _rhs);
 
 template <typename Rep, typename Period>
-std::ostream& operator<<(std::ostream& os, const std::chrono::duration<Rep, Period>& d)
+std::ostream& operator<<(std::ostream& _os, const std::chrono::duration<Rep, Period>& _d)
 {
-  os << d.count() << " ";
+  _os << _d.count() << " ";
   if constexpr (std::is_same_v<Period, std::ratio<1>>) {
-    os << "s";
+    _os << "s";
   }
   else if constexpr (std::is_same_v<Period, std::milli>) {
-    os << "ms";
+    _os << "ms";
   }
   else if constexpr (std::is_same_v<Period, std::micro>) {
-    os << "μs";
+    _os << "μs";
   }
   else if constexpr (std::is_same_v<Period, std::nano>) {
-    os << "ns";
+    _os << "ns";
   }
-  return os;
+  return _os;
 }

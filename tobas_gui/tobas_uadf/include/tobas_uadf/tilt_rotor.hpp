@@ -3,12 +3,9 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace uadf
+namespace tobas::uadf
 {
 struct TiltJoint
 {
 };
-}  // namespace uadf
-}  // namespace tobas
+}  // namespace tobas::uadf

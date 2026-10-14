@@ -9,15 +9,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 class BatteryWidget : public qt::ScrollArea
 {
@@ -30,7 +22,7 @@ public:
   bool isValid();
 
   YAML::Node dump() const;
-  void load(const YAML::Node& node);
+  void load(const YAML::Node& _node);
 
   double nominalVoltage();
   double maxVoltage();
@@ -43,14 +35,10 @@ private:
   qt::ComboBox* type_;
   qt::StackedWidget* batteries_;
 
-  BatteryWidget_Base* widget(int index);
-  const BatteryWidget_Base* widget(int index) const;
+  BatteryWidget_Base* widget(int _index);
+  const BatteryWidget_Base* widget(int _index) const;
 
   BatteryWidget_Base* selected();
   const BatteryWidget_Base* selected() const;
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

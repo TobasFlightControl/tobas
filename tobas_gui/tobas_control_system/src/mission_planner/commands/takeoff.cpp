@@ -3,11 +3,7 @@
 
 #include "tobas_control_system/mission_planner/commands/takeoff.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 TakeoffWidget::TakeoffWidget()
 {
@@ -46,14 +42,14 @@ mission::Takeoff TakeoffWidget::dump() const
   return res;
 }
 
-void TakeoffWidget::load(const mission::Takeoff& src)
+void TakeoffWidget::load(const mission::Takeoff& _src)
 {
-  altitude(src.altitude);
-  altitudeFrame(src.altitude_frame);
-  maxSpeed(src.max_speed);
-  maxAccel(src.max_accel);
-  maxJerk(src.max_jerk);
-  altitudeTolerance(src.altitude_tolerance);
+  altitude(_src.altitude);
+  altitudeFrame(_src.altitude_frame);
+  maxSpeed(_src.max_speed);
+  maxAccel(_src.max_accel);
+  maxJerk(_src.max_jerk);
+  altitudeTolerance(_src.altitude_tolerance);
 }
 
 double TakeoffWidget::altitude() const
@@ -86,35 +82,33 @@ double TakeoffWidget::altitudeTolerance() const
   return getValueOrDefault(altitude_tolerance_);
 }
 
-void TakeoffWidget::altitude(double value)
+void TakeoffWidget::altitude(double _value)
 {
-  altitude_->setValue(value);
+  altitude_->setValue(_value);
 }
 
-void TakeoffWidget::altitudeFrame(mission::AltitudeFrame value)
+void TakeoffWidget::altitudeFrame(mission::AltitudeFrame _value)
 {
-  altitude_frame_->setValue(value);
+  altitude_frame_->setValue(_value);
 }
 
-void TakeoffWidget::maxSpeed(double value)
+void TakeoffWidget::maxSpeed(double _value)
 {
-  setValueOrDefault(max_speed_, value);
+  setValueOrDefault(max_speed_, _value);
 }
 
-void TakeoffWidget::maxAccel(double value)
+void TakeoffWidget::maxAccel(double _value)
 {
-  setValueOrDefault(max_accel_, value);
+  setValueOrDefault(max_accel_, _value);
 }
 
-void TakeoffWidget::maxJerk(double value)
+void TakeoffWidget::maxJerk(double _value)
 {
-  setValueOrDefault(max_jerk_, value);
+  setValueOrDefault(max_jerk_, _value);
 }
 
-void TakeoffWidget::altitudeTolerance(double value)
+void TakeoffWidget::altitudeTolerance(double _value)
 {
-  setValueOrDefault(altitude_tolerance_, value);
+  setValueOrDefault(altitude_tolerance_, _value);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

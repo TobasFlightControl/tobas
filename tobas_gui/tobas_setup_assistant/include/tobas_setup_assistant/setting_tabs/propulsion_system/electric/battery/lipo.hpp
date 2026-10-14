@@ -6,15 +6,7 @@
 #include "./base.hpp"
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 class BatteryWidget_LiPo : public BatteryWidget_Base
 {
@@ -28,7 +20,7 @@ public:
   bool isValid() override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   double nominalVoltage() override;
   double maxVoltage() override;
@@ -43,8 +35,4 @@ private:
   ParamGetterWidget_SpinBox* C_cont_;
   ParamGetterWidget_SpinBox* registance_;
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

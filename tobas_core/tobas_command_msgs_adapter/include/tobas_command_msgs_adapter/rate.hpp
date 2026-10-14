@@ -31,18 +31,18 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::Rate, tobas_command_msgs::msg::Ra
   using custom_type = tobas_command_msgs::Rate;
   using ros_message_type = tobas_command_msgs::msg::Rate;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
-    dst.priority = src.priority;
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.rate, dst.rate);
+    _dst.header = _src.header;
+    _dst.priority = _src.priority;
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.rate, _dst.rate);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
-    dst.priority = src.priority;
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.rate, dst.rate);
+    _dst.header = _src.header;
+    _dst.priority = _src.priority;
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.rate, _dst.rate);
   }
 };
 

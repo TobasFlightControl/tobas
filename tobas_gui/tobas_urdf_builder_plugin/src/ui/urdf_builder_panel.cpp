@@ -17,21 +17,15 @@
 #include "tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"
 #include "tobas_urdf_builder_plugin/utils/widget_item.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 namespace
 {
 constexpr char kConfigKey_LastOpenedDir[] = "urdf_builder_panel/last_opened_dir";
 }  // namespace
 
-UrdfBuilderPanel::UrdfBuilderPanel(QWidget* parent)
-  : rviz_common::Panel(parent), settings_store_("tobas", "urdf_builder")
+UrdfBuilderPanel::UrdfBuilderPanel(QWidget* _parent)
+  : rviz_common::Panel(_parent), settings_store_("tobas", "urdf_builder")
 {
   ui_ = new Ui::URDFBuilderPanelUI();
   ui_->setupUi(this);
@@ -60,14 +54,14 @@ void UrdfBuilderPanel::onInitialize()
   update_timer_.start(10);
 }
 
-void UrdfBuilderPanel::load(const rviz_common::Config& config)
+void UrdfBuilderPanel::load(const rviz_common::Config& _config)
 {
-  Panel::load(config);
+  Panel::load(_config);
 }
 
-void UrdfBuilderPanel::save(rviz_common::Config config) const
+void UrdfBuilderPanel::save(rviz_common::Config _config) const
 {
-  Panel::save(config);
+  Panel::save(_config);
 }
 
 QStringList UrdfBuilderPanel::linkNames() const
@@ -80,11 +74,11 @@ QStringList UrdfBuilderPanel::jointNames() const
   return vm_.jointNames();
 }
 
-void UrdfBuilderPanel::onRobotNameTextChanged(const QString& name)
+void UrdfBuilderPanel::onRobotNameTextChanged(const QString& _name)
 {
   qDebug() << "UrdfBuilderPanel::onRobotNameTextChanged";
 
-  vm_.name(name.toStdString());
+  vm_.name(_name.toStdString());
 }
 
 void UrdfBuilderPanel::onNewButtonClicked()
@@ -206,44 +200,44 @@ void UrdfBuilderPanel::onSaveAsButtonClicked()
   ui_->Path->setText(file_path);
 }
 
-void UrdfBuilderPanel::onEnableVisualCheckBoxToggled(bool checked)
+void UrdfBuilderPanel::onEnableVisualCheckBoxToggled(bool _checked)
 {
-  qDebug().nospace() << "UrdfBuilderPanel::onEnableVisualCheckBoxToggled(" << checked << ")";
+  qDebug().nospace() << "UrdfBuilderPanel::onEnableVisualCheckBoxToggled(" << _checked << ")";
 
-  ogre_ctrl_->setVisualVisible(checked);
+  ogre_ctrl_->setVisualVisible(_checked);
 }
 
-void UrdfBuilderPanel::onEnableCollisionCheckBoxToggled(bool checked)
+void UrdfBuilderPanel::onEnableCollisionCheckBoxToggled(bool _checked)
 {
-  qDebug().nospace() << "UrdfBuilderPanel::EnableCollisiolCheckBoxToggled(" << checked << ")";
+  qDebug().nospace() << "UrdfBuilderPanel::EnableCollisiolCheckBoxToggled(" << _checked << ")";
 
-  ogre_ctrl_->setCollisionVisible(checked);
+  ogre_ctrl_->setCollisionVisible(_checked);
 }
 
-void UrdfBuilderPanel::onEnableInertiaCheckBoxToggled(bool checked)
+void UrdfBuilderPanel::onEnableInertiaCheckBoxToggled(bool _checked)
 {
-  qDebug().nospace() << "UrdfBuilderPanel::onEnableInertiaCheckBoxToggled(" << checked << ")";
+  qDebug().nospace() << "UrdfBuilderPanel::onEnableInertiaCheckBoxToggled(" << _checked << ")";
 
-  ogre_ctrl_->setInertiaVisible(checked);
+  ogre_ctrl_->setInertiaVisible(_checked);
 }
 
-void UrdfBuilderPanel::onLinkTreeWidgetItemClicked(QTreeWidgetItem* item, int)
+void UrdfBuilderPanel::onLinkTreeWidgetItemClicked(QTreeWidgetItem* _item, int)
 {
   qDebug() << "UrdfBuilderPanel::onLinkTreeWidgetItemClicked";
 
-  reflectSelectedItem(item);
+  reflectSelectedItem(_item);
 }
 
-void UrdfBuilderPanel::onLinkTreeWidgetItemChanged(QTreeWidgetItem* item, int)
+void UrdfBuilderPanel::onLinkTreeWidgetItemChanged(QTreeWidgetItem* _item, int)
 {
   qDebug() << "UrdfBuilderPanel::onLinkTreeWidgetItemChanged";
 
-  selectLink(item);
+  selectLink(_item);
 
-  const auto link_item = dynamic_cast<LinkTreeWidgetItem*>(item);
+  const auto link_item = dynamic_cast<LinkTreeWidgetItem*>(_item);
   const auto link_name = link_item->viewModel()->name().toStdString();
 
-  if (item->checkState(0) == Qt::Unchecked) {
+  if (_item->checkState(0) == Qt::Unchecked) {
     ogre_ctrl_->hide(link_name);
   }
   else {
@@ -251,7 +245,7 @@ void UrdfBuilderPanel::onLinkTreeWidgetItemChanged(QTreeWidgetItem* item, int)
   }
 }
 
-void UrdfBuilderPanel::onLinkTreeContextMenuRequested(const QPoint& point)
+void UrdfBuilderPanel::onLinkTreeContextMenuRequested(const QPoint& _point)
 {
   qDebug() << "UrdfBuilderPanel::onLinkTreeContextMenuRequested";
 
@@ -259,7 +253,7 @@ void UrdfBuilderPanel::onLinkTreeContextMenuRequested(const QPoint& point)
   menu.addAction(ui_->AddLinkAction);
   menu.addAction(ui_->CloneLinkAction);
   menu.addAction(ui_->RemoveLinkAction);
-  menu.exec(ui_->LinkTreeWidget->mapToGlobal(point));
+  menu.exec(ui_->LinkTreeWidget->mapToGlobal(_point));
 }
 
 void UrdfBuilderPanel::onAddLinkActionToggled(bool)
@@ -352,9 +346,9 @@ QString UrdfBuilderPanel::getLastOpenedDir()
   return settings_store_.value(kConfigKey_LastOpenedDir, QDir::homePath()).toString();
 }
 
-void UrdfBuilderPanel::setLastOpenedDir(const QString& file_path)
+void UrdfBuilderPanel::setLastOpenedDir(const QString& _file_path)
 {
-  const auto dir = QFileInfo(file_path).absolutePath();
+  const auto dir = QFileInfo(_file_path).absolutePath();
   settings_store_.setValue(kConfigKey_LastOpenedDir, dir);
 }
 
@@ -458,16 +452,16 @@ void UrdfBuilderPanel::selectRootLink()
   selectLink(root_item);
 }
 
-void UrdfBuilderPanel::selectLink(QTreeWidgetItem* item)
+void UrdfBuilderPanel::selectLink(QTreeWidgetItem* _item)
 {
   ui_->LinkTreeWidget->clearSelection();
-  item->setSelected(true);
-  reflectSelectedItem(item);
+  _item->setSelected(true);
+  reflectSelectedItem(_item);
 }
 
-void UrdfBuilderPanel::reflectSelectedItem(QTreeWidgetItem* item)
+void UrdfBuilderPanel::reflectSelectedItem(QTreeWidgetItem* _item)
 {
-  const auto link_item = dynamic_cast<LinkTreeWidgetItem*>(item);
+  const auto link_item = dynamic_cast<LinkTreeWidgetItem*>(_item);
   const auto& link_vm = link_item->viewModel();
   const auto link_name = link_vm->name().toStdString();
 
@@ -489,9 +483,9 @@ void UrdfBuilderPanel::addRootLink()
   vm_.addLink(link_vm);
 }
 
-bool UrdfBuilderPanel::saveURDF(const QString& file_path)
+bool UrdfBuilderPanel::saveURDF(const QString& _file_path)
 {
-  if (!vm_.saveRobot(file_path)) {
+  if (!vm_.saveRobot(_file_path)) {
     QMessageBox::warning(this, kError, "Failed to save URDF.");
     return false;
   }
@@ -560,22 +554,19 @@ bool UrdfBuilderPanel::isJointsValid()
   return true;
 }
 
-void UrdfBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* item, QSet<QString>& set)
+void UrdfBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* _item, QSet<QString>& _set)
 {
-  if (item->checkState(0) == Qt::Unchecked) {
-    const auto link_name = item->text(0);
-    set.insert(link_name);
+  if (_item->checkState(0) == Qt::Unchecked) {
+    const auto link_name = _item->text(0);
+    _set.insert(link_name);
   }
 
   // Traverse child items.
-  for (int i = 0; i < item->childCount(); ++i) {
-    collectUncheckedLinks(item->child(i), set);
+  for (int i = 0; i < _item->childCount(); ++i) {
+    collectUncheckedLinks(_item->child(i), _set);
   }
 }
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui
 
 // A class derived from `rviz_common::Panel` can be embedded in the RViz window.
 PLUGINLIB_EXPORT_CLASS(tobas::gui::ub::ui::UrdfBuilderPanel, rviz_common::Panel)

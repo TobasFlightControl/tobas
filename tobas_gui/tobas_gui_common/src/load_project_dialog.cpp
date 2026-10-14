@@ -9,14 +9,10 @@
 
 #include "tobas_gui_common/constants.hpp"
 
-namespace tobas
+namespace tobas::gui::cmn
 {
-namespace gui
-{
-namespace cmn
-{
-LoadProjectDialog::LoadProjectDialog(QWidget* parent, const QString& dir)
-  : QFileDialog(parent, "Select Tobas Project (*.TBS)", dir, "Tobas Project (*.TBS)")
+LoadProjectDialog::LoadProjectDialog(QWidget* _parent, const QString& _dir)
+  : QFileDialog(_parent, "Select Tobas Project (*.TBS)", _dir, "Tobas Project (*.TBS)")
 {
   setOptions(ShowDirsOnly | DontUseNativeDialog);  // Use the Qt dialog for custom settings.
   setFileMode(Directory);                          // Mode for selecting an existing directory.
@@ -38,13 +34,11 @@ LoadProjectDialog::LoadProjectDialog(QWidget* parent, const QString& dir)
   }
 }
 
-void LoadProjectDialog::onItemActivated(const QModelIndex& index)
+void LoadProjectDialog::onItemActivated(const QModelIndex& _index)
 {
-  const auto path = proxy_->data(index, QFileSystemModel::FilePathRole).toString();
+  const auto path = proxy_->data(_index, QFileSystemModel::FilePathRole).toString();
   if (path.endsWith(kProjectExtension)) {
     accept();
   }
 }
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

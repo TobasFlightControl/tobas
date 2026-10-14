@@ -5,11 +5,8 @@
 
 #include <string>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /** Sanitize a string so it can be used as a ROS node name. */
-std::string sanitizeNodeName(std::string str);
-}  // namespace gazebo
-}  // namespace tobas
+std::string sanitizeNodeName(std::string _str);
+}  // namespace tobas::gazebo

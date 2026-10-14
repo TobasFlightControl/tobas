@@ -23,21 +23,21 @@ std::expected<void, std::string> RotorConfig::validate() const
   return {};
 }
 
-std::expected<void, std::string> RotorConfig::load(const YAML::Node& node)
+std::expected<void, std::string> RotorConfig::load(const YAML::Node& _node)
 {
-  if (!node.IsDefined() || !node.IsMap()) {
+  if (!_node.IsDefined() || !_node.IsMap()) {
     return std::unexpected("Configuration node must be a map.");
   }
 
-  if (const auto result = yaml::load(kLinkNameKey, node, link_name); !result) {
+  if (const auto result = yaml::load(kLinkNameKey, _node, link_name); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kDirectionKey, node, direction); !result) {
+  if (const auto result = yaml::load(kDirectionKey, _node, direction); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kTiltJointName, node, tilt_joint_name); !result) {
+  if (const auto result = yaml::load(kTiltJointName, _node, tilt_joint_name); !result) {
     return result;
   }
 

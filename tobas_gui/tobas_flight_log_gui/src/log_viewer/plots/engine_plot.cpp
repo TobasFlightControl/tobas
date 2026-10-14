@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 EnginePlotWidget::EnginePlotWidget() : throttle_curve_("Throttle [%]")
 {
@@ -33,17 +29,17 @@ void EnginePlotWidget::clear()
   throttle_plot_->replot();
 }
 
-void EnginePlotWidget::setTimeScale(double t_start, double t_stop)
+void EnginePlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
-  throttle_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+  throttle_plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
 }
 
-void EnginePlotWidget::setData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& msgs)
+void EnginePlotWidget::setData(const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& _msgs)
 {
   QVector<double> t_data;
   QVector<double> throttle_data;
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
     throttle_data.push_back(msg.engine_throttle * 100.0);
   }
@@ -51,6 +47,4 @@ void EnginePlotWidget::setData(const QVector<tobas_msgs::msg::IcePropulsionSyste
   throttle_curve_.setSamples(t_data, throttle_data);
   throttle_plot_->replot();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

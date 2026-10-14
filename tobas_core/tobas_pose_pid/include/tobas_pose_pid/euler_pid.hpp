@@ -13,15 +13,15 @@ public:
   explicit EulerPID();
 
   kdl::Vector update(
-    const kdl::Euler& cur_rpy,
-    const kdl::Vector& cur_gyro,
-    const kdl::Euler& tar_rpy,
-    const kdl::Vector& tar_gyro,
-    double dt);
+    const kdl::Euler& _cur_rpy,
+    const kdl::Vector& _cur_gyro,
+    const kdl::Euler& _tar_rpy,
+    const kdl::Vector& _tar_gyro,
+    double _dt);
 
-  void setNaturalFreq(int idx, double value);
-  void setDampingRatio(int idx, double value);
-  void setIntegralGain(int idx, double value);
+  void setNaturalFreq(int _idx, double _value);
+  void setDampingRatio(int _idx, double _value);
+  void setIntegralGain(int _idx, double _value);
 
   inline const kdl::Vector& getIntegralError() const;
   inline void resetIntegralError();
@@ -41,9 +41,9 @@ private:
 
   void updateGain();
 
-  static kdl::Vector computeProportionalError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy);
+  static kdl::Vector computeProportionalError(const kdl::Euler& _cur_rpy, const kdl::Euler& _tar_rpy);
   static kdl::Vector
-  computeDerivativeError(const kdl::Euler& cur_rpy, const kdl::Vector& cur_gyro, const kdl::Vector& tar_gyro);
+  computeDerivativeError(const kdl::Euler& _cur_rpy, const kdl::Vector& _cur_gyro, const kdl::Vector& _tar_gyro);
 };
 
 inline const kdl::Vector& EulerPID::getIntegralError() const

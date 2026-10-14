@@ -9,9 +9,7 @@
 
 #include "./base_controller.hpp"
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 class AngleThrottleVectorController : public BaseController
 {
@@ -25,9 +23,9 @@ public:
   bool requireAttitude() override;
   bool requireHeading() override;
 
-  void initialize(BaseNode* node, FlightMode mode) override;
-  void reset(const builtin_interfaces::msg::Time& stamp, const tobas_msgs::Odometry& setpoint, bool landed) override;
-  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
+  void initialize(BaseNode* _node, FlightMode _mode) override;
+  void reset(const builtin_interfaces::msg::Time& _stamp, const tobas_msgs::Odometry& _setpoint, bool _landed) override;
+  void update(const tobas_msgs::RCInput& _rcin, const tobas_msgs::Odometry& _odom, bool _landed) override;
 
 private:
   rclcpp::Time t_last_rcin_;
@@ -47,17 +45,16 @@ private:
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::AngleThrottleVector> cmd_pub_;
 
-  void maxRollCb(double p);
-  void maxRollRateCb(double p);
-  void maxPitchCb(double p);
-  void maxPitchRateCb(double p);
-  void maxYawRateCb(double p);
-  void maxThrustAngleCb(double p);
-  void maxThrustAngleRateCb(double p);
-  void rollExpoCb(double p);
-  void yawExpoCb(double p);
-  void throttleExpoCb(double p);
-  void thrustAngleExpoCb(double p);
+  void maxRollCb(double _p);
+  void maxRollRateCb(double _p);
+  void maxPitchCb(double _p);
+  void maxPitchRateCb(double _p);
+  void maxYawRateCb(double _p);
+  void maxThrustAngleCb(double _p);
+  void maxThrustAngleRateCb(double _p);
+  void rollExpoCb(double _p);
+  void yawExpoCb(double _p);
+  void throttleExpoCb(double _p);
+  void thrustAngleExpoCb(double _p);
 };
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

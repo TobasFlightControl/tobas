@@ -17,9 +17,7 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class GazeboJointEffortControllerPlugin : public BaseNode,
                                           public gz::sim::System,
@@ -32,12 +30,12 @@ public:
   explicit GazeboJointEffortControllerPlugin();
 
   void Configure(
-    const gz::sim::Entity& model_entity,
-    const sdf::ElementConstPtr& sdf,
-    gz::sim::EntityComponentManager& ecm,
+    const gz::sim::Entity& _model_entity,
+    const sdf::ElementConstPtr& _sdf,
+    gz::sim::EntityComponentManager& _ecm,
     gz::sim::EventManager&) override;
 
-  void PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm) override;
+  void PreUpdate(const gz::sim::UpdateInfo& _info, gz::sim::EntityComponentManager& _ecm) override;
 
 private:
   gz::sim::Joint joint_;
@@ -47,7 +45,7 @@ private:
 
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::JointCommand> cmd_sub_;
 
-  void commandCb(const tobas_gazebo_msgs::msg::JointCommand::ConstSharedPtr& cmd);
+  void commandCb(const tobas_gazebo_msgs::msg::JointCommand::ConstSharedPtr& _cmd);
 };
 
 GazeboJointEffortControllerPlugin::GazeboJointEffortControllerPlugin()
@@ -55,49 +53,48 @@ GazeboJointEffortControllerPlugin::GazeboJointEffortControllerPlugin()
 }
 
 void GazeboJointEffortControllerPlugin::Configure(
-  const gz::sim::Entity& model_entity,
-  const sdf::ElementConstPtr& sdf,
-  gz::sim::EntityComponentManager& ecm,
+  const gz::sim::Entity& _model_entity,
+  const sdf::ElementConstPtr& _sdf,
+  gz::sim::EntityComponentManager& _ecm,
   gz::sim::EventManager&)
 {
-  const auto joint_name = sdf->Get<std::string>("jointName");
-  initialize("gazebo_" + sanitizeNodeName(joint_name) + "_controller_plugin", sdf);
+  const auto joint_name = _sdf->Get<std::string>("jointName");
+  initialize("gazebo_" + sanitizeNodeName(joint_name) + "_controller_plugin", _sdf);
 
   // Get robot model.
-  const gz::sim::Model model(model_entity);
-  if (!model.Valid(ecm)) {
+  const gz::sim::Model model(_model_entity);
+  if (!model.Valid(_ecm)) {
     TOBAS_EXIT("Failed to find model.");
   }
 
   // Get joint.
-  const auto joint_entity = model.JointByName(ecm, joint_name);
+  const auto joint_entity = model.JointByName(_ecm, joint_name);
   joint_ = gz::sim::Joint(joint_entity);
-  if (!joint_.Valid(ecm)) {
+  if (!joint_.Valid(_ecm)) {
     TOBAS_EXIT("Failed to find joint '", joint_name, "'.");
   }
 
   // Get joint effort.
-  jnt_eff_ = getComponent<cmp::JointTransmittedWrench>(joint_entity, ecm);
+  jnt_eff_ = getComponent<cmp::JointTransmittedWrench>(joint_entity, _ecm);
 
   // Reset joint position.
-  const auto home_pos = getSdfParam<double>(sdf, "homePosition");
-  joint_.ResetPosition(ecm, { home_pos });
+  const auto home_pos = getSdfParam<double>(_sdf, "homePosition");
+  joint_.ResetPosition(_ecm, { home_pos });
 
   // Register ROS interfaces.
   cmd_sub_ = createSubscriber(path::join(kJointCommandTopicNS, joint_name), &self::commandCb, this);
 }
 
-void GazeboJointEffortControllerPlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::EntityComponentManager& ecm)
+void GazeboJointEffortControllerPlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::EntityComponentManager& _ecm)
 {
-  joint_.SetForce(ecm, { tar_eff_ });
+  joint_.SetForce(_ecm, { tar_eff_ });
 }
 
-void GazeboJointEffortControllerPlugin::commandCb(const tobas_gazebo_msgs::msg::JointCommand::ConstSharedPtr& cmd)
+void GazeboJointEffortControllerPlugin::commandCb(const tobas_gazebo_msgs::msg::JointCommand::ConstSharedPtr& _cmd)
 {
-  tar_eff_ = cmd->data;
+  tar_eff_ = _cmd->data;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboJointEffortControllerPlugin,

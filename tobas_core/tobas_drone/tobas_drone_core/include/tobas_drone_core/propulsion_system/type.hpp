@@ -13,8 +13,8 @@ enum class PropulsionSystem
   kIce,
 };
 
-std::string textFromEnum(PropulsionSystem interface);
-bool enumFromText(const std::string& text, PropulsionSystem& dst);
+std::string textFromEnum(PropulsionSystem _interface);
+bool enumFromText(const std::string& _text, PropulsionSystem& _dst);
 }  // namespace tobas
 
 namespace YAML
@@ -22,7 +22,7 @@ namespace YAML
 template <>
 struct convert<tobas::PropulsionSystem>
 {
-  static Node encode(tobas::PropulsionSystem rhs);
-  static bool decode(const Node& node, tobas::PropulsionSystem& rhs);
+  static Node encode(tobas::PropulsionSystem _rhs);
+  static bool decode(const Node& _node, tobas::PropulsionSystem& _rhs);
 };
 }  // namespace YAML

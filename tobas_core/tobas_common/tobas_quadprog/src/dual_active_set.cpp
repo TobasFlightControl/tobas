@@ -12,9 +12,7 @@
 
 // #define TRACE_SOLVER
 
-namespace tobas
-{
-namespace quadprog
+namespace tobas::quadprog
 {
 namespace
 {
@@ -35,13 +33,13 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
   const auto scaled = scaleProblem();
 
 #ifdef TRACE_SOLVER
-  cout << "Start to solve QP" << endl;
-  cout << "P:\n" << scaled.P << endl;
-  cout << "q:\n" << scaled.q.transpose() << endl;
-  cout << "G:\n" << scaled.G << endl;
-  cout << "h:\n" << scaled.h.transpose() << endl;
-  cout << "A:\n" << scaled.A << endl;
-  cout << "b:\n" << scaled.b.transpose() << endl;
+  cout << "Start to solve QP\n";
+  cout << "P:\n" << scaled.P << '\n';
+  cout << "q:\n" << scaled.q.transpose() << '\n';
+  cout << "G:\n" << scaled.G << '\n';
+  cout << "h:\n" << scaled.h.transpose() << '\n';
+  cout << "A:\n" << scaled.A << '\n';
+  cout << "b:\n" << scaled.b.transpose() << '\n';
 #endif
 
   // Problem size
@@ -74,14 +72,14 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
   }
 
 #ifdef TRACE_SOLVER
-  cout << "LL^T:\n" << llt.matrixLLT() << endl;
+  cout << "LL^T:\n" << llt.matrixLLT() << '\n';
 #endif
 
   // Compute the inverse of the factorized matrix U^-1, this is the initial value for H.
   J_ = llt.matrixU().solve(Eigen::MatrixXd::Identity(n_, n_));
 
 #ifdef TRACE_SOLVER
-  cout << "J:\n" << J_ << endl;
+  cout << "J:\n" << J_ << '\n';
 #endif
 
   iq_ = 0;
@@ -95,7 +93,7 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
   x_ = -llt.solve(scaled.q);
 
 #ifdef TRACE_SOLVER
-  cout << "Unconstrained solution:\n" << x_.transpose() << endl;
+  cout << "Unconstrained solution:\n" << x_.transpose() << '\n';
 #endif
 
   // Add equality constraints to the active set A.
@@ -106,10 +104,10 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
     update_r();
 
 #ifdef TRACE_SOLVER
-    cout << "R:\n" << R_.topLeftCorner(n_, iq_) << endl;
-    cout << "z:\n" << z_.transpose() << endl;
-    cout << "r:\n" << r_.head(iq_).transpose() << endl;
-    cout << "d:\n" << d_.transpose() << endl;
+    cout << "R:\n" << R_.topLeftCorner(n_, iq_) << '\n';
+    cout << "z:\n" << z_.transpose() << '\n';
+    cout << "r:\n" << r_.head(iq_).transpose() << '\n';
+    cout << "d:\n" << d_.transpose() << '\n';
 #endif
 
     // Compute full step length t2: i.e., the minimum step in primal space
@@ -142,7 +140,7 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
     switch (state) {
       case kChooseViolatedConstraint: {
 #ifdef TRACE_SOLVER
-        cout << "x:\n" << x_.transpose() << endl;
+        cout << "x:\n" << x_.transpose() << '\n';
 #endif
 
         for (Eigen::Index i = p_; i < iq_; ++i) {
@@ -159,7 +157,7 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
         s_.head(m_) = scaled.b - scaled.A * x_;
 
 #ifdef TRACE_SOLVER
-        cout << "s:\n" << s_.head(m_).transpose() << endl;
+        cout << "s:\n" << s_.head(m_).transpose() << '\n';
 #endif
 
         const auto psi = s_.head(m_).cwiseMin(0.0).sum();  // Sum of all infeasibilities
@@ -195,8 +193,8 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
         A_(iq_) = ip_;
 
 #ifdef TRACE_SOLVER
-        cout << "Trying with constraint " << ip_ << endl;
-        cout << "np:\n" << np_.transpose() << endl;
+        cout << "Trying with constraint " << ip_ << '\n';
+        cout << "np:\n" << np_.transpose() << '\n';
 #endif
 
         state = kDetermineStepDirection;
@@ -210,12 +208,12 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
         update_r();
 
 #ifdef TRACE_SOLVER
-        cout << "Step direction z" << endl;
-        cout << "z:\n" << z_.transpose() << endl;
-        cout << "r:\n" << r_.head(iq_ + 1).transpose() << endl;
-        cout << "u:\n" << u_.head(iq_ + 1).transpose() << endl;
-        cout << "d:\n" << d_.transpose() << endl;
-        cout << "A:\n" << A_.head(iq_ + 1).transpose() << endl;
+        cout << "Step direction z\n";
+        cout << "z:\n" << z_.transpose() << '\n';
+        cout << "r:\n" << r_.head(iq_ + 1).transpose() << '\n';
+        cout << "u:\n" << u_.head(iq_ + 1).transpose() << '\n';
+        cout << "d:\n" << d_.transpose() << '\n';
+        cout << "A:\n" << A_.head(iq_ + 1).transpose() << '\n';
 #endif
 
         // Step 2b: Compute step length
@@ -269,10 +267,10 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
           deleteConstraint(l);
 
 #ifdef TRACE_SOLVER
-          cout << " in dual space:" << endl;
-          cout << "x:\n" << x_.transpose() << endl;
-          cout << "z:\n" << z_.transpose() << endl;
-          cout << "A:\n" << A_.head(iq_ + 1).transpose() << endl;
+          cout << " in dual space:\n";
+          cout << "x:\n" << x_.transpose() << '\n';
+          cout << "z:\n" << z_.transpose() << '\n';
+          cout << "A:\n" << A_.head(iq_ + 1).transpose() << '\n';
 #endif
 
           state = kDetermineStepDirection;
@@ -288,17 +286,17 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
         u_(iq_) += t;
 
 #ifdef TRACE_SOLVER
-        cout << " in both spaces:" << endl;
-        cout << "x:\n" << x_.transpose() << endl;
-        cout << "u:\n" << u_.head(iq_ + 1).transpose() << endl;
-        cout << "r:\n" << r_.head(iq_ + 1).transpose() << endl;
-        cout << "A:\n" << A_.head(iq_ + 1).transpose() << endl;
+        cout << " in both spaces:\n";
+        cout << "x:\n" << x_.transpose() << '\n';
+        cout << "u:\n" << u_.head(iq_ + 1).transpose() << '\n';
+        cout << "r:\n" << r_.head(iq_ + 1).transpose() << '\n';
+        cout << "A:\n" << A_.head(iq_ + 1).transpose() << '\n';
 #endif
 
         if (std::abs(t - t2) < kEps) {
 #ifdef TRACE_SOLVER
-          cout << "Full step has taken " << t << endl;
-          cout << "x:\n" << x_.transpose() << endl;
+          cout << "Full step has taken " << t << '\n';
+          cout << "x:\n" << x_.transpose() << '\n';
 #endif
 
           // Full step has taken.
@@ -308,9 +306,9 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
             deleteConstraint(ip_);
 
 #ifdef TRACE_SOLVER
-            cout << "R:\n" << R_ << endl;
-            cout << "A:\n" << A_.head(iq_).transpose() << endl;
-            cout << "iai:\n" << iai_.transpose() << endl;
+            cout << "R:\n" << R_ << '\n';
+            cout << "A:\n" << A_.head(iq_).transpose() << '\n';
+            cout << "iai:\n" << iai_.transpose() << '\n';
 #endif
 
             for (Eigen::Index i = 0; i < m_; ++i) {
@@ -331,9 +329,9 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
           }
 
 #ifdef TRACE_SOLVER
-          cout << "R:\n" << R_ << endl;
-          cout << "A:\n" << A_.head(iq_).transpose() << endl;
-          cout << "iai:\n" << iai_.transpose() << endl;
+          cout << "R:\n" << R_ << '\n';
+          cout << "A:\n" << A_.head(iq_).transpose() << '\n';
+          cout << "iai:\n" << iai_.transpose() << '\n';
 #endif
 
           state = kChooseViolatedConstraint;
@@ -342,8 +340,8 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
 
         // A partial step has taken.
 #ifdef TRACE_SOLVER
-        cout << "Partial step has taken " << t << endl;
-        cout << "x:\n" << x_.transpose() << endl;
+        cout << "Partial step has taken " << t << '\n';
+        cout << "x:\n" << x_.transpose() << '\n';
 #endif
 
         // Drop constraint l.
@@ -351,15 +349,15 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
         deleteConstraint(l);
 
 #ifdef TRACE_SOLVER
-        cout << "R:\n" << R_ << endl;
-        cout << "A:\n" << A_.head(iq_).transpose() << endl;
+        cout << "R:\n" << R_ << '\n';
+        cout << "A:\n" << A_.head(iq_).transpose() << '\n';
 #endif
 
         // update s(ip) = b - A * x.
         s_(ip_) = scaled.b(ip_) - scaled.A.row(ip_).dot(x_);
 
 #ifdef TRACE_SOLVER
-        cout << "s:\n" << s_.transpose() << endl;
+        cout << "s:\n" << s_.transpose() << '\n';
 #endif
 
         state = kDetermineStepDirection;
@@ -441,10 +439,10 @@ bool DualActiveSetSolver::addConstraint()
   R_.block(0, iq_ - 1, iq_, 1) = d_.head(iq_);
 
 #ifdef TRACE_SOLVER
-  cout << iq_ << endl;
-  cout << "R:\n" << R_.topLeftCorner(iq_, iq_) << endl;
-  cout << "J:\n" << J_ << endl;
-  cout << "d:\n" << d_.head(iq_).transpose() << endl;
+  cout << iq_ << '\n';
+  cout << "R:\n" << R_.topLeftCorner(iq_, iq_) << '\n';
+  cout << "J:\n" << J_ << '\n';
+  cout << "d:\n" << d_.head(iq_).transpose() << '\n';
 #endif
 
   if (std::abs(d_(iq_ - 1)) <= kEps * R_norm_) {
@@ -455,10 +453,10 @@ bool DualActiveSetSolver::addConstraint()
   return true;
 }
 
-void DualActiveSetSolver::deleteConstraint(Eigen::Index l)
+void DualActiveSetSolver::deleteConstraint(Eigen::Index _l)
 {
 #ifdef TRACE_SOLVER
-  cout << "Delete constraint " << l << " " << iq_;
+  cout << "Delete constraint " << _l << " " << iq_;
 #endif
 
   Eigen::Index qq = 0;  // Initialize qq just to prevent warnings from smart compilers.
@@ -466,7 +464,7 @@ void DualActiveSetSolver::deleteConstraint(Eigen::Index l)
 
   // Find the index qq for active constraint l to be removed.
   for (Eigen::Index i = p_; i < iq_; ++i) {
-    if (A_(i) == l) {
+    if (A_(i) == _l) {
       qq = i;
       found = true;
       break;
@@ -488,7 +486,7 @@ void DualActiveSetSolver::deleteConstraint(Eigen::Index l)
   --iq_;
 
 #ifdef TRACE_SOLVER
-  cout << "/" << iq_ << endl;
+  cout << "/" << iq_ << '\n';
 #endif
 
   if (iq_ == 0) {
@@ -529,10 +527,10 @@ void DualActiveSetSolver::deleteConstraint(Eigen::Index l)
   }
 }
 
-double DualActiveSetSolver::distance(double a, double b)
+double DualActiveSetSolver::distance(double _a, double _b)
 {
-  const auto a1 = std::abs(a);
-  const auto b1 = std::abs(b);
+  const auto a1 = std::abs(_a);
+  const auto b1 = std::abs(_b);
   if (a1 > b1) {
     const auto t = b1 / a1;
     return a1 * std::sqrt(1.0 + math::sqr(t));
@@ -545,5 +543,4 @@ double DualActiveSetSolver::distance(double a, double b)
     return a1 * M_SQRT2;
   }
 }
-}  // namespace quadprog
-}  // namespace tobas
+}  // namespace tobas::quadprog

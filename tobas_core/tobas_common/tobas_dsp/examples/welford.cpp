@@ -12,14 +12,14 @@
 using namespace std;
 using namespace Eigen;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
-  if (argc != 2) {
-    cerr << "Usage: " << argv[0] << " <Data Length>" << endl;
+  if (_argc != 2) {
+    cerr << "Usage: " << _argv[0] << " <Data Length>\n";
     return EXIT_FAILURE;
   }
 
-  const auto length = stoul(argv[1]);
+  const auto length = stoul(_argv[1]);
 
   // Define random generator.
   random_device rnd_dev;
@@ -55,14 +55,14 @@ int main(int argc, char** argv)
   const Matrix3d& cov_2 = welford.variance();
 
   // Show results.
-  cout << "Mean (Normal Method) : " << mean_1.transpose() << endl;
-  cout << "Mean (Welford Method): " << mean_2.transpose() << endl;
-  cout << "Coariance (Normal Method):" << endl << cov_1 << endl;
-  cout << "Coariance (Welford Method):" << endl << cov_2 << endl;
+  cout << "Mean (Normal Method) : " << mean_1.transpose() << '\n';
+  cout << "Mean (Welford Method): " << mean_2.transpose() << '\n';
+  cout << "Coariance (Normal Method):\n" << cov_1 << '\n';
+  cout << "Coariance (Welford Method):\n" << cov_2 << '\n';
 
   // Validate.
   if (!tobas::eigen::isClose(mean_1, mean_2) || !tobas::eigen::isClose(cov_1, cov_2)) {
-    cerr << "Welford method is inaccurate." << endl;
+    cerr << "Welford method is inaccurate.\n";
     return EXIT_FAILURE;
   }
 

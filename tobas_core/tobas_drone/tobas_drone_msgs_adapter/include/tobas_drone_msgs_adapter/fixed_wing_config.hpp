@@ -21,27 +21,27 @@ struct rclcpp::TypeAdapter<tobas::FixedWingConfig, tobas_drone_msgs::msg::FixedW
   using custom_type = tobas::FixedWingConfig;
   using ros_message_type = tobas_drone_msgs::msg::FixedWingConfig;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    tobas_drone_msgs::VehicleParametersAdapter::convert_to_ros_message(src.vehicle, dst.vehicle);
-    tobas_drone_msgs::AerodynamicCoefficientsAdapter::convert_to_ros_message(src.aerodynamics, dst.aerodynamics);
+    tobas_drone_msgs::VehicleParametersAdapter::convert_to_ros_message(_src.vehicle, _dst.vehicle);
+    tobas_drone_msgs::AerodynamicCoefficientsAdapter::convert_to_ros_message(_src.aerodynamics, _dst.aerodynamics);
 
-    dst.control_surfaces.clear();
-    for (const auto& [_, cs] : src.control_surfaces) {
-      dst.control_surfaces.emplace_back();
-      tobas_drone_msgs::ControlSurfaceAdapter::convert_to_ros_message(cs, dst.control_surfaces.back());
+    _dst.control_surfaces.clear();
+    for (const auto& [_, cs] : _src.control_surfaces) {
+      _dst.control_surfaces.emplace_back();
+      tobas_drone_msgs::ControlSurfaceAdapter::convert_to_ros_message(cs, _dst.control_surfaces.back());
     }
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas_drone_msgs::VehicleParametersAdapter::convert_to_custom(src.vehicle, dst.vehicle);
-    tobas_drone_msgs::AerodynamicCoefficientsAdapter::convert_to_custom(src.aerodynamics, dst.aerodynamics);
+    tobas_drone_msgs::VehicleParametersAdapter::convert_to_custom(_src.vehicle, _dst.vehicle);
+    tobas_drone_msgs::AerodynamicCoefficientsAdapter::convert_to_custom(_src.aerodynamics, _dst.aerodynamics);
 
-    dst.control_surfaces.clear();
-    for (const auto& cs : src.control_surfaces) {
-      dst.control_surfaces[cs.link_name] = tobas::ControlSurface();
-      tobas_drone_msgs::ControlSurfaceAdapter::convert_to_custom(cs, dst.control_surfaces.at(cs.link_name));
+    _dst.control_surfaces.clear();
+    for (const auto& cs : _src.control_surfaces) {
+      _dst.control_surfaces[cs.link_name] = tobas::ControlSurface();
+      tobas_drone_msgs::ControlSurfaceAdapter::convert_to_custom(cs, _dst.control_surfaces.at(cs.link_name));
     }
   }
 };

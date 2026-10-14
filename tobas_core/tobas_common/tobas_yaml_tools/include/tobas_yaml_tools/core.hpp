@@ -9,22 +9,20 @@
 
 #include <yaml-cpp/yaml.h>
 
-namespace tobas
-{
-namespace yaml
+namespace tobas::yaml
 {
 template <typename T>
-std::expected<T, std::string> load(const std::string& key, const YAML::Node& parent) noexcept
+std::expected<T, std::string> load(const std::string& _key, const YAML::Node& _parent) noexcept
 {
-  if (!parent.IsDefined()) {
+  if (!_parent.IsDefined()) {
     return std::unexpected("The parent node is not defined.");
   }
-  if (!parent.IsMap()) {
+  if (!_parent.IsMap()) {
     return std::unexpected("The type of the parent node is not map.");
   }
 
   try {
-    return parent[key].as<T>();
+    return _parent[_key].as<T>();
   }
   catch (...) {
     return std::unexpected("Type mismatch.");
@@ -32,21 +30,20 @@ std::expected<T, std::string> load(const std::string& key, const YAML::Node& par
 }
 
 template <typename T>
-std::expected<void, std::string> load(const std::string& key, const YAML::Node& parent, T& value) noexcept
+std::expected<void, std::string> load(const std::string& _key, const YAML::Node& _parent, T& _value) noexcept
 {
-  const auto res = load<T>(key, parent);
+  const auto res = load<T>(_key, _parent);
   if (!res) {
     return std::unexpected(res.error());
   }
 
-  value = *res;
+  _value = *res;
   return {};
 }
 
 /** Convert `YAML::Node` to text. */
-std::string dump(const YAML::Node& node) noexcept;
+std::string dump(const YAML::Node& _node) noexcept;
 
-std::expected<YAML::Node, std::string> load(const std::filesystem::path& path) noexcept;
-std::expected<void, std::string> save(const std::filesystem::path& path, const YAML::Node& node) noexcept;
-}  // namespace yaml
-}  // namespace tobas
+std::expected<YAML::Node, std::string> load(const std::filesystem::path& _path) noexcept;
+std::expected<void, std::string> save(const std::filesystem::path& _path, const YAML::Node& _node) noexcept;
+}  // namespace tobas::yaml

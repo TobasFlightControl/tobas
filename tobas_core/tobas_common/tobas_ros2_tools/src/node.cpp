@@ -8,30 +8,28 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 namespace
 {
-std::string makeFqn(const std::string& name, const std::string& ns)
+std::string makeFqn(const std::string& _name, const std::string& _ns)
 {
-  if (ns.empty() || ns == "/") {
-    return "/" + name;
+  if (_ns.empty() || _ns == "/") {
+    return "/" + _name;
   }
-  return (ns.back() == '/' ? ns : ns + "/") + name;
+  return (_ns.back() == '/' ? _ns : _ns + "/") + _name;
 }
 
-bool isValidFqn(const std::string& fqn)
+bool isValidFqn(const std::string& _fqn)
 {
-  return fqn.starts_with('/');
+  return _fqn.starts_with('/');
 }
 
-bool isPresent(const rclcpp::node_interfaces::NodeGraphInterface::SharedPtr& graph, const std::string& target_fqn)
+bool isPresent(const rclcpp::node_interfaces::NodeGraphInterface::SharedPtr& _graph, const std::string& _target_fqn)
 {
-  for (const auto& nn : graph->get_node_names_and_namespaces()) {
+  for (const auto& nn : _graph->get_node_names_and_namespaces()) {
     const auto fqn = makeFqn(nn.first, nn.second);
-    if (fqn == target_fqn) {
+    if (fqn == _target_fqn) {
       return true;
     }
   }
@@ -39,35 +37,35 @@ bool isPresent(const rclcpp::node_interfaces::NodeGraphInterface::SharedPtr& gra
 }
 }  // namespace
 
-bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& node, const std::string& target_fqn, ch::milliseconds timeout)
+bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& _node, const std::string& _target_fqn, ch::milliseconds _timeout)
 {
-  if (!isValidFqn(target_fqn)) {
-    RCLCPP_ERROR_STREAM(node->get_logger(), "Invalid FQN: " << target_fqn);
+  if (!isValidFqn(_target_fqn)) {
+    RCLCPP_ERROR_STREAM(_node->get_logger(), "Invalid FQN: " << _target_fqn);
     return false;
   }
 
   // Get the node graph.
-  const auto graph = node->get_node_graph_interface();
+  const auto graph = _node->get_node_graph_interface();
 
   // Exit immediately if the target is already absent.
-  if (!isPresent(graph, target_fqn)) {
-    RCLCPP_INFO_STREAM(node->get_logger(), "Target FQN '" << target_fqn << "' does not exist.");
+  if (!isPresent(graph, _target_fqn)) {
+    RCLCPP_INFO_STREAM(_node->get_logger(), "Target FQN '" << _target_fqn << "' does not exist.");
     return true;
   }
 
   // Check for the target node periodically.
-  const auto deadline = timeout.count() > 0 ? ch::steady_clock::now() + timeout : ch::steady_clock::time_point::max();
-  rclcpp::Rate rate(10.0, node->get_clock());
+  const auto deadline = _timeout.count() > 0 ? ch::steady_clock::now() + _timeout : ch::steady_clock::time_point::max();
+  rclcpp::Rate rate(10.0, _node->get_clock());
   while (rclcpp::ok()) {
     // Handle timeout.
     if (ch::steady_clock::now() > deadline) {
-      RCLCPP_WARN_STREAM(node->get_logger(), "Timed out waiting for '" << target_fqn << "' to shut down.");
+      RCLCPP_WARN_STREAM(_node->get_logger(), "Timed out waiting for '" << _target_fqn << "' to shut down.");
       return false;
     }
 
     // Check whether the target node is still present after graph changes.
-    if (!isPresent(graph, target_fqn)) {
-      RCLCPP_INFO_STREAM(node->get_logger(), "'" << target_fqn << "' has gone.");
+    if (!isPresent(graph, _target_fqn)) {
+      RCLCPP_INFO_STREAM(_node->get_logger(), "'" << _target_fqn << "' has gone.");
       return true;
     }
 
@@ -76,5 +74,4 @@ bool waitUntilNodeGone(const rclcpp::Node::SharedPtr& node, const std::string& t
 
   return false;
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

@@ -5,13 +5,7 @@
 
 #include <QHBoxLayout>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
-{
-namespace field
+namespace tobas::gui::ctrl::field
 {
 MaxHorizontalJerkWidget::MaxHorizontalJerkWidget()
 {
@@ -40,11 +34,8 @@ double MaxHorizontalJerkWidget::getValue() const
   return spin_box_->value();
 }
 
-void MaxHorizontalJerkWidget::setValue(double value)
+void MaxHorizontalJerkWidget::setValue(double _value)
 {
-  spin_box_->setValue(value);
+  spin_box_->setValue(_value);
 }
-}  // namespace field
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::field

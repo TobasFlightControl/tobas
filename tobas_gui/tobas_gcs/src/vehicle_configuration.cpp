@@ -17,14 +17,10 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 std::expected<VehicleConfiguration, QString>
-loadVehicleConfiguration(const rclcpp::Node::SharedPtr& node, const std::string& ns, int timeout_ms)
+loadVehicleConfiguration(const rclcpp::Node::SharedPtr& _node, const std::string& _ns, int _timeout_ms)
 {
   struct ReceivedModels
   {
@@ -36,21 +32,21 @@ loadVehicleConfiguration(const rclcpp::Node::SharedPtr& node, const std::string&
   // Shared ownership keeps executor callbacks safe even when a timed-out subscription is being removed.
   const auto received = std::make_shared<ReceivedModels>();
   const auto qos = rclcpp::QoS(1).transient_local().reliable();
-  const auto tree_sub = node->create_subscription<kdl::Tree>(
-    path::join(ns, kRemoteIfaceNS, topic::kKdlTree),
+  const auto tree_sub = _node->create_subscription<kdl::Tree>(
+    path::join(_ns, kRemoteIfaceNS, topic::kKdlTree),
     qos,
-    [received](const kdl::Tree::ConstSharedPtr& msg)
+    [received](const kdl::Tree::ConstSharedPtr& _msg)
     {
       const std::lock_guard lock(received->mutex);
-      received->tree = msg;
+      received->tree = _msg;
     });
-  const auto drone_sub = node->create_subscription<Drone>(
-    path::join(ns, kRemoteIfaceNS, topic::kDrone),
+  const auto drone_sub = _node->create_subscription<Drone>(
+    path::join(_ns, kRemoteIfaceNS, topic::kDrone),
     qos,
-    [received](const Drone::ConstSharedPtr& msg)
+    [received](const Drone::ConstSharedPtr& _msg)
     {
       const std::lock_guard lock(received->mutex);
-      received->drone = msg;
+      received->drone = _msg;
     });
 
   QEventLoop loop;
@@ -70,16 +66,14 @@ loadVehicleConfiguration(const rclcpp::Node::SharedPtr& node, const std::string&
     });
   QObject::connect(&timeout, &QTimer::timeout, &loop, &QEventLoop::quit);
   poll.start(10);
-  timeout.start(timeout_ms);
+  timeout.start(_timeout_ms);
   loop.exec(QEventLoop::AllEvents | QEventLoop::ExcludeUserInputEvents);
 
   const std::lock_guard lock(received->mutex);
   if (!received->tree || !received->drone) {
-    return std::unexpected("Timed out waiting for the vehicle configuration from " + QString::fromStdString(ns) + ".");
+    return std::unexpected("Timed out waiting for the vehicle configuration from " + QString::fromStdString(_ns) + ".");
   }
 
   return VehicleConfiguration{ *received->tree, *received->drone };
 }
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

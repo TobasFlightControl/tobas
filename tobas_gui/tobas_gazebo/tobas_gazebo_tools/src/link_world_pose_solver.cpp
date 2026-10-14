@@ -10,52 +10,49 @@
 #include <gz/sim/components/Pose.hh>
 #include <gz/sim/components/World.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 LinkWorldPoseSolver::LinkWorldPoseSolver()
 {
 }
 
-bool LinkWorldPoseSolver::initialize(const gz::sim::Entity& model, const gz::sim::EntityComponentManager& ecm)
+bool LinkWorldPoseSolver::initialize(const gz::sim::Entity& _model, const gz::sim::EntityComponentManager& _ecm)
 {
-  if (!ecm.Component<gz::sim::components::Model>(model)) {
-    ignerr << "Model does not exist." << std::endl;
+  if (!_ecm.Component<gz::sim::components::Model>(_model)) {
+    ignerr << "Model does not exist.\n";
     return false;
   }
 
-  model_ = model;
+  model_ = _model;
   return true;
 }
 
-bool LinkWorldPoseSolver::solve(const gz::sim::Entity& link, const gz::sim::EntityComponentManager& ecm)
+bool LinkWorldPoseSolver::solve(const gz::sim::Entity& _link, const gz::sim::EntityComponentManager& _ecm)
 {
-  const auto world = ecm.ParentEntity(model_);
-  if (!ecm.Component<gz::sim::components::World>(world)) {
-    ignerr << "Model must be a direct child of the world." << std::endl;
+  const auto world = _ecm.ParentEntity(model_);
+  if (!_ecm.Component<gz::sim::components::World>(world)) {
+    ignerr << "Model must be a direct child of the world.\n";
     return false;
   }
 
-  if (ecm.ParentEntity(link) != model_) {
-    ignerr << "Link must be a direct child of the model." << std::endl;
+  if (_ecm.ParentEntity(_link) != model_) {
+    ignerr << "Link must be a direct child of the model.\n";
     return false;
   }
 
-  const auto T1 = ecm.Component<gz::sim::components::Pose>(model_);
+  const auto T1 = _ecm.Component<gz::sim::components::Pose>(model_);
   if (!T1) {
-    ignerr << "Model does not have a pose component." << std::endl;
+    ignerr << "Model does not have a pose component.\n";
     return false;
   }
 
-  const auto T2 = ecm.Component<gz::sim::components::Pose>(link);
+  const auto T2 = _ecm.Component<gz::sim::components::Pose>(_link);
   if (!T2) {
-    ignerr << "Link does not have a pose component." << std::endl;
+    ignerr << "Link does not have a pose component.\n";
     return false;
   }
 
   pose_out_ = T1->Data() * T2->Data();
   return true;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

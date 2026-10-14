@@ -16,11 +16,7 @@
 
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace at
+namespace tobas::gui::at
 {
 class JointCommandsPublisherWidget : public QWidget
 {
@@ -29,10 +25,10 @@ class JointCommandsPublisherWidget : public QWidget
   using self = JointCommandsPublisherWidget;
 
 public:
-  explicit JointCommandsPublisherWidget(const kdl::Tree& tree, const Drone& drone);
+  explicit JointCommandsPublisherWidget(const kdl::Tree& _tree, const Drone& _drone);
 
   void updateInternalDataStructures();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
   void start();
@@ -66,6 +62,4 @@ private:
 private Q_SLOTS:
   void onValueChanged();
 };
-}  // namespace at
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::at

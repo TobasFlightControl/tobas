@@ -14,9 +14,7 @@
 #include <tobas_msgs/msg/pwm_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 
-namespace tobas
-{
-namespace real
+namespace tobas::real
 {
 class IcePropulsionSystemHandlerNode : public BaseNode
 {
@@ -24,7 +22,7 @@ class IcePropulsionSystemHandlerNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit IcePropulsionSystemHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit IcePropulsionSystemHandlerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   Drone::ConstSharedPtr drone_;
@@ -45,15 +43,15 @@ private:
 
   void stopActuator();
 
-  void droneCb(const Drone::ConstSharedPtr& drone);
-  void engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state);
-  void iceCommandCb(const tobas_msgs::msg::IcePropulsionSystemCommand::ConstSharedPtr& ice_cmd);
+  void droneCb(const Drone::ConstSharedPtr& _drone);
+  void engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& _engine_state);
+  void iceCommandCb(const tobas_msgs::msg::IcePropulsionSystemCommand::ConstSharedPtr& _ice_cmd);
 
   void autoStopTimerCb();
 };
 
-IcePropulsionSystemHandlerNode::IcePropulsionSystemHandlerNode(const rclcpp::NodeOptions& options)
-  : super("real_ice_propulsion_system_handler", nodeOptions_Default(options)), latency_pub_(this)
+IcePropulsionSystemHandlerNode::IcePropulsionSystemHandlerNode(const rclcpp::NodeOptions& _options)
+  : super("real_ice_propulsion_system_handler", nodeOptions_Default(_options)), latency_pub_(this)
 {
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
 }
@@ -118,18 +116,18 @@ void IcePropulsionSystemHandlerNode::stopActuator()
   }
 }
 
-void IcePropulsionSystemHandlerNode::droneCb(const Drone::ConstSharedPtr& drone)
+void IcePropulsionSystemHandlerNode::droneCb(const Drone::ConstSharedPtr& _drone)
 {
-  if (!drone->prop) {
+  if (!_drone->prop) {
     return;
   }
 
-  if (drone->prop->type() != PropulsionSystem::kIce) {
+  if (_drone->prop->type() != PropulsionSystem::kIce) {
     return;
   }
 
-  drone_ = drone;
-  iprop_ = std::static_pointer_cast<IcePropulsionSystemConfig>(drone->prop);
+  drone_ = _drone;
+  iprop_ = std::static_pointer_cast<IcePropulsionSystemConfig>(_drone->prop);
 
   // Initialize pitch angle map.
   pitch_angles_.clear();
@@ -150,18 +148,18 @@ void IcePropulsionSystemHandlerNode::droneCb(const Drone::ConstSharedPtr& drone)
   auto_stop_timer_ = createWallTimer(kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
 }
 
-void IcePropulsionSystemHandlerNode::engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state)
+void IcePropulsionSystemHandlerNode::engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& _engine_state)
 {
   auto rotor_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
-  rotor_states->header.stamp = engine_state->header.stamp;
+  rotor_states->header.stamp = _engine_state->header.stamp;
 
   for (const auto& [link_name, rotor] : iprop_->rotors) {
     const auto irotor = std::static_pointer_cast<IceRotorConfig>(rotor);
 
     rotor_states->states.emplace_back();
     rotor_states->states.back().link_name = link_name;
-    rotor_states->states.back().speed = irotor->speedEngineToRotor(engine_state->speed);
-    rotor_states->states.back().thrust = irotor->thrustFromPitch(engine_state->speed, pitch_angles_.at(link_name));
+    rotor_states->states.back().speed = irotor->speedEngineToRotor(_engine_state->speed);
+    rotor_states->states.back().thrust = irotor->thrustFromPitch(_engine_state->speed, pitch_angles_.at(link_name));
     rotor_states->states.back().status = tobas_msgs::msg::RotorState::NO_ERROR;
   }
 
@@ -169,7 +167,7 @@ void IcePropulsionSystemHandlerNode::engineStateCb(const tobas_msgs::msg::Engine
 }
 
 void IcePropulsionSystemHandlerNode::iceCommandCb(
-  const tobas_msgs::msg::IcePropulsionSystemCommand::ConstSharedPtr& ice_cmd)
+  const tobas_msgs::msg::IcePropulsionSystemCommand::ConstSharedPtr& _ice_cmd)
 {
   // Create command message.
   auto pwms = std::make_unique<tobas_msgs::msg::PwmArray>();
@@ -180,7 +178,7 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
       const auto& pwm_cfg = drone_->pwms.at(pwm_key::kEngineThrottleKey);
       pwms->pwms.emplace_back();
       pwms->pwms.back().channel = pwm_cfg.channel;
-      pwms->pwms.back().period = pwm_cfg.periodFromValue(ice_cmd->engine_throttle);
+      pwms->pwms.back().period = pwm_cfg.periodFromValue(_ice_cmd->engine_throttle);
       break;
     }
     case HardwareInterface::kOther: {
@@ -193,7 +191,7 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
   }
 
   // Pitch angles
-  for (const auto& elem : ice_cmd->pitch_angles) {
+  for (const auto& elem : _ice_cmd->pitch_angles) {
     const auto& link_name = elem.link_name;
     auto cmd_angle = elem.angle;
 
@@ -243,12 +241,12 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
 
   // Publish command.
   if (!pwms->pwms.empty()) {
-    pwms->header.stamp = ice_cmd->header.stamp;
+    pwms->header.stamp = _ice_cmd->header.stamp;
     pwms_pub_->publish(std::move(pwms));
   }
 
   // Publish control latency.
-  latency_pub_.publish(ice_cmd->header.stamp);
+  latency_pub_.publish(_ice_cmd->header.stamp);
 
   // Reset timeout timer.
   auto_stop_timer_->reset();
@@ -269,7 +267,6 @@ void IcePropulsionSystemHandlerNode::autoStopTimerCb()
       " have elapsed since the last command.");
   }
 }
-}  // namespace real
-}  // namespace tobas
+}  // namespace tobas::real
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::IcePropulsionSystemHandlerNode);

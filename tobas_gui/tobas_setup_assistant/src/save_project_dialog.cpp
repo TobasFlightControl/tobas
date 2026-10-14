@@ -14,21 +14,17 @@
 #include <tobas_qt_tools/path.hpp>
 #include <tobas_ros2_tools/package.hpp>
 
-namespace tobas
+namespace tobas::gui::sa
 {
-namespace gui
-{
-namespace sa
-{
-SaveProjectDialog::SaveProjectDialog(QWidget* parent, const QString& dir, const QString& dflt_name)
-  : super(parent, "Save Tobas Project", dir)
+SaveProjectDialog::SaveProjectDialog(QWidget* _parent, const QString& _dir, const QString& _dflt_name)
+  : super(_parent, "Save Tobas Project", _dir)
 {
   setOptions(ShowDirsOnly | DontUseNativeDialog);  // Use the Qt dialog for custom settings.
   setAcceptMode(AcceptSave);  // Note that the Save button disappears if `setFileMode(Directory)` is used.
   setFilter(QDir::AllDirs | QDir::Hidden | QDir::NoDotAndDotDot);
   setLabelText(FileName, "Project name:");
   setDefaultSuffix("TBS");
-  selectFile(dflt_name);
+  selectFile(_dflt_name);
 
   // Get the save button.
   const auto button_box = findChild<QDialogButtonBox*>("buttonBox");
@@ -52,12 +48,12 @@ SaveProjectDialog::SaveProjectDialog(QWidget* parent, const QString& dir, const 
   onProjectPathChanged();
 }
 
-bool SaveProjectDialog::eventFilter(QObject* obj, QEvent* event)
+bool SaveProjectDialog::eventFilter(QObject* _obj, QEvent* _event)
 {
-  if (obj == proj_name_) {
+  if (_obj == proj_name_) {
     // Allow this only when the save button is enabled.
-    if (event->type() == QEvent::KeyPress) {
-      const auto key_event = static_cast<QKeyEvent*>(event);
+    if (_event->type() == QEvent::KeyPress) {
+      const auto key_event = static_cast<QKeyEvent*>(_event);
       if (key_event->key() == Qt::Key_Return || key_event->key() == Qt::Key_Enter) {
         if (save_button_->isEnabled()) {
           accept();
@@ -66,7 +62,7 @@ bool SaveProjectDialog::eventFilter(QObject* obj, QEvent* event)
     }
   }
 
-  return super::eventFilter(obj, event);
+  return super::eventFilter(_obj, _event);
 }
 
 void SaveProjectDialog::onProjectPathChanged()
@@ -128,6 +124,4 @@ void SaveProjectDialog::onProjectPathChanged()
   warn_text_->clear();
   save_button_->setEnabled(true);
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

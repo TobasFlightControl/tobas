@@ -5,25 +5,21 @@
 
 #include <QProcess>
 
-namespace tobas
+namespace tobas::gui::sa
 {
-namespace gui
-{
-namespace sa
-{
-std::expected<QString, QString> parseXacroFromPath(const QString& xacro_path)
+std::expected<QString, QString> parseXacroFromPath(const QString& _xacro_path)
 {
   // Pass the path as a separate argument so shell metacharacters remain part of the file name.
   // Keep stderr separate from stdout to avoid including diagnostics in the generated URDF.
   QProcess process;
-  process.start("xacro", { "--", xacro_path });
+  process.start("xacro", { "--", _xacro_path });
   if (!process.waitForStarted(-1)) {
     return std::unexpected("Failed to start XACRO: " + process.errorString());
   }
 
   const auto finished = process.waitForFinished(-1);
   if (!finished || process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0) {
-    auto error = "Failed to parse XACRO '" + xacro_path + "': ";
+    auto error = "Failed to parse XACRO '" + _xacro_path + "': ";
     if (!finished || process.exitStatus() != QProcess::NormalExit) {
       error += process.errorString();
     }
@@ -39,6 +35,4 @@ std::expected<QString, QString> parseXacroFromPath(const QString& xacro_path)
 
   return QString::fromUtf8(process.readAllStandardOutput());
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

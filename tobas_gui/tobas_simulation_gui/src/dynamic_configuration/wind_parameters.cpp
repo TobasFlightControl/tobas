@@ -16,11 +16,7 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 WindParamsWidget::WindParamsWidget()
 {
@@ -70,10 +66,10 @@ void WindParamsWidget::reset()
   setParamsToDefault();
 }
 
-void WindParamsWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void WindParamsWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  get_sc_.emplace(node, path::join(ns, gazebo::kGetWindParamsSrv));
-  set_sc_.emplace(node, path::join(ns, gazebo::kSetWindParamsSrv));
+  get_sc_.emplace(_node, path::join(_ns, gazebo::kGetWindParamsSrv));
+  set_sc_.emplace(_node, path::join(_ns, gazebo::kSetWindParamsSrv));
 }
 
 void WindParamsWidget::clearRosInterfaces()
@@ -107,34 +103,34 @@ double WindParamsWidget::getGustInterval() const
   return gust_interval_->get();
 }
 
-void WindParamsWidget::setMeanSpeed(double value)
+void WindParamsWidget::setMeanSpeed(double _value)
 {
   QSignalBlocker speed(mean_speed_);
-  mean_speed_->set(value);
+  mean_speed_->set(_value);
 }
 
-void WindParamsWidget::setDirection(double value_rad)
+void WindParamsWidget::setDirection(double _value_rad)
 {
   QSignalBlocker speed(direction_);
-  direction_->set(st::rad2deg(value_rad));
+  direction_->set(st::rad2deg(_value_rad));
 }
 
-void WindParamsWidget::setGustSpeedFactor(double value)
+void WindParamsWidget::setGustSpeedFactor(double _value)
 {
   QSignalBlocker speed(gust_speed_factor_);
-  gust_speed_factor_->set(value);
+  gust_speed_factor_->set(_value);
 }
 
-void WindParamsWidget::setGustDuration(double value)
+void WindParamsWidget::setGustDuration(double _value)
 {
   QSignalBlocker speed(gust_duration_);
-  gust_duration_->set(value);
+  gust_duration_->set(_value);
 }
 
-void WindParamsWidget::setGustInterval(double value)
+void WindParamsWidget::setGustInterval(double _value)
 {
   QSignalBlocker speed(gust_interval_);
-  gust_interval_->set(value);
+  gust_interval_->set(_value);
 }
 
 void WindParamsWidget::setParamsToDefault()
@@ -179,6 +175,4 @@ void WindParamsWidget::onValueChanged()
 {
   sendGuiParams();
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

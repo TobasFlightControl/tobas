@@ -9,14 +9,14 @@
 #include <tobas_string_tools/core.hpp>
 #include <tobas_string_tools/stream.hpp>
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
-  if (argc != 2) {
-    std::cerr << "Usage: " << argv[0] << " <Path>" << std::endl;
+  if (_argc != 2) {
+    std::cerr << "Usage: " << _argv[0] << " <Path>\n";
     return EXIT_FAILURE;
   }
 
-  const auto path = argv[1];
+  const auto path = _argv[1];
 
   std::string raw_text;
   if (!tobas::str::readText(path, raw_text)) {
@@ -27,23 +27,23 @@ int main(int argc, char** argv)
 
   const auto data = tobas::ssh::ak::parseLine(original_line);
   if (!data) {
-    std::cerr << data.error() << std::endl;
+    std::cerr << data.error() << '\n';
     return EXIT_FAILURE;
   }
 
   const auto exported_line = tobas::ssh::ak::exportLine(*data);
   if (!exported_line) {
-    std::cerr << exported_line.error() << std::endl;
+    std::cerr << exported_line.error() << '\n';
     return EXIT_FAILURE;
   }
 
   const auto prettified_line = tobas::ssh::ak::prettify(*data);
   if (!prettified_line) {
-    std::cerr << prettified_line.error() << std::endl;
+    std::cerr << prettified_line.error() << '\n';
     return EXIT_FAILURE;
   }
 
-  std::cout << "Original  : " << original_line << std::endl;
-  std::cout << "Exported  : " << *exported_line << std::endl;
-  std::cout << "Prettified: " << *prettified_line << std::endl;
+  std::cout << "Original  : " << original_line << '\n';
+  std::cout << "Exported  : " << *exported_line << '\n';
+  std::cout << "Prettified: " << *prettified_line << '\n';
 }

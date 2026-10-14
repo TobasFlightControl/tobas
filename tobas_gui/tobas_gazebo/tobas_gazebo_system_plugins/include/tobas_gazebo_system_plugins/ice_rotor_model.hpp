@@ -18,9 +18,7 @@
 
 #include "./simple_joint_model.hpp"
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class IceRotorModel;
 using IceRotorModelMap = std::map<std::string, IceRotorModel>;
@@ -28,7 +26,7 @@ using IceRotorModelMap = std::map<std::string, IceRotorModel>;
 class IceRotorModel
 {
 public:
-  bool initialize(const sdf::ElementConstPtr& sdf, gz::sim::EntityComponentManager& ecm, const gz::sim::Model& model);
+  bool initialize(const sdf::ElementConstPtr& _sdf, gz::sim::EntityComponentManager& _ecm, const gz::sim::Model& _model);
 
   const std::string& getLinkName() const;
   int getDirection() const;
@@ -39,20 +37,20 @@ public:
   double getMomentConst() const;
   double getDragConst() const;
 
-  double getSpeed(double engine_speed) const;
-  double getVelocity(double engine_speed) const;
-  double getThrust(double engine_speed) const;
-  double getTorque(double engine_speed) const;
+  double getSpeed(double _engine_speed) const;
+  double getVelocity(double _engine_speed) const;
+  double getThrust(double _engine_speed) const;
+  double getTorque(double _engine_speed) const;
 
   double getPitchAngle() const;
 
-  void setTargetPitchAngle(double tar_pitch);
+  void setTargetPitchAngle(double _tar_pitch);
 
-  void applyWrench(gz::sim::EntityComponentManager& ecm, double engine_speed, const gz::math::Vector3d& wind_vel_W);
+  void applyWrench(gz::sim::EntityComponentManager& _ecm, double _engine_speed, const gz::math::Vector3d& _wind_vel_w);
 
-  void updateJointPosition(gz::sim::EntityComponentManager& ecm, double engine_pos);
+  void updateJointPosition(gz::sim::EntityComponentManager& _ecm, double _engine_pos);
 
-  void step(double dt);
+  void step(double _dt);
 
 private:
   // SDF parameters
@@ -78,8 +76,7 @@ private:
   // Other
   SimpleJointModel pitch_angle_;
 
-  bool getSdfParams(const sdf::ElementConstPtr& sdf);
-  bool initializeGazeboObjects(gz::sim::EntityComponentManager& ecm, const gz::sim::Model& model);
+  bool getSdfParams(const sdf::ElementConstPtr& _sdf);
+  bool initializeGazeboObjects(gz::sim::EntityComponentManager& _ecm, const gz::sim::Model& _model);
 };
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

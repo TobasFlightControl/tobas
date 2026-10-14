@@ -10,9 +10,7 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_math/float.hpp>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class Vector;
 using VectorMap = std::map<std::string, Vector>;
@@ -24,19 +22,19 @@ public:
   Eigen::Vector3d data;
 
   inline Vector();
-  inline Vector(double x, double y, double z);
-  inline Vector(const Eigen::Vector3d& data);
+  inline Vector(double _x, double _y, double _z);
+  inline Vector(const Eigen::Vector3d& _data);
 
   static inline Vector Zero();
-  static inline Vector Constant(double value);
+  static inline Vector Constant(double _value);
   static inline Vector UnitX();
   static inline Vector UnitY();
   static inline Vector UnitZ();
 
   /** Access to elements, range checked when NDEBUG is not set, from 0..2 */
-  inline double operator()(size_t index) const;
+  inline double operator()(size_t _index) const;
   /** Access to elements, range checked when NDEBUG is not set, from 0..2 */
-  inline double& operator()(size_t index);
+  inline double& operator()(size_t _index);
 
   inline const double& x() const;
   inline const double& y() const;
@@ -44,15 +42,15 @@ public:
   inline double& x();
   inline double& y();
   inline double& z();
-  inline void x(double x);
-  inline void y(double y);
-  inline void z(double z);
+  inline void x(double _x);
+  inline void y(double _y);
+  inline void z(double _z);
 
   inline Vector clone() const;
 
-  inline void set(double x, double y, double z);
+  inline void set(double _x, double _y, double _z);
 
-  inline void fill(double value);
+  inline void fill(double _value);
 
   /** Get the minimum element. */
   inline double min() const;
@@ -61,29 +59,29 @@ public:
   inline double max() const;
 
   /** Compute the element-wise minimum of two `Vector`s. */
-  inline Vector min(const Vector& rhs) const;
+  inline Vector min(const Vector& _rhs) const;
 
   /** Compute the element-wise maximum of two `Vector`s. */
-  inline Vector max(const Vector& rhs) const;
+  inline Vector max(const Vector& _rhs) const;
 
   /** Compute the dot product of two `Vector`s. */
-  inline double dot(const Vector& rhs) const;
+  inline double dot(const Vector& _rhs) const;
 
   /** Compute the element-wise product of two `Vector`s. */
-  inline Vector hadamard(const Vector& rhs) const;
+  inline Vector hadamard(const Vector& _rhs) const;
 
   /** Compute the angle between two `Vector`s, from 0 to pi [rad]. */
-  inline double argument(const Vector& rhs) const;
+  inline double argument(const Vector& _rhs) const;
 
   /** Determine whether two `Vector`s are perpendicular. */
-  inline bool isPerpendicular(const Vector& rhs) const;
+  inline bool isPerpendicular(const Vector& _rhs) const;
 
   /** Determine whether two `Vector`s are parallel. */
-  bool isParallel(const Vector& rhs, bool same_direction_only = false, double angle_tol_rad = 1e-3) const;
+  bool isParallel(const Vector& _rhs, bool _same_direction_only = false, double _angle_tol_rad = 1e-3) const;
 
   /** Clamp each value. */
-  inline Vector clamp(double lb, double ub) const;
-  inline Vector clamp(const Vector& lb, const Vector& ub) const;
+  inline Vector clamp(double _lb, double _ub) const;
+  inline Vector clamp(const Vector& _lb, const Vector& _ub) const;
 
   inline void setZero();
   inline void setNaN();
@@ -102,34 +100,34 @@ public:
   inline bool isFinite() const;
 
   /** An exact comparison. */
-  inline bool operator==(const Vector& rhs) const;
+  inline bool operator==(const Vector& _rhs) const;
 
   /** Adds a vector from the Vector object itself. */
-  inline Vector& operator+=(const Vector& arg);
+  inline Vector& operator+=(const Vector& _arg);
   /** Subtracts a vector from the Vector object itself. */
-  inline Vector& operator-=(const Vector& arg);
+  inline Vector& operator-=(const Vector& _arg);
 
-  inline friend Vector operator-(const Vector& arg);
-  inline friend Vector operator+(const Vector& lhs, double rhs);
-  inline friend Vector operator+(double lhs, const Vector& rhs);
-  inline friend Vector operator-(const Vector& lhs, double rhs);
-  inline friend Vector operator-(double lhs, const Vector& rhs);
-  inline friend Vector operator*(const Vector& lhs, double rhs);
-  inline friend Vector operator*(double lhs, const Vector& rhs);
-  inline friend Vector operator/(const Vector& lhs, double rhs);
-  inline friend Vector operator/(double lhs, const Vector& rhs);
-  inline friend Vector operator+(const Vector& lhs, const Vector& rhs);
-  inline friend Vector operator-(const Vector& lhs, const Vector& rhs);
-  inline friend Vector operator*(const Vector& lhs, const Vector& rhs);
+  inline friend Vector operator-(const Vector& _arg);
+  inline friend Vector operator+(const Vector& _lhs, double _rhs);
+  inline friend Vector operator+(double _lhs, const Vector& _rhs);
+  inline friend Vector operator-(const Vector& _lhs, double _rhs);
+  inline friend Vector operator-(double _lhs, const Vector& _rhs);
+  inline friend Vector operator*(const Vector& _lhs, double _rhs);
+  inline friend Vector operator*(double _lhs, const Vector& _rhs);
+  inline friend Vector operator/(const Vector& _lhs, double _rhs);
+  inline friend Vector operator/(double _lhs, const Vector& _rhs);
+  inline friend Vector operator+(const Vector& _lhs, const Vector& _rhs);
+  inline friend Vector operator-(const Vector& _lhs, const Vector& _rhs);
+  inline friend Vector operator*(const Vector& _lhs, const Vector& _rhs);
 
-  inline friend std::ostream& operator<<(std::ostream& os, const Vector& arg);
+  inline friend std::ostream& operator<<(std::ostream& _os, const Vector& _arg);
 };
 
 inline Vector::Vector()
 {
 }
 
-inline Vector::Vector(double x, double y, double z) : data(x, y, z)
+inline Vector::Vector(double _x, double _y, double _z) : data(_x, _y, _z)
 {
 }
 
@@ -142,9 +140,9 @@ inline Vector Vector::Zero()
   return Vector(Eigen::Vector3d::Zero());
 }
 
-inline Vector Vector::Constant(double value)
+inline Vector Vector::Constant(double _value)
 {
-  return Vector(Eigen::Vector3d::Constant(value));
+  return Vector(Eigen::Vector3d::Constant(_value));
 }
 
 inline Vector Vector::UnitX()
@@ -162,14 +160,14 @@ inline Vector Vector::UnitZ()
   return Vector(Eigen::Vector3d::UnitZ());
 }
 
-inline double Vector::operator()(size_t index) const
+inline double Vector::operator()(size_t _index) const
 {
-  return data(index);
+  return data(_index);
 }
 
-inline double& Vector::operator()(size_t index)
+inline double& Vector::operator()(size_t _index)
 {
-  return data(index);
+  return data(_index);
 }
 
 inline const double& Vector::x() const
@@ -227,9 +225,9 @@ inline void Vector::set(double _x, double _y, double _z)
   data << _x, _y, _z;
 }
 
-inline void Vector::fill(double value)
+inline void Vector::fill(double _value)
 {
-  data.fill(value);
+  data.fill(_value);
 }
 
 inline double Vector::min() const
@@ -242,44 +240,44 @@ inline double Vector::max() const
   return data.maxCoeff();
 }
 
-inline double Vector::dot(const Vector& rhs) const
+inline double Vector::dot(const Vector& _rhs) const
 {
-  return data.dot(rhs.data);
+  return data.dot(_rhs.data);
 }
 
-inline Vector Vector::min(const Vector& rhs) const
+inline Vector Vector::min(const Vector& _rhs) const
 {
-  return Vector(data.cwiseMin(rhs.data));
+  return Vector(data.cwiseMin(_rhs.data));
 }
 
-inline Vector Vector::max(const Vector& rhs) const
+inline Vector Vector::max(const Vector& _rhs) const
 {
-  return Vector(data.cwiseMax(rhs.data));
+  return Vector(data.cwiseMax(_rhs.data));
 }
 
-inline Vector Vector::hadamard(const Vector& rhs) const
+inline Vector Vector::hadamard(const Vector& _rhs) const
 {
-  return Vector(data.cwiseProduct(rhs.data));
+  return Vector(data.cwiseProduct(_rhs.data));
 }
 
-inline double Vector::argument(const Vector& rhs) const
+inline double Vector::argument(const Vector& _rhs) const
 {
-  return std::acos(normalized().dot(rhs.normalized()));
+  return std::acos(normalized().dot(_rhs.normalized()));
 }
 
-inline bool Vector::isPerpendicular(const Vector& rhs) const
+inline bool Vector::isPerpendicular(const Vector& _rhs) const
 {
-  return math::isClose(dot(rhs), 0.0);
+  return math::isClose(dot(_rhs), 0.0);
 }
 
-inline Vector Vector::clamp(double lb, double ub) const
+inline Vector Vector::clamp(double _lb, double _ub) const
 {
-  return Vector(data.cwiseMax(lb).cwiseMin(ub));
+  return Vector(data.cwiseMax(_lb).cwiseMin(_ub));
 }
 
-inline Vector Vector::clamp(const Vector& lb, const Vector& ub) const
+inline Vector Vector::clamp(const Vector& _lb, const Vector& _ub) const
 {
-  return Vector(data.cwiseMax(lb.data).cwiseMin(ub.data));
+  return Vector(data.cwiseMax(_lb.data).cwiseMin(_ub.data));
 }
 
 inline void Vector::setZero()
@@ -346,88 +344,87 @@ bool Vector::isFinite() const
   return eigen::isFinite(data);
 }
 
-inline bool Vector::operator==(const Vector& rhs) const
+inline bool Vector::operator==(const Vector& _rhs) const
 {
-  return data.cwiseEqual(rhs.data).all();
+  return data.cwiseEqual(_rhs.data).all();
 }
 
-inline Vector& Vector::operator+=(const Vector& arg)
+inline Vector& Vector::operator+=(const Vector& _arg)
 {
-  data += arg.data;
+  data += _arg.data;
   return *this;
 }
 
-inline Vector& Vector::operator-=(const Vector& arg)
+inline Vector& Vector::operator-=(const Vector& _arg)
 {
-  data -= arg.data;
+  data -= _arg.data;
   return *this;
 }
 
-inline Vector operator-(const Vector& arg)
+inline Vector operator-(const Vector& _arg)
 {
-  return Vector(-arg.data);
+  return Vector(-_arg.data);
 }
 
-inline Vector operator+(const Vector& lhs, double rhs)
+inline Vector operator+(const Vector& _lhs, double _rhs)
 {
-  return Vector(lhs.data.array() + rhs);
+  return Vector(_lhs.data.array() + _rhs);
 }
 
-inline Vector operator+(double lhs, const Vector& rhs)
+inline Vector operator+(double _lhs, const Vector& _rhs)
 {
-  return Vector(lhs + rhs.data.array());
+  return Vector(_lhs + _rhs.data.array());
 }
 
-inline Vector operator-(const Vector& lhs, double rhs)
+inline Vector operator-(const Vector& _lhs, double _rhs)
 {
-  return Vector(lhs.data.array() - rhs);
+  return Vector(_lhs.data.array() - _rhs);
 }
 
-inline Vector operator-(double lhs, const Vector& rhs)
+inline Vector operator-(double _lhs, const Vector& _rhs)
 {
-  return Vector(lhs - rhs.data.array());
+  return Vector(_lhs - _rhs.data.array());
 }
 
-inline Vector operator*(const Vector& lhs, double rhs)
+inline Vector operator*(const Vector& _lhs, double _rhs)
 {
-  return Vector(lhs.data * rhs);
+  return Vector(_lhs.data * _rhs);
 }
 
-inline Vector operator*(double lhs, const Vector& rhs)
+inline Vector operator*(double _lhs, const Vector& _rhs)
 {
-  return Vector(lhs * rhs.data);
+  return Vector(_lhs * _rhs.data);
 }
 
-inline Vector operator/(const Vector& lhs, double rhs)
+inline Vector operator/(const Vector& _lhs, double _rhs)
 {
-  assert(rhs != 0);
-  return Vector(lhs.data / rhs);
+  assert(_rhs != 0);
+  return Vector(_lhs.data / _rhs);
 }
 
-inline Vector operator/(double lhs, const Vector& rhs)
+inline Vector operator/(double _lhs, const Vector& _rhs)
 {
-  return lhs * rhs.inverse();
+  return _lhs * _rhs.inverse();
 }
 
-inline Vector operator+(const Vector& lhs, const Vector& rhs)
+inline Vector operator+(const Vector& _lhs, const Vector& _rhs)
 {
-  return Vector(lhs.data + rhs.data);
+  return Vector(_lhs.data + _rhs.data);
 }
 
-inline Vector operator-(const Vector& lhs, const Vector& rhs)
+inline Vector operator-(const Vector& _lhs, const Vector& _rhs)
 {
-  return Vector(lhs.data - rhs.data);
+  return Vector(_lhs.data - _rhs.data);
 }
 
-inline Vector operator*(const Vector& lhs, const Vector& rhs)
+inline Vector operator*(const Vector& _lhs, const Vector& _rhs)
 {
-  return Vector(lhs.data.cross(rhs.data));
+  return Vector(_lhs.data.cross(_rhs.data));
 }
 
-inline std::ostream& operator<<(std::ostream& os, const Vector& arg)
+inline std::ostream& operator<<(std::ostream& _os, const Vector& _arg)
 {
-  os << arg.data.transpose();
-  return os;
+  _os << _arg.data.transpose();
+  return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

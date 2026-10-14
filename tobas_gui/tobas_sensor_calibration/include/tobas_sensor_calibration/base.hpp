@@ -11,11 +11,7 @@
 
 #include <tobas_qt_tools/widgets/widget.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 class BaseWidget : public qt::Widget
 {
@@ -32,7 +28,7 @@ public:
 
   virtual void updateInternalDataStructures() = 0;
 
-  virtual void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) = 0;
+  virtual void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns) = 0;
 
   virtual void clearRosInterfaces() = 0;
 
@@ -45,6 +41,4 @@ private:
 private Q_SLOTS:
   void initialize();
 };
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

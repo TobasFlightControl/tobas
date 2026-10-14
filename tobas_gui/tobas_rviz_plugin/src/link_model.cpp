@@ -5,11 +5,9 @@
 
 #include "tobas_rviz_plugin/joint_model/joint_model.hpp"
 
-namespace tobas
+namespace tobas::rviz
 {
-namespace rviz
-{
-LinkModel::LinkModel(const std::string& name, size_t link_index) : name_(name), link_index_(link_index)
+LinkModel::LinkModel(const std::string& _name, size_t _link_index) : name_(_name), link_index_(_link_index)
 {
 }
 
@@ -28,10 +26,10 @@ JointModel::ConstSharedPtr LinkModel::getParentJointModel() const
   return parent_joint_model_.lock();
 }
 
-void LinkModel::setParentJointModel(const JointModel::ConstSharedPtr& joint)
+void LinkModel::setParentJointModel(const JointModel::ConstSharedPtr& _joint)
 {
-  parent_joint_model_ = joint;
-  is_parent_joint_fixed_ = joint->getType() == JointModel::kFixed;
+  parent_joint_model_ = _joint;
+  is_parent_joint_fixed_ = _joint->getType() == JointModel::kFixed;
 }
 
 LinkModel::ConstSharedPtr LinkModel::getParentLinkModel() const
@@ -39,9 +37,9 @@ LinkModel::ConstSharedPtr LinkModel::getParentLinkModel() const
   return parent_link_model_.lock();
 }
 
-void LinkModel::setParentLinkModel(const ConstSharedPtr& link)
+void LinkModel::setParentLinkModel(const ConstSharedPtr& _link)
 {
-  parent_link_model_ = link;
+  parent_link_model_ = _link;
 }
 
 const std::vector<JointModel::ConstSharedPtr>& LinkModel::getChildJointModels() const
@@ -49,9 +47,9 @@ const std::vector<JointModel::ConstSharedPtr>& LinkModel::getChildJointModels() 
   return child_joint_models_;
 }
 
-void LinkModel::addChildJointModel(const JointModel::ConstSharedPtr& joint)
+void LinkModel::addChildJointModel(const JointModel::ConstSharedPtr& _joint)
 {
-  child_joint_models_.push_back(joint);
+  child_joint_models_.push_back(_joint);
 }
 
 const Eigen::Isometry3d& LinkModel::getJointOriginTransform() const
@@ -69,12 +67,11 @@ bool LinkModel::parentJointIsFixed() const
   return is_parent_joint_fixed_;
 }
 
-void LinkModel::setJointOriginTransform(const Eigen::Isometry3d& transform)
+void LinkModel::setJointOriginTransform(const Eigen::Isometry3d& _transform)
 {
-  joint_origin_transform_ = transform;
+  joint_origin_transform_ = _transform;
   joint_origin_transform_is_identity_ =
     joint_origin_transform_.linear().isIdentity() &&
     joint_origin_transform_.translation().norm() < std::numeric_limits<double>::epsilon();
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

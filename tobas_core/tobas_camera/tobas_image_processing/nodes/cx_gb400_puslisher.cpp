@@ -28,30 +28,28 @@
 using namespace std::chrono_literals;
 using namespace std::placeholders;
 
-namespace tobas
-{
-namespace camera
+namespace tobas::camera
 {
 class CxGb400PublisherNode : public BaseNode
 {
 public:
   static constexpr auto kStatusSendInterval = 1s;
 
-  explicit CxGb400PublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit CxGb400PublisherNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   bool initialize();
   void setFfmpegParameters();
   void packetReady(
-    const std::string& frame_id,
-    const rclcpp::Time& stamp,
-    const std::string& codec,
-    uint32_t width,
-    uint32_t height,
-    uint64_t pts,
-    uint8_t flags,
-    uint8_t* data,
-    size_t sz);
+    const std::string& _frame_id,
+    const rclcpp::Time& _stamp,
+    const std::string& _codec,
+    uint32_t _width,
+    uint32_t _height,
+    uint64_t _pts,
+    uint8_t _flags,
+    uint8_t* _data,
+    size_t _sz);
 
   void timerCallback();
 
@@ -59,25 +57,25 @@ private:
   void gimbalAttitudeCmdCb(const tobas_camera_msgs::msg::GimbalAttitudeCommand::ConstSharedPtr& _msg);
   void formatSdCardCb(
     const tobas_camera_msgs::srv::FormatSdCard::Request::ConstSharedPtr&,
-    const tobas_camera_msgs::srv::FormatSdCard::Response::SharedPtr& res);
+    const tobas_camera_msgs::srv::FormatSdCard::Response::SharedPtr& _res);
   void setPhotoQualityCb(
-    const tobas_camera_msgs::srv::SetPhotoQuality::Request::ConstSharedPtr& req,
-    const tobas_camera_msgs::srv::SetPhotoQuality::Response::SharedPtr& res);
+    const tobas_camera_msgs::srv::SetPhotoQuality::Request::ConstSharedPtr& _req,
+    const tobas_camera_msgs::srv::SetPhotoQuality::Response::SharedPtr& _res);
   void setVideoFrameRateCb(
-    const tobas_camera_msgs::srv::SetVideoFrameRate::Request::ConstSharedPtr& req,
-    const tobas_camera_msgs::srv::SetVideoFrameRate::Response::SharedPtr& res);
+    const tobas_camera_msgs::srv::SetVideoFrameRate::Request::ConstSharedPtr& _req,
+    const tobas_camera_msgs::srv::SetVideoFrameRate::Response::SharedPtr& _res);
   void setVideoQualityCb(
-    const tobas_camera_msgs::srv::SetVideoQuality::Request::ConstSharedPtr& req,
-    const tobas_camera_msgs::srv::SetVideoQuality::Response::SharedPtr& res);
+    const tobas_camera_msgs::srv::SetVideoQuality::Request::ConstSharedPtr& _req,
+    const tobas_camera_msgs::srv::SetVideoQuality::Response::SharedPtr& _res);
   void startRecordingCb(
     const tobas_camera_msgs::srv::StartRecording::Request::ConstSharedPtr&,
-    const tobas_camera_msgs::srv::StartRecording::Response::SharedPtr& res);
+    const tobas_camera_msgs::srv::StartRecording::Response::SharedPtr& _res);
   void stopRecordingCb(
     const tobas_camera_msgs::srv::StopRecording::Request::ConstSharedPtr&,
-    const tobas_camera_msgs::srv::StopRecording::Response::SharedPtr& res);
+    const tobas_camera_msgs::srv::StopRecording::Response::SharedPtr& _res);
   void takePictureToSdCb(
     const tobas_camera_msgs::srv::TakePictureToSd::Request::ConstSharedPtr&,
-    const tobas_camera_msgs::srv::TakePictureToSd::Response::SharedPtr& res);
+    const tobas_camera_msgs::srv::TakePictureToSd::Response::SharedPtr& _res);
 
   // Parameters
   std::string device_name_;
@@ -105,8 +103,8 @@ private:
   ffmpeg_encoder_decoder::Encoder encoder_;
 };
 
-CxGb400PublisherNode::CxGb400PublisherNode(const rclcpp::NodeOptions& options)
-  : BaseNode("cx_gb400_publisher", nodeOptions_Default(options))
+CxGb400PublisherNode::CxGb400PublisherNode(const rclcpp::NodeOptions& _options)
+  : BaseNode("cx_gb400_publisher", nodeOptions_Default(_options))
 {
   device_name_ = getStringParam("device_name", "/dev/video0");
   disable_video_streaming_ = getBoolParam("disable_video_streaming", false);
@@ -151,25 +149,25 @@ void CxGb400PublisherNode::setFfmpegParameters()
 }
 
 void CxGb400PublisherNode::packetReady(
-  const std::string& frame_id,
-  const rclcpp::Time& stamp,
-  const std::string& codec,
-  uint32_t width,
-  uint32_t height,
-  uint64_t pts,
-  uint8_t flags,
-  uint8_t* data,
-  size_t sz)
+  const std::string& _frame_id,
+  const rclcpp::Time& _stamp,
+  const std::string& _codec,
+  uint32_t _width,
+  uint32_t _height,
+  uint64_t _pts,
+  uint8_t _flags,
+  uint8_t* _data,
+  size_t _sz)
 {
   auto msg = std::make_unique<ffmpeg_image_transport_msgs::msg::FFMPEGPacket>();
-  msg->header.frame_id = frame_id;
-  msg->header.stamp = stamp;
-  msg->encoding = codec;
-  msg->width = width;
-  msg->height = height;
-  msg->pts = pts;
-  msg->flags = flags;
-  msg->data.assign(data, data + sz);
+  msg->header.frame_id = _frame_id;
+  msg->header.stamp = _stamp;
+  msg->encoding = _codec;
+  msg->width = _width;
+  msg->height = _height;
+  msg->pts = _pts;
+  msg->flags = _flags;
+  msg->data.assign(_data, _data + _sz);
   ffmpeg_packet_pub_->publish(std::move(msg));
 }
 
@@ -277,147 +275,146 @@ void CxGb400PublisherNode::gimbalAttitudeCmdCb(const tobas_camera_msgs::msg::Gim
 
 void CxGb400PublisherNode::formatSdCardCb(
   const tobas_camera_msgs::srv::FormatSdCard::Request::ConstSharedPtr&,
-  const tobas_camera_msgs::srv::FormatSdCard::Response::SharedPtr& res)
+  const tobas_camera_msgs::srv::FormatSdCard::Response::SharedPtr& _res)
 {
   if (camera_.formatSdCard()) {
-    res->success = true;
-    res->message.clear();
+    _res->success = true;
+    _res->message.clear();
   }
   else {
-    res->success = false;
-    res->message = "The camera rejected the request to format the SD card.";
+    _res->success = false;
+    _res->message = "The camera rejected the request to format the SD card.";
   }
 }
 
 void CxGb400PublisherNode::setPhotoQualityCb(
-  const tobas_camera_msgs::srv::SetPhotoQuality::Request::ConstSharedPtr& req,
-  const tobas_camera_msgs::srv::SetPhotoQuality::Response::SharedPtr& res)
+  const tobas_camera_msgs::srv::SetPhotoQuality::Request::ConstSharedPtr& _req,
+  const tobas_camera_msgs::srv::SetPhotoQuality::Response::SharedPtr& _res)
 {
   driver::CxGb400::PhotoQuality photo_quality;
-  if (req->photo_quality == req->SUPER_FINE) {
+  if (_req->photo_quality == _req->SUPER_FINE) {
     photo_quality = driver::CxGb400::PhotoQuality::kSuperFine;
   }
-  else if (req->photo_quality == req->FINE) {
+  else if (_req->photo_quality == _req->FINE) {
     photo_quality = driver::CxGb400::PhotoQuality::kFine;
   }
-  else if (req->photo_quality == req->NORMAL) {
+  else if (_req->photo_quality == _req->NORMAL) {
     photo_quality = driver::CxGb400::PhotoQuality::kNormal;
   }
   else {
-    res->success = false;
-    res->message = "Requested photo quality is out of range.";
+    _res->success = false;
+    _res->message = "Requested photo quality is out of range.";
     return;
   }
   if (camera_.setPhotoQuality(photo_quality)) {
-    res->success = true;
-    res->message.clear();
+    _res->success = true;
+    _res->message.clear();
   }
   else {
-    res->success = false;
-    res->message = "The camera rejected the request to set the photo quality.";
+    _res->success = false;
+    _res->message = "The camera rejected the request to set the photo quality.";
   }
 }
 
 void CxGb400PublisherNode::setVideoFrameRateCb(
-  const tobas_camera_msgs::srv::SetVideoFrameRate::Request::ConstSharedPtr& req,
-  const tobas_camera_msgs::srv::SetVideoFrameRate::Response::SharedPtr& res)
+  const tobas_camera_msgs::srv::SetVideoFrameRate::Request::ConstSharedPtr& _req,
+  const tobas_camera_msgs::srv::SetVideoFrameRate::Response::SharedPtr& _res)
 {
   driver::CxGb400::VideoFrameRate video_frame_rate;
-  if (req->video_frame_rate == req->K30FPS) {
+  if (_req->video_frame_rate == _req->K30FPS) {
     video_frame_rate = driver::CxGb400::VideoFrameRate::k30p;
   }
-  else if (req->video_frame_rate == req->K60FPS) {
+  else if (_req->video_frame_rate == _req->K60FPS) {
     video_frame_rate = driver::CxGb400::VideoFrameRate::k60p;
   }
   else {
-    res->success = false;
-    res->message = "Requested video frame rate is out of range.";
+    _res->success = false;
+    _res->message = "Requested video frame rate is out of range.";
     return;
   }
   if (camera_.setVideoFrameRate(video_frame_rate)) {
-    res->success = true;
-    res->message.clear();
+    _res->success = true;
+    _res->message.clear();
   }
   else {
-    res->success = false;
-    res->message = "The camera rejected the request to set the video frame rate.";
+    _res->success = false;
+    _res->message = "The camera rejected the request to set the video frame rate.";
   }
 }
 
 void CxGb400PublisherNode::setVideoQualityCb(
-  const tobas_camera_msgs::srv::SetVideoQuality::Request::ConstSharedPtr& req,
-  const tobas_camera_msgs::srv::SetVideoQuality::Response::SharedPtr& res)
+  const tobas_camera_msgs::srv::SetVideoQuality::Request::ConstSharedPtr& _req,
+  const tobas_camera_msgs::srv::SetVideoQuality::Response::SharedPtr& _res)
 {
   driver::CxGb400::VideoQuality video_quality;
-  if (req->video_quality == req->K4K) {
+  if (_req->video_quality == _req->K4K) {
     video_quality = driver::CxGb400::VideoQuality::k4K;
   }
-  else if (req->video_quality == req->K2_7K) {
+  else if (_req->video_quality == _req->K2_7K) {
     video_quality = driver::CxGb400::VideoQuality::k2_7K;
   }
-  else if (req->video_quality == req->FHD) {
+  else if (_req->video_quality == _req->FHD) {
     video_quality = driver::CxGb400::VideoQuality::kFHD;
   }
-  else if (req->video_quality == req->HD) {
+  else if (_req->video_quality == _req->HD) {
     video_quality = driver::CxGb400::VideoQuality::kHD;
   }
   else {
-    res->success = false;
-    res->message = "Requested video quality is out of range.";
+    _res->success = false;
+    _res->message = "Requested video quality is out of range.";
     return;
   }
   if (camera_.setVideoResolution(video_quality)) {
-    res->success = true;
-    res->message.clear();
+    _res->success = true;
+    _res->message.clear();
   }
   else {
-    res->success = false;
-    res->message = "The camera rejected the request to set the video resolution.";
+    _res->success = false;
+    _res->message = "The camera rejected the request to set the video resolution.";
   }
 }
 
 void CxGb400PublisherNode::startRecordingCb(
   const tobas_camera_msgs::srv::StartRecording::Request::ConstSharedPtr&,
-  const tobas_camera_msgs::srv::StartRecording::Response::SharedPtr& res)
+  const tobas_camera_msgs::srv::StartRecording::Response::SharedPtr& _res)
 {
   if (camera_.startRecording()) {
-    res->success = true;
-    res->message.clear();
+    _res->success = true;
+    _res->message.clear();
   }
   else {
-    res->success = false;
-    res->message = "The camera rejected the request to start the recording.";
+    _res->success = false;
+    _res->message = "The camera rejected the request to start the recording.";
   }
 }
 
 void CxGb400PublisherNode::stopRecordingCb(
   const tobas_camera_msgs::srv::StopRecording::Request::ConstSharedPtr&,
-  const tobas_camera_msgs::srv::StopRecording::Response::SharedPtr& res)
+  const tobas_camera_msgs::srv::StopRecording::Response::SharedPtr& _res)
 {
   if (camera_.stopRecording()) {
-    res->success = true;
-    res->message.clear();
+    _res->success = true;
+    _res->message.clear();
   }
   else {
-    res->success = false;
-    res->message = "The camera rejected the request to stop the recording.";
+    _res->success = false;
+    _res->message = "The camera rejected the request to stop the recording.";
   }
 }
 
 void CxGb400PublisherNode::takePictureToSdCb(
   const tobas_camera_msgs::srv::TakePictureToSd::Request::ConstSharedPtr&,
-  const tobas_camera_msgs::srv::TakePictureToSd::Response::SharedPtr& res)
+  const tobas_camera_msgs::srv::TakePictureToSd::Response::SharedPtr& _res)
 {
   if (camera_.takePictureToSd()) {
-    res->success = true;
-    res->message.clear();
+    _res->success = true;
+    _res->message.clear();
   }
   else {
-    res->success = false;
-    res->message = "The camera rejected the request to take a picture and save it to the SD card.";
+    _res->success = false;
+    _res->message = "The camera rejected the request to take a picture and save it to the SD card.";
   }
 }
-}  // namespace camera
-}  // namespace tobas
+}  // namespace tobas::camera
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::CxGb400PublisherNode)

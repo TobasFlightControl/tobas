@@ -7,9 +7,7 @@
 
 #include <tobas_linux/i2c_dev.hpp>
 
-namespace tobas
-{
-namespace driver
+namespace tobas::driver
 {
 /**
  * A linux driver of 3-axis magnetometer bmm350.
@@ -34,7 +32,7 @@ public:
   };
 
   /** Initialize the sensor. */
-  bool initialize(const char* i2c_device = "/dev/i2c-1");
+  bool initialize(const char* _i2c_device = "/dev/i2c-1");
 
   /**
    * Set the `ODR` and averaging values applied during initialization.
@@ -44,7 +42,7 @@ public:
    *
    * @note The settings are applied to the device in `applyConfiguration()` inside `initialize()`.
    */
-  void configure(ODR odr = ODR_100Hz, Averaging averaging = AVG_4);
+  void configure(ODR _odr = ODR_100Hz, Averaging _averaging = AVG_4);
 
   /** Read the current magnetic field data [uT]. */
   bool readMag(float& _mx, float& _my, float& _mz);
@@ -236,7 +234,7 @@ private:
    * @note Datasheet 9.2.3 Dummy bites in I2C mode
    * Datasheet: https://www.bosch-sensortec.com/products/motion-sensors/magnetometers/bmm350/
    */
-  bool readBytesWithDummy(uint8_t reg_addr, size_t length, uint8_t* rx);
+  bool readBytesWithDummy(uint8_t _reg_addr, size_t _length, uint8_t* _rx);
 
   /**
    * Compute compensated magnetic field data on the X-axis [uT].
@@ -285,5 +283,4 @@ private:
   ODR odr_ = ODR_100Hz;
   Averaging averaging_ = AVG_4;
 };
-}  // namespace driver
-}  // namespace tobas
+}  // namespace tobas::driver

@@ -11,15 +11,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 EngineDynamicsWidget::EngineDynamicsWidget()
 {
@@ -60,9 +52,9 @@ YAML::Node EngineDynamicsWidget::dump() const
   return node;
 }
 
-void EngineDynamicsWidget::load(const YAML::Node& node)
+void EngineDynamicsWidget::load(const YAML::Node& _node)
 {
-  data_->setValue(node[data_->name()].as<Eigen::MatrixXd>());
+  data_->setValue(_node[data_->name()].as<Eigen::MatrixXd>());
 }
 
 std::pair<double, double> EngineDynamicsWidget::engineConstant() const
@@ -92,8 +84,4 @@ std::pair<double, double> EngineDynamicsWidget::engineConstant() const
 
   return { A, B };
 }
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

@@ -1,26 +1,24 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_fc2xx_core/pwm_batt_imu.hpp"
+#include "tobas_mcu_driver/tobas_t2/pwm_batt_imu.hpp"
 
 #include <cstring>
 #include <format>
 
 #include <tobas_std_tools/error.hpp>
 
-namespace tobas
-{
-namespace fc2xx
+namespace tobas::t2
 {
 PwmBattImu::PwmBattImu() : crc_(algo::CRC32Left::CRC_32)
 {
   crc_.initialize();
 }
 
-bool PwmBattImu::initialize()
+bool PwmBattImu::initialize(const char* _spi_device)
 {
   // Initialize the SPI device.
-  if (!spi_.initialize("/dev/spidev0.1", tx_buf_, rx_buf_, 12'000'000)) {
+  if (!spi_.initialize(_spi_device, tx_buf_, rx_buf_, 12'000'000)) {
     return false;
   }
 
@@ -45,7 +43,7 @@ std::expected<void, std::string> PwmBattImu::transfer()
 
   // Check CRC.
   const uint32_t cs = (rx_buf_[kCrcIdx + 1] << 16) | rx_buf_[kCrcIdx];
-  const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint16_t) * kCrcIdx);
+  const auto cr = crc_.compute(reinterpret_cast<const uint8_t*>(rx_buf_), sizeof(uint16_t) * kCrcIdx);
   if (cs != cr) {
     return std::unexpected(std::format("CRC mismatch: received 0x{:08X}, computed 0x{:08X}.", cs, cr));
   }
@@ -53,47 +51,46 @@ std::expected<void, std::string> PwmBattImu::transfer()
   return {};
 }
 
-void PwmBattImu::setPwmPeriod(uint16_t* period_us)
+void PwmBattImu::setPwmPeriod(uint16_t* _period_us)
 {
   tx_buf_[kCmdTypeIdx] = 0x0000;
 
-  std::memcpy(tx_buf_ + 1, period_us, sizeof(uint16_t) * kPwmChannels);
+  std::memcpy(tx_buf_ + 1, _period_us, sizeof(uint16_t) * kPwmChannels);
 
   setTxCrc();
 }
 
-void PwmBattImu::configureLowPassFilter(uint16_t acc_cutoff, uint16_t gyro_cutoff, uint16_t dgyro_cutoff)
+void PwmBattImu::configureLowPassFilter(uint16_t _acc_cutoff, uint16_t _gyro_cutoff, uint16_t _dgyro_cutoff)
 {
   tx_buf_[kCmdTypeIdx] = 0x0001;
 
-  tx_buf_[1] = acc_cutoff;
-  tx_buf_[2] = gyro_cutoff;
-  tx_buf_[3] = dgyro_cutoff;
+  tx_buf_[1] = _acc_cutoff;
+  tx_buf_[2] = _gyro_cutoff;
+  tx_buf_[3] = _dgyro_cutoff;
 
   setTxCrc();
 }
 
 void PwmBattImu::configureRpmFilter(
-  uint16_t quality_factor,
-  uint16_t min_center_freq,
-  uint16_t fade_range,
-  uint16_t lpf_cutoff)
+  uint16_t _quality_factor,
+  uint16_t _min_center_freq,
+  uint16_t _fade_range,
+  uint16_t _lpf_cutoff)
 {
   tx_buf_[kCmdTypeIdx] = 0x0002;
 
-  tx_buf_[1] = quality_factor;
-  tx_buf_[2] = min_center_freq;
-  tx_buf_[3] = fade_range;
-  tx_buf_[4] = lpf_cutoff;
+  tx_buf_[1] = _quality_factor;
+  tx_buf_[2] = _min_center_freq;
+  tx_buf_[3] = _fade_range;
+  tx_buf_[4] = _lpf_cutoff;
 
   setTxCrc();
 }
 
 void PwmBattImu::setTxCrc()
 {
-  const auto crc = crc_.compute((uint8_t*)tx_buf_, sizeof(uint16_t) * kCrcIdx);
+  const auto crc = crc_.compute(reinterpret_cast<const uint8_t*>(tx_buf_), sizeof(uint16_t) * kCrcIdx);
   tx_buf_[kCrcIdx] = crc & 0xFFFF;
   tx_buf_[kCrcIdx + 1] = (crc >> 16) & 0xFFFF;
 }
-}  // namespace fc2xx
-}  // namespace tobas
+}  // namespace tobas::t2

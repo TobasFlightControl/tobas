@@ -5,171 +5,168 @@
 
 #include "tobas_kdl/rotational_inertia.hpp"
 
-namespace tobas
+namespace tobas::kdl
 {
-namespace kdl
+void vectorFrdToFlu(const Vector& _src, Vector& _dst)
 {
-void vectorFrdToFlu(const Vector& src, Vector& dst)
-{
-  dst.x(src.x());
-  dst.y(-src.y());
-  dst.z(-src.z());
+  _dst.x(_src.x());
+  _dst.y(-_src.y());
+  _dst.z(-_src.z());
 }
 
-void vectorFluToFrd(const Vector& src, Vector& dst)
+void vectorFluToFrd(const Vector& _src, Vector& _dst)
 {
-  vectorFrdToFlu(src, dst);
+  vectorFrdToFlu(_src, _dst);
 }
 
-void vectorFrdToFlu(Vector& arg)
+void vectorFrdToFlu(Vector& _arg)
 {
-  vectorFrdToFlu(arg, arg);
+  vectorFrdToFlu(_arg, _arg);
 }
 
-void vectorFluToFrd(Vector& arg)
+void vectorFluToFrd(Vector& _arg)
 {
-  vectorFluToFrd(arg, arg);
+  vectorFluToFrd(_arg, _arg);
 }
 
-void twistFrdToFlu(const Twist& src, Twist& dst)
+void twistFrdToFlu(const Twist& _src, Twist& _dst)
 {
-  vectorFrdToFlu(src.vel, dst.vel);
-  vectorFrdToFlu(src.rot, dst.rot);
+  vectorFrdToFlu(_src.vel, _dst.vel);
+  vectorFrdToFlu(_src.rot, _dst.rot);
 }
 
-void twistFluToFrd(const Twist& src, Twist& dst)
+void twistFluToFrd(const Twist& _src, Twist& _dst)
 {
-  twistFrdToFlu(src, dst);
+  twistFrdToFlu(_src, _dst);
 }
 
-void twistFrdToFlu(Twist& arg)
+void twistFrdToFlu(Twist& _arg)
 {
-  twistFrdToFlu(arg, arg);
+  twistFrdToFlu(_arg, _arg);
 }
 
-void twistFluToFrd(Twist& arg)
+void twistFluToFrd(Twist& _arg)
 {
-  twistFluToFrd(arg, arg);
+  twistFluToFrd(_arg, _arg);
 }
 
-void accelFrdToFlu(const Accel& src, Accel& dst)
+void accelFrdToFlu(const Accel& _src, Accel& _dst)
 {
-  vectorFrdToFlu(src.linear, dst.linear);
-  vectorFrdToFlu(src.angular, dst.angular);
+  vectorFrdToFlu(_src.linear, _dst.linear);
+  vectorFrdToFlu(_src.angular, _dst.angular);
 }
 
-void accelFluToFrd(const Accel& src, Accel& dst)
+void accelFluToFrd(const Accel& _src, Accel& _dst)
 {
-  accelFrdToFlu(src, dst);
+  accelFrdToFlu(_src, _dst);
 }
 
-void accelFrdToFlu(Accel& arg)
+void accelFrdToFlu(Accel& _arg)
 {
-  accelFrdToFlu(arg, arg);
+  accelFrdToFlu(_arg, _arg);
 }
 
-void accelFluToFrd(Accel& arg)
+void accelFluToFrd(Accel& _arg)
 {
-  accelFluToFrd(arg, arg);
+  accelFluToFrd(_arg, _arg);
 }
 
-void rotInertiaFrdToFlu(const RotationalInertia& src, RotationalInertia& dst)
+void rotInertiaFrdToFlu(const RotationalInertia& _src, RotationalInertia& _dst)
 {
-  dst.data(0, 0) = src.data(0, 0);   // xx
-  dst.data(0, 1) = -src.data(0, 1);  // xy
-  dst.data(0, 2) = -src.data(0, 2);  // xz
-  dst.data(1, 0) = -src.data(1, 0);  // yx
-  dst.data(1, 1) = src.data(1, 1);   // yy
-  dst.data(1, 2) = src.data(1, 2);   // yz
-  dst.data(2, 0) = -src.data(2, 0);  // zx
-  dst.data(2, 1) = src.data(2, 1);   // zy
-  dst.data(2, 2) = src.data(2, 2);   // zz
+  _dst.data(0, 0) = _src.data(0, 0);   // xx
+  _dst.data(0, 1) = -_src.data(0, 1);  // xy
+  _dst.data(0, 2) = -_src.data(0, 2);  // xz
+  _dst.data(1, 0) = -_src.data(1, 0);  // yx
+  _dst.data(1, 1) = _src.data(1, 1);   // yy
+  _dst.data(1, 2) = _src.data(1, 2);   // yz
+  _dst.data(2, 0) = -_src.data(2, 0);  // zx
+  _dst.data(2, 1) = _src.data(2, 1);   // zy
+  _dst.data(2, 2) = _src.data(2, 2);   // zz
 }
 
-void rotInertiaFluToFrd(const RotationalInertia& src, RotationalInertia& dst)
+void rotInertiaFluToFrd(const RotationalInertia& _src, RotationalInertia& _dst)
 {
-  rotInertiaFrdToFlu(src, dst);
+  rotInertiaFrdToFlu(_src, _dst);
 }
 
-void rotInertiaFrdToFlu(RotationalInertia& arg)
+void rotInertiaFrdToFlu(RotationalInertia& _arg)
 {
-  rotInertiaFrdToFlu(arg, arg);
+  rotInertiaFrdToFlu(_arg, _arg);
 }
 
-void rotInertiaFluToFrd(RotationalInertia& arg)
+void rotInertiaFluToFrd(RotationalInertia& _arg)
 {
-  rotInertiaFluToFrd(arg, arg);
+  rotInertiaFluToFrd(_arg, _arg);
 }
 
-void eulerFrdToFlu(const Euler& src, Euler& dst)
+void eulerFrdToFlu(const Euler& _src, Euler& _dst)
 {
-  dst.roll = src.roll;
-  dst.pitch = -src.pitch;
-  dst.yaw = -src.yaw;
+  _dst.roll = _src.roll;
+  _dst.pitch = -_src.pitch;
+  _dst.yaw = -_src.yaw;
 }
 
-void eulerFluToFrd(const Euler& src, Euler& dst)
+void eulerFluToFrd(const Euler& _src, Euler& _dst)
 {
-  eulerFrdToFlu(src, dst);
+  eulerFrdToFlu(_src, _dst);
 }
 
-void eulerFrdToFlu(Euler& arg)
+void eulerFrdToFlu(Euler& _arg)
 {
-  eulerFrdToFlu(arg, arg);
+  eulerFrdToFlu(_arg, _arg);
 }
 
-void eulerFluToFrd(Euler& arg)
+void eulerFluToFrd(Euler& _arg)
 {
-  eulerFluToFrd(arg, arg);
+  eulerFluToFrd(_arg, _arg);
 }
 
-void rotationFrdToFlu(const kdl::Rotation& src, kdl::Rotation& dst)
+void rotationFrdToFlu(const kdl::Rotation& _src, kdl::Rotation& _dst)
 {
-  dst.data(0, 0) = src.data(0, 0);   // xx
-  dst.data(0, 1) = -src.data(0, 1);  // xy
-  dst.data(0, 2) = -src.data(0, 2);  // xz
-  dst.data(1, 0) = -src.data(1, 0);  // yx
-  dst.data(1, 1) = src.data(1, 1);   // yy
-  dst.data(1, 2) = src.data(1, 2);   // yz
-  dst.data(2, 0) = -src.data(2, 0);  // zx
-  dst.data(2, 1) = src.data(2, 1);   // zy
-  dst.data(2, 2) = src.data(2, 2);   // zz
+  _dst.data(0, 0) = _src.data(0, 0);   // xx
+  _dst.data(0, 1) = -_src.data(0, 1);  // xy
+  _dst.data(0, 2) = -_src.data(0, 2);  // xz
+  _dst.data(1, 0) = -_src.data(1, 0);  // yx
+  _dst.data(1, 1) = _src.data(1, 1);   // yy
+  _dst.data(1, 2) = _src.data(1, 2);   // yz
+  _dst.data(2, 0) = -_src.data(2, 0);  // zx
+  _dst.data(2, 1) = _src.data(2, 1);   // zy
+  _dst.data(2, 2) = _src.data(2, 2);   // zz
 }
 
-void rotationFluToFrd(const kdl::Rotation& src, kdl::Rotation& dst)
+void rotationFluToFrd(const kdl::Rotation& _src, kdl::Rotation& _dst)
 {
-  rotationFrdToFlu(src, dst);
+  rotationFrdToFlu(_src, _dst);
 }
 
-void rotationFrdToFlu(kdl::Rotation& arg)
+void rotationFrdToFlu(kdl::Rotation& _arg)
 {
-  rotationFrdToFlu(arg, arg);
+  rotationFrdToFlu(_arg, _arg);
 }
 
-void rotationFluToFrd(kdl::Rotation& arg)
+void rotationFluToFrd(kdl::Rotation& _arg)
 {
-  rotationFluToFrd(arg, arg);
+  rotationFluToFrd(_arg, _arg);
 }
 
-void frameFrdToFlu(const kdl::Frame& src, kdl::Frame& dst)
+void frameFrdToFlu(const kdl::Frame& _src, kdl::Frame& _dst)
 {
-  vectorFrdToFlu(src.p, dst.p);
-  rotationFrdToFlu(src.M, dst.M);
+  vectorFrdToFlu(_src.p, _dst.p);
+  rotationFrdToFlu(_src.M, _dst.M);
 }
 
-void frameFluToFrd(const kdl::Frame& src, kdl::Frame& dst)
+void frameFluToFrd(const kdl::Frame& _src, kdl::Frame& _dst)
 {
-  frameFrdToFlu(src, dst);
+  frameFrdToFlu(_src, _dst);
 }
 
-void frameFrdToFlu(kdl::Frame& arg)
+void frameFrdToFlu(kdl::Frame& _arg)
 {
-  frameFrdToFlu(arg, arg);
+  frameFrdToFlu(_arg, _arg);
 }
 
-void frameFluToFrd(kdl::Frame& arg)
+void frameFluToFrd(kdl::Frame& _arg)
 {
-  frameFluToFrd(arg, arg);
+  frameFluToFrd(_arg, _arg);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

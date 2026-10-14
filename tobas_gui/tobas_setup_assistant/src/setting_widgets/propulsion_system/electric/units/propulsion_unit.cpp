@@ -6,15 +6,7 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/util.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 PropulsionUnitWidget::PropulsionUnitWidget()
 {
@@ -64,11 +56,11 @@ bool PropulsionUnitWidget::isValid()
   return true;
 }
 
-void PropulsionUnitWidget::copyFrom(const PropulsionUnitWidget* src)
+void PropulsionUnitWidget::copyFrom(const PropulsionUnitWidget* _src)
 {
   for (int i = 0; i < tabs_->count(); ++i) {
     const auto des_widget = qt::qPointerCast<BaseSelectedLinkSettingWidget>(tabs_->widget(i));
-    const auto src_widget = qt::qConstPointerCast<const BaseSelectedLinkSettingWidget>(src->tabs_->widget(i));
+    const auto src_widget = qt::qConstPointerCast<const BaseSelectedLinkSettingWidget>(_src->tabs_->widget(i));
     des_widget->copyFrom(src_widget);
   }
 }
@@ -85,11 +77,11 @@ YAML::Node PropulsionUnitWidget::dump() const
   return node;
 }
 
-void PropulsionUnitWidget::load(const YAML::Node& node)
+void PropulsionUnitWidget::load(const YAML::Node& _node)
 {
   for (int i = 0; i < tabs_->count(); ++i) {
     const auto widget = qt::qPointerCast<BaseSelectedLinkSettingWidget>(tabs_->widget(i));
-    widget->load(node[widget->name()]);
+    widget->load(_node[widget->name()]);
   }
 }
 
@@ -112,8 +104,4 @@ const AerodynamicsWidget* PropulsionUnitWidget::aerodynamics() const
 {
   return aerodynamics_;
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

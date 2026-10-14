@@ -5,14 +5,10 @@
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 
-namespace tobas
+namespace tobas::gui::sa
 {
-namespace gui
-{
-namespace sa
-{
-RobotPropertiesWidget::RobotPropertiesWidget(const uadf::Model& uadf, const kdl::Tree& tree)
-  : uadf_(uadf), tree_(tree), mass_holder_(tree)
+RobotPropertiesWidget::RobotPropertiesWidget(const uadf::Model& _uadf, const kdl::Tree& _tree)
+  : uadf_(_uadf), tree_(_tree), mass_holder_(_tree)
 {
   robot_name_ = new qt::FramedLabel();
   frame_type_ = new qt::FramedLabel();
@@ -34,11 +30,9 @@ void RobotPropertiesWidget::updateInternalDataStructures()
   mass_->setText(QString::number(mass_holder_.getMass()) + " kg");
 }
 
-void RobotPropertiesWidget::setFrameType(FrameType type)
+void RobotPropertiesWidget::setFrameType(FrameType _type)
 {
-  const auto text = QString::fromStdString(textFromEnum(type));
+  const auto text = QString::fromStdString(textFromEnum(_type));
   frame_type_->setText(text);
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

@@ -14,12 +14,12 @@
 #include "tobas_setup_assistant/setup_assistant.hpp"
 #include "tobas_setup_assistant/util.hpp"
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
   // Force X11.
-  tobas::gui::cmn::NonRosArgumentParser arg_parser(argc, argv);
+  tobas::gui::cmn::NonRosArgumentParser arg_parser(_argc, _argv);
   if (!arg_parser.setPlatformXcb()) {
-    std::cerr << "Failed to set display platform." << std::endl;
+    std::cerr << "Failed to set display platform.\n";
     return EXIT_FAILURE;
   }
 
@@ -27,7 +27,7 @@ int main(int argc, char** argv)
   qInstallMessageHandler(tobas::qt::colorMessageHandler);
 
   // Start the node.
-  tobas::ros2::AsyncNodeManager node_manager(argc, argv, "tobas_setup_assistant");
+  tobas::ros2::AsyncNodeManager node_manager(_argc, _argv, "tobas_setup_assistant");
 
   // Show the GUI.
   QApplication qapp(arg_parser.argc(), arg_parser.argv());

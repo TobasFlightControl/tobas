@@ -8,11 +8,7 @@
 
 #include "./status.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class HealthViewerWidget : public qt::ScrollArea
 {
@@ -21,7 +17,7 @@ class HealthViewerWidget : public qt::ScrollArea
   using self = HealthViewerWidget;
 
 public:
-  explicit HealthViewerWidget(const rqt::RosQtBridge& bridge);
+  explicit HealthViewerWidget(const rqt::RosQtBridge& _bridge);
 
   void reset();
 
@@ -44,8 +40,6 @@ private:
   StatusWidget* user_defined_status_;
 
 private Q_SLOTS:
-  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
+  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

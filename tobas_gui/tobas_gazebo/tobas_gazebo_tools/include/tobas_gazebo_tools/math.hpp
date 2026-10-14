@@ -6,14 +6,12 @@
 #include <gz/math/Quaternion.hh>
 #include <gz/math/Vector3.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 template <typename T>
-bool allGreaterEqual(const gz::math::Vector3<T>& v, T x)
+bool allGreaterEqual(const gz::math::Vector3<T>& _v, T _x)
 {
-  return v.X() >= x && v.Y() >= x && v.Z() >= x;
+  return _v.X() >= _x && _v.Y() >= _x && _v.Z() >= _x;
 }
 
 /**
@@ -21,10 +19,10 @@ bool allGreaterEqual(const gz::math::Vector3<T>& v, T x)
  * to the FRD (Front-Right-Down) coordinate system used in aerodynamics.
  */
 template <typename T>
-void FLU2FRD(gz::math::Vector3<T>& v)
+void FLU2FRD(gz::math::Vector3<T>& _v)
 {
-  v.Y() = -v.Y();
-  v.Z() = -v.Z();
+  _v.Y() = -_v.Y();
+  _v.Z() = -_v.Z();
 }
 
 /**
@@ -32,16 +30,15 @@ void FLU2FRD(gz::math::Vector3<T>& v)
  * to the FLU (Front-Left-Up) coordinate system used by Gazebo.
  */
 template <typename T>
-void FRD2FLU(gz::math::Vector3<T>& v)
+void FRD2FLU(gz::math::Vector3<T>& _v)
 {
-  v.Y() = -v.Y();
-  v.Z() = -v.Z();
+  _v.Y() = -_v.Y();
+  _v.Z() = -_v.Z();
 }
 
 /** Create a quaternion from an equivalent angle-axis vector. */
-gz::math::Quaterniond quaternionFromAngleAxis(const gz::math::Vector3d& w);
+gz::math::Quaterniond quaternionFromAngleAxis(const gz::math::Vector3d& _w);
 
 /** Compute the skew-symmetric matrix representing the cross product of a 3D vector. */
-gz::math::Matrix3d skewMatrix(const gz::math::Vector3d& v);
-}  // namespace gazebo
-}  // namespace tobas
+gz::math::Matrix3d skewMatrix(const gz::math::Vector3d& _v);
+}  // namespace tobas::gazebo

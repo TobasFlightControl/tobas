@@ -5,13 +5,9 @@
 
 #include <QVBoxLayout>
 
-namespace tobas
+namespace tobas::gui::ctrl
 {
-namespace gui
-{
-namespace ctrl
-{
-HealthViewerWidget::HealthViewerWidget(const rqt::RosQtBridge& bridge)
+HealthViewerWidget::HealthViewerWidget(const rqt::RosQtBridge& _bridge)
 {
   rt_compliance_status_ = new StatusWidget("Realtime Compliance");
   battery_voltage_status_ = new StatusWidget("Battery Voltage");
@@ -52,7 +48,7 @@ HealthViewerWidget::HealthViewerWidget(const rqt::RosQtBridge& bridge)
   setLayout(rows);
 
   // Connection
-  connect(&bridge, &rqt::RosQtBridge::vehicleHealthReceived, this, &self::healthCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::vehicleHealthReceived, this, &self::healthCb, Qt::QueuedConnection);
 }
 
 void HealthViewerWidget::reset()
@@ -75,25 +71,23 @@ void HealthViewerWidget::reset()
   user_defined_status_->reset();
 }
 
-void HealthViewerWidget::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
+void HealthViewerWidget::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health)
 {
-  rt_compliance_status_->setStatus(health->realtime_compliance);
-  battery_voltage_status_->setStatus(health->battery_voltage);
-  cpu_temp_status_->setStatus(health->cpu_temperature);
-  radio_link_status_->setStatus(health->radio_link);
-  rotor_links_status_->setStatus(health->rotor_links);
-  level_atti_status_->setStatus(health->attitude_level);
-  gnss_fix_status_->setStatus(health->gnss_fix);
-  pos_stability_status_->setStatus(health->position_stability);
-  hor_pos_accuracy_status_->setStatus(health->horizontal_position_accuracy);
-  ver_pos_accuracy_status_->setStatus(health->vertical_position_accuracy);
-  atti_accuracy_status_->setStatus(health->attitude_accuracy);
-  head_accuracy_status_->setStatus(health->heading_accuracy);
-  mag_offset_status_->setStatus(health->mag_offset);
-  mag_alignment_status_->setStatus(health->mag_alignment);
-  vibration_level_status_->setStatus(health->vibration_level);
-  user_defined_status_->setStatus(health->user_defined_condition);
+  rt_compliance_status_->setStatus(_health->realtime_compliance);
+  battery_voltage_status_->setStatus(_health->battery_voltage);
+  cpu_temp_status_->setStatus(_health->cpu_temperature);
+  radio_link_status_->setStatus(_health->radio_link);
+  rotor_links_status_->setStatus(_health->rotor_links);
+  level_atti_status_->setStatus(_health->attitude_level);
+  gnss_fix_status_->setStatus(_health->gnss_fix);
+  pos_stability_status_->setStatus(_health->position_stability);
+  hor_pos_accuracy_status_->setStatus(_health->horizontal_position_accuracy);
+  ver_pos_accuracy_status_->setStatus(_health->vertical_position_accuracy);
+  atti_accuracy_status_->setStatus(_health->attitude_accuracy);
+  head_accuracy_status_->setStatus(_health->heading_accuracy);
+  mag_offset_status_->setStatus(_health->mag_offset);
+  mag_alignment_status_->setStatus(_health->mag_alignment);
+  vibration_level_status_->setStatus(_health->vibration_level);
+  user_defined_status_->setStatus(_health->user_defined_condition);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

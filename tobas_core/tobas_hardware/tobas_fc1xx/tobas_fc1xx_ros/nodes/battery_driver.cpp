@@ -11,9 +11,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace fc1xx
+namespace tobas::fc1xx
 {
 class BatteryDriverNode : public hardware::BaseSensorNode
 {
@@ -21,7 +19,7 @@ class BatteryDriverNode : public hardware::BaseSensorNode
   using super = hardware::BaseSensorNode;
 
 public:
-  explicit BatteryDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit BatteryDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   Battery battery_;
@@ -34,8 +32,8 @@ private:
   void mainTimerCb();
 };
 
-BatteryDriverNode::BatteryDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc1xx_battery_driver", nodeOptions_Default(options))
+BatteryDriverNode::BatteryDriverNode(const rclcpp::NodeOptions& _options)
+  : super("fc1xx_battery_driver", nodeOptions_Default(_options))
 {
   initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
 }
@@ -76,7 +74,6 @@ void BatteryDriverNode::mainTimerCb()
   msg->current = static_cast<double>(current_);
   battery_pub_->publish(std::move(msg));
 }
-}  // namespace fc1xx
-}  // namespace tobas
+}  // namespace tobas::fc1xx
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc1xx::BatteryDriverNode)

@@ -5,9 +5,7 @@
 
 #include <QCheckBox>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QCheckBox` =====
@@ -23,10 +21,9 @@ class CheckBox : public QCheckBox
 public:
   using super::QCheckBox;
 
-  explicit CheckBox(const QString& text, bool checked, QWidget* parent = nullptr);
+  explicit CheckBox(const QString& _text, bool _checked, QWidget* _parent = nullptr);
 
   /** Display only the text normally even when disabled. */
   void setDisabledTextNormal();
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

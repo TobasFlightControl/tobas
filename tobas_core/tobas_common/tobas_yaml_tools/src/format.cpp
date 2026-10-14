@@ -8,13 +8,11 @@
 #include <tobas_math/core.hpp>
 #include <tobas_math/float.hpp>
 
-namespace tobas
+namespace tobas::yaml
 {
-namespace yaml
+std::string format(int _value)
 {
-std::string format(int value)
-{
-  return std::to_string(value);
+  return std::to_string(_value);
 }
 
 /**
@@ -22,20 +20,19 @@ std::string format(int value)
  *
  * e.g. 100 -> 100.0, 0.000012345 -> 1.2345e-05, NaN -> .nan
  */
-std::string format(double value, int prec)
+std::string format(double _value, int _prec)
 {
-  if (std::isnan(value)) {
+  if (std::isnan(_value)) {
     return ".nan";
   }
 
-  if (math::isInteger(value) && std::abs(static_cast<long>(value)) < math::ipow(10L, prec)) {
+  if (math::isInteger(_value) && std::abs(static_cast<long>(_value)) < math::ipow(10L, _prec)) {
     // If the value has no fractional part and fewer digits than the precision,
     // it would be rounded to integer notation. Add one fractional digit.
-    return std::format("{:.1f}", value);
+    return std::format("{:.1f}", _value);
   }
   else {
-    return std::format("{:.{}g}", value, prec);
+    return std::format("{:.{}g}", _value, _prec);
   }
 }
-}  // namespace yaml
-}  // namespace tobas
+}  // namespace tobas::yaml

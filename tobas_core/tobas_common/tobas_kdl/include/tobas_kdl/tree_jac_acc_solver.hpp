@@ -6,9 +6,7 @@
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /**
  * Compute the `Jd qd` term in `xdd = J qd + Jd qd`.
@@ -19,11 +17,11 @@ class TreeJacAccSolver : public TreeSolverI
   using super = TreeSolverI;
 
 public:
-  explicit TreeJacAccSolver(const Tree& tree);
+  explicit TreeJacAccSolver(const Tree& _tree);
 
   void updateInternalDataStructures() override;
 
-  const AccelMap& jntToCart(const JntArray& q, const JntArray& qd);
+  const AccelMap& jntToCart(const JntArray& _q, const JntArray& _qd);
 
 private:
   AccelMap jdqd_out_;
@@ -33,8 +31,7 @@ private:
   AccelMap a_;
 
   void resize();
-  void jntToCartRec(const SegmentMap::const_iterator& segment, const JntArray& q, const JntArray& qd);
+  void jntToCartRec(const SegmentMap::const_iterator& _segment, const JntArray& _q, const JntArray& _qd);
 };
 
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

@@ -10,9 +10,7 @@
 #include "./rotation.hpp"
 #include "./vector.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class Quaternion
 {
@@ -20,20 +18,20 @@ public:
   double x, y, z, w;
 
   inline explicit Quaternion(double _x, double _y, double _z, double _w);
-  inline explicit Quaternion(const Rotation& rot);
+  inline explicit Quaternion(const Rotation& _rot);
   inline explicit Quaternion();
 
   /** Identity `Quaternion`. */
   static inline Quaternion Identity();
 
   /** Create a `Quaternion` from an equivalent angle-axis `Vector`. */
-  static inline Quaternion AngleAxis(const Vector& a);
+  static inline Quaternion AngleAxis(const Vector& _a);
 
   /** Create a `Quaternion` from Euler angles. */
-  static inline Quaternion RPY(double roll, double pitch, double yaw);
+  static inline Quaternion RPY(double _roll, double _pitch, double _yaw);
 
   /** Convert a `Quaternion` to Euler angles. */
-  inline void getRPY(double& roll, double& pitch, double& yaw) const;
+  inline void getRPY(double& _roll, double& _pitch, double& _yaw) const;
 
   /** Complex conjugate `Quaternion`. */
   inline Quaternion complexConjugate() const;
@@ -54,27 +52,27 @@ public:
   inline bool isNormalized() const;
 
   /** Time derivative of the `Quaternion`. Note that angular velocity is defined locally. */
-  inline Quaternion differential(const Vector& angvel) const;
+  inline Quaternion differential(const Vector& _angvel) const;
 
   /** Divide all elements by a scalar. */
-  inline Quaternion operator/(double rhs) const;
+  inline Quaternion operator/(double _rhs) const;
 
   /** Composition of two rotations. */
-  inline Quaternion operator*(const Quaternion& rhs) const;
+  inline Quaternion operator*(const Quaternion& _rhs) const;
 
   /** Rotate a 3D `Vector`. */
-  inline Vector operator*(const Vector& v) const;
+  inline Vector operator*(const Vector& _v) const;
 
-  inline friend std::ostream& operator<<(std::ostream& os, const Quaternion& arg);
+  inline friend std::ostream& operator<<(std::ostream& _os, const Quaternion& _arg);
 };
 
 inline Quaternion::Quaternion(double _x, double _y, double _z, double _w) : x(_x), y(_y), z(_z), w(_w)
 {
 }
 
-inline Quaternion::Quaternion(const Rotation& rot)
+inline Quaternion::Quaternion(const Rotation& _rot)
 {
-  rot.getQuaternion(x, y, z, w);
+  _rot.getQuaternion(x, y, z, w);
 }
 
 inline Quaternion::Quaternion() : x(0), y(0), z(0), w(1)
@@ -86,27 +84,27 @@ inline Quaternion Quaternion::Identity()
   return Quaternion(0, 0, 0, 1);
 }
 
-inline Quaternion Quaternion::AngleAxis(const Vector& a)
+inline Quaternion Quaternion::AngleAxis(const Vector& _a)
 {
-  const auto angle = a.norm();
+  const auto angle = _a.norm();
 
   if (angle < std::numeric_limits<double>::epsilon()) {
     return Quaternion::Identity();
   }
 
-  const auto axis = a / angle;
+  const auto axis = _a / angle;
   const auto mag = std::sin(angle / 2);
   return Quaternion(mag * axis.x(), mag * axis.y(), mag * axis.z(), std::cos(angle / 2));
 }
 
-inline Quaternion Quaternion::RPY(double roll, double pitch, double yaw)
+inline Quaternion Quaternion::RPY(double _roll, double _pitch, double _yaw)
 {
-  return Quaternion(Rotation::RPY(roll, pitch, yaw));
+  return Quaternion(Rotation::RPY(_roll, _pitch, _yaw));
 }
 
-inline void Quaternion::getRPY(double& roll, double& pitch, double& yaw) const
+inline void Quaternion::getRPY(double& _roll, double& _pitch, double& _yaw) const
 {
-  std::tie(roll, pitch, yaw) = st::eulerFromQuaternion(x, y, z, w);
+  std::tie(_roll, _pitch, _yaw) = st::eulerFromQuaternion(x, y, z, w);
 }
 
 inline Quaternion Quaternion::complexConjugate() const
@@ -139,37 +137,36 @@ inline bool Quaternion::isNormalized() const
   return math::isClose(squaredNorm(), 1.0);
 }
 
-inline Quaternion Quaternion::differential(const Vector& angvel) const
+inline Quaternion Quaternion::differential(const Vector& _angvel) const
 {
-  const auto a = angvel / 2;
+  const auto a = _angvel / 2;
   return *this * Quaternion(a.x(), a.y(), a.z(), 0);
 }
 
-inline Quaternion Quaternion::operator/(double rhs) const
+inline Quaternion Quaternion::operator/(double _rhs) const
 {
-  assert(rhs != 0);
-  return Quaternion(x / rhs, y / rhs, z / rhs, w / rhs);
+  assert(_rhs != 0);
+  return Quaternion(x / _rhs, y / _rhs, z / _rhs, w / _rhs);
 }
 
-inline Quaternion Quaternion::operator*(const Quaternion& rhs) const
+inline Quaternion Quaternion::operator*(const Quaternion& _rhs) const
 {
-  const auto nw = w * rhs.w - x * rhs.x - y * rhs.y - z * rhs.z;
-  const auto nx = w * rhs.x + x * rhs.w + y * rhs.z - z * rhs.y;
-  const auto ny = w * rhs.y - x * rhs.z + y * rhs.w + z * rhs.x;
-  const auto nz = w * rhs.z + x * rhs.y - y * rhs.x + z * rhs.w;
+  const auto nw = w * _rhs.w - x * _rhs.x - y * _rhs.y - z * _rhs.z;
+  const auto nx = w * _rhs.x + x * _rhs.w + y * _rhs.z - z * _rhs.y;
+  const auto ny = w * _rhs.y - x * _rhs.z + y * _rhs.w + z * _rhs.x;
+  const auto nz = w * _rhs.z + x * _rhs.y - y * _rhs.x + z * _rhs.w;
   return Quaternion(nx, ny, nz, nw);
 }
 
-inline Vector Quaternion::operator*(const Vector& v) const
+inline Vector Quaternion::operator*(const Vector& _v) const
 {
-  const auto res = *this * Quaternion(v.x(), v.y(), v.z(), 0) * complexConjugate();
+  const auto res = *this * Quaternion(_v.x(), _v.y(), _v.z(), 0) * complexConjugate();
   return Vector(res.x, res.y, res.z);
 }
 
-inline std::ostream& operator<<(std::ostream& os, const Quaternion& arg)
+inline std::ostream& operator<<(std::ostream& _os, const Quaternion& _arg)
 {
-  os << "w: " << arg.w << ", x: " << arg.x << ", y: " << arg.y << ", z: " << arg.z;
-  return os;
+  _os << "w: " << _arg.w << ", x: " << _arg.x << ", y: " << _arg.y << ", z: " << _arg.z;
+  return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

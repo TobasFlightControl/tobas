@@ -8,13 +8,7 @@
 #include <QLabel>
 #include <QLineEdit>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 class StringInputDialog : public QDialog
 {
@@ -25,16 +19,16 @@ class StringInputDialog : public QDialog
 
 public:
   explicit StringInputDialog(
-    QWidget* parent,
-    const QString& title,
-    const QString& name,
-    const QString& default_text = "",
-    const QStringList& excludeds = QStringList());
+    QWidget* _parent,
+    const QString& _title,
+    const QString& _name,
+    const QString& _default_text = "",
+    const QStringList& _excludeds = QStringList());
 
   QString getText() const;
 
 private Q_SLOTS:
-  void onLineEditTextChanged(const QString& text);
+  void onLineEditTextChanged(const QString& _text);
 
 private:
   const QStringList& excludeds_;
@@ -43,9 +37,6 @@ private:
   QLabel* warn_label_;
   QDialogButtonBox* button_box_;
 
-  void enableOkButton(bool enable);
+  void enableOkButton(bool _enable);
 };
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

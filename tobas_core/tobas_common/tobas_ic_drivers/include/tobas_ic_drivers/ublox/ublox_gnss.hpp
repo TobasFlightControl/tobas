@@ -347,7 +347,7 @@ private:
   static size_t spliceMemory(uint8_t* dest, const void* src, size_t size, size_t dest_offset = 0);
 
   /* Configuration Key ID | 6.2 Configuration Items */
-  static uint32_t configKeyID(CfgSize size, CfgGroup group, uint8_t id);
+  static uint32_t configKeyID(CfgSize size, CfgGroup group, uint16_t id);
 };
 
 inline UbloxGnss::UbxClass UbloxGnss::latestClass() const

@@ -7,7 +7,7 @@
 
 namespace tobas
 {
-MixerI::MixerI(const Drone& drone, const kdl::Tree& tree) : drone_(drone), tree_(tree)
+MixerI::MixerI(const Drone& _drone, const kdl::Tree& _tree) : drone_(_drone), tree_(_tree)
 {
 }
 
@@ -21,18 +21,18 @@ void MixerI::updateInternalDataStructures()
   }
 }
 
-std::expected<void, std::string> MixerI::setRotorLiveliness(const std::string& link_name, bool alive)
+std::expected<void, std::string> MixerI::setRotorLiveliness(const std::string& _link_name, bool _alive)
 {
   if (!isInitialized()) {
     return std::unexpected("Mixer is not initialized.");
   }
 
-  const auto it = rotor_alive_.find(link_name);
+  const auto it = rotor_alive_.find(_link_name);
   if (it == rotor_alive_.end()) {
     return std::unexpected("Rotor link name is unknown.");
   }
 
-  it->second = alive;
+  it->second = _alive;
   return {};
 }
 }  // namespace tobas

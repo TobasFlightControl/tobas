@@ -12,13 +12,9 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
+namespace tobas::gui::ctrl
 {
-namespace gui
-{
-namespace ctrl
-{
-BatteryViewerWidget::BatteryViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
+BatteryViewerWidget::BatteryViewerWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone) : drone_(_drone)
 {
   voltage_ = new qt::ProgressBar();
   current_ = new qt::ProgressBar();
@@ -35,7 +31,7 @@ BatteryViewerWidget::BatteryViewerWidget(const rqt::RosQtBridge& bridge, const D
   setLayout(form);
 
   // Connection
-  connect(&bridge, &rqt::RosQtBridge::batteryReceived, this, &self::batteryCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::batteryReceived, this, &self::batteryCb, Qt::QueuedConnection);
 }
 
 void BatteryViewerWidget::reset()
@@ -56,11 +52,11 @@ void BatteryViewerWidget::updateInternalDataStructures()
   }
 }
 
-void BatteryViewerWidget::updateVoltage(double voltage)
+void BatteryViewerWidget::updateVoltage(double _voltage)
 {
-  const auto volt_rate = math::remap(voltage, eprop_->battery.sag_voltage, eprop_->battery.max_voltage, 0.0, 100.0);
+  const auto volt_rate = math::remap(_voltage, eprop_->battery.sag_voltage, eprop_->battery.max_voltage, 0.0, 100.0);
   voltage_->setPercentage(volt_rate);
-  voltage_->setFormat(std::format("{:.2f} V ({:.0f} %)", voltage, std::clamp(volt_rate, 0.0, 100.0)).c_str());
+  voltage_->setFormat(std::format("{:.2f} V ({:.0f} %)", _voltage, std::clamp(volt_rate, 0.0, 100.0)).c_str());
 
   if (volt_rate > 20.0) {
     voltage_->setFillColor(qt::color::green500());
@@ -73,16 +69,16 @@ void BatteryViewerWidget::updateVoltage(double voltage)
   }
 }
 
-void BatteryViewerWidget::updateCurrent(double current)
+void BatteryViewerWidget::updateCurrent(double _current)
 {
-  const auto current_rate = math::remap(current, 0.0, eprop_->battery.max_current, 0.0, 100.0);
+  const auto current_rate = math::remap(_current, 0.0, eprop_->battery.max_current, 0.0, 100.0);
   current_->setPercentage(current_rate);
-  current_->setFormat(std::format("{:.2f} A", current).c_str());
+  current_->setFormat(std::format("{:.2f} A", _current).c_str());
 
-  if (current < eprop_->battery.max_current * 0.6) {
+  if (_current < eprop_->battery.max_current * 0.6) {
     current_->setFillColor(qt::color::green500());
   }
-  else if (current < eprop_->battery.max_current * 0.8) {
+  else if (_current < eprop_->battery.max_current * 0.8) {
     current_->setFillColor(qt::color::yellow500());
   }
   else {
@@ -90,15 +86,13 @@ void BatteryViewerWidget::updateCurrent(double current)
   }
 }
 
-void BatteryViewerWidget::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
+void BatteryViewerWidget::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& _battery)
 {
   if (!eprop_) {
     return;
   }
 
-  updateVoltage(battery->voltage);
-  updateCurrent(battery->current);
+  updateVoltage(_battery->voltage);
+  updateCurrent(_battery->current);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

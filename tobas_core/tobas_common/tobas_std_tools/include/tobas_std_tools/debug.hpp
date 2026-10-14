@@ -6,10 +6,7 @@
 /** Print the file name and line number of the call site. */
 #define PRINT_LOCATION() st::_printLocation(__FILE__, __LINE__)
 
-namespace tobas
+namespace tobas::st
 {
-namespace st
-{
-void _printLocation(const char* file, int line);
-}  // namespace st
-}  // namespace tobas
+void _printLocation(const char* _file, int _line);
+}  // namespace tobas::st

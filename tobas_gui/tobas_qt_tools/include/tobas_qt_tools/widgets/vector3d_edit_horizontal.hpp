@@ -8,9 +8,7 @@
 
 #include "./labeled_double_spin_box.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class Vector3dEditHorizontal : public QWidget
 {
@@ -20,19 +18,19 @@ class Vector3dEditHorizontal : public QWidget
   using super = QWidget;
 
 Q_SIGNALS:
-  void valueChanged(const Eigen::Vector3d& vector);
+  void valueChanged(const Eigen::Vector3d& _vector);
 
 public:
-  explicit Vector3dEditHorizontal(QWidget* parent = nullptr);
+  explicit Vector3dEditHorizontal(QWidget* _parent = nullptr);
 
   Eigen::Vector3d vector() const;
-  void setVector(const Eigen::Vector3d& src);
+  void setVector(const Eigen::Vector3d& _src);
 
-  void setDecimals(int decimals);
-  void setMinimum(double minimum);
-  void setMaximum(double maximum);
-  void setSingleStep(double single_step);
-  void setSuffix(const QString& suffix);
+  void setDecimals(int _decimals);
+  void setMinimum(double _minimum);
+  void setMaximum(double _maximum);
+  void setSingleStep(double _single_step);
+  void setSuffix(const QString& _suffix);
 
   double x() const;
   double y() const;
@@ -44,7 +42,6 @@ private:
   LabeledDoubleSpinBox* z_;
 
 private Q_SLOTS:
-  void onValueChanged(double value);
+  void onValueChanged(double _value);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

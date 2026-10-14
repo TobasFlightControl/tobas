@@ -28,7 +28,7 @@ class FailsafeExecutorNode : public BaseNode
   using GoalHandle = rclcpp_action::ClientGoalHandle<Action>;
 
 public:
-  explicit FailsafeExecutorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit FailsafeExecutorNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   enum State
@@ -55,14 +55,14 @@ private:
   void startRTL();
   void startLand();
 
-  void vehicleHealthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
-  void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed);
+  void vehicleHealthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin);
+  void landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& _landed);
 };
 
-FailsafeExecutorNode::FailsafeExecutorNode(const rclcpp::NodeOptions& options)
-  : super("failsafe_executor", nodeOptions_Default(options))
+FailsafeExecutorNode::FailsafeExecutorNode(const rclcpp::NodeOptions& _options)
+  : super("failsafe_executor", nodeOptions_Default(_options))
 {
   health_sub_ = createSubscriber(topic::kVehicleHealth, &self::vehicleHealthCb, this);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
@@ -92,35 +92,35 @@ void FailsafeExecutorNode::startRTL()
   goal.priority.data = tobas_mission_msgs::msg::Priority::DEFENSIVE;
 
   Client::SendGoalOptions opts;
-  opts.goal_response_callback = [this](const GoalHandle::SharedPtr& gh)
+  opts.goal_response_callback = [this](const GoalHandle::SharedPtr& _gh)
   {
-    if (!gh) {
+    if (!_gh) {
       TOBAS_ERROR("RTL mission was rejected by the executor.");
       startLand();  // FIXME: The interface node can get stuck if action goals are sent in quick succession.
     }
   };
-  opts.result_callback = [this](const GoalHandle::WrappedResult& res)
+  opts.result_callback = [this](const GoalHandle::WrappedResult& _res)
   {
-    switch (res.code) {
+    switch (_res.code) {
       case rclcpp_action::ResultCode::SUCCEEDED:
         break;
       case rclcpp_action::ResultCode::CANCELED:
         break;
       case rclcpp_action::ResultCode::ABORTED:
-        switch (res.result->error_code.data) {
+        switch (_res.result->error_code.data) {
           case tobas_mission_msgs::msg::ErrorCode::NO_ERROR:
           case tobas_mission_msgs::msg::ErrorCode::MISSION_SUPERSEDED:
           case tobas_mission_msgs::msg::ErrorCode::MANUAL_OVERRIDE:
             break;
           default:
-            TOBAS_ERROR("RTL mission was aborted: ", res.result->error_message);
+            TOBAS_ERROR("RTL mission was aborted: ", _res.result->error_message);
             startLand();
             break;
         }
         break;
       case rclcpp_action::ResultCode::UNKNOWN:
       default:
-        TOBAS_ERROR("Unknown result code: ", (int)res.code);
+        TOBAS_ERROR("Unknown result code: ", (int)_res.code);
         startLand();
         break;
     }
@@ -142,35 +142,35 @@ void FailsafeExecutorNode::startLand()
   goal.priority.data = tobas_mission_msgs::msg::Priority::DEFENSIVE;
 
   Client::SendGoalOptions opts;
-  opts.goal_response_callback = [this](const GoalHandle::SharedPtr& gh)
+  opts.goal_response_callback = [this](const GoalHandle::SharedPtr& _gh)
   {
-    if (!gh) {
+    if (!_gh) {
       TOBAS_ERROR("Land mission was rejected by the executor.");
       disarm();
     }
   };
-  opts.result_callback = [this](const GoalHandle::WrappedResult& res)
+  opts.result_callback = [this](const GoalHandle::WrappedResult& _res)
   {
-    switch (res.code) {
+    switch (_res.code) {
       case rclcpp_action::ResultCode::SUCCEEDED:
         break;
       case rclcpp_action::ResultCode::CANCELED:
         break;
       case rclcpp_action::ResultCode::ABORTED:
-        switch (res.result->error_code.data) {
+        switch (_res.result->error_code.data) {
           case tobas_mission_msgs::msg::ErrorCode::NO_ERROR:
           case tobas_mission_msgs::msg::ErrorCode::MISSION_SUPERSEDED:
           case tobas_mission_msgs::msg::ErrorCode::MANUAL_OVERRIDE:
             break;
           default:
-            TOBAS_ERROR("Land mission was aborted: ", res.result->error_message);
+            TOBAS_ERROR("Land mission was aborted: ", _res.result->error_message);
             disarm();
             break;
         }
         break;
       case rclcpp_action::ResultCode::UNKNOWN:
       default:
-        TOBAS_ERROR("Unknown result code: ", (int)res.code);
+        TOBAS_ERROR("Unknown result code: ", (int)_res.code);
         disarm();
         break;
     }
@@ -180,7 +180,7 @@ void FailsafeExecutorNode::startLand()
   state_ = kLand;
 }
 
-void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& health)
+void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health)
 {
   using VH = tobas_msgs::msg::VehicleHealth;
 
@@ -189,13 +189,13 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
     return;
   }
 
-  const auto voltage_too_low = (health->battery_voltage == VH::FAILED);
-  const auto radio_link_lost = (health->radio_link == VH::FAILED);
-  const auto rotor_link_lost = (health->rotor_links == VH::FAILED);
-  const auto gnss_fix_lost = (health->gnss_fix == VH::FAILED);
-  const auto gnss_fixed = (health->gnss_fix == VH::PASSED);
-  const auto horizontal_position_accurate = (health->horizontal_position_accuracy == VH::PASSED);
-  const auto vertical_position_accurate = (health->vertical_position_accuracy == VH::PASSED);
+  const auto voltage_too_low = (_health->battery_voltage == VH::FAILED);
+  const auto radio_link_lost = (_health->radio_link == VH::FAILED);
+  const auto rotor_link_lost = (_health->rotor_links == VH::FAILED);
+  const auto gnss_fix_lost = (_health->gnss_fix == VH::FAILED);
+  const auto gnss_fixed = (_health->gnss_fix == VH::PASSED);
+  const auto horizontal_position_accurate = (_health->horizontal_position_accuracy == VH::PASSED);
+  const auto vertical_position_accurate = (_health->vertical_position_accuracy == VH::PASSED);
 
   const auto landed = (landed_ && landed_->landed);
   const auto rcin_ok = (!radio_link_lost && rcin_ && rcin_->status == tobas_msgs::msg::RCInput::STATUS_OK);
@@ -295,14 +295,14 @@ void FailsafeExecutorNode::vehicleHealthCb(const tobas_msgs::msg::VehicleHealth:
   }
 }
 
-void FailsafeExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void FailsafeExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming)
 {
   if (!arming_) {
-    arming_ = arming;
+    arming_ = _arming;
     return;
   }
 
-  if (arming_->data && !arming->data) {
+  if (arming_->data && !_arming->data) {
     // All fail-safe paths converge to disarming, so fail-safe can be considered finished once disarmed.
     switch (state_) {
       case kNoFailSafe:
@@ -318,17 +318,17 @@ void FailsafeExecutorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPt
     }
   }
 
-  arming_ = arming;
+  arming_ = _arming;
 }
 
-void FailsafeExecutorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
+void FailsafeExecutorNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin)
 {
-  rcin_ = rcin;
+  rcin_ = _rcin;
 }
 
-void FailsafeExecutorNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& landed)
+void FailsafeExecutorNode::landedCb(const tobas_msgs::msg::LandedState::ConstSharedPtr& _landed)
 {
-  landed_ = landed;
+  landed_ = _landed;
 }
 }  // namespace tobas
 

@@ -18,18 +18,18 @@ struct rclcpp::TypeAdapter<tobas::kdl::JntArrayAcc, tobas_kdl_msgs::msg::JntArra
   using custom_type = tobas::kdl::JntArrayAcc;
   using ros_message_type = tobas_kdl_msgs::msg::JntArrayAcc;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    tobas_kdl_msgs::vectorXdEigenToStd(src.q.data, dst.q);
-    tobas_kdl_msgs::vectorXdEigenToStd(src.qdot.data, dst.qdot);
-    tobas_kdl_msgs::vectorXdEigenToStd(src.qdotdot.data, dst.qdotdot);
+    tobas_kdl_msgs::vectorXdEigenToStd(_src.q.data, _dst.q);
+    tobas_kdl_msgs::vectorXdEigenToStd(_src.qdot.data, _dst.qdot);
+    tobas_kdl_msgs::vectorXdEigenToStd(_src.qdotdot.data, _dst.qdotdot);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas_kdl_msgs::vectorXdStdToEigen(src.q, dst.q.data);
-    tobas_kdl_msgs::vectorXdStdToEigen(src.qdot, dst.qdot.data);
-    tobas_kdl_msgs::vectorXdStdToEigen(src.qdotdot, dst.qdotdot.data);
+    tobas_kdl_msgs::vectorXdStdToEigen(_src.q, _dst.q.data);
+    tobas_kdl_msgs::vectorXdStdToEigen(_src.qdot, _dst.qdot.data);
+    tobas_kdl_msgs::vectorXdStdToEigen(_src.qdotdot, _dst.qdotdot.data);
   }
 };
 

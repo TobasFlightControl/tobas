@@ -5,26 +5,18 @@
 
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 /** Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019] */
 class BladeTheory
 {
 public:
   explicit BladeTheory(
-    int num_blades,
-    double radius,
-    double blade_chord,
-    double pitch_angle,
-    double air_density = st::kStandardAirDensity);
+    int _num_blades,
+    double _radius,
+    double _blade_chord,
+    double _pitch_angle,
+    double _air_density = st::kStandardAirDensity);
 
   double motorConst() const;
   double momentConst() const;
@@ -49,8 +41,4 @@ private:
   /** Horizontal force coefficient (divided by mu) */
   double C_H() const;
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

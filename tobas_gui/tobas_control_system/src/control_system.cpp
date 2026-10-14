@@ -8,25 +8,21 @@
 
 #include <tobas_qt_tools/util.hpp>
 
-namespace tobas
+namespace tobas::gui::ctrl
 {
-namespace gui
-{
-namespace ctrl
-{
-ControlSystemWidget::ControlSystemWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
+ControlSystemWidget::ControlSystemWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone) : drone_(_drone)
 {
   // Components
-  arm_state_banner_ = new ArmStateBanner(bridge);
-  pose_viewer_ = new PoseViewerWidget(bridge);
-  power_source_viewer_ = new PowerSourceViewerWidget(bridge, drone);
-  cpu_viewer_ = new CpuViewerWidget(bridge);
-  gnss_viewer_ = new GnssViewerWidget(bridge);
-  rcin_viewer_ = new rcin::RCInputViewerWidget(bridge);
-  rotors_viewer_ = new RotorsViewerWiddget(bridge, drone);
-  console_ = new ConsoleWidget(bridge);
-  health_viewer_ = new HealthViewerWidget(bridge);
-  mission_planner_ = new MissionPlannerWidget(bridge);
+  arm_state_banner_ = new ArmStateBanner(_bridge);
+  pose_viewer_ = new PoseViewerWidget(_bridge);
+  power_source_viewer_ = new PowerSourceViewerWidget(_bridge, _drone);
+  cpu_viewer_ = new CpuViewerWidget(_bridge);
+  gnss_viewer_ = new GnssViewerWidget(_bridge);
+  rcin_viewer_ = new rcin::RCInputViewerWidget(_bridge);
+  rotors_viewer_ = new RotorsViewerWiddget(_bridge, _drone);
+  console_ = new ConsoleWidget(_bridge);
+  health_viewer_ = new HealthViewerWidget(_bridge);
+  mission_planner_ = new MissionPlannerWidget(_bridge);
 
   // Layout
   const auto cols3 = new QHBoxLayout();
@@ -78,9 +74,9 @@ void ControlSystemWidget::updateInternalDataStructures()
   rotors_viewer_->updateInternalDataStructures();
 }
 
-void ControlSystemWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void ControlSystemWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  mission_planner_->initializeRosInterfaces(node, ns);
+  mission_planner_->initializeRosInterfaces(_node, _ns);
   arm_state_banner_->setConnected(true);
 }
 
@@ -89,6 +85,4 @@ void ControlSystemWidget::clearRosInterfaces()
   mission_planner_->clearRosInterfaces();
   arm_state_banner_->setConnected(false);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

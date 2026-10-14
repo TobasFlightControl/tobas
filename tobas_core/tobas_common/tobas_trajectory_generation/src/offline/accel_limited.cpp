@@ -7,23 +7,21 @@
 
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace traj
+namespace tobas::traj
 {
 namespace
 {
-double solveQuadraticEquationPositive(double a, double b, double c)
+double solveQuadraticEquationPositive(double _a, double _b, double _c)
 {
-  assert(a > 0);
-  const auto d = math::sqr(b) - 4 * a * c;
+  assert(_a > 0);
+  const auto d = math::sqr(_b) - 4 * _a * _c;
   assert(d > 0);
-  return (-b + std::sqrt(d)) / (2 * a);
+  return (-_b + std::sqrt(d)) / (2 * _a);
 }
 }  // namespace
 
-AccelLimitedTrajectory::AccelLimitedTrajectory(double p0, double v0, double pf, double vf, double max_acc)
-  : p0_(p0), v0_(v0), pf_(pf), vf_(vf), am_(max_acc)
+AccelLimitedTrajectory::AccelLimitedTrajectory(double _p0, double _v0, double _pf, double _vf, double _max_acc)
+  : p0_(_p0), v0_(_v0), pf_(_pf), vf_(_vf), am_(_max_acc)
 {
   assert(am_ > 0.0);
 
@@ -42,16 +40,16 @@ AccelLimitedTrajectory::AccelLimitedTrajectory(double p0, double v0, double pf, 
   }
 }
 
-TrajectoryPoint AccelLimitedTrajectory::get(double t) const noexcept
+TrajectoryPoint AccelLimitedTrajectory::get(double _t) const noexcept
 {
   const auto am_2 = am_ / 2;
 
   if (s_ < 0) {  // -a -> +a
-    if (t < ts_) {
-      return { p0_ + v0_ * t - am_2 * math::sqr(t), v0_ - am_ * t, -am_ };
+    if (_t < ts_) {
+      return { p0_ + v0_ * _t - am_2 * math::sqr(_t), v0_ - am_ * _t, -am_ };
     }
-    else if (t < tf_) {
-      const auto tr = tf_ - t;
+    else if (_t < tf_) {
+      const auto tr = tf_ - _t;
       return { pf_ - vf_ * tr + am_2 * math::sqr(tr), vf_ - am_ * tr, am_ };
     }
     else {
@@ -59,11 +57,11 @@ TrajectoryPoint AccelLimitedTrajectory::get(double t) const noexcept
     }
   }
   else {  // +a -> -a
-    if (t < ts_) {
-      return { p0_ + v0_ * t + am_2 * math::sqr(t), v0_ + am_ * t, am_ };
+    if (_t < ts_) {
+      return { p0_ + v0_ * _t + am_2 * math::sqr(_t), v0_ + am_ * _t, am_ };
     }
-    else if (t < tf_) {
-      const auto tr = tf_ - t;
+    else if (_t < tf_) {
+      const auto tr = tf_ - _t;
       return { pf_ - vf_ * tr - am_2 * math::sqr(tr), vf_ + am_ * tr, -am_ };
     }
     else {
@@ -76,5 +74,4 @@ double AccelLimitedTrajectory::duration() const noexcept
 {
   return tf_;
 }
-}  // namespace traj
-}  // namespace tobas
+}  // namespace tobas::traj

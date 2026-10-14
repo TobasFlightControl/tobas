@@ -61,45 +61,45 @@ std::expected<void, std::string> ElectricRotorConfig::validate() const
   return {};
 }
 
-std::expected<void, std::string> ElectricRotorConfig::load(const YAML::Node& node)
+std::expected<void, std::string> ElectricRotorConfig::load(const YAML::Node& _node)
 {
-  if (!node.IsDefined() || !node.IsMap()) {
+  if (!_node.IsDefined() || !_node.IsMap()) {
     return std::unexpected("Configuration node must be a map.");
   }
 
-  if (const auto result = super::load(node); !result) {
+  if (const auto result = super::load(_node); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kChannelKey, node, channel); !result) {
+  if (const auto result = yaml::load(kChannelKey, _node, channel); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kNumPolesKey, node, num_poles); !result) {
+  if (const auto result = yaml::load(kNumPolesKey, _node, num_poles); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kKvKey, node, kv); !result) {
+  if (const auto result = yaml::load(kKvKey, _node, kv); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kInternalResistanceKey, node, internal_resistance); !result) {
+  if (const auto result = yaml::load(kInternalResistanceKey, _node, internal_resistance); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kMinSpeed, node, min_speed); !result) {
+  if (const auto result = yaml::load(kMinSpeed, _node, min_speed); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kPropellerDiameterKey, node, propeller_diameter); !result) {
+  if (const auto result = yaml::load(kPropellerDiameterKey, _node, propeller_diameter); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kMotorConstKey, node, motor_const); !result) {
+  if (const auto result = yaml::load(kMotorConstKey, _node, motor_const); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kMomentConstKey, node, moment_const); !result) {
+  if (const auto result = yaml::load(kMomentConstKey, _node, moment_const); !result) {
     return result;
   }
 

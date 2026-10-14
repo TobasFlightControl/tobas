@@ -5,9 +5,7 @@
 
 #include "./widget.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class CircleWidget : public qt::Widget
 {
@@ -16,14 +14,14 @@ class CircleWidget : public qt::Widget
   using super = qt::Widget;
 
 public:
-  explicit CircleWidget(QWidget* parent = nullptr);
-  explicit CircleWidget(const QString& text, QWidget* parent = nullptr);
+  explicit CircleWidget(QWidget* _parent = nullptr);
+  explicit CircleWidget(const QString& _text, QWidget* _parent = nullptr);
 
-  void setFillColor(Qt::GlobalColor color);
-  void setLineColor(Qt::GlobalColor color);
-  void setLineWidth(int width);
-  void setText(const QString& text);
-  void setTextPointSize(int psize);
+  void setFillColor(Qt::GlobalColor _color);
+  void setLineColor(Qt::GlobalColor _color);
+  void setLineWidth(int _width);
+  void setText(const QString& _text);
+  void setTextPointSize(int _psize);
 
   int getDiameter() const;
   int getRadius() const;
@@ -31,7 +29,7 @@ public:
   int calcMaxTextPointSize() const;
 
 protected:
-  void paintEvent(QPaintEvent* event) override;
+  void paintEvent(QPaintEvent* _event) override;
 
 private:
   Qt::GlobalColor fill_color_ = Qt::transparent;
@@ -40,8 +38,7 @@ private:
   QString text_ = "";
   int text_psize_ = 0;
 
-  void drawCircle(QPainter& painter);
-  void drawText(QPainter& painter);
+  void drawCircle(QPainter& _painter);
+  void drawText(QPainter& _painter);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

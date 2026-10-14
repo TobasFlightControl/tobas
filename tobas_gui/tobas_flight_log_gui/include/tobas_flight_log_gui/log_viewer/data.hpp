@@ -10,16 +10,12 @@
 
 #include "./message_decoder.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class DataI
 {
 public:
-  explicit DataI(const std::string& topic) : topic_(path::join('/', topic))
+  explicit DataI(const std::string& _topic) : topic_(path::join('/', _topic))
   {
   }
 
@@ -30,7 +26,7 @@ public:
 
   virtual void clearValues() = 0;
   virtual void clearCache() = 0;
-  virtual bool decode(rcutils_time_point_value_t cur_time, const std::shared_ptr<rcutils_uint8_array_t>& ser_data) = 0;
+  virtual bool decode(rcutils_time_point_value_t _cur_time, const std::shared_ptr<rcutils_uint8_array_t>& _ser_data) = 0;
 
 private:
   const std::string topic_;
@@ -52,10 +48,10 @@ public:
     decoder_.clearCache();
   }
 
-  bool decode(rcutils_time_point_value_t cur_time, const std::shared_ptr<rcutils_uint8_array_t>& ser_data) override
+  bool decode(rcutils_time_point_value_t _cur_time, const std::shared_ptr<rcutils_uint8_array_t>& _ser_data) override
   {
     try {
-      values_.append(decoder_.decode(cur_time, ser_data));
+      values_.append(decoder_.decode(_cur_time, _ser_data));
     }
     catch (const std::exception& e) {
       qWarning() << e.what();
@@ -74,6 +70,4 @@ private:
   QVector<MsgType> values_;
   MessageDecoderCache<MsgType> decoder_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

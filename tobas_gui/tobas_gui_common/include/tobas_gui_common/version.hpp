@@ -5,11 +5,7 @@
 
 #include <QString>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 class Version
 {
@@ -24,13 +20,13 @@ public:
   static Version Current();
 
   bool isValid() const;
-  bool isCompatible(const Version& other) const;
+  bool isCompatible(const Version& _other) const;
 
   QString toString() const;
-  bool fromString(QString str);
+  bool fromString(QString _str);
 
-  bool load(const QString& path);
-  bool save(const QString& path) const;
+  bool load(const QString& _path);
+  bool save(const QString& _path) const;
 
   /**
    * Automatically define comparison operators
@@ -38,6 +34,4 @@ public:
    */
   auto operator<=>(const Version&) const = default;
 };
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

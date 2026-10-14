@@ -5,11 +5,9 @@
 
 #include <cassert>
 
-namespace tobas
+namespace tobas::kdl
 {
-namespace kdl
-{
-TreeJacobianSolver::TreeJacobianSolver(const Tree& tree) : super(tree)
+TreeJacobianSolver::TreeJacobianSolver(const Tree& _tree) : super(_tree)
 {
   resize();
 }
@@ -19,21 +17,21 @@ void TreeJacobianSolver::updateInternalDataStructures()
   resize();
 }
 
-const Jacobian& TreeJacobianSolver::jntToJac(const JntArray& q_in, const std::string& seg_name)
+const Jacobian& TreeJacobianSolver::jntToJac(const JntArray& _q_in, const std::string& _seg_name)
 {
-  assert(q_in.rows() == tree_.getNrOfJoints());
-  assert(tree_.hasSegment(seg_name));
+  assert(_q_in.rows() == tree_.getNrOfJoints());
+  assert(tree_.hasSegment(_seg_name));
 
   // Lets recursively iterate until we are in the root segment.
   const auto root_it = tree_.getRootSegment();
-  auto cur_it = tree_.getSegment(seg_name);
+  auto cur_it = tree_.getSegment(_seg_name);
   auto T_total = Frame::Identity();
 
   while (cur_it != root_it) {
     const auto& cur_elem = cur_it->second;
     const auto& cur_seg = cur_elem.segment;
     const auto& j = cur_elem.q_nr;
-    const auto& qj = q_in(j);
+    const auto& qj = _q_in(j);
 
     // Get the pose of the segment.
     const auto T_local = cur_seg.pose(qj);
@@ -65,5 +63,4 @@ void TreeJacobianSolver::resize()
 {
   jac_out_ = Jacobian::Zero(tree_.getNrOfJoints());
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

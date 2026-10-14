@@ -7,11 +7,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ParamGetterWidget_LinearEquation : public ParamGetterWidget<std::pair<double, double>>
 {
@@ -21,20 +17,20 @@ class ParamGetterWidget_LinearEquation : public ParamGetterWidget<std::pair<doub
   using super = ParamGetterWidget<ValueType>;
 
 Q_SIGNALS:
-  void valueChanged(const ValueType& value);
+  void valueChanged(const ValueType& _value);
 
 public:
   explicit ParamGetterWidget_LinearEquation(
-    const QString& param_name,
-    const QString& left,
-    const QString& value,
-    const QString& description_text = "");
+    const QString& _param_name,
+    const QString& _left,
+    const QString& _value,
+    const QString& _description_text = "");
 
   ValueType getValue() const override;
-  bool setValue(const ValueType& src) override;
+  bool setValue(const ValueType& _src) override;
 
-  void setDecimals(int decimals);
-  void setSuffix(const QString& suffix);
+  void setDecimals(int _decimals);
+  void setSuffix(const QString& _suffix);
 
 private Q_SLOTS:
   void onValueChanged();
@@ -44,6 +40,4 @@ private:
   qt::DoubleSpinBox* c1_;
   QLabel* suffix_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

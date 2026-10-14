@@ -8,11 +8,7 @@
 #include "./logs_gcs/logs_widget.hpp"
 #include "./recorder/recorder.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class FlightLogWidget : public QWidget
 {
@@ -21,10 +17,10 @@ class FlightLogWidget : public QWidget
   using self = FlightLogWidget;
 
 public:
-  explicit FlightLogWidget(const rqt::RosQtBridge& bridge);
+  explicit FlightLogWidget(const rqt::RosQtBridge& _bridge);
 
   void reset();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:
@@ -34,11 +30,9 @@ private:
   FlightLogViewerWidget* log_viewer_;
 
 private Q_SLOTS:
-  void onRecordFinished(const QString& log_name, bool is_real);
-  void onLogDownloaded(const QString& log_name);
-  void onLogSelected(const QString& log_name);
+  void onRecordFinished(const QString& _log_name, bool _is_real);
+  void onLogDownloaded(const QString& _log_name);
+  void onLogSelected(const QString& _log_name);
   void onLogDeselected();
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

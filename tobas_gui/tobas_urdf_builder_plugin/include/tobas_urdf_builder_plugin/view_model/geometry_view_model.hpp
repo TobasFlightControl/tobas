@@ -11,44 +11,38 @@
 
 using GeometryType = decltype(::urdf::Geometry::type);
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 class GeometryViewModel : public BaseViewModel<::urdf::Geometry, GeometryViewModel>
 {
 public:
-  explicit GeometryViewModel(const ::urdf::GeometrySharedPtr& model);
+  explicit GeometryViewModel(const ::urdf::GeometrySharedPtr& _model);
 
   void sync() override;
 
   const QString& name() const;
 
   GeometryType type() const;
-  void type(GeometryType type);
-  void type(const QString& type);
+  void type(GeometryType _type);
+  void type(const QString& _type);
 
   double width() const;
-  void width(double width);
+  void width(double _width);
 
   double length() const;
-  void length(double length);
+  void length(double _length);
 
   double height() const;
-  void height(double height);
+  void height(double _height);
 
   double radius() const;
-  void radius(double radius);
+  void radius(double _radius);
 
   QString filePath() const;
-  void filePath(const QString& filepath);
+  void filePath(const QString& _filepath);
 
   const ::urdf::Vector3& scale() const;
-  void scale(const ::urdf::Vector3& scale);
+  void scale(const ::urdf::Vector3& _scale);
 
 private:
   GeometryType type_;
@@ -63,7 +57,4 @@ private:
 };
 
 using GeometryViewModelPtr = std::shared_ptr<GeometryViewModel>;
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

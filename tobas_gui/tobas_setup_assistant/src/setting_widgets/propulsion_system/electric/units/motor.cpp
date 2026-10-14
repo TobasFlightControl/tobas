@@ -7,15 +7,7 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 MotorWidget::MotorWidget()
 {
@@ -68,9 +60,9 @@ bool MotorWidget::isValid()
   return true;
 }
 
-void MotorWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
+void MotorWidget::copyFrom(const BaseSelectedLinkSettingWidget* _src)
 {
-  const auto derived = qt::qConstPointerCast<MotorWidget>(src);
+  const auto derived = qt::qConstPointerCast<MotorWidget>(_src);
 
   num_poles_->setValue(derived->num_poles_->getValue());
   kv_->setValue(derived->kv_->getValue());
@@ -90,12 +82,12 @@ YAML::Node MotorWidget::dump() const
   return node;
 }
 
-void MotorWidget::load(const YAML::Node& node)
+void MotorWidget::load(const YAML::Node& _node)
 {
-  num_poles_->setValue(node[num_poles_->name()].as<int>());
-  kv_->setValue(node[kv_->name()].as<int>());
-  resistance_->setValue(node[resistance_->name()].as<int>());
-  min_speed_->setValue(node[min_speed_->name()].as<int>());
+  num_poles_->setValue(_node[num_poles_->name()].as<int>());
+  kv_->setValue(_node[kv_->name()].as<int>());
+  resistance_->setValue(_node[resistance_->name()].as<int>());
+  min_speed_->setValue(_node[min_speed_->name()].as<int>());
 }
 
 int MotorWidget::numPoles() const
@@ -117,8 +109,4 @@ double MotorWidget::minimumSpeed() const
 {
   return st::rpm2rps(min_speed_->getValue());
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

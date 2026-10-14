@@ -5,9 +5,7 @@
 
 #include <QStackedWidget>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QStackedWidget` =====
@@ -27,7 +25,6 @@ public:
   void clear();
 
 public Q_SLOTS:
-  void setCurrentIndex(int index);
+  void setCurrentIndex(int _index);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

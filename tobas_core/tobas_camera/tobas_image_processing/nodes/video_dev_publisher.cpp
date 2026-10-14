@@ -10,15 +10,13 @@
 #include <sensor_msgs/msg/compressed_image.hpp>
 #include <sensor_msgs/msg/image.hpp>
 
-namespace tobas
-{
-namespace camera
+namespace tobas::camera
 {
 /** Use the VideoDev class from the tobas_linux package to control a UVC camera, capture images, and publish them. */
 class VideoDevPublisherNode : public BaseNode
 {
 public:
-  explicit VideoDevPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit VideoDevPublisherNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   bool initialize();
@@ -35,8 +33,8 @@ private:
   ros2::TimerPtr timer_;
 };
 
-VideoDevPublisherNode::VideoDevPublisherNode(const rclcpp::NodeOptions& options)
-  : BaseNode("video_dev_publisher", nodeOptions_Default(options))
+VideoDevPublisherNode::VideoDevPublisherNode(const rclcpp::NodeOptions& _options)
+  : BaseNode("video_dev_publisher", nodeOptions_Default(_options))
 {
   use_compressed_img_ = getBoolParam("use_compressed_image", true);
   device_name_ = getStringParam("device_name", "/dev/video0");
@@ -125,7 +123,6 @@ void VideoDevPublisherNode::timerCallback()
     img_publisher_->publish(std::move(message));
   }
 }
-}  // namespace camera
-}  // namespace tobas
+}  // namespace tobas::camera
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::VideoDevPublisherNode)

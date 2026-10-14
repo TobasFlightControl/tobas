@@ -3,11 +3,9 @@
 
 #include "tobas_std_tools/exception.hpp"
 
-namespace tobas
+namespace tobas::st
 {
-namespace st
-{
-NotImplementedError::NotImplementedError(const std::string& msg) : msg_(msg)
+NotImplementedError::NotImplementedError(const std::string& _msg) : msg_(_msg)
 {
 }
 
@@ -15,5 +13,4 @@ const char* NotImplementedError::what() const noexcept
 {
   return msg_.c_str();
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

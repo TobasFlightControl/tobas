@@ -6,15 +6,7 @@
 #include <yaml-cpp/yaml.h>
 #include <QWidget>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 class BatteryWidget_Base : public QWidget
 {
@@ -26,7 +18,7 @@ public:
   virtual bool isValid() = 0;
 
   virtual YAML::Node dump() const = 0;
-  virtual void load(const YAML::Node& node) = 0;
+  virtual void load(const YAML::Node& _node) = 0;
 
   /** Nominal voltage [V]. */
   virtual double nominalVoltage() = 0;
@@ -46,8 +38,4 @@ public:
   /** Internal resistance [ohm]. */
   virtual double internalRegistance() = 0;
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

@@ -168,94 +168,94 @@ bool UbloxGnss::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
     case CLASS_NAV: {
       switch (id) {
         case NAV_CLOCK:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x69);  // CFG-MSGOUT-UBX_NAV_CLOCK_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x069);  // CFG-MSGOUT-UBX_NAV_CLOCK_SPI
           break;
         case NAV_COV:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x87);  // CFG-MSGOUT-UBX_NAV_COV_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x087);  // CFG-MSGOUT-UBX_NAV_COV_SPI
           break;
         case NAV_DOP:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x3C);  // CFG-MSGOUT-UBX_NAV_DOP_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x03C);  // CFG-MSGOUT-UBX_NAV_DOP_SPI
           break;
         case NAV_EOE:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x63);  // CFG-MSGOUT-UBX_NAV_EOE_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x163);  // CFG-MSGOUT-UBX_NAV_EOE_SPI
           break;
         case NAV_GEOFENCE:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0xA5);  // CFG-MSGOUT-UBX_NAV_GEOFENCE_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x0A5);  // CFG-MSGOUT-UBX_NAV_GEOFENCE_SPI
           break;
         case NAV_HPPOSECEF:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x32);  // CFG-MSGOUT-UBX_NAV_HPPOSECEF_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x032);  // CFG-MSGOUT-UBX_NAV_HPPOSECEF_SPI
           break;
         case NAV_HPPOSLLH:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x37);  // CFG-MSGOUT-UBX_NAV_HPPOSLLH_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x037);  // CFG-MSGOUT-UBX_NAV_HPPOSLLH_SPI
           break;
         case NAV_ODO:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x82);  // CFG-MSGOUT-UBX_NAV_ODO_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x082);  // CFG-MSGOUT-UBX_NAV_ODO_SPI
           break;
         case NAV_ORB:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x14);  // CFG-MSGOUT-UBX_NAV_ORB_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x014);  // CFG-MSGOUT-UBX_NAV_ORB_SPI
           break;
         case NAV_PL:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x19);  // CFG-MSGOUT-UBX_NAV_PL_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x419);  // CFG-MSGOUT-UBX_NAV_PL_SPI
           break;
         case NAV_POSECEF:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x28);  // CFG-MSGOUT-UBX_NAV_POSECEF_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x028);  // CFG-MSGOUT-UBX_NAV_POSECEF_SPI
           break;
         case NAV_POSLLH:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x2D);  // CFG-MSGOUT-UBX_NAV_POSLLH_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x02D);  // CFG-MSGOUT-UBX_NAV_POSLLH_SPI
           break;
         case NAV_PVT:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x0A);  // CFG-MSGOUT-UBX_NAV_PVT_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x00A);  // CFG-MSGOUT-UBX_NAV_PVT_SPI
           break;
         case NAV_RELPOSNED:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x91);  // CFG-MSGOUT-UBX_NAV_RELPOSNED_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x091);  // CFG-MSGOUT-UBX_NAV_RELPOSNED_SPI
           break;
         case NAV_RESETODO:
-          std::cerr << kNotReceivable << std::endl;
+          std::cerr << kNotReceivable;
           return false;
         case NAV_SAT:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x19);  // CFG-MSGOUT-UBX_NAV_SAT_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x019);  // CFG-MSGOUT-UBX_NAV_SAT_SPI
           break;
         case NAV_SBAS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x6E);  // CFG-MSGOUT-UBX_NAV_SBAS_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x06E);  // CFG-MSGOUT-UBX_NAV_SBAS_SPI
           break;
         case NAV_SIG:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x49);  // CFG-MSGOUT-UBX_NAV_SIG_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x349);  // CFG-MSGOUT-UBX_NAV_SIG_SPI
           break;
         case NAV_SLAS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x3A);  // CFG-MSGOUT-UBX_NAV_SLAS_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x33A);  // CFG-MSGOUT-UBX_NAV_SLAS_SPI
           break;
         case NAV_STATUS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x1E);  // CFG-MSGOUT-UBX_NAV_STATUS_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x01E);  // CFG-MSGOUT-UBX_NAV_STATUS_SPI
           break;
         case NAV_SVIN:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x8C);  // CFG-MSGOUT-UBX_NAV_SVIN_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x08C);  // CFG-MSGOUT-UBX_NAV_SVIN_SPI
           break;
         case NAV_TIMEBDS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x55);  // CFG-MSGOUT-UBX_NAV_TIMEBDS_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x055);  // CFG-MSGOUT-UBX_NAV_TIMEBDS_SPI
           break;
         case NAV_TIMEGAL:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x5A);  // CFG-MSGOUT-UBX_NAV_TIMEGAL_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x05A);  // CFG-MSGOUT-UBX_NAV_TIMEGAL_SPI
           break;
         case NAV_TIMEGLO:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x50);  // CFG-MSGOUT-UBX_NAV_TIMEGLO_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x050);  // CFG-MSGOUT-UBX_NAV_TIMEGLO_SPI
           break;
         case NAV_TIMEGPS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x4B);  // CFG-MSGOUT-UBX_NAV_TIMEGPS_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x04B);  // CFG-MSGOUT-UBX_NAV_TIMEGPS_SPI
           break;
         case NAV_TIMELS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x64);  // CFG-MSGOUT-UBX_NAV_TIMELS_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x064);  // CFG-MSGOUT-UBX_NAV_TIMELS_SPI
           break;
         case NAV_TIMEQZSS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x8A);  // CFG-MSGOUT-UBX_NAV_TIMEQZSS_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x38A);  // CFG-MSGOUT-UBX_NAV_TIMEQZSS_SPI
           break;
         case NAV_TIMEUTC:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x5F);  // CFG-MSGOUT-UBX_NAV_TIMEUTC_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x05F);  // CFG-MSGOUT-UBX_NAV_TIMEUTC_SPI
           break;
         case NAV_VELECEF:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x41);  // CFG-MSGOUT-UBX_NAV_VELECEF_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x041);  // CFG-MSGOUT-UBX_NAV_VELECEF_SPI
           break;
         case NAV_VELNED:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x46);  // CFG-MSGOUT-UBX_NAV_VELNED_SPI
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x046);  // CFG-MSGOUT-UBX_NAV_VELNED_SPI
           break;
         default:
           std::cerr << kNotImplemented << std::endl;  // TODO
@@ -347,94 +347,94 @@ bool UbloxGnss::enableUartMessage(UbxClass cls, uint8_t id, bool enable)
     case CLASS_NAV: {
       switch (id) {
         case NAV_CLOCK:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x66);  // CFG-MSGOUT-UBX_NAV_CLOCK_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x066);  // CFG-MSGOUT-UBX_NAV_CLOCK_UART
           break;
         case NAV_COV:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x84);  // CFG-MSGOUT-UBX_NAV_COV_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x084);  // CFG-MSGOUT-UBX_NAV_COV_UART
           break;
         case NAV_DOP:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x39);  // CFG-MSGOUT-UBX_NAV_DOP_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x039);  // CFG-MSGOUT-UBX_NAV_DOP_UART
           break;
         case NAV_EOE:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x60);  // CFG-MSGOUT-UBX_NAV_EOE_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x160);  // CFG-MSGOUT-UBX_NAV_EOE_UART
           break;
         case NAV_GEOFENCE:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0xA2);  // CFG-MSGOUT-UBX_NAV_GEOFENCE_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x0A2);  // CFG-MSGOUT-UBX_NAV_GEOFENCE_UART
           break;
         case NAV_HPPOSECEF:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x2F);  // CFG-MSGOUT-UBX_NAV_HPPOSECEF_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x02F);  // CFG-MSGOUT-UBX_NAV_HPPOSECEF_UART
           break;
         case NAV_HPPOSLLH:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x34);  // CFG-MSGOUT-UBX_NAV_HPPOSLLH_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x034);  // CFG-MSGOUT-UBX_NAV_HPPOSLLH_UART
           break;
         case NAV_ODO:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x7F);  // CFG-MSGOUT-UBX_NAV_ODO_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x07F);  // CFG-MSGOUT-UBX_NAV_ODO_UART
           break;
         case NAV_ORB:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x11);  // CFG-MSGOUT-UBX_NAV_ORB_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x011);  // CFG-MSGOUT-UBX_NAV_ORB_UART
           break;
         case NAV_PL:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x16);  // CFG-MSGOUT-UBX_NAV_PL_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x416);  // CFG-MSGOUT-UBX_NAV_PL_UART
           break;
         case NAV_POSECEF:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x25);  // CFG-MSGOUT-UBX_NAV_POSECEF_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x025);  // CFG-MSGOUT-UBX_NAV_POSECEF_UART
           break;
         case NAV_POSLLH:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x2A);  // CFG-MSGOUT-UBX_NAV_POSLLH_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x02A);  // CFG-MSGOUT-UBX_NAV_POSLLH_UART
           break;
         case NAV_PVT:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x07);  // CFG-MSGOUT-UBX_NAV_PVT_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x007);  // CFG-MSGOUT-UBX_NAV_PVT_UART
           break;
         case NAV_RELPOSNED:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x8E);  // CFG-MSGOUT-UBX_NAV_RELPOSNED_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x08E);  // CFG-MSGOUT-UBX_NAV_RELPOSNED_UART
           break;
         case NAV_RESETODO:
           std::cerr << kNotReceivable << std::endl;
           return false;
         case NAV_SAT:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x16);  // CFG-MSGOUT-UBX_NAV_SAT_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x016);  // CFG-MSGOUT-UBX_NAV_SAT_UART
           break;
         case NAV_SBAS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x6B);  // CFG-MSGOUT-UBX_NAV_SBAS_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x06B);  // CFG-MSGOUT-UBX_NAV_SBAS_UART
           break;
         case NAV_SIG:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x46);  // CFG-MSGOUT-UBX_NAV_SIG_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x346);  // CFG-MSGOUT-UBX_NAV_SIG_UART
           break;
         case NAV_SLAS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x37);  // CFG-MSGOUT-UBX_NAV_SLAS_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x337);  // CFG-MSGOUT-UBX_NAV_SLAS_UART
           break;
         case NAV_STATUS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x1B);  // CFG-MSGOUT-UBX_NAV_STATUS_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x01B);  // CFG-MSGOUT-UBX_NAV_STATUS_UART
           break;
         case NAV_SVIN:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x89);  // CFG-MSGOUT-UBX_NAV_SVIN_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x089);  // CFG-MSGOUT-UBX_NAV_SVIN_UART
           break;
         case NAV_TIMEBDS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x52);  // CFG-MSGOUT-UBX_NAV_TIMEBDS_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x052);  // CFG-MSGOUT-UBX_NAV_TIMEBDS_UART
           break;
         case NAV_TIMEGAL:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x57);  // CFG-MSGOUT-UBX_NAV_TIMEGAL_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x057);  // CFG-MSGOUT-UBX_NAV_TIMEGAL_UART
           break;
         case NAV_TIMEGLO:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x4D);  // CFG-MSGOUT-UBX_NAV_TIMEGLO_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x04D);  // CFG-MSGOUT-UBX_NAV_TIMEGLO_UART
           break;
         case NAV_TIMEGPS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x48);  // CFG-MSGOUT-UBX_NAV_TIMEGPS_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x048);  // CFG-MSGOUT-UBX_NAV_TIMEGPS_UART
           break;
         case NAV_TIMELS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x61);  // CFG-MSGOUT-UBX_NAV_TIMELS_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x061);  // CFG-MSGOUT-UBX_NAV_TIMELS_UART
           break;
         case NAV_TIMEQZSS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x87);  // CFG-MSGOUT-UBX_NAV_TIMEQZSS_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x387);  // CFG-MSGOUT-UBX_NAV_TIMEQZSS_UART
           break;
         case NAV_TIMEUTC:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x5C);  // CFG-MSGOUT-UBX_NAV_TIMEUTC_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x05C);  // CFG-MSGOUT-UBX_NAV_TIMEUTC_UART
           break;
         case NAV_VELECEF:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x3E);  // CFG-MSGOUT-UBX_NAV_VELECEF_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x03E);  // CFG-MSGOUT-UBX_NAV_VELECEF_UART
           break;
         case NAV_VELNED:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x43);  // CFG-MSGOUT-UBX_NAV_VELNED_UART
+          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x043);  // CFG-MSGOUT-UBX_NAV_VELNED_UART
           break;
         default:
           std::cerr << kNotImplemented << std::endl;  // TODO
@@ -1079,9 +1079,9 @@ size_t UbloxGnss::spliceMemory(uint8_t* dest, const void* src, size_t size, size
   return dest_offset + size;
 }
 
-uint32_t UbloxGnss::configKeyID(CfgSize size, CfgGroup group, uint8_t id)
+uint32_t UbloxGnss::configKeyID(CfgSize size, CfgGroup group, uint16_t id)
 {
-  return (size << 28) | (group << 16) | id;
+  return (size << 28) | (group << 16) | (id & 0x0FFF);
 }
 }  // namespace ublox
 }  // namespace tobas

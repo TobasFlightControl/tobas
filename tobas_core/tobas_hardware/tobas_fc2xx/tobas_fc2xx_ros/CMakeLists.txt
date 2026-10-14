@@ -13,13 +13,13 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(AMENT_DEPENDENCIES
     tobas_ic_drivers
+    tobas_mcu_driver
     tobas_tools
     tobas_node
     tobas_msgs_adapter
     tobas_drone_msgs_adapter
     tobas_real_common
     tobas_hardware_common
-    tobas_fc2xx_core
 )
 
 find_package(ament_cmake REQUIRED)

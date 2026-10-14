@@ -8,15 +8,9 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace tobas
+namespace tobas::gui::sa::fw
 {
-namespace gui
-{
-namespace sa
-{
-namespace fw
-{
-std::expected<VspaeroData, std::string> parseVspaero(const std::string& stab_path)
+std::expected<VspaeroData, std::string> parseVspaero(const std::string& _stab_path)
 {
   constexpr char CL[] = "CL";
   constexpr char CD[] = "CD";
@@ -25,10 +19,10 @@ std::expected<VspaeroData, std::string> parseVspaero(const std::string& stab_pat
   constexpr char CMm[] = "CMm";
   constexpr char CMn[] = "CMn";
 
-  std::ifstream file(stab_path);
+  std::ifstream file(_stab_path);
 
   if (!file.is_open()) {
-    return std::unexpected("Failed to open '" + stab_path + "'.");
+    return std::unexpected("Failed to open '" + _stab_path + "'.");
   }
 
   std::map<std::string, bool> line_found = {
@@ -90,7 +84,7 @@ std::expected<VspaeroData, std::string> parseVspaero(const std::string& stab_pat
   }
 
   if (file.bad()) {
-    return std::unexpected("Failed to read '" + stab_path + "'.");
+    return std::unexpected("Failed to read '" + _stab_path + "'.");
   }
 
   for (const auto& [line_name, found] : line_found) {
@@ -101,7 +95,4 @@ std::expected<VspaeroData, std::string> parseVspaero(const std::string& stab_pat
 
   return data;
 }
-}  // namespace fw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::fw

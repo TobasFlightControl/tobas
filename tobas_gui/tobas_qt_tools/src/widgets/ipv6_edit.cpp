@@ -12,16 +12,14 @@
 
 #include <tobas_std_tools/check.hpp>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 namespace
 {
 constexpr char kNormalizeIpv6HextetOnFocusOutProperty[] = "normalizeIpv6HextetOnFocusOut";
 }  // namespace
 
-IPv6Edit::IPv6Edit(QWidget* parent) : super(parent)
+IPv6Edit::IPv6Edit(QWidget* _parent) : super(_parent)
 {
   const auto cols = new QHBoxLayout();
   setLayout(cols);
@@ -91,26 +89,26 @@ QString IPv6Edit::toString() const
   return res;
 }
 
-void IPv6Edit::setFromInt(__uint128_t address)
+void IPv6Edit::setFromInt(__uint128_t _address)
 {
   for (size_t i = 0; i < kNumFields; ++i) {
     const auto shift = 16 * i;
-    const auto value = static_cast<uint16_t>((address >> shift) & 0xFFFF);
+    const auto value = static_cast<uint16_t>((_address >> shift) & 0xFFFF);
     setFieldValue(i, value);
   }
 }
 
-bool IPv6Edit::eventFilter(QObject* watched, QEvent* event)
+bool IPv6Edit::eventFilter(QObject* _watched, QEvent* _event)
 {
-  if (event->type() == QEvent::FocusOut) {
-    const auto field = qobject_cast<QLineEdit*>(watched);
+  if (_event->type() == QEvent::FocusOut) {
+    const auto field = qobject_cast<QLineEdit*>(_watched);
 
     if (field && field->property(kNormalizeIpv6HextetOnFocusOutProperty).toBool()) {
       const auto text = field->text().trimmed();
 
       if (text.isEmpty()) {
         field->setText("0000");
-        return super::eventFilter(watched, event);
+        return super::eventFilter(_watched, _event);
       }
 
       bool ok = false;
@@ -126,15 +124,15 @@ bool IPv6Edit::eventFilter(QObject* watched, QEvent* event)
     }
   }
 
-  return QWidget::eventFilter(watched, event);
+  return QWidget::eventFilter(_watched, _event);
 }
 
-uint16_t IPv6Edit::getFieldValue(size_t idx) const
+uint16_t IPv6Edit::getFieldValue(size_t _idx) const
 {
-  const auto text = fields_.at(idx)->text();
+  const auto text = fields_.at(_idx)->text();
 
   if (text.isEmpty()) {
-    qWarning() << "Field" << idx << "is empty.";
+    qWarning() << "Field" << _idx << "is empty.";
     return 0;
   }
 
@@ -145,9 +143,8 @@ uint16_t IPv6Edit::getFieldValue(size_t idx) const
   return static_cast<uint16_t>(value);
 }
 
-void IPv6Edit::setFieldValue(size_t idx, uint16_t value)
+void IPv6Edit::setFieldValue(size_t _idx, uint16_t _value)
 {
-  fields_.at(idx)->setText(QString::number(value, 16).rightJustified(4, '0'));
+  fields_.at(_idx)->setText(QString::number(_value, 16).rightJustified(4, '0'));
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

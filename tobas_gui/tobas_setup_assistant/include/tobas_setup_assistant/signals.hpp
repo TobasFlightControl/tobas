@@ -7,11 +7,7 @@
 
 #include <tobas_drone_core/propulsion_system/type.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 /**
  * Common signals.
@@ -23,8 +19,6 @@ class Signals : public QObject
   Q_OBJECT
 
 Q_SIGNALS:
-  void propulsionTypeChanged(PropulsionSystem type);
+  void propulsionTypeChanged(PropulsionSystem _type);
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

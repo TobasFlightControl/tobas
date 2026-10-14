@@ -5,14 +5,12 @@
 
 #include <chrono>
 
-namespace tobas
-{
-namespace tim
+namespace tobas::tim
 {
 class FrequencyMeasure
 {
 public:
-  explicit FrequencyMeasure(const std::chrono::nanoseconds& period = std::chrono::seconds(1));
+  explicit FrequencyMeasure(const std::chrono::nanoseconds& _period = std::chrono::seconds(1));
 
   void count();
 
@@ -22,5 +20,4 @@ private:
   size_t count_ = 0;
   std::chrono::steady_clock::time_point start_time_;
 };
-}  // namespace tim
-}  // namespace tobas
+}  // namespace tobas::tim

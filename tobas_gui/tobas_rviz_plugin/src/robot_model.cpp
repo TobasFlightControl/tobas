@@ -14,9 +14,7 @@
 #include "tobas_rviz_plugin/joint_model/revolute_joint_model.hpp"
 #include "tobas_rviz_plugin/order_robot_model_items.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 namespace
 {
@@ -27,51 +25,51 @@ using DescMap = std::map<
     std::set<JointModel::ConstSharedPtr, OrderJointsByIndex>>>;
 
 void computeDescendantsHelper(
-  const JointModel::ConstSharedPtr& joint,
-  std::vector<JointModel::ConstSharedPtr>& parents,
-  std::set<JointModel::ConstSharedPtr>& seen,
-  DescMap& descendants)
+  const JointModel::ConstSharedPtr& _joint,
+  std::vector<JointModel::ConstSharedPtr>& _parents,
+  std::set<JointModel::ConstSharedPtr>& _seen,
+  DescMap& _descendants)
 {
-  if (!joint) {
+  if (!_joint) {
     return;
   }
-  if (seen.find(joint) != seen.end()) {
+  if (_seen.find(_joint) != _seen.end()) {
     return;
   }
-  seen.insert(joint);
+  _seen.insert(_joint);
 
-  for (const auto& parent : parents) {
-    descendants[parent].second.insert(joint);
+  for (const auto& parent : _parents) {
+    _descendants[parent].second.insert(_joint);
   }
 
-  const auto lm = joint->getChildLinkModel();
+  const auto lm = _joint->getChildLinkModel();
   if (!lm) {
     return;
   }
 
-  for (const auto& parent : parents) {
-    descendants[parent].first.insert(lm);
+  for (const auto& parent : _parents) {
+    _descendants[parent].first.insert(lm);
   }
-  descendants[joint].first.insert(lm);
+  _descendants[_joint].first.insert(lm);
 
-  parents.push_back(joint);
+  _parents.push_back(_joint);
   const auto& ch = lm->getChildJointModels();
   for (const auto& child_joint_model : ch) {
-    computeDescendantsHelper(child_joint_model, parents, seen, descendants);
+    computeDescendantsHelper(child_joint_model, _parents, _seen, _descendants);
   }
-  const auto& mim = joint->getMimicRequests();
+  const auto& mim = _joint->getMimicRequests();
   for (const auto& mimic_joint_model : mim) {
-    computeDescendantsHelper(mimic_joint_model, parents, seen, descendants);
+    computeDescendantsHelper(mimic_joint_model, _parents, _seen, _descendants);
   }
-  parents.pop_back();
+  _parents.pop_back();
 }
 
-void computeCommonRootsHelper(const JointModel::ConstSharedPtr& joint, std::vector<int>& common_roots, int size)
+void computeCommonRootsHelper(const JointModel::ConstSharedPtr& _joint, std::vector<int>& _common_roots, int _size)
 {
-  if (!joint) {
+  if (!_joint) {
     return;
   }
-  const auto lm = joint->getChildLinkModel();
+  const auto lm = _joint->getChildLinkModel();
   if (!lm) {
     return;
   }
@@ -82,34 +80,34 @@ void computeCommonRootsHelper(const JointModel::ConstSharedPtr& joint, std::vect
     for (size_t j = i + 1; j < ch.size(); ++j) {
       const auto& b = ch[j]->getDescendantJointModels();
       for (const auto& m : b) {
-        common_roots[ch[i]->getJointIndex() * size + m->getJointIndex()] =
-          common_roots[ch[i]->getJointIndex() + m->getJointIndex() * size] = joint->getJointIndex();
+        _common_roots[ch[i]->getJointIndex() * _size + m->getJointIndex()] =
+          _common_roots[ch[i]->getJointIndex() + m->getJointIndex() * _size] = _joint->getJointIndex();
       }
       for (const auto& k : a) {
-        common_roots[k->getJointIndex() * size + ch[j]->getJointIndex()] =
-          common_roots[k->getJointIndex() + ch[j]->getJointIndex() * size] = joint->getJointIndex();
+        _common_roots[k->getJointIndex() * _size + ch[j]->getJointIndex()] =
+          _common_roots[k->getJointIndex() + ch[j]->getJointIndex() * _size] = _joint->getJointIndex();
         for (const auto& m : b) {
-          common_roots[k->getJointIndex() * size + m->getJointIndex()] =
-            common_roots[k->getJointIndex() + m->getJointIndex() * size] = joint->getJointIndex();
+          _common_roots[k->getJointIndex() * _size + m->getJointIndex()] =
+            _common_roots[k->getJointIndex() + m->getJointIndex() * _size] = _joint->getJointIndex();
         }
       }
     }
-    computeCommonRootsHelper(ch[i], common_roots, size);
+    computeCommonRootsHelper(ch[i], _common_roots, _size);
   }
 }
 
-Eigen::Isometry3d urdfPose2Isometry3d(const urdf::Pose& pose)
+Eigen::Isometry3d urdfPose2Isometry3d(const urdf::Pose& _pose)
 {
-  const Eigen::Quaterniond q(pose.rotation.w, pose.rotation.x, pose.rotation.y, pose.rotation.z);
-  const Eigen::Isometry3d af(Eigen::Translation3d(pose.position.x, pose.position.y, pose.position.z) * q);
+  const Eigen::Quaterniond q(_pose.rotation.w, _pose.rotation.x, _pose.rotation.y, _pose.rotation.z);
+  const Eigen::Isometry3d af(Eigen::Translation3d(_pose.position.x, _pose.position.y, _pose.position.z) * q);
   return af;
 }
 }  // namespace
 
-RobotModel::RobotModel(const urdf::ModelInterfaceSharedPtr& urdf_model)
+RobotModel::RobotModel(const urdf::ModelInterfaceSharedPtr& _urdf_model)
 {
-  urdf_ = urdf_model;
-  buildModel(*urdf_model);
+  urdf_ = _urdf_model;
+  buildModel(*_urdf_model);
 }
 
 const std::string& RobotModel::getModelFrame() const
@@ -127,24 +125,24 @@ JointModel::ConstSharedPtr RobotModel::getRootJoint() const
   return root_joint_;
 }
 
-bool RobotModel::hasJointModel(const std::string& name) const
+bool RobotModel::hasJointModel(const std::string& _name) const
 {
-  return joint_model_map_.find(name) != joint_model_map_.end();
+  return joint_model_map_.find(_name) != joint_model_map_.end();
 }
 
-JointModel::ConstSharedPtr RobotModel::getJointModel(const std::string& name) const
+JointModel::ConstSharedPtr RobotModel::getJointModel(const std::string& _name) const
 {
-  const auto it = joint_model_map_.find(name);
+  const auto it = joint_model_map_.find(_name);
   if (it == joint_model_map_.end()) {
-    qCritical().nospace() << "Joint '" << name.c_str() << "' not found in model '" << model_name_.c_str() << "'.";
+    qCritical().nospace() << "Joint '" << _name.c_str() << "' not found in model '" << model_name_.c_str() << "'.";
     return nullptr;
   }
   return it->second;
 }
 
-JointModel::ConstSharedPtr RobotModel::getJointOfVariable(int variable_index) const
+JointModel::ConstSharedPtr RobotModel::getJointOfVariable(int _variable_index) const
 {
-  return joints_of_variable_[variable_index];
+  return joints_of_variable_[_variable_index];
 }
 
 size_t RobotModel::getJointModelCount() const
@@ -157,13 +155,13 @@ LinkModel::ConstSharedPtr RobotModel::getRootLink() const
   return root_link_;
 }
 
-LinkModel::ConstSharedPtr RobotModel::getLinkModel(const std::string& name) const
+LinkModel::ConstSharedPtr RobotModel::getLinkModel(const std::string& _name) const
 {
-  const auto it = link_model_map_.find(name);
+  const auto it = link_model_map_.find(_name);
   if (it != link_model_map_.end()) {
     return it->second;
   }
-  qCritical().nospace() << "Link '" << name.c_str() << "' not found in model '" << model_name_.c_str() << "'.";
+  qCritical().nospace() << "Link '" << _name.c_str() << "' not found in model '" << model_name_.c_str() << "'.";
   return nullptr;
 }
 
@@ -172,13 +170,13 @@ size_t RobotModel::getLinkModelCount() const
   return link_model_vector_.size();
 }
 
-void RobotModel::getVariableDefaultPositions(std::vector<double>& values) const
+void RobotModel::getVariableDefaultPositions(std::vector<double>& _values) const
 {
-  values.resize(variable_count_);
+  _values.resize(variable_count_);
   for (size_t i = 0; i < active_joint_model_vector_.size(); ++i) {
-    active_joint_model_vector_[i]->getVariableDefaultPositions(values.data() + active_joint_model_start_index_[i]);
+    active_joint_model_vector_[i]->getVariableDefaultPositions(_values.data() + active_joint_model_start_index_[i]);
   }
-  updateMimicJoints(values.data());
+  updateMimicJoints(_values.data());
 }
 
 size_t RobotModel::getVariableCount() const
@@ -186,50 +184,50 @@ size_t RobotModel::getVariableCount() const
   return variable_count_;
 }
 
-size_t RobotModel::getVariableIndex(const std::string& variable) const
+size_t RobotModel::getVariableIndex(const std::string& _variable) const
 {
-  const auto it = joint_variables_index_map_.find(variable);
+  const auto it = joint_variables_index_map_.find(_variable);
   if (it == joint_variables_index_map_.end()) {
-    throw std::runtime_error("Variable '" + variable + "' is not known to model '" + model_name_ + "'.");
+    throw std::runtime_error("Variable '" + _variable + "' is not known to model '" + model_name_ + "'.");
   }
   return it->second;
 }
 
 JointModel::ConstSharedPtr
-RobotModel::getCommonRoot(const JointModel::ConstSharedPtr& a, const JointModel::ConstSharedPtr& b) const
+RobotModel::getCommonRoot(const JointModel::ConstSharedPtr& _a, const JointModel::ConstSharedPtr& _b) const
 {
-  if (!a) {
-    return b;
+  if (!_a) {
+    return _b;
   }
-  if (!b) {
-    return a;
+  if (!_b) {
+    return _a;
   }
-  return joint_model_vector_[common_joint_roots_[a->getJointIndex() * joint_model_vector_.size() + b->getJointIndex()]];
+  return joint_model_vector_[common_joint_roots_[_a->getJointIndex() * joint_model_vector_.size() + _b->getJointIndex()]];
 }
 
-void RobotModel::updateMimicJoints(double* values) const
+void RobotModel::updateMimicJoints(double* _values) const
 {
   for (const auto& mimic_joint : mimic_joints_) {
     const auto src = mimic_joint->getMimic()->getFirstVariableIndex();
     const auto dest = mimic_joint->getFirstVariableIndex();
-    values[dest] = values[src] * mimic_joint->getMimicFactor() + mimic_joint->getMimicOffset();
+    _values[dest] = _values[src] * mimic_joint->getMimicFactor() + mimic_joint->getMimicOffset();
   }
 }
 
-void RobotModel::buildModel(const urdf::ModelInterface& urdf_model)
+void RobotModel::buildModel(const urdf::ModelInterface& _urdf_model)
 {
-  model_name_ = urdf_model.getName();
+  model_name_ = _urdf_model.getName();
   qInfo().nospace() << "Loading robot model '" << model_name_.c_str() << "'...";
 
-  if (urdf_model.getRoot()) {
-    const auto root_link = urdf_model.getRoot();
+  if (_urdf_model.getRoot()) {
+    const auto root_link = _urdf_model.getRoot();
     model_frame_ = root_link->name;
 
     root_joint_ = buildRecursive(nullptr, root_link);
     if (root_joint_) {
       root_link_ = link_model_map_.at(root_joint_->getChildLinkModel()->getName());
     }
-    buildMimic(urdf_model);
+    buildMimic(_urdf_model);
     buildJointInfo();
   }
   else {
@@ -237,11 +235,11 @@ void RobotModel::buildModel(const urdf::ModelInterface& urdf_model)
   }
 }
 
-void RobotModel::buildMimic(const urdf::ModelInterface& urdf_model)
+void RobotModel::buildMimic(const urdf::ModelInterface& _urdf_model)
 {
   // Compute mimic joints.
   for (const auto& joint_model : joint_model_vector_) {
-    const auto jm = urdf_model.getJoint(joint_model->getName());
+    const auto jm = _urdf_model.getJoint(joint_model->getName());
     if (jm) {
       if (jm->mimic) {
         const auto jit = joint_model_map_.find(jm->mimic->joint_name);
@@ -379,10 +377,10 @@ void RobotModel::computeCommonRoots()
 }
 
 JointModel::SharedPtr
-RobotModel::buildRecursive(const LinkModel::SharedPtr& parent, const urdf::LinkConstSharedPtr& urdf_link)
+RobotModel::buildRecursive(const LinkModel::SharedPtr& _parent, const urdf::LinkConstSharedPtr& _urdf_link)
 {
   // Construct the joint.
-  const auto joint = constructJointModel(urdf_link);
+  const auto joint = constructJointModel(_urdf_link);
 
   if (!joint) {
     return nullptr;
@@ -393,9 +391,9 @@ RobotModel::buildRecursive(const LinkModel::SharedPtr& parent, const urdf::LinkC
   joint_model_map_[joint->getName()] = joint;
 
   // Construct the link.
-  const auto link = constructLinkModel(urdf_link);
+  const auto link = constructLinkModel(_urdf_link);
   joint->setChildLinkModel(link);
-  link->setParentLinkModel(parent);
+  link->setParentLinkModel(_parent);
 
   // Bookkeeping for the link
   link_model_map_[joint->getChildLinkModel()->getName()] = link;
@@ -403,7 +401,7 @@ RobotModel::buildRecursive(const LinkModel::SharedPtr& parent, const urdf::LinkC
   link->setParentJointModel(joint);
 
   // Recursively build child links (and joints).
-  for (const auto& child_link : urdf_link->child_links) {
+  for (const auto& child_link : _urdf_link->child_links) {
     const auto jm = buildRecursive(link, child_link);
     if (jm) {
       link->addChildJointModel(jm);
@@ -412,10 +410,10 @@ RobotModel::buildRecursive(const LinkModel::SharedPtr& parent, const urdf::LinkC
   return joint;
 }
 
-JointModel::SharedPtr RobotModel::constructJointModel(const urdf::LinkConstSharedPtr& child_link)
+JointModel::SharedPtr RobotModel::constructJointModel(const urdf::LinkConstSharedPtr& _child_link)
 {
   JointModel::SharedPtr new_joint_model;
-  const auto parent_joint = child_link->parent_joint;
+  const auto parent_joint = _child_link->parent_joint;
   const auto joint_index = joint_model_vector_.size();
   const auto first_variable_index = joint_model_vector_.empty() ? 0 :
                                                                   joint_model_vector_.back()->getFirstVariableIndex() +
@@ -463,18 +461,17 @@ JointModel::SharedPtr RobotModel::constructJointModel(const urdf::LinkConstShare
   return new_joint_model;
 }
 
-LinkModel::SharedPtr RobotModel::constructLinkModel(const urdf::LinkConstSharedPtr& urdf_link)
+LinkModel::SharedPtr RobotModel::constructLinkModel(const urdf::LinkConstSharedPtr& _urdf_link)
 {
   const auto link_index = link_model_vector_.size();
-  const auto new_link_model = std::make_shared<LinkModel>(urdf_link->name, link_index);
+  const auto new_link_model = std::make_shared<LinkModel>(_urdf_link->name, link_index);
 
-  if (urdf_link->parent_joint) {
+  if (_urdf_link->parent_joint) {
     new_link_model->setJointOriginTransform(
-      urdfPose2Isometry3d(urdf_link->parent_joint->parent_to_joint_origin_transform));
+      urdfPose2Isometry3d(_urdf_link->parent_joint->parent_to_joint_origin_transform));
   }
 
   return new_link_model;
 }
 
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

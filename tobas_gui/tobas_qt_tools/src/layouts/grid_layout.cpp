@@ -5,9 +5,7 @@
 
 #include "tobas_qt_tools/util.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 void GridLayout::clear()
 {
@@ -23,5 +21,4 @@ void GridLayout::clear()
     setColumnMinimumWidth(col, 0);
   }
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

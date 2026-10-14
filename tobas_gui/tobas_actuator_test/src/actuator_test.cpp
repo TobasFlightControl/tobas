@@ -5,23 +5,19 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
-namespace tobas
+namespace tobas::gui::at
 {
-namespace gui
-{
-namespace at
-{
-ActuatorTestWidget::ActuatorTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
-  : drone_(drone)
+ActuatorTestWidget::ActuatorTestWidget(const rqt::RosQtBridge& _bridge, const kdl::Tree& _tree, const Drone& _drone)
+  : drone_(_drone)
 {
   // Without at least this much height, the `TabBar` text is clipped horizontally for some reason.
   setTabSize(35, 70);
 
-  rotor_test_ = new RotorTestWidget(bridge, drone);
+  rotor_test_ = new RotorTestWidget(_bridge, _drone);
   addTab(rotor_test_, "Rotor Test");
   setTabEnabled(rotor_test_, false);
 
-  joint_test_ = new JointTestWidget(bridge, tree, drone);
+  joint_test_ = new JointTestWidget(_bridge, _tree, _drone);
   addTab(joint_test_, "Joint Test");
   setTabEnabled(joint_test_, false);
 
@@ -35,9 +31,9 @@ void ActuatorTestWidget::reset()
   }
 }
 
-void ActuatorTestWidget::setProjectPath(const QString& proj_path)
+void ActuatorTestWidget::setProjectPath(const QString& _proj_path)
 {
-  rotor_test_->setProjectPath(proj_path);
+  rotor_test_->setProjectPath(_proj_path);
 }
 
 void ActuatorTestWidget::updateInternalDataStructures()
@@ -53,10 +49,10 @@ void ActuatorTestWidget::updateInternalDataStructures()
   update();
 }
 
-void ActuatorTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void ActuatorTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  rotor_test_->initializeRosInterfaces(node, ns);
-  joint_test_->initializeRosInterfaces(node, ns);
+  rotor_test_->initializeRosInterfaces(_node, _ns);
+  joint_test_->initializeRosInterfaces(_node, _ns);
 }
 
 void ActuatorTestWidget::clearRosInterfaces()
@@ -65,15 +61,13 @@ void ActuatorTestWidget::clearRosInterfaces()
   joint_test_->clearRosInterfaces();
 }
 
-BaseWidget* ActuatorTestWidget::getWidget(int index)
+BaseWidget* ActuatorTestWidget::getWidget(int _index)
 {
-  return qt::qPointerCast<BaseWidget>(widget(index));
+  return qt::qPointerCast<BaseWidget>(widget(_index));
 }
 
-const BaseWidget* ActuatorTestWidget::getWidget(int index) const
+const BaseWidget* ActuatorTestWidget::getWidget(int _index) const
 {
-  return qt::qConstPointerCast<BaseWidget>(widget(index));
+  return qt::qConstPointerCast<BaseWidget>(widget(_index));
 }
-}  // namespace at
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::at

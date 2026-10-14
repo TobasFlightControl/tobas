@@ -5,31 +5,29 @@
 
 #include <QDebug>
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 RDFLoader::RDFLoader(
-  const rclcpp::Node::SharedPtr& node,
-  const std::string& ros_name,
-  bool default_continuous_value,
-  double default_timeout)
-  : ros_name_(ros_name)
+  const rclcpp::Node::SharedPtr& _node,
+  const std::string& _ros_name,
+  bool _default_continuous_value,
+  double _default_timeout)
+  : ros_name_(_ros_name)
 {
-  const auto start = node->now();
+  const auto start = _node->now();
 
   urdf_string_ = urdf_ssp_.loadInitialValue(
-    node,
-    ros_name,
-    [this](const std::string& new_urdf_string) { return urdfUpdateCallback(new_urdf_string); },
-    default_continuous_value,
-    default_timeout);
+    _node,
+    _ros_name,
+    [this](const std::string& _new_urdf_string) { return urdfUpdateCallback(_new_urdf_string); },
+    _default_continuous_value,
+    _default_timeout);
 
   if (!loadFromStrings()) {
     return;
   }
 
-  qInfo() << "Loaded robot model in" << (node->now() - start).seconds() << "seconds.";
+  qInfo() << "Loaded robot model in" << (_node->now() - start).seconds() << "seconds.";
 }
 
 const urdf::ModelInterfaceSharedPtr& RDFLoader::getURDF() const
@@ -37,9 +35,9 @@ const urdf::ModelInterfaceSharedPtr& RDFLoader::getURDF() const
   return urdf_;
 }
 
-void RDFLoader::setNewModelCallback(const NewModelCallback& cb)
+void RDFLoader::setNewModelCallback(const NewModelCallback& _cb)
 {
-  new_model_cb_ = cb;
+  new_model_cb_ = _cb;
 }
 
 bool RDFLoader::loadFromStrings()
@@ -54,9 +52,9 @@ bool RDFLoader::loadFromStrings()
   return true;
 }
 
-void RDFLoader::urdfUpdateCallback(const std::string& new_urdf_string)
+void RDFLoader::urdfUpdateCallback(const std::string& _new_urdf_string)
 {
-  urdf_string_ = new_urdf_string;
+  urdf_string_ = _new_urdf_string;
   if (!loadFromStrings()) {
     return;
   }
@@ -64,5 +62,4 @@ void RDFLoader::urdfUpdateCallback(const std::string& new_urdf_string)
     new_model_cb_();
   }
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

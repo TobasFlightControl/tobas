@@ -14,33 +14,31 @@ namespace std
 {
 /** Console output for `std::array`. */
 template <typename T, size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr)
+std::ostream& operator<<(std::ostream& _os, const std::array<T, N>& _arr)
 {
   if (N == 0) {
-    os << "[]";
-    return os;
+    _os << "[]";
+    return _os;
   }
 
-  os << "[";
+  _os << "[";
   for (size_t i = 0; i < N - 1; ++i) {
-    os << arr[i] << " ";
+    _os << _arr[i] << " ";
   }
-  os << arr[N - 1] << "]";
+  _os << _arr[N - 1] << "]";
 
-  return os;
+  return _os;
 }
 }  // namespace std
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 /** Naive Summation． The worst-case round-off error scales with O(nε). */
 template <typename T, size_t N>
-T sum(const std::array<T, N>& arr)
+T sum(const std::array<T, N>& _arr)
 {
   T sum = 0;
-  for (const auto& x : arr) {
+  for (const auto& x : _arr) {
     sum += x;
   }
   return sum;
@@ -48,10 +46,10 @@ T sum(const std::array<T, N>& arr)
 
 /** Kahan Summation. The worst-case round-off error scales with O(nε^2). */
 template <typename T, size_t N>
-T fsum(const std::array<T, N>& arr)
+T fsum(const std::array<T, N>& _arr)
 {
   algo::Kahan<T> sum;
-  for (const auto& x : arr) {
+  for (const auto& x : _arr) {
     sum.add(x);
   }
   return sum.get();
@@ -59,19 +57,19 @@ T fsum(const std::array<T, N>& arr)
 
 /** The average of Kahan Summation. */
 template <typename T, size_t N>
-T fmean(const std::array<T, N>& arr)
+T fmean(const std::array<T, N>& _arr)
 {
   if (N == 0) {
     return 0;
   }
   else {
-    return fsum(arr) / N;
+    return fsum(_arr) / N;
   }
 }
 
 /** Return the index of the closest value. */
 template <typename T, size_t N>
-size_t closestIndex(const std::array<T, N>& arr, const T& val)
+size_t closestIndex(const std::array<T, N>& _arr, const T& _val)
 {
   assert(N > 0);
 
@@ -79,7 +77,7 @@ size_t closestIndex(const std::array<T, N>& arr, const T& val)
   T closest_dist = std::numeric_limits<T>::max();
 
   for (size_t i = 0; i < N; ++i) {
-    const T dist = std::abs(arr[i] - val);
+    const T dist = std::abs(_arr[i] - _val);
     if (dist < closest_dist) {
       closest_dist = dist;
       closest_idx = i;
@@ -91,16 +89,15 @@ size_t closestIndex(const std::array<T, N>& arr, const T& val)
 
 /** Count a specific element. */
 template <typename T, size_t N>
-inline size_t count(const std::array<T, N>& arr, const T& val)
+inline size_t count(const std::array<T, N>& _arr, const T& _val)
 {
-  return std::count(arr.begin(), arr.end(), val);
+  return std::count(_arr.begin(), _arr.end(), _val);
 }
 
 /** Return true when all elements are equal. */
 template <typename T, size_t N>
-inline bool allEqual(const std::array<T, N>& arr, const T& target)
+inline bool allEqual(const std::array<T, N>& _arr, const T& _target)
 {
-  return std::all_of(arr.begin(), arr.end(), [&target](const auto& val) { return val == target; });
+  return std::all_of(_arr.begin(), _arr.end(), [&_target](const auto& _val) { return _val == _target; });
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

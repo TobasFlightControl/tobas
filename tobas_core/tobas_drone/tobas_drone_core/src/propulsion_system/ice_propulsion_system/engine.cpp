@@ -26,17 +26,17 @@ std::expected<void, std::string> EngineConfig::validate() const
   return {};
 }
 
-std::expected<void, std::string> EngineConfig::load(const YAML::Node& node)
+std::expected<void, std::string> EngineConfig::load(const YAML::Node& _node)
 {
-  if (!node.IsDefined() || !node.IsMap()) {
+  if (!_node.IsDefined() || !_node.IsMap()) {
     return std::unexpected("Configuration node must be a map.");
   }
 
-  if (const auto result = yaml::load(kEngineConstantKey, node, engine_const); !result) {
+  if (const auto result = yaml::load(kEngineConstantKey, _node, engine_const); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kHardwareIfaceKey, node, hw_iface); !result) {
+  if (const auto result = yaml::load(kHardwareIfaceKey, _node, hw_iface); !result) {
     return result;
   }
 
@@ -53,42 +53,42 @@ YAML::Node EngineConfig::dump() const
   return node;
 }
 
-double EngineConfig::computeTorque(double speed, double throttle)
+double EngineConfig::computeTorque(double _speed, double _throttle)
 {
-  assert(speed >= 0.0);
-  assert(0.0 <= throttle && throttle <= 1.0);
+  assert(_speed >= 0.0);
+  assert(0.0 <= _throttle && _throttle <= 1.0);
 
-  if (throttle < std::numeric_limits<double>::epsilon()) {
+  if (_throttle < std::numeric_limits<double>::epsilon()) {
     return 0.0;
   }
 
   const auto& [A, B] = engine_const;
 
   // FIXME: Output torque is not actually zero even at zero throttle due to idling, so the engine model needs to be improved.
-  const auto phi = M_PI_2 * throttle;
+  const auto phi = M_PI_2 * _throttle;
   const auto f = math::sqr(A / (1 - std::cos(phi)));
-  return 2 * B * speed / (sqrt(1 + 4 * B * math::sqr(speed) * f) + 1);
+  return 2 * B * _speed / (sqrt(1 + 4 * B * math::sqr(_speed) * f) + 1);
 }
 
-double EngineConfig::computeThrottle(double torque, double speed)
+double EngineConfig::computeThrottle(double _torque, double _speed)
 {
-  assert(torque >= 0.0);
-  assert(speed >= 0.0);
+  assert(_torque >= 0.0);
+  assert(_speed >= 0.0);
 
-  if (speed < std::numeric_limits<double>::epsilon()) {
+  if (_speed < std::numeric_limits<double>::epsilon()) {
     return 0.0;
   }
 
   const auto& [A, B] = engine_const;
 
-  const auto cos_phi = 1.0 - A * torque / sqrt(std::max(B - torque / speed, 0.0));
+  const auto cos_phi = 1.0 - A * _torque / sqrt(std::max(B - _torque / _speed, 0.0));
   const auto phi = std::acos(std::clamp(cos_phi, 0.0, 1.0));
   return phi / M_PI_2;
 }
 
-std::ostream& operator<<(std::ostream& os, const EngineConfig& arg)
+std::ostream& operator<<(std::ostream& _os, const EngineConfig& _arg)
 {
-  os << "Engine Constant: " << arg.engine_const.first << ", " << arg.engine_const.second << std::endl;
-  return os;
+  _os << "Engine Constant: " << _arg.engine_const.first << ", " << _arg.engine_const.second << '\n';
+  return _os;
 }
 }  // namespace tobas

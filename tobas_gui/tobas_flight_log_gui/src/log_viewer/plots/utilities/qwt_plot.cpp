@@ -6,11 +6,7 @@
 #include <qwt/qwt_plot_legenditem.h>
 #include <qwt/qwt_scale_draw.h>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 namespace
 {
@@ -26,13 +22,13 @@ public:
 class UnitScaleDraw : public QwtScaleDraw
 {
 public:
-  explicit UnitScaleDraw(const QString& unit) : unit_(unit)
+  explicit UnitScaleDraw(const QString& _unit) : unit_(_unit)
   {
   }
 
-  QwtText label(double value) const override
+  QwtText label(double _value) const override
   {
-    return QwtText(QString::number(value) + " " + unit_);
+    return QwtText(QString::number(_value) + " " + unit_);
   }
 
 private:
@@ -44,13 +40,13 @@ class IndexedLabelScaleDraw : public QwtScaleDraw
   using super = QwtScaleDraw;
 
 public:
-  explicit IndexedLabelScaleDraw(const QStringList& labels) : labels_(labels)
+  explicit IndexedLabelScaleDraw(const QStringList& _labels) : labels_(_labels)
   {
   }
 
-  QwtText label(double value) const override
+  QwtText label(double _value) const override
   {
-    const auto idx = qRound(value);
+    const auto idx = qRound(_value);
     if (idx < 0 || labels_.size() <= idx) {
       return {};
     }
@@ -62,7 +58,7 @@ private:
 };
 }  // namespace
 
-QwtPlot2::QwtPlot2(QWidget* parent) : super(parent)
+QwtPlot2::QwtPlot2(QWidget* _parent) : super(_parent)
 {
   // Make it minimizable.
   setMinimumSize(1, 1);
@@ -77,19 +73,19 @@ QwtPlot2::QwtPlot2(QWidget* parent) : super(parent)
   legend_item->setBorderPen(QPen(Qt::black, 1));  // Black border.
 }
 
-void QwtPlot2::setAxisNoLabel(QwtPlot::Axis axis)
+void QwtPlot2::setAxisNoLabel(QwtPlot::Axis _axis)
 {
-  setAxisScaleDraw(axis, new NoLabelScaleDraw());
+  setAxisScaleDraw(_axis, new NoLabelScaleDraw());
 }
 
-void QwtPlot2::setAxisLabelUnit(QwtPlot::Axis axis, const QString& unit)
+void QwtPlot2::setAxisLabelUnit(QwtPlot::Axis _axis, const QString& _unit)
 {
-  setAxisScaleDraw(axis, new UnitScaleDraw(unit));
+  setAxisScaleDraw(_axis, new UnitScaleDraw(_unit));
 }
 
-void QwtPlot2::setupIndexedLabelPlot(const QStringList& labels)
+void QwtPlot2::setupIndexedLabelPlot(const QStringList& _labels)
 {
-  const auto size = labels.size();
+  const auto size = _labels.size();
 
   const QList<double> none;
 
@@ -101,8 +97,6 @@ void QwtPlot2::setupIndexedLabelPlot(const QStringList& labels)
   const QwtScaleDiv ydiv(0, size - 1, none, none, majors);
   setAxisScaleDiv(QwtPlot::yLeft, ydiv);
 
-  setAxisScaleDraw(QwtPlot::yLeft, new IndexedLabelScaleDraw(labels));
+  setAxisScaleDraw(QwtPlot::yLeft, new IndexedLabelScaleDraw(_labels));
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

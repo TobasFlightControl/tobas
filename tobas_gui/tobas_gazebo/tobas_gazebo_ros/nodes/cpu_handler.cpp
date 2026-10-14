@@ -8,9 +8,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class CpuHandlerNode : public BaseNode
 {
@@ -18,7 +16,7 @@ class CpuHandlerNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit CpuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit CpuHandlerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   // Publisher
@@ -30,7 +28,8 @@ private:
   void mainTimerCb();
 };
 
-CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options) : super("cpu_handler", nodeOptions_Default(options))
+CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& _options)
+  : super("cpu_handler", nodeOptions_Default(_options))
 {
   cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(topic::kCpu);
 
@@ -49,7 +48,6 @@ void CpuHandlerNode::mainTimerCb()
   // Publish ROS message.
   cpu_pub_->publish(std::move(cpu_msg));
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::gazebo::CpuHandlerNode)

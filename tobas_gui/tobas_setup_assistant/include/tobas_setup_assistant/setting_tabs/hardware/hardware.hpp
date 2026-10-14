@@ -11,13 +11,7 @@
 #include "./dshot.hpp"
 #include "./pwm.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace hw
+namespace tobas::gui::sa::hw
 {
 class HardwareWidget : public BaseSettingWidget
 {
@@ -26,7 +20,7 @@ class HardwareWidget : public BaseSettingWidget
   using self = HardwareWidget;
 
 public:
-  explicit HardwareWidget(const uadf::Model& uadf, const Signals& sig);
+  explicit HardwareWidget(const uadf::Model& _uadf, const Signals& _sig);
 
   const char* name() const override;
   const char* title() const override;
@@ -37,7 +31,7 @@ public:
   bool isValid() override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   const PwmWidget* pwm() const;
   const DShotWidget* dshot() const;
@@ -92,18 +86,15 @@ private:
   PwmWidget* pwm_;
   DShotWidget* dshot_;
 
-  BaseHardwareWidget* widget(int index);
-  const BaseHardwareWidget* widget(int index) const;
+  BaseHardwareWidget* widget(int _index);
+  const BaseHardwareWidget* widget(int _index) const;
 
   BaseHardwareWidget* selected();
   const BaseHardwareWidget* selected() const;
 
-  void setCurrentHardware(int index);
+  void setCurrentHardware(int _index);
 
 private Q_SLOTS:
-  void onHardwareTypeChanged(int index);
+  void onHardwareTypeChanged(int _index);
 };
-}  // namespace hw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::hw

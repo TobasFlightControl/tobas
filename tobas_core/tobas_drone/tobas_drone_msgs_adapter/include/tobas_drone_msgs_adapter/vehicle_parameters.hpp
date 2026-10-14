@@ -17,24 +17,24 @@ struct rclcpp::TypeAdapter<tobas::VehicleParameters, tobas_drone_msgs::msg::Vehi
   using custom_type = tobas::VehicleParameters;
   using ros_message_type = tobas_drone_msgs::msg::VehicleParameters;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.wing_surface = src.wing_surface;
-    dst.wing_span = src.wing_span;
-    dst.mac = src.mac;
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.ac, dst.ac);
-    dst.alpha_limit.lower = src.alpha_limit.lower;
-    dst.alpha_limit.upper = src.alpha_limit.upper;
+    _dst.wing_surface = _src.wing_surface;
+    _dst.wing_span = _src.wing_span;
+    _dst.mac = _src.mac;
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.ac, _dst.ac);
+    _dst.alpha_limit.lower = _src.alpha_limit.lower;
+    _dst.alpha_limit.upper = _src.alpha_limit.upper;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.wing_surface = src.wing_surface;
-    dst.wing_span = src.wing_span;
-    dst.mac = src.mac;
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.ac, dst.ac);
-    dst.alpha_limit.lower = src.alpha_limit.lower;
-    dst.alpha_limit.upper = src.alpha_limit.upper;
+    _dst.wing_surface = _src.wing_surface;
+    _dst.wing_span = _src.wing_span;
+    _dst.mac = _src.mac;
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.ac, _dst.ac);
+    _dst.alpha_limit.lower = _src.alpha_limit.lower;
+    _dst.alpha_limit.upper = _src.alpha_limit.upper;
   }
 };
 

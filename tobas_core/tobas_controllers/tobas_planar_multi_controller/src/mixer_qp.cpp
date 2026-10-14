@@ -11,12 +11,10 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
+namespace tobas::planar_multicopter
 {
-namespace planar_multicopter
-{
-QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree)
-  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
+QpMixer::QpMixer(const Drone& _drone, const kdl::Tree& _tree)
+  : super(_drone, _tree), fk_solver_(_tree), inertia_solver_(_tree)
 {
 }
 
@@ -31,21 +29,21 @@ void QpMixer::updateInternalDataStructures()
 }
 
 std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
-  const kdl::JntArray& cur_q,
-  const kdl::Vector& cur_gyro_B,
-  const kdl::Vector& tar_dgyro_B,
-  double tar_thrusts_sum,
-  const kdl::Vector& ext_torque_B)
+  const kdl::JntArray& _cur_q,
+  const kdl::Vector& _cur_gyro_b,
+  const kdl::Vector& _tar_dgyro_b,
+  double _tar_thrusts_sum,
+  const kdl::Vector& _ext_torque_b)
 {
-  if (tar_thrusts_sum < 0.0) {
-    return std::unexpected("Target thrust must be non-negative: " + std::to_string(tar_thrusts_sum) + " < 0");
+  if (_tar_thrusts_sum < 0.0) {
+    return std::unexpected("Target thrust must be non-negative: " + std::to_string(_tar_thrusts_sum) + " < 0");
   }
 
   // Compute forward kinematics.
-  const auto& frames = fk_solver_.jntToCart(cur_q);
+  const auto& frames = fk_solver_.jntToCart(_cur_q);
 
   // Compute mass properties.
-  const auto inertia = inertia_solver_.jntToCart(cur_q);
+  const auto inertia = inertia_solver_.jntToCart(_cur_q);
   const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
@@ -67,7 +65,7 @@ std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
   }
 
   // Right-hand side of the EoM matrix equality.
-  h_ = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
+  h_ = (I_B * _tar_dgyro_b + _cur_gyro_b * (I_B * _cur_gyro_b) - _ext_torque_b).data;  // [Nm]
 
   // Weights for the EoM.
   const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;  // [Nm]
@@ -116,7 +114,7 @@ std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
   // Equality constraints.
   // Clamp so that it does not conflict with inequality constraints.
   constexpr double kThrustMargin = 1e-3;  // [N]
-  qp_.problem.h(0) = std::clamp(tar_thrusts_sum, min_thrust_sum + kThrustMargin, max_thrust_sum - kThrustMargin);
+  qp_.problem.h(0) = std::clamp(_tar_thrusts_sum, min_thrust_sum + kThrustMargin, max_thrust_sum - kThrustMargin);
 
   // Solve the QPP.
   const auto thrusts = qp_.solve();
@@ -127,16 +125,16 @@ std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
   return thrustDeadband(*thrusts);
 }
 
-void QpMixer::setBaseWeight(double p)
+void QpMixer::setBaseWeight(double _p)
 {
-  assert(p > 0.0);
-  cfg_.base_weight = p;
+  assert(_p > 0.0);
+  cfg_.base_weight = _p;
 }
 
-void QpMixer::setThrustWeight(double p)
+void QpMixer::setThrustWeight(double _p)
 {
-  assert(p > 0.0);
-  cfg_.thrust_weight = p;
+  assert(_p > 0.0);
+  cfg_.thrust_weight = _p;
 }
 
 void QpMixer::resizeAndFill()
@@ -155,5 +153,4 @@ void QpMixer::resizeAndFill()
   R_.resize(var_size);
   G_.resize(Eigen::NoChange, var_size);
 }
-}  // namespace planar_multicopter
-}  // namespace tobas
+}  // namespace tobas::planar_multicopter

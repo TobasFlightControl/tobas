@@ -11,64 +11,60 @@
 
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 namespace
 {
-void drawMarker(QPainter& painter, const QPointF& center, double radius, Qt::GlobalColor global_color)
+void drawMarker(QPainter& _painter, const QPointF& _center, double _radius, Qt::GlobalColor _global_color)
 {
   constexpr int kFillAlpha = 70;
   constexpr int kFillLightness = 150;
   constexpr double kLineWidth = 3.0;
 
-  const QColor color(global_color);
+  const QColor color(_global_color);
   auto fill_color = color.lighter(kFillLightness);
   fill_color.setAlpha(kFillAlpha);
 
-  painter.save();
-  painter.setPen(QPen(color, kLineWidth));
-  painter.setBrush(fill_color);
-  painter.drawEllipse(center, radius, radius);
-  painter.drawLine(QPointF(center.x() - radius, center.y()), QPointF(center.x() + radius, center.y()));
-  painter.drawLine(QPointF(center.x(), center.y() - radius), QPointF(center.x(), center.y() + radius));
-  painter.restore();
+  _painter.save();
+  _painter.setPen(QPen(color, kLineWidth));
+  _painter.setBrush(fill_color);
+  _painter.drawEllipse(_center, _radius, _radius);
+  _painter.drawLine(QPointF(_center.x() - _radius, _center.y()), QPointF(_center.x() + _radius, _center.y()));
+  _painter.drawLine(QPointF(_center.x(), _center.y() - _radius), QPointF(_center.x(), _center.y() + _radius));
+  _painter.restore();
 }
 
-QFont displayFont(const QFont& base, int point_size)
+QFont displayFont(const QFont& _base, int _point_size)
 {
-  auto font = base;
-  font.setPointSize(point_size);
+  auto font = _base;
+  font.setPointSize(_point_size);
   font.setBold(true);
   return font;
 }
 
 std::pair<QPointF, double>
-computeIndicatorPosition(const kdl::Vector& acc, const QPointF& center, double radius, double marker_radius)
+computeIndicatorPosition(const kdl::Vector& _acc, const QPointF& _center, double _radius, double _marker_radius)
 {
   constexpr double kMaxTilt = st::deg2rad(10.0);  // [rad]
   constexpr double kBoundaryPadding = 3.0;
 
-  const auto horizontal_acc = std::hypot(acc.x(), acc.y());
-  const auto tilt = std::atan2(horizontal_acc, acc.z());
-  const auto max_distance = std::max(0.0, radius - marker_radius - kBoundaryPadding);
+  const auto horizontal_acc = std::hypot(_acc.x(), _acc.y());
+  const auto tilt = std::atan2(horizontal_acc, _acc.z());
+  const auto max_distance = std::max(0.0, _radius - _marker_radius - kBoundaryPadding);
   const auto distance = std::clamp(tilt / kMaxTilt, 0.0, 1.0) * max_distance;
 
-  auto marker_center = center;
+  auto marker_center = _center;
   if (horizontal_acc > 0.0) {
     // The widget is a top view: +X is front and +Y is left.
-    marker_center.rx() -= acc.y() / horizontal_acc * distance;
-    marker_center.ry() -= acc.x() / horizontal_acc * distance;
+    marker_center.rx() -= _acc.y() / horizontal_acc * distance;
+    marker_center.ry() -= _acc.x() / horizontal_acc * distance;
   }
 
   return { marker_center, tilt };
 }
 }  // namespace
 
-LevelIndicatorWidget::LevelIndicatorWidget(QWidget* parent) : super(parent)
+LevelIndicatorWidget::LevelIndicatorWidget(QWidget* _parent) : super(_parent)
 {
   constexpr double kLpfCutoff = 1.0;  // [Hz]
   acc_raw_lpf_.setCutoffFrequency(kLpfCutoff);
@@ -94,35 +90,35 @@ void LevelIndicatorWidget::clear()
   update();
 }
 
-void LevelIndicatorWidget::setRawAccel(const kdl::Vector& acc, double dt)
+void LevelIndicatorWidget::setRawAccel(const kdl::Vector& _acc, double _dt)
 {
-  if (!acc.isFinite() || !std::isfinite(dt)) {
+  if (!_acc.isFinite() || !std::isfinite(_dt)) {
     return;
   }
 
-  if (!has_raw_data_ || dt <= 0.0) {
-    acc_raw_lpf_.setValue(acc);
+  if (!has_raw_data_ || _dt <= 0.0) {
+    acc_raw_lpf_.setValue(_acc);
     has_raw_data_ = true;
   }
   else {
-    acc_raw_lpf_.update(acc, dt);
+    acc_raw_lpf_.update(_acc, _dt);
   }
 
   update();
 }
 
-void LevelIndicatorWidget::setCalibratedAccel(const kdl::Vector& acc, double dt)
+void LevelIndicatorWidget::setCalibratedAccel(const kdl::Vector& _acc, double _dt)
 {
-  if (!acc.isFinite() || !std::isfinite(dt)) {
+  if (!_acc.isFinite() || !std::isfinite(_dt)) {
     return;
   }
 
-  if (!has_calib_data_ || dt <= 0.0) {
-    acc_calib_lpf_.setValue(acc);
+  if (!has_calib_data_ || _dt <= 0.0) {
+    acc_calib_lpf_.setValue(_acc);
     has_calib_data_ = true;
   }
   else {
-    acc_calib_lpf_.update(acc, dt);
+    acc_calib_lpf_.update(_acc, _dt);
   }
 
   update();
@@ -238,6 +234,4 @@ void LevelIndicatorWidget::paintEvent(QPaintEvent*)
     painter.drawText(calib_text_rect, Qt::AlignCenter, "Calibrated: Waiting...");
   }
 }
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

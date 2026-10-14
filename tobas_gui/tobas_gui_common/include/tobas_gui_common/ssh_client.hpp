@@ -9,11 +9,7 @@
 
 #include <tobas_ssh_client/ssh_client.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 /** SSH client wrapper that does not stop the GUI. */
 class SshClientWrapper
@@ -23,35 +19,33 @@ class SshClientWrapper
 public:
   using Result = std::expected<void, QString>;
 
-  explicit SshClientWrapper(rclcpp::Node::SharedPtr node);
+  explicit SshClientWrapper(rclcpp::Node::SharedPtr _node);
 
   bool waitForLocalServer();
 
-  bool setEndpoint(const QString& host, const QString& user);
+  bool setEndpoint(const QString& _host, const QString& _user);
 
   Result connect();
-  Result execute(const QString& command, QString& output, bool superuser = false, bool background = false);
-  Result execute(const QString& command, bool superuser = false, bool background = false);
+  Result execute(const QString& _command, QString& _output, bool _superuser = false, bool _background = false);
+  Result execute(const QString& _command, bool _superuser = false, bool _background = false);
   Result scpGet(
-    const QString& remote_path,
-    const QString& local_path,
-    std::function<void(uint64_t, uint64_t)> callback = nullptr);
+    const QString& _remote_path,
+    const QString& _local_path,
+    std::function<void(uint64_t, uint64_t)> _callback = nullptr);
   Result scpPut(
-    const QString& local_dir,
-    const QString& remote_dir,
-    bool parents,
-    const QStringList& exclude_dirs,
-    bool superuser = false,
-    std::function<void(uint64_t, uint64_t)> callback = nullptr);
-  Result sftpRead(const QString& remote_path, QString& text, bool superuser = false);
-  Result sftpWrite(const QString& remote_path, const QString& text, bool superuser = false);
-  Result list(const QString& pardir, QStringList& list);
+    const QString& _local_dir,
+    const QString& _remote_dir,
+    bool _parents,
+    const QStringList& _exclude_dirs,
+    bool _superuser = false,
+    std::function<void(uint64_t, uint64_t)> _callback = nullptr);
+  Result sftpRead(const QString& _remote_path, QString& _text, bool _superuser = false);
+  Result sftpWrite(const QString& _remote_path, const QString& _text, bool _superuser = false);
+  Result list(const QString& _pardir, QStringList& _list);
 
 private:
   Impl impl_;
 
   QString endpoint() const;
 };
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

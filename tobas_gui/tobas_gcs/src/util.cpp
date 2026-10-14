@@ -7,11 +7,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace gcs
+namespace tobas::gui::gcs
 {
 fs::path getPkgShareDir()
 {
@@ -22,6 +18,4 @@ fs::path getResourceDir()
 {
   return getPkgShareDir() / "resources";
 }
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

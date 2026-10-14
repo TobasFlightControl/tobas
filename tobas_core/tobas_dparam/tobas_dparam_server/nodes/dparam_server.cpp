@@ -13,9 +13,7 @@
 using namespace std::chrono_literals;
 using namespace tobas_dparam_msgs::srv;
 
-namespace tobas
-{
-namespace dparam
+namespace tobas::dparam
 {
 class DynamicParamServer : public BaseNode
 {
@@ -23,7 +21,7 @@ class DynamicParamServer : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit DynamicParamServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit DynamicParamServer(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   rclcpp::CallbackGroup::SharedPtr cb_group_;
@@ -31,11 +29,12 @@ private:
   std::map<std::string, ros2::SyncParamClient> clients_;
 
   template <typename SrvType, typename ValueType>
-  void callback(const typename SrvType::Request::ConstSharedPtr& req, const typename SrvType::Response::SharedPtr& res);
+  void
+  callback(const typename SrvType::Request::ConstSharedPtr& _req, const typename SrvType::Response::SharedPtr& _res);
 };
 
-DynamicParamServer::DynamicParamServer(const rclcpp::NodeOptions& options)
-  : super("dynamic_parameter_server", nodeOptions_Default(options))
+DynamicParamServer::DynamicParamServer(const rclcpp::NodeOptions& _options)
+  : super("dynamic_parameter_server", nodeOptions_Default(_options))
 {
   cb_group_ = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 
@@ -47,43 +46,42 @@ DynamicParamServer::DynamicParamServer(const rclcpp::NodeOptions& options)
 
 template <typename SrvType, typename ValueType>
 void DynamicParamServer::callback(
-  const typename SrvType::Request::ConstSharedPtr& req,
-  const typename SrvType::Response::SharedPtr& res)
+  const typename SrvType::Request::ConstSharedPtr& _req,
+  const typename SrvType::Response::SharedPtr& _res)
 {
-  if (req->node_name.empty()) {
-    res->success = false;
-    res->message = "The node name is empty.";
+  if (_req->node_name.empty()) {
+    _res->success = false;
+    _res->message = "The node name is empty.";
     return;
   }
 
-  auto client_it = clients_.find(req->node_name);
+  auto client_it = clients_.find(_req->node_name);
   if (client_it == clients_.end()) {
-    TOBAS_INFO("Creating a new parameter client for '", req->node_name, "'.");
-    ros2::SyncParamClient client(shared_from_this(), req->node_name);
+    TOBAS_INFO("Creating a new parameter client for '", _req->node_name, "'.");
+    ros2::SyncParamClient client(shared_from_this(), _req->node_name);
     if (!client.waitForService(1s)) {
-      res->success = false;
-      res->message = "Failed to find '" + req->node_name + "'.";
+      _res->success = false;
+      _res->message = "Failed to find '" + _req->node_name + "'.";
       return;
     }
-    client_it = clients_.insert({ req->node_name, client }).first;
+    client_it = clients_.insert({ _req->node_name, client }).first;
   }
 
   auto& client = client_it->second;
-  if (client.template setParam<ValueType>(req->param_name, req->value) != ros2::SyncParamClient::kNoError) {
-    res->success = false;
-    res->message = client.errorMessage();
+  if (client.template setParam<ValueType>(_req->param_name, _req->value) != ros2::SyncParamClient::kNoError) {
+    _res->success = false;
+    _res->message = client.errorMessage();
     return;
   }
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
-}  // namespace dparam
-}  // namespace tobas
+}  // namespace tobas::dparam
 
-int main(int argc, char* argv[])
+int main(int _argc, char* _argv[])
 {
-  rclcpp::init(argc, argv);
+  rclcpp::init(_argc, _argv);
   const auto node = std::make_shared<tobas::dparam::DynamicParamServer>();
   rclcpp::executors::MultiThreadedExecutor exec(rclcpp::ExecutorOptions(), 2);
   exec.add_node(node);

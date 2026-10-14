@@ -7,9 +7,7 @@
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_tools/mixer_i.hpp>
 
-namespace tobas
-{
-namespace planar_multicopter
+namespace tobas::planar_multicopter
 {
 /** Thrust mixing for multicopters using a pseudoinverse matrix. */
 class PinvMixer : public MixerI
@@ -17,16 +15,16 @@ class PinvMixer : public MixerI
   using super = MixerI;
 
 public:
-  explicit PinvMixer(const Drone& drone, const kdl::Tree& tree);
+  explicit PinvMixer(const Drone& _drone, const kdl::Tree& _tree);
 
   void updateInternalDataStructures() override;
 
   std::expected<Eigen::VectorXd, std::string> solve(
-    const kdl::JntArray& cur_q,
-    const kdl::Vector& cur_gyro_B,
-    const kdl::Vector& tar_dgyro_B,
-    double tar_thrusts_sum,
-    const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
+    const kdl::JntArray& _cur_q,
+    const kdl::Vector& _cur_gyro_b,
+    const kdl::Vector& _tar_dgyro_b,
+    double _tar_thrusts_sum,
+    const kdl::Vector& _ext_torque_b = kdl::Vector::Zero());
 
 private:
   kdl::TreeFkSolverPosAll fk_solver_;
@@ -35,5 +33,4 @@ private:
   Eigen::Matrix4Xd E_;
   Eigen::Vector4d f_;
 };
-}  // namespace planar_multicopter
-}  // namespace tobas
+}  // namespace tobas::planar_multicopter

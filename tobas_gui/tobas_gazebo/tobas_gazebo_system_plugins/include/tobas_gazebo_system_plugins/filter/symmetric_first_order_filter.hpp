@@ -5,9 +5,7 @@
 
 #include "./asymmetric_first_order_filter.hpp"
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 template <typename T>
 class SymmetricFirstOrderFilter : public AsymmetricFirstOrderFilter<T>
@@ -17,8 +15,7 @@ class SymmetricFirstOrderFilter : public AsymmetricFirstOrderFilter<T>
 public:
   explicit SymmetricFirstOrderFilter();
 
-  using super::initialize;
-  virtual void initialize(double time_const, const T& init_value);
+  virtual void initialize(double _time_const, const T& _init_value);
 };
 
 template <typename T>
@@ -27,9 +24,8 @@ SymmetricFirstOrderFilter<T>::SymmetricFirstOrderFilter()
 }
 
 template <typename T>
-void SymmetricFirstOrderFilter<T>::initialize(double time_const, const T& init_value)
+void SymmetricFirstOrderFilter<T>::initialize(double _time_const, const T& _init_value)
 {
-  super::initialize(time_const, time_const, init_value);
+  super::initialize(_time_const, _time_const, _init_value);
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

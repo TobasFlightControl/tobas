@@ -3,29 +3,27 @@
 
 #include "tobas_qt_tools/widgets/lamp_widget.hpp"
 
-namespace tobas
+namespace tobas::qt
 {
-namespace qt
-{
-LampWidget::LampWidget(QWidget* parent) : super(parent)
+LampWidget::LampWidget(QWidget* _parent) : super(_parent)
 {
   draw();
 }
 
-LampWidget::LampWidget(const QString& text, QWidget* parent) : super(text, parent)
+LampWidget::LampWidget(const QString& _text, QWidget* _parent) : super(_text, _parent)
 {
   draw();
 }
 
-void LampWidget::setColor(const RGBColor& color)
+void LampWidget::setColor(const RGBColor& _color)
 {
   // Do nothing if the color does not change.
-  if (color == c_) {
+  if (_color == c_) {
     return;
   }
 
   // Update to the new color.
-  c_ = color;
+  c_ = _color;
 
   // Draw.
   draw();
@@ -59,5 +57,4 @@ void LampWidget::draw()
                   .arg(c_.g, 2, 16, QLatin1Char('0'))
                   .arg(c_.b, 2, 16, QLatin1Char('0')));
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

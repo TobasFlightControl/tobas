@@ -10,9 +10,7 @@
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 
-namespace tobas
-{
-namespace dxl
+namespace tobas::dxl
 {
 /** Bridge between `tobas_msgs` and `tobas_dynamixel_msgs`. */
 class DynamixelBridgeNode : public BaseNode
@@ -21,7 +19,7 @@ class DynamixelBridgeNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit DynamixelBridgeNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit DynamixelBridgeNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   // Parameters
@@ -38,16 +36,16 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> joint_eff_sub_;
 
   tobas_dynamixel_msgs::msg::MotorCommandArray::UniquePtr
-  createMotorCommands(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& commands_in);
+  createMotorCommands(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _commands_in);
 
-  void motorStatesCb(const tobas_dynamixel_msgs::msg::MotorStateArray::ConstSharedPtr& states_in);
-  void jointPosCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& commands_in);
-  void jointVelCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& commands_in);
-  void jointEffCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& commands_in);
+  void motorStatesCb(const tobas_dynamixel_msgs::msg::MotorStateArray::ConstSharedPtr& _states_in);
+  void jointPosCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _commands_in);
+  void jointVelCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _commands_in);
+  void jointEffCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _commands_in);
 };
 
-DynamixelBridgeNode::DynamixelBridgeNode(const rclcpp::NodeOptions& options)
-  : super("dynamixel_bridge", nodeOptions_Default(options))
+DynamixelBridgeNode::DynamixelBridgeNode(const rclcpp::NodeOptions& _options)
+  : super("dynamixel_bridge", nodeOptions_Default(_options))
 {
   const auto jnt_names = getStringArrayParam("joint_names", {});
   if (jnt_names.empty()) {
@@ -68,12 +66,12 @@ DynamixelBridgeNode::DynamixelBridgeNode(const rclcpp::NodeOptions& options)
 }
 
 tobas_dynamixel_msgs::msg::MotorCommandArray::UniquePtr
-DynamixelBridgeNode::createMotorCommands(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& commands_in)
+DynamixelBridgeNode::createMotorCommands(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _commands_in)
 {
   auto commands_out = std::make_unique<tobas_dynamixel_msgs::msg::MotorCommandArray>();
-  commands_out->header = commands_in->header;
+  commands_out->header = _commands_in->header;
 
-  for (const auto& command_in : commands_in->commands) {
+  for (const auto& command_in : _commands_in->commands) {
     if (!jnt_names_.contains(command_in.name)) {
       continue;
     }
@@ -85,12 +83,12 @@ DynamixelBridgeNode::createMotorCommands(const tobas_msgs::msg::JointCommandArra
   return commands_out;
 }
 
-void DynamixelBridgeNode::motorStatesCb(const tobas_dynamixel_msgs::msg::MotorStateArray::ConstSharedPtr& states_in)
+void DynamixelBridgeNode::motorStatesCb(const tobas_dynamixel_msgs::msg::MotorStateArray::ConstSharedPtr& _states_in)
 {
   auto states_out = std::make_unique<tobas_msgs::msg::JointStateArray>();
-  states_out->header = states_in->header;
+  states_out->header = _states_in->header;
 
-  for (const auto& state_in : states_in->states) {
+  for (const auto& state_in : _states_in->states) {
     if (!jnt_names_.contains(state_in.name)) {
       continue;
     }
@@ -106,30 +104,29 @@ void DynamixelBridgeNode::motorStatesCb(const tobas_dynamixel_msgs::msg::MotorSt
   }
 }
 
-void DynamixelBridgeNode::jointPosCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& commands_in)
+void DynamixelBridgeNode::jointPosCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _commands_in)
 {
-  auto commands_out = createMotorCommands(commands_in);
+  auto commands_out = createMotorCommands(_commands_in);
   if (!commands_out->commands.empty()) {
     motor_pos_pub_->publish(std::move(commands_out));
   }
 }
 
-void DynamixelBridgeNode::jointVelCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& commands_in)
+void DynamixelBridgeNode::jointVelCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _commands_in)
 {
-  auto commands_out = createMotorCommands(commands_in);
+  auto commands_out = createMotorCommands(_commands_in);
   if (!commands_out->commands.empty()) {
     motor_vel_pub_->publish(std::move(commands_out));
   }
 }
 
-void DynamixelBridgeNode::jointEffCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& commands_in)
+void DynamixelBridgeNode::jointEffCommandsCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _commands_in)
 {
-  auto commands_out = createMotorCommands(commands_in);
+  auto commands_out = createMotorCommands(_commands_in);
   if (!commands_out->commands.empty()) {
     motor_eff_pub_->publish(std::move(commands_out));
   }
 }
-}  // namespace dxl
-}  // namespace tobas
+}  // namespace tobas::dxl
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::dxl::DynamixelBridgeNode)

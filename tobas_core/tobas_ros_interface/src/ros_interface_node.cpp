@@ -5,12 +5,12 @@
 
 #include "./ros_interface.hpp"
 
-int main(int argc, char* argv[])
+int main(int _argc, char* _argv[])
 {
   constexpr long kDefaultNumThreads = 4;
   constexpr long kMinNumThreads = 2;
 
-  rclcpp::init(argc, argv);
+  rclcpp::init(_argc, _argv);
 
   const auto node = std::make_shared<tobas::RosInterfaceNode>();
 

@@ -5,9 +5,7 @@
 
 #include <tobas_linux/i2c_dev.hpp>
 
-namespace tobas
-{
-namespace stm
+namespace tobas::stm
 {
 /**
  * A linux driver of 3-axis magnetometer.
@@ -18,10 +16,10 @@ class IIS2MDC
 public:
   explicit IIS2MDC();
 
-  bool initialize(const char* i2c_device);
+  bool initialize(const char* _i2c_device);
 
   /** Read the current magnetic field [gauss]. */
-  bool readMag(double& mx, double& my, double& mz);
+  bool readMag(double& _mx, double& _my, double& _mz);
 
 private:
   /** 7: Register mapping (p.27) */
@@ -92,5 +90,4 @@ private:
   bool checkWhoAmI();
   bool configure();
 };
-}  // namespace stm
-}  // namespace tobas
+}  // namespace tobas::stm

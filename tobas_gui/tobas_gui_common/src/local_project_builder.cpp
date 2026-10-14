@@ -12,11 +12,7 @@
 
 #include "tobas_gui_common/project_paths.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 namespace
 {
@@ -25,10 +21,10 @@ class LocalProjectBuilderThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(bool success, const QString& message);
+  void finished(bool _success, const QString& _message);
 
 public:
-  explicit LocalProjectBuilderThread(const QString& proj_path) : proj_path_(proj_path)
+  explicit LocalProjectBuilderThread(const QString& _proj_path) : proj_path_(_proj_path)
   {
   }
 
@@ -53,9 +49,9 @@ private:
 };
 }  // namespace
 
-std::expected<void, QString> buildLocalProject(const QString& proj_path)
+std::expected<void, QString> buildLocalProject(const QString& _proj_path)
 {
-  LocalProjectBuilderThread thread(proj_path);
+  LocalProjectBuilderThread thread(_proj_path);
   const auto [success, message] = qt::startThreadAndWait(thread, &LocalProjectBuilderThread::finished);
 
   if (success) {
@@ -65,8 +61,6 @@ std::expected<void, QString> buildLocalProject(const QString& proj_path)
     return std::unexpected(message);
   }
 }
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn
 
 #include "local_project_builder.moc"

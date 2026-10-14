@@ -7,9 +7,7 @@
 #include <cstdint>
 #include <optional>
 
-namespace tobas
-{
-namespace ublox
+namespace tobas::ublox
 {
 class UbxTransport
 {
@@ -27,5 +25,4 @@ public:
   virtual std::optional<uint8_t> receiveByte() noexcept = 0;
   virtual bool send(const uint8_t* _data, size_t _length) noexcept = 0;
 };
-}  // namespace ublox
-}  // namespace tobas
+}  // namespace tobas::ublox

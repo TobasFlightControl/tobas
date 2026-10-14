@@ -5,10 +5,7 @@
 
 #include <gz/math/MassMatrix3.hh>
 
-namespace tobas
+namespace tobas::gazebo
 {
-namespace gazebo
-{
-gz::math::MassMatrix3d boxInertia(double sx, double sy, double sz, double mass);
-}  // namespace gazebo
-}  // namespace tobas
+gz::math::MassMatrix3d boxInertia(double _sx, double _sy, double _sz, double _mass);
+}  // namespace tobas::gazebo

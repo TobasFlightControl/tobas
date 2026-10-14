@@ -28,11 +28,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 namespace
 {
@@ -41,11 +37,11 @@ constexpr char kLastOpenedDirKey_Load[] = "setup_assistant/last_opened_dir/load"
 constexpr char kLastOpenedDirKey_Save[] = "setup_assistant/last_opened_dir/save";
 }  // namespace
 
-SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
+SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr _node)
   : frame_type_detector_(uadf_, tree_)
-  , rsp_client_(node, "robot_state_publisher")
+  , rsp_client_(_node, "robot_state_publisher")
   , spinner_(Qt::WindowModal, this)
-  , rotor_marker_publisher_(node, uadf_)
+  , rotor_marker_publisher_(_node, uadf_)
 {
   // Package manager
   proj_path_ = new QLineEdit();
@@ -64,7 +60,7 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   rviz_ = new RvizWidget(uadf_, tree_);
   frame_tree_ = new FrameTreeWidget(tree_, rviz_);
   properties_ = new RobotPropertiesWidget(uadf_, tree_);
-  jsp_ = new JointStatePublisherWidget(node, uadf_, tree_);
+  jsp_ = new JointStatePublisherWidget(_node, uadf_, tree_);
   settings_ = new SettingsWidget(uadf_, tree_, sig_);
 
   prj_gen_.emplace(uadf_, tree_, settings_, this);
@@ -107,35 +103,35 @@ void SetupAssistantWidget::reset()
   settings_->setToDefaults();
 }
 
-void SetupAssistantWidget::enableSaveButtons(bool enable)
+void SetupAssistantWidget::enableSaveButtons(bool _enable)
 {
-  save_btn_->setEnabled(enable);
-  save_as_btn_->setEnabled(enable);
+  save_btn_->setEnabled(_enable);
+  save_as_btn_->setEnabled(_enable);
 }
 
-bool SetupAssistantWidget::resolveMeshPaths(const QString& config_pkg_path, tinyxml2::XMLElement* elem)
+bool SetupAssistantWidget::resolveMeshPaths(const QString& _config_pkg_path, tinyxml2::XMLElement* _elem)
 {
-  if (std::strcmp(elem->Name(), "mesh") == 0) {
-    const auto filename = elem->Attribute("filename");
+  if (std::strcmp(_elem->Name(), "mesh") == 0) {
+    const auto filename = _elem->Attribute("filename");
     if (!filename) {
       qt::qErrorBox(settings_, "Mesh element does not have attribute: 'filename'");
       return false;
     }
 
-    const auto config_pkg_name = QFileInfo(config_pkg_path).fileName();
+    const auto config_pkg_name = QFileInfo(_config_pkg_path).fileName();
     const auto prefix = "package://" + config_pkg_name;
 
     const auto filename_qt = QString::fromUtf8(filename);
     if (filename_qt.startsWith(prefix)) {
-      const auto file_path = QString(filename_qt).replace(prefix, config_pkg_path);
+      const auto file_path = QString(filename_qt).replace(prefix, _config_pkg_path);
       const auto new_filename = "file://" + file_path;
-      elem->SetAttribute("filename", new_filename.toUtf8().constData());
+      _elem->SetAttribute("filename", new_filename.toUtf8().constData());
     }
   }
 
   // Check child elements recursively.
-  for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
-    if (!resolveMeshPaths(config_pkg_path, child)) {
+  for (auto child = _elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
+    if (!resolveMeshPaths(_config_pkg_path, child)) {
       return false;
     }
   }
@@ -289,13 +285,13 @@ void SetupAssistantWidget::onNewButtonClicked()
     return;
   }
 
-  // Update the internal state.
+  // Update the internal states.
   if (!updateInternalDataStructures()) {
     reset();
     return;
   }
 
-  // Return all settings to their default values.
+  // Reset all settings to defaults.
   settings_->setToDefaults();
 
   // Clear the project path.
@@ -397,7 +393,7 @@ void SetupAssistantWidget::onLoadButtonClicked()
     return;
   }
 
-  // Update the internal state.
+  // Update the internal states.
   if (!updateInternalDataStructures()) {
     reset();
     return;
@@ -407,13 +403,16 @@ void SetupAssistantWidget::onLoadButtonClicked()
   const auto settings_path = proj_paths.backupSettingsPath();
   const auto node = yaml::load(settings_path.toStdString());
   if (!node) {
-    qt::qErrorBox(this, "The user configuration file is collapsed. Please create a new Tobas project.");
+    qt::qErrorBox(this, "Failed to load the user settings file. Please create a new Tobas project.");
     reset();
     return;
   }
 
+  // Reset all settings to defaults before applying user settings.
+  settings_->setToDefaults();
+
   // Apply user settings to widgets.
-  // Do not reset even if this fails.
+  // Do not reset settings even if this fails.
   if (settings_->load(*node)) {
     qt::qInfoBox(this, "Tobas project has been loaded successfully.");
   }
@@ -488,6 +487,4 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
 
   qt::qInfoBox(this, "New Tobas project has been generated.");
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

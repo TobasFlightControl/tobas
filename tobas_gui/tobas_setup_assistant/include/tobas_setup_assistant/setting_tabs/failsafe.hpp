@@ -8,11 +8,7 @@
 
 #include "./base_setting.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class FailsafeWidget : public BaseSettingWidget
 {
@@ -48,7 +44,7 @@ public:
   bool isValid() override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   bool checkRealtimeCompliance() const;
   bool checkBatteryVoltage() const;
@@ -74,6 +70,4 @@ private:
 
   qt::SpinBox* esc_no_comm_timeout_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

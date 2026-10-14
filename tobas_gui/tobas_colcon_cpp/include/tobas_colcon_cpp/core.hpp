@@ -8,9 +8,7 @@
 #include <filesystem>
 #include <string>
 
-namespace tobas
-{
-namespace colcon
+namespace tobas::colcon
 {
 struct BuildOptions
 {
@@ -21,8 +19,7 @@ struct BuildOptions
 };
 
 std::expected<void, std::string>
-build(const std::filesystem::path& pkg_path, const std::filesystem::path& ws_path, const BuildOptions& options = {});
+build(const std::filesystem::path& _pkg_path, const std::filesystem::path& _ws_path, const BuildOptions& _options = {});
 
-std::expected<void, std::string> cleanWorkspace(const std::filesystem::path& ws_path);
-}  // namespace colcon
-}  // namespace tobas
+std::expected<void, std::string> cleanWorkspace(const std::filesystem::path& _ws_path);
+}  // namespace tobas::colcon

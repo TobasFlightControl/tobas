@@ -29,11 +29,7 @@
 #include "../base.hpp"
 #include "./rotor_widget.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace at
+namespace tobas::gui::at
 {
 class RotorTestWidget : public BaseWidget
 {
@@ -42,15 +38,15 @@ class RotorTestWidget : public BaseWidget
   using self = RotorTestWidget;
 
 public:
-  explicit RotorTestWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
+  explicit RotorTestWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone);
 
   const char* title() const override;
 
   void reset() override;
 
-  void setProjectPath(const QString& proj_path);
+  void setProjectPath(const QString& _proj_path);
   void updateInternalDataStructures();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
   int numRegisteredChannels() const;
@@ -88,14 +84,12 @@ private Q_SLOTS:
   void onStopButtonClicked();
   void onSaveButtonClicked();
 
-  void onTargetRPMChanged(int rpm, size_t ch);
-  void onGainChanged(int gain, size_t ch);
+  void onTargetRPMChanged(int _rpm, size_t _ch);
+  void onGainChanged(int _gain, size_t _ch);
 
   void onUpdateTimerTimeout();
 
-  void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& cur_states);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& _cur_states);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
 };
-}  // namespace at
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::at

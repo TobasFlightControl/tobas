@@ -15,24 +15,20 @@
 #include "./settings.hpp"
 #include "./template_generator.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ProjectGenerator
 {
 public:
   explicit ProjectGenerator(
-    const uadf::Model& uadf,
-    const kdl::Tree& tree,
-    const SettingsWidget* settings,
-    QWidget* parent);
+    const uadf::Model& _uadf,
+    const kdl::Tree& _tree,
+    const SettingsWidget* _settings,
+    QWidget* _parent);
 
-  void generateProject(const QString& proj_path);
+  void generateProject(const QString& _proj_path);
 
-  void setClearDynamicParams(bool flag);
+  void setClearDynamicParams(bool _flag);
 
 private:
   const uadf::Model& uadf_;
@@ -57,11 +53,11 @@ private:
   Drone createDrone() const;
   bool hasServoJoint() const;
 
-  void generateMetaPackage(const inja::json& data);
-  void generateConfigPackage(const inja::json& data);
-  void generateUserMsgPackage(const inja::json& data);
-  void generateUserCppPackage(const inja::json& data);
-  void generateUserPyPackage(const inja::json& data);
+  void generateMetaPackage(const inja::json& _data);
+  void generateConfigPackage(const inja::json& _data);
+  void generateUserMsgPackage(const inja::json& _data);
+  void generateUserCppPackage(const inja::json& _data);
+  void generateUserPyPackage(const inja::json& _data);
   void generateBackupFiles();
 
   void generateDroneConfig();
@@ -77,28 +73,26 @@ private:
   void generateModifiedUrdf();
 
   /** Create an empty file. */
-  void createEmptyFile(const QString& file_path);
+  void createEmptyFile(const QString& _file_path);
 
   /** Create a YAML file with a map type and no elements. */
-  void createEmptyYaml(const QString& file_path, bool overwrite);
+  void createEmptyYaml(const QString& _file_path, bool _overwrite);
 
   /** Save `YAML::Node`. */
-  void saveYamlNode(const QString& path, const YAML::Node& node);
+  void saveYamlNode(const QString& _path, const YAML::Node& _node);
 
   /** Change mesh file paths to paths under the package. */
-  void resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem);
-  void resolveModifiedUrdfMeshFilePath(tinyxml2::XMLElement* elem);
+  void resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* _elem);
+  void resolveModifiedUrdfMeshFilePath(tinyxml2::XMLElement* _elem);
 
   /** Change mesh file paths in the original URDF to paths under the package. */
-  void replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* elem);
-  void replaceOriginalUadfMeshFilePath(tinyxml2::XMLElement* elem);
+  void replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* _elem);
+  void replaceOriginalUadfMeshFilePath(tinyxml2::XMLElement* _elem);
 
   /** Remove `limit` tags from propeller joints. */
-  void removePropellerJointLimits(tinyxml2::XMLElement* robot);
+  void removePropellerJointLimits(tinyxml2::XMLElement* _robot);
 
   /** Add Gazebo plugins and related elements to XML. */
-  void addXmlElements(tinyxml2::XMLElement* robot);
+  void addXmlElements(tinyxml2::XMLElement* _robot);
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

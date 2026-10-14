@@ -53,7 +53,7 @@ class ErrorStateKalmanFilterNode : public BaseNode
   static constexpr double kInitMagStddev = 0.5;     ///< [-]
 
 public:
-  explicit ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   geo::Geography geography_;
@@ -144,13 +144,13 @@ private:
   void registerDynamicRosParams();
   void registerRosInterfaces();
 
-  void setMagneticFieldRef(const Eigen::Vector3d& mag_W);
-  void fillOdometryMsg(tobas_msgs::OdometryWithCovarianceStamped& odom) const;
-  void publishMagRef(const Eigen::Vector3d& mag_W) const;
-  void publishGnssOrigin(double lat, double lon, double alt) const;
-  void publishFeedback(const std_msgs::msg::Header& header) const;
-  double calcGravMeasNoiseStddev(const Eigen::Vector3d& acc) const;
-  Eigen::Matrix3d calcGravMeasNoiseCov(const Eigen::Vector3d& acc) const;
+  void setMagneticFieldRef(const Eigen::Vector3d& _mag_w);
+  void fillOdometryMsg(tobas_msgs::OdometryWithCovarianceStamped& _odom) const;
+  void publishMagRef(const Eigen::Vector3d& _mag_w) const;
+  void publishGnssOrigin(double _lat, double _lon, double _alt) const;
+  void publishFeedback(const std_msgs::msg::Header& _header) const;
+  double calcGravMeasNoiseStddev(const Eigen::Vector3d& _acc) const;
+  Eigen::Matrix3d calcGravMeasNoiseCov(const Eigen::Vector3d& _acc) const;
 
   double initAccelBiasStddev() const;
   double initGyroBiasStddev() const;
@@ -159,38 +159,38 @@ private:
   double initBaroAltBiasStddev() const;
   double initGravBiasStddev() const;
 
-  void fixedAccMeasNoiseStddevCb(double p);
-  void fixedGyroMeasNoiseStddevCb(double p);
-  void fixedMagMeasNoiseStddevCb(double p);
-  void fixedHeadMeasNoiseStddevCb(double p);
-  void fixedBaroAltMeasNoiseStddevCb(double p);
-  void fixedGnssPosMeasNoiseStddevCb(double p);
-  void fixedGnssVelMeasNoiseStddevCb(double p);
-  void fixedGravMeasNoiseStddevCb(double p);
-  void adaptiveGravMeasNoiseStddevMinCb(double p);
-  void adaptiveGravMeasNoiseStddevMaxCb(double p);
-  void adaptiveGravMeasNoiseStddevRateCb(double p);
-  void accBiasProcNoiseDensityCb(double p);
-  void gyroBiasProcNoiseDensityCb(double p);
-  void magHardBiasProcNoiseDensityCb(double p);
-  void magSoftBiasProcNoiseDensityCb(double p);
-  void baroAltBiasProcNoiseDensityCb(double p);
-  void gravProcNoiseDensityCb(double ud_ug);
+  void fixedAccMeasNoiseStddevCb(double _p);
+  void fixedGyroMeasNoiseStddevCb(double _p);
+  void fixedMagMeasNoiseStddevCb(double _p);
+  void fixedHeadMeasNoiseStddevCb(double _p);
+  void fixedBaroAltMeasNoiseStddevCb(double _p);
+  void fixedGnssPosMeasNoiseStddevCb(double _p);
+  void fixedGnssVelMeasNoiseStddevCb(double _p);
+  void fixedGravMeasNoiseStddevCb(double _p);
+  void adaptiveGravMeasNoiseStddevMinCb(double _p);
+  void adaptiveGravMeasNoiseStddevMaxCb(double _p);
+  void adaptiveGravMeasNoiseStddevRateCb(double _p);
+  void accBiasProcNoiseDensityCb(double _p);
+  void gyroBiasProcNoiseDensityCb(double _p);
+  void magHardBiasProcNoiseDensityCb(double _p);
+  void magSoftBiasProcNoiseDensityCb(double _p);
+  void baroAltBiasProcNoiseDensityCb(double _p);
+  void gravProcNoiseDensityCb(double _ud_ug);
 
-  void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
-  void imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
-  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
-  void baroCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& msg);
-  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& msg);
-  void externalPoseCb(const tobas_kdl_msgs::FrameWithCovarianceStamped::ConstSharedPtr& msg);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& msg);
+  void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& _msg);
+  void imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& _msg);
+  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& _msg);
+  void baroCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& _msg);
+  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _msg);
+  void externalPoseCb(const tobas_kdl_msgs::FrameWithCovarianceStamped::ConstSharedPtr& _msg);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _msg);
 
-  void getGnssOriginCb(const GetOriginSrv::Request::ConstSharedPtr& req, const GetOriginSrv::Response::SharedPtr& res);
-  void setGnssOriginCb(const SetOriginSrv::Request::ConstSharedPtr& req, const SetOriginSrv::Response::SharedPtr& res);
+  void getGnssOriginCb(const GetOriginSrv::Request::ConstSharedPtr& _req, const GetOriginSrv::Response::SharedPtr& _res);
+  void setGnssOriginCb(const SetOriginSrv::Request::ConstSharedPtr& _req, const SetOriginSrv::Response::SharedPtr& _res);
 };
 
-ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& options)
-  : super(node::kObserver, nodeOptions_DParam(options)), tf_br_(this)
+ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& _options)
+  : super(node::kObserver, nodeOptions_DParam(_options)), tf_br_(this)
 {
   getStaticRosParams();
   setupTransformMessage();
@@ -332,10 +332,10 @@ void ErrorStateKalmanFilterNode::registerRosInterfaces()
   set_gnss_origin_ss_ = createService<SetOriginSrv>(service::kSetGnssOrigin, &self::setGnssOriginCb, this);
 }
 
-void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Eigen::Vector3d& mag_W)
+void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Eigen::Vector3d& _mag_w)
 {
   // Set the geomagnetic reference value.
-  eskf_.setMagneticFieldRef(mag_W);
+  eskf_.setMagneticFieldRef(_mag_w);
 
   // Initialize magnetometer bias.
   const auto mag_hard_bias_var = math::sqr(initMagHardBiasStddev());
@@ -358,7 +358,7 @@ void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Eigen::Vector3d& mag_
     const auto& my = mag_G.y();
 
     // Compute yaw from the new reference.
-    const auto yaw_ref = std::atan2(mag_W.y(), mag_W.x());
+    const auto yaw_ref = std::atan2(_mag_w.y(), _mag_w.x());
     const auto new_yaw = algo::wrapPi(yaw_ref - std::atan2(my, mx));
 
     // Compute the quaternion corrected only in yaw.
@@ -375,13 +375,13 @@ void ErrorStateKalmanFilterNode::setMagneticFieldRef(const Eigen::Vector3d& mag_
   }
 
   // Publish the geomagnetic reference value.
-  publishMagRef(mag_W);
+  publishMagRef(_mag_w);
 
-  TOBAS_INFO("The reference magnetic field has been set to ", mag_W.transpose(), ".");
+  TOBAS_INFO("The reference magnetic field has been set to ", _mag_w.transpose(), ".");
   mag_ref_set_ = true;
 }
 
-void ErrorStateKalmanFilterNode::fillOdometryMsg(tobas_msgs::OdometryWithCovarianceStamped& odom) const
+void ErrorStateKalmanFilterNode::fillOdometryMsg(tobas_msgs::OdometryWithCovarianceStamped& _odom) const
 {
   const Eigen::Vector3d W_Pos_WI = eskf_.getPosition();
   const Eigen::Vector3d W_Vel_WI = eskf_.getVelocity();
@@ -392,61 +392,61 @@ void ErrorStateKalmanFilterNode::fillOdometryMsg(tobas_msgs::OdometryWithCovaria
   const Eigen::Vector3d B_Gyro = imu_filt_->gyro.data - eskf_.getGyroBias();
 
   // Header
-  odom.header.stamp = imu_raw_->header.stamp;
-  odom.header.frame_id = frame::kWorld;
+  _odom.header.stamp = imu_raw_->header.stamp;
+  _odom.header.frame_id = frame::kWorld;
 
   // Position (Global): IMU frame -> Base frame
-  odom.odom.odom.frame.p.data = W_Pos_WI - W_Rot_B * imu_offset_;
-  odom.odom.position_covariance = eskf_.getPositionCovariance();
+  _odom.odom.odom.frame.p.data = W_Pos_WI - W_Rot_B * imu_offset_;
+  _odom.odom.position_covariance = eskf_.getPositionCovariance();
 
   // Linear velocity (Local): IMU frame -> Base frame
-  odom.odom.odom.twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(imu_offset_);
-  odom.odom.velocity_covariance = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
+  _odom.odom.odom.twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(imu_offset_);
+  _odom.odom.velocity_covariance = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
 
   // Orientation (Global)
-  odom.odom.odom.frame.M.data = W_Rot_B.toRotationMatrix();
-  odom.odom.orientation_covariance = eskf_.getRotationCovariance();
+  _odom.odom.odom.frame.M.data = W_Rot_B.toRotationMatrix();
+  _odom.odom.orientation_covariance = eskf_.getRotationCovariance();
 
   // Angular velocity (Local)
-  odom.odom.odom.twist.rot.data = B_Gyro;
-  odom.odom.gyro_covariance = fixed_gyro_cov_ + eskf_.getGyroBiasCovariance();
+  _odom.odom.odom.twist.rot.data = B_Gyro;
+  _odom.odom.gyro_covariance = fixed_gyro_cov_ + eskf_.getGyroBiasCovariance();
 
   // Linear acceleration (Local)
-  odom.odom.odom.accel.linear.data = B_Acc;
+  _odom.odom.odom.accel.linear.data = B_Acc;
 
   // Angular acceleration (Local)
-  odom.odom.odom.accel.angular = imu_filt_->dgyro;
+  _odom.odom.odom.accel.angular = imu_filt_->dgyro;
 }
 
-void ErrorStateKalmanFilterNode::publishMagRef(const Eigen::Vector3d& mag_W) const
+void ErrorStateKalmanFilterNode::publishMagRef(const Eigen::Vector3d& _mag_w) const
 {
   auto msg = std::make_unique<tobas_msgs::MagneticField>();
 
   msg->header.stamp = now();
-  msg->mag = mag_W;
+  msg->mag = _mag_w;
 
   mag_ref_pub_->publish(std::move(msg));
 }
 
-void ErrorStateKalmanFilterNode::publishGnssOrigin(double lat, double lon, double alt) const
+void ErrorStateKalmanFilterNode::publishGnssOrigin(double _lat, double _lon, double _alt) const
 {
   auto msg = std::make_unique<tobas_msgs::msg::GeodeticCoordinates>();
 
   msg->header.stamp = now();
-  msg->latitude = lat;
-  msg->longitude = lon;
-  msg->altitude = alt;
+  msg->latitude = _lat;
+  msg->longitude = _lon;
+  msg->altitude = _alt;
 
   gnss_origin_pub_->publish(std::move(msg));
 }
 
-void ErrorStateKalmanFilterNode::publishFeedback(const std_msgs::msg::Header& header) const
+void ErrorStateKalmanFilterNode::publishFeedback(const std_msgs::msg::Header& _header) const
 {
   // Create
   auto feedback = std::make_unique<tobas_debug_msgs::ObserverFeedback>();
 
   // Header
-  feedback->header = header;
+  feedback->header = _header;
 
   // Data
   feedback->position = eskf_.getPosition();
@@ -477,7 +477,7 @@ void ErrorStateKalmanFilterNode::publishFeedback(const std_msgs::msg::Header& he
   feedback_pub_->publish(std::move(feedback));
 }
 
-double ErrorStateKalmanFilterNode::calcGravMeasNoiseStddev(const Eigen::Vector3d& acc) const
+double ErrorStateKalmanFilterNode::calcGravMeasNoiseStddev(const Eigen::Vector3d& _acc) const
 {
   // Determine the uncertainty of the gravity-direction observation from the L2 norm of acceleration.
   // It is intuitive to consider the attitude observation from acceleration less certain as the error between
@@ -495,14 +495,14 @@ double ErrorStateKalmanFilterNode::calcGravMeasNoiseStddev(const Eigen::Vector3d
 
   // TODO: Consider the modeled dynamic acceleration.
   // TODO: Consider other profiles?
-  const auto acc_norm_diff = std::abs(acc.norm() - eskf_.getGravity());
+  const auto acc_norm_diff = std::abs(_acc.norm() - eskf_.getGravity());
   const auto grav_stddev = grav_stddev_min_ + grav_stddev_rate_ * acc_norm_diff;
   return std::min(grav_stddev, grav_stddev_max_);
 }
 
-Eigen::Matrix3d ErrorStateKalmanFilterNode::calcGravMeasNoiseCov(const Eigen::Vector3d& acc) const
+Eigen::Matrix3d ErrorStateKalmanFilterNode::calcGravMeasNoiseCov(const Eigen::Vector3d& _acc) const
 {
-  const auto grav_stddev = calcGravMeasNoiseStddev(acc);
+  const auto grav_stddev = calcGravMeasNoiseStddev(_acc);
   const auto grav_var = math::sqr(grav_stddev);
   return Eigen::Vector3d::Constant(grav_var).asDiagonal();
 }
@@ -537,135 +537,135 @@ double ErrorStateKalmanFilterNode::initGravBiasStddev() const
   return do_grav_estimation_ ? 0.1 : 0.0;
 }
 
-void ErrorStateKalmanFilterNode::fixedAccMeasNoiseStddevCb(double p)
+void ErrorStateKalmanFilterNode::fixedAccMeasNoiseStddevCb(double _p)
 {
-  const auto acc_stddev = p;  // [m/s^2]
+  const auto acc_stddev = _p;  // [m/s^2]
   const auto acc_var = math::sqr(acc_stddev);
   fixed_acc_cov_.diagonal().fill(acc_var);
 }
 
-void ErrorStateKalmanFilterNode::fixedGyroMeasNoiseStddevCb(double p)
+void ErrorStateKalmanFilterNode::fixedGyroMeasNoiseStddevCb(double _p)
 {
-  const auto gyro_stddev = p;  // [rad/s]
+  const auto gyro_stddev = _p;  // [rad/s]
   const auto gyro_var = math::sqr(gyro_stddev);
   fixed_gyro_cov_.diagonal().fill(gyro_var);
 }
 
-void ErrorStateKalmanFilterNode::fixedMagMeasNoiseStddevCb(double p)
+void ErrorStateKalmanFilterNode::fixedMagMeasNoiseStddevCb(double _p)
 {
-  const auto mag_stddev = p * 1e-2 / st::kGeomagScale;  // [-]
+  const auto mag_stddev = _p * 1e-2 / st::kGeomagScale;  // [-]
   const auto mag_var = math::sqr(mag_stddev);
   fixed_mag_cov_.diagonal().fill(mag_var);
 }
 
-void ErrorStateKalmanFilterNode::fixedHeadMeasNoiseStddevCb(double p)
+void ErrorStateKalmanFilterNode::fixedHeadMeasNoiseStddevCb(double _p)
 {
-  const auto head_stddev = p;  // [rad]
+  const auto head_stddev = _p;  // [rad]
   fixed_head_var_ = math::sqr(head_stddev);
 }
 
-void ErrorStateKalmanFilterNode::fixedBaroAltMeasNoiseStddevCb(double p)
+void ErrorStateKalmanFilterNode::fixedBaroAltMeasNoiseStddevCb(double _p)
 {
-  const auto baro_alt_stddev = p;  // [m]
+  const auto baro_alt_stddev = _p;  // [m]
   fixed_baro_alt_var_ = math::sqr(baro_alt_stddev);
 }
 
-void ErrorStateKalmanFilterNode::fixedGnssPosMeasNoiseStddevCb(double p)
+void ErrorStateKalmanFilterNode::fixedGnssPosMeasNoiseStddevCb(double _p)
 {
   assert(!adaptive_gnss_noise_);
 
-  const auto gnss_pos_stddev = p;  // [m]
+  const auto gnss_pos_stddev = _p;  // [m]
   const auto gnss_pos_var = math::sqr(gnss_pos_stddev);
   fixed_gnss_pos_cov_.diagonal().fill(gnss_pos_var);
 }
 
-void ErrorStateKalmanFilterNode::fixedGnssVelMeasNoiseStddevCb(double p)
+void ErrorStateKalmanFilterNode::fixedGnssVelMeasNoiseStddevCb(double _p)
 {
   assert(!adaptive_gnss_noise_);
 
-  const auto gnss_vel_stddev = p;  // [m/s]
+  const auto gnss_vel_stddev = _p;  // [m/s]
   const auto gnss_vel_var = math::sqr(gnss_vel_stddev);
   fixed_gnss_vel_cov_.diagonal().fill(gnss_vel_var);
 }
 
-void ErrorStateKalmanFilterNode::fixedGravMeasNoiseStddevCb(double p)
+void ErrorStateKalmanFilterNode::fixedGravMeasNoiseStddevCb(double _p)
 {
   assert(!adaptive_grav_noise_);
 
-  const auto grav_stddev = p * st::kGravity;  // [m/s^2]
+  const auto grav_stddev = _p * st::kGravity;  // [m/s^2]
   const auto grav_var = math::sqr(grav_stddev);
   fixed_grav_cov_.diagonal().fill(grav_var);
 }
 
-void ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevMinCb(double p)
+void ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevMinCb(double _p)
 {
   assert(adaptive_grav_noise_);
-  grav_stddev_min_ = p;
+  grav_stddev_min_ = _p;
 }
 
-void ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevMaxCb(double p)
+void ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevMaxCb(double _p)
 {
   assert(adaptive_grav_noise_);
-  grav_stddev_max_ = p;
+  grav_stddev_max_ = _p;
 }
 
-void ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevRateCb(double p)
+void ErrorStateKalmanFilterNode::adaptiveGravMeasNoiseStddevRateCb(double _p)
 {
   assert(adaptive_grav_noise_);
-  grav_stddev_rate_ = p;
+  grav_stddev_rate_ = _p;
 }
 
-void ErrorStateKalmanFilterNode::accBiasProcNoiseDensityCb(double p)
+void ErrorStateKalmanFilterNode::accBiasProcNoiseDensityCb(double _p)
 {
   assert(do_acc_bias_estimation_);
 
-  const auto nd = p * 1e-6 * st::kGravity;  // ug/s/√Hz -> m/s^3/√Hz
+  const auto nd = _p * 1e-6 * st::kGravity;  // ug/s/√Hz -> m/s^3/√Hz
   eskf_.setAccBiasProcNoiseDensity(nd);
 }
 
-void ErrorStateKalmanFilterNode::gyroBiasProcNoiseDensityCb(double p)
+void ErrorStateKalmanFilterNode::gyroBiasProcNoiseDensityCb(double _p)
 {
   assert(do_gyro_bias_estimation_);
 
-  const auto nd = p * 1e-3 * st::kDeg2Rad;  // mdps/s/√Hz -> rad/s^2/√Hz
+  const auto nd = _p * 1e-3 * st::kDeg2Rad;  // mdps/s/√Hz -> rad/s^2/√Hz
   eskf_.setGyroBiasProcNoiseDensity(nd);
 }
 
-void ErrorStateKalmanFilterNode::magHardBiasProcNoiseDensityCb(double p)
+void ErrorStateKalmanFilterNode::magHardBiasProcNoiseDensityCb(double _p)
 {
   assert(do_mag_hard_bias_estimation_);
 
-  const auto nd = p * 1e-5 / st::kGeomagScale;  // nT/s/√Hz -> /s/√Hz
+  const auto nd = _p * 1e-5 / st::kGeomagScale;  // nT/s/√Hz -> /s/√Hz
   eskf_.setMagHardBiasProcNoiseDensity(nd);
 }
 
-void ErrorStateKalmanFilterNode::magSoftBiasProcNoiseDensityCb(double p)
+void ErrorStateKalmanFilterNode::magSoftBiasProcNoiseDensityCb(double _p)
 {
   assert(do_mag_soft_bias_estimation_);
 
-  const auto nd = p * 1e-5 / st::kGeomagScale;  // nT/s/√Hz -> /s/√Hz
+  const auto nd = _p * 1e-5 / st::kGeomagScale;  // nT/s/√Hz -> /s/√Hz
   eskf_.setMagSoftBiasProcNoiseDensity(nd);
 }
 
-void ErrorStateKalmanFilterNode::baroAltBiasProcNoiseDensityCb(double p)
+void ErrorStateKalmanFilterNode::baroAltBiasProcNoiseDensityCb(double _p)
 {
   assert(do_baro_alt_bias_estimation_);
 
-  eskf_.setBaroAltBiasProcNoiseDensity(p);
+  eskf_.setBaroAltBiasProcNoiseDensity(_p);
 }
 
-void ErrorStateKalmanFilterNode::gravProcNoiseDensityCb(double p)
+void ErrorStateKalmanFilterNode::gravProcNoiseDensityCb(double _p)
 {
   assert(do_grav_estimation_);
 
-  const auto nd = p * 1e-6 * st::kGravity;  // ug/s/√Hz -> m/s^3/√Hz
+  const auto nd = _p * 1e-6 * st::kGravity;  // ug/s/√Hz -> m/s^3/√Hz
   eskf_.setGravProcNoiseDensity(nd);
 }
 
-void ErrorStateKalmanFilterNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& msg)
+void ErrorStateKalmanFilterNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& _msg)
 {
   // Compute IMU time.
-  const auto cur_time = ros2::chronoFromRosTime(msg->header.stamp);
+  const auto cur_time = ros2::chronoFromRosTime(_msg->header.stamp);
 
   // Initialize ESKF.
   if (!imu_raw_) {
@@ -689,16 +689,16 @@ void ErrorStateKalmanFilterNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&
       st::kGravity,                        // Init gravity
       math::sqr(initGravBiasStddev()),     // Init gravity variance
       cur_time);
-    imu_raw_ = msg;
+    imu_raw_ = _msg;
     return;
   }
 
   // Update IMU message.
-  imu_raw_ = msg;
+  imu_raw_ = _msg;
 
   // Measure IMU.
-  const auto& acc_meas = msg->accel.data;
-  const auto& gyro_meas = msg->gyro.data;
+  const auto& acc_meas = _msg->accel.data;
+  const auto& gyro_meas = _msg->gyro.data;
   const auto grav_cov = adaptive_grav_noise_ ? calcGravMeasNoiseCov(acc_meas) : fixed_grav_cov_;
   const auto result = eskf_.measureImu(acc_meas, gyro_meas, fixed_acc_cov_, fixed_gyro_cov_, grav_cov, cur_time);
   if (!result) {
@@ -723,21 +723,21 @@ void ErrorStateKalmanFilterNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr&
   tf_br_.sendTransform(tf_);
 
   // Publish feedback.
-  publishFeedback(msg->header);
+  publishFeedback(_msg->header);
 }
 
-void ErrorStateKalmanFilterNode::imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& msg)
+void ErrorStateKalmanFilterNode::imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& _msg)
 {
-  imu_filt_ = msg;
+  imu_filt_ = _msg;
 }
 
-void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg)
+void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& _msg)
 {
   if (!imu_raw_) {
     return;
   }
 
-  mag_ = msg;
+  mag_ = _msg;
 
   // If GNSS has not been received when the first geomagnetic data arrives,
   // temporarily use the first geomagnetic vector as the reference.
@@ -773,7 +773,7 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
     const auto R_W_B = eskf_.getQuaternion();
     const auto [roll, pitch, _] = st::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w());
     const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.0);
-    const auto mag_G = R_G_B * msg->mag;
+    const auto mag_G = R_G_B * _msg->mag;
 
     // Accumulate the geomagnetic vector.
     for (size_t i = 0; i < 3; ++i) {
@@ -793,8 +793,8 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
     return;
   }
 
-  const auto& mag_meas = msg->mag.data;
-  const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
+  const auto& mag_meas = _msg->mag.data;
+  const auto stamp = ros2::chronoFromRosTime(_msg->header.stamp);
 
   // Update all three axes when estimating bias; otherwise update yaw only.
   const auto use_3d = (do_mag_hard_bias_estimation_ || do_mag_soft_bias_estimation_);
@@ -805,7 +805,7 @@ void ErrorStateKalmanFilterNode::magCb(const tobas_msgs::MagneticField::ConstSha
   }
 }
 
-void ErrorStateKalmanFilterNode::baroCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& msg)
+void ErrorStateKalmanFilterNode::baroCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& _msg)
 {
   if (!imu_raw_) {
     return;
@@ -814,7 +814,7 @@ void ErrorStateKalmanFilterNode::baroCb(const tobas_msgs::msg::FluidPressure::Co
   // Set the initial barometric altitude value.
   if (!baro_alt_origin_set_) {
     constexpr size_t kInitBaroCount = 100;
-    init_pres_sum_.add(msg->pressure);
+    init_pres_sum_.add(_msg->pressure);
     if (++init_pres_cnt_ >= kInitBaroCount) {
       const auto init_pres_mean = init_pres_sum_.get() / init_pres_cnt_;
       eskf_.setAirPressureOrigin(init_pres_mean);
@@ -824,27 +824,27 @@ void ErrorStateKalmanFilterNode::baroCb(const tobas_msgs::msg::FluidPressure::Co
     return;
   }
 
-  const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
-  const auto result = eskf_.measureAirPressure(msg->pressure, fixed_baro_alt_var_, stamp);
+  const auto stamp = ros2::chronoFromRosTime(_msg->header.stamp);
+  const auto result = eskf_.measureAirPressure(_msg->pressure, fixed_baro_alt_var_, stamp);
   if (!result) {
     TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Air pressure measurement failed: ", result.error());
   }
 }
 
-void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& msg)
+void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _msg)
 {
   if (!imu_raw_ || !imu_filt_) {
     return;
   }
 
-  gnss_fix_ = (msg->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
+  gnss_fix_ = (_msg->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
   if (!gnss_fix_) {
     return;
   }
 
-  const auto& vel_meas = msg->ground_speed.data;
-  const auto& pos_cov = adaptive_gnss_noise_ ? msg->position_covariance : fixed_gnss_pos_cov_;
-  const auto& vel_cov = adaptive_gnss_noise_ ? msg->velocity_covariance : fixed_gnss_vel_cov_;
+  const auto& vel_meas = _msg->ground_speed.data;
+  const auto& pos_cov = adaptive_gnss_noise_ ? _msg->position_covariance : fixed_gnss_pos_cov_;
+  const auto& vel_cov = adaptive_gnss_noise_ ? _msg->velocity_covariance : fixed_gnss_vel_cov_;
 
   if (!gnss_) {
     // Skip initialization because initializing the GNSS position during flight is dangerous.
@@ -858,16 +858,16 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
 
     // Initial GNSS position.
     // TODO: Convert to the body frame.
-    gnss_origin_.latitude = msg->latitude;
-    gnss_origin_.longitude = msg->longitude;
-    gnss_origin_.altitude = msg->height_msl;
+    gnss_origin_.latitude = _msg->latitude;
+    gnss_origin_.longitude = _msg->longitude;
+    gnss_origin_.altitude = _msg->height_msl;
 
     // Publish the initial GNSS position.
     publishGnssOrigin(gnss_origin_.latitude, gnss_origin_.longitude, gnss_origin_.altitude);
 
     // Compute the geomagnetic reference value from the initial GNSS value.
     // TODO: Compute the reference value online according to position changes.
-    const auto mag = geography_.magneticField(msg->latitude, msg->longitude, msg->height_wgs84, tim::yearFraction());
+    const auto mag = geography_.magneticField(_msg->latitude, _msg->longitude, _msg->height_wgs84, tim::yearFraction());
     const Eigen::Vector3d mag_W(mag.east, mag.north, mag.up);  // ENU coordinates
     setMagneticFieldRef(mag_W);
 
@@ -877,14 +877,14 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
     eskf_.initializeVelocity(vel_meas, vel_cov);
   }
 
-  gnss_ = msg;
+  gnss_ = _msg;
 
   // Position observation.
   const auto pos =
-    geography_.geodeticToPlane(msg->latitude, msg->longitude, gnss_origin_.latitude, gnss_origin_.longitude);
+    geography_.geodeticToPlane(_msg->latitude, _msg->longitude, gnss_origin_.latitude, gnss_origin_.longitude);
   pos_meas_.x() = pos.east;
   pos_meas_.y() = pos.north;
-  pos_meas_.z() = msg->height_msl - gnss_origin_.altitude;
+  pos_meas_.z() = _msg->height_msl - gnss_origin_.altitude;
 
   // Covariance.
   gnss_cov_.topLeftCorner<3, 3>() = pos_cov;
@@ -893,7 +893,7 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
   // Update ESKF.
   const Eigen::Vector3d imu2gnss = gnss_offset_ - imu_offset_;
   const auto& gyro_meas = imu_filt_->gyro.data;
-  const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
+  const auto stamp = ros2::chronoFromRosTime(_msg->header.stamp);
   const auto result = eskf_.measurePosVel(pos_meas_, vel_meas, gnss_cov_, imu2gnss, gyro_meas, stamp);
   gnss_anomaly_score_ = result.value_or(NAN);
   if (!result) {
@@ -901,67 +901,67 @@ void ErrorStateKalmanFilterNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& 
   }
 }
 
-void ErrorStateKalmanFilterNode::externalPoseCb(const tobas_kdl_msgs::FrameWithCovarianceStamped::ConstSharedPtr& msg)
+void ErrorStateKalmanFilterNode::externalPoseCb(const tobas_kdl_msgs::FrameWithCovarianceStamped::ConstSharedPtr& _msg)
 {
   if (!imu_raw_ || !imu_filt_) {
     return;
   }
 
-  const auto& pose = msg->frame.frame;
+  const auto& pose = _msg->frame.frame;
   const auto& pos = pose.p;
   const auto& rot = pose.M;
-  const auto& cov = msg->frame.covariance;
+  const auto& cov = _msg->frame.covariance;
 
   Eigen::Quaterniond quat;
   rot.getQuaternion(quat.x(), quat.y(), quat.z(), quat.w());
 
-  const auto stamp = ros2::chronoFromRosTime(msg->header.stamp);
+  const auto stamp = ros2::chronoFromRosTime(_msg->header.stamp);
   const auto result = eskf_.measurePose(pos.data, quat, cov, Eigen::Vector3d::Zero(), stamp);  // TODO: offset
   if (!result) {
     TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "External pose measurement failed: ", result.error());
   }
 }
 
-void ErrorStateKalmanFilterNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& msg)
+void ErrorStateKalmanFilterNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _msg)
 {
-  arming_ = msg;
+  arming_ = _msg;
 }
 
 void ErrorStateKalmanFilterNode::getGnssOriginCb(
   const GetOriginSrv::Request::ConstSharedPtr&,
-  const GetOriginSrv::Response::SharedPtr& res)
+  const GetOriginSrv::Response::SharedPtr& _res)
 {
   if (!gnss_fix_) {
-    res->success = false;
-    res->message = "GNSS position is not fixed.";
+    _res->success = false;
+    _res->message = "GNSS position is not fixed.";
     return;
   }
 
-  res->latitude = gnss_origin_.latitude;
-  res->longitude = gnss_origin_.longitude;
-  res->altitude = gnss_origin_.altitude;
+  _res->latitude = gnss_origin_.latitude;
+  _res->longitude = gnss_origin_.longitude;
+  _res->altitude = gnss_origin_.altitude;
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
 
 void ErrorStateKalmanFilterNode::setGnssOriginCb(
-  const SetOriginSrv::Request::ConstSharedPtr& req,
-  const SetOriginSrv::Response::SharedPtr& res)
+  const SetOriginSrv::Request::ConstSharedPtr& _req,
+  const SetOriginSrv::Response::SharedPtr& _res)
 {
   if (!gnss_fix_) {
-    res->success = false;
-    res->message = "GNSS position is not fixed.";
+    _res->success = false;
+    _res->message = "GNSS position is not fixed.";
     return;
   }
 
-  gnss_origin_.latitude = req->latitude;
-  gnss_origin_.longitude = req->longitude;
+  gnss_origin_.latitude = _req->latitude;
+  gnss_origin_.longitude = _req->longitude;
 
   publishGnssOrigin(gnss_origin_.latitude, gnss_origin_.longitude, gnss_origin_.altitude);
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
 }  // namespace tobas
 

@@ -36,7 +36,12 @@ def generate_launch_description():
             PythonLaunchDescriptionSource(
                 PathJoinSubstitution([config_pkg_share, "launch", "real_realtime.launch.py"]),
             ),
-            launch_arguments={"log_level": log_level, "output": output, "multiprocess": multiprocess, "id": id}.items(),
+            launch_arguments={
+                "log_level": log_level,
+                "output": output,
+                "multiprocess": multiprocess,
+                "id": id,
+            }.items(),
         )
     )
 
@@ -45,7 +50,11 @@ def generate_launch_description():
             PythonLaunchDescriptionSource(
                 PathJoinSubstitution([config_pkg_share, "launch", "real_interface.launch.py"]),
             ),
-            launch_arguments={"log_level": log_level, "output": output, "id": id}.items(),
+            launch_arguments={
+                "log_level": log_level,
+                "output": output,
+                "id": id,
+            }.items(),
         )
     )
 

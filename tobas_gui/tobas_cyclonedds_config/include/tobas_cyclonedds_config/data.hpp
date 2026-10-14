@@ -8,9 +8,7 @@
 #include "./network_interface.hpp"
 #include "./shared_memory.hpp"
 
-namespace tobas
-{
-namespace cyclonedds
+namespace tobas::cyclonedds
 {
 struct Data
 {
@@ -18,5 +16,4 @@ struct Data
   bool redundant_networking = false;
   SharedMemory shared_memory;
 };
-}  // namespace cyclonedds
-}  // namespace tobas
+}  // namespace tobas::cyclonedds

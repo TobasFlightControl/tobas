@@ -3,11 +3,7 @@
 
 #include "tobas_bootmedia_config/bootmedia.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 QString BootMedia::string() const
 {
@@ -27,6 +23,4 @@ QString BootMedia::string() const
 
   return res.trimmed();
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

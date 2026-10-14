@@ -9,11 +9,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class ObserverFeedbackPlotWidget : public BasePlotWidget
 {
@@ -28,9 +24,9 @@ public:
   explicit ObserverFeedbackPlotWidget();
 
   void clear() override;
-  void setTimeScale(double t_start, double t_stop) override;
+  void setTimeScale(double _t_start, double _t_stop) override;
 
-  void setData(const QVector<tobas_debug_msgs::msg::ObserverFeedback>& msgs);
+  void setData(const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _msgs);
 
 private:
   QwtPlot2* acc_bias_plot_;
@@ -47,6 +43,4 @@ private:
   qwt::QwtPlotCurveWrapper baro_alt_bias_curve_;
   qwt::QwtPlotCurveWrapper gravity_curve_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

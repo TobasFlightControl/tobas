@@ -17,13 +17,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace fw
+namespace tobas::gui::sa::fw
 {
 namespace
 {
@@ -49,7 +43,7 @@ constexpr char kPitchCoefLabel[] = "Pitch Coef";
 constexpr char kYawCoefLabel[] = "Yaw Coef";
 }  // namespace
 
-ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& uadf) : super(0, kNumCols), uadf_(uadf)
+ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& _uadf) : super(0, kNumCols), uadf_(_uadf)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -114,9 +108,9 @@ YAML::Node ControlSurfacesWidget::dump() const
   return node;
 }
 
-void ControlSurfacesWidget::load(const YAML::Node& node)
+void ControlSurfacesWidget::load(const YAML::Node& _node)
 {
-  for (const auto& pair : node) {
+  for (const auto& pair : _node) {
     const auto link_name = pair.first.as<QString>();
     const auto& sub_node = pair.second;
 
@@ -147,26 +141,26 @@ QString ControlSurfacesWidget::selected() const
   return row >= 0 ? linkName(row) : "";
 }
 
-int ControlSurfacesWidget::find(const QString& link_name) const
+int ControlSurfacesWidget::find(const QString& _link_name) const
 {
   for (int row = 0; row < rowCount(); ++row) {
-    if (linkName(row) == link_name) {
+    if (linkName(row) == _link_name) {
       return row;
     }
   }
 
-  qWarning() << link_name << "is not selected as a control surface.";
+  qWarning() << _link_name << "is not selected as a control surface.";
   return -1;
 }
 
-void ControlSurfacesWidget::add(const QString& link_name)
+void ControlSurfacesWidget::add(const QString& _link_name)
 {
-  const auto joint = uadf_.urdf->getLink(link_name.toStdString())->parent_joint;
+  const auto joint = uadf_.urdf->getLink(_link_name.toStdString())->parent_joint;
 
   const auto row = rowCount();
   insertRow(row);
 
-  const auto link_name_label = new QLabel(link_name);
+  const auto link_name_label = new QLabel(_link_name);
   link_name_label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   link_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kLinkNameCol, link_name_label);
@@ -209,118 +203,115 @@ void ControlSurfacesWidget::add(const QString& link_name)
   setToDefault(row);
 }
 
-void ControlSurfacesWidget::remove(const QString& link_name)
+void ControlSurfacesWidget::remove(const QString& _link_name)
 {
-  const auto row = find(link_name);
+  const auto row = find(_link_name);
   removeRow(row);
 }
 
-QString ControlSurfacesWidget::linkName(int row) const
+QString ControlSurfacesWidget::linkName(int _row) const
 {
-  const auto cell = qt::qConstPointerCast<QLabel>(cellWidget(row, kLinkNameCol));
+  const auto cell = qt::qConstPointerCast<QLabel>(cellWidget(_row, kLinkNameCol));
   return cell->text();
 }
 
-QString ControlSurfacesWidget::jointName(int row) const
+QString ControlSurfacesWidget::jointName(int _row) const
 {
-  const auto cell = qt::qConstPointerCast<QLabel>(cellWidget(row, kJointNameCol));
+  const auto cell = qt::qConstPointerCast<QLabel>(cellWidget(_row, kJointNameCol));
   return cell->text();
 }
 
-double ControlSurfacesWidget::liftCoef(int row) const
+double ControlSurfacesWidget::liftCoef(int _row) const
 {
-  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kLiftCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kLiftCoefCol));
   return cell->value();
 }
 
-double ControlSurfacesWidget::dragCoef(int row) const
+double ControlSurfacesWidget::dragCoef(int _row) const
 {
-  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kDragCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kDragCoefCol));
   return cell->value();
 }
 
-double ControlSurfacesWidget::sideCoef(int row) const
+double ControlSurfacesWidget::sideCoef(int _row) const
 {
-  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kSideCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kSideCoefCol));
   return cell->value();
 }
 
-double ControlSurfacesWidget::rollCoef(int row) const
+double ControlSurfacesWidget::rollCoef(int _row) const
 {
-  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kRollCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kRollCoefCol));
   return cell->value();
 }
 
-double ControlSurfacesWidget::pitchCoef(int row) const
+double ControlSurfacesWidget::pitchCoef(int _row) const
 {
-  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPitchCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kPitchCoefCol));
   return cell->value();
 }
 
-double ControlSurfacesWidget::yawCoef(int row) const
+double ControlSurfacesWidget::yawCoef(int _row) const
 {
-  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(row, kYawCoefCol));
+  const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kYawCoefCol));
   return cell->value();
 }
 
-void ControlSurfacesWidget::linkName(int row, const QString& text)
+void ControlSurfacesWidget::linkName(int _row, const QString& _text)
 {
-  const auto cell = qt::qPointerCast<QLabel>(cellWidget(row, kLinkNameCol));
-  return cell->setText(text);
+  const auto cell = qt::qPointerCast<QLabel>(cellWidget(_row, kLinkNameCol));
+  return cell->setText(_text);
 }
 
-void ControlSurfacesWidget::jointName(int row, const QString& text)
+void ControlSurfacesWidget::jointName(int _row, const QString& _text)
 {
-  const auto cell = qt::qPointerCast<QLabel>(cellWidget(row, kJointNameCol));
-  return cell->setText(text);
+  const auto cell = qt::qPointerCast<QLabel>(cellWidget(_row, kJointNameCol));
+  return cell->setText(_text);
 }
 
-void ControlSurfacesWidget::liftCoef(int row, double value)
+void ControlSurfacesWidget::liftCoef(int _row, double _value)
 {
-  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kLiftCoefCol));
-  return cell->setValue(value);
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kLiftCoefCol));
+  return cell->setValue(_value);
 }
 
-void ControlSurfacesWidget::dragCoef(int row, double value)
+void ControlSurfacesWidget::dragCoef(int _row, double _value)
 {
-  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kDragCoefCol));
-  return cell->setValue(value);
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kDragCoefCol));
+  return cell->setValue(_value);
 }
 
-void ControlSurfacesWidget::sideCoef(int row, double value)
+void ControlSurfacesWidget::sideCoef(int _row, double _value)
 {
-  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kSideCoefCol));
-  return cell->setValue(value);
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kSideCoefCol));
+  return cell->setValue(_value);
 }
 
-void ControlSurfacesWidget::rollCoef(int row, double value)
+void ControlSurfacesWidget::rollCoef(int _row, double _value)
 {
-  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kRollCoefCol));
-  return cell->setValue(value);
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kRollCoefCol));
+  return cell->setValue(_value);
 }
 
-void ControlSurfacesWidget::pitchCoef(int row, double value)
+void ControlSurfacesWidget::pitchCoef(int _row, double _value)
 {
-  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kPitchCoefCol));
-  return cell->setValue(value);
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kPitchCoefCol));
+  return cell->setValue(_value);
 }
 
-void ControlSurfacesWidget::yawCoef(int row, double value)
+void ControlSurfacesWidget::yawCoef(int _row, double _value)
 {
-  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(row, kYawCoefCol));
-  return cell->setValue(value);
+  const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kYawCoefCol));
+  return cell->setValue(_value);
 }
 
-void ControlSurfacesWidget::setToDefault(int row)
+void ControlSurfacesWidget::setToDefault(int _row)
 {
-  liftCoef(row, 0.0);
-  dragCoef(row, 0.0);
-  sideCoef(row, 0.0);
-  rollCoef(row, 0.0);
-  pitchCoef(row, 0.0);
-  yawCoef(row, 0.0);
+  liftCoef(_row, 0.0);
+  dragCoef(_row, 0.0);
+  sideCoef(_row, 0.0);
+  rollCoef(_row, 0.0);
+  pitchCoef(_row, 0.0);
+  yawCoef(_row, 0.0);
 }
-}  // namespace fw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::fw

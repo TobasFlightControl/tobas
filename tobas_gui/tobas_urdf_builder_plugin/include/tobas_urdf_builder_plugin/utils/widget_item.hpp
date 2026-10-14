@@ -10,18 +10,12 @@
 #include "../view_model/link_view_model.hpp"
 #include "../view_model/visual_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 class LinkTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-  explicit LinkTreeWidgetItem(view_model::LinkViewModelPtr vm, QTreeWidget* tree_widget = nullptr);
+  explicit LinkTreeWidgetItem(view_model::LinkViewModelPtr _vm, QTreeWidget* _tree_widget = nullptr);
 
   const view_model::LinkViewModelPtr& viewModel() const;
 
@@ -32,7 +26,7 @@ private:
 class VisualListWidgetItem : public QListWidgetItem
 {
 public:
-  explicit VisualListWidgetItem(const view_model::VisualViewModelPtr& vm);
+  explicit VisualListWidgetItem(const view_model::VisualViewModelPtr& _vm);
 
   const view_model::VisualViewModelPtr& viewModel() const;
 
@@ -43,14 +37,11 @@ private:
 class CollisionListWidgetItem : public QListWidgetItem
 {
 public:
-  explicit CollisionListWidgetItem(const view_model::CollisionViewModelPtr& vm);
+  explicit CollisionListWidgetItem(const view_model::CollisionViewModelPtr& _vm);
 
   const view_model::CollisionViewModelPtr& viewModel() const;
 
 private:
   view_model::CollisionViewModelPtr vm_;
 };
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

@@ -7,14 +7,8 @@
 
 #include <QString>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 /** Build a local project without blocking Qt’s main thread. */
-std::expected<void, QString> buildLocalProject(const QString& proj_path);
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+std::expected<void, QString> buildLocalProject(const QString& _proj_path);
+}  // namespace tobas::gui::cmn

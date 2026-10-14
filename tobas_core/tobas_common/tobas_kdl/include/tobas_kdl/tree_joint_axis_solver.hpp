@@ -8,25 +8,22 @@
 #include "./tree_fk_solver_pos.hpp"
 #include "./tree_solver_i.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class TreeJointAxisSolver : public TreeSolverI
 {
   using super = TreeSolverI;
 
 public:
-  explicit TreeJointAxisSolver(const Tree& tree);
+  explicit TreeJointAxisSolver(const Tree& _tree);
 
   void updateInternalDataStructures() override;
 
   /** Compute joint axis wrt. the root frame. */
-  Vector jntToCart(const JntArray& q_in, const std::string& seg_name);
+  Vector jntToCart(const JntArray& _q_in, const std::string& _seg_name);
 
 private:
   TreeFkSolverPos fk_solver_;
 };
 
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

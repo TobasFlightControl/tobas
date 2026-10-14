@@ -7,18 +7,14 @@
 
 #include "./export_thread.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class ExportThreadRosbag : public ExportThread
 {
   Q_OBJECT
 
 public:
-  explicit ExportThreadRosbag(const QString& log_name, const QString& save_path);
+  explicit ExportThreadRosbag(const QString& _log_name, const QString& _save_path);
 
   void run() override;
 
@@ -26,8 +22,6 @@ private:
   const QString log_name_;
   const QString save_path_;
 
-  bool addZipEntry(QuaZip& zip, const QString& abs_path, const QString& zip_path);
+  bool addZipEntry(QuaZip& _zip, const QString& _abs_path, const QString& _zip_path);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

@@ -8,15 +8,11 @@
 
 #include <tobas_std_tools/vector.hpp>
 
-namespace tobas
+namespace tobas::gui::cmn
 {
-namespace gui
+NonRosArgumentParser::NonRosArgumentParser(int _argc, char** _argv)
 {
-namespace cmn
-{
-NonRosArgumentParser::NonRosArgumentParser(int argc, char** argv)
-{
-  args_ = rclcpp::remove_ros_arguments(argc, argv);
+  args_ = rclcpp::remove_ros_arguments(_argc, _argv);
 }
 
 int& NonRosArgumentParser::argc()
@@ -45,12 +41,12 @@ bool NonRosArgumentParser::setPlatformXcb()
 
   constexpr char kQtQpaPlatform[] = "QT_QPA_PLATFORM";
   if (env.contains(kQtQpaPlatform)) {
-    std::cerr << "Cannot set display platform because '" << kQtQpaPlatform << "' is set." << std::endl;
+    std::cerr << "Cannot set display platform because '" << kQtQpaPlatform << "' is set.\n";
     return false;
   }
 
   if (st::contains<std::string>(args_, "-platform")) {
-    std::cerr << "The display platform has already been specified via the arguments." << std::endl;
+    std::cerr << "The display platform has already been specified via the arguments.\n";
     return false;
   }
 
@@ -59,6 +55,4 @@ bool NonRosArgumentParser::setPlatformXcb()
 
   return true;
 }
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

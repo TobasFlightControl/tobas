@@ -8,9 +8,7 @@
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /**
  * Recursive newton euler inverse dynamics solver for kinematic trees.
@@ -29,7 +27,7 @@ class TreeIdSolver : public TreeSolverI
   using super = TreeSolverI;
 
 public:
-  explicit TreeIdSolver(const Tree& tree, const Vector& grav = Vector(0, 0, -st::kGravity));
+  explicit TreeIdSolver(const Tree& _tree, const Vector& _grav = Vector(0, 0, -st::kGravity));
 
   void updateInternalDataStructures() override;
 
@@ -37,14 +35,14 @@ public:
    * Calculate inverse dynamics, from joint positions, velocity, acceleration, external forces
    * to joint torques/forces.
    *
-   * @param q input joint positions
-   * @param qd input joint velocities
-   * @param qdd input joint accelerations
-   * @param f_ext the external forces (no gravity) on the segments
+   * @param _q input joint positions
+   * @param _qd input joint velocities
+   * @param _qdd input joint accelerations
+   * @param _f_ext the external forces (no gravity) on the segments
    * @return The solution.
    */
   const JntArray&
-  cartToJnt(const JntArray& q, const JntArray& qd, const JntArray& qdd, const WrenchMap& f_ext = WrenchMap());
+  cartToJnt(const JntArray& _q, const JntArray& _qd, const JntArray& _qdd, const WrenchMap& _f_ext = WrenchMap());
 
 private:
   const Accel ag_;
@@ -58,11 +56,10 @@ private:
   void resize();
 
   void rneStep(
-    const SegmentMap::const_iterator& cur_it,
-    const JntArray& q,
-    const JntArray& qd,
-    const JntArray& qdd,
-    const WrenchMap& f_ext);
+    const SegmentMap::const_iterator& _cur_it,
+    const JntArray& _q,
+    const JntArray& _qd,
+    const JntArray& _qdd,
+    const WrenchMap& _f_ext);
 };
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

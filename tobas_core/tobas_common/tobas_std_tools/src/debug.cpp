@@ -7,13 +7,10 @@
 
 #include "tobas_std_tools/ansi_text_styles.hpp"
 
-namespace tobas
+namespace tobas::st
 {
-namespace st
+void _printLocation(const char* _file, int _line)
 {
-void _printLocation(const char* file, int line)
-{
-  std::cout << kGreenPrefix << "Called from file " << file << ", line " << line << kColorReset << std::endl;
+  std::cout << kGreenPrefix << "Called from file " << _file << ", line " << _line << kColorReset << '\n';
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

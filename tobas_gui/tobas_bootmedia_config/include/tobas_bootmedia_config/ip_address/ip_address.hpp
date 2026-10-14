@@ -10,11 +10,7 @@
 #include "../base.hpp"
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class IpAddressWidget : public BaseConfigWidget
 {
@@ -35,13 +31,11 @@ private:
   qt::TabWidget* tabs_;
   QPushButton* write_button_;
 
-  BaseNetworkWidget* getWidget(int index);
+  BaseNetworkWidget* getWidget(int _index);
 
-  static std::string networkFilePath(const std::string& name);
+  static std::string networkFilePath(const std::string& _name);
 
 private Q_SLOTS:
   void onWriteButtonClicked();
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

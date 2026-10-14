@@ -5,17 +5,15 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace traj
+namespace tobas::traj
 {
 /** Minimum-time trajectory to the destination while satisfying acceleration and velocity constraints. (memo: 3-50) */
 class AccelLimitedTrajectory : public TrajectoryGenerator
 {
 public:
-  explicit AccelLimitedTrajectory(double p0, double v0, double pf, double vf, double max_acc);
+  explicit AccelLimitedTrajectory(double _p0, double _v0, double _pf, double _vf, double _max_acc);
 
-  TrajectoryPoint get(double t) const noexcept override;
+  TrajectoryPoint get(double _t) const noexcept override;
   double duration() const noexcept override;
 
 private:
@@ -27,5 +25,4 @@ private:
   double ts_;  ///< Switching time
   double tf_;  ///< Arrival time
 };
-}  // namespace traj
-}  // namespace tobas
+}  // namespace tobas::traj

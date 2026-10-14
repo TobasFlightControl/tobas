@@ -8,9 +8,7 @@
 #include <tobas_algorithm/kahan.hpp>
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 double TimestampedBufferDouble::max() const
 {
@@ -69,5 +67,4 @@ double TimestampedBufferDouble::stddev() const
 {
   return std::sqrt(variance());
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

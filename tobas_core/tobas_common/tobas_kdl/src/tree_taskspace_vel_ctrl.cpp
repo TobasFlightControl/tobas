@@ -5,9 +5,7 @@
 
 #include <cassert>
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 TreeTaskSpaceVelCtrl::TreeTaskSpaceVelCtrl(const Tree& _tree) : super(_tree), fk_(_tree), ik_(_tree)
 {
@@ -60,5 +58,4 @@ void TreeTaskSpaceVelCtrl::setAngularTimeConst(double _t)
   assert(_t > 0.0);
   gain_.angular.fill(1.0 / _t);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

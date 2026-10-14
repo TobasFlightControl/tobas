@@ -8,33 +8,31 @@
 
 namespace cmp = gz::sim::components;
 
-namespace tobas
+namespace tobas::gazebo
 {
-namespace gazebo
+bool belongsTo(const gz::sim::Entity& _entity, const gz::sim::Entity& _target, const gz::sim::EntityComponentManager& _ecm)
 {
-bool belongsTo(const gz::sim::Entity& entity, const gz::sim::Entity& target, const gz::sim::EntityComponentManager& ecm)
-{
-  const auto parent = ecm.ParentEntity(entity);
+  const auto parent = _ecm.ParentEntity(_entity);
   if (parent == gz::sim::kNullEntity) {
     return false;
   }
-  else if (parent == target) {
+  else if (parent == _target) {
     return true;
   }
   else {
-    return belongsTo(parent, target, ecm);
+    return belongsTo(parent, _target, _ecm);
   }
 }
 
-gz::sim::Entity findJointWithChildLink(const gz::sim::EntityComponentManager& ecm, const std::string& link_name)
+gz::sim::Entity findJointWithChildLink(const gz::sim::EntityComponentManager& _ecm, const std::string& _link_name)
 {
   auto res = gz::sim::kNullEntity;
 
-  ecm.Each<cmp::Joint, cmp::ChildLinkName>(
-    [&](const gz::sim::Entity& entity, const cmp::Joint*, const cmp::ChildLinkName* child_link_name) -> bool
+  _ecm.Each<cmp::Joint, cmp::ChildLinkName>(
+    [&](const gz::sim::Entity& _entity, const cmp::Joint*, const cmp::ChildLinkName* _child_link_name) -> bool
     {
-      if (child_link_name->Data() == link_name) {
-        res = entity;
+      if (_child_link_name->Data() == _link_name) {
+        res = _entity;
         return false;
       }
       return true;
@@ -42,5 +40,4 @@ gz::sim::Entity findJointWithChildLink(const gz::sim::EntityComponentManager& ec
 
   return res;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

@@ -7,11 +7,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ParamGetterWidget_Ratio : public ParamGetterWidget<std::pair<int, int>>
 {
@@ -21,19 +17,19 @@ class ParamGetterWidget_Ratio : public ParamGetterWidget<std::pair<int, int>>
   using super = ParamGetterWidget<ValueType>;
 
 Q_SIGNALS:
-  void valueChanged(const ValueType& value);
+  void valueChanged(const ValueType& _value);
 
 public:
-  explicit ParamGetterWidget_Ratio(const QString& param_name, const QString& description_text = "");
+  explicit ParamGetterWidget_Ratio(const QString& _param_name, const QString& _description_text = "");
 
   ValueType getValue() const override;
-  bool setValue(const ValueType& src) override;
+  bool setValue(const ValueType& _src) override;
 
-  void setMinimum(int minimum);
-  void setMaximum(int maximum);
+  void setMinimum(int _minimum);
+  void setMaximum(int _maximum);
 
-  void setLeftText(const QString& text);
-  void setRightText(const QString& text);
+  void setLeftText(const QString& _text);
+  void setRightText(const QString& _text);
 
 private Q_SLOTS:
   void onValueChanged();
@@ -44,6 +40,4 @@ private:
   QLabel* left_text_;
   QLabel* right_text_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

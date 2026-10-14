@@ -7,19 +7,17 @@
 
 #include "tobas_cyclonedds_config/constants.hpp"
 
-namespace tobas
-{
-namespace cyclonedds
+namespace tobas::cyclonedds
 {
 namespace
 {
-const char* boolToText(bool v)
+const char* boolToText(bool _v)
 {
-  return v ? "true" : "false";
+  return _v ? "true" : "false";
 }
 }  // namespace
 
-std::string exportText(const Data& src)
+std::string exportText(const Data& _src)
 {
   tinyxml2::XMLDocument doc;
 
@@ -33,7 +31,7 @@ std::string exportText(const Data& src)
 
     {
       const auto e_ifaces = e_general->InsertNewChildElement(elem::kInterfaces);
-      for (const auto& nic : src.interfaces) {
+      for (const auto& nic : _src.interfaces) {
         if (nic.name.empty()) {
           continue;
         }
@@ -44,17 +42,17 @@ std::string exportText(const Data& src)
       }
     }
 
-    e_general->InsertNewChildElement(elem::kRedundantNetworking)->SetText(boolToText(src.redundant_networking));
+    e_general->InsertNewChildElement(elem::kRedundantNetworking)->SetText(boolToText(_src.redundant_networking));
   }
 
   {
     const auto e_shared_memory = e_domain->InsertNewChildElement(elem::kSharedMemory);
 
     const auto e_enable = e_shared_memory->InsertNewChildElement(elem::kEnable);
-    e_enable->SetText(boolToText(src.shared_memory.enable));
+    e_enable->SetText(boolToText(_src.shared_memory.enable));
 
     const auto e_log_level = e_shared_memory->InsertNewChildElement(elem::kLogLevel);
-    switch (src.shared_memory.log_level) {
+    switch (_src.shared_memory.log_level) {
       case SharedMemory::kVerbose:
         e_log_level->SetText("verbose");
         break;
@@ -83,5 +81,4 @@ std::string exportText(const Data& src)
 
   return xml::xmlDocumentToString(&doc);
 }
-}  // namespace cyclonedds
-}  // namespace tobas
+}  // namespace tobas::cyclonedds

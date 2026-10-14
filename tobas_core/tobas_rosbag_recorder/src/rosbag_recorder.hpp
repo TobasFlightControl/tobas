@@ -41,7 +41,7 @@ class RosbagRecorderNode : public BaseNode
   using CleanSrv = std_srvs::srv::Trigger;
 
 public:
-  explicit RosbagRecorderNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit RosbagRecorderNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   const std::string ns_;
@@ -93,44 +93,44 @@ private:
   void publishRosbagState();
 
   template <typename MsgType>
-  inline void write(const MsgType& msg, const char* topic) noexcept;
+  inline void write(const MsgType& _msg, const char* _topic) noexcept;
 
   template <typename MsgType>
   void addStandardMsgSub(
-    const char* topic,
-    bool latch = ros2::qos::kDefaultLatch,
-    bool reliable = ros2::qos::kDefaultReliable,
-    size_t queue_size = ros2::qos::kDefaultQueueSize);
+    const char* _topic,
+    bool _latch = ros2::qos::kDefaultLatch,
+    bool _reliable = ros2::qos::kDefaultReliable,
+    size_t _queue_size = ros2::qos::kDefaultQueueSize);
 
   template <typename ExtMsgType, typename RawMsgType>
   void addTypeAdaptedMsgSub(
-    RawMsgType& raw_msg,
-    const char* topic,
-    bool latch = ros2::qos::kDefaultLatch,
-    bool reliable = ros2::qos::kDefaultReliable,
-    size_t queue_size = ros2::qos::kDefaultQueueSize);
+    RawMsgType& _raw_msg,
+    const char* _topic,
+    bool _latch = ros2::qos::kDefaultLatch,
+    bool _reliable = ros2::qos::kDefaultReliable,
+    size_t _queue_size = ros2::qos::kDefaultQueueSize);
 
   template <typename MsgType>
-  void standardMsgCb(const typename MsgType::ConstSharedPtr& msg, const char* topic);
+  void standardMsgCb(const typename MsgType::ConstSharedPtr& _msg, const char* _topic);
 
   template <typename ExtMsgType, typename RawMsgType>
-  void typeAdaptedMsgCb(const typename ExtMsgType::ConstSharedPtr& ext_msg, RawMsgType& raw_msg, const char* topic);
+  void typeAdaptedMsgCb(const typename ExtMsgType::ConstSharedPtr& _ext_msg, RawMsgType& _raw_msg, const char* _topic);
 
-  void startCb(const StartSrv::Request::ConstSharedPtr& req, const StartSrv::Response::SharedPtr& res);
-  void stopCb(const StopSrv::Request::ConstSharedPtr& req, const StopSrv::Response::SharedPtr& res);
-  void cleanCb(const CleanSrv::Request::ConstSharedPtr& req, const CleanSrv::Response::SharedPtr& res);
+  void startCb(const StartSrv::Request::ConstSharedPtr& _req, const StartSrv::Response::SharedPtr& _res);
+  void stopCb(const StopSrv::Request::ConstSharedPtr& _req, const StopSrv::Response::SharedPtr& _res);
+  void cleanCb(const CleanSrv::Request::ConstSharedPtr& _req, const CleanSrv::Response::SharedPtr& _res);
 
   void mainTimerCb();
 };
 
 template <typename MsgType>
-inline void RosbagRecorderNode::write(const MsgType& msg, const char* topic) noexcept
+inline void RosbagRecorderNode::write(const MsgType& _msg, const char* _topic) noexcept
 {
   try {
-    writer_.write(msg, ns_ + topic, now());
+    writer_.write(_msg, ns_ + _topic, now());
   }
   catch (const std::exception& e) {
-    TOBAS_ERROR("Failed to write '", topic, "': ", e.what());
+    TOBAS_ERROR("Failed to write '", _topic, "': ", e.what());
     return;
   }
 
@@ -138,52 +138,53 @@ inline void RosbagRecorderNode::write(const MsgType& msg, const char* topic) noe
 }
 
 template <typename MsgType>
-void RosbagRecorderNode::addStandardMsgSub(const char* topic, bool latch, bool reliable, size_t queue_size)
+void RosbagRecorderNode::addStandardMsgSub(const char* _topic, bool _latch, bool _reliable, size_t _queue_size)
 {
-  const ros2::qos::QoS qos(latch, reliable, queue_size);
-  const auto cb = [this, topic](const typename MsgType::ConstSharedPtr& msg) { standardMsgCb<MsgType>(msg, topic); };
-  const auto sub = create_subscription<MsgType>(topic, qos, cb);
+  const ros2::qos::QoS qos(_latch, _reliable, _queue_size);
+  const auto cb = [this, _topic](const typename MsgType::ConstSharedPtr& _msg)
+  { standardMsgCb<MsgType>(_msg, _topic); };
+  const auto sub = create_subscription<MsgType>(_topic, qos, cb);
   subs_.push_back(sub);
 }
 
 template <typename ExtMsgType, typename RawMsgType>
 void RosbagRecorderNode::addTypeAdaptedMsgSub(
-  RawMsgType& raw_msg,
-  const char* topic,
-  bool latch,
-  bool reliable,
-  size_t queue_size)
+  RawMsgType& _raw_msg,
+  const char* _topic,
+  bool _latch,
+  bool _reliable,
+  size_t _queue_size)
 {
-  const ros2::qos::QoS qos(latch, reliable, queue_size);
-  const auto cb = [this, &raw_msg, topic](const typename ExtMsgType::ConstSharedPtr& ext_msg)
-  { typeAdaptedMsgCb<ExtMsgType, RawMsgType>(ext_msg, raw_msg, topic); };
-  const auto sub = create_subscription<ExtMsgType>(topic, qos, cb);
+  const ros2::qos::QoS qos(_latch, _reliable, _queue_size);
+  const auto cb = [this, &_raw_msg, _topic](const typename ExtMsgType::ConstSharedPtr& _ext_msg)
+  { typeAdaptedMsgCb<ExtMsgType, RawMsgType>(_ext_msg, _raw_msg, _topic); };
+  const auto sub = create_subscription<ExtMsgType>(_topic, qos, cb);
   subs_.push_back(sub);
 }
 
 template <typename MsgType>
-void RosbagRecorderNode::standardMsgCb(const typename MsgType::ConstSharedPtr& msg, const char* topic)
+void RosbagRecorderNode::standardMsgCb(const typename MsgType::ConstSharedPtr& _msg, const char* _topic)
 {
   if (!recording_) {
     return;
   }
 
-  write(*msg, topic);
+  write(*_msg, _topic);
 }
 
 template <typename ExtMsgType, typename RawMsgType>
 void RosbagRecorderNode::typeAdaptedMsgCb(
-  const typename ExtMsgType::ConstSharedPtr& ext_msg,
-  RawMsgType& raw_msg,
-  const char* topic)
+  const typename ExtMsgType::ConstSharedPtr& _ext_msg,
+  RawMsgType& _raw_msg,
+  const char* _topic)
 {
   if (!recording_) {
     return;
   }
 
   // Subscribe through TypeAdapter and convert to a ROS message here to prevent serialization on the publisher side.
-  rclcpp::TypeAdapter<ExtMsgType, RawMsgType>::convert_to_ros_message(*ext_msg, raw_msg);
+  rclcpp::TypeAdapter<ExtMsgType, RawMsgType>::convert_to_ros_message(*_ext_msg, _raw_msg);
 
-  write(raw_msg, topic);
+  write(_raw_msg, _topic);
 }
 }  // namespace tobas

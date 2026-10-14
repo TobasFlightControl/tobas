@@ -22,10 +22,10 @@ class ObjectAvoidance : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit ObjectAvoidance(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit ObjectAvoidance(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
-  void octomapCallback(const octomap_msgs::msg::Octomap::ConstSharedPtr& msg);
+  void octomapCallback(const octomap_msgs::msg::Octomap::ConstSharedPtr& _msg);
   void calculateRepulsiveForce();
 
   ros2::SubscriberPtr<octomap_msgs::msg::Octomap> octomap_sub_;
@@ -38,8 +38,8 @@ private:
   double force_to_acc_gain_;
 };
 
-ObjectAvoidance::ObjectAvoidance(const rclcpp::NodeOptions& options)
-  : super("object_avoidance", nodeOptions_Default(options))
+ObjectAvoidance::ObjectAvoidance(const rclcpp::NodeOptions& _options)
+  : super("object_avoidance", nodeOptions_Default(_options))
 {
   min_safety_distance_ = getDoubleParam("min_safety_distance", 30.0);
   repulsive_gain_ = getDoubleParam("repulsive_gain", 1.0);
@@ -49,9 +49,9 @@ ObjectAvoidance::ObjectAvoidance(const rclcpp::NodeOptions& options)
   repulsive_acc_pub_ = createPublisher<tobas_msgs::RepulsiveAcceleration>(topic::kRepulsiveAccel);
 }
 
-void ObjectAvoidance::octomapCallback(const octomap_msgs::msg::Octomap::ConstSharedPtr& msg)
+void ObjectAvoidance::octomapCallback(const octomap_msgs::msg::Octomap::ConstSharedPtr& _msg)
 {
-  const auto tree = octomap_msgs::msgToMap(*msg);
+  const auto tree = octomap_msgs::msgToMap(*_msg);
 
   if (tree) {
     octree_.reset(dynamic_cast<octomap::OcTree*>(tree));

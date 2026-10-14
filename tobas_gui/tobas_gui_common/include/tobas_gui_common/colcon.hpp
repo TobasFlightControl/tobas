@@ -9,15 +9,9 @@
 
 #include <tobas_colcon_cpp/core.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 /** Run `colcon build` without blocking Qt’s main thread. */
 std::expected<void, QString>
-colconBuild(const QString& pkg_path, const QString& ws_path, const colcon::BuildOptions& options = {});
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+colconBuild(const QString& _pkg_path, const QString& _ws_path, const colcon::BuildOptions& _options = {});
+}  // namespace tobas::gui::cmn

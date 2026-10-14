@@ -15,9 +15,7 @@
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_std_tools/timestamped_buffer.hpp>
 
-namespace tobas
-{
-namespace eskf
+namespace tobas::eskf
 {
 /**
  * Error-state Kalman filter.
@@ -69,50 +67,50 @@ public:
   explicit ErrorStateKalmanFilter();
 
   void initialize(
-    const Eigen::Vector3d& init_pos,
-    const Eigen::Matrix3d& init_pos_cov,
-    const Eigen::Vector3d& init_vel,
-    const Eigen::Matrix3d& init_vel_cov,
-    const Eigen::Quaterniond& init_quat,
-    const Eigen::Matrix3d& init_dtheta_cov,
-    const Eigen::Vector3d& init_acc_bias,
-    const Eigen::Matrix3d& init_acc_bias_cov,
-    const Eigen::Vector3d& init_gyro_bias,
-    const Eigen::Matrix3d& init_gyro_bias_cov,
-    const Eigen::Vector3d& init_mag_hard_bias,
-    const Eigen::Matrix3d& init_mag_hard_bias_cov,
-    const Eigen::Matrix3d& init_mag_soft_bias,
-    const Eigen::Matrix6d& init_mag_soft_bias_cov,
-    double init_baro_alt_bias,
-    double init_baro_alt_bias_var,
-    double init_grav,
-    double init_grav_var,
-    const std::chrono::steady_clock::time_point& time);
+    const Eigen::Vector3d& _init_pos,
+    const Eigen::Matrix3d& _init_pos_cov,
+    const Eigen::Vector3d& _init_vel,
+    const Eigen::Matrix3d& _init_vel_cov,
+    const Eigen::Quaterniond& _init_quat,
+    const Eigen::Matrix3d& _init_dtheta_cov,
+    const Eigen::Vector3d& _init_acc_bias,
+    const Eigen::Matrix3d& _init_acc_bias_cov,
+    const Eigen::Vector3d& _init_gyro_bias,
+    const Eigen::Matrix3d& _init_gyro_bias_cov,
+    const Eigen::Vector3d& _init_mag_hard_bias,
+    const Eigen::Matrix3d& _init_mag_hard_bias_cov,
+    const Eigen::Matrix3d& _init_mag_soft_bias,
+    const Eigen::Matrix6d& _init_mag_soft_bias_cov,
+    double _init_baro_alt_bias,
+    double _init_baro_alt_bias_var,
+    double _init_grav,
+    double _init_grav_var,
+    const std::chrono::steady_clock::time_point& _time);
 
-  void initializePosition(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
-  void initializeVelocity(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
-  void initializeQuaternion(const Eigen::Quaterniond& value, const Eigen::Matrix3d& cov);
-  void initializeAccelBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
-  void initializeGyroBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
-  void initializeMagHardBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
-  void initializeMagSoftBias(const Eigen::Matrix3d& value, const Eigen::Matrix6d& cov);
-  void initializeBaroAltBias(double value, double var);
-  void initializeGravity(double value, double var);
+  void initializePosition(const Eigen::Vector3d& _value, const Eigen::Matrix3d& _cov);
+  void initializeVelocity(const Eigen::Vector3d& _value, const Eigen::Matrix3d& _cov);
+  void initializeQuaternion(const Eigen::Quaterniond& _value, const Eigen::Matrix3d& _cov);
+  void initializeAccelBias(const Eigen::Vector3d& _value, const Eigen::Matrix3d& _cov);
+  void initializeGyroBias(const Eigen::Vector3d& _value, const Eigen::Matrix3d& _cov);
+  void initializeMagHardBias(const Eigen::Vector3d& _value, const Eigen::Matrix3d& _cov);
+  void initializeMagSoftBias(const Eigen::Matrix3d& _value, const Eigen::Matrix6d& _cov);
+  void initializeBaroAltBias(double _value, double _var);
+  void initializeGravity(double _value, double _var);
 
-  void enableSecondIntegral(bool enable);
-  void enableCovSymmetrisation(bool enable);
-  void enableCovInitialization(bool enable);
-  void enableJosephForm(bool enable);
+  void enableSecondIntegral(bool _enable);
+  void enableCovSymmetrisation(bool _enable);
+  void enableCovInitialization(bool _enable);
+  void enableJosephForm(bool _enable);
 
-  void setAccBiasProcNoiseDensity(double value);      // [m/s^3/√Hz]
-  void setGyroBiasProcNoiseDensity(double value);     // [rad/s^2/√Hz]
-  void setMagHardBiasProcNoiseDensity(double value);  // [/s/√Hz]
-  void setMagSoftBiasProcNoiseDensity(double value);  // [/s/√Hz]
-  void setBaroAltBiasProcNoiseDensity(double value);  // [m/s/√Hz]
-  void setGravProcNoiseDensity(double value);         // [m/s^3/√Hz]
+  void setAccBiasProcNoiseDensity(double _value);      // [m/s^3/√Hz]
+  void setGyroBiasProcNoiseDensity(double _value);     // [rad/s^2/√Hz]
+  void setMagHardBiasProcNoiseDensity(double _value);  // [/s/√Hz]
+  void setMagSoftBiasProcNoiseDensity(double _value);  // [/s/√Hz]
+  void setBaroAltBiasProcNoiseDensity(double _value);  // [m/s/√Hz]
+  void setGravProcNoiseDensity(double _value);         // [m/s^3/√Hz]
 
-  void setMagneticFieldRef(const Eigen::Vector3d& mag_W);
-  void setAirPressureOrigin(double pres);
+  void setMagneticFieldRef(const Eigen::Vector3d& _mag_w);
+  void setAirPressureOrigin(double _pres);
 
   // Direct value getters
   inline Eigen::Vector3d getPosition() const;
@@ -141,86 +139,86 @@ public:
   /**
    * Predict the next state from acceleration and gyro measurements, and correct the attitude.
    *
-   * @param acc_meas [m/s^2] Measured acceleration.
-   * @param gyro_meas [rad/s] Measured gyro value.
-   * @param acc_cov [m^2/s^4] Covariance of acceleration measurement noise.
-   * @param gyro_cov [rad^2/s^2] Covariance of gyro measurement noise.
-   * @param grav_cov [m^2/s^4] Covariance of gravitational acceleration measurement noise.
-   * @param time [s] Current time.
+   * @param _acc_meas [m/s^2] Measured acceleration.
+   * @param _gyro_meas [rad/s] Measured gyro value.
+   * @param _acc_cov [m^2/s^4] Covariance of acceleration measurement noise.
+   * @param _gyro_cov [rad^2/s^2] Covariance of gyro measurement noise.
+   * @param _grav_cov [m^2/s^4] Covariance of gravitational acceleration measurement noise.
+   * @param _time [s] Current time.
    * @return Anomaly score, or an error message if attitude correction cannot be performed.
    *
    * @note During free fall, state prediction is still applied before returning an error.
    */
   std::expected<double, std::string> measureImu(
-    const Eigen::Vector3d& acc_meas,
-    const Eigen::Vector3d& gyro_meas,
-    const Eigen::Matrix3d& acc_cov,
-    const Eigen::Matrix3d& gyro_cov,
-    const Eigen::Matrix3d& grav_cov,
-    const std::chrono::steady_clock::time_point& time);
+    const Eigen::Vector3d& _acc_meas,
+    const Eigen::Vector3d& _gyro_meas,
+    const Eigen::Matrix3d& _acc_cov,
+    const Eigen::Matrix3d& _gyro_cov,
+    const Eigen::Matrix3d& _grav_cov,
+    const std::chrono::steady_clock::time_point& _time);
 
   /**
    * Apply a position observation to the nominal state.
    *
-   * @param pos_meas Position observation expressed in the world coordinate system.
-   * @param pos_cov Covariance of position measurement noise.
-   * @param offset Offset of the observation frame from the IMU frame, expressed in the IMU frame.
+   * @param _pos_meas Position observation expressed in the world coordinate system.
+   * @param _pos_cov Covariance of position measurement noise.
+   * @param _offset Offset of the observation frame from the IMU frame, expressed in the IMU frame.
    * @return Anomaly score, or an error message if the observation cannot be applied.
    */
   std::expected<double, std::string> measurePosition(
-    const Eigen::Vector3d& pos_meas,
-    const Eigen::Matrix3d& pos_cov,
-    const Eigen::Vector3d& offset,
-    const std::chrono::steady_clock::time_point& time);
+    const Eigen::Vector3d& _pos_meas,
+    const Eigen::Matrix3d& _pos_cov,
+    const Eigen::Vector3d& _offset,
+    const std::chrono::steady_clock::time_point& _time);
 
   /**
    * Apply a velocity observation to the nominal state.
    *
-   * @param vel_meas Velocity observation expressed in the world coordinate system.
-   * @param vel_cov Covariance of velocity measurement noise.
-   * @param offset Offset of the observation frame from the IMU frame, expressed in the IMU frame.
-   * @param gyro_meas Gyro sensor reading.
+   * @param _vel_meas Velocity observation expressed in the world coordinate system.
+   * @param _vel_cov Covariance of velocity measurement noise.
+   * @param _offset Offset of the observation frame from the IMU frame, expressed in the IMU frame.
+   * @param _gyro_meas Gyro sensor reading.
    * @return Anomaly score, or an error message if the observation cannot be applied.
    */
   std::expected<double, std::string> measureVelocity(
-    const Eigen::Vector3d& vel_meas,
-    const Eigen::Matrix3d& vel_cov,
-    const Eigen::Vector3d& offset,
-    const Eigen::Vector3d& gyro_meas,
-    const std::chrono::steady_clock::time_point& time);
+    const Eigen::Vector3d& _vel_meas,
+    const Eigen::Matrix3d& _vel_cov,
+    const Eigen::Vector3d& _offset,
+    const Eigen::Vector3d& _gyro_meas,
+    const std::chrono::steady_clock::time_point& _time);
 
   std::expected<double, std::string> measurePosVel(
-    const Eigen::Vector3d& pos_meas,
-    const Eigen::Vector3d& vel_meas,
-    const Eigen::Matrix6d& cov,
-    const Eigen::Vector3d& offset,
-    const Eigen::Vector3d& gyro_meas,
-    const std::chrono::steady_clock::time_point& time);
+    const Eigen::Vector3d& _pos_meas,
+    const Eigen::Vector3d& _vel_meas,
+    const Eigen::Matrix6d& _cov,
+    const Eigen::Vector3d& _offset,
+    const Eigen::Vector3d& _gyro_meas,
+    const std::chrono::steady_clock::time_point& _time);
 
   std::expected<double, std::string> measureQuaternion(
-    const Eigen::Quaterniond& q_meas,
-    const Eigen::Matrix3d& theta_cov,
-    const std::chrono::steady_clock::time_point& time);
+    const Eigen::Quaterniond& _q_meas,
+    const Eigen::Matrix3d& _theta_cov,
+    const std::chrono::steady_clock::time_point& _time);
 
   std::expected<double, std::string> measurePose(
-    const Eigen::Vector3d& pos_meas,
-    const Eigen::Quaterniond& q_meas,
-    const Eigen::Matrix6d& cov,
-    const Eigen::Vector3d& offset,
-    const std::chrono::steady_clock::time_point& time);
+    const Eigen::Vector3d& _pos_meas,
+    const Eigen::Quaterniond& _q_meas,
+    const Eigen::Matrix6d& _cov,
+    const Eigen::Vector3d& _offset,
+    const std::chrono::steady_clock::time_point& _time);
 
   std::expected<double, std::string> measureMagneticField3d(
-    const Eigen::Vector3d& mag_meas,
-    const Eigen::Matrix3d& mag_cov,
-    const std::chrono::steady_clock::time_point& time);
+    const Eigen::Vector3d& _mag_meas,
+    const Eigen::Matrix3d& _mag_cov,
+    const std::chrono::steady_clock::time_point& _time);
 
   std::expected<double, std::string> measureMagneticFieldHead(
-    const Eigen::Vector3d& mag_meas,
-    double yaw_var,
-    const std::chrono::steady_clock::time_point& time);
+    const Eigen::Vector3d& _mag_meas,
+    double _yaw_var,
+    const std::chrono::steady_clock::time_point& _time);
 
   std::expected<double, std::string>
-  measureAirPressure(double pres, double alt_var, const std::chrono::steady_clock::time_point& time);
+  measureAirPressure(double _pres, double _alt_var, const std::chrono::steady_clock::time_point& _time);
 
 private:
   // Configuration
@@ -257,68 +255,68 @@ private:
   double baro_alt_origin_ = 0.0;
 
   // Direct value getters
-  inline Eigen::Vector3d getPosition(const StateVector& x) const;
-  inline Eigen::Vector3d getVelocity(const StateVector& x) const;
-  inline Eigen::Vector4d getHamilton(const StateVector& x) const;
-  inline Eigen::Vector3d getAccelBias(const StateVector& x) const;
-  inline Eigen::Vector3d getGyroBias(const StateVector& x) const;
-  inline Eigen::Vector3d getMagHardBias(const StateVector& x) const;
-  inline Eigen::Matrix3d getMagSoftBias(const StateVector& x) const;
-  inline double getBaroAltBias(const StateVector& x) const;
-  inline double getGravity(const StateVector& x) const;
+  inline Eigen::Vector3d getPosition(const StateVector& _x) const;
+  inline Eigen::Vector3d getVelocity(const StateVector& _x) const;
+  inline Eigen::Vector4d getHamilton(const StateVector& _x) const;
+  inline Eigen::Vector3d getAccelBias(const StateVector& _x) const;
+  inline Eigen::Vector3d getGyroBias(const StateVector& _x) const;
+  inline Eigen::Vector3d getMagHardBias(const StateVector& _x) const;
+  inline Eigen::Matrix3d getMagSoftBias(const StateVector& _x) const;
+  inline double getBaroAltBias(const StateVector& _x) const;
+  inline double getGravity(const StateVector& _x) const;
 
   // Extended value getters
-  inline Eigen::Vector2d getXY(const StateVector& x) const;
-  inline double getAltitude(const StateVector& x) const;
-  inline Eigen::Vector3d getPosition(const StateVector& x, const Eigen::Vector3d& offset) const;
+  inline Eigen::Vector2d getXY(const StateVector& _x) const;
+  inline double getAltitude(const StateVector& _x) const;
+  inline Eigen::Vector3d getPosition(const StateVector& _x, const Eigen::Vector3d& _offset) const;
   inline Eigen::Vector3d
-  getVelocity(const StateVector& x, const Eigen::Vector3d& offset, const Eigen::Vector3d& gyro_meas) const;
-  inline Eigen::Quaterniond getQuaternion(const StateVector& x) const;
-  inline Eigen::Matrix3d getDCM(const StateVector& x) const;
-  inline Eigen::Vector3d getGravVector(const StateVector& x) const;
+  getVelocity(const StateVector& _x, const Eigen::Vector3d& _offset, const Eigen::Vector3d& _gyro_meas) const;
+  inline Eigen::Quaterniond getQuaternion(const StateVector& _x) const;
+  inline Eigen::Matrix3d getDCM(const StateVector& _x) const;
+  inline Eigen::Vector3d getGravVector(const StateVector& _x) const;
 
   /** (281) */
-  Eigen::Matrix<double, 4, 3> getQ_dtheta(const StateVector& x) const;
+  Eigen::Matrix<double, 4, 3> getQ_dtheta(const StateVector& _x) const;
 
   /** Partial derivative of vector `v` rotated by `q` with respect to `q`: `d(q * v * q') / d(q)`. */
-  Eigen::Matrix<double, 3, 4> quatRotationDerivative(const StateVector& x, const Eigen::Vector3d& a) const;
+  Eigen::Matrix<double, 3, 4> quatRotationDerivative(const StateVector& _x, const Eigen::Vector3d& _a) const;
 
   /** Output equation from quaternion to yaw. */
-  std::expected<Eigen::RowVector4d, std::string> hamiltonToYawOutputMatrix(const StateVector& x) const;
+  std::expected<Eigen::RowVector4d, std::string> hamiltonToYawOutputMatrix(const StateVector& _x) const;
 
-  void setMagSoftBiasFromMatrix(const Eigen::Matrix3d& T);
+  void setMagSoftBiasFromMatrix(const Eigen::Matrix3d& _t);
   void applyConstraints();
   void resetStateHistory();
 
   /**
    * Observation of the gravity direction, used to correct the attitude.
    *
-   * @param acc_meas Accelerometer reading.
-   * @param grav_cov Parameter that controls the correction amount from the observation.
+   * @param _acc_meas Accelerometer reading.
+   * @param _grav_cov Parameter that controls the correction amount from the observation.
    * It is mathematically treated as covariance,
    * but it should be tuned because the generally correct value is unknown;
    * in addition to sensor noise, the variance of the estimated attitude also affects it.
    * @return Anomaly score, or an error message if the observation cannot be applied.
    */
   std::expected<double, std::string> measureGravity(
-    const Eigen::Vector3d& acc_meas,
-    const Eigen::Matrix3d& grav_cov,
-    const std::chrono::steady_clock::time_point& time);
+    const Eigen::Vector3d& _acc_meas,
+    const Eigen::Matrix3d& _grav_cov,
+    const std::chrono::steady_clock::time_point& _time);
 
   /**
    * Compute posterior estimates of the state and covariance from an observation.
    *
    * @tparam M Observation dimension.
-   * @param delta_meas Error between the observation and the nominal state.
-   * @param meas_cov Covariance of observation noise.
-   * @param H Observation equation.
+   * @param _delta_meas Error between the observation and the nominal state.
+   * @param _meas_cov Covariance of observation noise.
+   * @param _h Observation equation.
    * @return Anomaly score
    */
   template <int M>
   double correct(
-    const Eigen::Matrix<double, M, 1>& delta_meas,
-    const Eigen::Matrix<double, M, M>& meas_cov,
-    const Eigen::Matrix<double, M, kDeltaStateSize>& H);
+    const Eigen::Matrix<double, M, 1>& _delta_meas,
+    const Eigen::Matrix<double, M, M>& _meas_cov,
+    const Eigen::Matrix<double, M, kDeltaStateSize>& _h);
 };
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition() const
@@ -416,39 +414,39 @@ inline double ErrorStateKalmanFilter::getBaroAltBiasVariance() const
   return P_(kDeltaBaroAltBiasIdx, kDeltaBaroAltBiasIdx);
 }
 
-inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition(const StateVector& x) const
+inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition(const StateVector& _x) const
 {
-  return x.segment<3>(kPosIdx);
+  return _x.segment<3>(kPosIdx);
 }
 
-inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity(const StateVector& x) const
+inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity(const StateVector& _x) const
 {
-  return x.segment<3>(kVelIdx);
+  return _x.segment<3>(kVelIdx);
 }
 
-inline Eigen::Vector4d ErrorStateKalmanFilter::getHamilton(const StateVector& x) const
+inline Eigen::Vector4d ErrorStateKalmanFilter::getHamilton(const StateVector& _x) const
 {
-  return x.segment<4>(kQuatIdx);
+  return _x.segment<4>(kQuatIdx);
 }
 
-inline Eigen::Vector3d ErrorStateKalmanFilter::getAccelBias(const StateVector& x) const
+inline Eigen::Vector3d ErrorStateKalmanFilter::getAccelBias(const StateVector& _x) const
 {
-  return x.segment<3>(kAccBiasIdx);
+  return _x.segment<3>(kAccBiasIdx);
 }
 
-inline Eigen::Vector3d ErrorStateKalmanFilter::getGyroBias(const StateVector& x) const
+inline Eigen::Vector3d ErrorStateKalmanFilter::getGyroBias(const StateVector& _x) const
 {
-  return x.segment<3>(kGyroBiasIdx);
+  return _x.segment<3>(kGyroBiasIdx);
 }
 
-inline Eigen::Vector3d ErrorStateKalmanFilter::getMagHardBias(const StateVector& x) const
+inline Eigen::Vector3d ErrorStateKalmanFilter::getMagHardBias(const StateVector& _x) const
 {
-  return x.segment<3>(kMagHardBiasIdx);
+  return _x.segment<3>(kMagHardBiasIdx);
 }
 
-inline Eigen::Matrix3d ErrorStateKalmanFilter::getMagSoftBias(const StateVector& x) const
+inline Eigen::Matrix3d ErrorStateKalmanFilter::getMagSoftBias(const StateVector& _x) const
 {
-  const Eigen::Vector6d tp = x.segment<6>(kMagSoftBiasIdx);
+  const Eigen::Vector6d tp = _x.segment<6>(kMagSoftBiasIdx);
   const auto& a = tp(0);
   const auto& b = tp(1);
   const auto& c = tp(2);
@@ -458,77 +456,77 @@ inline Eigen::Matrix3d ErrorStateKalmanFilter::getMagSoftBias(const StateVector&
   return (Eigen::Matrix3d() << a, b, c, b, d, e, c, e, f).finished();
 }
 
-inline double ErrorStateKalmanFilter::getBaroAltBias(const StateVector& x) const
+inline double ErrorStateKalmanFilter::getBaroAltBias(const StateVector& _x) const
 {
-  return x(kBaroAltBiasIdx);
+  return _x(kBaroAltBiasIdx);
 }
 
-inline double ErrorStateKalmanFilter::getGravity(const StateVector& x) const
+inline double ErrorStateKalmanFilter::getGravity(const StateVector& _x) const
 {
-  return x(kGravIdx);
+  return _x(kGravIdx);
 }
 
-inline Eigen::Vector2d ErrorStateKalmanFilter::getXY(const StateVector& x) const
+inline Eigen::Vector2d ErrorStateKalmanFilter::getXY(const StateVector& _x) const
 {
-  return x.block<2, 1>(kPosIdx, 0);
+  return _x.block<2, 1>(kPosIdx, 0);
 }
 
-inline double ErrorStateKalmanFilter::getAltitude(const StateVector& x) const
+inline double ErrorStateKalmanFilter::getAltitude(const StateVector& _x) const
 {
-  return x(kAltIdx);
+  return _x(kAltIdx);
 }
 
-inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition(const StateVector& x, const Eigen::Vector3d& offset) const
+inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition(const StateVector& _x, const Eigen::Vector3d& _offset) const
 {
-  return getPosition(x) + getQuaternion(x) * offset;
+  return getPosition(_x) + getQuaternion(_x) * _offset;
 }
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity(
-  const StateVector& x,
-  const Eigen::Vector3d& offset,
-  const Eigen::Vector3d& gyro_meas) const
+  const StateVector& _x,
+  const Eigen::Vector3d& _offset,
+  const Eigen::Vector3d& _gyro_meas) const
 {
-  return getVelocity(x) + getQuaternion(x) * (gyro_meas - getGyroBias(x)).cross(offset);
+  return getVelocity(_x) + getQuaternion(_x) * (_gyro_meas - getGyroBias(_x)).cross(_offset);
 }
 
-inline Eigen::Quaterniond ErrorStateKalmanFilter::getQuaternion(const StateVector& x) const
+inline Eigen::Quaterniond ErrorStateKalmanFilter::getQuaternion(const StateVector& _x) const
 {
-  return eigen::quaternionFromHamilton(getHamilton(x));
+  return eigen::quaternionFromHamilton(getHamilton(_x));
 }
 
-inline Eigen::Matrix3d ErrorStateKalmanFilter::getDCM(const StateVector& x) const
+inline Eigen::Matrix3d ErrorStateKalmanFilter::getDCM(const StateVector& _x) const
 {
-  return getQuaternion(x).toRotationMatrix();
+  return getQuaternion(_x).toRotationMatrix();
 }
 
-inline Eigen::Vector3d ErrorStateKalmanFilter::getGravVector(const StateVector& x) const
+inline Eigen::Vector3d ErrorStateKalmanFilter::getGravVector(const StateVector& _x) const
 {
-  return Eigen::Vector3d(0, 0, -getGravity(x));
+  return Eigen::Vector3d(0, 0, -getGravity(_x));
 }
 
 template <int M>
 double ErrorStateKalmanFilter::correct(
-  const Eigen::Matrix<double, M, 1>& delta_meas,
-  const Eigen::Matrix<double, M, M>& meas_cov,
-  const Eigen::Matrix<double, M, kDeltaStateSize>& H)
+  const Eigen::Matrix<double, M, 1>& _delta_meas,
+  const Eigen::Matrix<double, M, M>& _meas_cov,
+  const Eigen::Matrix<double, M, kDeltaStateSize>& _h)
 {
-  assert(eigen::isSymmetricPositiveDefinite(meas_cov));
+  assert(eigen::isSymmetricPositiveDefinite(_meas_cov));
 
   // (274) Compute kalman gain
-  const Eigen::Matrix<double, kDeltaStateSize, M> PHt = P_ * H.transpose();
-  const Eigen::Matrix<double, M, M> Sigma_inv = (H * PHt + meas_cov).inverse();
+  const Eigen::Matrix<double, kDeltaStateSize, M> PHt = P_ * _h.transpose();
+  const Eigen::Matrix<double, M, M> Sigma_inv = (_h * PHt + _meas_cov).inverse();
   const Eigen::Matrix<double, kDeltaStateSize, M> K = PHt * Sigma_inv;
 
   // (275) Compute error state
-  const DeltaStateVector delta_x = K * delta_meas;
+  const DeltaStateVector delta_x = K * _delta_meas;
 
   // (276) Update covariance matrix
   const auto I = DeltaStateVector::Ones().asDiagonal();
-  const DeltaStateMatrix I_KH = I - K * H;
+  const DeltaStateMatrix I_KH = I - K * _h;
   if (enable_joseph_form_) {
     // Easier to keep symmetric positive definiteness.
     const auto P1 = I_KH * P_.selfadjointView<Eigen::Lower>() * I_KH.transpose();
-    const auto P2 = K * meas_cov.template selfadjointView<Eigen::Lower>() * K.transpose();
+    const auto P2 = K * _meas_cov.template selfadjointView<Eigen::Lower>() * K.transpose();
     P_ = P1 + P2;
   }
   else {
@@ -559,8 +557,7 @@ double ErrorStateKalmanFilter::correct(
   applyConstraints();
 
   // Compute anomaly score.
-  const double anomaly_score = (delta_meas.transpose() * Sigma_inv * delta_meas)(0) / M;
+  const double anomaly_score = (_delta_meas.transpose() * Sigma_inv * _delta_meas)(0) / M;
   return anomaly_score;
 }
-}  // namespace eskf
-}  // namespace tobas
+}  // namespace tobas::eskf

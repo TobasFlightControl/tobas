@@ -15,9 +15,7 @@
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 TobasRenderInfo::TobasRenderInfo()
 {
@@ -34,13 +32,13 @@ void TobasRenderInfo::LoadConfig(const tinyxml2::XMLElement*)
   gz::gui::App()->findChild<gz::gui::MainWindow*>()->installEventFilter(this);
 }
 
-bool TobasRenderInfo::eventFilter(QObject* obj, QEvent* event)
+bool TobasRenderInfo::eventFilter(QObject* _obj, QEvent* _event)
 {
-  if (event->type() == gz::gui::events::Render::kType) {
+  if (_event->type() == gz::gui::events::Render::kType) {
     onRender();
   }
 
-  return super::eventFilter(obj, event);
+  return super::eventFilter(_obj, _event);
 }
 
 void TobasRenderInfo::onRender()
@@ -58,7 +56,7 @@ void TobasRenderInfo::onRender()
   }
 
   if (now <= t_last_tick_) {
-    gzwarn << "The steady clock is not advancing." << std::endl;
+    gzwarn << "The steady clock is not advancing.\n";
     return;
   }
 
@@ -82,7 +80,6 @@ void TobasRenderInfo::onRender()
     t_last_pub_ = now;
   }
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(tobas::gazebo::TobasRenderInfo, gz::gui::Plugin)

@@ -6,20 +6,16 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 namespace
 {
 constexpr char kInterfaceKey[] = "interface";
 }  // namespace
 
-std::expected<NetworkConfig, QString> loadNetworkConfig(const QString& path)
+std::expected<NetworkConfig, QString> loadNetworkConfig(const QString& _path)
 {
-  const auto node = yaml::load(path.toStdString());
+  const auto node = yaml::load(_path.toStdString());
   if (!node) {
     return std::unexpected(QString::fromStdString(node.error()));
   }
@@ -32,18 +28,16 @@ std::expected<NetworkConfig, QString> loadNetworkConfig(const QString& path)
   return config;
 }
 
-std::expected<void, QString> saveNetworkConfig(const QString& path, const NetworkConfig& config)
+std::expected<void, QString> saveNetworkConfig(const QString& _path, const NetworkConfig& _config)
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kInterfaceKey] = config.interface;
+  node[kInterfaceKey] = _config.interface;
 
-  if (const auto result = yaml::save(path.toStdString(), node); !result) {
+  if (const auto result = yaml::save(_path.toStdString(), node); !result) {
     return std::unexpected(QString::fromStdString(result.error()));
   }
 
   return {};
 }
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

@@ -9,18 +9,16 @@
 #include "./filter/asymmetric_first_order_filter.hpp"
 #include "./ice_rotor_model.hpp"
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class EngineModel
 {
   using self = EngineModel;
 
 public:
-  explicit EngineModel(const IceRotorModelMap& rotors);
+  explicit EngineModel(const IceRotorModelMap& _rotors);
 
-  bool initialize(const sdf::ElementConstPtr& sdf);
+  bool initialize(const sdf::ElementConstPtr& _sdf);
 
   /** Rotational speed [rad/s]. */
   double getSpeed() const;
@@ -31,9 +29,9 @@ public:
   /** Vibration force [N]. */
   double getVibrationForce();
 
-  void setThrottle(double throttle);
+  void setThrottle(double _throttle);
 
-  void step(double dt);
+  void step(double _dt);
 
 private:
   const IceRotorModelMap& rotors_;
@@ -61,18 +59,17 @@ private:
   std::mt19937 rnd_gen_;
   RiceDistribution rice_;
 
-  bool getSdfParams(const sdf::ElementConstPtr& sdf);
+  bool getSdfParams(const sdf::ElementConstPtr& _sdf);
 
   /** Compute steady-state rotational speed from engine throttle and propeller pitch angle (memo: 3-29). */
   double computeSteadySpeed();
 
   /** Function passed to the Newton-method solver (memo: 3-29). */
-  double speedFunc(double omega) const;
-  double speedFuncDeriv(double omega) const;
+  double speedFunc(double _omega) const;
+  double speedFuncDeriv(double _omega) const;
 
   double calc_phi() const;
   double calc_f() const;
   double calc_k() const;
 };
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

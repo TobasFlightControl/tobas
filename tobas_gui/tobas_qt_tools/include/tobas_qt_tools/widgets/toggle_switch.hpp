@@ -5,9 +5,7 @@
 
 #include "./widget.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class ToggleSwitch : public qt::Widget
 {
@@ -16,10 +14,10 @@ class ToggleSwitch : public qt::Widget
   using super = qt::Widget;
 
 Q_SIGNALS:
-  void toggled(bool checked);
+  void toggled(bool _checked);
 
 public:
-  explicit ToggleSwitch(QWidget* parent = nullptr);
+  explicit ToggleSwitch(QWidget* _parent = nullptr);
 
   bool isChecked() const;
   const QString& getText() const;
@@ -27,21 +25,21 @@ public:
   const QColor& getOnColor() const;
   const QColor& getOffColor() const;
 
-  void setChecked(bool checked);
-  void setText(const QString& text);
-  void setTextPointSize(int point_size);
-  void setOnColor(const QColor& color);
-  void setOffColor(const QColor& color);
+  void setChecked(bool _checked);
+  void setText(const QString& _text);
+  void setTextPointSize(int _point_size);
+  void setOnColor(const QColor& _color);
+  void setOffColor(const QColor& _color);
 
-  void ignoreMousePressEvent(bool ignore);
+  void ignoreMousePressEvent(bool _ignore);
 
   QPoint getTextCenter() const;
   int calcMaxTextPointSize() const;
 
 protected:
-  void paintEvent(QPaintEvent* event) override;
-  void mousePressEvent(QMouseEvent* event) override;
-  void resizeEvent(QResizeEvent* event) override;
+  void paintEvent(QPaintEvent* _event) override;
+  void mousePressEvent(QMouseEvent* _event) override;
+  void resizeEvent(QResizeEvent* _event) override;
 
 private:
   bool checked_ = false;  ///< ON/OFF state.
@@ -51,9 +49,8 @@ private:
   QColor on_color_ = Qt::green;
   QColor off_color_ = Qt::gray;
 
-  void drawBackground(QPainter& painter);
-  void drawSwitch(QPainter& painter);
-  void drawText(QPainter& painter);
+  void drawBackground(QPainter& _painter);
+  void drawSwitch(QPainter& _painter);
+  void drawText(QPainter& _painter);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

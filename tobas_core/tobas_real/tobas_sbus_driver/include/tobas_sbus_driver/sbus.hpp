@@ -25,10 +25,10 @@ public:
     bool failsafe;
   };
 
-  explicit SBUS(std::function<void(const Packet&)> packet_cb);
+  explicit SBUS(std::function<void(const Packet&)> _packet_cb);
   ~SBUS();
 
-  bool initialize(const char* device);
+  bool initialize(const char* _device);
 
   void start();
   void stop();
@@ -43,7 +43,7 @@ private:
   Packet packet_;
 
   std::jthread read_thread_;
-  void readThreadFunc(std::stop_token st);
+  void readThreadFunc(std::stop_token _st);
 };
 
 inline const SBUS::Packet& SBUS::packet() const

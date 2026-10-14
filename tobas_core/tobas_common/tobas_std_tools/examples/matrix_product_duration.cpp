@@ -8,15 +8,15 @@
 #include <tobas_time_tools/stopwatch.hpp>
 
 template <typename T>
-void process(int n, int iter)
+void process(int _n, int _iter)
 {
-  const auto A = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>::Random(n, n);
-  const auto B = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>::Random(n, n);
+  const auto A = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>::Random(_n, _n);
+  const auto B = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>::Random(_n, _n);
 
-  tobas::tim::Stopwatch stopwatch(iter);
+  tobas::tim::Stopwatch stopwatch(_iter);
 
-  for (int i = 0; i < iter; ++i) {
-    std::cout << "Iter " << i << std::endl;
+  for (int i = 0; i < _iter; ++i) {
+    std::cout << "Iter " << i << '\n';
 
     stopwatch.start();
     const auto C = (A * B).eval();
@@ -24,16 +24,16 @@ void process(int n, int iter)
   }
 }
 
-int main(int argc, char* argv[])
+int main(int _argc, char* _argv[])
 {
-  if (argc < 4) {
-    std::cerr << "Usage: " << argv[0] << " <Scalar> <Matrix Size> <Iterations>" << std::endl;
+  if (_argc < 4) {
+    std::cerr << "Usage: " << _argv[0] << " <Scalar> <Matrix Size> <Iterations>\n";
     return EXIT_FAILURE;
   }
 
-  const auto scalar = argv[1];
-  const auto n = atoi(argv[2]);
-  const auto iter = atoi(argv[3]);
+  const auto scalar = _argv[1];
+  const auto n = atoi(_argv[2]);
+  const auto iter = atoi(_argv[3]);
 
   if (std::strcmp(scalar, "char") == 0) {
     process<char>(n, iter);
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
     process<double>(n, iter);
   }
   else {
-    std::cerr << "Invalid scalar type: " << scalar << std::endl;
+    std::cerr << "Invalid scalar type: " << scalar << '\n';
     return EXIT_FAILURE;
   }
 

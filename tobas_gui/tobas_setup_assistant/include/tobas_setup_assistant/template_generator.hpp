@@ -6,24 +6,18 @@
 #include <QString>
 #include <inja/inja.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class TemplateGenerator
 {
 public:
-  explicit TemplateGenerator(const QString& tpl_dir);
+  explicit TemplateGenerator(const QString& _tpl_dir);
 
-  void generate(const inja::json& data, const QString& rel_path, const QString& out_dir, bool overwrite = true);
+  void generate(const inja::json& _data, const QString& _rel_path, const QString& _out_dir, bool _overwrite = true);
 
 private:
   const QString tpl_dir_;
 
   inja::Environment env_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

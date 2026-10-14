@@ -10,14 +10,10 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/path.hpp>
 
-namespace tobas
+namespace tobas::gui::ctrl
 {
-namespace gui
-{
-namespace ctrl
-{
-SaveMissionDialog::SaveMissionDialog(QWidget* parent, const QString& dir)
-  : QFileDialog(parent, "Save Mission", dir, "Mission (*.mission);;All Files (*)")
+SaveMissionDialog::SaveMissionDialog(QWidget* _parent, const QString& _dir)
+  : QFileDialog(_parent, "Save Mission", _dir, "Mission (*.mission);;All Files (*)")
 {
   setAcceptMode(QFileDialog::AcceptSave);
   setDefaultSuffix("mission");
@@ -31,10 +27,10 @@ SaveMissionDialog::SaveMissionDialog(QWidget* parent, const QString& dir)
   connect(line_edit_, &QLineEdit::textChanged, this, &SaveMissionDialog::onLineEditTextChanged);
 }
 
-bool SaveMissionDialog::eventFilter(QObject* obj, QEvent* event)
+bool SaveMissionDialog::eventFilter(QObject* _obj, QEvent* _event)
 {
-  if (obj == line_edit_ && event->type() == QEvent::KeyPress) {
-    const auto key_event = static_cast<QKeyEvent*>(event);
+  if (_obj == line_edit_ && _event->type() == QEvent::KeyPress) {
+    const auto key_event = static_cast<QKeyEvent*>(_event);
     if (key_event->key() == Qt::Key_Return || key_event->key() == Qt::Key_Enter) {
       // Only accept if the save button is enabled.
       if (save_button_->isEnabled()) {
@@ -46,7 +42,7 @@ bool SaveMissionDialog::eventFilter(QObject* obj, QEvent* event)
     }
   }
 
-  return QFileDialog::eventFilter(obj, event);
+  return QFileDialog::eventFilter(_obj, _event);
 }
 
 void SaveMissionDialog::onLineEditTextChanged()
@@ -60,6 +56,4 @@ void SaveMissionDialog::onLineEditTextChanged()
     save_button_->setEnabled(file_name.length() > 0);
   }
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

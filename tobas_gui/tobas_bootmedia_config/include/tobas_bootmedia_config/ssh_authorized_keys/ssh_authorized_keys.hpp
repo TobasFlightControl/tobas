@@ -10,11 +10,7 @@
 
 #include "../base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class SshAuthorizedKeysWidget : public BaseConfigWidget
 {
@@ -39,7 +35,7 @@ private:
   std::vector<ssh::ak::Data> keys_;
   qt::ListWidget* list_;
 
-  bool addKey(const ssh::ak::Data& key);
+  bool addKey(const ssh::ak::Data& _key);
   bool writeCurrentConfig();
 
   static std::string authorizedKeysPath();
@@ -49,6 +45,4 @@ private Q_SLOTS:
   void onRemoveButtonClicked();
   void onClearButtonClicked();
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

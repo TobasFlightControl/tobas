@@ -7,9 +7,7 @@
 #include "./moving_stat.hpp"
 #include "./welford.hpp"
 
-namespace tobas
-{
-namespace dsp
+namespace tobas::dsp
 {
 /** Online variance calculation for high-frequency noise components in a signal. */
 template <typename Scalar, int Size, size_t Length>
@@ -21,8 +19,8 @@ class NoiseVarianceFilter
 public:
   explicit NoiseVarianceFilter();
 
-  void initialize(double hpf_cutoff_freq, const DataType& init_data);
-  void update(const DataType& data, double dt);
+  void initialize(double _hpf_cutoff_freq, const DataType& _init_data);
+  void update(const DataType& _data, double _dt);
 
   inline CovType noiseVariance() const;
 
@@ -40,28 +38,28 @@ NoiseVarianceFilter<Scalar, Size, Length>::NoiseVarianceFilter()
 }
 
 template <typename Scalar, int Size, size_t Length>
-void NoiseVarianceFilter<Scalar, Size, Length>::initialize(double hpf_cutoff_freq, const DataType& init_data)
+void NoiseVarianceFilter<Scalar, Size, Length>::initialize(double _hpf_cutoff_freq, const DataType& _init_data)
 {
-  hpf_.setCutoffFrequency(hpf_cutoff_freq);
-  hpf_.setValue(init_data);
+  hpf_.setCutoffFrequency(_hpf_cutoff_freq);
+  hpf_.setValue(_init_data);
 
   num_data_ = 1;
-  data_buf_.front() = init_data;
+  data_buf_.front() = _init_data;
 
   welford_.reset();
-  welford_.add(init_data);
+  welford_.add(_init_data);
 }
 
 template <typename Scalar, int Size, size_t Length>
-void NoiseVarianceFilter<Scalar, Size, Length>::update(const DataType& data, double dt)
+void NoiseVarianceFilter<Scalar, Size, Length>::update(const DataType& _data, double _dt)
 {
   // Pass data through the HPF.
-  hpf_.update(data, dt);
+  hpf_.update(_data, _dt);
 
   if (num_data_ < Length)  // Use Welford's algorithm while buffering data until the window is full.
   {
     welford_.add(hpf_.getValue());
-    data_buf_.at(num_data_) = data;
+    data_buf_.at(num_data_) = _data;
   }
   else  // Use the moving variance algorithm after the number of samples exceeds the time window.
   {
@@ -88,5 +86,4 @@ NoiseVarianceFilter<Scalar, Size, Length>::noiseVariance() const
     return moving_stat_.variance();
   }
 }
-}  // namespace dsp
-}  // namespace tobas
+}  // namespace tobas::dsp

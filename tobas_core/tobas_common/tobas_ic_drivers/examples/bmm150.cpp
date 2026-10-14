@@ -8,29 +8,29 @@
 
 using namespace std;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
-  if (argc != 2) {
-    cerr << "Usage: " << argv[0] << " <I2C Device>" << endl;
+  if (_argc != 2) {
+    cerr << "Usage: " << _argv[0] << " <I2C Device>\n";
     return EXIT_FAILURE;
   }
-  const auto device = argv[1];
+  const auto device = _argv[1];
 
   tobas::driver::BMM150 mag;
   double mx, my, mz;
 
   if (!mag.initialize(device)) {
-    cerr << "Failed to initialize magnetometer." << endl;
+    cerr << "Failed to initialize magnetometer.\n";
     return EXIT_FAILURE;
   }
 
   while (true) {
     if (!mag.readMag(mx, my, mz)) {
-      cerr << "Failed to read magnetic field." << endl;
+      cerr << "Failed to read magnetic field.\n";
       return EXIT_FAILURE;
     }
 
-    cout << "Magnetic Field [μT]: " << mx << ", " << my << ", " << mz << endl;
+    cout << "Magnetic Field [μT]: " << mx << ", " << my << ", " << mz << '\n';
 
     this_thread::sleep_for(1s);
   }

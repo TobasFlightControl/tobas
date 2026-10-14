@@ -19,11 +19,7 @@
 #include "tobas_flight_log_gui/constants.hpp"
 #include "tobas_flight_log_gui/logs_fc/log_item.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 FlightLogsWidgetFC::FlightLogsWidgetFC() : spinner_(Qt::WindowModal, this)
 {
@@ -66,9 +62,9 @@ void FlightLogsWidgetFC::reset()
   clean_button_->setEnabled(false);
 }
 
-void FlightLogsWidgetFC::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string&)
+void FlightLogsWidgetFC::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string&)
 {
-  ssh_client_.emplace(node);
+  ssh_client_.emplace(_node);
   ros_initialized_ = true;
 }
 
@@ -78,14 +74,14 @@ void FlightLogsWidgetFC::clearRosInterfaces()
   ros_initialized_ = false;
 }
 
-void FlightLogsWidgetFC::addLog(const QString& log_name)
+void FlightLogsWidgetFC::addLog(const QString& _log_name)
 {
   const auto list_item = new qt::ListWidgetItem();
   list_item->setSizeHint(QSize(0, 40));
-  list_item->setData(Qt::UserRole, log_name);
+  list_item->setData(Qt::UserRole, _log_name);
   log_list_->addItem(list_item);
 
-  const auto widget = new FlightLogItemWidgetFC(log_name);
+  const auto widget = new FlightLogItemWidgetFC(_log_name);
   connect(widget, &FlightLogItemWidgetFC::downloadButtonClicked, this, &self::onDownloadButtonClicked);
   connect(widget, &FlightLogItemWidgetFC::deleteButtonClicked, this, &self::onDeleteButtonClicked);
   log_list_->setItemWidget(list_item, widget);
@@ -93,20 +89,20 @@ void FlightLogsWidgetFC::addLog(const QString& log_name)
   sortLogs();
 }
 
-void FlightLogsWidgetFC::removeLog(const QString& log_name)
+void FlightLogsWidgetFC::removeLog(const QString& _log_name)
 {
-  const auto list_item = findLog(log_name);
+  const auto list_item = findLog(_log_name);
   TOBAS_CHECK(list_item);
   log_list_->remove(list_item);
 }
 
-QListWidgetItem* FlightLogsWidgetFC::findLog(const QString& log_name)
+QListWidgetItem* FlightLogsWidgetFC::findLog(const QString& _log_name)
 {
   for (int row = 0; row < log_list_->count(); ++row) {
     const auto list_item = log_list_->item(row);
     const auto log_widget = qt::qConstPointerCast<FlightLogItemWidgetFC>(log_list_->itemWidget(list_item));
 
-    if (log_widget->logName() == log_name) {
+    if (log_widget->logName() == _log_name) {
       return list_item;
     }
   }
@@ -171,10 +167,10 @@ void FlightLogsWidgetFC::onCleanButtonClicked()
   clearLogs();
 }
 
-void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
+void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& _log_name)
 {
   const auto local_pardir = qt::expandUser(kRosbagDirHome);
-  const auto local_rosbag_path = QDir(local_pardir).filePath(log_name);
+  const auto local_rosbag_path = QDir(local_pardir).filePath(_log_name);
 
   if (QFileInfo::exists(local_rosbag_path)) {
     if (qt::yesOrNo(this, local_rosbag_path + " already exists. Do you want to overwrite it?", qt::WARN)) {
@@ -185,7 +181,7 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
     }
   }
 
-  const auto remote_rosbag_path = QDir(kRosbagDirRoot).filePath(log_name);
+  const auto remote_rosbag_path = QDir(kRosbagDirRoot).filePath(_log_name);
 
   if (!QDir(local_pardir).exists()) {
     TOBAS_CHECK(QDir().mkpath(local_pardir));
@@ -195,13 +191,13 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
   progress.setLabelText("Downloading flight log from the vehicle...");
   progress.setCancelButton(nullptr);
 
-  const auto callback = [&progress, &log_name](uint64_t total_size, uint64_t transferred)
+  const auto callback = [&progress, &_log_name](uint64_t _total_size, uint64_t _transferred)
   {
-    if (total_size <= 0) {
-      qWarning() << "The total size of" << log_name << "is 0 bytes.";
+    if (_total_size <= 0) {
+      qWarning() << "The total size of" << _log_name << "is 0 bytes.";
       return;
     }
-    const auto rate = 100 * transferred / total_size;
+    const auto rate = 100 * _transferred / _total_size;
     progress.setStep(rate);
   };
 
@@ -210,32 +206,30 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
   progress.close();
 
   if (!res) {
-    qt::qErrorBox(this, "Failed to download '" + log_name + "': " + res.error());
+    qt::qErrorBox(this, "Failed to download '" + _log_name + "': " + res.error());
     return;
   }
 
-  Q_EMIT logDownloaded(log_name);
+  Q_EMIT logDownloaded(_log_name);
 }
 
-void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
+void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& _log_name)
 {
-  if (!qt::yesOrNo(this, "Do you want to delete flight log '" + log_name + "'?", qt::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to delete flight log '" + _log_name + "'?", qt::WARN)) {
     return;
   }
 
-  const auto rosbag_path = QDir(kRosbagDirRoot).filePath(log_name);
+  const auto rosbag_path = QDir(kRosbagDirRoot).filePath(_log_name);
 
   spinner_.start();
   const auto res = ssh_client_->execute("rm -rf " + rosbag_path, true);
   spinner_.stop();
 
   if (!res) {
-    qt::qErrorBox(this, "Failed to delete '" + log_name + "': " + res.error());
+    qt::qErrorBox(this, "Failed to delete '" + _log_name + "': " + res.error());
     return;
   }
 
-  removeLog(log_name);
+  removeLog(_log_name);
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

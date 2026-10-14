@@ -18,7 +18,7 @@ class VibrationFilterNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit VibrationFilterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit VibrationFilterNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   tobas_msgs::Imu::ConstSharedPtr imu_;
@@ -29,11 +29,11 @@ private:
   ros2::PublisherPtr<tobas_msgs::VibrationLevel> vibe_pub_;
   ros2::SubscriberPtr<tobas_msgs::Imu> imu_sub_;
 
-  void imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu);
+  void imuCb(const tobas_msgs::Imu::ConstSharedPtr& _imu);
 };
 
-VibrationFilterNode::VibrationFilterNode(const rclcpp::NodeOptions& options)
-  : super("vibration_filter", nodeOptions_Default(options))
+VibrationFilterNode::VibrationFilterNode(const rclcpp::NodeOptions& _options)
+  : super("vibration_filter", nodeOptions_Default(_options))
 {
   // ArduPilot: fc_hpf = 5Hz, fc_lpf = 2Hz
   // Ref: https://firmware.ardupilot.org/coverage/AP_InertialSensor/AP_InertialSensor.h.gcov.html
@@ -46,19 +46,19 @@ VibrationFilterNode::VibrationFilterNode(const rclcpp::NodeOptions& options)
   imu_sub_ = createSubscriber(topic::kImuRaw, &self::imuCb, this);
 }
 
-void VibrationFilterNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu)
+void VibrationFilterNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& _imu)
 {
-  const auto& acc_meas = imu->accel;
+  const auto& acc_meas = _imu->accel;
 
   if (!imu_) {
     hpf_.setValue(acc_meas);
     lpf_.setValue(acc_meas);
-    imu_ = imu;
+    imu_ = _imu;
     return;
   }
 
-  const auto dt = (imu->header.stamp - imu_->header.stamp).seconds();
-  imu_ = imu;
+  const auto dt = (_imu->header.stamp - imu_->header.stamp).seconds();
+  imu_ = _imu;
 
   // Approximate RMS by smoothing the squared high-frequency component, matching ArduPilot's VIBE calculation.
   hpf_.update(acc_meas, dt);
@@ -67,7 +67,7 @@ void VibrationFilterNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu)
   const auto acc_vibe_rms = lpf_.getValue().sqrt();  // [m/s^2]
 
   auto vibe = std::make_unique<tobas_msgs::VibrationLevel>();
-  vibe->header.stamp = imu->header.stamp;
+  vibe->header.stamp = _imu->header.stamp;
   vibe->data = acc_vibe_rms;
   vibe_pub_->publish(std::move(vibe));
 }

@@ -7,13 +7,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace mission
+namespace tobas::gui::sa::mission
 {
 namespace
 {
@@ -81,17 +75,17 @@ YAML::Node MissionExecutorWidget::dump() const
   return node;
 }
 
-void MissionExecutorWidget::load(const YAML::Node& node)
+void MissionExecutorWidget::load(const YAML::Node& _node)
 {
-  none_->load(node[kNoneKey]);
-  multicopter_->load(node[kMulticopterKey]);
+  none_->load(_node[kNoneKey]);
+  multicopter_->load(_node[kMulticopterKey]);
 }
 
-void MissionExecutorWidget::setFrameType(FrameType type)
+void MissionExecutorWidget::setFrameType(FrameType _type)
 {
   if (
-    type == FrameType::kPlanarMulticopter || type == FrameType::kNonPlanarMulticopter ||
-    type == FrameType::kYAxisTiltMulticopter || type == FrameType::kRandomAxisTiltMulticopter) {
+    _type == FrameType::kPlanarMulticopter || _type == FrameType::kNonPlanarMulticopter ||
+    _type == FrameType::kYAxisTiltMulticopter || _type == FrameType::kRandomAxisTiltMulticopter) {
     stack_->setCurrentWidget(multicopter_);
   }
   else {
@@ -115,14 +109,14 @@ YAML::Node MissionExecutorWidget::staticParams() const
   return selected()->staticParams();
 }
 
-BaseExecutorWidget* MissionExecutorWidget::widget(int index)
+BaseExecutorWidget* MissionExecutorWidget::widget(int _index)
 {
-  return qt::qPointerCast<BaseExecutorWidget>(stack_->widget(index));
+  return qt::qPointerCast<BaseExecutorWidget>(stack_->widget(_index));
 }
 
-const BaseExecutorWidget* MissionExecutorWidget::widget(int index) const
+const BaseExecutorWidget* MissionExecutorWidget::widget(int _index) const
 {
-  return qt::qConstPointerCast<BaseExecutorWidget>(stack_->widget(index));
+  return qt::qConstPointerCast<BaseExecutorWidget>(stack_->widget(_index));
 }
 
 BaseExecutorWidget* MissionExecutorWidget::selected()
@@ -134,7 +128,4 @@ const BaseExecutorWidget* MissionExecutorWidget::selected() const
 {
   return qt::qConstPointerCast<BaseExecutorWidget>(stack_->currentWidget());
 }
-}  // namespace mission
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::mission

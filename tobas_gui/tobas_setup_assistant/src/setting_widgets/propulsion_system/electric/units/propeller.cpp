@@ -10,15 +10,7 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 PropellerWidget::PropellerWidget()
 {
@@ -78,9 +70,9 @@ bool PropellerWidget::isValid()
   return true;
 }
 
-void PropellerWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
+void PropellerWidget::copyFrom(const BaseSelectedLinkSettingWidget* _src)
 {
-  const auto derived = qt::qConstPointerCast<PropellerWidget>(src);
+  const auto derived = qt::qConstPointerCast<PropellerWidget>(_src);
 
   num_blades_->setValue(derived->num_blades_->getValue());
   diameter_->setValue(derived->diameter_->getValue());
@@ -102,13 +94,13 @@ YAML::Node PropellerWidget::dump() const
   return node;
 }
 
-void PropellerWidget::load(const YAML::Node& node)
+void PropellerWidget::load(const YAML::Node& _node)
 {
-  num_blades_->setValue(node[num_blades_->name()].as<int>());
-  diameter_->setValue(node[diameter_->name()].as<int>());
-  pitch_->setValue(node[pitch_->name()].as<double>());
-  min_chord_->setValue(node[min_chord_->name()].as<int>());
-  max_chord_->setValue(node[max_chord_->name()].as<int>());
+  num_blades_->setValue(_node[num_blades_->name()].as<int>());
+  diameter_->setValue(_node[diameter_->name()].as<int>());
+  pitch_->setValue(_node[pitch_->name()].as<double>());
+  min_chord_->setValue(_node[min_chord_->name()].as<int>());
+  max_chord_->setValue(_node[max_chord_->name()].as<int>());
 }
 
 int PropellerWidget::numBlades() const
@@ -151,8 +143,4 @@ double PropellerWidget::meanChord() const
   // Calculate the mean chord length simply as the average of the minimum and maximum values.
   return (minChord() + maxChord()) / 2;
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

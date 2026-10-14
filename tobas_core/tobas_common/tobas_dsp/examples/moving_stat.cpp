@@ -15,14 +15,14 @@
 using namespace std;
 using namespace Eigen;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
-  if (argc != 2) {
-    cerr << "Usage: " << argv[0] << " <Steps>" << endl;
+  if (_argc != 2) {
+    cerr << "Usage: " << _argv[0] << " <Steps>\n";
     return EXIT_FAILURE;
   }
 
-  const auto steps = stoul(argv[1]);
+  const auto steps = stoul(_argv[1]);
 
   // Define random generator.
   random_device rnd_dev;
@@ -68,16 +68,16 @@ int main(int argc, char** argv)
     const auto cov_2 = moving_stat.variance();
 
     // Show results.
-    cout << "Start Index: " << i << ", Window Size: " << LENGTH << endl;
-    cout << "Mean (Normal Method): " << mean_1.transpose() << endl;
-    cout << "Mean (Moving Stat)  : " << mean_2.transpose() << endl;
-    cout << "Covariance (Normal Method):" << endl << cov_1 << endl;
-    cout << "Covariance (Moving Stat)  :" << endl << cov_2 << endl;
-    cout << "----------" << endl;
+    cout << "Start Index: " << i << ", Window Size: " << LENGTH << '\n';
+    cout << "Mean (Normal Method): " << mean_1.transpose() << '\n';
+    cout << "Mean (Moving Stat)  : " << mean_2.transpose() << '\n';
+    cout << "Covariance (Normal Method):\n" << cov_1 << '\n';
+    cout << "Covariance (Moving Stat)  :\n" << cov_2 << '\n';
+    cout << "----------\n";
 
     // Validate.
     if (!tobas::eigen::isClose(mean_1, mean_2) || !tobas::eigen::isClose(cov_1, cov_2)) {
-      cerr << "Moving statistics is inaccurate." << endl;
+      cerr << "Moving statistics is inaccurate.\n";
       return EXIT_FAILURE;
     }
 

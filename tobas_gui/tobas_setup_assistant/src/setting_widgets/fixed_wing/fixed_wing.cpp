@@ -6,13 +6,7 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace fw
+namespace tobas::gui::sa::fw
 {
 namespace
 {
@@ -21,7 +15,7 @@ constexpr char kAeroCoefsLabel[] = "Aerodynamic Coefficients";
 constexpr char kControlSurfacesLabel[] = "Control Surfaces";
 }  // namespace
 
-FixedWingWidget::FixedWingWidget(const uadf::Model& uadf)
+FixedWingWidget::FixedWingWidget(const uadf::Model& _uadf)
 {
   // Vehicle
   addWidget(new qt::Label(kVehicleLabel, cmn::kTitlePSize));
@@ -35,7 +29,7 @@ FixedWingWidget::FixedWingWidget(const uadf::Model& uadf)
 
   // Control Surfaces
   addWidget(new qt::Label(kControlSurfacesLabel, cmn::kTitlePSize));
-  control_surfaces_ = new ControlSurfacesWidget(uadf);
+  control_surfaces_ = new ControlSurfacesWidget(_uadf);
   addWidget(control_surfaces_);
 }
 
@@ -100,11 +94,11 @@ YAML::Node FixedWingWidget::dump() const
   return node;
 }
 
-void FixedWingWidget::load(const YAML::Node& node)
+void FixedWingWidget::load(const YAML::Node& _node)
 {
-  vehicle_->load(node[kVehicleLabel]);
-  aero_coefs_->load(node[kAeroCoefsLabel]);
-  control_surfaces_->load(node[kControlSurfacesLabel]);
+  vehicle_->load(_node[kVehicleLabel]);
+  aero_coefs_->load(_node[kAeroCoefsLabel]);
+  control_surfaces_->load(_node[kControlSurfacesLabel]);
 }
 
 const VehicleParametersWidget* FixedWingWidget::vehicle() const
@@ -121,7 +115,4 @@ const ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
 {
   return control_surfaces_;
 }
-}  // namespace fw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::fw

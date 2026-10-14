@@ -5,9 +5,7 @@
 
 #include <eigen3/Eigen/Core>
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 class PID3
 {
@@ -20,11 +18,11 @@ public:
   explicit PID3();
 
   Eigen::Vector3d update(
-    const Eigen::Vector3d& cur_pos,
-    const Eigen::Vector3d& cur_vel,
-    const Eigen::Vector3d& tar_pos,
-    const Eigen::Vector3d& tar_vel,
-    double dt);
+    const Eigen::Vector3d& _cur_pos,
+    const Eigen::Vector3d& _cur_vel,
+    const Eigen::Vector3d& _tar_pos,
+    const Eigen::Vector3d& _tar_vel,
+    double _dt);
 
   inline void reset();
 
@@ -43,5 +41,4 @@ inline const Eigen::Vector3d& PID3::getIntegralError() const
 {
   return ei_;
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

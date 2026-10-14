@@ -13,11 +13,7 @@
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 #include <tobas_wpa_supplicant/key_mgmt.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class AddWifiDialog : public QDialog
 {
@@ -27,7 +23,7 @@ class AddWifiDialog : public QDialog
   using super = QDialog;
 
 public:
-  explicit AddWifiDialog(QWidget* parent);
+  explicit AddWifiDialog(QWidget* _parent);
 
   QString getKeyMgmt() const;
   QString getSsid() const;
@@ -44,11 +40,9 @@ private:
 
   QDialogButtonBox* btn_box_;
 
-  void enableOkButton(bool enable);
+  void enableOkButton(bool _enable);
 
 private Q_SLOTS:
   void onChanged();
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

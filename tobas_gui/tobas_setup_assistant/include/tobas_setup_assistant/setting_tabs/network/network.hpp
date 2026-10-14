@@ -6,13 +6,7 @@
 #include "../base_setting.hpp"
 #include "./network_iface.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace network
+namespace tobas::gui::sa::network
 {
 class NetworkWidget : public BaseSettingWidget
 {
@@ -30,14 +24,11 @@ public:
   bool isValid() override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   QString networkInterface() const;
 
 private:
   NetworkIfaceWidget* nic_;
 };
-}  // namespace network
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::network

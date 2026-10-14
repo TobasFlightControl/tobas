@@ -3,9 +3,6 @@
 
 #pragma once
 
-namespace tobas
+namespace tobas::my_namespace
 {
-namespace my_namespace
-{
-}
-}  // namespace tobas
+}  // namespace tobas::my_namespace

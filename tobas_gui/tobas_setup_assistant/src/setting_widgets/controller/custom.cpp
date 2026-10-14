@@ -12,13 +12,7 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace ctrl
+namespace tobas::gui::sa::ctrl
 {
 namespace
 {
@@ -137,18 +131,15 @@ YAML::Node CustomFrameWidget::dump() const
   return node;
 }
 
-void CustomFrameWidget::load(const YAML::Node& node)
+void CustomFrameWidget::load(const YAML::Node& _node)
 {
-  acrobat_mode_->setCurrentText(node[kAcrobatLabel].as<QString>());
-  stabilize_mode_->setCurrentText(node[kStabilizeLabel].as<QString>());
-  loiter_mode_->setCurrentText(node[kLoiterLabel].as<QString>());
+  acrobat_mode_->setCurrentText(_node[kAcrobatLabel].as<QString>());
+  stabilize_mode_->setCurrentText(_node[kStabilizeLabel].as<QString>());
+  loiter_mode_->setCurrentText(_node[kLoiterLabel].as<QString>());
 }
 
 bool CustomFrameWidget::isValid()
 {
   return true;
 }
-}  // namespace ctrl
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::ctrl

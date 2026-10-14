@@ -5,14 +5,11 @@
 
 #include <eigen3/Eigen/Core>
 
-namespace tobas
-{
-namespace y_axis_tilt_multicopter
+namespace tobas::y_axis_tilt_multicopter
 {
 struct MixerSolution
 {
   Eigen::VectorXd thrusts;
   Eigen::VectorXd tilt_angles;
 };
-}  // namespace y_axis_tilt_multicopter
-}  // namespace tobas
+}  // namespace tobas::y_axis_tilt_multicopter

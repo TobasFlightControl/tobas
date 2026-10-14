@@ -5,19 +5,17 @@
 
 #include <QWidget>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class MainWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit MainWidget(const QString& title, const QString& icon_path, QWidget* widget);
+  explicit MainWidget(const QString& _title, const QString& _icon_path, QWidget* _widget);
 
 protected:
-  void closeEvent(QCloseEvent* event) override;
+  void closeEvent(QCloseEvent* _event) override;
 
 private:
   QWidget* widget_;
@@ -26,5 +24,4 @@ private:
   void restoreWindowGeometry();
   void saveWindowGeometry();
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

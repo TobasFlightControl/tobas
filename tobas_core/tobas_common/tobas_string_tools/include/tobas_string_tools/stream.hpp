@@ -5,12 +5,9 @@
 
 #include <string>
 
-namespace tobas
+namespace tobas::str
 {
-namespace str
-{
-bool readText(const std::string& path, std::string& text);
+bool readText(const std::string& _path, std::string& _text);
 
-bool writeText(const std::string& path, const std::string& text);
-}  // namespace str
-}  // namespace tobas
+bool writeText(const std::string& _path, const std::string& _text);
+}  // namespace tobas::str

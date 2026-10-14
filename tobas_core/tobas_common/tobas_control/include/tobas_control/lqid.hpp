@@ -8,9 +8,7 @@
 
 #include "./state_spaces.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 /**
  * Linear quadratic integral control. (Introduction to Drone Engineering: p.213)
@@ -37,14 +35,14 @@ public:
    */
   Eigen::VectorXd max_integrated_error;
 
-  explicit LQID(Eigen::Index state_size, Eigen::Index input_size, Eigen::Index integrate_size);
+  explicit LQID(Eigen::Index _state_size, Eigen::Index _input_size, Eigen::Index _integrate_size);
 
-  std::expected<Eigen::VectorXd, std::string> solve(double dt, bool update_gain = true);
+  std::expected<Eigen::VectorXd, std::string> solve(double _dt, bool _update_gain = true);
   std::expected<void, std::string> updateGainMatrix();
 
   inline const Eigen::VectorXd& getIntegralError() const;
 
-  friend std::ostream& operator<<(std::ostream& os, const LQID& arg);
+  friend std::ostream& operator<<(std::ostream& _os, const LQID& _arg);
 
 private:
   const Eigen::Index x_size_;        ///< State size
@@ -71,5 +69,4 @@ inline const Eigen::VectorXd& LQID::getIntegralError() const
 {
   return eps_;
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

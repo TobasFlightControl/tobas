@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 AirPressurePlotWidget::AirPressurePlotWidget() : curve_("Pressure [hPa]")
 {
@@ -32,18 +28,18 @@ void AirPressurePlotWidget::clear()
   plot_->replot();
 }
 
-void AirPressurePlotWidget::setTimeScale(double t_start, double t_stop)
+void AirPressurePlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
-  plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+  plot_->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
 }
 
-void AirPressurePlotWidget::setData(const QVector<tobas_msgs::msg::FluidPressure>& msgs)
+void AirPressurePlotWidget::setData(const QVector<tobas_msgs::msg::FluidPressure>& _msgs)
 {
   QVector<double> t_data;
   QVector<double> val_data;
   VerticalScaleRange range;
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
     val_data.push_back(msg.pressure * 1e-2);
     range.include(val_data.back());
@@ -54,6 +50,4 @@ void AirPressurePlotWidget::setData(const QVector<tobas_msgs::msg::FluidPressure
   setVerticalScale(*plot_, range, kMinPressureScale);
   plot_->replot();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

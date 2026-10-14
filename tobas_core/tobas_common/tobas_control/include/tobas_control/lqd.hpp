@@ -8,9 +8,7 @@
 
 #include "./state_spaces.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 /** Linear quadratic derivative control. (memo: 2-22) */
 class LQD
@@ -31,16 +29,15 @@ public:
 
   explicit LQD();
 
-  std::expected<Eigen::VectorXd, std::string> solve(double dt, bool update_gain = true);
-  void resize(Eigen::Index state_size, Eigen::Index input_size);
+  std::expected<Eigen::VectorXd, std::string> solve(double _dt, bool _update_gain = true);
+  void resize(Eigen::Index _state_size, Eigen::Index _input_size);
   std::expected<void, std::string> updateGainMatrix();
 
-  friend std::ostream& operator<<(std::ostream& os, const LQD& arg);
+  friend std::ostream& operator<<(std::ostream& _os, const LQD& _arg);
 
 private:
   Eigen::MatrixXd K_;
 
   void checkProblemValidity();
 };
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

@@ -14,11 +14,7 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 BaseCommandWidget::BaseCommandWidget()
 {
@@ -53,17 +49,17 @@ BaseCommandWidget::BaseCommandWidget()
   QTimer::singleShot(0, this, &self::initialize);
 }
 
-void BaseCommandWidget::addField(field::BaseFieldWidget* widget, bool overridable)
+void BaseCommandWidget::addField(field::BaseFieldWidget* _widget, bool _overridable)
 {
-  const auto checkbox = new qt::CheckBox(widget->label());
+  const auto checkbox = new qt::CheckBox(_widget->label());
   checkbox->setDisabledTextNormal();
-  checkboxes_[widget] = checkbox;
+  checkboxes_[_widget] = checkbox;
 
   const auto stacked = new QStackedWidget();
   stacked->addWidget(new QLabel("    Project Default"));
-  stacked->addWidget(widget);
+  stacked->addWidget(_widget);
 
-  if (overridable) {
+  if (_overridable) {
     checkbox->setChecked(false);
     stacked->setCurrentIndex(0);
   }
@@ -75,35 +71,35 @@ void BaseCommandWidget::addField(field::BaseFieldWidget* widget, bool overridabl
 
   form_->addVAlignedRow(checkbox, stacked);
 
-  connect(checkbox, &QCheckBox::toggled, [stacked](bool checked) { stacked->setCurrentIndex((int)checked); });
-  connect(widget, &field::BaseFieldWidget::updated, this, &self::onFieldUpdated);
+  connect(checkbox, &QCheckBox::toggled, [stacked](bool _checked) { stacked->setCurrentIndex((int)_checked); });
+  connect(_widget, &field::BaseFieldWidget::updated, this, &self::onFieldUpdated);
 
   ++row_;
 }
 
-bool BaseCommandWidget::isChecked(field::BaseFieldWidget* widget) const
+bool BaseCommandWidget::isChecked(field::BaseFieldWidget* _widget) const
 {
-  return checkboxes_[widget]->isChecked();
+  return checkboxes_[_widget]->isChecked();
 }
 
-void BaseCommandWidget::setChecked(field::BaseFieldWidget* widget, bool checked)
+void BaseCommandWidget::setChecked(field::BaseFieldWidget* _widget, bool _checked)
 {
-  checkboxes_[widget]->setChecked(checked);
+  checkboxes_[_widget]->setChecked(_checked);
 }
 
-double BaseCommandWidget::getValueOrDefault(field::FieldWidget<double>* widget) const
+double BaseCommandWidget::getValueOrDefault(field::FieldWidget<double>* _widget) const
 {
-  return isChecked(widget) ? widget->getValue() : NAN;
+  return isChecked(_widget) ? _widget->getValue() : NAN;
 }
 
-void BaseCommandWidget::setValueOrDefault(field::FieldWidget<double>* widget, double value)
+void BaseCommandWidget::setValueOrDefault(field::FieldWidget<double>* _widget, double _value)
 {
-  if (std::isfinite(value)) {
-    setChecked(widget, true);
-    widget->setValue(value);
+  if (std::isfinite(_value)) {
+    setChecked(_widget, true);
+    _widget->setValue(_value);
   }
   else {
-    setChecked(widget, false);
+    setChecked(_widget, false);
   }
 }
 
@@ -121,6 +117,4 @@ void BaseCommandWidget::onDeleteButtonClicked()
 {
   Q_EMIT deleteButtonClicked();
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

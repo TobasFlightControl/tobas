@@ -8,44 +8,41 @@
 
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 SecondOrderVelocityFilter::SecondOrderVelocityFilter()
 {
 }
 
-void SecondOrderVelocityFilter::setMaxVelocity(double v_max)
+void SecondOrderVelocityFilter::setMaxVelocity(double _v_max)
 {
-  assert(v_max > 0);
-  v_max_ = v_max;
+  assert(_v_max > 0);
+  v_max_ = _v_max;
 }
 
-void SecondOrderVelocityFilter::setMaxJerk(double j_max)
+void SecondOrderVelocityFilter::setMaxJerk(double _j_max)
 {
-  assert(j_max > 0);
-  j_max_ = j_max;
+  assert(_j_max > 0);
+  j_max_ = _j_max;
 }
 
-void SecondOrderVelocityFilter::update(double v_des, double dt)
+void SecondOrderVelocityFilter::update(double _v_des, double _dt)
 {
-  assert(dt >= 0);
+  assert(_dt >= 0);
 
   const auto wn = std::sqrt(j_max_ / v_max_);  // Set max jerk when the velocity error is `v_max`.
   const auto kp = math::sqr(wn);
   const auto kd = 2 * wn;  // Critical damping: zeta = 1
 
-  const auto j = std::clamp(kp * (v_des - v_) + kd * (0 - a_), -j_max_, j_max_);
+  const auto j = std::clamp(kp * (_v_des - v_) + kd * (0 - a_), -j_max_, j_max_);
 
-  v_ += a_ * dt;
-  a_ += j * dt;
+  v_ += a_ * _dt;
+  a_ += j * _dt;
 }
 
-void SecondOrderVelocityFilter::resetCurrentTrajectoryPoint(double v, double a)
+void SecondOrderVelocityFilter::resetCurrentTrajectoryPoint(double _v, double _a)
 {
-  v_ = v;
-  a_ = a;
+  v_ = _v;
+  a_ = _a;
 }
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

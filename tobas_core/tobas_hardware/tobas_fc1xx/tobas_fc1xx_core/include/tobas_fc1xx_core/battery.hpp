@@ -7,9 +7,7 @@
 
 #include <tobas_linux/spi_dev.hpp>
 
-namespace tobas
-{
-namespace fc1xx
+namespace tobas::fc1xx
 {
 class Battery
 {
@@ -19,12 +17,11 @@ public:
   explicit Battery();
 
   bool initialize();
-  bool read(float& voltage, float& current);
+  bool read(float& _voltage, float& _current);
 
 private:
   linux::SPIdev spi_;
   uint32_t tx_buf_[kChannelSize];
   uint32_t rx_buf_[kChannelSize];
 };
-}  // namespace fc1xx
-}  // namespace tobas
+}  // namespace tobas::fc1xx

@@ -8,11 +8,7 @@
 
 #include <tobas_qt_tools/widgets/widget.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace at
+namespace tobas::gui::at
 {
 class BaseWidget : public qt::Widget
 {
@@ -36,6 +32,4 @@ private:
 private Q_SLOTS:
   void initialize();
 };
-}  // namespace at
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::at

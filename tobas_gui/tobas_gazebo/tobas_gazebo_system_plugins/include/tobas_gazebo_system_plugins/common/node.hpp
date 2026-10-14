@@ -42,9 +42,7 @@
 #define TOBAS_ERROR_THROTTLE(period, ...) this->errorThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
 #define TOBAS_FATAL_THROTTLE(period, ...) this->fatalThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class BaseNode
 {
@@ -65,92 +63,92 @@ protected:
 
   rclcpp::Node::SharedPtr node_;
 
-  void initialize(const std::string& name, const sdf::ElementConstPtr& sdf);
+  void initialize(const std::string& _name, const sdf::ElementConstPtr& _sdf);
 
   const std::string& name() const;
   const std::string& ns() const;
 
   template <typename MsgType>
   ros2::PublisherPtr<MsgType> createPublisher(
-    const std::string& topic_name,
-    bool latch = ros2::qos::kDefaultLatch,
-    bool reliable = ros2::qos::kDefaultReliable,
-    size_t queue_size = ros2::qos::kDefaultQueueSize);
+    const std::string& _topic_name,
+    bool _latch = ros2::qos::kDefaultLatch,
+    bool _reliable = ros2::qos::kDefaultReliable,
+    size_t _queue_size = ros2::qos::kDefaultQueueSize);
 
   template <typename MsgType, typename Obj>
   ros2::SubscriberPtr<MsgType> createSubscriber(
-    const std::string& topic_name,
-    void (Obj::*fp)(const std::shared_ptr<const MsgType>&),
-    Obj* obj,
-    bool latch = ros2::qos::kDefaultLatch,
-    bool reliable = ros2::qos::kDefaultReliable,
-    size_t queue_size = ros2::qos::kDefaultQueueSize);
+    const std::string& _topic_name,
+    void (Obj::*_fp)(const std::shared_ptr<const MsgType>&),
+    Obj* _obj,
+    bool _latch = ros2::qos::kDefaultLatch,
+    bool _reliable = ros2::qos::kDefaultReliable,
+    size_t _queue_size = ros2::qos::kDefaultQueueSize);
 
   template <typename SrvType, typename Obj>
   ros2::ServiceServerPtr<SrvType> createService(
-    const std::string& srv_name,
-    void (Obj::*fp)(
+    const std::string& _srv_name,
+    void (Obj::*_fp)(
       const std::shared_ptr<const typename SrvType::Request>&,
       const std::shared_ptr<typename SrvType::Response>&),
-    Obj* obj);
+    Obj* _obj);
 
   template <typename... Args>
-  void log(uint8_t level, const Args&... args) const;
+  void log(uint8_t _level, const Args&... _args) const;
   template <typename... Args>
-  void logOnce(const char* file, int line, uint8_t level, const Args&... args);
+  void logOnce(const char* _file, int _line, uint8_t _level, const Args&... _args);
   template <typename... Args>
-  void logThrottle(const char* file, int line, uint8_t level, double period, const Args&... args);
+  void logThrottle(const char* _file, int _line, uint8_t _level, double _period, const Args&... _args);
 
   template <typename... Args>
-  inline void debug(const Args&... args) const;
+  inline void debug(const Args&... _args) const;
   template <typename... Args>
-  inline void info(const Args&... args) const;
+  inline void info(const Args&... _args) const;
   template <typename... Args>
-  inline void warn(const Args&... args) const;
+  inline void warn(const Args&... _args) const;
   template <typename... Args>
-  inline void error(const Args&... args) const;
+  inline void error(const Args&... _args) const;
   template <typename... Args>
-  inline void fatal(const Args&... args) const;
+  inline void fatal(const Args&... _args) const;
 
   template <typename... Args>
-  inline void debugOnce(const char* file, int line, const Args&... args);
+  inline void debugOnce(const char* _file, int _line, const Args&... _args);
   template <typename... Args>
-  inline void infoOnce(const char* file, int line, const Args&... args);
+  inline void infoOnce(const char* _file, int _line, const Args&... _args);
   template <typename... Args>
-  inline void warnOnce(const char* file, int line, const Args&... args);
+  inline void warnOnce(const char* _file, int _line, const Args&... _args);
   template <typename... Args>
-  inline void errorOnce(const char* file, int line, const Args&... args);
+  inline void errorOnce(const char* _file, int _line, const Args&... _args);
   template <typename... Args>
-  inline void fatalOnce(const char* file, int line, const Args&... args);
+  inline void fatalOnce(const char* _file, int _line, const Args&... _args);
 
   template <typename... Args>
-  inline void debugThrottle(const char* file, int line, double period, const Args&... args);
+  inline void debugThrottle(const char* _file, int _line, double _period, const Args&... _args);
   template <typename... Args>
-  inline void infoThrottle(const char* file, int line, double period, const Args&... args);
+  inline void infoThrottle(const char* _file, int _line, double _period, const Args&... _args);
   template <typename... Args>
-  inline void warnThrottle(const char* file, int line, double period, const Args&... args);
+  inline void warnThrottle(const char* _file, int _line, double _period, const Args&... _args);
   template <typename... Args>
-  inline void errorThrottle(const char* file, int line, double period, const Args&... args);
+  inline void errorThrottle(const char* _file, int _line, double _period, const Args&... _args);
   template <typename... Args>
-  inline void fatalThrottle(const char* file, int line, double period, const Args&... args);
-
-  template <typename T>
-  void checkConstraint(const std::string& name, const T& param, SdfConstraint constr) const;
+  inline void fatalThrottle(const char* _file, int _line, double _period, const Args&... _args);
 
   template <typename T>
-  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const;
+  void checkConstraint(const std::string& _name, const T& _param, SdfConstraint _constr) const;
+
   template <typename T>
-  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, const T& dflt) const;
+  T getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name) const;
   template <typename T>
-  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, SdfConstraint constr) const;
+  T getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name, const T& _dflt) const;
   template <typename T>
-  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, const T& dflt, SdfConstraint constr) const;
+  T getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name, SdfConstraint _constr) const;
+  template <typename T>
+  T getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name, const T& _dflt, SdfConstraint _constr) const;
   template <typename T>
     requires std::same_as<T, std::vector<typename T::value_type, typename T::allocator_type>>
-  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const;
+  T getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name) const;
   template <typename T>
     requires std::same_as<T, std::pair<typename T::first_type, typename T::first_type>>
-  T getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const;
+  T getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name) const;
 
 private:
   std::string name_;
@@ -164,202 +162,202 @@ private:
   std::optional<rclcpp::executors::SingleThreadedExecutor> executor_;
   std::thread spin_thread_;
 
-  void gazeboLog(uint8_t level, const std::string& text) const;
+  void gazeboLog(uint8_t _level, const std::string& _text) const;
 
-  static std::string createID(const char* file, int line);
+  static std::string createID(const char* _file, int _line);
 };
 
 template <typename MsgType>
 ros2::PublisherPtr<MsgType>
-BaseNode::createPublisher(const std::string& topic_name, bool latch, bool reliable, size_t queue_size)
+BaseNode::createPublisher(const std::string& _topic_name, bool _latch, bool _reliable, size_t _queue_size)
 {
-  return ros2::createPublisher<MsgType>(node_, topic_name, latch, reliable, queue_size);
+  return ros2::createPublisher<MsgType>(node_, _topic_name, _latch, _reliable, _queue_size);
 }
 
 template <typename MsgType, typename Obj>
 ros2::SubscriberPtr<MsgType> BaseNode::createSubscriber(
-  const std::string& topic_name,
-  void (Obj::*fp)(const std::shared_ptr<const MsgType>&),
-  Obj* obj,
-  bool latch,
-  bool reliable,
-  size_t queue_size)
+  const std::string& _topic_name,
+  void (Obj::*_fp)(const std::shared_ptr<const MsgType>&),
+  Obj* _obj,
+  bool _latch,
+  bool _reliable,
+  size_t _queue_size)
 {
-  return ros2::createSubscriber<MsgType>(node_, topic_name, fp, obj, latch, reliable, queue_size);
+  return ros2::createSubscriber<MsgType>(node_, _topic_name, _fp, _obj, _latch, _reliable, _queue_size);
 }
 
 template <typename SrvType, typename Obj>
 ros2::ServiceServerPtr<SrvType> BaseNode::createService(
-  const std::string& srv_name,
-  void (Obj::*fp)(
+  const std::string& _srv_name,
+  void (Obj::*_fp)(
     const std::shared_ptr<const typename SrvType::Request>&,
     const std::shared_ptr<typename SrvType::Response>&),
-  Obj* obj)
+  Obj* _obj)
 {
-  return ros2::createService<SrvType>(node_, srv_name, fp, obj);
+  return ros2::createService<SrvType>(node_, _srv_name, _fp, _obj);
 }
 
 template <typename... Args>
-void BaseNode::log(uint8_t level, const Args&... args) const
+void BaseNode::log(uint8_t _level, const Args&... _args) const
 {
   // Create message.
   auto message = std::make_unique<tobas_msgs::msg::Message>();
   message->header.stamp = node_->now();
-  message->level = level;
+  message->level = _level;
   message->name = node_->get_name();
-  message->message = st::buildString(args...);
+  message->message = st::buildString(_args...);
 
   // Output message to the console.
-  gazeboLog(level, message->message);
+  gazeboLog(_level, message->message);
 
   // Publish message.
   message_pub_->publish(std::move(message));
 }
 
 template <typename... Args>
-void BaseNode::logOnce(const char* file, int line, uint8_t level, const Args&... args)
+void BaseNode::logOnce(const char* _file, int _line, uint8_t _level, const Args&... _args)
 {
-  const auto id = createID(file, line);
+  const auto id = createID(_file, _line);
   if (log_once_.contains(id)) {
     return;
   }
-  log(level, args...);
+  log(_level, _args...);
   log_once_.insert(id);
 }
 
 template <typename... Args>
-void BaseNode::logThrottle(const char* file, int line, uint8_t level, double period, const Args&... args)
+void BaseNode::logThrottle(const char* _file, int _line, uint8_t _level, double _period, const Args&... _args)
 {
-  const auto id = createID(file, line);
+  const auto id = createID(_file, _line);
   const auto cur_time = node_->now();
   auto it = log_throttle_.find(id);
   if (it == log_throttle_.end()) {
-    log(level, args...);
+    log(_level, _args...);
     log_throttle_[id] = cur_time;
   }
   else {
     const auto diff = (cur_time - it->second).seconds();
-    if (diff > period) {
-      log(level, args...);
+    if (diff > _period) {
+      log(_level, _args...);
       it->second = cur_time;
     }
   }
 }
 
 template <typename... Args>
-inline void BaseNode::debug(const Args&... args) const
+inline void BaseNode::debug(const Args&... _args) const
 {
-  log(tobas_msgs::msg::Message::LEVEL_DEBUG, args...);
+  log(tobas_msgs::msg::Message::LEVEL_DEBUG, _args...);
 }
 
 template <typename... Args>
-inline void BaseNode::info(const Args&... args) const
+inline void BaseNode::info(const Args&... _args) const
 {
-  log(tobas_msgs::msg::Message::LEVEL_INFO, args...);
+  log(tobas_msgs::msg::Message::LEVEL_INFO, _args...);
 }
 
 template <typename... Args>
-inline void BaseNode::warn(const Args&... args) const
+inline void BaseNode::warn(const Args&... _args) const
 {
-  log(tobas_msgs::msg::Message::LEVEL_WARN, args...);
+  log(tobas_msgs::msg::Message::LEVEL_WARN, _args...);
 }
 
 template <typename... Args>
-inline void BaseNode::error(const Args&... args) const
+inline void BaseNode::error(const Args&... _args) const
 {
-  log(tobas_msgs::msg::Message::LEVEL_ERROR, args...);
+  log(tobas_msgs::msg::Message::LEVEL_ERROR, _args...);
 }
 
 template <typename... Args>
-inline void BaseNode::fatal(const Args&... args) const
+inline void BaseNode::fatal(const Args&... _args) const
 {
-  log(tobas_msgs::msg::Message::LEVEL_FATAL, args...);
+  log(tobas_msgs::msg::Message::LEVEL_FATAL, _args...);
 }
 
 template <typename... Args>
-inline void BaseNode::debugOnce(const char* file, int line, const Args&... args)
+inline void BaseNode::debugOnce(const char* _file, int _line, const Args&... _args)
 {
-  logOnce(file, line, tobas_msgs::msg::Message::LEVEL_DEBUG, args...);
+  logOnce(_file, _line, tobas_msgs::msg::Message::LEVEL_DEBUG, _args...);
 }
 
 template <typename... Args>
-inline void BaseNode::infoOnce(const char* file, int line, const Args&... args)
+inline void BaseNode::infoOnce(const char* _file, int _line, const Args&... _args)
 {
-  logOnce(file, line, tobas_msgs::msg::Message::LEVEL_INFO, args...);
+  logOnce(_file, _line, tobas_msgs::msg::Message::LEVEL_INFO, _args...);
 }
 
 template <typename... Args>
-inline void BaseNode::warnOnce(const char* file, int line, const Args&... args)
+inline void BaseNode::warnOnce(const char* _file, int _line, const Args&... _args)
 {
-  logOnce(file, line, tobas_msgs::msg::Message::LEVEL_WARN, args...);
+  logOnce(_file, _line, tobas_msgs::msg::Message::LEVEL_WARN, _args...);
 }
 
 template <typename... Args>
-inline void BaseNode::errorOnce(const char* file, int line, const Args&... args)
+inline void BaseNode::errorOnce(const char* _file, int _line, const Args&... _args)
 {
-  logOnce(file, line, tobas_msgs::msg::Message::LEVEL_ERROR, args...);
+  logOnce(_file, _line, tobas_msgs::msg::Message::LEVEL_ERROR, _args...);
 }
 
 template <typename... Args>
-inline void BaseNode::fatalOnce(const char* file, int line, const Args&... args)
+inline void BaseNode::fatalOnce(const char* _file, int _line, const Args&... _args)
 {
-  logOnce(file, line, tobas_msgs::msg::Message::LEVEL_FATAL, args...);
+  logOnce(_file, _line, tobas_msgs::msg::Message::LEVEL_FATAL, _args...);
 }
 
 template <typename... Args>
-inline void BaseNode::debugThrottle(const char* file, int line, double period, const Args&... args)
+inline void BaseNode::debugThrottle(const char* _file, int _line, double _period, const Args&... _args)
 {
-  logThrottle(file, line, tobas_msgs::msg::Message::LEVEL_DEBUG, period, args...);
+  logThrottle(_file, _line, tobas_msgs::msg::Message::LEVEL_DEBUG, _period, _args...);
 }
 
 template <typename... Args>
-inline void BaseNode::infoThrottle(const char* file, int line, double period, const Args&... args)
+inline void BaseNode::infoThrottle(const char* _file, int _line, double _period, const Args&... _args)
 {
-  logThrottle(file, line, tobas_msgs::msg::Message::LEVEL_INFO, period, args...);
+  logThrottle(_file, _line, tobas_msgs::msg::Message::LEVEL_INFO, _period, _args...);
 }
 
 template <typename... Args>
-inline void BaseNode::warnThrottle(const char* file, int line, double period, const Args&... args)
+inline void BaseNode::warnThrottle(const char* _file, int _line, double _period, const Args&... _args)
 {
-  logThrottle(file, line, tobas_msgs::msg::Message::LEVEL_WARN, period, args...);
+  logThrottle(_file, _line, tobas_msgs::msg::Message::LEVEL_WARN, _period, _args...);
 }
 
 template <typename... Args>
-inline void BaseNode::errorThrottle(const char* file, int line, double period, const Args&... args)
+inline void BaseNode::errorThrottle(const char* _file, int _line, double _period, const Args&... _args)
 {
-  logThrottle(file, line, tobas_msgs::msg::Message::LEVEL_ERROR, period, args...);
+  logThrottle(_file, _line, tobas_msgs::msg::Message::LEVEL_ERROR, _period, _args...);
 }
 
 template <typename... Args>
-inline void BaseNode::fatalThrottle(const char* file, int line, double period, const Args&... args)
+inline void BaseNode::fatalThrottle(const char* _file, int _line, double _period, const Args&... _args)
 {
-  logThrottle(file, line, tobas_msgs::msg::Message::LEVEL_FATAL, period, args...);
+  logThrottle(_file, _line, tobas_msgs::msg::Message::LEVEL_FATAL, _period, _args...);
 }
 
 template <typename T>
-void BaseNode::checkConstraint(const std::string& name, const T& param, SdfConstraint constr) const
+void BaseNode::checkConstraint(const std::string& _name, const T& _param, SdfConstraint _constr) const
 {
-  switch (constr) {
+  switch (_constr) {
     case kNone:
       break;
     case kPositive:
-      if (param <= 0) {
-        TOBAS_EXIT(name, " must be positive.");
+      if (_param <= 0) {
+        TOBAS_EXIT(_name, " must be positive.");
       }
       break;
     case kNegative:
-      if (param >= 0) {
-        TOBAS_EXIT(name, " must be negative.");
+      if (_param >= 0) {
+        TOBAS_EXIT(_name, " must be negative.");
       }
       break;
     case kNonNegative:
-      if (param < 0) {
-        TOBAS_EXIT(name, " must be non-negative.");
+      if (_param < 0) {
+        TOBAS_EXIT(_name, " must be non-negative.");
       }
       break;
     case kNonPositive:
-      if (param > 0) {
-        TOBAS_EXIT(name, " must be non-positive.");
+      if (_param > 0) {
+        TOBAS_EXIT(_name, " must be non-positive.");
       }
       break;
     default:
@@ -368,50 +366,53 @@ void BaseNode::checkConstraint(const std::string& name, const T& param, SdfConst
 }
 
 template <typename T>
-T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const
+T BaseNode::getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name) const
 {
-  if (!sdf->HasElement(name)) {
-    TOBAS_EXIT("Please specify '", name, "'.");
+  if (!_sdf->HasElement(_name)) {
+    TOBAS_EXIT("Please specify '", _name, "'.");
   }
-  return sdf->Get<T>(name);
+  return _sdf->Get<T>(_name);
 }
 
 template <typename T>
-T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, const T& dflt) const
+T BaseNode::getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name, const T& _dflt) const
 {
   T param;
-  if (!sdf->Get(name, param, dflt)) {
-    TOBAS_WARN("SDF parameter '", name, "' is not specified. The default value '", dflt, "' is used.");
+  if (!_sdf->Get(_name, param, _dflt)) {
+    TOBAS_WARN("SDF parameter '", _name, "' is not specified. The default value '", _dflt, "' is used.");
   }
   return param;
 }
 
 template <typename T>
-T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, SdfConstraint constr) const
+T BaseNode::getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name, SdfConstraint _constr) const
 {
-  const auto param = getSdfParam<T>(sdf, name);
-  checkConstraint(name, param, constr);
+  const auto param = getSdfParam<T>(_sdf, _name);
+  checkConstraint(_name, param, _constr);
   return param;
 }
 
 template <typename T>
-T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, const T& dflt, SdfConstraint constr)
-  const
+T BaseNode::getSdfParam(
+  const sdf::ElementConstPtr& _sdf,
+  const std::string& _name,
+  const T& _dflt,
+  SdfConstraint _constr) const
 {
-  const auto param = getSdfParam<T>(sdf, name, dflt);
-  checkConstraint(name, param, constr);
+  const auto param = getSdfParam<T>(_sdf, _name, _dflt);
+  checkConstraint(_name, param, _constr);
   return param;
 }
 
 template <typename T>
   requires std::same_as<T, std::vector<typename T::value_type, typename T::allocator_type>>
-T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const
+T BaseNode::getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name) const
 {
   T params;
 
-  const auto list_elem = sdf->FindElement(name);
+  const auto list_elem = _sdf->FindElement(_name);
   if (!list_elem) {
-    TOBAS_EXIT("Please specify '", name, "'.");
+    TOBAS_EXIT("Please specify '", _name, "'.");
   }
 
   auto item_elem = list_elem->FindElement("item");
@@ -425,10 +426,9 @@ T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name
 
 template <typename T>
   requires std::same_as<T, std::pair<typename T::first_type, typename T::first_type>>
-T BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name) const
+T BaseNode::getSdfParam(const sdf::ElementConstPtr& _sdf, const std::string& _name) const
 {
-  const auto tmp = getSdfParam<gz::math::Vector2<typename T::first_type>>(sdf, name);
+  const auto tmp = getSdfParam<gz::math::Vector2<typename T::first_type>>(_sdf, _name);
   return { tmp.X(), tmp.Y() };
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

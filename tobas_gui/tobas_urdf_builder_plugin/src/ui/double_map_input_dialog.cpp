@@ -10,23 +10,17 @@
 
 #include <tobas_qt_tools/cast.hpp>
 
-namespace tobas
+namespace tobas::gui::ub::ui
 {
-namespace gui
+DoubleMapInputDialog::DoubleMapInputDialog(QWidget* _parent, const QString& _title, const QStringList& _field_names)
+  : super(_parent)
 {
-namespace ub
-{
-namespace ui
-{
-DoubleMapInputDialog::DoubleMapInputDialog(QWidget* parent, const QString& title, const QStringList& field_names)
-  : super(parent)
-{
-  setWindowTitle(title);
+  setWindowTitle(_title);
 
   const auto root_layout = new QVBoxLayout();
   setLayout(root_layout);
 
-  for (const auto& field_name : field_names) {
+  for (const auto& field_name : _field_names) {
     const auto layout = new QHBoxLayout();
     root_layout->addLayout(layout);
 
@@ -56,18 +50,15 @@ DoubleMapInputDialog::DoubleMapInputDialog(QWidget* parent, const QString& title
   connect(button_box, &QDialogButtonBox::rejected, this, &self::reject);
 }
 
-const double& DoubleMapInputDialog::getValue(const QString& field) const
+const double& DoubleMapInputDialog::getValue(const QString& _field) const
 {
-  return field2value_.at(field);
+  return field2value_.at(_field);
 }
 
-void DoubleMapInputDialog::onSpinBoxValueChanged(double value)
+void DoubleMapInputDialog::onSpinBoxValueChanged(double _value)
 {
   const auto obj = qt::qPointerCast<QDoubleSpinBox>(sender());
   const auto field_name = spinbox2field_.at(obj);
-  field2value_[field_name] = value;
+  field2value_[field_name] = _value;
 }
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

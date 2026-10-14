@@ -13,15 +13,15 @@ public:
   explicit AngleAxisPID();
 
   kdl::Vector update(
-    const kdl::Rotation& cur_rot,
-    const kdl::Vector& cur_gyro,
-    const kdl::Rotation& tar_rot,
-    const kdl::Vector& tar_gyro,
-    double dt);
+    const kdl::Rotation& _cur_rot,
+    const kdl::Vector& _cur_gyro,
+    const kdl::Rotation& _tar_rot,
+    const kdl::Vector& _tar_gyro,
+    double _dt);
 
-  void setNaturalFreq(int idx, double value);
-  void setDampingRatio(int idx, double value);
-  void setIntegralGain(int idx, double value);
+  void setNaturalFreq(int _idx, double _value);
+  void setDampingRatio(int _idx, double _value);
+  void setIntegralGain(int _idx, double _value);
 
   inline const kdl::Vector& getIntegralError() const;
   inline void resetIntegralError();

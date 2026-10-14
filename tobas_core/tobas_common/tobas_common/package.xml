@@ -10,6 +10,7 @@
 
 	<exec_depend>tobas_algorithm</exec_depend>
 	<exec_depend>tobas_control</exec_depend>
+	<exec_depend>tobas_dshot</exec_depend>
 	<exec_depend>tobas_dsp</exec_depend>
 	<exec_depend>tobas_eigen_conversions</exec_depend>
 	<exec_depend>tobas_eigen_msgs</exec_depend>

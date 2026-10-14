@@ -10,16 +10,14 @@
 #include <tobas_qt_tools/validator/int_validator.hpp>
 #include <tobas_std_tools/check.hpp>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 namespace
 {
 constexpr char kEmptyMeansZeroProperty[] = "emptyMeansZero";
 }  // namespace
 
-IPv4Edit::IPv4Edit(QWidget* parent) : super(parent)
+IPv4Edit::IPv4Edit(QWidget* _parent) : super(_parent)
 {
   const auto cols = new QHBoxLayout();
   setLayout(cols);
@@ -88,30 +86,30 @@ QString IPv4Edit::toString() const
   return res;
 }
 
-void IPv4Edit::setFromInt(uint32_t address)
+void IPv4Edit::setFromInt(uint32_t _address)
 {
   for (size_t i = 0; i < kNumFields; ++i) {
     const auto shift = 8 * i;
-    const auto value = (address >> shift) & 0xFF;
+    const auto value = (_address >> shift) & 0xFF;
     setFieldValue(i, value);
   }
 }
 
-bool IPv4Edit::eventFilter(QObject* watched, QEvent* event)
+bool IPv4Edit::eventFilter(QObject* _watched, QEvent* _event)
 {
-  if (event->type() == QEvent::FocusOut) {
-    const auto field = qobject_cast<QLineEdit*>(watched);
+  if (_event->type() == QEvent::FocusOut) {
+    const auto field = qobject_cast<QLineEdit*>(_watched);
     if (field && field->property(kEmptyMeansZeroProperty).toBool() && field->text().trimmed().isEmpty()) {
       field->setText("0");
     }
   }
 
-  return super::eventFilter(watched, event);
+  return super::eventFilter(_watched, _event);
 }
 
-uint8_t IPv4Edit::getFieldValue(size_t idx) const
+uint8_t IPv4Edit::getFieldValue(size_t _idx) const
 {
-  const auto text = fields_.at(idx)->text();
+  const auto text = fields_.at(_idx)->text();
 
   if (text.isEmpty()) {
     return 0;
@@ -124,9 +122,8 @@ uint8_t IPv4Edit::getFieldValue(size_t idx) const
   return static_cast<uint8_t>(value);
 }
 
-void IPv4Edit::setFieldValue(size_t idx, uint8_t value)
+void IPv4Edit::setFieldValue(size_t _idx, uint8_t _value)
 {
-  fields_.at(idx)->setText(QString::number(value));
+  fields_.at(_idx)->setText(QString::number(_value));
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

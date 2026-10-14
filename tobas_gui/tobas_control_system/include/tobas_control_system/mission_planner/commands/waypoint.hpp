@@ -22,11 +22,7 @@
 #include "../fields/stop_at_waypoint.hpp"
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class WaypointWidget : public BaseCommandWidget
 {
@@ -38,7 +34,7 @@ public:
   const char* name() const override;
 
   mission::Waypoint dump() const;
-  void load(const mission::Waypoint& src);
+  void load(const mission::Waypoint& _src);
 
   double latitude() const;
   double longitude() const;
@@ -56,24 +52,24 @@ public:
   double acceptanceRadius() const;
   double altitudeTolerance() const;
 
-  void latitude(double value);
-  void longitude(double value);
-  void altitude(double value);
-  void altitudeFrame(mission::AltitudeFrame value);
-  void stopAtWaypoint(bool value);
-  void maxHorizontalVelocity(double value);
-  void maxHorizontalAccel(double value);
-  void maxHorizontalJerk(double value);
-  void maxVerticalVelocity(double value);
-  void maxVerticalAccel(double value);
-  void maxVerticalJerk(double value);
-  void maxHeadingRate(double value);
-  void maxHeadingAccel(double value);
-  void acceptanceRadius(double value);
-  void altitudeTolerance(double value);
+  void latitude(double _value);
+  void longitude(double _value);
+  void altitude(double _value);
+  void altitudeFrame(mission::AltitudeFrame _value);
+  void stopAtWaypoint(bool _value);
+  void maxHorizontalVelocity(double _value);
+  void maxHorizontalAccel(double _value);
+  void maxHorizontalJerk(double _value);
+  void maxVerticalVelocity(double _value);
+  void maxVerticalAccel(double _value);
+  void maxVerticalJerk(double _value);
+  void maxHeadingRate(double _value);
+  void maxHeadingAccel(double _value);
+  void acceptanceRadius(double _value);
+  void altitudeTolerance(double _value);
 
   bool isSplineSegmentEnd() const;
-  void setSplineSegmentEnd(bool value);
+  void setSplineSegmentEnd(bool _value);
 
 private:
   field::LatitudeWidget* latitude_;
@@ -96,6 +92,4 @@ private:
 
   void updateToleranceFieldsEnabled();
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

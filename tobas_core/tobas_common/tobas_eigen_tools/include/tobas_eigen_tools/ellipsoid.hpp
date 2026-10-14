@@ -7,9 +7,7 @@
 
 #include "./typedef.hpp"
 
-namespace tobas
-{
-namespace eigen
+namespace tobas::eigen
 {
 /** axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0 */
 struct EllipsoidCoefficients
@@ -35,24 +33,24 @@ class Ellipsoid
 {
 public:
   explicit Ellipsoid();
-  explicit Ellipsoid(const Eigen::Vector3d& b, const Eigen::Vector6d& t);
+  explicit Ellipsoid(const Eigen::Vector3d& _b, const Eigen::Vector6d& _t);
 
-  bool initialize(const EllipsoidCoefficients& coefs);
+  bool initialize(const EllipsoidCoefficients& _coefs);
 
   /** Set to the unit sphere. */
   void setIdentity();
 
   const Eigen::Vector3d& getHardBias() const;
-  void setHardBias(const Eigen::Vector3d& b);
+  void setHardBias(const Eigen::Vector3d& _b);
 
   Eigen::Vector6d getSoftBias() const;
-  void setSoftBias(const Eigen::Vector6d& t);
+  void setSoftBias(const Eigen::Vector6d& _t);
 
   /** Map the unit sphere to the ellipsoid. */
-  inline Eigen::Vector3d fromUnitSphere(const Eigen::Vector3d& x) const;
+  inline Eigen::Vector3d fromUnitSphere(const Eigen::Vector3d& _x) const;
 
   /** Map the ellipsoid to the unit sphere. */
-  inline Eigen::Vector3d toUnitSphere(const Eigen::Vector3d& x) const;
+  inline Eigen::Vector3d toUnitSphere(const Eigen::Vector3d& _x) const;
 
 private:
   Eigen::Vector3d b_;      ///< Hard-iron bias
@@ -60,14 +58,13 @@ private:
   Eigen::Matrix3d T_inv_;  ///< Soft-iron bias (inverse)
 };
 
-inline Eigen::Vector3d Ellipsoid::fromUnitSphere(const Eigen::Vector3d& x) const
+inline Eigen::Vector3d Ellipsoid::fromUnitSphere(const Eigen::Vector3d& _x) const
 {
-  return T_ * x + b_;
+  return T_ * _x + b_;
 }
 
-inline Eigen::Vector3d Ellipsoid::toUnitSphere(const Eigen::Vector3d& x) const
+inline Eigen::Vector3d Ellipsoid::toUnitSphere(const Eigen::Vector3d& _x) const
 {
-  return T_inv_ * (x - b_);
+  return T_inv_ * (_x - b_);
 }
-}  // namespace eigen
-}  // namespace tobas
+}  // namespace tobas::eigen

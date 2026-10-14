@@ -11,9 +11,9 @@ namespace console_bridge
 class OutputHandlerText : public OutputHandler
 {
 public:
-  explicit OutputHandlerText(LogLevel level);
+  explicit OutputHandlerText(LogLevel _level);
 
-  void log(const std::string& text, LogLevel level, const char* filename, int line) override;
+  void log(const std::string& _text, LogLevel _level, const char* _filename, int _line) override;
 
   const std::string& message() const;
 

@@ -9,8 +9,8 @@
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_constants/time.hpp>
-#include <tobas_fc2xx_core/pwm_batt_imu.hpp>
 #include <tobas_hardware_common/constants.hpp>
+#include <tobas_mcu_driver/tobas_t2/pwm_batt_imu.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_real_common/ros_interface.hpp>
 #include <tobas_time_tools/util.hpp>
@@ -24,9 +24,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace fc2xx
+namespace tobas::fc2xx
 {
 class PwmBattImuDriverNode : public BaseNode
 {
@@ -36,11 +34,11 @@ class PwmBattImuDriverNode : public BaseNode
   using clock = std::chrono::steady_clock;
 
 public:
-  explicit PwmBattImuDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit PwmBattImuDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
-  PwmBattImu driver_;
-  uint16_t pwm_periods_[PwmBattImu::kPwmChannels] = {};
+  t2::PwmBattImu driver_;
+  uint16_t pwm_periods_[t2::PwmBattImu::kPwmChannels] = {};
   clock::time_point last_comm_time_;
 
   ros2::PublisherPtr<tobas_msgs::msg::Battery> batt_pub_;
@@ -58,21 +56,21 @@ private:
   bool initialize();
   std::expected<void, std::string> transfer();
 
-  void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms);
+  void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& _pwms);
 
   void configureImuLowPassFilterCb(
-    const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
-    const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res);
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& _req,
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& _res);
   void configureImuRpmFilter(
-    const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& req,
-    const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& res);
+    const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& _req,
+    const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& _res);
 
   void initializeTimerCb();
   void mainTimerCb();
 };
 
-PwmBattImuDriverNode::PwmBattImuDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc2xx_pwm_batt_imu_driver", nodeOptions_Default(options)), sampling_time_pub_(this)
+PwmBattImuDriverNode::PwmBattImuDriverNode(const rclcpp::NodeOptions& _options)
+  : super("fc2xx_pwm_batt_imu_driver", nodeOptions_Default(_options)), sampling_time_pub_(this)
 {
   if (!initialize()) {
     initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
@@ -81,7 +79,7 @@ PwmBattImuDriverNode::PwmBattImuDriverNode(const rclcpp::NodeOptions& options)
 
 bool PwmBattImuDriverNode::initialize()
 {
-  if (!driver_.initialize()) {
+  if (!driver_.initialize("/dev/spidev0.1")) {
     TOBAS_ERROR("Failed to initialize the driver. Retrying...");
     return false;
   }
@@ -113,10 +111,10 @@ std::expected<void, std::string> PwmBattImuDriverNode::transfer()
   return res;
 }
 
-void PwmBattImuDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms)
+void PwmBattImuDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& _pwms)
 {
-  for (const auto& elem : pwms->pwms) {
-    if (elem.channel >= PwmBattImu::kPwmChannels) {
+  for (const auto& elem : _pwms->pwms) {
+    if (elem.channel >= t2::PwmBattImu::kPwmChannels) {
       TOBAS_ERROR("PWM channel ", elem.channel, " is out of range.");
       continue;
     }
@@ -127,35 +125,35 @@ void PwmBattImuDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPt
 }
 
 void PwmBattImuDriverNode::configureImuLowPassFilterCb(
-  const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& req,
-  const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& res)
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& _req,
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& _res)
 {
-  driver_.configureLowPassFilter(req->accel_cutoff, req->gyro_cutoff, req->dgyro_cutoff);
+  driver_.configureLowPassFilter(_req->accel_cutoff, _req->gyro_cutoff, _req->dgyro_cutoff);
 
   if (const auto result = transfer(); !result) {
-    res->success = false;
-    res->message = "Failed to communicate with the MCU: " + result.error();
+    _res->success = false;
+    _res->message = "Failed to communicate with the MCU: " + result.error();
     return;
   }
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
 
 void PwmBattImuDriverNode::configureImuRpmFilter(
-  const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& req,
-  const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& res)
+  const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& _req,
+  const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& _res)
 {
-  driver_.configureRpmFilter(req->quality_factor, req->min_center_freq, req->fade_range, req->lpf_cutoff);
+  driver_.configureRpmFilter(_req->quality_factor, _req->min_center_freq, _req->fade_range, _req->lpf_cutoff);
 
   if (const auto result = transfer(); !result) {
-    res->success = false;
-    res->message = "Failed to communicate with the MCU: " + result.error();
+    _res->success = false;
+    _res->message = "Failed to communicate with the MCU: " + result.error();
     return;
   }
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
 
 void PwmBattImuDriverNode::initializeTimerCb()
@@ -207,7 +205,6 @@ void PwmBattImuDriverNode::mainTimerCb()
   // Publish the sampling time.
   sampling_time_pub_.publish(cur_time);
 }
-}  // namespace fc2xx
-}  // namespace tobas
+}  // namespace tobas::fc2xx
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc2xx::PwmBattImuDriverNode)

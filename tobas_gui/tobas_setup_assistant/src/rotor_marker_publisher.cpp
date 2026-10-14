@@ -9,17 +9,13 @@
 #include <tobas_kdl_conversions/kdl_urdf.hpp>
 #include <tobas_ros2_tools/register.hpp>
 
-namespace tobas
+namespace tobas::gui::sa
 {
-namespace gui
-{
-namespace sa
-{
-RotorMarkerPublisher::RotorMarkerPublisher(rclcpp::Node::SharedPtr node, const uadf::Model& uadf)
-  : node_(node), uadf_(uadf)
+RotorMarkerPublisher::RotorMarkerPublisher(rclcpp::Node::SharedPtr _node, const uadf::Model& _uadf)
+  : node_(_node), uadf_(_uadf)
 {
   markers_pub_ =
-    ros2::createPublisher<visualization_msgs::msg::MarkerArray>(node, "visualization_marker_array", false, true);
+    ros2::createPublisher<visualization_msgs::msg::MarkerArray>(_node, "visualization_marker_array", false, true);
 
   connect(&publish_markers_timer_, &QTimer::timeout, this, &self::publishTimerCb);
 }
@@ -109,6 +105,4 @@ void RotorMarkerPublisher::publishTimerCb()
 {
   publishMarkers();
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

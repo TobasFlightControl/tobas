@@ -5,9 +5,7 @@
 
 #include <limits>
 
-namespace tobas
-{
-namespace rc
+namespace tobas::rc
 {
 class SecondOrderVelocityFilter
 {
@@ -17,12 +15,12 @@ public:
   inline double getTrajectoryVelocity() const;
   inline double getTrajectoryAccel() const;
 
-  void setMaxVelocity(double v_max);
-  void setMaxJerk(double j_max);
+  void setMaxVelocity(double _v_max);
+  void setMaxJerk(double _j_max);
 
-  void update(double v_des, double dt);
+  void update(double _v_des, double _dt);
 
-  void resetCurrentTrajectoryPoint(double v, double a);
+  void resetCurrentTrajectoryPoint(double _v, double _a);
 
 private:
   // State
@@ -43,5 +41,4 @@ inline double SecondOrderVelocityFilter::getTrajectoryAccel() const
 {
   return a_;
 }
-}  // namespace rc
-}  // namespace tobas
+}  // namespace tobas::rc

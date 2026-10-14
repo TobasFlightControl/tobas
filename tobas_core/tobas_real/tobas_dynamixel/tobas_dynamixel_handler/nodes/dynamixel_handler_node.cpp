@@ -23,9 +23,7 @@ using namespace std::chrono_literals;
 namespace ch = std::chrono;
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace dxl
+namespace tobas::dxl
 {
 struct DynamixelConfig
 {
@@ -50,7 +48,7 @@ class DynamixelHandlerNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit DynamixelHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit DynamixelHandlerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
   ~DynamixelHandlerNode() override;
 
 private:
@@ -96,19 +94,19 @@ private:
   bool disableTorques();
   void printHardwareErrorStatus();
 
-  void positionsCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& positions);
-  void velocitiesCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& velocities);
-  void effortsCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& efforts);
+  void positionsCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& _positions);
+  void velocitiesCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& _velocities);
+  void effortsCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& _efforts);
 
   void enableTorquesCb(
-    const std_srvs::srv::SetBool::Request::ConstSharedPtr& req,
-    const std_srvs::srv::SetBool::Response::SharedPtr& res);
+    const std_srvs::srv::SetBool::Request::ConstSharedPtr& _req,
+    const std_srvs::srv::SetBool::Response::SharedPtr& _res);
 
   void publishCurrentStatesTimerCb();
 };
 
-DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& options)
-  : super("dynamixel_handler", nodeOptions_Default(options))
+DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& _options)
+  : super("dynamixel_handler", nodeOptions_Default(_options))
 {
   // Get ROS parameters.
   if (!getStaticRosParams()) {
@@ -533,26 +531,26 @@ void DynamixelHandlerNode::printHardwareErrorStatus()
   }
 }
 
-void DynamixelHandlerNode::positionsCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& positions)
+void DynamixelHandlerNode::positionsCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& _positions)
 {
   if (!is_enabled_) {
     TOBAS_ERROR("Motors are disabled. You cannot command positions.");
     return;
   }
 
-  const auto size = positions->commands.size();
+  const auto size = _positions->commands.size();
   goal_positions_.resize(size);
   pos_sync_write_->clearParam();
 
   for (size_t i = 0; i < size; ++i) {
-    const auto& jnt_name = positions->commands[i].name;
+    const auto& jnt_name = _positions->commands[i].name;
     if (!motors_.contains(jnt_name)) {
       TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
       continue;
     }
 
     const auto& cfg = motors_.at(jnt_name);
-    auto tar_pos = positions->commands[i].data;
+    auto tar_pos = _positions->commands[i].data;
     if (cfg.operating_mode == operating_mode::kPosition) {
       if (cfg.pos_limit.clamp(tar_pos, tar_pos)) {
         TOBAS_WARN("Target position of joint '", jnt_name, "' is out of limit. The value is clamped to ", tar_pos);
@@ -579,19 +577,20 @@ void DynamixelHandlerNode::positionsCmdCb(const tobas_dynamixel_msgs::msg::Motor
   }
 }
 
-void DynamixelHandlerNode::velocitiesCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& velocities)
+void DynamixelHandlerNode::velocitiesCmdCb(
+  const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& _velocities)
 {
   if (!is_enabled_) {
     TOBAS_ERROR("Motors are disabled. You cannot command velocities.");
     return;
   }
 
-  const auto size = velocities->commands.size();
+  const auto size = _velocities->commands.size();
   goal_velocities_.resize(size);
   vel_sync_write_->clearParam();
 
   for (size_t i = 0; i < size; ++i) {
-    const auto& jnt_name = velocities->commands[i].name;
+    const auto& jnt_name = _velocities->commands[i].name;
     if (!motors_.contains(jnt_name)) {
       TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
       continue;
@@ -603,7 +602,7 @@ void DynamixelHandlerNode::velocitiesCmdCb(const tobas_dynamixel_msgs::msg::Moto
       continue;
     }
 
-    auto tar_vel = velocities->commands[i].data;
+    auto tar_vel = _velocities->commands[i].data;
     if (std::abs(tar_vel) > cfg.vel_limit) {
       tar_vel = std::clamp(tar_vel, -cfg.vel_limit, cfg.vel_limit);
       TOBAS_WARN("Target velocity of joint '", jnt_name, "' is out of limit. The value is clamped to ", tar_vel);
@@ -621,17 +620,17 @@ void DynamixelHandlerNode::velocitiesCmdCb(const tobas_dynamixel_msgs::msg::Moto
   }
 }
 
-void DynamixelHandlerNode::effortsCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& efforts)
+void DynamixelHandlerNode::effortsCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& _efforts)
 {
   if (!is_enabled_) {
     TOBAS_ERROR("Motors are disabled. You cannot command efforts.");
     return;
   }
 
-  const auto size = efforts->commands.size();
+  const auto size = _efforts->commands.size();
 
   for (size_t i = 0; i < size; ++i) {
-    const auto& jnt_name = efforts->commands[i].name;
+    const auto& jnt_name = _efforts->commands[i].name;
     if (!motors_.contains(jnt_name)) {
       TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
       continue;
@@ -648,27 +647,27 @@ void DynamixelHandlerNode::effortsCmdCb(const tobas_dynamixel_msgs::msg::MotorCo
 }
 
 void DynamixelHandlerNode::enableTorquesCb(
-  const std_srvs::srv::SetBool::Request::ConstSharedPtr& req,
-  const std_srvs::srv::SetBool::Response::SharedPtr& res)
+  const std_srvs::srv::SetBool::Request::ConstSharedPtr& _req,
+  const std_srvs::srv::SetBool::Response::SharedPtr& _res)
 {
-  if (req->data) {
+  if (_req->data) {
     if (enableTorques()) {
-      res->success = true;
-      res->message = "Torques enabled.";
+      _res->success = true;
+      _res->message = "Torques enabled.";
     }
     else {
-      res->success = false;
-      res->message = "Failed to enable torques.";
+      _res->success = false;
+      _res->message = "Failed to enable torques.";
     }
   }
   else {
     if (disableTorques()) {
-      res->success = true;
-      res->message = "Torques disabled.";
+      _res->success = true;
+      _res->message = "Torques disabled.";
     }
     else {
-      res->success = false;
-      res->message = "Failed to disable torques.";
+      _res->success = false;
+      _res->message = "Failed to disable torques.";
     }
   }
 }
@@ -713,7 +712,6 @@ void DynamixelHandlerNode::publishCurrentStatesTimerCb()
   // Publish motor states message.
   motor_states_pub_->publish(std::move(motor_states));
 }
-}  // namespace dxl
-}  // namespace tobas
+}  // namespace tobas::dxl
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::dxl::DynamixelHandlerNode)

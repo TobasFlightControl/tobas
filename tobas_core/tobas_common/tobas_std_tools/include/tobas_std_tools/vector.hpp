@@ -16,35 +16,33 @@ namespace std
 {
 /** Console output for `std::vector`. */
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
+std::ostream& operator<<(std::ostream& _os, const std::vector<T>& _vec)
 {
-  const auto size = vec.size();
+  const auto size = _vec.size();
 
   if (size == 0) {
-    os << "[]";
-    return os;
+    _os << "[]";
+    return _os;
   }
 
-  os << "[";
+  _os << "[";
   for (size_t i = 0; i < size - 1; ++i) {
-    os << vec[i] << " ";
+    _os << _vec[i] << " ";
   }
-  os << vec[size - 1] << "]";
+  _os << _vec[size - 1] << "]";
 
-  return os;
+  return _os;
 }
 }  // namespace std
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 /** Naive Summation． The worst-case round-off error scales with O(nε). */
 template <typename T>
-T sum(const std::vector<T>& arr)
+T sum(const std::vector<T>& _arr)
 {
   T sum = 0;
-  for (const auto& x : arr) {
+  for (const auto& x : _arr) {
     sum += x;
   }
   return sum;
@@ -52,24 +50,24 @@ T sum(const std::vector<T>& arr)
 
 /** Naive Summation． The worst-case round-off error scales with O(nε). */
 template <typename T>
-T sum(const std::vector<T>& arr, size_t start, size_t size)
+T sum(const std::vector<T>& _arr, size_t _start, size_t _size)
 {
-  const auto stop = start + size;
-  assert(stop <= arr.size());
+  const auto stop = _start + _size;
+  assert(stop <= _arr.size());
 
   T sum = 0;
-  for (size_t i = start; i < stop; ++i) {
-    sum += arr[i];
+  for (size_t i = _start; i < stop; ++i) {
+    sum += _arr[i];
   }
   return sum;
 }
 
 /** Kahan Summation. The worst-case round-off error scales with O(nε^2). */
 template <typename T>
-T fsum(const std::vector<T>& arr)
+T fsum(const std::vector<T>& _arr)
 {
   algo::Kahan<T> sum;
-  for (const auto& x : arr) {
+  for (const auto& x : _arr) {
     sum.add(x);
   }
   return sum.get();
@@ -77,86 +75,86 @@ T fsum(const std::vector<T>& arr)
 
 /** Kahan Summation. The worst-case round-off error scales with O(nε^2). */
 template <typename T>
-T fsum(const std::vector<T>& arr, size_t start, size_t size)
+T fsum(const std::vector<T>& _arr, size_t _start, size_t _size)
 {
-  const auto stop = start + size;
-  assert(stop <= arr.size());
+  const auto stop = _start + _size;
+  assert(stop <= _arr.size());
 
   algo::Kahan<T> sum;
-  for (size_t i = start; i < stop; ++i) {
-    sum.add(arr[i]);
+  for (size_t i = _start; i < stop; ++i) {
+    sum.add(_arr[i]);
   }
   return sum.get();
 }
 
 /** The average of Kahan Summation. */
 template <typename T>
-T fmean(const std::vector<T>& arr)
+T fmean(const std::vector<T>& _arr)
 {
-  if (arr.empty()) {
+  if (_arr.empty()) {
     return 0;
   }
 
-  return fsum(arr) / arr.size();
+  return fsum(_arr) / _arr.size();
 }
 
 /** The average of Kahan Summation. */
 template <typename T>
-T fmean(const std::vector<T>& arr, size_t start, size_t size)
+T fmean(const std::vector<T>& _arr, size_t _start, size_t _size)
 {
-  if (size == 0) {
+  if (_size == 0) {
     return 0;
   }
 
-  return fsum(arr, start, size) / size;
+  return fsum(_arr, _start, _size) / _size;
 }
 
 /** The variance of data. */
 template <typename T>
-T variance(const std::vector<T>& arr)
+T variance(const std::vector<T>& _arr)
 {
-  if (arr.empty()) {
+  if (_arr.empty()) {
     return 0;
   }
 
-  const auto mean = fmean(arr);
+  const auto mean = fmean(_arr);
   algo::Kahan<T> sum;
-  for (const auto& x : arr) {
+  for (const auto& x : _arr) {
     sum.add(math::sqr(x - mean));
   }
-  return sum.get() / arr.size();
+  return sum.get() / _arr.size();
 }
 
 /** The variance of data. */
 template <typename T>
-T variance(const std::vector<T>& arr, size_t start, size_t size)
+T variance(const std::vector<T>& _arr, size_t _start, size_t _size)
 {
-  const auto stop = start + size;
-  assert(stop <= arr.size());
+  const auto stop = _start + _size;
+  assert(stop <= _arr.size());
 
-  if (arr.empty()) {
+  if (_arr.empty()) {
     return 0;
   }
 
-  const auto mean = fmean(arr, start, size);
+  const auto mean = fmean(_arr, _start, _size);
   algo::Kahan<T> sum;
-  for (size_t i = start; i < stop; ++i) {
-    sum.add(math::sqr(arr[i] - mean));
+  for (size_t i = _start; i < stop; ++i) {
+    sum.add(math::sqr(_arr[i] - mean));
   }
-  return sum.get() / size;
+  return sum.get() / _size;
 }
 
 /** Calculate the weighted average of elements. */
 template <typename T, typename U>
-T average(const std::vector<T>& vec, const std::vector<U>& weights)
+T average(const std::vector<T>& _vec, const std::vector<U>& _weights)
 {
-  assert(vec.size() == weights.size());
+  assert(_vec.size() == _weights.size());
 
   T num = 0;
   U den = 0;
-  for (size_t i = 0; i < vec.size(); ++i) {
-    num += vec[i] * weights[i];
-    den += weights[i];
+  for (size_t i = 0; i < _vec.size(); ++i) {
+    num += _vec[i] * _weights[i];
+    den += _weights[i];
   }
 
   T res = num / den;
@@ -165,35 +163,35 @@ T average(const std::vector<T>& vec, const std::vector<U>& weights)
 
 /** Calculate the average of elements. */
 template <typename T>
-inline T average(const std::vector<T>& vec)
+inline T average(const std::vector<T>& _vec)
 {
-  return average(vec, std::vector<double>(vec.size(), 1.0));
+  return average(_vec, std::vector<double>(_vec.size(), 1.0));
 }
 
 /** Get the element index from a `std::vector`. */
 template <typename T>
-ssize_t findIndex(const std::vector<T>& vec, const T& item)
+ssize_t findIndex(const std::vector<T>& _vec, const T& _item)
 {
-  const auto ret = std::find(vec.begin(), vec.end(), item);
-  if (ret == vec.end()) {
+  const auto ret = std::find(_vec.begin(), _vec.end(), _item);
+  if (ret == _vec.end()) {
     return -1;
   }
-  return ret - vec.begin();
+  return ret - _vec.begin();
 }
 
 /** Fill all elements with a single value. */
 template <typename T>
-inline void fill(std::vector<T>& vec, const T& item)
+inline void fill(std::vector<T>& _vec, const T& _item)
 {
-  std::fill(vec.begin(), vec.end(), item);
+  std::fill(_vec.begin(), _vec.end(), _item);
 }
 
 /** Return true when all elements are greater than `a`. */
 template <typename T>
-bool all_gt(const std::vector<T>& vec, const T& a)
+bool all_gt(const std::vector<T>& _vec, const T& _a)
 {
-  for (const auto& x : vec) {
-    if (x <= a) {
+  for (const auto& x : _vec) {
+    if (x <= _a) {
       return false;
     }
   }
@@ -202,10 +200,10 @@ bool all_gt(const std::vector<T>& vec, const T& a)
 
 /** Return true when all elements are less than `a`. */
 template <typename T>
-bool all_lt(const std::vector<T>& vec, const T& a)
+bool all_lt(const std::vector<T>& _vec, const T& _a)
 {
-  for (const auto& x : vec) {
-    if (x >= a) {
+  for (const auto& x : _vec) {
+    if (x >= _a) {
       return false;
     }
   }
@@ -214,10 +212,10 @@ bool all_lt(const std::vector<T>& vec, const T& a)
 
 /** Return true when all elements are greater than or equal to `a`. */
 template <typename T>
-bool all_ge(const std::vector<T>& vec, const T& a)
+bool all_ge(const std::vector<T>& _vec, const T& _a)
 {
-  for (const auto& x : vec) {
-    if (x < a) {
+  for (const auto& x : _vec) {
+    if (x < _a) {
       return false;
     }
   }
@@ -226,10 +224,10 @@ bool all_ge(const std::vector<T>& vec, const T& a)
 
 /** Return true when all elements are less than or equal to `a`. */
 template <typename T>
-bool all_le(const std::vector<T>& vec, const T& a)
+bool all_le(const std::vector<T>& _vec, const T& _a)
 {
-  for (const auto& x : vec) {
-    if (x > a) {
+  for (const auto& x : _vec) {
+    if (x > _a) {
       return false;
     }
   }
@@ -238,15 +236,15 @@ bool all_le(const std::vector<T>& vec, const T& a)
 
 /** Return the index of the closest value. */
 template <typename T>
-size_t closestIndex(const std::vector<T>& vec, const T& a)
+size_t closestIndex(const std::vector<T>& _vec, const T& _a)
 {
-  assert(!vec.empty());
+  assert(!_vec.empty());
 
   size_t closest_idx = 0;  // Initialized to avoid compiler warnings.
   T closest_dist = std::numeric_limits<T>::max();
 
-  for (size_t i = 0; i < vec.size(); ++i) {
-    const T dist = std::abs(vec[i] - a);
+  for (size_t i = 0; i < _vec.size(); ++i) {
+    const T dist = std::abs(_vec[i] - _a);
     if (dist < closest_dist) {
       closest_dist = dist;
       closest_idx = i;
@@ -258,12 +256,12 @@ size_t closestIndex(const std::vector<T>& vec, const T& a)
 
 /** Remove duplicate elements. */
 template <typename T>
-std::vector<T> unique(const std::vector<T>& vec)
+std::vector<T> unique(const std::vector<T>& _vec)
 {
   std::unordered_set<T> seen;
   std::vector<T> res;
 
-  for (const auto& val : vec) {
+  for (const auto& val : _vec) {
     if (seen.find(val) == seen.end()) {
       seen.insert(val);
       res.push_back(val);
@@ -275,41 +273,41 @@ std::vector<T> unique(const std::vector<T>& vec)
 
 /** Return true when all elements are unique. */
 template <typename T>
-inline bool isUnique(const std::vector<T>& vec)
+inline bool isUnique(const std::vector<T>& _vec)
 {
-  return unique(vec).size() == vec.size();
+  return unique(_vec).size() == _vec.size();
 }
 
 /** Return true when the element is included. */
 template <typename T>
-inline bool contains(const std::vector<T>& vec, const T& val)
+inline bool contains(const std::vector<T>& _vec, const T& _val)
 {
-  return std::find(vec.begin(), vec.end(), val) != vec.end();
+  return std::find(_vec.begin(), _vec.end(), _val) != _vec.end();
 }
 
 /** Return true when all elements satisfy the condition. */
 template <typename T, typename Lambda>
-inline bool allOf(const std::vector<T>& vec, const Lambda& lambda)
+inline bool allOf(const std::vector<T>& _vec, const Lambda& _lambda)
 {
-  return all_of(vec.begin(), vec.end(), lambda);
+  return all_of(_vec.begin(), _vec.end(), _lambda);
 }
 
 /** Merge two `std::vector`s. */
 template <typename T>
-std::vector<T> merge(const std::vector<T>& vec1, const std::vector<T>& vec2)
+std::vector<T> merge(const std::vector<T>& _vec1, const std::vector<T>& _vec2)
 {
-  std::vector<T> res = vec1;
-  res.insert(res.end(), vec2.begin(), vec2.end());
+  std::vector<T> res = _vec1;
+  res.insert(res.end(), _vec2.begin(), _vec2.end());
   return res;
 }
 
 /** Return the element index. */
 template <typename T>
-ssize_t index(const std::vector<T>& vec, const T& value)
+ssize_t index(const std::vector<T>& _vec, const T& _value)
 {
-  const auto it = std::find(vec.begin(), vec.end(), value);
-  if (it != vec.end()) {
-    return std::distance(vec.begin(), it);
+  const auto it = std::find(_vec.begin(), _vec.end(), _value);
+  if (it != _vec.end()) {
+    return std::distance(_vec.begin(), it);
   }
   else {
     return -1;
@@ -318,10 +316,9 @@ ssize_t index(const std::vector<T>& vec, const T& value)
 
 /** Remove the element at the specified index (O(N)). */
 template <typename T>
-void eraseIndex(std::vector<T>& vec, size_t idx)
+void eraseIndex(std::vector<T>& _vec, size_t _idx)
 {
-  assert(idx < vec.size());
-  vec.erase(vec.begin() + static_cast<std::ptrdiff_t>(idx));
+  assert(_idx < _vec.size());
+  _vec.erase(_vec.begin() + static_cast<std::ptrdiff_t>(_idx));
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

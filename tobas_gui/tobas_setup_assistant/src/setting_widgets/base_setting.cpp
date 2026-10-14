@@ -9,11 +9,7 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/util.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 BaseSettingWidget::BaseSettingWidget()
 {
@@ -40,29 +36,29 @@ BaseSettingWidget::BaseSettingWidget()
   QTimer::singleShot(0, this, &self::initialize);
 }
 
-void BaseSettingWidget::addWidget(QWidget* widget, int stretch)
+void BaseSettingWidget::addWidget(QWidget* _widget, int _stretch)
 {
-  content_rows_->addWidget(widget, stretch);
+  content_rows_->addWidget(_widget, _stretch);
 }
 
-void BaseSettingWidget::addWidgetCenter(QWidget* widget, int stretch)
+void BaseSettingWidget::addWidgetCenter(QWidget* _widget, int _stretch)
 {
-  qt::addWidgetCenter(widget, content_rows_, stretch);
+  qt::addWidgetCenter(_widget, content_rows_, _stretch);
 }
 
-void BaseSettingWidget::addLayout(QLayout* layout, int stretch)
+void BaseSettingWidget::addLayout(QLayout* _layout, int _stretch)
 {
-  content_rows_->addLayout(layout, stretch);
+  content_rows_->addLayout(_layout, _stretch);
 }
 
-void BaseSettingWidget::addStretch(int stretch)
+void BaseSettingWidget::addStretch(int _stretch)
 {
-  content_rows_->addStretch(stretch);
+  content_rows_->addStretch(_stretch);
 }
 
-void BaseSettingWidget::addSpacing(int size)
+void BaseSettingWidget::addSpacing(int _size)
 {
-  content_rows_->addSpacing(size);
+  content_rows_->addSpacing(_size);
 }
 
 void BaseSettingWidget::initialize()
@@ -70,6 +66,4 @@ void BaseSettingWidget::initialize()
   title_->setText(title());
   description_->setText(description());
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

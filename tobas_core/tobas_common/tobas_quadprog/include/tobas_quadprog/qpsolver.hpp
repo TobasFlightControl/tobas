@@ -8,9 +8,7 @@
 
 #include <eigen3/Eigen/Core>
 
-namespace tobas
-{
-namespace quadprog
+namespace tobas::quadprog
 {
 /** Q
  * uadratic problem.
@@ -26,10 +24,10 @@ public:
   Eigen::MatrixXd A;
   Eigen::VectorXd b;
 
-  explicit QuadProgProblem(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size);
+  explicit QuadProgProblem(Eigen::Index _var_size, Eigen::Index _eq_size, Eigen::Index _ineq_size);
   explicit QuadProgProblem();
 
-  void resize(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size);
+  void resize(Eigen::Index _var_size, Eigen::Index _eq_size, Eigen::Index _ineq_size);
   void setZero();
 
   bool isSizeMatch() const;
@@ -39,7 +37,7 @@ public:
   inline Eigen::Index eqSize() const;
   inline Eigen::Index ineqSize() const;
 
-  friend std::ostream& operator<<(std::ostream& os, const QuadProgProblem& arg);
+  friend std::ostream& operator<<(std::ostream& _os, const QuadProgProblem& _arg);
 };
 
 /**
@@ -56,10 +54,10 @@ public:
 
   virtual std::expected<Eigen::VectorXd, std::string> solve() = 0;
 
-  void resize(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size);
+  void resize(Eigen::Index _var_size, Eigen::Index _eq_size, Eigen::Index _ineq_size);
   void setZero();
 
-  friend std::ostream& operator<<(std::ostream& os, const QuadProgSolver& arg);
+  friend std::ostream& operator<<(std::ostream& _os, const QuadProgSolver& _arg);
 
 protected:
   QuadProgProblem scaleProblem() const;
@@ -80,5 +78,4 @@ inline Eigen::Index QuadProgProblem::ineqSize() const
 {
   return b.rows();
 }
-}  // namespace quadprog
-}  // namespace tobas
+}  // namespace tobas::quadprog

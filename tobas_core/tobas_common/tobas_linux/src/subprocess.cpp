@@ -9,9 +9,7 @@
 
 #include <tobas_std_tools/error.hpp>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 std::expected<pid_t, std::string> createSubprocess(const std::vector<char*>& _argv)
 {
@@ -36,7 +34,8 @@ std::expected<pid_t, std::string> createSubprocess(const std::vector<char*>& _ar
     for (const auto& cmd_elem : _argv) {
       std::cout << cmd_elem << " ";
     }
-    std::cout << std::endl;
+    // Flush the diagnostic before execvp replaces the process.
+    std::cout << '\n' << std::flush;
 
     // Add the terminator to the argument list.
     auto argv = _argv;
@@ -46,20 +45,19 @@ std::expected<pid_t, std::string> createSubprocess(const std::vector<char*>& _ar
     execvp(argv.front(), argv.data());
 
     // execvp returns only on failure.
-    std::cerr << "Subprocess failed." << std::endl;
+    std::cerr << "Subprocess failed.\n" << std::flush;
     _exit(127);  // Error code commonly used when an exec call fails.
   }
 }
 
-std::expected<pid_t, std::string> createSubprocess(const std::string& command)
+std::expected<pid_t, std::string> createSubprocess(const std::string& _command)
 {
   // Since const_cast does not copy, the command memory must remain valid when the process is created.
   std::vector<char*> argv;
   argv.push_back(const_cast<char*>("/bin/bash"));
   argv.push_back(const_cast<char*>("-c"));
-  argv.push_back(const_cast<char*>(command.c_str()));
+  argv.push_back(const_cast<char*>(_command.c_str()));
 
   return createSubprocess(argv);
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

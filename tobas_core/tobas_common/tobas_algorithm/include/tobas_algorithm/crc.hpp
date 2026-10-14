@@ -7,9 +7,7 @@
 #include <cstddef>
 
 // Ref: https://qiita.com/tobira-code/items/dbcffc41f54201130b6c
-namespace tobas
-{
-namespace algo
+namespace tobas::algo
 {
 class CRC
 {
@@ -28,13 +26,13 @@ public:
   /**
    * Construct a new CRC16 object
    *
-   * @param poly Generator polynomial, omitting the highest-order term.
-   * @param init_value Initial value.
-   * @param out_xor XOR after division.
+   * @param _poly Generator polynomial, omitting the highest-order term.
+   * @param _init_value Initial value.
+   * @param _out_xor XOR after division.
    */
-  explicit CRC16(uint16_t poly, uint16_t init_value = 0, uint16_t out_xor = 0) noexcept;
+  explicit CRC16(uint16_t _poly, uint16_t _init_value = 0, uint16_t _out_xor = 0) noexcept;
 
-  virtual uint16_t compute(const uint8_t* buf, size_t len) const noexcept = 0;
+  virtual uint16_t compute(const uint8_t* _buf, size_t _len) const noexcept = 0;
 
 protected:
   const uint16_t poly_;
@@ -50,13 +48,13 @@ public:
   /**
    * Construct a new CRC32 object
    *
-   * @param poly Generator polynomial, omitting the highest-order term.
-   * @param init_value Initial value.
-   * @param out_xor XOR after division.
+   * @param _poly Generator polynomial, omitting the highest-order term.
+   * @param _init_value Initial value.
+   * @param _out_xor XOR after division.
    */
-  explicit CRC32(uint32_t poly, uint32_t init_value = 0, uint32_t out_xor = 0) noexcept;
+  explicit CRC32(uint32_t _poly, uint32_t _init_value = 0, uint32_t _out_xor = 0) noexcept;
 
-  virtual uint32_t compute(const uint8_t* buf, size_t len) const noexcept = 0;
+  virtual uint32_t compute(const uint8_t* _buf, size_t _len) const noexcept = 0;
 
 protected:
   const uint32_t poly_;
@@ -79,7 +77,7 @@ public:
 
   using CRC16::CRC16;
 
-  uint16_t compute(const uint8_t* buf, size_t len) const noexcept override;
+  uint16_t compute(const uint8_t* _buf, size_t _len) const noexcept override;
 
 protected:
   void createTable() noexcept override;
@@ -96,7 +94,7 @@ public:
 
   using CRC16::CRC16;
 
-  uint16_t compute(const uint8_t* buf, size_t len) const noexcept override;
+  uint16_t compute(const uint8_t* _buf, size_t _len) const noexcept override;
 
 protected:
   void createTable() noexcept override;
@@ -114,7 +112,7 @@ public:
 
   using CRC32::CRC32;
 
-  uint32_t compute(const uint8_t* buf, size_t len) const noexcept override;
+  uint32_t compute(const uint8_t* _buf, size_t _len) const noexcept override;
 
 protected:
   void createTable() noexcept override;
@@ -132,10 +130,9 @@ public:
 
   using CRC32::CRC32;
 
-  uint32_t compute(const uint8_t* buf, size_t len) const noexcept override;
+  uint32_t compute(const uint8_t* _buf, size_t _len) const noexcept override;
 
 protected:
   void createTable() noexcept override;
 };
-}  // namespace algo
-}  // namespace tobas
+}  // namespace tobas::algo

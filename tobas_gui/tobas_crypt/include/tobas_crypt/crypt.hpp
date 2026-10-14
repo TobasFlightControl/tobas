@@ -5,9 +5,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace crypt
+namespace tobas::crypt
 {
 /** Update the user password. */
 bool setShadowPassword(
@@ -15,5 +13,4 @@ bool setShadowPassword(
   const std::string& _username,
   const std::string& _new_password,
   const Crypt& _crypt);
-}  // namespace crypt
-}  // namespace tobas
+}  // namespace tobas::crypt

@@ -5,11 +5,7 @@
 
 #include <QWidget>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class BasePlotWidget : public QWidget
 {
@@ -17,8 +13,6 @@ class BasePlotWidget : public QWidget
 
 public:
   virtual void clear() = 0;
-  virtual void setTimeScale(double t_start, double t_stop) = 0;
+  virtual void setTimeScale(double _t_start, double _t_stop) = 0;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

@@ -5,9 +5,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 /**
  * Bilinear transform.
@@ -16,16 +14,15 @@ namespace ctrl
 class C2D_Tustin : BaseC2D
 {
 public:
-  explicit C2D_Tustin(Eigen::Index x_size, Eigen::Index u_size);
+  explicit C2D_Tustin(Eigen::Index _x_size, Eigen::Index _u_size);
   explicit C2D_Tustin();
 
-  LinearDynamics convert(const LinearDynamics& cont, double dt) override;
+  LinearDynamics convert(const LinearDynamics& _cont, double _dt) override;
 
-  void resize(Eigen::Index x_size, Eigen::Index u_size);
+  void resize(Eigen::Index _x_size, Eigen::Index _u_size);
 
 private:
   Eigen::Index x_size_, u_size_;
   Eigen::MatrixXd I_;  ///< Identity matrix
 };
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

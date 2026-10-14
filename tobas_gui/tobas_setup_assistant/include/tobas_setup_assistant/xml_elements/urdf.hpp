@@ -10,82 +10,76 @@
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/aerodynamics.hpp>
 #include <tobas_drone_core/propulsion_system/turning_direction.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace xml
+namespace tobas::gui::sa::xml
 {
 void addBatteryPlugin(
-  tinyxml2::XMLElement* robot,
-  const std::string& ns,
-  int update_rate,
-  double max_voltage,
-  double sag_voltage,
-  double max_current,
-  double current_capacity,
-  double internal_registance,
-  const std::vector<std::string>& rotor_link_names);
+  tinyxml2::XMLElement* _robot,
+  const std::string& _ns,
+  int _update_rate,
+  double _max_voltage,
+  double _sag_voltage,
+  double _max_current,
+  double _current_capacity,
+  double _internal_registance,
+  const std::vector<std::string>& _rotor_link_names);
 
 void addImuPlugin(
-  tinyxml2::XMLElement* robot,
-  const std::string& ns,
-  const std::string& link_name,
-  const Eigen::Vector3d& offset,
-  int update_rate,
-  double gyro_noise_density,
-  double gyro_random_walk,
-  double gyro_bias_corr_time,
-  double acc_noise_density,
-  double acc_random_walk,
-  double acc_bias_corr_time,
-  const std::vector<std::string>& rotor_link_names);
+  tinyxml2::XMLElement* _robot,
+  const std::string& _ns,
+  const std::string& _link_name,
+  const Eigen::Vector3d& _offset,
+  int _update_rate,
+  double _gyro_noise_density,
+  double _gyro_random_walk,
+  double _gyro_bias_corr_time,
+  double _acc_noise_density,
+  double _acc_random_walk,
+  double _acc_bias_corr_time,
+  const std::vector<std::string>& _rotor_link_names);
 
 void addMagnetometerPlugin(
-  tinyxml2::XMLElement* robot,
-  const std::string& ns,
-  const std::string& link_name,
-  const Eigen::Vector3d& offset,
-  int update_rate,
-  double noise_stddev,
-  double hard_bias_norm);
+  tinyxml2::XMLElement* _robot,
+  const std::string& _ns,
+  const std::string& _link_name,
+  const Eigen::Vector3d& _offset,
+  int _update_rate,
+  double _noise_stddev,
+  double _hard_bias_norm);
 
 void addBarometerPlugin(
-  tinyxml2::XMLElement* robot,
-  const std::string& ns,
-  const std::string& link_name,
-  const Eigen::Vector3d& offset,
-  int update_rate,
-  double noise_stddev);
+  tinyxml2::XMLElement* _robot,
+  const std::string& _ns,
+  const std::string& _link_name,
+  const Eigen::Vector3d& _offset,
+  int _update_rate,
+  double _noise_stddev);
 
 void addGnssPlugin(
-  tinyxml2::XMLElement* robot,
-  const std::string& ns,
-  const std::string& link_name,
-  const Eigen::Vector3d& offset,
-  int update_rate,
-  double delay,
-  double position_corr_time,
-  double hor_pos_accuracy,
-  double ver_pos_accuracy,
-  double hor_vel_stddev,
-  double ver_vel_stddev,
-  double geoid_undulation);
+  tinyxml2::XMLElement* _robot,
+  const std::string& _ns,
+  const std::string& _link_name,
+  const Eigen::Vector3d& _offset,
+  int _update_rate,
+  double _delay,
+  double _position_corr_time,
+  double _hor_pos_accuracy,
+  double _ver_pos_accuracy,
+  double _hor_vel_stddev,
+  double _ver_vel_stddev,
+  double _geoid_undulation);
 
 void addElectricPropulsionSystemPlugin(
-  tinyxml2::XMLElement* robot,
-  const std::string& ns,
-  const std::string& link_name,
-  double kv,
-  double internal_resistance,
-  size_t num_blades,
-  double motor_const,
-  double moment_const,
-  double drag_const,
-  TurningDirection direction,
-  double max_current);
+  tinyxml2::XMLElement* _robot,
+  const std::string& _ns,
+  const std::string& _link_name,
+  double _kv,
+  double _internal_resistance,
+  size_t _num_blades,
+  double _motor_const,
+  double _moment_const,
+  double _drag_const,
+  TurningDirection _direction,
+  double _max_cont_current);
 
 struct EngineParam
 {
@@ -108,54 +102,51 @@ struct IceRotorParam
 };
 
 void addIcePropulsionSystemPlugin(
-  tinyxml2::XMLElement* robot,
-  const std::string& ns,
-  const EngineParam& engine_param,
-  const std::vector<IceRotorParam>& rotor_params);
+  tinyxml2::XMLElement* _robot,
+  const std::string& _ns,
+  const EngineParam& _engine_param,
+  const std::vector<IceRotorParam>& _rotor_params);
 
 void addFixedWingPlugin(
-  tinyxml2::XMLElement* robot,
-  const std::string& ns,
-  const std::string& base_link_name,
-  const FixedWingConfig& fixed_wing);
+  tinyxml2::XMLElement* _robot,
+  const std::string& _ns,
+  const std::string& _base_link_name,
+  const FixedWingConfig& _fixed_wing);
 
 void addJointStateBroadcasterPlugin(
-  tinyxml2::XMLElement* robot,
-  const std::string& ns,
-  const std::vector<std::string>& joint_names,
-  int update_rate);
+  tinyxml2::XMLElement* _robot,
+  const std::string& _ns,
+  const std::vector<std::string>& _joint_names,
+  int _update_rate);
 
 void addJointPositionControllerPlugin(
-  tinyxml2::XMLElement* robot,
-  const std::string& ns,
-  const std::string& joint_name,
-  double home_pos,
-  double time_const);
+  tinyxml2::XMLElement* _robot,
+  const std::string& _ns,
+  const std::string& _joint_name,
+  double _home_pos,
+  double _time_const);
 
 void addJointVelocityControllerPlugin(
-  tinyxml2::XMLElement* robot,
-  const std::string& ns,
-  const std::string& joint_name,
-  double home_pos);
+  tinyxml2::XMLElement* _robot,
+  const std::string& _ns,
+  const std::string& _joint_name,
+  double _home_pos);
 
 void addJointEffortControllerPlugin(
-  tinyxml2::XMLElement* robot,
-  const std::string& ns,
-  const std::string& joint_name,
-  double home_pos);
+  tinyxml2::XMLElement* _robot,
+  const std::string& _ns,
+  const std::string& _joint_name,
+  double _home_pos);
 
-void addGazeboWindPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
+void addGazeboWindPlugin(tinyxml2::XMLElement* _robot, const std::string& _ns, const std::string& _link_name);
 
-void addGazeboGroundTruthStatePlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
+void addGazeboGroundTruthStatePlugin(tinyxml2::XMLElement* _robot, const std::string& _ns, const std::string& _link_name);
 
-void addGazeboLookAtPositionPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
+void addGazeboLookAtPositionPlugin(tinyxml2::XMLElement* _robot, const std::string& _ns, const std::string& _link_name);
 
-void addGazeboFixedLoadPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
+void addGazeboFixedLoadPlugin(tinyxml2::XMLElement* _robot, const std::string& _ns, const std::string& _link_name);
 
-void addGazeboSuspendedLoadPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
+void addGazeboSuspendedLoadPlugin(tinyxml2::XMLElement* _robot, const std::string& _ns, const std::string& _link_name);
 
-void addBaseStaticJoint(tinyxml2::XMLElement* robot, const std::string& root_link_name);
-}  // namespace xml
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+void addBaseStaticJoint(tinyxml2::XMLElement* _robot, const std::string& _root_link_name);
+}  // namespace tobas::gui::sa::xml

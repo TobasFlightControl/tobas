@@ -73,73 +73,73 @@ std::expected<void, std::string> AerodynamicCoefficients::validate() const
   return {};
 }
 
-std::expected<void, std::string> AerodynamicCoefficients::load(const YAML::Node& node)
+std::expected<void, std::string> AerodynamicCoefficients::load(const YAML::Node& _node)
 {
-  if (!node.IsDefined() || !node.IsMap()) {
+  if (!_node.IsDefined() || !_node.IsMap()) {
     return std::unexpected("Configuration node must be a map.");
   }
 
-  if (const auto result = yaml::load(kCLift0Key, node, c_lift_0); !result) {
+  if (const auto result = yaml::load(kCLift0Key, _node, c_lift_0); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCLiftAlphaKey, node, c_lift_alpha); !result) {
+  if (const auto result = yaml::load(kCLiftAlphaKey, _node, c_lift_alpha); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCDrag0Key, node, c_drag_0); !result) {
+  if (const auto result = yaml::load(kCDrag0Key, _node, c_drag_0); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCDragAlphaKey, node, c_drag_alpha); !result) {
+  if (const auto result = yaml::load(kCDragAlphaKey, _node, c_drag_alpha); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCSideBetaKey, node, c_side_beta); !result) {
+  if (const auto result = yaml::load(kCSideBetaKey, _node, c_side_beta); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCRollBetaKey, node, c_roll_beta); !result) {
+  if (const auto result = yaml::load(kCRollBetaKey, _node, c_roll_beta); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCRollPKey, node, c_roll_p); !result) {
+  if (const auto result = yaml::load(kCRollPKey, _node, c_roll_p); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCRollRKey, node, c_roll_r); !result) {
+  if (const auto result = yaml::load(kCRollRKey, _node, c_roll_r); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCPitch0Key, node, c_pitch_0); !result) {
+  if (const auto result = yaml::load(kCPitch0Key, _node, c_pitch_0); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCPitchAlphaKey, node, c_pitch_alpha); !result) {
+  if (const auto result = yaml::load(kCPitchAlphaKey, _node, c_pitch_alpha); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCPitchAbsBetaKey, node, c_pitch_abs_beta); !result) {
+  if (const auto result = yaml::load(kCPitchAbsBetaKey, _node, c_pitch_abs_beta); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCPitchAlphaRateKey, node, c_pitch_alpha_rate); !result) {
+  if (const auto result = yaml::load(kCPitchAlphaRateKey, _node, c_pitch_alpha_rate); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCPitchQKey, node, c_pitch_q); !result) {
+  if (const auto result = yaml::load(kCPitchQKey, _node, c_pitch_q); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCYawBetaKey, node, c_yaw_beta); !result) {
+  if (const auto result = yaml::load(kCYawBetaKey, _node, c_yaw_beta); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCYawPKey, node, c_yaw_p); !result) {
+  if (const auto result = yaml::load(kCYawPKey, _node, c_yaw_p); !result) {
     return result;
   }
 
-  if (const auto result = yaml::load(kCYawRKey, node, c_yaw_r); !result) {
+  if (const auto result = yaml::load(kCYawRKey, _node, c_yaw_r); !result) {
     return result;
   }
 

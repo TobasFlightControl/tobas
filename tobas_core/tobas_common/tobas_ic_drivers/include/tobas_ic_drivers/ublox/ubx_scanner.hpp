@@ -7,9 +7,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace tobas
-{
-namespace ublox
+namespace tobas::ublox
 {
 static constexpr size_t kUbxSyncLength = 2;
 static constexpr size_t kUbxClassLength = 1;
@@ -48,7 +46,7 @@ public:
   UbxScanner& operator=(const UbxScanner& _other) = delete;
 
   void reset();
-  void update(uint8_t data);
+  void update(uint8_t _data);
 
   inline State state() const;
   inline size_t messageLength() const;
@@ -118,5 +116,4 @@ inline const uint8_t* UbxScanner::getChecksumB() const
 {
   return getChecksumA() + 1;
 }
-}  // namespace ublox
-}  // namespace tobas
+}  // namespace tobas::ublox

@@ -5,9 +5,7 @@
 
 #include <tobas_linux/i2c_dev.hpp>
 
-namespace tobas
-{
-namespace stm
+namespace tobas::stm
 {
 /**
  * A linux driver of full-scale barometer.
@@ -18,13 +16,13 @@ class ILPS22QS
 public:
   explicit ILPS22QS();
 
-  bool initialize(const char* i2c_device);
+  bool initialize(const char* _i2c_device);
 
   /** Read the current pressure [Pa]. */
-  bool readPressure(double& pressure);
+  bool readPressure(double& _pressure);
 
   /** Read the current temperature [degC]. */
-  bool readTemperature(double& temperature);
+  bool readTemperature(double& _temperature);
 
 private:
   /** 8: Register mapping (p.32) */
@@ -106,7 +104,6 @@ private:
   bool checkWhoAmI();
   bool configure();
 
-  void setPressureScale(uint8_t fs_mode);
+  void setPressureScale(uint8_t _fs_mode);
 };
-}  // namespace stm
-}  // namespace tobas
+}  // namespace tobas::stm

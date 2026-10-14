@@ -3,57 +3,54 @@
 
 #include "tobas_gazebo_conversions/gazebo_ros.hpp"
 
-namespace tobas
+namespace tobas::gazebo
 {
-namespace gazebo
+void vectorGazeboToRos(const gz::math::Vector3d& _g, geometry_msgs::msg::Vector3& _m)
 {
-void vectorGazeboToRos(const gz::math::Vector3d& g, geometry_msgs::msg::Vector3& m)
-{
-  m.x = g.X();
-  m.y = g.Y();
-  m.z = g.Z();
+  _m.x = _g.X();
+  _m.y = _g.Y();
+  _m.z = _g.Z();
 }
 
-void vectorRosToGazebo(const geometry_msgs::msg::Vector3& m, gz::math::Vector3d& g)
+void vectorRosToGazebo(const geometry_msgs::msg::Vector3& _m, gz::math::Vector3d& _g)
 {
-  g.Set(m.x, m.y, m.z);
+  _g.Set(_m.x, _m.y, _m.z);
 }
 
-void pointGazeboToRos(const gz::math::Vector3d& g, geometry_msgs::msg::Point& m)
+void pointGazeboToRos(const gz::math::Vector3d& _g, geometry_msgs::msg::Point& _m)
 {
-  m.x = g.X();
-  m.y = g.Y();
-  m.z = g.Z();
+  _m.x = _g.X();
+  _m.y = _g.Y();
+  _m.z = _g.Z();
 }
 
-void pointRosToGazebo(const geometry_msgs::msg::Point& m, gz::math::Vector3d& g)
+void pointRosToGazebo(const geometry_msgs::msg::Point& _m, gz::math::Vector3d& _g)
 {
-  g.Set(m.x, m.y, m.z);
+  _g.Set(_m.x, _m.y, _m.z);
 }
 
-void quaternionGazeboToRos(const gz::math::Quaterniond& g, geometry_msgs::msg::Quaternion& m)
+void quaternionGazeboToRos(const gz::math::Quaterniond& _g, geometry_msgs::msg::Quaternion& _m)
 {
-  m.w = g.W();
-  m.x = g.X();
-  m.y = g.Y();
-  m.z = g.Z();
+  _m.w = _g.W();
+  _m.x = _g.X();
+  _m.y = _g.Y();
+  _m.z = _g.Z();
 }
 
-void quaternionRosToGazebo(const geometry_msgs::msg::Quaternion& m, gz::math::Quaterniond& g)
+void quaternionRosToGazebo(const geometry_msgs::msg::Quaternion& _m, gz::math::Quaterniond& _g)
 {
-  g.Set(m.w, m.x, m.y, m.z);
+  _g.Set(_m.w, _m.x, _m.y, _m.z);
 }
 
-void poseGazeboToRos(const gz::math::Pose3d& g, geometry_msgs::msg::Pose& m)
+void poseGazeboToRos(const gz::math::Pose3d& _g, geometry_msgs::msg::Pose& _m)
 {
-  pointGazeboToRos(g.Pos(), m.position);
-  quaternionGazeboToRos(g.Rot(), m.orientation);
+  pointGazeboToRos(_g.Pos(), _m.position);
+  quaternionGazeboToRos(_g.Rot(), _m.orientation);
 }
 
-void poseRosToGazebo(const geometry_msgs::msg::Pose& m, gz::math::Pose3d& g)
+void poseRosToGazebo(const geometry_msgs::msg::Pose& _m, gz::math::Pose3d& _g)
 {
-  pointRosToGazebo(m.position, g.Pos());
-  quaternionRosToGazebo(m.orientation, g.Rot());
+  pointRosToGazebo(_m.position, _g.Pos());
+  quaternionRosToGazebo(_m.orientation, _g.Rot());
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

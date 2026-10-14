@@ -5,27 +5,25 @@
 
 #include <iostream>
 
-namespace tobas
-{
-namespace driver
+namespace tobas::driver
 {
 size_t JRE30Packet_A::packetSize() const
 {
   return 16;
 }
 
-void JRE30Packet_A::decode(uint8_t* buf)
+void JRE30Packet_A::decode(uint8_t* _buf)
 {
-  protocol_version = buf[2];
-  frame_count = buf[3];
+  protocol_version = _buf[2];
+  frame_count = _buf[3];
 
-  const uint16_t dist_lsb = (buf[4] << 8) | buf[5];
+  const uint16_t dist_lsb = (_buf[4] << 8) | _buf[5];
   distance = dist_lsb * 0.01;
 
-  const uint16_t strength_lsb = (buf[10] << 8) | buf[11];
+  const uint16_t strength_lsb = (_buf[10] << 8) | _buf[11];
   strength = strength_lsb * 1.0;
 
-  const uint16_t status = (buf[12] << 8) | buf[13];
+  const uint16_t status = (_buf[12] << 8) | _buf[13];
   gain = (status >> 0) & 1;
   ntrk = (status >> 1) & 1;
   fail = (status >> 3) & 1;
@@ -36,9 +34,9 @@ size_t JRE30Packet_B::packetSize() const
   return 32;
 }
 
-void JRE30Packet_B::decode(uint8_t* buf)
+void JRE30Packet_B::decode(uint8_t* _buf)
 {
-  (void)buf;
+  (void)_buf;
   // TODO
 }
 
@@ -47,14 +45,14 @@ size_t JRE30Packet_C::packetSize() const
   return 48;
 }
 
-void JRE30Packet_C::decode(uint8_t* buf)
+void JRE30Packet_C::decode(uint8_t* _buf)
 {
-  (void)buf;
+  (void)_buf;
   // TODO
 }
 
-JRE30::JRE30(std::function<void(std::shared_ptr<const JRE30Packet>)> packet_cb)
-  : packet_cb_(packet_cb), crc_(algo::CRC16Right::CRC_16_CCITT, 0xFFFF, 0xFFFF)
+JRE30::JRE30(std::function<void(std::shared_ptr<const JRE30Packet>)> _packet_cb)
+  : packet_cb_(_packet_cb), crc_(algo::CRC16Right::CRC_16_CCITT, 0xFFFF, 0xFFFF)
 {
   crc_.initialize();
 
@@ -68,9 +66,9 @@ JRE30::~JRE30()
   stop();
 }
 
-bool JRE30::initialize(const char* uart_device)
+bool JRE30::initialize(const char* _uart_device)
 {
-  if (!uart_.initialize(uart_device, true)) {
+  if (!uart_.initialize(_uart_device, true)) {
     return false;
   }
 
@@ -108,9 +106,9 @@ void JRE30::spin()
   read_thread_.join();
 }
 
-void JRE30::readThreadFunc(std::stop_token st)
+void JRE30::readThreadFunc(std::stop_token _st)
 {
-  while (!st.stop_requested()) {
+  while (!_st.stop_requested()) {
     // Header
     if (!uart_.receive(buf_ + 0, 1)) {
       continue;
@@ -160,11 +158,10 @@ bool JRE30::checkCRC() const
   const uint16_t cr = (buf_[packet_size - 1] << 8) | buf_[packet_size - 2];
 
   if (cs != cr) {
-    std::cerr << "CRC failed: " << std::hex << std::uppercase << cs << " != " << cr << std::dec << std::endl;
+    std::cerr << "CRC failed: " << std::hex << std::uppercase << cs << " != " << cr << std::dec << '\n';
     return false;
   }
 
   return true;
 }
-}  // namespace driver
-}  // namespace tobas
+}  // namespace tobas::driver

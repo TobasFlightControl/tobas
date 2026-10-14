@@ -33,11 +33,7 @@ namespace fs = std::filesystem;
 
 Q_DECLARE_METATYPE(rclcpp_action::ResultCode);
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 namespace
 {
@@ -45,7 +41,7 @@ constexpr char kLastOpenedDirKey[] = "mission_planner/last_opened_dir";
 
 using MapSplinePath = traj::CatmullRomPath<Eigen::Vector2d>;
 
-size_t splineMapSampleCount(const MapSplinePath& path, size_t segment)
+size_t splineMapSampleCount(const MapSplinePath& _path, size_t _segment)
 {
   constexpr double kSplineMapSampleInterval = 1.0;  // [m]
   constexpr size_t kMinSplineMapSamplesPerSegment = 4;
@@ -54,10 +50,10 @@ size_t splineMapSampleCount(const MapSplinePath& path, size_t segment)
 
   // This is for display, so approximate the curve length with a small number of points before determining the sample count.
   double length = 0.0;
-  auto prev = path.get(segment, 0.0).pos;
+  auto prev = _path.get(_segment, 0.0).pos;
   for (size_t sample = 1; sample <= kSplineMapLengthEstimateSamples; ++sample) {
     const auto u = static_cast<double>(sample) / static_cast<double>(kSplineMapLengthEstimateSamples);
-    const auto cur = path.get(segment, u).pos;
+    const auto cur = _path.get(_segment, u).pos;
     length += (cur - prev).norm();
     prev = cur;
   }
@@ -67,7 +63,7 @@ size_t splineMapSampleCount(const MapSplinePath& path, size_t segment)
 }
 }  // namespace
 
-MissionPlannerWidget::MissionPlannerWidget(const rqt::RosQtBridge& bridge) : spinner_(Qt::WindowModal, this)
+MissionPlannerWidget::MissionPlannerWidget(const rqt::RosQtBridge& _bridge) : spinner_(Qt::WindowModal, this)
 {
   map_ = new MapWidget();
 
@@ -124,8 +120,8 @@ MissionPlannerWidget::MissionPlannerWidget(const rqt::RosQtBridge& bridge) : spi
   connect(focus_button_, &CommandButton::clicked, this, &self::onFocusButtonClicked);
   connect(command_list_, &qt::ListWidget::currentItemChanged, this, &self::onListItemChanged);
   connect(command_list_, &qt::ListWidget::itemMoved, this, &self::onListItemChanged);
-  connect(&bridge, &rqt::RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
-  connect(&bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
   connect(this, &self::goalResponseReceived, this, &self::actionGoalResponseCb, Qt::QueuedConnection);
   connect(this, &self::feedbackReceived, this, &self::actionFeedbackCb, Qt::QueuedConnection);
   connect(this, &self::resultReceived, this, &self::actionResultCb, Qt::QueuedConnection);
@@ -143,10 +139,10 @@ void MissionPlannerWidget::reset()
   mission_executing_ = false;
 }
 
-void MissionPlannerWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void MissionPlannerWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  const auto action_name = path::join(ns, kRemoteIfaceNS, action::kExecuteMission);
-  mission_ac_ = rclcpp_action::create_client<Action>(node, action_name);
+  const auto action_name = path::join(_ns, kRemoteIfaceNS, action::kExecuteMission);
+  mission_ac_ = rclcpp_action::create_client<Action>(_node, action_name);
 
   ros_initialized_ = true;
 }
@@ -163,9 +159,9 @@ QString MissionPlannerWidget::getMissionDir()
   return settings_store_.value(kLastOpenedDirKey, qt::expandUser(kMissionDir)).toString();
 }
 
-void MissionPlannerWidget::setMissionDir(const QString& file_path)
+void MissionPlannerWidget::setMissionDir(const QString& _file_path)
 {
-  const auto dir = QFileInfo(file_path).absolutePath();
+  const auto dir = QFileInfo(_file_path).absolutePath();
   settings_store_.setValue(kLastOpenedDirKey, dir);
 }
 
@@ -176,16 +172,17 @@ void MissionPlannerWidget::clearMission()
   pairs_.clear();
 }
 
-void MissionPlannerWidget::addCommand(mission::Type type, BaseCommandWidget* widget)
+void MissionPlannerWidget::addCommand(mission::Type _type, BaseCommandWidget* _widget)
 {
-  const auto item = new QListWidgetItem(commandToText(type));
+  const auto item = new QListWidgetItem(commandToText(_type));
   command_list_->addItem(item);
 
-  commands_->addWidget(widget);
-  connect(widget, &BaseCommandWidget::updated, this, &self::onMissionUpdated);
-  connect(widget, &BaseCommandWidget::deleteButtonClicked, std::bind(&self::onDeleteButtonClicked, this, item, widget));
+  commands_->addWidget(_widget);
+  connect(_widget, &BaseCommandWidget::updated, this, &self::onMissionUpdated);
+  connect(
+    _widget, &BaseCommandWidget::deleteButtonClicked, std::bind(&self::onDeleteButtonClicked, this, item, _widget));
 
-  pairs_.insert({ item, widget });
+  pairs_.insert({ item, _widget });
 }
 
 void MissionPlannerWidget::setExecuteMode()
@@ -321,15 +318,15 @@ void MissionPlannerWidget::updateWaypointSplineEnds()
   }
 }
 
-void MissionPlannerWidget::addSplinePathToMap(const std::vector<QGeoCoordinate>& waypoints)
+void MissionPlannerWidget::addSplinePathToMap(const std::vector<QGeoCoordinate>& _waypoints)
 {
-  if (waypoints.size() < 2) {
+  if (_waypoints.size() < 2) {
     return;
   }
 
-  const auto& origin = waypoints.front();
+  const auto& origin = _waypoints.front();
   std::vector<Eigen::Vector2d> points;
-  for (const auto& waypoint : waypoints) {
+  for (const auto& waypoint : _waypoints) {
     const auto coord =
       geography_.geodeticToPlane(waypoint.latitude(), waypoint.longitude(), origin.latitude(), origin.longitude());
     points.emplace_back(coord.east, coord.north);
@@ -338,7 +335,7 @@ void MissionPlannerWidget::addSplinePathToMap(const std::vector<QGeoCoordinate>&
   const MapSplinePath path(std::move(points));
 
   // Because QML receives a set of short `MapPolyline` objects, approximate the spline with polylines at fixed intervals.
-  auto prev_coord = waypoints.front();
+  auto prev_coord = _waypoints.front();
   for (size_t segment = 0; segment < path.segmentCount(); ++segment) {
     const auto sample_count = splineMapSampleCount(path, segment);
     for (size_t sample = 1; sample <= sample_count; ++sample) {
@@ -653,7 +650,7 @@ void MissionPlannerWidget::onCacheButtonClicked()
   std::sort(
     files.begin(),
     files.end(),
-    [](const fs::path& a, const fs::path& b) { return fs::last_write_time(a) > fs::last_write_time(b); });
+    [](const fs::path& _a, const fs::path& _b) { return fs::last_write_time(_a) > fs::last_write_time(_b); });
 
   // Get file sizes.
   std::vector<uintmax_t> sizes;
@@ -707,11 +704,12 @@ void MissionPlannerWidget::onExecuteButtonClicked()
 
   // Execute the mission.
   Client::SendGoalOptions opts;
-  opts.goal_response_callback = [this](const GoalHandle::SharedPtr& gh) { Q_EMIT goalResponseReceived(gh != nullptr); };
-  opts.feedback_callback = [this](const GoalHandle::SharedPtr&, const Action::Feedback::ConstSharedPtr& fb)
-  { Q_EMIT feedbackReceived(fb->current_command_index); };
-  opts.result_callback = [this](const GoalHandle::WrappedResult& res)
-  { Q_EMIT resultReceived(res.code, res.result->error_message.c_str(), res.result->last_command_index); };
+  opts.goal_response_callback = [this](const GoalHandle::SharedPtr& _gh)
+  { Q_EMIT goalResponseReceived(_gh != nullptr); };
+  opts.feedback_callback = [this](const GoalHandle::SharedPtr&, const Action::Feedback::ConstSharedPtr& _fb)
+  { Q_EMIT feedbackReceived(_fb->current_command_index); };
+  opts.result_callback = [this](const GoalHandle::WrappedResult& _res)
+  { Q_EMIT resultReceived(_res.code, _res.result->error_message.c_str(), _res.result->last_command_index); };
   mission_ac_->async_send_goal(goal, opts);
 
   spinner_.start();
@@ -736,18 +734,18 @@ void MissionPlannerWidget::onFocusButtonClicked()
   map_->setMapCenter(arrow_pos.latitude(), arrow_pos.longitude());
 }
 
-void MissionPlannerWidget::onDeleteButtonClicked(QListWidgetItem* target_item, BaseCommandWidget* target_widget)
+void MissionPlannerWidget::onDeleteButtonClicked(QListWidgetItem* _target_item, BaseCommandWidget* _target_widget)
 {
   qDebug() << "MissionPlannerWidget::onDeleteButtonClicked";
 
-  command_list_->remove(target_item);
-  commands_->removeWidget(target_widget);
+  command_list_->remove(_target_item);
+  commands_->removeWidget(_target_widget);
 
   bool found = false;
   for (const auto& pair : pairs_) {
     const auto& item = pair.first;
     const auto& widget = pair.second;
-    if (item == target_item && widget == target_widget) {
+    if (item == _target_item && widget == _target_widget) {
       found = true;
       pairs_.erase(pair);
       break;
@@ -774,7 +772,7 @@ void MissionPlannerWidget::onMissionUpdated()
   commandsToMap();
 }
 
-void MissionPlannerWidget::onWaypointMoved(int index, double latitude, double longitude)
+void MissionPlannerWidget::onWaypointMoved(int _index, double _latitude, double _longitude)
 {
   qDebug() << "MissionPlannerWidget::onWaypointMoved";
 
@@ -791,41 +789,41 @@ void MissionPlannerWidget::onWaypointMoved(int index, double latitude, double lo
     if (cmd_type == mission::Type::kWaypoint) {
       ++cur_idx;
     }
-    if (cur_idx == index) {
+    if (cur_idx == _index) {
       const auto waypoint = qt::qPointerCast<WaypointWidget>(findCommandWidget(item));
-      waypoint->latitude(latitude);
-      waypoint->longitude(longitude);
+      waypoint->latitude(_latitude);
+      waypoint->longitude(_longitude);
       break;
     }
   }
 
-  if (cur_idx != index) {
-    throw std::runtime_error(std::format("Index {} is out of range.", index));
+  if (cur_idx != _index) {
+    throw std::runtime_error(std::format("Index {} is out of range.", _index));
   }
 }
 
-void MissionPlannerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
+void MissionPlannerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss)
 {
-  if (gnss->fix_type == tobas_msgs::msg::Gnss::NO_FIX) {
+  if (_gnss->fix_type == tobas_msgs::msg::Gnss::NO_FIX) {
     return;
   }
 
-  map_->setArrowPosition(gnss->latitude, gnss->longitude);
+  map_->setArrowPosition(_gnss->latitude, _gnss->longitude);
 }
 
-void MissionPlannerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom)
+void MissionPlannerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom)
 {
-  const auto yaw = odom->odom.odom.frame.M.getYaw();
+  const auto yaw = _odom->odom.odom.frame.M.getYaw();
 
   // Account for the 90 deg offset because east is the heading reference.
   map_->setArrowRotation(-st::rad2deg(yaw - M_PI_2));
 }
 
-void MissionPlannerWidget::actionGoalResponseCb(bool ok)
+void MissionPlannerWidget::actionGoalResponseCb(bool _ok)
 {
   spinner_.stop();
 
-  if (!ok) {
+  if (!_ok) {
     qt::qErrorBox(this, "The request to execute the mission was rejected. Please see the console messages for details.");
     return;
   }
@@ -834,15 +832,15 @@ void MissionPlannerWidget::actionGoalResponseCb(bool ok)
   setExecuteMode();
 }
 
-void MissionPlannerWidget::actionFeedbackCb(uint32_t cur_cmd_idx)
+void MissionPlannerWidget::actionFeedbackCb(uint32_t _cur_cmd_idx)
 {
-  (void)cur_cmd_idx;
+  (void)_cur_cmd_idx;
   // TODO
 }
 
-void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode code, const QString& message, uint32_t last_cmd_idx)
+void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode _code, const QString& _message, uint32_t _last_cmd_idx)
 {
-  switch (code) {
+  switch (_code) {
     case rclcpp_action::ResultCode::UNKNOWN:
       qt::qWarnBox(this, "The result of the mission is unknown.");
       break;
@@ -855,16 +853,14 @@ void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode code, const 
     case rclcpp_action::ResultCode::ABORTED:
       qt::qErrorBox(
         this,
-        "The mission was aborted while executing command No. " + QString::number(last_cmd_idx) + ":\n\n" + message);
+        "The mission was aborted while executing command No. " + QString::number(_last_cmd_idx) + ":\n\n" + _message);
       break;
     default:
-      qt::qErrorBox(this, "Invalid action result code: " + QString::number((int)code));
+      qt::qErrorBox(this, "Invalid action result code: " + QString::number((int)_code));
       break;
   }
 
   mission_executing_ = false;
   setEditMode();
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

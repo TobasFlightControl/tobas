@@ -9,22 +9,16 @@
 
 #include "tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
 
-namespace tobas
+namespace tobas::gui::ub::ui
 {
-namespace gui
-{
-namespace ub
-{
-namespace ui
-{
-AddLinkDialog::AddLinkDialog(UrdfBuilderPanel* main, const QStringList& link_names, view_model::LinkViewModel& link_vm)
-  : super(main), main_(main), ui_(new Ui::AddLinkDialogUI()), link_vm_(link_vm)
+AddLinkDialog::AddLinkDialog(UrdfBuilderPanel* _main, const QStringList& _link_names, view_model::LinkViewModel& _link_vm)
+  : super(_main), main_(_main), ui_(new Ui::AddLinkDialogUI()), link_vm_(_link_vm)
 {
   ui_->setupUi(this);
 
-  ui_->JointParentLinkComboBox->addItems(link_names);
-  if (!link_names.empty()) {
-    link_vm_.joint()->parentLinkName(link_names.first());
+  ui_->JointParentLinkComboBox->addItems(_link_names);
+  if (!_link_names.empty()) {
+    link_vm_.joint()->parentLinkName(_link_names.first());
   }
 
   setWindowTitle("Add Link");  // This must be called after `setupUi`.
@@ -39,17 +33,17 @@ AddLinkDialog::AddLinkDialog(UrdfBuilderPanel* main, const QStringList& link_nam
     &self::onJointParentComboBoxIndexChanged);
 }
 
-void AddLinkDialog::onLinkNameLineEditTextChanged(const QString& text)
+void AddLinkDialog::onLinkNameLineEditTextChanged(const QString& _text)
 {
-  link_vm_.name(text);
+  link_vm_.name(_text);
   link_vm_.sync();
 
   checkValidity();
 }
 
-void AddLinkDialog::onJointNameLineEditTextChanged(const QString& text)
+void AddLinkDialog::onJointNameLineEditTextChanged(const QString& _text)
 {
-  link_vm_.joint()->name(text);
+  link_vm_.joint()->name(_text);
   link_vm_.sync();
 
   checkValidity();
@@ -94,11 +88,8 @@ void AddLinkDialog::checkValidity()
   enableOkButton(true);
 }
 
-void AddLinkDialog::enableOkButton(bool enable)
+void AddLinkDialog::enableOkButton(bool _enable)
 {
-  ui_->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enable);
+  ui_->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(_enable);
 }
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

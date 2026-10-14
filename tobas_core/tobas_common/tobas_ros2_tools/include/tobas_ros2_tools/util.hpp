@@ -7,14 +7,11 @@
 #include <filesystem>
 #include <string>
 
-namespace tobas
+namespace tobas::ros2
 {
-namespace ros2
-{
-std::expected<const char*, std::string> getEnv(const char* name);
+std::expected<const char*, std::string> getEnv(const char* _name);
 
 std::expected<const char*, std::string> getUserName();
 
-std::filesystem::path expandUser(const char* path);
-}  // namespace ros2
-}  // namespace tobas
+std::filesystem::path expandUser(const char* _path);
+}  // namespace tobas::ros2

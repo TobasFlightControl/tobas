@@ -7,14 +7,8 @@
 
 #include <tobas_mission_items/mission.hpp>
 
-namespace tobas
+namespace tobas::gui::ctrl
 {
-namespace gui
-{
-namespace ctrl
-{
-QString commandToText(mission::Type cmd);
-mission::Type textToCommand(const QString& text);
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+QString commandToText(mission::Type _cmd);
+mission::Type textToCommand(const QString& _text);
+}  // namespace tobas::gui::ctrl

@@ -9,9 +9,7 @@
 #include <tobas_eigen_tools/tensor.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
 
-namespace tobas
-{
-namespace nlp
+namespace tobas::nlp
 {
 class SQP
 {
@@ -19,24 +17,24 @@ public:
   explicit SQP();
 
   void initialize(
-    const Eigen::VectorXd& x0,
-    std::function<double(const Eigen::VectorXd&)> f,
-    std::function<Eigen::VectorXd(const Eigen::VectorXd&)> g,
-    std::function<Eigen::VectorXd(const Eigen::VectorXd&)> h,
-    std::function<Eigen::RowVectorXd(const Eigen::VectorXd&)> dfdx,
-    std::function<Eigen::MatrixXd(const Eigen::VectorXd&)> dgdx,
-    std::function<Eigen::MatrixXd(const Eigen::VectorXd&)> dhdx,
-    std::function<Eigen::MatrixXd(const Eigen::VectorXd&)> dFdx,
-    std::function<Eigen::Tensor3Xd(const Eigen::VectorXd&)> dGdx,
-    std::function<Eigen::Tensor3Xd(const Eigen::VectorXd&)> dHdx);
+    const Eigen::VectorXd& _x0,
+    std::function<double(const Eigen::VectorXd&)> _f,
+    std::function<Eigen::VectorXd(const Eigen::VectorXd&)> _g,
+    std::function<Eigen::VectorXd(const Eigen::VectorXd&)> _h,
+    std::function<Eigen::RowVectorXd(const Eigen::VectorXd&)> _dfdx,
+    std::function<Eigen::MatrixXd(const Eigen::VectorXd&)> _dgdx,
+    std::function<Eigen::MatrixXd(const Eigen::VectorXd&)> _dhdx,
+    std::function<Eigen::MatrixXd(const Eigen::VectorXd&)> _d_fdx,
+    std::function<Eigen::Tensor3Xd(const Eigen::VectorXd&)> _d_gdx,
+    std::function<Eigen::Tensor3Xd(const Eigen::VectorXd&)> _d_hdx);
 
   std::expected<Eigen::VectorXd, std::string> solve();
 
   size_t iterations() const;
 
-  void setMaximumIterations(size_t max_iter);
-  void setRelativeTolerance(double rel_tol);
-  void setVariableScales(const Eigen::VectorXd& x_scale);
+  void setMaximumIterations(size_t _max_iter);
+  void setRelativeTolerance(double _rel_tol);
+  void setVariableScales(const Eigen::VectorXd& _x_scale);
 
 private:
   Eigen::Index n_;  ///< The number of optimization variables
@@ -64,5 +62,4 @@ private:
   size_t max_iter_ = 100;
   double rel_tol_ = 1e-3;
 };
-}  // namespace nlp
-}  // namespace tobas
+}  // namespace tobas::nlp

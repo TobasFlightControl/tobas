@@ -5,10 +5,7 @@
 
 #include <chrono>
 
-namespace tobas
-{
-namespace manipulation
+namespace tobas::manipulation
 {
 static constexpr auto kAutoResetTimeThresh = std::chrono::milliseconds(500);
-}  // namespace manipulation
-}  // namespace tobas
+}  // namespace tobas::manipulation

@@ -8,13 +8,9 @@
 #include <QVBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
-namespace tobas
+namespace tobas::gui::ctrl
 {
-namespace gui
-{
-namespace ctrl
-{
-AddCommandDialog::AddCommandDialog(QWidget* parent) : super(parent)
+AddCommandDialog::AddCommandDialog(QWidget* _parent) : super(_parent)
 {
   setWindowTitle("Add Command");
 
@@ -50,15 +46,15 @@ mission::Type AddCommandDialog::selectedCommand() const
   return selected_command_;
 }
 
-void AddCommandDialog::acceptWithItem(QListWidgetItem* item)
+void AddCommandDialog::acceptWithItem(QListWidgetItem* _item)
 {
-  selected_command_ = textToCommand(item->text());
+  selected_command_ = textToCommand(_item->text());
   accept();
 }
 
-void AddCommandDialog::onItemDoubleClicked(QListWidgetItem* item)
+void AddCommandDialog::onItemDoubleClicked(QListWidgetItem* _item)
 {
-  acceptWithItem(item);
+  acceptWithItem(_item);
 }
 
 void AddCommandDialog::onOkClicked()
@@ -70,6 +66,4 @@ void AddCommandDialog::onOkClicked()
 
   acceptWithItem(cur_item);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

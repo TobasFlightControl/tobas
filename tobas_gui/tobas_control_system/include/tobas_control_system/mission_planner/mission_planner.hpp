@@ -20,11 +20,7 @@
 #include "./commands/commands.hpp"
 #include "./map/map.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class MissionPlannerWidget : public QWidget
 {
@@ -37,15 +33,15 @@ class MissionPlannerWidget : public QWidget
   using GoalHandle = rclcpp_action::ClientGoalHandle<Action>;
 
 Q_SIGNALS:
-  void goalResponseReceived(bool ok);
-  void feedbackReceived(uint32_t current_command_index);
-  void resultReceived(rclcpp_action::ResultCode code, const QString& message, uint32_t last_cmd_idx);
+  void goalResponseReceived(bool _ok);
+  void feedbackReceived(uint32_t _current_command_index);
+  void resultReceived(rclcpp_action::ResultCode _code, const QString& _message, uint32_t _last_cmd_idx);
 
 public:
-  explicit MissionPlannerWidget(const rqt::RosQtBridge& bridge);
+  explicit MissionPlannerWidget(const rqt::RosQtBridge& _bridge);
 
   void reset();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:
@@ -74,12 +70,12 @@ private:
   Client::SharedPtr mission_ac_;
 
   QString getMissionDir();
-  void setMissionDir(const QString& file_path);
+  void setMissionDir(const QString& _file_path);
 
   void clearMission();
 
   /** Add a mission command to the planner. */
-  void addCommand(mission::Type type, BaseCommandWidget* widget);
+  void addCommand(mission::Type _type, BaseCommandWidget* _widget);
 
   /** Switch each widget to execute mode. */
   void setExecuteMode();
@@ -97,7 +93,7 @@ private:
   void updateWaypointSplineEnds();
 
   /** Draw the `Waypoint` sequence on the map as a spline. */
-  void addSplinePathToMap(const std::vector<QGeoCoordinate>& waypoints);
+  void addSplinePathToMap(const std::vector<QGeoCoordinate>& _waypoints);
 
   /** Get the command widget corresponding to the list item. */
   BaseCommandWidget* findCommandWidget(const QListWidgetItem* _item);
@@ -119,18 +115,16 @@ private Q_SLOTS:
   void onCancelButtonClicked();
   void onFocusButtonClicked();
 
-  void onDeleteButtonClicked(QListWidgetItem* target_item, BaseCommandWidget* target_widget);
+  void onDeleteButtonClicked(QListWidgetItem* _target_item, BaseCommandWidget* _target_widget);
   void onListItemChanged();
   void onMissionUpdated();
-  void onWaypointMoved(int index, double latitude, double longitude);
+  void onWaypointMoved(int _index, double _latitude, double _longitude);
 
-  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
-  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom);
+  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss);
+  void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom);
 
-  void actionGoalResponseCb(bool ok);
-  void actionFeedbackCb(uint32_t cur_cmd_idx);
-  void actionResultCb(rclcpp_action::ResultCode code, const QString& message, uint32_t last_cmd_idx);
+  void actionGoalResponseCb(bool _ok);
+  void actionFeedbackCb(uint32_t _cur_cmd_idx);
+  void actionResultCb(rclcpp_action::ResultCode _code, const QString& _message, uint32_t _last_cmd_idx);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

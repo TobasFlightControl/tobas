@@ -6,29 +6,26 @@
 #include <sstream>
 #include <string>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 template <typename T>
-inline void addToStream(std::stringstream& ss, const T& t)
+inline void addToStream(std::stringstream& _ss, const T& _t)
 {
-  ss << t;
+  _ss << _t;
 }
 
 template <typename T, typename... Args>
-inline void addToStream(std::stringstream& ss, const T& t, const Args&... args)
+inline void addToStream(std::stringstream& _ss, const T& _t, const Args&... _args)
 {
-  ss << t;
-  addToStream(ss, args...);
+  _ss << _t;
+  addToStream(_ss, _args...);
 }
 
 template <typename... Args>
-inline std::string buildString(const Args&... args)
+inline std::string buildString(const Args&... _args)
 {
   std::stringstream ss;
-  addToStream(ss, args...);
+  addToStream(ss, _args...);
   return ss.str();
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

@@ -25,18 +25,18 @@ public:
 
   virtual std::expected<void, std::string> validate() const = 0;
 
-  virtual std::expected<void, std::string> load(const YAML::Node& node) = 0;
+  virtual std::expected<void, std::string> load(const YAML::Node& _node) = 0;
   virtual YAML::Node dump() const = 0;
 
   virtual PropulsionSystem type() const = 0;
 
-  virtual double minSpeed(const std::string& link_name) = 0;
-  virtual double maxSpeed(const std::string& link_name) = 0;
+  virtual double minSpeed(const std::string& _link_name) = 0;
+  virtual double maxSpeed(const std::string& _link_name) = 0;
 
-  virtual double minThrust(const std::string& link_name) = 0;
-  virtual double maxThrust(const std::string& link_name) = 0;
+  virtual double minThrust(const std::string& _link_name) = 0;
+  virtual double maxThrust(const std::string& _link_name) = 0;
 
-  virtual double thrustFromThrottle(const std::string& link_name, double throttle) = 0;
+  virtual double thrustFromThrottle(const std::string& _link_name, double _throttle) = 0;
 
   inline size_t numRotors() const;
 };

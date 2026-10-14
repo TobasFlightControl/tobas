@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 MRControllerFeedbackPlotWidget::MRControllerFeedbackPlotWidget()
   : ei_curves_{ "X Integral Error [m*s]",      "Y Integral Error [m*s]",       "Z Integral Error [m*s]",
@@ -38,19 +34,19 @@ void MRControllerFeedbackPlotWidget::clear()
   }
 }
 
-void MRControllerFeedbackPlotWidget::setTimeScale(double t_start, double t_stop)
+void MRControllerFeedbackPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
   for (auto& plot : ei_plots_) {
-    plot->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+    plot->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
   }
 }
 
-void MRControllerFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& msgs)
+void MRControllerFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& _msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> ei_data;
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
 
     const auto& pos_ei = msg.position_integral_error;
@@ -69,6 +65,4 @@ void MRControllerFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg
     ei_plots_[i]->replot();
   }
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

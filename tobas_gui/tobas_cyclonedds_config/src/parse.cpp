@@ -10,25 +10,23 @@
 
 #include "tobas_cyclonedds_config/constants.hpp"
 
-namespace tobas
-{
-namespace cyclonedds
+namespace tobas::cyclonedds
 {
 namespace
 {
-bool textToBool(const char* text)
+bool textToBool(const char* _text)
 {
-  return text && std::strcmp(text, "true") == 0;
+  return _text && std::strcmp(_text, "true") == 0;
 }
 }  // namespace
 
-std::expected<Data, std::string> parseFromText(const std::string& text)
+std::expected<Data, std::string> parseFromText(const std::string& _text)
 {
   Data data;
 
   // Parse XML.
   tinyxml2::XMLDocument doc;
-  if (doc.Parse(text.c_str()) != tinyxml2::XML_SUCCESS) {
+  if (doc.Parse(_text.c_str()) != tinyxml2::XML_SUCCESS) {
     return std::unexpected(std::format("Failed to parse XML: {}", doc.ErrorStr()));
   }
 
@@ -105,5 +103,4 @@ std::expected<Data, std::string> parseFromText(const std::string& text)
 
   return data;
 }
-}  // namespace cyclonedds
-}  // namespace tobas
+}  // namespace tobas::cyclonedds

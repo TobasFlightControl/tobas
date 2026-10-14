@@ -3,14 +3,11 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace dsp
+namespace tobas::dsp
 {
 /** Prewarping for bilinear transformation. */
-double prewarp(double wc, double dt);
+double prewarp(double _wc, double _dt);
 
 /** Convert the filter time constant [s] to the cutoff frequency [Hz]. */
-double cutoffFromTimeConst(double tau);
-}  // namespace dsp
-}  // namespace tobas
+double cutoffFromTimeConst(double _tau);
+}  // namespace tobas::dsp

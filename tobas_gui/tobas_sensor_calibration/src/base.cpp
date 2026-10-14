@@ -8,11 +8,7 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/font.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 BaseWidget::BaseWidget()
 {
@@ -34,6 +30,4 @@ void BaseWidget::initialize()
 {
   title_->setText(title());
 }
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

@@ -10,11 +10,7 @@
 
 #include "../base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class WifiClientWidget : public BaseConfigWidget
 {
@@ -33,7 +29,7 @@ public:
   bool onConnected() override;
 
 protected:
-  void changeEvent(QEvent* event) override;
+  void changeEvent(QEvent* _event) override;
 
 private:
   wpa::Data wpa_data_;
@@ -45,13 +41,13 @@ private:
 
   qt::TableWidget* table_;
 
-  QString getKeyMgmt(int row) const;
-  QString getSsid(int row) const;
-  QString getPsk(int row) const;
-  int getPriority(int row) const;
-  bool getHidden(int row) const;
+  QString getKeyMgmt(int _row) const;
+  QString getSsid(int _row) const;
+  QString getPsk(int _row) const;
+  int getPriority(int _row) const;
+  bool getHidden(int _row) const;
 
-  void addRow(const QString& key_mgmt, const QString& ssid, const QString& psk, int priority, bool hidden);
+  void addRow(const QString& _key_mgmt, const QString& _ssid, const QString& _psk, int _priority, bool _hidden);
 
   /** Match the styles of embedded widgets to the other cells. */
   void updateTableCellStyles();
@@ -64,6 +60,4 @@ private Q_SLOTS:
   void onRemoveButtonClicked();
   void onClearButtonClicked();
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

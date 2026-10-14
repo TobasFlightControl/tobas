@@ -3,18 +3,12 @@
 
 #include "tobas_control_system/mission_planner/command_button.hpp"
 
-namespace tobas
+namespace tobas::gui::ctrl
 {
-namespace gui
-{
-namespace ctrl
-{
-CommandButton::CommandButton(const QString& text) : super(text)
+CommandButton::CommandButton(const QString& _text) : super(_text)
 {
   setMaximumWidth(100);
   setMinimumHeight(35);
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

@@ -5,15 +5,12 @@
 
 #include "../state_spaces.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 /** Base class for converting continuous-time state equations to discrete-time state equations. */
 class BaseC2D
 {
 public:
-  virtual LinearDynamics convert(const LinearDynamics& cont, double dt) = 0;
+  virtual LinearDynamics convert(const LinearDynamics& _cont, double _dt) = 0;
 };
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

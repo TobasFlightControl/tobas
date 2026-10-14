@@ -8,11 +8,7 @@
 #include <QScrollBar>
 #include <QVBoxLayout>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 namespace
 {
@@ -22,7 +18,7 @@ constexpr int kLevelCol = 2;
 constexpr int kMessageCol = 3;
 }  // namespace
 
-ConsoleWidget::ConsoleWidget(const rqt::RosQtBridge& bridge)
+ConsoleWidget::ConsoleWidget(const rqt::RosQtBridge& _bridge)
 {
   table_ = new qt::TableWidget(0, 4);
   table_->setHorizontalHeaderLabels({ "Stamp", "Name", "Level", "Message" });
@@ -44,7 +40,7 @@ ConsoleWidget::ConsoleWidget(const rqt::RosQtBridge& bridge)
   rows->addWidget(table_);
   setLayout(rows);
 
-  connect(&bridge, &rqt::RosQtBridge::messageReceived, this, &self::messageCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::messageReceived, this, &self::messageCb, Qt::QueuedConnection);
 }
 
 void ConsoleWidget::reset()
@@ -52,7 +48,7 @@ void ConsoleWidget::reset()
   table_->removeAll();
 }
 
-void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& msg)
+void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& _msg)
 {
   // TODO: Screen messages with buttons.
 
@@ -66,21 +62,21 @@ void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& ms
     table_->removeRow(num_rows - 1);
   }
 
-  const auto stamp_text = QString::number(msg->header.stamp.sec) + "." + QString::number(msg->header.stamp.nanosec);
+  const auto stamp_text = QString::number(_msg->header.stamp.sec) + "." + QString::number(_msg->header.stamp.nanosec);
   const auto stamp_item = new QTableWidgetItem(stamp_text);
   table_->setItem(0, kStampCol, stamp_item);
 
-  const auto name = QString::fromStdString(msg->name);
+  const auto name = QString::fromStdString(_msg->name);
   const auto name_item = new QTableWidgetItem(name);
   table_->setItem(0, kNameCol, name_item);
 
   const auto level_item = new QTableWidgetItem();
 
-  const auto message = QString::fromStdString(msg->message);
+  const auto message = QString::fromStdString(_msg->message);
   const auto message_item = new QTableWidgetItem(message);
   message_item->setToolTip(message);
 
-  switch (msg->level) {
+  switch (_msg->level) {
     case tobas_msgs::msg::Message::LEVEL_DEBUG: {
       level_item->setText("Debug");
       constexpr auto kDebugColor = Qt::darkGreen;
@@ -117,7 +113,7 @@ void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& ms
       break;
     }
     default: {
-      qWarning() << "Unknown message level:" << static_cast<int>(msg->level);
+      qWarning() << "Unknown message level:" << static_cast<int>(_msg->level);
       level_item->setText("Unknown");
       constexpr auto kUnknownColor = Qt::darkGray;
       level_item->setForeground(kUnknownColor);
@@ -136,6 +132,4 @@ void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& ms
     sb->setValue(old_scroll + 1);
   }
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

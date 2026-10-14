@@ -5,13 +5,7 @@
 
 #include <QHBoxLayout>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
-{
-namespace field
+namespace tobas::gui::ctrl::field
 {
 RtlMinAltitudeWidget::RtlMinAltitudeWidget()
 {
@@ -39,11 +33,8 @@ double RtlMinAltitudeWidget::getValue() const
   return spin_box_->value();
 }
 
-void RtlMinAltitudeWidget::setValue(double value)
+void RtlMinAltitudeWidget::setValue(double _value)
 {
-  spin_box_->setValue(value);
+  spin_box_->setValue(_value);
 }
-}  // namespace field
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::field

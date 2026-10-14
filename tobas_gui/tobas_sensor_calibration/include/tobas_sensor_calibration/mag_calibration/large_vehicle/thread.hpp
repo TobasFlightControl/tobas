@@ -14,11 +14,7 @@
 
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 class LargeVehicleMagCalibThread : public QThread
 {
@@ -27,16 +23,16 @@ class LargeVehicleMagCalibThread : public QThread
   using self = LargeVehicleMagCalibThread;
 
 Q_SIGNALS:
-  void finished(bool success, const QString& message);
+  void finished(bool _success, const QString& _message);
 
 public:
-  explicit LargeVehicleMagCalibThread(const rqt::RosQtBridge& bridge);
+  explicit LargeVehicleMagCalibThread(const rqt::RosQtBridge& _bridge);
   ~LargeVehicleMagCalibThread();
 
   void run() override;
 
   void reset();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:
@@ -54,10 +50,8 @@ private:
   std::array<algo::Kahan<double>, 3> mag_sum_;
 
 private Q_SLOTS:
-  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_raw);
-  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& _mag_raw);
+  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
 };
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

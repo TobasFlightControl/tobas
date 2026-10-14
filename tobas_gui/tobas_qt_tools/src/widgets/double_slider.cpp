@@ -5,16 +5,14 @@
 
 #include <tobas_math/core.hpp>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 namespace
 {
 constexpr int kRange = 10000;
 }  // namespace
 
-DoubleSlider::DoubleSlider(Qt::Orientation orientation, QWidget* parent) : super(orientation, parent)
+DoubleSlider::DoubleSlider(Qt::Orientation _orientation, QWidget* _parent) : super(_orientation, _parent)
 {
   super::setRange(0, kRange);
   super::setValue(kRange / 2);
@@ -27,9 +25,9 @@ double DoubleSlider::minimum() const
   return min_;
 }
 
-void DoubleSlider::setMinimum(double minimum)
+void DoubleSlider::setMinimum(double _minimum)
 {
-  min_ = minimum;
+  min_ = _minimum;
 }
 
 double DoubleSlider::maximum() const
@@ -37,9 +35,9 @@ double DoubleSlider::maximum() const
   return max_;
 }
 
-void DoubleSlider::setMaximum(double maximum)
+void DoubleSlider::setMaximum(double _maximum)
 {
-  max_ = maximum;
+  max_ = _maximum;
 }
 
 double DoubleSlider::value() const
@@ -48,27 +46,26 @@ double DoubleSlider::value() const
   return valueFromSlider(slider_value);
 }
 
-void DoubleSlider::setValue(double value)
+void DoubleSlider::setValue(double _value)
 {
-  const int slider_value = math::remap<double>(value, min_, max_, 0, kRange);
+  const int slider_value = math::remap<double>(_value, min_, max_, 0, kRange);
   super::setValue(slider_value);
 }
 
-void DoubleSlider::setRange(double minimum, double maximum)
+void DoubleSlider::setRange(double _minimum, double _maximum)
 {
-  setMinimum(minimum);
-  setMaximum(maximum);
+  setMinimum(_minimum);
+  setMaximum(_maximum);
 }
 
-void DoubleSlider::onSliderValueChanged(int slider_value)
+void DoubleSlider::onSliderValueChanged(int _slider_value)
 {
-  const auto value = valueFromSlider(slider_value);
+  const auto value = valueFromSlider(_slider_value);
   Q_EMIT valueChanged(value);
 }
 
-double DoubleSlider::valueFromSlider(int slider_value) const
+double DoubleSlider::valueFromSlider(int _slider_value) const
 {
-  return math::remap<double>(slider_value, 0, kRange, min_, max_);
+  return math::remap<double>(_slider_value, 0, kRange, min_, max_);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

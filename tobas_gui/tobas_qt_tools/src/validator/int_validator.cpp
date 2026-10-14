@@ -3,16 +3,14 @@
 
 #include "tobas_qt_tools/validator/int_validator.hpp"
 
-namespace tobas
+namespace tobas::qt
 {
-namespace qt
+QValidator::State IntValidator::validate(QString& _input, int& _pos) const
 {
-QValidator::State IntValidator::validate(QString& input, int& pos) const
-{
-  const auto original_res = super::validate(input, pos);
+  const auto original_res = super::validate(_input, _pos);
 
   if (original_res == Intermediate) {
-    const auto extracted = locale().toInt(input);
+    const auto extracted = locale().toInt(_input);
     if (extracted > 0) {
       if (extracted > top() && -extracted < bottom()) {
         return Invalid;
@@ -25,5 +23,4 @@ QValidator::State IntValidator::validate(QString& input, int& pos) const
 
   return original_res;
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

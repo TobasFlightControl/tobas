@@ -10,11 +10,7 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class BaseSettingWidget : public qt::ScrollArea
 {
@@ -42,14 +38,14 @@ public:
   virtual YAML::Node dump() const = 0;
 
   /** Load user settings. */
-  virtual void load(const YAML::Node& node) = 0;
+  virtual void load(const YAML::Node& _node) = 0;
 
 protected:
-  void addWidget(QWidget* widget, int stretch = 0);
-  void addWidgetCenter(QWidget* widget, int stretch = 0);
-  void addLayout(QLayout* layout, int stretch = 0);
-  void addStretch(int stretch = 0);
-  void addSpacing(int size);
+  void addWidget(QWidget* _widget, int _stretch = 0);
+  void addWidgetCenter(QWidget* _widget, int _stretch = 0);
+  void addLayout(QLayout* _layout, int _stretch = 0);
+  void addStretch(int _stretch = 0);
+  void addSpacing(int _size);
 
 private:
   QLabel* title_;
@@ -61,6 +57,4 @@ private:
 private Q_SLOTS:
   void initialize();
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

@@ -10,18 +10,14 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_string_tools/core.hpp>
 
-namespace tobas
+namespace tobas::gui::sa
 {
-namespace gui
-{
-namespace sa
-{
-IntGetter::IntGetter(const QString& name)
+IntGetter::IntGetter(const QString& _name)
 {
   const auto cols = new QHBoxLayout();
   setLayout(cols);
 
-  const auto label = new QLabel(name + ":");
+  const auto label = new QLabel(_name + ":");
   label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   cols->addWidget(label);
 
@@ -37,40 +33,38 @@ int IntGetter::getValue() const
   return data_->value();
 }
 
-bool IntGetter::setValue(int value)
+bool IntGetter::setValue(int _value)
 {
-  if (value < data_->minimum() || data_->maximum() < value) {
+  if (_value < data_->minimum() || data_->maximum() < _value) {
     return false;
   }
 
-  data_->setValue(value);
+  data_->setValue(_value);
   return true;
 }
 
-void IntGetter::setMinimum(int minimum)
+void IntGetter::setMinimum(int _minimum)
 {
-  data_->setMinimum(minimum);
+  data_->setMinimum(_minimum);
 }
 
-void IntGetter::setMaximum(int maximum)
+void IntGetter::setMaximum(int _maximum)
 {
-  data_->setMaximum(maximum);
+  data_->setMaximum(_maximum);
 }
 
-void IntGetter::setSingleStep(int single_step)
+void IntGetter::setSingleStep(int _single_step)
 {
-  data_->setSingleStep(single_step);
+  data_->setSingleStep(_single_step);
 }
 
-void IntGetter::setSuffix(const QString& suffix)
+void IntGetter::setSuffix(const QString& _suffix)
 {
-  data_->setSuffix(QString::fromStdString(str::convertToSuperscript(suffix.toStdString())));
+  data_->setSuffix(QString::fromStdString(str::convertToSuperscript(_suffix.toStdString())));
 }
 
-void IntGetter::onValueChanged(int value)
+void IntGetter::onValueChanged(int _value)
 {
-  Q_EMIT valueChanged(value);
+  Q_EMIT valueChanged(_value);
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

@@ -9,11 +9,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class AirPressurePlotWidget : public BasePlotWidget
 {
@@ -23,14 +19,12 @@ public:
   explicit AirPressurePlotWidget();
 
   void clear() override;
-  void setTimeScale(double t_start, double t_stop) override;
+  void setTimeScale(double _t_start, double _t_stop) override;
 
-  void setData(const QVector<tobas_msgs::msg::FluidPressure>& msgs);
+  void setData(const QVector<tobas_msgs::msg::FluidPressure>& _msgs);
 
 private:
   QwtPlot2* plot_;
   qwt::QwtPlotCurveWrapper curve_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

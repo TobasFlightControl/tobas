@@ -18,32 +18,32 @@ struct rclcpp::TypeAdapter<tobas::ElectricRotorConfig, tobas_drone_msgs::msg::El
   using custom_type = tobas::ElectricRotorConfig;
   using ros_message_type = tobas_drone_msgs::msg::ElectricRotorConfig;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    tobas_drone_msgs::RotorConfigAdapter::convert_to_ros_message(src, dst.rotor);
+    tobas_drone_msgs::RotorConfigAdapter::convert_to_ros_message(_src, _dst.rotor);
 
-    dst.channel = src.channel;
-    dst.num_poles = src.num_poles;
-    dst.kv = src.kv;
-    dst.internal_resistance = src.internal_resistance;
-    dst.min_speed = src.min_speed;
-    dst.propeller_diameter = src.propeller_diameter;
-    dst.motor_const = src.motor_const;
-    dst.moment_const = src.moment_const;
+    _dst.channel = _src.channel;
+    _dst.num_poles = _src.num_poles;
+    _dst.kv = _src.kv;
+    _dst.internal_resistance = _src.internal_resistance;
+    _dst.min_speed = _src.min_speed;
+    _dst.propeller_diameter = _src.propeller_diameter;
+    _dst.motor_const = _src.motor_const;
+    _dst.moment_const = _src.moment_const;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas_drone_msgs::RotorConfigAdapter::convert_to_custom(src.rotor, dst);
+    tobas_drone_msgs::RotorConfigAdapter::convert_to_custom(_src.rotor, _dst);
 
-    dst.channel = src.channel;
-    dst.num_poles = src.num_poles;
-    dst.kv = src.kv;
-    dst.internal_resistance = src.internal_resistance;
-    dst.min_speed = src.min_speed;
-    dst.propeller_diameter = src.propeller_diameter;
-    dst.motor_const = src.motor_const;
-    dst.moment_const = src.moment_const;
+    _dst.channel = _src.channel;
+    _dst.num_poles = _src.num_poles;
+    _dst.kv = _src.kv;
+    _dst.internal_resistance = _src.internal_resistance;
+    _dst.min_speed = _src.min_speed;
+    _dst.propeller_diameter = _src.propeller_diameter;
+    _dst.motor_const = _src.motor_const;
+    _dst.moment_const = _src.moment_const;
   }
 };
 

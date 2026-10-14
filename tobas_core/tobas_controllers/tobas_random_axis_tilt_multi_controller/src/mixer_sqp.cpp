@@ -13,12 +13,10 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
+namespace tobas::random_axis_tilt_multicopter
 {
-namespace random_axis_tilt_multicopter
-{
-SqpMixer::SqpMixer(const Drone& drone, const kdl::Tree& tree)
-  : super(drone, tree), joint_parser_(tree), fk_solver_(tree), inertia_solver_(tree), np_mixer_(drone, tree)
+SqpMixer::SqpMixer(const Drone& _drone, const kdl::Tree& _tree)
+  : super(_drone, _tree), joint_parser_(_tree), fk_solver_(_tree), inertia_solver_(_tree), np_mixer_(_drone, _tree)
 {
 }
 
@@ -36,20 +34,20 @@ void SqpMixer::updateInternalDataStructures()
 }
 
 std::expected<MixerSolution, std::string> SqpMixer::solve(
-  const kdl::JntArray& cur_q,
-  const kdl::Rotation& cur_rot,
-  const kdl::Vector& cur_gyro_B,
-  const kdl::Vector& tar_acc_W,
-  const kdl::Vector& tar_dgyro_B,
-  const kdl::Vector& ext_force_W,
-  const kdl::Vector& ext_torque_B)
+  const kdl::JntArray& _cur_q,
+  const kdl::Rotation& _cur_rot,
+  const kdl::Vector& _cur_gyro_b,
+  const kdl::Vector& _tar_acc_w,
+  const kdl::Vector& _tar_dgyro_b,
+  const kdl::Vector& _ext_force_w,
+  const kdl::Vector& _ext_torque_b)
 {
   // Compute forward kinematics.
-  const auto& frames = fk_solver_.jntToCart(cur_q);
+  const auto& frames = fk_solver_.jntToCart(_cur_q);
   frames_ = &frames;
 
   // Compute mass properties.
-  const auto inertia = inertia_solver_.jntToCart(cur_q);
+  const auto inertia = inertia_solver_.jntToCart(_cur_q);
   const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
@@ -86,11 +84,11 @@ std::expected<MixerSolution, std::string> SqpMixer::solve(
 
   // Right-hand side of the translational EoM.
   const kdl::Vector grav_W(0, 0, -st::kGravity);
-  const auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
-  d_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
+  const auto eom_trans_right_W = mass * (_tar_acc_w - grav_W) - _ext_force_w;  // [N]
+  d_.head<3>() = _cur_rot.inverse(eom_trans_right_W).data;
 
   // Right-hand side of the rotational EoM.
-  const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
+  const auto eom_rot_right_B = I_B * _tar_dgyro_b + _cur_gyro_b * (I_B * _cur_gyro_b) - _ext_torque_b;  // [Nm]
   d_.tail<3>() = eom_rot_right_B.data;
 
   // FIXME: SQP may fail to converge on tilt hexacopters when the tilt-angle limit exceeds 30 deg.
@@ -118,22 +116,22 @@ std::expected<MixerSolution, std::string> SqpMixer::solve(
   return MixerSolution{ thrusts, tilt_angles };
 }
 
-void SqpMixer::setLinearWeight(double p)
+void SqpMixer::setLinearWeight(double _p)
 {
-  assert(p > 0.0);
-  cfg_.linear_weight = p;
+  assert(_p > 0.0);
+  cfg_.linear_weight = _p;
 }
 
-void SqpMixer::setAngularWeight(double p)
+void SqpMixer::setAngularWeight(double _p)
 {
-  assert(p > 0.0);
-  cfg_.angular_weight = p;
+  assert(_p > 0.0);
+  cfg_.angular_weight = _p;
 }
 
-void SqpMixer::setThrustWeight(double p)
+void SqpMixer::setThrustWeight(double _p)
 {
-  assert(p > 0.0);
-  cfg_.thrust_weight = p;
+  assert(_p > 0.0);
+  cfg_.thrust_weight = _p;
 }
 
 void SqpMixer::resetTensors()
@@ -203,16 +201,16 @@ void SqpMixer::initializeSQP()
     std::bind(&self::dHdx, this, std::placeholders::_1));
 }
 
-double SqpMixer::f(const Eigen::VectorXd& x)
+double SqpMixer::f(const Eigen::VectorXd& _x)
 {
-  const auto [theta, tau] = splitState(x);
+  const auto [theta, tau] = splitState(_x);
   const auto e = calc_e(theta, tau);
   return 0.5 * (e.transpose() * Q_ * e).value() + 0.5 * (tau.transpose() * R_ * tau).value();
 }
 
-Eigen::VectorXd SqpMixer::g(const Eigen::VectorXd& x)
+Eigen::VectorXd SqpMixer::g(const Eigen::VectorXd& _x)
 {
-  return Ci_ * x + ci0_;
+  return Ci_ * _x + ci0_;
 }
 
 Eigen::VectorXd SqpMixer::h(const Eigen::VectorXd&)
@@ -220,9 +218,9 @@ Eigen::VectorXd SqpMixer::h(const Eigen::VectorXd&)
   return Eigen::VectorXd(0);
 }
 
-Eigen::RowVectorXd SqpMixer::dfdx(const Eigen::VectorXd& x)
+Eigen::RowVectorXd SqpMixer::dfdx(const Eigen::VectorXd& _x)
 {
-  const auto [theta, tau] = splitState(x);
+  const auto [theta, tau] = splitState(_x);
 
   const auto C = calc_C(theta);
   const Eigen::Matrix6Xd QC = Q_ * C;
@@ -244,9 +242,9 @@ Eigen::MatrixXd SqpMixer::dhdx(const Eigen::VectorXd&)
   return Eigen::MatrixXd(0, stateSize());
 }
 
-Eigen::MatrixXd SqpMixer::dFdx(const Eigen::VectorXd& x)
+Eigen::MatrixXd SqpMixer::dFdx(const Eigen::VectorXd& _x)
 {
-  const auto [theta, tau] = splitState(x);
+  const auto [theta, tau] = splitState(_x);
 
   const Eigen::VectorXd e = calc_e(theta, tau);
   const Eigen::MatrixXd C = calc_C(theta);
@@ -284,32 +282,32 @@ size_t SqpMixer::stateSize() const
   return drone_.prop->numRotors() * 2;
 }
 
-std::pair<Eigen::VectorXd, Eigen::VectorXd> SqpMixer::splitState(const Eigen::VectorXd& x) const
+std::pair<Eigen::VectorXd, Eigen::VectorXd> SqpMixer::splitState(const Eigen::VectorXd& _x) const
 {
-  assert(static_cast<size_t>(x.size()) == stateSize());
+  assert(static_cast<size_t>(_x.size()) == stateSize());
 
-  const auto angles = x.head(drone_.prop->numRotors());
-  const auto thrusts = x.tail(drone_.prop->numRotors());
+  const auto angles = _x.head(drone_.prop->numRotors());
+  const auto thrusts = _x.tail(drone_.prop->numRotors());
 
   return { angles, thrusts };
 }
 
-Eigen::Vector6d SqpMixer::calc_e(const Eigen::VectorXd& theta, const Eigen::VectorXd& tau)
+Eigen::Vector6d SqpMixer::calc_e(const Eigen::VectorXd& _theta, const Eigen::VectorXd& _tau)
 {
-  return calc_u(theta, tau) - d_;
+  return calc_u(_theta, _tau) - d_;
 }
 
-Eigen::Vector6d SqpMixer::calc_u(const Eigen::VectorXd& theta, const Eigen::VectorXd& tau)
+Eigen::Vector6d SqpMixer::calc_u(const Eigen::VectorXd& _theta, const Eigen::VectorXd& _tau)
 {
-  return calc_C(theta) * tau;
+  return calc_C(_theta) * _tau;
 }
 
-Eigen::Matrix6Xd SqpMixer::calc_C(const Eigen::VectorXd& theta)
+Eigen::Matrix6Xd SqpMixer::calc_C(const Eigen::VectorXd& _theta)
 {
-  return B_ * calc_N(theta);
+  return B_ * calc_N(_theta);
 }
 
-const Eigen::MatrixXd& SqpMixer::calc_N(const Eigen::VectorXd& theta)
+const Eigen::MatrixXd& SqpMixer::calc_N(const Eigen::VectorXd& _theta)
 {
   for (const auto& [i, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
@@ -324,7 +322,7 @@ const Eigen::MatrixXd& SqpMixer::calc_N(const Eigen::VectorXd& theta)
       const auto& gpar_seg = gpar_elem.segment;
       const auto& axis_par = cur_seg.joint().axis();
       const auto& R_base2gpar = frames_->at(gpar_seg.name()).M;
-      const auto R_gpar2par = par_seg.pose(theta(i)).M;
+      const auto R_gpar2par = par_seg.pose(_theta(i)).M;
       const auto axis_B = R_base2gpar * (R_gpar2par * axis_par);
       N_.block<3, 1>(3 * i, i) = axis_B.data;
     }
@@ -338,7 +336,7 @@ const Eigen::MatrixXd& SqpMixer::calc_N(const Eigen::VectorXd& theta)
   return N_;
 }
 
-const Eigen::Tensor3Xd& SqpMixer::calc_dN_dtheta(const Eigen::VectorXd& theta)
+const Eigen::Tensor3Xd& SqpMixer::calc_dN_dtheta(const Eigen::VectorXd& _theta)
 {
   for (const auto& [i, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
@@ -352,7 +350,7 @@ const Eigen::Tensor3Xd& SqpMixer::calc_dN_dtheta(const Eigen::VectorXd& theta)
       const auto& gpar_seg = gpar_elem.segment;
       const auto& axis_par = cur_seg.joint().axis().data;
       const auto& R_base2gpar = frames_->at(gpar_seg.name()).M.data;
-      const Eigen::Vector3d dn_dtheta = R_base2gpar * par_seg.rotGrad(theta(i)) * axis_par;
+      const Eigen::Vector3d dn_dtheta = R_base2gpar * par_seg.rotGrad(_theta(i)) * axis_par;
       eigen::setVectorX(dN_dtheta_, dn_dtheta, { 3 * (int)i, (int)i, (int)i });
     }
   }
@@ -360,7 +358,7 @@ const Eigen::Tensor3Xd& SqpMixer::calc_dN_dtheta(const Eigen::VectorXd& theta)
   return dN_dtheta_;
 }
 
-const Eigen::Tensor4Xd& SqpMixer::calc_dN_dtheta_2(const Eigen::VectorXd& theta)
+const Eigen::Tensor4Xd& SqpMixer::calc_dN_dtheta_2(const Eigen::VectorXd& _theta)
 {
   for (const auto& [i, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
@@ -374,7 +372,7 @@ const Eigen::Tensor4Xd& SqpMixer::calc_dN_dtheta_2(const Eigen::VectorXd& theta)
       const auto& gpar_seg = gpar_elem.segment;
       const auto& axis_par = cur_seg.joint().axis().data;
       const auto& R_base2gpar = frames_->at(gpar_seg.name()).M.data;
-      const Eigen::Vector3d dn_dtheta_2 = R_base2gpar * par_seg.rotGrad2(theta(i)) * axis_par;
+      const Eigen::Vector3d dn_dtheta_2 = R_base2gpar * par_seg.rotGrad2(_theta(i)) * axis_par;
       eigen::setVectorX(dN_dtheta_2_, dn_dtheta_2, { 3 * (int)i, (int)i, (int)i, (int)i });
     }
   }
@@ -382,24 +380,23 @@ const Eigen::Tensor4Xd& SqpMixer::calc_dN_dtheta_2(const Eigen::VectorXd& theta)
   return dN_dtheta_2_;
 }
 
-Eigen::Matrix6Xd SqpMixer::calc_du_dtheta(const Eigen::VectorXd& theta, const Eigen::VectorXd& tau)
+Eigen::Matrix6Xd SqpMixer::calc_du_dtheta(const Eigen::VectorXd& _theta, const Eigen::VectorXd& _tau)
 {
-  return eigen::shuffle(calc_dC_dtheta(theta), { 0, 2, 1 }) * tau;
+  return eigen::shuffle(calc_dC_dtheta(_theta), { 0, 2, 1 }) * _tau;
 }
 
-Eigen::Tensor3Xd SqpMixer::calc_du_dtheta_2(const Eigen::VectorXd& theta, const Eigen::VectorXd& tau)
+Eigen::Tensor3Xd SqpMixer::calc_du_dtheta_2(const Eigen::VectorXd& _theta, const Eigen::VectorXd& _tau)
 {
-  return eigen::shuffle(calc_dC_dtheta_2(theta), { 0, 3, 2, 1 }) * tau;
+  return eigen::shuffle(calc_dC_dtheta_2(_theta), { 0, 3, 2, 1 }) * _tau;
 }
 
-Eigen::Tensor3Xd SqpMixer::calc_dC_dtheta(const Eigen::VectorXd& theta)
+Eigen::Tensor3Xd SqpMixer::calc_dC_dtheta(const Eigen::VectorXd& _theta)
 {
-  return B_ * calc_dN_dtheta(theta);
+  return B_ * calc_dN_dtheta(_theta);
 }
 
-Eigen::Tensor4Xd SqpMixer::calc_dC_dtheta_2(const Eigen::VectorXd& theta)
+Eigen::Tensor4Xd SqpMixer::calc_dC_dtheta_2(const Eigen::VectorXd& _theta)
 {
-  return B_ * calc_dN_dtheta_2(theta);
+  return B_ * calc_dN_dtheta_2(_theta);
 }
-}  // namespace random_axis_tilt_multicopter
-}  // namespace tobas
+}  // namespace tobas::random_axis_tilt_multicopter

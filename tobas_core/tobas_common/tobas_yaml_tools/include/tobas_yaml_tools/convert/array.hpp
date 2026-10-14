@@ -14,11 +14,11 @@ namespace YAML
 template <typename T, size_t N>
 struct convert<std::array<T, N>>
 {
-  static Node encode(const std::array<T, N>& rhs)
+  static Node encode(const std::array<T, N>& _rhs)
   {
     Node node(NodeType::Sequence);
 
-    for (auto& value : rhs) {
+    for (auto& value : _rhs) {
       if constexpr (std::is_floating_point_v<T>) {
         node.push_back(tobas::yaml::format(value));
       }
@@ -32,17 +32,17 @@ struct convert<std::array<T, N>>
     return node;
   }
 
-  static bool decode(const Node& node, std::array<T, N>& rhs)
+  static bool decode(const Node& _node, std::array<T, N>& _rhs)
   {
-    if (!node.IsSequence()) {
+    if (!_node.IsSequence()) {
       return false;
     }
-    if (node.size() != N) {
+    if (_node.size() != N) {
       return false;
     }
 
     for (size_t i = 0; i < N; ++i) {
-      rhs[i] = node[i].as<T>();
+      _rhs[i] = _node[i].as<T>();
     }
 
     return true;

@@ -6,55 +6,53 @@
 #include <QDebug>
 #include <QPainter>
 
-namespace tobas
+namespace tobas::qt
 {
-namespace qt
-{
-CircleWidget::CircleWidget(QWidget* parent) : super(parent)
+CircleWidget::CircleWidget(QWidget* _parent) : super(_parent)
 {
 }
 
-CircleWidget::CircleWidget(const QString& text, QWidget* parent) : super(parent), text_(text)
+CircleWidget::CircleWidget(const QString& _text, QWidget* _parent) : super(_parent), text_(_text)
 {
 }
 
-void CircleWidget::setFillColor(Qt::GlobalColor color)
+void CircleWidget::setFillColor(Qt::GlobalColor _color)
 {
-  fill_color_ = color;
+  fill_color_ = _color;
   update();
 }
 
-void CircleWidget::setLineColor(Qt::GlobalColor color)
+void CircleWidget::setLineColor(Qt::GlobalColor _color)
 {
-  line_color_ = color;
+  line_color_ = _color;
   update();
 }
 
-void CircleWidget::setLineWidth(int width)
+void CircleWidget::setLineWidth(int _width)
 {
-  if (width < 0) {
+  if (_width < 0) {
     qWarning() << "Line width must be non-negative.";
     return;
   }
 
-  line_width_ = width;
+  line_width_ = _width;
   update();
 }
 
-void CircleWidget::setText(const QString& text)
+void CircleWidget::setText(const QString& _text)
 {
-  text_ = text;
+  text_ = _text;
   update();
 }
 
-void CircleWidget::setTextPointSize(int psize)
+void CircleWidget::setTextPointSize(int _psize)
 {
-  if (psize < 0) {
+  if (_psize < 0) {
     qWarning() << "Text point size must be non-negative.";
     return;
   }
 
-  text_psize_ = psize;
+  text_psize_ = _psize;
   update();
 }
 
@@ -100,9 +98,9 @@ void CircleWidget::paintEvent(QPaintEvent*)
   }
 }
 
-void CircleWidget::drawCircle(QPainter& painter)
+void CircleWidget::drawCircle(QPainter& _painter)
 {
-  painter.save();
+  _painter.save();
 
   const auto center = getCenter();
   const auto radius = getRadius() - line_width_ / 2;
@@ -112,40 +110,39 @@ void CircleWidget::drawCircle(QPainter& painter)
     QRadialGradient gradient(center, radius);
     gradient.setColorAt(0, QColor(fill_color_).lighter());  // Center.
     gradient.setColorAt(1, fill_color_);                    // Outer side.
-    painter.setBrush(QBrush(gradient));
+    _painter.setBrush(QBrush(gradient));
   }
   else {
-    painter.setBrush(Qt::NoBrush);
+    _painter.setBrush(Qt::NoBrush);
   }
 
   // Set the outline pen.
   if (line_color_ != Qt::transparent && line_width_ > 0) {
-    painter.setPen(QPen(line_color_, line_width_, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    _painter.setPen(QPen(line_color_, line_width_, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
   }
   else {
-    painter.setPen(Qt::NoPen);
+    _painter.setPen(Qt::NoPen);
   }
 
   // Draw a circle by specifying center and radius.
-  painter.drawEllipse(center, radius, radius);
+  _painter.drawEllipse(center, radius, radius);
 
-  painter.restore();
+  _painter.restore();
 }
 
-void CircleWidget::drawText(QPainter& painter)
+void CircleWidget::drawText(QPainter& _painter)
 {
-  painter.save();
+  _painter.save();
 
   const auto center = getCenter();
 
   if (text_psize_ > 0) {
-    super::drawText(painter, text_, center, text_psize_);
+    super::drawText(_painter, text_, center, text_psize_);
   }
   else {
-    drawMaximumText(painter, text_, center);
+    drawMaximumText(_painter, text_, center);
   }
 
-  painter.restore();
+  _painter.restore();
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

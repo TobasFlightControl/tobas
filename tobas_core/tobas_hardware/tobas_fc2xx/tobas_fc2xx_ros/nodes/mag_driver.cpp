@@ -10,9 +10,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace fc2xx
+namespace tobas::fc2xx
 {
 class MagDriverNode : public BaseNode
 {
@@ -20,7 +18,7 @@ class MagDriverNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit MagDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit MagDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   stm::IIS2MDC mag_;
@@ -35,8 +33,8 @@ private:
   void mainTimerCb();
 };
 
-MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options)
-  : super("fc2xx_mag_driver", nodeOptions_Default(options))
+MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& _options)
+  : super("fc2xx_mag_driver", nodeOptions_Default(_options))
 {
   if (!initialize()) {
     initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
@@ -83,7 +81,6 @@ void MagDriverNode::mainTimerCb()
   // Publish the message.
   mag_pub_->publish(std::move(msg));
 }
-}  // namespace fc2xx
-}  // namespace tobas
+}  // namespace tobas::fc2xx
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc2xx::MagDriverNode)

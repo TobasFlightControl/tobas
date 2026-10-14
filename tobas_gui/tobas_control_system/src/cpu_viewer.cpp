@@ -10,13 +10,9 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
+namespace tobas::gui::ctrl
 {
-namespace gui
-{
-namespace ctrl
-{
-CpuViewerWidget::CpuViewerWidget(const rqt::RosQtBridge& bridge)
+CpuViewerWidget::CpuViewerWidget(const rqt::RosQtBridge& _bridge)
 {
   temp_ = new qt::ProgressBar();
   load_ = new qt::ProgressBar();
@@ -33,7 +29,7 @@ CpuViewerWidget::CpuViewerWidget(const rqt::RosQtBridge& bridge)
   setLayout(form);
 
   // Connection
-  connect(&bridge, &rqt::RosQtBridge::cpuReceived, this, &self::cpuCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::cpuReceived, this, &self::cpuCb, Qt::QueuedConnection);
 }
 
 void CpuViewerWidget::reset()
@@ -42,30 +38,30 @@ void CpuViewerWidget::reset()
   load_->reset();
 }
 
-void CpuViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
+void CpuViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& _cpu)
 {
   constexpr double kMinTemp = 0.0;    // [degC]
   constexpr double kMaxTemp = 100.0;  // [degC]
-  const auto temp_rate = math::remap(cpu->temperature, kMinTemp, kMaxTemp, 0.0, 100.0);
+  const auto temp_rate = math::remap(_cpu->temperature, kMinTemp, kMaxTemp, 0.0, 100.0);
   temp_->setPercentage(temp_rate);
-  temp_->setFormat(std::format("{:.0f} ℃", cpu->temperature).c_str());
-  if (cpu->temperature > 85.0) {
+  temp_->setFormat(std::format("{:.0f} ℃", _cpu->temperature).c_str());
+  if (_cpu->temperature > 85.0) {
     temp_->setFillColor(qt::color::magenta500());
   }
-  else if (cpu->temperature > 80.0) {
+  else if (_cpu->temperature > 80.0) {
     temp_->setFillColor(qt::color::red500());
   }
-  else if (cpu->temperature > 60.0) {
+  else if (_cpu->temperature > 60.0) {
     temp_->setFillColor(qt::color::yellow500());
   }
-  else if (cpu->temperature > 0.0) {
+  else if (_cpu->temperature > 0.0) {
     temp_->setFillColor(qt::color::green500());
   }
   else {
     temp_->setFillColor(qt::color::cyan500());
   }
 
-  const auto load_percent = cpu->load * 100.0;
+  const auto load_percent = _cpu->load * 100.0;
   load_->setPercentage(load_percent);
   load_->setFormat(std::format("{:.0f} %", load_percent).c_str());
   if (load_percent > 80.0) {
@@ -78,6 +74,4 @@ void CpuViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
     load_->setFillColor(qt::color::green500());
   }
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

@@ -9,9 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 /**
  * Return the child PID or an error if the argument list is empty or `fork()` fails.
@@ -20,6 +18,5 @@ namespace linux
 std::expected<pid_t, std::string> createSubprocess(const std::vector<char*>& _argv);
 
 /** Run a bash command in a subprocess. */
-std::expected<pid_t, std::string> createSubprocess(const std::string& command);
-}  // namespace linux
-}  // namespace tobas
+std::expected<pid_t, std::string> createSubprocess(const std::string& _command);
+}  // namespace tobas::linux

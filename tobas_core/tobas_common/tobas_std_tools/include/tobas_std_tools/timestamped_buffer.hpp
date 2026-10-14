@@ -7,9 +7,7 @@
 #include <chrono>
 #include <map>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 /** Buffer that keeps only data within the specified duration. */
 template <typename T>
@@ -20,15 +18,15 @@ class TimestampedBuffer
   using MapType = std::map<TimeType, T>;
 
 public:
-  explicit TimestampedBuffer(const DurationType& expiry_duration) : expiry_duration_(expiry_duration)
+  explicit TimestampedBuffer(const DurationType& _expiry_duration) : expiry_duration_(_expiry_duration)
   {
-    assert(expiry_duration >= DurationType(0));
+    assert(_expiry_duration >= DurationType(0));
   }
 
-  void add(const TimeType& cur_time, const T& x)
+  void add(const TimeType& _cur_time, const T& _x)
   {
-    map_[cur_time] = x;
-    removeExpiredData(cur_time);
+    map_[_cur_time] = _x;
+    removeExpiredData(_cur_time);
   }
 
   void clear()
@@ -80,7 +78,7 @@ public:
   }
 
   /** Get the first value at or after the given time. */
-  const T& closestAfterValue(const TimeType& time) const
+  const T& closestAfterValue(const TimeType& _time) const
   {
     assert(!map_.empty());
 
@@ -88,7 +86,7 @@ public:
     // `lower_bound` and `upper_bound` do not bracket a key.
     // The former returns an element with a key greater than or equal to the key,
     // while the latter returns an element with a key greater than the key.
-    auto it = map_.lower_bound(time);
+    auto it = map_.lower_bound(_time);
 
     // Return the latest value if the element is too old.
     if (it == map_.end()) {
@@ -103,10 +101,10 @@ protected:
   MapType map_;
   bool is_filled_ = false;
 
-  void removeExpiredData(const TimeType& cur_time)
+  void removeExpiredData(const TimeType& _cur_time)
   {
     auto it = map_.begin();
-    while (it != map_.end() && cur_time - it->first > expiry_duration_) {
+    while (it != map_.end() && _cur_time - it->first > expiry_duration_) {
       it = map_.erase(it);  // Erase returns the iterator following the removed element.
       is_filled_ = true;
     }
@@ -125,5 +123,4 @@ public:
   double variance() const;
   double stddev() const;
 };
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

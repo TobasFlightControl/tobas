@@ -5,16 +5,13 @@
 
 #include <string>
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 /**
  * Create a temporary file.
  *
- * @param path Path of the created file.
+ * @param _path Path of the created file.
  * @return File descriptor.
  */
-int createTemporalFile(std::string& path);
-}  // namespace ros2
-}  // namespace tobas
+int createTemporalFile(std::string& _path);
+}  // namespace tobas::ros2

@@ -14,13 +14,13 @@ public:
 
 protected:
   void on_load_node(
-    const std::shared_ptr<rmw_request_id_t> request_header,
-    const LoadNode::Request::SharedPtr request,
-    LoadNode::Response::SharedPtr response) override;
+    const std::shared_ptr<rmw_request_id_t> _request_header,
+    const LoadNode::Request::SharedPtr _request,
+    LoadNode::Response::SharedPtr _response) override;
 
   void on_unload_node(
-    const std::shared_ptr<rmw_request_id_t> request_header,
-    const UnloadNode::Request::SharedPtr request,
-    UnloadNode::Response::SharedPtr response) override;
+    const std::shared_ptr<rmw_request_id_t> _request_header,
+    const UnloadNode::Request::SharedPtr _request,
+    UnloadNode::Response::SharedPtr _response) override;
 };
 }  // namespace tobas

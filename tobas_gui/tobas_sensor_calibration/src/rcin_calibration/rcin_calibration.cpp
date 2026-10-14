@@ -17,13 +17,10 @@
 #include <tobas_real_common/handler.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
-namespace tobas
+namespace tobas::gui::sc
 {
-namespace gui
-{
-namespace sc
-{
-RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
+RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone)
+  : drone_(_drone)
 {
   // The basic S.BUS throttle range is 172 to 1811.
   constexpr int kMinPeriod = 0;
@@ -154,8 +151,8 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& bridg
   rows_->addLayout(rc_range_cols);
 
   // Other connections
-  connect(&bridge, &rqt::RosQtBridge::sbusReceived, this, &self::sbusCb, Qt::QueuedConnection);
-  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::sbusReceived, this, &self::sbusCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 
   reset();
 }
@@ -227,10 +224,10 @@ void RCInputCalibrationWidget::clearRosInterfaces()
   ros_initialized_ = false;
 }
 
-void RCInputCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void RCInputCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  const auto set_params_srv = path::join(ns, kRemoteIfaceNS, real::handler::rcin::kSetParamSrv);
-  set_params_sc_.emplace(std::move(node), set_params_srv);
+  const auto set_params_srv = path::join(_ns, kRemoteIfaceNS, real::handler::rcin::kSetParamSrv);
+  set_params_sc_.emplace(std::move(_node), set_params_srv);
 
   ros_initialized_ = true;
 }
@@ -439,24 +436,24 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
   qt::qInfoBox(this, "Radio calibration finished successfully.");
 }
 
-void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
+void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& _sbus)
 {
-  if (sbus->frame_lost) {
+  if (_sbus->frame_lost) {
     return;
   }
 
-  sbus_ = sbus;
+  sbus_ = _sbus;
 
-  roll_range_->setValue(sbus->periods.at(kRcChannelRoll));
-  pitch_range_->setValue(sbus->periods.at(kRcChannelPitch));
-  yaw_range_->setValue(sbus->periods.at(kRcChannelYaw));
-  throt_range_->setValue(sbus->periods.at(kRcChannelThrot));
-  mode_range_->setValue(sbus->periods.at(kRcChannelMode));
-  sub_mode_range_->setValue(sbus->periods.at(kRcChannelSubMode));
-  enable_range_->setValue(sbus->periods.at(kRcChannelEnable));
-  kill_range_->setValue(sbus->periods.at(kRcChannelKill));
+  roll_range_->setValue(_sbus->periods.at(kRcChannelRoll));
+  pitch_range_->setValue(_sbus->periods.at(kRcChannelPitch));
+  yaw_range_->setValue(_sbus->periods.at(kRcChannelYaw));
+  throt_range_->setValue(_sbus->periods.at(kRcChannelThrot));
+  mode_range_->setValue(_sbus->periods.at(kRcChannelMode));
+  sub_mode_range_->setValue(_sbus->periods.at(kRcChannelSubMode));
+  enable_range_->setValue(_sbus->periods.at(kRcChannelEnable));
+  kill_range_->setValue(_sbus->periods.at(kRcChannelKill));
   for (size_t i = 0; i < numOfGpswChannels(); ++i) {
-    gpsw_ranges_[i]->setValue(sbus->periods.at(kRcChannelGpsw + i));
+    gpsw_ranges_[i]->setValue(_sbus->periods.at(kRcChannelGpsw + i));
   }
 
   if (running_) {
@@ -474,15 +471,13 @@ void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPt
   }
 }
 
-void RCInputCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void RCInputCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming)
 {
-  if (running_ && arming->data) {
+  if (running_ && _arming->data) {
     reset();
     qt::qWarnBox(this, "Radio calibration was canceled because an arming command was issued.");
   }
 
-  arming_ = arming;
+  arming_ = _arming;
 }
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

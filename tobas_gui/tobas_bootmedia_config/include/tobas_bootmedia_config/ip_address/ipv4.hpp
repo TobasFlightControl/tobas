@@ -10,11 +10,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class IPv4Widget : public BaseNetworkWidget
 {
@@ -45,13 +41,13 @@ class IPv4Widget : public BaseNetworkWidget
   };
 
 public:
-  explicit IPv4Widget(const QString& name);
+  explicit IPv4Widget(const QString& _name);
 
   QString name() const override;
 
   void reset() override;
 
-  bool load(const Network& src) override;
+  bool load(const Network& _src) override;
   Network dump() const override;
 
 private:
@@ -62,14 +58,12 @@ private:
   qt::IPv4Edit* address_;
   qt::IPv4Edit* gateway_;
 
-  void enableManualFields(bool enabled);
+  void enableManualFields(bool _enabled);
 
-  static std::expected<PrefixLength, QString> prefixValueToIndex(uint8_t value);
-  static uint8_t prefixIndexToValue(PrefixLength index);
+  static std::expected<PrefixLength, QString> prefixValueToIndex(uint8_t _value);
+  static uint8_t prefixIndexToValue(PrefixLength _index);
 
 private Q_SLOTS:
-  void onMethodChanged(int index);
+  void onMethodChanged(int _index);
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

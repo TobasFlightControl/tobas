@@ -3,25 +3,19 @@
 
 #include "tobas_urdf_builder_plugin/ogre_helpers/static_link_updater.hpp"
 
-static inline Ogre::Vector3 URDFVector3ToOgre(const ::urdf::Vector3& v)
+static inline Ogre::Vector3 URDFVector3ToOgre(const ::urdf::Vector3& _v)
 {
-  return Ogre::Vector3(v.x, v.y, v.z);
+  return Ogre::Vector3(_v.x, _v.y, _v.z);
 }
 
-static inline Ogre::Quaternion URDFRotationToOgre(const ::urdf::Rotation& r)
+static inline Ogre::Quaternion URDFRotationToOgre(const ::urdf::Rotation& _r)
 {
-  return Ogre::Quaternion(r.w, r.x, r.y, r.z);
+  return Ogre::Quaternion(_r.w, _r.x, _r.y, _r.z);
 }
 
-namespace tobas
+namespace tobas::gui::ub::ogre
 {
-namespace gui
-{
-namespace ub
-{
-namespace ogre
-{
-StaticLinkUpdater::StaticLinkUpdater(::urdf::ModelSharedPtr urdf) : urdf_(std::move(urdf))
+StaticLinkUpdater::StaticLinkUpdater(::urdf::ModelSharedPtr _urdf) : urdf_(std::move(_urdf))
 {
   for (const auto& link : urdf_->links_) {
     transforms_[link.first] = findTransform(link.second);
@@ -29,25 +23,25 @@ StaticLinkUpdater::StaticLinkUpdater(::urdf::ModelSharedPtr urdf) : urdf_(std::m
 }
 
 bool StaticLinkUpdater::getLinkTransforms(
-  const std::string& link_name,
-  Ogre::Vector3& visual_position,
-  Ogre::Quaternion& visual_orientation,
-  Ogre::Vector3& collision_position,
-  Ogre::Quaternion& collision_orientation) const
+  const std::string& _link_name,
+  Ogre::Vector3& _visual_position,
+  Ogre::Quaternion& _visual_orientation,
+  Ogre::Vector3& _collision_position,
+  Ogre::Quaternion& _collision_orientation) const
 {
-  const auto link = urdf_->getLink(link_name);
+  const auto link = urdf_->getLink(_link_name);
   if (!link) {
-    setLinkStatus(rviz_common::properties::StatusProperty::Error, link_name, "Transform not found");
+    setLinkStatus(rviz_common::properties::StatusProperty::Error, _link_name, "Transform not found");
     return false;
   }
 
   const auto& vt = transforms_.at(link->name);
-  visual_position = vt.getTrans();
-  visual_orientation = vt.linear();
-  collision_position = visual_position;
-  collision_orientation = visual_orientation;
+  _visual_position = vt.getTrans();
+  _visual_orientation = vt.linear();
+  _collision_position = _visual_position;
+  _collision_orientation = _visual_orientation;
 
-  setLinkStatus(rviz_common::properties::StatusProperty::Ok, link_name, "Transform OK");
+  setLinkStatus(rviz_common::properties::StatusProperty::Ok, _link_name, "Transform OK");
   return true;
 }
 
@@ -55,11 +49,11 @@ void StaticLinkUpdater::setLinkStatus(rviz_common::properties::StatusLevel, cons
 {
 }
 
-Ogre::Matrix4 StaticLinkUpdater::findTransform(const ::urdf::LinkConstSharedPtr& link)
+Ogre::Matrix4 StaticLinkUpdater::findTransform(const ::urdf::LinkConstSharedPtr& _link)
 {
   std::vector<Ogre::Matrix4> matrices;
 
-  auto cur = link;
+  auto cur = _link;
   while (cur && urdf_->getRoot() != cur) {
     if (!cur->parent_joint) {
       break;
@@ -81,7 +75,4 @@ Ogre::Matrix4 StaticLinkUpdater::findTransform(const ::urdf::LinkConstSharedPtr&
   }
   return result;
 }
-}  // namespace ogre
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ogre

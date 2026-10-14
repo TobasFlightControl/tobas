@@ -10,11 +10,7 @@
 
 #include "./speedmeter.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class RotorsViewerWiddget : public QWidget
 {
@@ -23,7 +19,7 @@ class RotorsViewerWiddget : public QWidget
   using self = RotorsViewerWiddget;
 
 public:
-  explicit RotorsViewerWiddget(const rqt::RosQtBridge& bridge, const Drone& drone);
+  explicit RotorsViewerWiddget(const rqt::RosQtBridge& _bridge, const Drone& _drone);
 
   void reset();
   void updateInternalDataStructures();
@@ -34,14 +30,12 @@ private:
   std::map<std::string, SpeedmeterWidget*> meters_;
   QHBoxLayout* cols_;
 
-  void setSpeed(const std::string& link_name, double rps);
+  void setSpeed(const std::string& _link_name, double _rps);
 
-  static QString bottomText(int rpm);
+  static QString bottomText(int _rpm);
 
 private Q_SLOTS:
-  void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
-  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& msg);
+  void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& _msg);
+  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& _msg);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

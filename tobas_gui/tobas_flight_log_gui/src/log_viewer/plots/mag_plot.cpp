@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 MagPlotWidget::MagPlotWidget() : curves_{ "Mag X [-]", "Mag Y [-]", "Mag Z [-]" }
 {
@@ -35,20 +31,20 @@ void MagPlotWidget::clear()
   }
 }
 
-void MagPlotWidget::setTimeScale(double t_start, double t_stop)
+void MagPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
   for (size_t i = 0; i < kNumAxes; ++i) {
-    plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+    plots_[i]->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
   }
 }
 
-void MagPlotWidget::setData(const QVector<tobas_msgs::msg::MagneticField>& msgs)
+void MagPlotWidget::setData(const QVector<tobas_msgs::msg::MagneticField>& _msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> mag_data;
   VerticalScaleRange range;
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
 
     mag_data[0].push_back(msg.mag.x);
@@ -70,6 +66,4 @@ void MagPlotWidget::setData(const QVector<tobas_msgs::msg::MagneticField>& msgs)
     plot->replot();
   }
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

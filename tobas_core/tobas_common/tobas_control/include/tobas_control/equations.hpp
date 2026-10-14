@@ -5,9 +5,7 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 class LinearEquation
 {
@@ -15,13 +13,13 @@ public:
   Eigen::MatrixXd A;
   Eigen::VectorXd b;
 
-  inline explicit LinearEquation(const Eigen::MatrixXd& A, const Eigen::MatrixXd& b);
-  inline explicit LinearEquation(Eigen::Index var_size, Eigen::Index eq_size);
+  inline explicit LinearEquation(const Eigen::MatrixXd& _a, const Eigen::MatrixXd& _b);
+  inline explicit LinearEquation(Eigen::Index _var_size, Eigen::Index _eq_size);
   inline explicit LinearEquation();
 
-  static inline LinearEquation Zero(Eigen::Index var_size, Eigen::Index eq_size);
+  static inline LinearEquation Zero(Eigen::Index _var_size, Eigen::Index _eq_size);
 
-  inline void resize(Eigen::Index var_size, Eigen::Index eq_size);
+  inline void resize(Eigen::Index _var_size, Eigen::Index _eq_size);
   inline void setZero();
 
   inline bool isFinite() const;
@@ -33,20 +31,21 @@ public:
   inline Eigen::Index equationSize() const;
 
   /** Create a matrix equation for scaled variables. */
-  LinearEquation scale(const Eigen::VectorXd& scale) const;
+  LinearEquation scale(const Eigen::VectorXd& _scale) const;
 
   /** Discretize an equation for rates into an equation for increments. */
-  LinearEquation discretise(double dt) const;
+  LinearEquation discretise(double _dt) const;
 
-  friend std::ostream& operator<<(std::ostream& os, const LinearEquation& arg);
+  friend std::ostream& operator<<(std::ostream& _os, const LinearEquation& _arg);
 };
 
-inline LinearEquation::LinearEquation(const Eigen::MatrixXd& _A, const Eigen::MatrixXd& _b) : A(_A), b(_b)
+inline LinearEquation::LinearEquation(const Eigen::MatrixXd& _a, const Eigen::MatrixXd& _b) : A(_a), b(_b)
 {
   assert(A.rows() == b.rows());
 }
 
-inline LinearEquation::LinearEquation(Eigen::Index var_size, Eigen::Index eq_size) : A(eq_size, var_size), b(eq_size)
+inline LinearEquation::LinearEquation(Eigen::Index _var_size, Eigen::Index _eq_size)
+  : A(_eq_size, _var_size), b(_eq_size)
 {
 }
 
@@ -54,17 +53,17 @@ inline LinearEquation::LinearEquation()
 {
 }
 
-inline LinearEquation LinearEquation::Zero(Eigen::Index var_size, Eigen::Index eq_size)
+inline LinearEquation LinearEquation::Zero(Eigen::Index _var_size, Eigen::Index _eq_size)
 {
-  LinearEquation res(var_size, eq_size);
+  LinearEquation res(_var_size, _eq_size);
   res.setZero();
   return res;
 }
 
-inline void LinearEquation::resize(Eigen::Index var_size, Eigen::Index eq_size)
+inline void LinearEquation::resize(Eigen::Index _var_size, Eigen::Index _eq_size)
 {
-  A.conservativeResize(eq_size, var_size);
-  b.conservativeResize(eq_size);
+  A.conservativeResize(_eq_size, _var_size);
+  b.conservativeResize(_eq_size);
 }
 
 inline void LinearEquation::setZero()
@@ -87,5 +86,4 @@ inline Eigen::Index LinearEquation::equationSize() const
 {
   return A.rows();
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

@@ -3,26 +3,24 @@
 
 #include "tobas_rviz_plugin/joint_model/revolute_joint_model.hpp"
 
-namespace tobas
+namespace tobas::rviz
 {
-namespace rviz
-{
-RevoluteJointModel::RevoluteJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
-  : JointModel(name, joint_index, first_variable_index)
+RevoluteJointModel::RevoluteJointModel(const std::string& _name, size_t _joint_index, size_t _first_variable_index)
+  : JointModel(_name, _joint_index, _first_variable_index)
 {
   type_ = kRevolute;
   variable_names_.push_back(getName());
 }
 
-void RevoluteJointModel::getVariableDefaultPositions(double* values) const
+void RevoluteJointModel::getVariableDefaultPositions(double* _values) const
 {
-  values[0] = 0.0;
+  _values[0] = 0.0;
 }
 
-void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const
+void RevoluteJointModel::computeTransform(const double* _joint_values, Eigen::Isometry3d& _transform) const
 {
-  const auto c = std::cos(joint_values[0]);
-  const auto s = std::sin(joint_values[0]);
+  const auto c = std::cos(_joint_values[0]);
+  const auto s = std::sin(_joint_values[0]);
   const auto t = 1.0 - c;
   const auto txy = t * xy_;
   const auto txz = t * xz_;
@@ -33,7 +31,7 @@ void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Iso
   const auto xs = axis_.x() * s;
 
   // column major
-  auto d = transform.data();
+  auto d = _transform.data();
 
   d[0] = t * x2_ + c;
   d[1] = txy + zs;
@@ -56,18 +54,18 @@ void RevoluteJointModel::computeTransform(const double* joint_values, Eigen::Iso
   d[15] = 1.0;
 }
 
-void RevoluteJointModel::computeVariablePositions(const Eigen::Isometry3d& transform, double* joint_values) const
+void RevoluteJointModel::computeVariablePositions(const Eigen::Isometry3d& _transform, double* _joint_values) const
 {
-  Eigen::Quaterniond q(transform.linear());
+  Eigen::Quaterniond q(_transform.linear());
   q.normalize();
   size_t max_idx;
   axis_.array().abs().maxCoeff(&max_idx);
-  joint_values[0] = 2.0 * std::atan2(q.vec()[max_idx] / axis_[max_idx], q.w());
+  _joint_values[0] = 2.0 * std::atan2(q.vec()[max_idx] / axis_[max_idx], q.w());
 }
 
-void RevoluteJointModel::setAxis(const Eigen::Vector3d& axis)
+void RevoluteJointModel::setAxis(const Eigen::Vector3d& _axis)
 {
-  axis_ = axis.normalized();
+  axis_ = _axis.normalized();
   x2_ = axis_.x() * axis_.x();
   y2_ = axis_.y() * axis_.y();
   z2_ = axis_.z() * axis_.z();
@@ -75,5 +73,4 @@ void RevoluteJointModel::setAxis(const Eigen::Vector3d& axis)
   xz_ = axis_.x() * axis_.z();
   yz_ = axis_.y() * axis_.z();
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

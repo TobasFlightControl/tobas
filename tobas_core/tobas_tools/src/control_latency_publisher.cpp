@@ -9,18 +9,18 @@
 
 namespace tobas
 {
-ControlLatencyPublisher::ControlLatencyPublisher(rclcpp::Node* node) : node_(node)
+ControlLatencyPublisher::ControlLatencyPublisher(rclcpp::Node* _node) : node_(_node)
 {
-  pub_ = node->create_publisher<tobas_msgs::msg::Latency>(topic::kControlLatency, ros2::qos::DefaultQoS());
+  pub_ = _node->create_publisher<tobas_msgs::msg::Latency>(topic::kControlLatency, ros2::qos::DefaultQoS());
 }
 
-void ControlLatencyPublisher::publish(const builtin_interfaces::msg::Time& start_time)
+void ControlLatencyPublisher::publish(const builtin_interfaces::msg::Time& _start_time)
 {
   const builtin_interfaces::msg::Time cur_time(node_->now());  // Drop the clock type to avoid exceptions.
 
   auto msg = std::make_unique<tobas_msgs::msg::Latency>();
   msg->header.stamp = cur_time;
-  msg->data = cur_time - start_time;
+  msg->data = cur_time - _start_time;
 
   pub_->publish(std::move(msg));
 }

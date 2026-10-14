@@ -10,32 +10,32 @@
 
 namespace tobas_kdl_msgs
 {
-inline void vectorXdEigenToStd(const Eigen::VectorXd& e, std::vector<double>& s)
+inline void vectorXdEigenToStd(const Eigen::VectorXd& _e, std::vector<double>& _s)
 {
-  s.resize(e.size());
-  std::copy(e.begin(), e.end(), s.begin());
+  _s.resize(_e.size());
+  std::copy(_e.begin(), _e.end(), _s.begin());
 }
 
-inline void vectorXdStdToEigen(const std::vector<double>& s, Eigen::VectorXd& e)
+inline void vectorXdStdToEigen(const std::vector<double>& _s, Eigen::VectorXd& _e)
 {
-  e.conservativeResize(s.size());
-  std::copy(s.begin(), s.end(), e.data());
+  _e.conservativeResize(_s.size());
+  std::copy(_s.begin(), _s.end(), _e.data());
 }
 
-inline void matrix3dEigenToStd(const Eigen::Matrix3d& e, std::array<double, 9>& s)
+inline void matrix3dEigenToStd(const Eigen::Matrix3d& _e, std::array<double, 9>& _s)
 {
   for (size_t r = 0; r < 3; ++r) {
     for (size_t c = 0; c < 3; ++c) {
-      s[r * 3 + c] = e(r, c);
+      _s[r * 3 + c] = _e(r, c);
     }
   }
 }
 
-inline void matrix3dStdToEigen(const std::array<double, 9>& s, Eigen::Matrix3d& e)
+inline void matrix3dStdToEigen(const std::array<double, 9>& _s, Eigen::Matrix3d& _e)
 {
   for (size_t r = 0; r < 3; ++r) {
     for (size_t c = 0; c < 3; ++c) {
-      e(r, c) = s[r * 3 + c];
+      _e(r, c) = _s[r * 3 + c];
     }
   }
 }

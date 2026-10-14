@@ -10,9 +10,7 @@
 #include <tobas_gazebo_msgs/msg/joint_command.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /** Receive joint position, velocity, and force commands and send them to Gazebo. */
 class JointCommandHandlerNode : public BaseNode
@@ -21,7 +19,7 @@ class JointCommandHandlerNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit JointCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit JointCommandHandlerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   Drone::ConstSharedPtr drone_;
@@ -36,42 +34,42 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
 
-  void publishJointCommand(const std::string& jnt_name, double command);
-  void publishJointCommand(const tobas_msgs::msg::JointCommand& cmd);
+  void publishJointCommand(const std::string& _jnt_name, double _command);
+  void publishJointCommand(const tobas_msgs::msg::JointCommand& _cmd);
 
-  void droneCb(const Drone::ConstSharedPtr& drone);
-  void jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions);
-  void jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities);
-  void jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts);
+  void droneCb(const Drone::ConstSharedPtr& _drone);
+  void jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _positions);
+  void jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _velocities);
+  void jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _efforts);
 };
 
-JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& options)
-  : super("gazebo_joint_command_handler", nodeOptions_Default(options))
+JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& _options)
+  : super("gazebo_joint_command_handler", nodeOptions_Default(_options))
 {
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this);
 }
 
-void JointCommandHandlerNode::publishJointCommand(const std::string& jnt_name, double command)
+void JointCommandHandlerNode::publishJointCommand(const std::string& _jnt_name, double _command)
 {
   auto gz_cmd = std::make_unique<tobas_gazebo_msgs::msg::JointCommand>();
-  gz_cmd->data = command;
+  gz_cmd->data = _command;
 
-  const auto& publisher = ctrl_map_.at(jnt_name).second;
+  const auto& publisher = ctrl_map_.at(_jnt_name).second;
   publisher->publish(std::move(gz_cmd));
 }
 
-void JointCommandHandlerNode::publishJointCommand(const tobas_msgs::msg::JointCommand& cmd)
+void JointCommandHandlerNode::publishJointCommand(const tobas_msgs::msg::JointCommand& _cmd)
 {
-  publishJointCommand(cmd.name, cmd.data);
+  publishJointCommand(_cmd.name, _cmd.data);
 }
 
-void JointCommandHandlerNode::droneCb(const Drone::ConstSharedPtr& drone)
+void JointCommandHandlerNode::droneCb(const Drone::ConstSharedPtr& _drone)
 {
-  drone_ = drone;
+  drone_ = _drone;
 
   // Resister publishers
   ctrl_map_.clear();
-  for (const auto& [_, joint] : drone->joints) {
+  for (const auto& [_, joint] : _drone->joints) {
     const auto topic = path::join(gazebo::kJointCommandTopicNS, joint.name);
     ctrl_map_[joint.name] = { static_cast<JointCommandInterface>(joint.cmd_iface),
                               createPublisher<tobas_gazebo_msgs::msg::JointCommand>(topic, false, true) };
@@ -83,9 +81,9 @@ void JointCommandHandlerNode::droneCb(const Drone::ConstSharedPtr& drone)
   efforts_sub_ = createSubscriber(topic::kJointEffCmd, &self::jointEffortsCmdCb, this);
 }
 
-void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
+void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _positions)
 {
-  for (const auto& tbs_cmd : positions->commands) {
+  for (const auto& tbs_cmd : _positions->commands) {
     const auto& jnt_name = tbs_cmd.name;
     if (!ctrl_map_.contains(jnt_name)) {
       TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
@@ -107,9 +105,9 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
   }
 }
 
-void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
+void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _velocities)
 {
-  for (const auto& tbs_cmd : velocities->commands) {
+  for (const auto& tbs_cmd : _velocities->commands) {
     const auto& jnt_name = tbs_cmd.name;
 
     if (!ctrl_map_.contains(jnt_name)) {
@@ -132,9 +130,9 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
   }
 }
 
-void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
+void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _efforts)
 {
-  for (const auto& tbs_cmd : efforts->commands) {
+  for (const auto& tbs_cmd : _efforts->commands) {
     const auto& jnt_name = tbs_cmd.name;
     if (!ctrl_map_.contains(jnt_name)) {
       TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
@@ -155,7 +153,6 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
     publishJointCommand(tbs_cmd);
   }
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::gazebo::JointCommandHandlerNode)

@@ -5,27 +5,25 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
-namespace tobas
+namespace tobas::quadprog
 {
-namespace quadprog
+QuadProgProblem::QuadProgProblem(Eigen::Index _var_size, Eigen::Index _eq_size, Eigen::Index _ineq_size)
 {
-QuadProgProblem::QuadProgProblem(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size)
-{
-  resize(var_size, eq_size, ineq_size);
+  resize(_var_size, _eq_size, _ineq_size);
 }
 
 QuadProgProblem::QuadProgProblem()
 {
 }
 
-void QuadProgProblem::resize(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size)
+void QuadProgProblem::resize(Eigen::Index _var_size, Eigen::Index _eq_size, Eigen::Index _ineq_size)
 {
-  P.conservativeResize(var_size, var_size);
-  q.conservativeResize(var_size);
-  G.conservativeResize(eq_size, var_size);
-  h.conservativeResize(eq_size);
-  A.conservativeResize(ineq_size, var_size);
-  b.conservativeResize(ineq_size);
+  P.conservativeResize(_var_size, _var_size);
+  q.conservativeResize(_var_size);
+  G.conservativeResize(_eq_size, _var_size);
+  h.conservativeResize(_eq_size);
+  A.conservativeResize(_ineq_size, _var_size);
+  b.conservativeResize(_ineq_size);
 }
 
 void QuadProgProblem::setZero()
@@ -61,25 +59,25 @@ bool QuadProgProblem::isFinite() const
          eigen::isFinite(b);
 }
 
-std::ostream& operator<<(std::ostream& os, const QuadProgProblem& arg)
+std::ostream& operator<<(std::ostream& _os, const QuadProgProblem& _arg)
 {
-  os << "P:\n" << arg.P << std::endl;
-  os << "q:\n" << arg.q << std::endl;
-  os << "G:\n" << arg.G << std::endl;
-  os << "h:\n" << arg.h << std::endl;
-  os << "A:\n" << arg.A << std::endl;
-  os << "b:\n" << arg.b << std::endl;
-  return os;
+  _os << "P:\n" << _arg.P << '\n';
+  _os << "q:\n" << _arg.q << '\n';
+  _os << "G:\n" << _arg.G << '\n';
+  _os << "h:\n" << _arg.h << '\n';
+  _os << "A:\n" << _arg.A << '\n';
+  _os << "b:\n" << _arg.b << '\n';
+  return _os;
 }
 
 QuadProgSolver::QuadProgSolver()
 {
 }
 
-void QuadProgSolver::resize(Eigen::Index var_size, Eigen::Index eq_size, Eigen::Index ineq_size)
+void QuadProgSolver::resize(Eigen::Index _var_size, Eigen::Index _eq_size, Eigen::Index _ineq_size)
 {
-  problem.resize(var_size, eq_size, ineq_size);
-  x_scale.conservativeResize(var_size);
+  problem.resize(_var_size, _eq_size, _ineq_size);
+  x_scale.conservativeResize(_var_size);
 }
 
 void QuadProgSolver::setZero()
@@ -88,11 +86,11 @@ void QuadProgSolver::setZero()
   x_scale.setZero();
 }
 
-std::ostream& operator<<(std::ostream& os, const QuadProgSolver& arg)
+std::ostream& operator<<(std::ostream& _os, const QuadProgSolver& _arg)
 {
-  os << "problem:\n" << arg.problem << std::endl;
-  os << "x_scale:\n" << arg.x_scale.transpose() << std::endl;
-  return os;
+  _os << "problem:\n" << _arg.problem << '\n';
+  _os << "x_scale:\n" << _arg.x_scale.transpose() << '\n';
+  return _os;
 }
 
 QuadProgProblem QuadProgSolver::scaleProblem() const
@@ -133,5 +131,4 @@ void QuadProgSolver::checkProblemValidity() const
   assert(x_scale.size() == problem.varSize());
   assert((x_scale.array() > 0).all());
 }
-}  // namespace quadprog
-}  // namespace tobas
+}  // namespace tobas::quadprog

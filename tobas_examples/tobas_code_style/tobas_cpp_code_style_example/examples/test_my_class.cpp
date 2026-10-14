@@ -10,7 +10,7 @@ int main()
   tobas::my_namespace::MyClass my_instance;
 
   if (!my_instance.initialize()) {
-    std::cerr << "Failed to initialize MyClass." << std::endl;
+    std::cerr << "Failed to initialize MyClass.\n";
     return EXIT_FAILURE;
   }
 

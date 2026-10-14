@@ -8,11 +8,7 @@
 #include "./sbus.hpp"
 #include "./world/world.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class SimulationSettingsWidget : public QWidget
 {
@@ -40,6 +36,4 @@ private:
   SbusWidget* sbus_;
   DebugWidget* debug_;
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

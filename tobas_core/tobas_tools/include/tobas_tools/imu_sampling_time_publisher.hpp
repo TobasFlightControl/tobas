@@ -12,9 +12,9 @@ namespace tobas
 class ImuSamplingTimePublisher
 {
 public:
-  explicit ImuSamplingTimePublisher(rclcpp::Node* node);
+  explicit ImuSamplingTimePublisher(rclcpp::Node* _node);
 
-  void publish(const rclcpp::Time& cur_time);
+  void publish(const rclcpp::Time& _cur_time);
 
 private:
   rclcpp::Time last_time_;

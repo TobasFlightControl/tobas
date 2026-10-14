@@ -5,48 +5,46 @@
 
 #include <qwt/qwt_plot_histogram.h>  // <= C++17
 
-namespace tobas
+namespace tobas::qwt
 {
-namespace qwt
+QwtPlotHistogramWrapper::QwtPlotHistogramWrapper(const QString& _title)
 {
-QwtPlotHistogramWrapper::QwtPlotHistogramWrapper(const QString& title)
-{
-  impl_ = std::make_shared<QwtPlotHistogram>(title);
+  impl_ = std::make_shared<QwtPlotHistogram>(_title);
 }
 
-void QwtPlotHistogramWrapper::setPen(const QColor& color, qreal width, Qt::PenStyle style)
+void QwtPlotHistogramWrapper::setPen(const QColor& _color, qreal _width, Qt::PenStyle _style)
 {
-  impl_->setPen(color, width, style);
+  impl_->setPen(_color, _width, _style);
 }
 
-void QwtPlotHistogramWrapper::setBrush(const QColor& color)
+void QwtPlotHistogramWrapper::setBrush(const QColor& _color)
 {
-  impl_->setBrush(color);
+  impl_->setBrush(_color);
 }
 
 void QwtPlotHistogramWrapper::setSamples(
-  const QVector<double>& values,
-  double min_value,
-  double max_value,
-  double bin_width)
+  const QVector<double>& _values,
+  double _min_value,
+  double _max_value,
+  double _bin_width)
 {
-  assert(min_value <= max_value);
-  assert(bin_width > 0.0);
+  assert(_min_value <= _max_value);
+  assert(_bin_width > 0.0);
 
   QVector<QwtIntervalSample> samples;
 
-  const auto bin_count = static_cast<int>(std::ceil((max_value - min_value) / bin_width));
+  const auto bin_count = static_cast<int>(std::ceil((_max_value - _min_value) / _bin_width));
   QVector<int> counts(bin_count, 0);
 
-  for (const auto& value : values) {
+  for (const auto& value : _values) {
     if (!std::isfinite(value)) {
       continue;
     }
-    if (value < min_value || max_value < value) {
+    if (value < _min_value || _max_value < value) {
       continue;
     }
 
-    auto index = static_cast<int>((value - min_value) / bin_width);
+    auto index = static_cast<int>((value - _min_value) / _bin_width);
 
     // Only `value == max_value` falls outside the range, so put it in the last bin.
     if (index >= bin_count) {
@@ -57,8 +55,8 @@ void QwtPlotHistogramWrapper::setSamples(
   }
 
   for (int i = 0; i < bin_count; ++i) {
-    const double left = min_value + i * bin_width;
-    const double right = left + bin_width;
+    const double left = _min_value + i * _bin_width;
+    const double right = left + _bin_width;
 
     samples.append(QwtIntervalSample(static_cast<double>(counts[i]), left, right));
   }
@@ -66,9 +64,9 @@ void QwtPlotHistogramWrapper::setSamples(
   impl_->setSamples(samples);
 }
 
-void QwtPlotHistogramWrapper::attach(QwtPlot* plot)
+void QwtPlotHistogramWrapper::attach(QwtPlot* _plot)
 {
-  impl_->attach(plot);
+  impl_->attach(_plot);
 }
 
 void QwtPlotHistogramWrapper::clear()
@@ -76,5 +74,4 @@ void QwtPlotHistogramWrapper::clear()
   QVector<QwtIntervalSample> empty;
   impl_->setSamples(empty);
 }
-}  // namespace qwt
-}  // namespace tobas
+}  // namespace tobas::qwt

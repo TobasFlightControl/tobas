@@ -6,11 +6,7 @@
 #include <QLabel>
 #include <QPushButton>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class FlightLogItemWidgetGCS : public QWidget
 {
@@ -19,11 +15,11 @@ class FlightLogItemWidgetGCS : public QWidget
   using self = FlightLogItemWidgetGCS;
 
 Q_SIGNALS:
-  void exportButtonClicked(const QString& log_name);
-  void deleteButtonClicked(const QString& log_name);
+  void exportButtonClicked(const QString& _log_name);
+  void deleteButtonClicked(const QString& _log_name);
 
 public:
-  explicit FlightLogItemWidgetGCS(const QString& log_name);
+  explicit FlightLogItemWidgetGCS(const QString& _log_name);
 
   QString logName() const;
 
@@ -36,6 +32,4 @@ private Q_SLOTS:
   void onExportButtonClicked();
   void onDeleteButtonClicked();
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

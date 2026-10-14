@@ -19,8 +19,8 @@ class TimerCoalescingEventsQueue : public rclcpp::experimental::executors::Event
 public:
   using ExecutorEvent = rclcpp::experimental::executors::ExecutorEvent;
 
-  void enqueue(const ExecutorEvent& event) override;
-  bool dequeue(ExecutorEvent& event, std::chrono::nanoseconds timeout) override;
+  void enqueue(const ExecutorEvent& _event) override;
+  bool dequeue(ExecutorEvent& _event, std::chrono::nanoseconds _timeout) override;
   bool empty() const override;
   size_t size() const override;
 

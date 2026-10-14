@@ -11,11 +11,7 @@
 #include <tobas_rviz_wrapper/rviz.hpp>
 #include <tobas_uadf/model.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class RvizWidget : public QWidget
 {
@@ -24,12 +20,12 @@ class RvizWidget : public QWidget
   using self = RvizWidget;
 
 public:
-  explicit RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree);
+  explicit RvizWidget(const uadf::Model& _uadf, const kdl::Tree& _tree);
 
   void updateInternalDataStructures();
 
-  void heightLink(const QString& link_name);
-  void unheightLink(const QString& link_name);
+  void heightLink(const QString& _link_name);
+  void unheightLink(const QString& _link_name);
 
 private:
   const uadf::Model& uadf_;
@@ -50,10 +46,8 @@ private:
   void resetOrbitView();
 
 private Q_SLOTS:
-  void onVisualBoxToggled(bool checked);
-  void onCollisionBoxToggled(bool checked);
-  void onInertiaBoxToggled(bool checked);
+  void onVisualBoxToggled(bool _checked);
+  void onCollisionBoxToggled(bool _checked);
+  void onInertiaBoxToggled(bool _checked);
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

@@ -5,11 +5,7 @@
 
 #include <tobas_qt_tools/widgets/widget.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 class FaceCircleWidget : public qt::Widget
 {
@@ -18,17 +14,17 @@ class FaceCircleWidget : public qt::Widget
   using super = qt::Widget;
 
 public:
-  explicit FaceCircleWidget(const QString& text);
+  explicit FaceCircleWidget(const QString& _text);
 
-  void setTextPointSize(int psize);
+  void setTextPointSize(int _psize);
 
-  void setProgress(double progress);
-  void setSelected(bool selected);
+  void setProgress(double _progress);
+  void setSelected(bool _selected);
 
   int calcMaxTextPointSize() const;
 
 protected:
-  void paintEvent(QPaintEvent* event) override;
+  void paintEvent(QPaintEvent* _event) override;
 
 private:
   const QString text_ = "";
@@ -41,11 +37,9 @@ private:
   int getDiameter() const;
   int getRadius() const;
 
-  void drawCircle(QPainter& painter, const QColor& color);
-  void drawCircleLowerHalf(QPainter& painter, const QColor& color, double rate);
-  void drawOutline(QPainter& painter);
-  void drawText(QPainter& painter);
+  void drawCircle(QPainter& _painter, const QColor& _color);
+  void drawCircleLowerHalf(QPainter& _painter, const QColor& _color, double _rate);
+  void drawOutline(QPainter& _painter);
+  void drawText(QPainter& _painter);
 };
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

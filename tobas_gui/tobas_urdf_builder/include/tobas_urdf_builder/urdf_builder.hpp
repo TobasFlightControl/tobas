@@ -7,11 +7,7 @@
 
 #include <tobas_rviz_wrapper/rviz.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
+namespace tobas::gui::ub
 {
 class URDFBuilder : public QWidget
 {
@@ -23,6 +19,4 @@ public:
 private:
   rviz::RvizFrameManager rviz_manager_;
 };
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub

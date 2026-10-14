@@ -6,11 +6,7 @@
 #include "../param_getters/line_edit.hpp"
 #include "./base_setting.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class AuthorInformationWidget : public BaseSettingWidget
 {
@@ -28,7 +24,7 @@ public:
   bool isValid() override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   QString authorName() const;
   QString authorEmail() const;
@@ -37,6 +33,4 @@ private:
   ParamGetterWidget_LineEdit* name_;
   ParamGetterWidget_LineEdit* email_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

@@ -10,20 +10,17 @@
 
 #include <tobas_ros2_tools/console_bridge/output_handler_text.hpp>
 
-namespace tobas
-{
-namespace urdf
+namespace tobas::urdf
 {
 class Parser
 {
 public:
   explicit Parser();
 
-  std::expected<::urdf::ModelInterfaceSharedPtr, std::string> parseFromPath(const std::string& path);
-  std::expected<::urdf::ModelInterfaceSharedPtr, std::string> parseFromText(const std::string& xml);
+  std::expected<::urdf::ModelInterfaceSharedPtr, std::string> parseFromPath(const std::string& _path);
+  std::expected<::urdf::ModelInterfaceSharedPtr, std::string> parseFromText(const std::string& _xml);
 
 private:
   console_bridge::OutputHandlerText oh_;
 };
-}  // namespace urdf
-}  // namespace tobas
+}  // namespace tobas::urdf

@@ -8,11 +8,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class ParamGetterWidget_DoubleRange : public ParamGetterWidget<st::Range<double>>
 {
@@ -22,19 +18,19 @@ class ParamGetterWidget_DoubleRange : public ParamGetterWidget<st::Range<double>
   using super = ParamGetterWidget<ValueType>;
 
 Q_SIGNALS:
-  void valueChanged(const ValueType& value);
+  void valueChanged(const ValueType& _value);
 
 public:
-  explicit ParamGetterWidget_DoubleRange(const QString& param_name, const QString& description_text = "");
+  explicit ParamGetterWidget_DoubleRange(const QString& _param_name, const QString& _description_text = "");
 
   ValueType getValue() const override;
-  bool setValue(const ValueType& src) override;
+  bool setValue(const ValueType& _src) override;
 
-  void setDecimals(int decimals);
-  void setMinimum(double minimum);
-  void setMaximum(double maximum);
-  void setSingleStep(double single_step);
-  void setSuffix(const QString& suffix);
+  void setDecimals(int _decimals);
+  void setMinimum(double _minimum);
+  void setMaximum(double _maximum);
+  void setSingleStep(double _single_step);
+  void setSuffix(const QString& _suffix);
 
   double min() const;
   double max() const;
@@ -42,12 +38,10 @@ public:
   bool isValid() const;
 
 private Q_SLOTS:
-  void onValueChanged(double value);
+  void onValueChanged(double _value);
 
 private:
   qt::LabeledDoubleSpinBox* min_;
   qt::LabeledDoubleSpinBox* max_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

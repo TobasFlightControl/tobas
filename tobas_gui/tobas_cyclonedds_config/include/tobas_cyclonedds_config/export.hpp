@@ -5,10 +5,7 @@
 
 #include "./data.hpp"
 
-namespace tobas
+namespace tobas::cyclonedds
 {
-namespace cyclonedds
-{
-std::string exportText(const Data& src);
-}  // namespace cyclonedds
-}  // namespace tobas
+std::string exportText(const Data& _src);
+}  // namespace tobas::cyclonedds

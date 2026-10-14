@@ -8,13 +8,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace mission
+namespace tobas::gui::sa::mission
 {
 class MulticopterWidget : public BaseExecutorWidget
 {
@@ -31,7 +25,7 @@ public:
   YAML::Node staticParams() const override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   bool isValid() override;
 
@@ -53,7 +47,4 @@ private:
 
   qt::DoubleSpinBox* rtl_min_alt_;
 };
-}  // namespace mission
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::mission

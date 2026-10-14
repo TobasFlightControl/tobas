@@ -7,14 +7,8 @@
 
 #include "./data.hpp"
 
-namespace tobas
-{
-namespace ssh
-{
-namespace ak
+namespace tobas::ssh::ak
 {
 /** Convert an SSH public key to a display string. */
-std::expected<std::string, std::string> prettify(const Data& src);
-}  // namespace ak
-}  // namespace ssh
-}  // namespace tobas
+std::expected<std::string, std::string> prettify(const Data& _src);
+}  // namespace tobas::ssh::ak

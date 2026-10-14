@@ -8,97 +8,51 @@
 #include <string>
 
 #include <tobas_algorithm/crc.hpp>
+#include <tobas_dshot/command.hpp>
 #include <tobas_linux/spi_dev.hpp>
 
-namespace tobas
+namespace tobas::fc1xx
 {
-namespace fc1xx
-{
-/**
- * SPI interface for DShot motor commands and ESC telemetry on FC1XX hardware.
- *
- * @see https://betaflight.com/docs/development/api/dshot
- */
+/** SPI interface for DShot motor commands and ESC telemetry on FC1XX hardware. */
 class DShot
 {
 public:
   static constexpr size_t kChannelSize = 8;
 
-  enum Command : uint16_t
-  {
-    DSHOT_CMD_MOTOR_STOP = 0,
-    DSHOT_CMD_BEEP1 = 1,
-    DSHOT_CMD_BEEP2 = 2,
-    DSHOT_CMD_BEEP3 = 3,
-    DSHOT_CMD_BEEP4 = 4,
-    DSHOT_CMD_BEEP5 = 5,
-    DSHOT_CMD_ESC_INFO = 6,
-    DSHOT_CMD_SPIN_DIRECTION_1 = 7,
-    DSHOT_CMD_SPIN_DIRECTION_2 = 8,
-    DSHOT_CMD_3D_MODE_OFF = 9,
-    DSHOT_CMD_3D_MODE_ON = 10,
-    DSHOT_CMD_SETTINGS_REQUEST = 11,
-    DSHOT_CMD_SAVE_SETTINGS = 12,
-    DSHOT_EXTENDED_TELEMETRY_ENABLE = 13,
-    DSHOT_EXTENDED_TELEMETRY_DISABLE = 14,
-    DSHOT_CMD_SPIN_DIRECTION_NORMAL = 20,
-    DSHOT_CMD_SPIN_DIRECTION_REVERSED = 21,
-    DSHOT_CMD_LED0_ON = 22,
-    DSHOT_CMD_LED1_ON = 23,
-    DSHOT_CMD_LED2_ON = 24,
-    DSHOT_CMD_LED3_ON = 25,
-    DSHOT_CMD_LED0_OFF = 26,
-    DSHOT_CMD_LED1_OFF = 27,
-    DSHOT_CMD_LED2_OFF = 28,
-    DSHOT_CMD_LED3_OFF = 29,
-    DSHOT_CMD_SIGNAL_LINE_TELEMETRY_DISABLE = 32,
-    DSHOT_CMD_SIGNAL_LINE_TELEMETRY_ENABLE = 33,
-    DSHOT_CMD_SIGNAL_LINE_CONTINUOUS_ERPM_TELEMETRY = 34,
-    DSHOT_CMD_SIGNAL_LINE_CONTINUOUS_ERPM_PERIOD_TELEMETRY = 35,
-    DSHOT_CMD_SIGNAL_LINE_TEMPERATURE_TELEMETRY = 42,
-    DSHOT_CMD_SIGNAL_LINE_VOLTAGE_TELEMETRY = 43,
-    DSHOT_CMD_SIGNAL_LINE_CURRENT_TELEMETRY = 44,
-    DSHOT_CMD_SIGNAL_LINE_CONSUMPTION_TELEMETRY = 45,
-    DSHOT_CMD_SIGNAL_LINE_ERPM_TELEMETRY = 46,
-    DSHOT_CMD_SIGNAL_LINE_ERPM_PERIOD_TELEMETRY = 47,
-  };
-
-private:
-public:
   explicit DShot() noexcept;
 
   bool initialize() noexcept;
   std::expected<void, std::string> transfer() noexcept;
 
   /** Set the DShot throttle directory. */
-  void setThrottle(size_t ch, uint16_t throttle) noexcept;
+  void setThrottle(size_t _ch, uint16_t _throttle) noexcept;
   /** Set the target motor rotating speed [rad/s]. */
-  void setTargetSpeed(size_t ch, double rps) noexcept;
+  void setTargetSpeed(size_t _ch, double _rps) noexcept;
   /** Set the Kv value [rad/s/V]. */
-  void setKv(size_t ch, double kv_si) noexcept;
+  void setKv(size_t _ch, double _kv_si) noexcept;
   /** Set the internal resistance [Ω]. */
-  void setInternalResistance(size_t ch, double resistance) noexcept;
+  void setInternalResistance(size_t _ch, double _resistance) noexcept;
   /** Set the propeller diameter [m]. */
-  void setPropellerDiameter(size_t ch, double diameter) noexcept;
+  void setPropellerDiameter(size_t _ch, double _diameter) noexcept;
   /** Set the moment constant scaled by the propeller diameter [Nm/(rad/s)^2/m^5]. */
-  void setMomentConstant(size_t ch, double moment_const) noexcept;
+  void setMomentConstant(size_t _ch, double _moment_const) noexcept;
   /** Set the number of motor poles. */
-  void setNumPoles(size_t ch, uint16_t num_poles) noexcept;
+  void setNumPoles(size_t _ch, uint16_t _num_poles) noexcept;
   /** Set the motor speed control gain (2 to the x-1 power). No feedback when 0 is specified. */
-  void setRpmControlGain(size_t ch, uint8_t gain) noexcept;
+  void setRpmControlGain(size_t _ch, uint8_t _gain) noexcept;
 
   /** Get the validity of the telemetry. */
-  bool getValidity(size_t ch) noexcept;
+  bool getValidity(size_t _ch) noexcept;
   /** Get the current motor rotating speed [rad/s]. */
-  double getSpeed(size_t ch) noexcept;
+  double getSpeed(size_t _ch) noexcept;
   /** Get the current ESC temperature [degC]. */
-  double getTemperature(size_t ch) noexcept;
+  double getTemperature(size_t _ch) noexcept;
   /** Get the current ESC input voltage [V]. */
-  double getVoltage(size_t ch) noexcept;
+  double getVoltage(size_t _ch) noexcept;
   /** Get the current ESC current [A]. */
-  double getCurrent(size_t ch) noexcept;
+  double getCurrent(size_t _ch) noexcept;
 
-  void printCurrentState(size_t ch) noexcept;
+  void printCurrentState(size_t _ch) noexcept;
   void printCurrentStates() noexcept;
 
 private:
@@ -110,5 +64,4 @@ private:
 
   algo::CRC32Left crc_;
 };
-}  // namespace fc1xx
-}  // namespace tobas
+}  // namespace tobas::fc1xx

@@ -20,13 +20,7 @@ namespace Ui
 class URDFBuilderPanelUI;
 }  // namespace Ui
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace ui
+namespace tobas::gui::ub::ui
 {
 /** Main panel embedded in the RViz window. */
 class UrdfBuilderPanel : public rviz_common::Panel
@@ -36,27 +30,27 @@ class UrdfBuilderPanel : public rviz_common::Panel
   using self = UrdfBuilderPanel;
 
 public:
-  explicit UrdfBuilderPanel(QWidget* parent = nullptr);
+  explicit UrdfBuilderPanel(QWidget* _parent = nullptr);
   ~UrdfBuilderPanel() override;
 
   void onInitialize() override;
-  void load(const rviz_common::Config& config) override;
-  void save(rviz_common::Config config) const override;
+  void load(const rviz_common::Config& _config) override;
+  void save(rviz_common::Config _config) const override;
 
   QStringList linkNames() const;
   QStringList jointNames() const;
 
 private Q_SLOTS:
-  void onRobotNameTextChanged(const QString& name);
+  void onRobotNameTextChanged(const QString& _name);
   void onNewButtonClicked();
   void onLoadButtonClicked();
   void onSaveButtonClicked();
   void onSaveAsButtonClicked();
-  void onEnableVisualCheckBoxToggled(bool checked);
-  void onEnableCollisionCheckBoxToggled(bool checked);
-  void onEnableInertiaCheckBoxToggled(bool checked);
-  void onLinkTreeWidgetItemClicked(QTreeWidgetItem* item, int column);
-  void onLinkTreeWidgetItemChanged(QTreeWidgetItem* item, int column);
+  void onEnableVisualCheckBoxToggled(bool _checked);
+  void onEnableCollisionCheckBoxToggled(bool _checked);
+  void onEnableInertiaCheckBoxToggled(bool _checked);
+  void onLinkTreeWidgetItemClicked(QTreeWidgetItem* _item, int _column);
+  void onLinkTreeWidgetItemChanged(QTreeWidgetItem* _item, int _column);
   void onLinkTreeContextMenuRequested(const QPoint&);
   void onAddLinkActionToggled(bool);
   void onRemoveLinkActionToggled(bool);
@@ -77,7 +71,7 @@ private:
   QTimer update_timer_;
 
   QString getLastOpenedDir();
-  void setLastOpenedDir(const QString& file_path);
+  void setLastOpenedDir(const QString& _file_path);
 
   void defineConnections();
 
@@ -87,17 +81,14 @@ private:
 
   void addRootLink();
   void selectRootLink();
-  void selectLink(QTreeWidgetItem* item);
-  void reflectSelectedItem(QTreeWidgetItem* item);
-  bool saveURDF(const QString& file_path);
+  void selectLink(QTreeWidgetItem* _item);
+  void reflectSelectedItem(QTreeWidgetItem* _item);
+  bool saveURDF(const QString& _file_path);
 
   bool isValid();
   bool isRobotNameValid();
   bool isJointsValid();
 
-  static void collectUncheckedLinks(QTreeWidgetItem* item, QSet<QString>& set);
+  static void collectUncheckedLinks(QTreeWidgetItem* _item, QSet<QString>& _set);
 };
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

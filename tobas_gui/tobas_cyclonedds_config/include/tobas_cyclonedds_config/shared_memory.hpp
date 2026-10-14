@@ -3,9 +3,7 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace cyclonedds
+namespace tobas::cyclonedds
 {
 struct SharedMemory
 {
@@ -22,5 +20,4 @@ struct SharedMemory
     kOff,
   } log_level = kInfo;
 };
-}  // namespace cyclonedds
-}  // namespace tobas
+}  // namespace tobas::cyclonedds

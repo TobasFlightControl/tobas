@@ -9,20 +9,18 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 std::string SynchronizedStringParameter::loadInitialValue(
-  const rclcpp::Node::SharedPtr& node,
-  const std::string& name,
-  const StringCallback& parent_callback,
-  bool default_continuous_value,
-  double default_timeout)
+  const rclcpp::Node::SharedPtr& _node,
+  const std::string& _name,
+  const StringCallback& _parent_callback,
+  bool _default_continuous_value,
+  double _default_timeout)
 {
-  node_ = node;
-  name_ = name;
-  parent_callback_ = parent_callback;
+  node_ = _node;
+  name_ = _name;
+  parent_callback_ = _parent_callback;
 
   if (getMainParameter()) {
     if (shouldPublish()) {
@@ -42,14 +40,14 @@ std::string SynchronizedStringParameter::loadInitialValue(
     node_->declare_parameter(keep_open_param, rclcpp::ParameterType::PARAMETER_BOOL);
   }
   bool keep_open;
-  node_->get_parameter_or(keep_open_param, keep_open, default_continuous_value);
+  node_->get_parameter_or(keep_open_param, keep_open, _default_continuous_value);
 
   const auto timeout_param = name_ + "_timeout";
   if (!node_->has_parameter(timeout_param)) {
     node_->declare_parameter(timeout_param, rclcpp::ParameterType::PARAMETER_DOUBLE);
   }
   double d_timeout;
-  node_->get_parameter_or(timeout_param, d_timeout, default_timeout);  // ten second default
+  node_->get_parameter_or(timeout_param, d_timeout, _default_timeout);  // ten second default
   const auto timeout = rclcpp::Duration::from_seconds(d_timeout);
 
   if (!waitForMessage(timeout)) {
@@ -85,19 +83,19 @@ bool SynchronizedStringParameter::shouldPublish()
   return publish_string;
 }
 
-bool SynchronizedStringParameter::waitForMessage(const rclcpp::Duration& timeout)
+bool SynchronizedStringParameter::waitForMessage(const rclcpp::Duration& _timeout)
 {
   const auto nd_name = std::string(node_->get_name()).append("_ssp_").append(name_);
   rclcpp::Node temp_node(nd_name, node_->get_namespace());
   string_subscriber_ = temp_node.create_subscription<std_msgs::msg::String>(
     name_,
     rclcpp::QoS(1).transient_local().reliable(),  // "transient_local()" is required for supporting late subscriptions.
-    [this](const std_msgs::msg::String::ConstSharedPtr& msg) { return stringCallback(msg); });
+    [this](const std_msgs::msg::String::ConstSharedPtr& _msg) { return stringCallback(_msg); });
 
   rclcpp::WaitSet wait_set;
   wait_set.add_subscription(string_subscriber_);
 
-  const auto ret = wait_set.wait(timeout.to_chrono<ch::duration<double>>());
+  const auto ret = wait_set.wait(_timeout.to_chrono<ch::duration<double>>());
   if (ret.kind() == rclcpp::WaitResultKind::Ready) {
     std_msgs::msg::String msg;
     rclcpp::MessageInfo info;
@@ -109,15 +107,14 @@ bool SynchronizedStringParameter::waitForMessage(const rclcpp::Duration& timeout
   return false;
 }
 
-void SynchronizedStringParameter::stringCallback(const std_msgs::msg::String::ConstSharedPtr& msg)
+void SynchronizedStringParameter::stringCallback(const std_msgs::msg::String::ConstSharedPtr& _msg)
 {
-  if (msg->data == content_) {
+  if (_msg->data == content_) {
     return;
   }
   if (parent_callback_) {
-    parent_callback_(msg->data);
+    parent_callback_(_msg->data);
   }
-  content_ = msg->data;
+  content_ = _msg->data;
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

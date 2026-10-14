@@ -11,20 +11,18 @@
 #include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/image.hpp>
 
-namespace tobas
-{
-namespace camera
+namespace tobas::camera
 {
 class FFmpegToROSMsgConverter : public BaseNode
 {
 public:
-  explicit FFmpegToROSMsgConverter(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit FFmpegToROSMsgConverter(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
   ~FFmpegToROSMsgConverter() override;
 
 private:
   bool initialize();
   void timerCallback();
-  bool convertFrameToMessage(const AVFrame* frame, const sensor_msgs::msg::Image::UniquePtr& image);
+  bool convertFrameToMessage(const AVFrame* _frame, const sensor_msgs::msg::Image::UniquePtr& _image);
 
   std::string output_msg_encoding_;
   std::string frame_id_;
@@ -43,8 +41,8 @@ private:
   AVFrame* output_frame_ = nullptr;
 };
 
-FFmpegToROSMsgConverter::FFmpegToROSMsgConverter(const rclcpp::NodeOptions& options)
-  : BaseNode("ffmpeg_to_ros_msg_converter", nodeOptions_Default(options))
+FFmpegToROSMsgConverter::FFmpegToROSMsgConverter(const rclcpp::NodeOptions& _options)
+  : BaseNode("ffmpeg_to_ros_msg_converter", nodeOptions_Default(_options))
 {
   const auto ros_image_topic_name = getStringParam("ros_image_topic", "image");
   // Protocol used by FFmpeg to send data, such as UDP or SRT.
@@ -207,16 +205,18 @@ void FFmpegToROSMsgConverter::timerCallback()
   av_packet_unref(&packet);
 }
 
-bool FFmpegToROSMsgConverter::convertFrameToMessage(const AVFrame* frame, const sensor_msgs::msg::Image::UniquePtr& image)
+bool FFmpegToROSMsgConverter::convertFrameToMessage(
+  const AVFrame* _frame,
+  const sensor_msgs::msg::Image::UniquePtr& _image)
 {
   if (!sws_context_) {  // Initialize the conversion context.
     output_frame_->format = av_pix_fmt_;
     sws_context_ = sws_getContext(
-      frame->width,
-      frame->height,
-      static_cast<AVPixelFormat>(frame->format),  // Source format.
-      frame->width,
-      frame->height,
+      _frame->width,
+      _frame->height,
+      static_cast<AVPixelFormat>(_frame->format),  // Source format.
+      _frame->width,
+      _frame->height,
       av_pix_fmt_,  // Destination format.
       SWS_FAST_BILINEAR | SWS_ACCURATE_RND,
       nullptr,
@@ -230,20 +230,20 @@ bool FFmpegToROSMsgConverter::convertFrameToMessage(const AVFrame* frame, const 
 
   const auto buffer_size = av_image_get_buffer_size(
     static_cast<AVPixelFormat>(output_frame_->format),
-    frame->width,
-    frame->height,
+    _frame->width,
+    _frame->height,
     1  // Alignment.
   );
-  image->data.resize(buffer_size);
+  _image->data.resize(buffer_size);
 
   if (
     av_image_fill_arrays(
       output_frame_->data,
       output_frame_->linesize,
-      &(image->data[0]),
+      &(_image->data[0]),
       static_cast<AVPixelFormat>(output_frame_->format),
-      frame->width,
-      frame->height,
+      _frame->width,
+      _frame->height,
       1) < 0) {
     TOBAS_ERROR("av_image_fill_arrays failed.");
     return false;
@@ -251,16 +251,15 @@ bool FFmpegToROSMsgConverter::convertFrameToMessage(const AVFrame* frame, const 
 
   sws_scale(
     sws_context_,
-    frame->data,
-    frame->linesize,
+    _frame->data,
+    _frame->linesize,
     0,  // src
-    frame->height,
+    _frame->height,
     output_frame_->data,
     output_frame_->linesize);  // dest
 
   return true;
 }
-}  // namespace camera
-}  // namespace tobas
+}  // namespace tobas::camera
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::camera::FFmpegToROSMsgConverter)

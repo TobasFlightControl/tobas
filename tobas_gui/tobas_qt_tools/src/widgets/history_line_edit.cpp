@@ -5,13 +5,11 @@
 
 #include <QDebug>
 
-namespace tobas
+namespace tobas::qt
 {
-namespace qt
+void HistoryLineEdit::addHistory(const QString& _text)
 {
-void HistoryLineEdit::addHistory(const QString& text)
-{
-  const auto trimmed = text.trimmed();
+  const auto trimmed = _text.trimmed();
 
   // Do not add empty strings.
   if (trimmed.isEmpty()) {
@@ -32,19 +30,19 @@ void HistoryLineEdit::addHistory(const QString& text)
   history_index_ = history_.size();
 }
 
-void HistoryLineEdit::keyPressEvent(QKeyEvent* event)
+void HistoryLineEdit::keyPressEvent(QKeyEvent* _event)
 {
-  if (event->key() == Qt::Key_Up) {
+  if (_event->key() == Qt::Key_Up) {
     showPreviousHistory();
     return;
   }
 
-  if (event->key() == Qt::Key_Down) {
+  if (_event->key() == Qt::Key_Down) {
     showNextHistory();
     return;
   }
 
-  QLineEdit::keyPressEvent(event);
+  QLineEdit::keyPressEvent(_event);
 }
 
 void HistoryLineEdit::showPreviousHistory()
@@ -78,5 +76,4 @@ void HistoryLineEdit::showNextHistory()
 
   setCursorPosition(text().size());
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

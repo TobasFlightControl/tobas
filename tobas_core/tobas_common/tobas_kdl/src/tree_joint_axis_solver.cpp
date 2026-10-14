@@ -5,11 +5,9 @@
 
 #include <cassert>
 
-namespace tobas
+namespace tobas::kdl
 {
-namespace kdl
-{
-TreeJointAxisSolver::TreeJointAxisSolver(const Tree& tree) : super(tree), fk_solver_(tree)
+TreeJointAxisSolver::TreeJointAxisSolver(const Tree& _tree) : super(_tree), fk_solver_(_tree)
 {
 }
 
@@ -18,11 +16,11 @@ void TreeJointAxisSolver::updateInternalDataStructures()
   fk_solver_.updateInternalDataStructures();
 }
 
-Vector TreeJointAxisSolver::jntToCart(const JntArray& q_in, const std::string& seg_name)
+Vector TreeJointAxisSolver::jntToCart(const JntArray& _q_in, const std::string& _seg_name)
 {
-  assert(q_in.size() == tree_.getNrOfJoints());
+  assert(_q_in.size() == tree_.getNrOfJoints());
 
-  const auto cur_it = tree_.getSegment(seg_name);
+  const auto cur_it = tree_.getSegment(_seg_name);
   assert(cur_it != tree_.getSegments().end());
   assert(cur_it != tree_.getRootSegment());
 
@@ -30,8 +28,7 @@ Vector TreeJointAxisSolver::jntToCart(const JntArray& q_in, const std::string& s
   const auto& cur_jnt = cur_ele.segment.joint();
   const auto& par_name = cur_ele.parent->first;
 
-  const auto par_frame = fk_solver_.jntToCart(q_in, par_name);
+  const auto par_frame = fk_solver_.jntToCart(_q_in, par_name);
   return par_frame.M * cur_jnt.axis();
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

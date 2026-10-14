@@ -5,9 +5,7 @@
 
 #include "./qpsolver.hpp"
 
-namespace tobas
-{
-namespace quadprog
+namespace tobas::quadprog
 {
 /** An Eigen wrapper of [qpOASES](https://github.com/coin-or/qpOASES). */
 class QpOasesSolver : public QuadProgSolver
@@ -20,5 +18,4 @@ public:
 private:
   int nWSR_ = 10;
 };
-}  // namespace quadprog
-}  // namespace tobas
+}  // namespace tobas::quadprog

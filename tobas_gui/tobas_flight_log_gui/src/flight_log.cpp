@@ -7,15 +7,11 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-namespace tobas
+namespace tobas::gui::log
 {
-namespace gui
+FlightLogWidget::FlightLogWidget(const rqt::RosQtBridge& _bridge)
 {
-namespace log
-{
-FlightLogWidget::FlightLogWidget(const rqt::RosQtBridge& bridge)
-{
-  recorder_ = new FlightLogRecorderWidget(bridge);
+  recorder_ = new FlightLogRecorderWidget(_bridge);
   logs_fc_ = new FlightLogsWidgetFC();
   logs_gcs_ = new FlightLogsWidgetGCS();
   log_viewer_ = new FlightLogViewerWidget();
@@ -49,10 +45,10 @@ void FlightLogWidget::reset()
   logs_fc_->reset();
 }
 
-void FlightLogWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void FlightLogWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  recorder_->initializeRosInterfaces(node, ns);
-  logs_fc_->initializeRosInterfaces(node, ns);
+  recorder_->initializeRosInterfaces(_node, _ns);
+  logs_fc_->initializeRosInterfaces(_node, _ns);
 }
 
 void FlightLogWidget::clearRosInterfaces()
@@ -61,40 +57,40 @@ void FlightLogWidget::clearRosInterfaces()
   logs_fc_->clearRosInterfaces();
 }
 
-void FlightLogWidget::onRecordFinished(const QString& log_name, bool is_real)
+void FlightLogWidget::onRecordFinished(const QString& _log_name, bool _is_real)
 {
-  qDebug().nospace() << "FlightLogWidget::onRecordFinished(" << log_name << ", " << is_real << ")";
+  qDebug().nospace() << "FlightLogWidget::onRecordFinished(" << _log_name << ", " << _is_real << ")";
 
-  if (logs_fc_->findLog(log_name)) {
-    qWarning() << log_name << "already exists in the FC log list.";
+  if (logs_fc_->findLog(_log_name)) {
+    qWarning() << _log_name << "already exists in the FC log list.";
     return;
   }
 
-  if (is_real) {
-    logs_fc_->addLog(log_name);
+  if (_is_real) {
+    logs_fc_->addLog(_log_name);
   }
   else {
-    logs_gcs_->addLog(log_name);
+    logs_gcs_->addLog(_log_name);
   }
 }
 
-void FlightLogWidget::onLogDownloaded(const QString& log_name)
+void FlightLogWidget::onLogDownloaded(const QString& _log_name)
 {
-  qDebug().nospace() << "FlightLogWidget::onLogDownloaded(" << log_name << ")";
+  qDebug().nospace() << "FlightLogWidget::onLogDownloaded(" << _log_name << ")";
 
-  if (logs_gcs_->findLog(log_name)) {
-    qInfo() << log_name << "already exists in the GCS log list.";
+  if (logs_gcs_->findLog(_log_name)) {
+    qInfo() << _log_name << "already exists in the GCS log list.";
     return;
   }
 
-  logs_gcs_->addLog(log_name);
+  logs_gcs_->addLog(_log_name);
 }
 
-void FlightLogWidget::onLogSelected(const QString& log_name)
+void FlightLogWidget::onLogSelected(const QString& _log_name)
 {
-  qDebug().nospace() << "FlightLogWidget::onLogSelected(" << log_name << ")";
+  qDebug().nospace() << "FlightLogWidget::onLogSelected(" << _log_name << ")";
 
-  log_viewer_->setLogName(log_name);
+  log_viewer_->setLogName(_log_name);
 }
 
 void FlightLogWidget::onLogDeselected()
@@ -103,6 +99,4 @@ void FlightLogWidget::onLogDeselected()
 
   log_viewer_->reset();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

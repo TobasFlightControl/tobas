@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
+
 #include <gz/msgs/entity_factory.pb.h>
 #include <gz/msgs/marker.pb.h>
 #include <gz/sim/Link.hh>
@@ -28,9 +30,7 @@
 
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class GazeboSuspendedLoadPlugin : public BaseNode,
                                   public gz::sim::System,
@@ -45,12 +45,12 @@ public:
   explicit GazeboSuspendedLoadPlugin();
 
   void Configure(
-    const gz::sim::Entity& model_entity,
-    const sdf::ElementConstPtr& sdf,
-    gz::sim::EntityComponentManager& ecm,
+    const gz::sim::Entity& _model_entity,
+    const sdf::ElementConstPtr& _sdf,
+    gz::sim::EntityComponentManager& _ecm,
     gz::sim::EventManager&) override;
 
-  void PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm) override;
+  void PreUpdate(const gz::sim::UpdateInfo& _info, gz::sim::EntityComponentManager& _ecm) override;
 
 private:
   // Aircraft
@@ -89,8 +89,8 @@ private:
 
   std::string loadName() const;
 
-  void attachLoadCb(const AttachSrv::Request::ConstSharedPtr& req, const AttachSrv::Response::SharedPtr& res);
-  void detachLoadCb(const DetachSrv::Request::ConstSharedPtr& req, const DetachSrv::Response::SharedPtr& res);
+  void attachLoadCb(const AttachSrv::Request::ConstSharedPtr& _req, const AttachSrv::Response::SharedPtr& _res);
+  void detachLoadCb(const DetachSrv::Request::ConstSharedPtr& _req, const DetachSrv::Response::SharedPtr& _res);
 };
 
 GazeboSuspendedLoadPlugin::GazeboSuspendedLoadPlugin() : rate_manager_(60)
@@ -98,37 +98,37 @@ GazeboSuspendedLoadPlugin::GazeboSuspendedLoadPlugin() : rate_manager_(60)
 }
 
 void GazeboSuspendedLoadPlugin::Configure(
-  const gz::sim::Entity& model_entity,
-  const sdf::ElementConstPtr& sdf,
-  gz::sim::EntityComponentManager& ecm,
+  const gz::sim::Entity& _model_entity,
+  const sdf::ElementConstPtr& _sdf,
+  gz::sim::EntityComponentManager& _ecm,
   gz::sim::EventManager&)
 {
   constexpr char kPluginName[] = "gazebo_suspended_load_plugin";
 
-  initialize(kPluginName, sdf);
+  initialize(kPluginName, _sdf);
 
   // Keep SDF parameters minimal so values can be adjusted from the GUI.
-  const auto link_name = getSdfParam<std::string>(sdf, "linkName");
+  const auto link_name = getSdfParam<std::string>(_sdf, "linkName");
 
-  world_ = gz::sim::World(gz::sim::worldEntity(ecm));
-  const auto world_name = world_.Name(ecm);
+  world_ = gz::sim::World(gz::sim::worldEntity(_ecm));
+  const auto world_name = world_.Name(_ecm);
   if (!world_name) {
     TOBAS_EXIT("Failed to get the world name.");
   }
   world_name_ = *world_name;
 
-  const gz::sim::Model model(model_entity);
-  const auto link_entity = model.LinkByName(ecm, link_name);
+  const gz::sim::Model model(_model_entity);
+  const auto link_entity = model.LinkByName(_ecm, link_name);
   base_link_ = gz::sim::Link(link_entity);
-  if (!base_link_.Valid(ecm)) {
+  if (!base_link_.Valid(_ecm)) {
     TOBAS_EXIT("Failed to find the specified link '", link_name, "'.");
   }
 
-  W_Pose_B_ = getComponent<cmp::WorldPose>(link_entity, ecm);
-  W_Vel_WB_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm);
-  W_Gyro_WB_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm);
+  W_Pose_B_ = getComponent<cmp::WorldPose>(link_entity, _ecm);
+  W_Vel_WB_ = getComponent<cmp::WorldLinearVelocity>(link_entity, _ecm);
+  W_Gyro_WB_ = getComponent<cmp::WorldAngularVelocity>(link_entity, _ecm);
 
-  if (!mass_holder_.initialize(model_entity, ecm)) {
+  if (!mass_holder_.initialize(_model_entity, _ecm)) {
     TOBAS_EXIT("Failed to initialize model mass holder.");
   }
 
@@ -142,39 +142,41 @@ void GazeboSuspendedLoadPlugin::Configure(
   line_p1_ = marker_.add_point();
 }
 
-void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
+void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& _info, gz::sim::EntityComponentManager& _ecm)
 {
-  constexpr double kStopLoadRotationTimeConst = 10.0;  // [s]
-
   if (!load_exist_) {
     return;
   }
 
   // Make the load state accessible.
-  if (!load_link_.Valid(ecm)) {
-    const auto model_entity = world_.ModelByName(ecm, loadName());
+  if (!load_link_.Valid(_ecm)) {
+    const auto model_entity = world_.ModelByName(_ecm, loadName());
     if (model_entity == gz::sim::kNullEntity) {
       return;
     }
 
     const gz::sim::Model load_model(model_entity);
-    if (!load_model.Valid(ecm)) {
+    if (!load_model.Valid(_ecm)) {
       TOBAS_ERROR("Failed to find the load model.");
       load_exist_ = false;
       return;
     }
 
-    const auto link_entity = load_model.CanonicalLink(ecm);  // Get the canonical link of the model.
+    const auto link_entity = load_model.CanonicalLink(_ecm);  // Get the canonical link of the model.
     load_link_ = gz::sim::Link(link_entity);
-    if (!load_link_.Valid(ecm)) {
+    if (!load_link_.Valid(_ecm)) {
       TOBAS_EXIT("Failed to find the canonical link of the load.");
     }
 
-    W_Pose_L_ = getComponent<cmp::WorldPose>(link_entity, ecm);
-    W_Vel_WL_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm);
-    W_Gyro_WL_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm);
+    W_Pose_L_ = getComponent<cmp::WorldPose>(link_entity, _ecm);
+    W_Vel_WL_ = getComponent<cmp::WorldLinearVelocity>(link_entity, _ecm);
+    W_Gyro_WL_ = getComponent<cmp::WorldAngularVelocity>(link_entity, _ecm);
 
     return;  // Do not apply force in the cycle where components were obtained because values are not correct yet.
+  }
+
+  if (_info.paused || _info.dt <= std::chrono::steady_clock::duration::zero()) {
+    return;
   }
 
   // Get the vehicle state.
@@ -221,6 +223,7 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
     const auto T = k * x + d * xd;  // [N]
 
     // Torque that counteracts load rotation, simulating air resistance and friction at the cable joint.
+    constexpr double kStopLoadRotationTimeConst = 10.0;  // [s]
     const auto L_Gyro_WL = W_Rot_L.RotateVectorReverse(W_Gyro_WL);
     const auto L_DGyro_WL = -(1.0 / kStopLoadRotationTimeConst) * L_Gyro_WL;
     const auto L_Torque_WL = load_inertia_ * L_DGyro_WL + L_Gyro_WL.Cross(load_inertia_ * L_Gyro_WL);
@@ -228,12 +231,12 @@ void GazeboSuspendedLoadPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
 
     // Apply tension along the cable direction and anti-rotation torque.
     const auto W_Force_PQ = T * W_Pos_PQ.Normalized();
-    base_link_.AddWorldForce(ecm, W_Force_PQ, B_Pos_BP_);
-    load_link_.AddWorldWrench(ecm, -W_Force_PQ, W_Torque_WL, L_Pos_LQ_);
+    base_link_.AddWorldForce(_ecm, W_Force_PQ, B_Pos_BP_);
+    load_link_.AddWorldWrench(_ecm, -W_Force_PQ, W_Torque_WL, L_Pos_LQ_);
   }
 
   // Update the line marker for visualization.
-  if (rate_manager_.update(info.simTime)) {
+  if (rate_manager_.update(_info.simTime)) {
     vector3dGzToMsg(W_Pos_WP, *line_p0_);
     vector3dGzToMsg(W_Pos_WQ, *line_p1_);
     marker_.set_action(gz::msgs::Marker::ADD_MODIFY);
@@ -249,40 +252,40 @@ std::string GazeboSuspendedLoadPlugin::loadName() const
 }
 
 void GazeboSuspendedLoadPlugin::attachLoadCb(
-  const AttachSrv::Request::ConstSharedPtr& req,
-  const AttachSrv::Response::SharedPtr& res)
+  const AttachSrv::Request::ConstSharedPtr& _req,
+  const AttachSrv::Response::SharedPtr& _res)
 {
   if (load_exist_) {
-    res->success = false;
-    res->message = "Load is already attached.";
+    _res->success = false;
+    _res->message = "Load is already attached.";
     return;
   }
 
-  const auto& size = req->load_size;
+  const auto& size = _req->load_size;
 
   if (size.x <= 0.0 || size.y <= 0.0 || size.z <= 0.0) {
-    res->success = false;
-    res->message = "Load dimensions must be positive.";
+    _res->success = false;
+    _res->message = "Load dimensions must be positive.";
     return;
   }
-  if (req->load_mass <= 0.0) {
-    res->success = false;
-    res->message = "Load mass must be positive.";
+  if (_req->load_mass <= 0.0) {
+    _res->success = false;
+    _res->message = "Load mass must be positive.";
     return;
   }
-  if (req->cable_length <= 0.0) {
-    res->success = false;
-    res->message = "Cable length must be positive.";
+  if (_req->cable_length <= 0.0) {
+    _res->success = false;
+    _res->message = "Cable length must be positive.";
     return;
   }
-  if (req->cable_young_modulus <= 0.0) {
-    res->success = false;
-    res->message = "Cable young modulus must be positive.";
+  if (_req->cable_young_modulus <= 0.0) {
+    _res->success = false;
+    _res->message = "Cable young modulus must be positive.";
     return;
   }
-  if (req->cable_cross_sectional_area <= 0.0) {
-    res->success = false;
-    res->message = "Cable cross section area must be positive.";
+  if (_req->cable_cross_sectional_area <= 0.0) {
+    _res->success = false;
+    _res->message = "Cable cross section area must be positive.";
     return;
   }
 
@@ -300,10 +303,10 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
   const auto px = W_Pos_WP.X();
   const auto py = W_Pos_WP.Y();
   const auto pz = std::max(
-    W_Pos_WP.Z() - req->cable_length - sz_2, sz_2);  // Lower by the cable length, but keep it above the ground.
+    W_Pos_WP.Z() - _req->cable_length - sz_2, sz_2);  // Lower by the cable length, but keep it above the ground.
 
   gz::msgs::EntityFactory gzreq;
-  gzreq.set_sdf(makeBoxSdf(load_name, size.x, size.y, size.z, req->load_mass, px, py, pz));
+  gzreq.set_sdf(makeBoxSdf(load_name, size.x, size.y, size.z, _req->load_mass, px, py, pz));
   gzreq.set_allow_renaming(true);
 
   gz::msgs::Boolean gzrep;
@@ -311,45 +314,45 @@ void GazeboSuspendedLoadPlugin::attachLoadCb(
 
   const auto gzsrv_name = "/world/" + world_name_ + "/create";
   if (!node_.Request(gzsrv_name, gzreq, 1000, gzrep, gzres)) {
-    res->success = false;
-    res->message = "Gazebo service call timeout: " + gzsrv_name;
+    _res->success = false;
+    _res->message = "Gazebo service call timeout: " + gzsrv_name;
     return;
   }
   if (!gzres) {
-    res->success = false;
-    res->message = "Gazebo service call failed.";
+    _res->success = false;
+    _res->message = "Gazebo service call failed.";
     return;
   }
   if (!gzrep.data()) {
-    res->success = false;
-    res->message = "Failed to create the load entity.";
+    _res->success = false;
+    _res->message = "Failed to create the load entity.";
     return;
   }
 
-  vectorRosToGazebo(req->attachment_point, B_Pos_BP_);
+  vectorRosToGazebo(_req->attachment_point, B_Pos_BP_);
   L_Pos_LQ_.Set(0.0, 0.0, sz_2);  // Assume the cable is attached to the center of the cuboid top face.
-  load_mass_ = req->load_mass;
-  load_inertia_ = boxInertia(size.x, size.y, size.z, req->load_mass).Moi();
-  cable_length_ = req->cable_length;
-  cable_young_ = req->cable_young_modulus;
-  cable_csa_ = req->cable_cross_sectional_area;
+  load_mass_ = _req->load_mass;
+  load_inertia_ = boxInertia(size.x, size.y, size.z, _req->load_mass).Moi();
+  cable_length_ = _req->cable_length;
+  cable_young_ = _req->cable_young_modulus;
+  cable_csa_ = _req->cable_cross_sectional_area;
 
   load_exist_ = true;
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 
   TOBAS_INFO(load_name, " has been created and attached to the vehicle successfully.");
 }
 
 void GazeboSuspendedLoadPlugin::detachLoadCb(
   const DetachSrv::Request::ConstSharedPtr&,
-  const DetachSrv::Response::SharedPtr& res)
+  const DetachSrv::Response::SharedPtr& _res)
 {
   marker_.set_action(gz::msgs::Marker::DELETE_MARKER);
   if (!node_.Request(kGzMarkerSrv, marker_)) {
-    res->success = false;
-    res->message = "Failed to delete the line marker.";
+    _res->success = false;
+    _res->message = "Failed to delete the line marker.";
     return;
   }
 
@@ -359,13 +362,12 @@ void GazeboSuspendedLoadPlugin::detachLoadCb(
   W_Vel_WL_ = nullptr;
   W_Gyro_WL_ = nullptr;
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 
   TOBAS_INFO(loadName(), " has been detached from the vehicle successfully.");
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboSuspendedLoadPlugin,

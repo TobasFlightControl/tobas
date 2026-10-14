@@ -18,7 +18,7 @@
 
 using namespace std;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
   cxxopts::Options options("uart_read", "Simple UART Reader");
   auto opts = options.add_options();
@@ -32,15 +32,15 @@ int main(int argc, char** argv)
 
   cxxopts::ParseResult result;
   try {
-    result = options.parse(argc, argv);
+    result = options.parse(_argc, _argv);
   }
   catch (const cxxopts::exceptions::exception& e) {
-    cerr << "Failed to parse arguments: " << e.what() << endl;
+    cerr << "Failed to parse arguments: " << e.what() << '\n';
     return EXIT_FAILURE;
   }
 
   if (result.count(HELP)) {
-    cout << options.help() << endl;
+    cout << options.help() << '\n';
     return EXIT_SUCCESS;
   }
 
@@ -51,15 +51,15 @@ int main(int argc, char** argv)
   const auto parity = result[PARITY].as<string>();
   const auto hungup = result[HUNGUP].as<bool>();
 
-  cout << "----------------------------------------" << endl;
-  cout << "UART Configurations:" << endl;
-  cout << "\tDevice: " << device << endl;
-  cout << "\tBaudrate: " << baudrate << endl;
-  cout << "\tData bits: " << data_bits << endl;
-  cout << "\tStop bits: " << stop_bits << endl;
-  cout << "\tParity: " << parity << endl;
-  cout << "\tHungup close: " << boolalpha << hungup << noboolalpha << endl;
-  cout << "----------------------------------------" << endl;
+  cout << "----------------------------------------\n";
+  cout << "UART Configurations:\n";
+  cout << "\tDevice: " << device << '\n';
+  cout << "\tBaudrate: " << baudrate << '\n';
+  cout << "\tData bits: " << data_bits << '\n';
+  cout << "\tStop bits: " << stop_bits << '\n';
+  cout << "\tParity: " << parity << '\n';
+  cout << "\tHungup close: " << boolalpha << hungup << noboolalpha << '\n';
+  cout << "----------------------------------------\n";
 
   tobas::linux::UARTdev uart;
 
@@ -89,7 +89,7 @@ int main(int argc, char** argv)
       }
       break;
     default:
-      cerr << "The number of stop bits is invalid: " << stop_bits << endl;
+      cerr << "The number of stop bits is invalid: " << stop_bits << '\n';
       return EXIT_FAILURE;
   }
 
@@ -109,7 +109,7 @@ int main(int argc, char** argv)
     }
   }
   else {
-    cerr << "Invalid parity mode: " << parity << endl;
+    cerr << "Invalid parity mode: " << parity << '\n';
     return EXIT_FAILURE;
   }
 

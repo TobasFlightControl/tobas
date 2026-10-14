@@ -19,9 +19,7 @@
 using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace real
+namespace tobas::real
 {
 class ImuHandlerNode : public BaseNode
 {
@@ -30,7 +28,7 @@ class ImuHandlerNode : public BaseNode
   using SetParams = tobas_real_msgs::srv::SetImuParams;
 
 public:
-  explicit ImuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit ImuHandlerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   std::string section_;
@@ -64,13 +62,13 @@ private:
   bool getConfig();
   void registerPubSub();
 
-  void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in);
-  void imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& imu_filt_in);
-  void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
+  void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& _imu_raw_in);
+  void imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& _imu_filt_in);
+  void setParamsCb(const SetParams::Request::ConstSharedPtr& _req, const SetParams::Response::SharedPtr& _res);
 };
 
-ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options)
-  : super("real_imu_handler", nodeOptions_Default(options))
+ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& _options)
+  : super("real_imu_handler", nodeOptions_Default(_options))
 {
   section_ = getStringParam("section");
 
@@ -121,22 +119,22 @@ void ImuHandlerNode::registerPubSub()
   imu_filt_sub_ = createSubscriber(real::topic::kImuFilt, &self::imuFiltCb, this);
 }
 
-void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
+void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& _imu_raw_in)
 {
   switch (stage_) {
     case kMeasureGyroBias: {
-      const auto& cur_time = imu_raw_in->header.stamp;
-      const auto& gyro_raw = imu_raw_in->gyro;
+      const auto& cur_time = _imu_raw_in->header.stamp;
+      const auto& gyro_raw = _imu_raw_in->gyro;
 
       if (!imu_raw_in_) {
         gyro_lpf_.setValue(gyro_raw);
-        imu_raw_in_ = imu_raw_in;
+        imu_raw_in_ = _imu_raw_in;
         break;
       }
 
       // Pass gyro through LPF to reduce the effect of outliers and noise.
       const auto dt = (cur_time - imu_raw_in_->header.stamp).seconds();
-      imu_raw_in_ = imu_raw_in;
+      imu_raw_in_ = _imu_raw_in;
       gyro_lpf_.update(gyro_raw, dt);
       const auto& gyro_filt = gyro_lpf_.getValue();
 
@@ -178,10 +176,10 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
     case kPublish: {
       // Create IMU message.
       auto imu_raw_out = std::make_unique<tobas_msgs::Imu>();
-      imu_raw_out->header = imu_raw_in->header;
-      imu_raw_out->accel = imu_raw_in->accel - acc_bias_;
-      imu_raw_out->gyro = imu_raw_in->gyro - gyro_bias_;
-      imu_raw_out->dgyro = imu_raw_in->dgyro;
+      imu_raw_out->header = _imu_raw_in->header;
+      imu_raw_out->accel = _imu_raw_in->accel - acc_bias_;
+      imu_raw_out->gyro = _imu_raw_in->gyro - gyro_bias_;
+      imu_raw_out->dgyro = _imu_raw_in->dgyro;
 
       // Publish message.
       imu_raw_pub_->publish(std::move(imu_raw_out));
@@ -191,7 +189,7 @@ void ImuHandlerNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw_in)
   }
 }
 
-void ImuHandlerNode::imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& imu_filt_in)
+void ImuHandlerNode::imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& _imu_filt_in)
 {
   if (stage_ != kPublish) {
     return;
@@ -199,29 +197,31 @@ void ImuHandlerNode::imuFiltCb(const tobas_msgs::Imu::ConstSharedPtr& imu_filt_i
 
   // Create IMU message.
   auto imu_filt_out = std::make_unique<tobas_msgs::Imu>();
-  imu_filt_out->header = imu_filt_in->header;
-  imu_filt_out->accel = imu_filt_in->accel - acc_bias_;
-  imu_filt_out->gyro = imu_filt_in->gyro - gyro_bias_;
-  imu_filt_out->dgyro = imu_filt_in->dgyro;
+  imu_filt_out->header = _imu_filt_in->header;
+  imu_filt_out->accel = _imu_filt_in->accel - acc_bias_;
+  imu_filt_out->gyro = _imu_filt_in->gyro - gyro_bias_;
+  imu_filt_out->dgyro = _imu_filt_in->dgyro;
 
   // Publish message.
   imu_filt_pub_->publish(std::move(imu_filt_out));
 }
 
-void ImuHandlerNode::setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res)
+void ImuHandlerNode::setParamsCb(
+  const SetParams::Request::ConstSharedPtr& _req,
+  const SetParams::Response::SharedPtr& _res)
 {
   // Update parameters.
-  acc_bias_.x(req->offset_x);
-  acc_bias_.y(req->offset_y);
-  acc_bias_.z(req->offset_z);
+  acc_bias_.x(_req->offset_x);
+  acc_bias_.y(_req->offset_y);
+  acc_bias_.z(_req->offset_z);
 
   // Save parameters.
-  pt_.set(section_, handler::imu::kOffsetXKey, req->offset_x);
-  pt_.set(section_, handler::imu::kOffsetYKey, req->offset_y);
-  pt_.set(section_, handler::imu::kOffsetZKey, req->offset_z);
+  pt_.set(section_, handler::imu::kOffsetXKey, _req->offset_x);
+  pt_.set(section_, handler::imu::kOffsetYKey, _req->offset_y);
+  pt_.set(section_, handler::imu::kOffsetZKey, _req->offset_z);
   if (const auto result = pt_.save(); !result) {
-    res->success = false;
-    res->message = "Failed to save parameters: " + result.error();
+    _res->success = false;
+    _res->message = "Failed to save parameters: " + result.error();
     return;
   }
 
@@ -229,10 +229,9 @@ void ImuHandlerNode::setParamsCb(const SetParams::Request::ConstSharedPtr& req, 
     registerPubSub();
   }
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
-}  // namespace real
-}  // namespace tobas
+}  // namespace tobas::real
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::ImuHandlerNode)

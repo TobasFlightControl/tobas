@@ -3,25 +3,23 @@
 
 #include "tobas_rviz_plugin/joint_model/prismatic_joint_model.hpp"
 
-namespace tobas
+namespace tobas::rviz
 {
-namespace rviz
-{
-PrismaticJointModel::PrismaticJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
-  : JointModel(name, joint_index, first_variable_index)
+PrismaticJointModel::PrismaticJointModel(const std::string& _name, size_t _joint_index, size_t _first_variable_index)
+  : JointModel(_name, _joint_index, _first_variable_index)
 {
   type_ = kPrismatic;
   variable_names_.push_back(getName());
 }
 
-void PrismaticJointModel::getVariableDefaultPositions(double* values) const
+void PrismaticJointModel::getVariableDefaultPositions(double* _values) const
 {
-  values[0] = 0.0;
+  _values[0] = 0.0;
 }
 
-void PrismaticJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const
+void PrismaticJointModel::computeTransform(const double* _joint_values, Eigen::Isometry3d& _transform) const
 {
-  auto d = transform.data();
+  auto d = _transform.data();
 
   d[0] = 1.0;
   d[1] = 0.0;
@@ -38,20 +36,19 @@ void PrismaticJointModel::computeTransform(const double* joint_values, Eigen::Is
   d[10] = 1.0;
   d[11] = 0.0;
 
-  d[12] = axis_.x() * joint_values[0];
-  d[13] = axis_.y() * joint_values[0];
-  d[14] = axis_.z() * joint_values[0];
+  d[12] = axis_.x() * _joint_values[0];
+  d[13] = axis_.y() * _joint_values[0];
+  d[14] = axis_.z() * _joint_values[0];
   d[15] = 1.0;
 }
 
-void PrismaticJointModel::computeVariablePositions(const Eigen::Isometry3d& transform, double* joint_values) const
+void PrismaticJointModel::computeVariablePositions(const Eigen::Isometry3d& _transform, double* _joint_values) const
 {
-  joint_values[0] = transform.translation().dot(axis_);
+  _joint_values[0] = _transform.translation().dot(axis_);
 }
 
-void PrismaticJointModel::setAxis(const Eigen::Vector3d& axis)
+void PrismaticJointModel::setAxis(const Eigen::Vector3d& _axis)
 {
-  axis_ = axis;
+  axis_ = _axis;
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

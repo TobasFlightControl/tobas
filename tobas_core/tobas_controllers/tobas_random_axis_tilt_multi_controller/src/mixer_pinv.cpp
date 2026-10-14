@@ -11,12 +11,10 @@
 #include <tobas_eigen_tools/operators.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
+namespace tobas::random_axis_tilt_multicopter
 {
-namespace random_axis_tilt_multicopter
-{
-PinvMixer::PinvMixer(const Drone& drone, const kdl::Tree& tree)
-  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
+PinvMixer::PinvMixer(const Drone& _drone, const kdl::Tree& _tree)
+  : super(_drone, _tree), fk_solver_(_tree), inertia_solver_(_tree)
 {
 }
 
@@ -60,19 +58,19 @@ void PinvMixer::updateInternalDataStructures()
 }
 
 std::expected<MixerSolution, std::string> PinvMixer::solve(
-  const kdl::JntArray& cur_q,
-  const kdl::Rotation& cur_rot,
-  const kdl::Vector& cur_gyro_B,
-  const kdl::Vector& tar_acc_W,
-  const kdl::Vector& tar_dgyro_B,
-  const kdl::Vector& ext_force_W,
-  const kdl::Vector& ext_torque_B)
+  const kdl::JntArray& _cur_q,
+  const kdl::Rotation& _cur_rot,
+  const kdl::Vector& _cur_gyro_b,
+  const kdl::Vector& _tar_acc_w,
+  const kdl::Vector& _tar_dgyro_b,
+  const kdl::Vector& _ext_force_w,
+  const kdl::Vector& _ext_torque_b)
 {
   // Compute forward kinematics.
-  const auto& frames = fk_solver_.jntToCart(cur_q);
+  const auto& frames = fk_solver_.jntToCart(_cur_q);
 
   // Compute mass properties.
-  const auto inertia = inertia_solver_.jntToCart(cur_q);
+  const auto inertia = inertia_solver_.jntToCart(_cur_q);
   const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
@@ -96,7 +94,7 @@ std::expected<MixerSolution, std::string> PinvMixer::solve(
     if (info.is_tilt) {
       // Compute the deviation angle between the tilt axis and vertical direction.
       const auto tilt_axis_B = B_T_gpar.M * par_joint.axis();
-      const auto tilt_axis_W = cur_rot * tilt_axis_B;
+      const auto tilt_axis_W = _cur_rot * tilt_axis_B;
       auto declination = tilt_axis_W.argument(kdl::Vector::UnitZ());
       if (declination > M_PI_2) {
         declination = M_PI - declination;
@@ -145,17 +143,17 @@ std::expected<MixerSolution, std::string> PinvMixer::solve(
 
   // Right-hand side of the translational EoM.
   const kdl::Vector grav_W(0, 0, -st::kGravity);
-  auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
+  auto eom_trans_right_W = mass * (_tar_acc_w - grav_W) - _ext_force_w;  // [N]
   // When the acceleration magnitude is small, such as during landing,
   // the rate of change in the tilt-angle solution becomes relatively large.
   // The mixer ignores delay in tilt-angle tracking, so large tilt-angle displacement should be avoided.
   // Therefore, at minimum, ensure that thrust is generated vertically upward.
   constexpr double kMinVerticalForcePerMass = 1.0;  // [m/s^2]
   eom_trans_right_W.z(std::max(eom_trans_right_W.z(), mass * kMinVerticalForcePerMass));
-  f_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
+  f_.head<3>() = _cur_rot.inverse(eom_trans_right_W).data;
 
   // Right-hand side of the rotational EoM.
-  const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
+  const auto eom_rot_right_B = I_B * _tar_dgyro_b + _cur_gyro_b * (I_B * _cur_gyro_b) - _ext_torque_b;  // [Nm]
   f_.tail<3>() = eom_rot_right_B.data;
 
   // Least-squares solution of `Ex = f`; minimize the L2 norm of `x` when redundant degrees of freedom exist.
@@ -188,16 +186,15 @@ std::expected<MixerSolution, std::string> PinvMixer::solve(
   return MixerSolution{ std::move(thrusts), std::move(tilt_angles) };
 }
 
-void PinvMixer::setTiltAxisSingularDeclinationLB(double lb_rad)
+void PinvMixer::setTiltAxisSingularDeclinationLB(double _lb_rad)
 {
-  assert(lb_rad >= 0.0);
-  cfg_.singular_declination_lb = lb_rad;
+  assert(_lb_rad >= 0.0);
+  cfg_.singular_declination_lb = _lb_rad;
 }
 
-void PinvMixer::setTiltAxisSingularDeclinationUB(double ub_rad)
+void PinvMixer::setTiltAxisSingularDeclinationUB(double _ub_rad)
 {
-  assert(ub_rad >= 0.0);
-  cfg_.singular_declination_ub = ub_rad;
+  assert(_ub_rad >= 0.0);
+  cfg_.singular_declination_ub = _ub_rad;
 }
-}  // namespace random_axis_tilt_multicopter
-}  // namespace tobas
+}  // namespace tobas::random_axis_tilt_multicopter

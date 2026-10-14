@@ -16,18 +16,18 @@ struct rclcpp::TypeAdapter<tobas::kdl::Euler, tobas_kdl_msgs::msg::Euler>
   using custom_type = tobas::kdl::Euler;
   using ros_message_type = tobas_kdl_msgs::msg::Euler;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.roll = src.roll;
-    dst.pitch = src.pitch;
-    dst.yaw = src.yaw;
+    _dst.roll = _src.roll;
+    _dst.pitch = _src.pitch;
+    _dst.yaw = _src.yaw;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.roll = src.roll;
-    dst.pitch = src.pitch;
-    dst.yaw = src.yaw;
+    _dst.roll = _src.roll;
+    _dst.pitch = _src.pitch;
+    _dst.yaw = _src.yaw;
   }
 };
 

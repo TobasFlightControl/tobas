@@ -11,13 +11,7 @@
 #include "./base.hpp"
 #include "tobas_setup_assistant/frame_type.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace ctrl
+namespace tobas::gui::sa::ctrl
 {
 class ControllerWidget : public BaseSettingWidget
 {
@@ -37,9 +31,9 @@ public:
   bool isValid() override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
-  void setFrameType(FrameType type);
+  void setFrameType(FrameType _type);
 
   bool useBuiltinContrller() const;
 
@@ -58,18 +52,15 @@ private:
   QCheckBox* dont_use_builtin_ctrl_;
   qt::StackedWidget* stack_;
 
-  BaseControllerWidget* widget(int index);
-  const BaseControllerWidget* widget(int index) const;
+  BaseControllerWidget* widget(int _index);
+  const BaseControllerWidget* widget(int _index) const;
 
   BaseControllerWidget* selected();
   const BaseControllerWidget* selected() const;
 
-  void showCtrlWidgetWithFrameType(FrameType type);
+  void showCtrlWidgetWithFrameType(FrameType _type);
 
 private Q_SLOTS:
-  void onDontUseBuiltinCtrlCheckBoxToggled(bool checked);
+  void onDontUseBuiltinCtrlCheckBoxToggled(bool _checked);
 };
-}  // namespace ctrl
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::ctrl

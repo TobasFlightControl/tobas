@@ -3,13 +3,7 @@
 
 #include "tobas_urdf_builder_plugin/view_model/joint_limits_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 void JointLimitsViewModel::sync()
 {
@@ -20,9 +14,9 @@ double JointLimitsViewModel::lower() const
   return model_->lower;
 }
 
-void JointLimitsViewModel::lower(double lower)
+void JointLimitsViewModel::lower(double _lower)
 {
-  model_->lower = lower;
+  model_->lower = _lower;
 }
 
 double JointLimitsViewModel::upper() const
@@ -30,9 +24,9 @@ double JointLimitsViewModel::upper() const
   return model_->upper;
 }
 
-void JointLimitsViewModel::upper(double upper)
+void JointLimitsViewModel::upper(double _upper)
 {
-  model_->upper = upper;
+  model_->upper = _upper;
 }
 
 double JointLimitsViewModel::effort() const
@@ -40,9 +34,9 @@ double JointLimitsViewModel::effort() const
   return model_->effort;
 }
 
-void JointLimitsViewModel::effort(double effort)
+void JointLimitsViewModel::effort(double _effort)
 {
-  model_->effort = effort;
+  model_->effort = _effort;
 }
 
 double JointLimitsViewModel::velocity() const
@@ -50,11 +44,8 @@ double JointLimitsViewModel::velocity() const
   return model_->velocity;
 }
 
-void JointLimitsViewModel::velocity(double velocity)
+void JointLimitsViewModel::velocity(double _velocity)
 {
-  model_->velocity = velocity;
+  model_->velocity = _velocity;
 }
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

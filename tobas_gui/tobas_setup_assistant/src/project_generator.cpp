@@ -33,11 +33,7 @@
 #include "tobas_setup_assistant/util.hpp"
 #include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 namespace
 {
@@ -46,9 +42,9 @@ constexpr char kRosParamsKey[] = "ros__parameters";
 constexpr char kDoNotEditThisPackage[] = "DO_NOT_EDIT_THIS_PACKAGE";
 constexpr char kYouCanEditThisPackage[] = "YOU_CAN_EDIT_THIS_PACKAGE";
 
-TurningDirection turningDirectionUadfToTbsdrn(uadf::Thrust::Direction src)
+TurningDirection turningDirectionUadfToTbsdrn(uadf::Thrust::Direction _src)
 {
-  switch (src) {
+  switch (_src) {
     case uadf::Thrust::CW:
       return TurningDirection::CW;
     case uadf::Thrust::CCW:
@@ -60,11 +56,11 @@ TurningDirection turningDirectionUadfToTbsdrn(uadf::Thrust::Direction src)
 }  // namespace
 
 ProjectGenerator::ProjectGenerator(
-  const uadf::Model& uadf,
-  const kdl::Tree& tree,
-  const SettingsWidget* settings,
-  QWidget* parent)
-  : uadf_(uadf), tree_(tree), settings_(settings), parent_(parent)
+  const uadf::Model& _uadf,
+  const kdl::Tree& _tree,
+  const SettingsWidget* _settings,
+  QWidget* _parent)
+  : uadf_(_uadf), tree_(_tree), settings_(_settings), parent_(_parent)
 {
   const auto pkg_share_path = QString::fromStdString(getPkgShareDir().string());
   const auto templates_path = QDir(pkg_share_path).filePath("templates");
@@ -75,13 +71,13 @@ ProjectGenerator::ProjectGenerator(
   user_py_env_.emplace(QDir(templates_path).filePath("user_py_package"));
 }
 
-void ProjectGenerator::generateProject(const QString& proj_path)
+void ProjectGenerator::generateProject(const QString& _proj_path)
 {
   // Set the project path.
-  proj_paths_.setProjPath(proj_path);
+  proj_paths_.setProjPath(_proj_path);
 
   // Create the Tobas package.
-  TOBAS_CHECK(QDir().mkpath(proj_path));
+  TOBAS_CHECK(QDir().mkpath(_proj_path));
 
   // Create template items.
   const auto tpl_data = createTemplateData();
@@ -108,9 +104,9 @@ void ProjectGenerator::generateProject(const QString& proj_path)
   TOBAS_CHECK(cmn::Version::Current().save(proj_paths_.versionPath()));
 }
 
-void ProjectGenerator::setClearDynamicParams(bool flag)
+void ProjectGenerator::setClearDynamicParams(bool _flag)
 {
-  config_.clear_dynamic_params = flag;
+  config_.clear_dynamic_params = _flag;
 }
 
 inja::json ProjectGenerator::createTemplateData() const
@@ -424,18 +420,18 @@ bool ProjectGenerator::hasServoJoint() const
   return false;
 }
 
-void ProjectGenerator::generateMetaPackage(const inja::json& tpl_data)
+void ProjectGenerator::generateMetaPackage(const inja::json& _tpl_data)
 {
   const auto meta_pkg_path = proj_paths_.metaPkgPath();
   TOBAS_CHECK(QDir().mkpath(meta_pkg_path));
 
-  meta_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", meta_pkg_path);
-  meta_env_->generate(tpl_data, "package.xml.tplxml", meta_pkg_path);
+  meta_env_->generate(_tpl_data, "CMakeLists.txt.tplcmake", meta_pkg_path);
+  meta_env_->generate(_tpl_data, "package.xml.tplxml", meta_pkg_path);
 
   createEmptyFile(QDir(meta_pkg_path).filePath(kDoNotEditThisPackage));
 }
 
-void ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
+void ProjectGenerator::generateConfigPackage(const inja::json& _tpl_data)
 {
   const auto pkg_path = proj_paths_.cfgPkgPath();
   TOBAS_CHECK(QDir().mkpath(pkg_path));
@@ -451,18 +447,18 @@ void ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   TOBAS_CHECK(QDir().mkpath(urdf_dir));
 
   // Generate from templates.
-  config_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path);
-  config_env_->generate(tpl_data, "package.xml.tplxml", pkg_path);
-  config_env_->generate(tpl_data, "component_containers_mp.launch.py.tplpy", launch_dir);
-  config_env_->generate(tpl_data, "component_containers_sp.launch.py.tplpy", launch_dir);
-  config_env_->generate(tpl_data, "common_realtime_component.launch.py.tplpy", launch_dir);
-  config_env_->generate(tpl_data, "common_realtime_standalone.launch.py.tplpy", launch_dir);
-  config_env_->generate(tpl_data, "common_interface.launch.py.tplpy", launch_dir);
-  config_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir);
-  config_env_->generate(tpl_data, "real_realtime.launch.py.tplpy", launch_dir);
-  config_env_->generate(tpl_data, "real_interface.launch.py.tplpy", launch_dir);
-  config_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir);
-  config_env_->generate(tpl_data, "gazebo.launch.xml.tplxml", launch_dir);
+  config_env_->generate(_tpl_data, "CMakeLists.txt.tplcmake", pkg_path);
+  config_env_->generate(_tpl_data, "package.xml.tplxml", pkg_path);
+  config_env_->generate(_tpl_data, "component_containers_mp.launch.py.tplpy", launch_dir);
+  config_env_->generate(_tpl_data, "component_containers_sp.launch.py.tplpy", launch_dir);
+  config_env_->generate(_tpl_data, "common_realtime_component.launch.py.tplpy", launch_dir);
+  config_env_->generate(_tpl_data, "common_realtime_standalone.launch.py.tplpy", launch_dir);
+  config_env_->generate(_tpl_data, "common_interface.launch.py.tplpy", launch_dir);
+  config_env_->generate(_tpl_data, "common.launch.py.tplpy", launch_dir);
+  config_env_->generate(_tpl_data, "real_realtime.launch.py.tplpy", launch_dir);
+  config_env_->generate(_tpl_data, "real_interface.launch.py.tplpy", launch_dir);
+  config_env_->generate(_tpl_data, "real.launch.py.tplpy", launch_dir);
+  config_env_->generate(_tpl_data, "gazebo.launch.xml.tplxml", launch_dir);
 
   // Dynamic parameters
   createEmptyYaml(proj_paths_.imuFiltDynParamsPath(), config_.clear_dynamic_params);
@@ -486,7 +482,7 @@ void ProjectGenerator::generateConfigPackage(const inja::json& tpl_data)
   generateModifiedUrdf();
 }
 
-void ProjectGenerator::generateUserMsgPackage(const inja::json& tpl_data)
+void ProjectGenerator::generateUserMsgPackage(const inja::json& _tpl_data)
 {
   const auto pkg_path = proj_paths_.userMsgPkgPath();
 
@@ -494,14 +490,14 @@ void ProjectGenerator::generateUserMsgPackage(const inja::json& tpl_data)
   TOBAS_CHECK(QDir().mkpath(pkg_path));
 
   // Create from templates.
-  user_msg_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path, false);
-  user_msg_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
+  user_msg_env_->generate(_tpl_data, "CMakeLists.txt.tplcmake", pkg_path, false);
+  user_msg_env_->generate(_tpl_data, "package.xml.tplxml", pkg_path, false);
 
   // Other files.
   createEmptyFile(QDir(pkg_path).filePath(kYouCanEditThisPackage));
 }
 
-void ProjectGenerator::generateUserCppPackage(const inja::json& tpl_data)
+void ProjectGenerator::generateUserCppPackage(const inja::json& _tpl_data)
 {
   const auto pkg_path = proj_paths_.userCppPkgPath();
 
@@ -515,20 +511,20 @@ void ProjectGenerator::generateUserCppPackage(const inja::json& tpl_data)
   TOBAS_CHECK(QDir().mkpath(nodes_dir))
 
   // Create from templates.
-  user_cpp_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path, false);
-  user_cpp_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
-  user_cpp_env_->generate(tpl_data, "common_realtime.launch.py.tplpy", launch_dir, false);
-  user_cpp_env_->generate(tpl_data, "common_interface.launch.py.tplpy", launch_dir, false);
-  user_cpp_env_->generate(tpl_data, "real_realtime.launch.py.tplpy", launch_dir, false);
-  user_cpp_env_->generate(tpl_data, "real_interface.launch.py.tplpy", launch_dir, false);
-  user_cpp_env_->generate(tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
-  user_cpp_env_->generate(tpl_data, "user_node.cpp.tplcpp", nodes_dir, false);
+  user_cpp_env_->generate(_tpl_data, "CMakeLists.txt.tplcmake", pkg_path, false);
+  user_cpp_env_->generate(_tpl_data, "package.xml.tplxml", pkg_path, false);
+  user_cpp_env_->generate(_tpl_data, "common_realtime.launch.py.tplpy", launch_dir, false);
+  user_cpp_env_->generate(_tpl_data, "common_interface.launch.py.tplpy", launch_dir, false);
+  user_cpp_env_->generate(_tpl_data, "real_realtime.launch.py.tplpy", launch_dir, false);
+  user_cpp_env_->generate(_tpl_data, "real_interface.launch.py.tplpy", launch_dir, false);
+  user_cpp_env_->generate(_tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
+  user_cpp_env_->generate(_tpl_data, "user_node.cpp.tplcpp", nodes_dir, false);
 
   // Other files.
   createEmptyFile(QDir(pkg_path).filePath(kYouCanEditThisPackage));
 }
 
-void ProjectGenerator::generateUserPyPackage(const inja::json& tpl_data)
+void ProjectGenerator::generateUserPyPackage(const inja::json& _tpl_data)
 {
   const auto pkg_path = proj_paths_.userPyPkgPath();
   const auto pkg_name = proj_paths_.userPyPkgName();
@@ -547,13 +543,13 @@ void ProjectGenerator::generateUserPyPackage(const inja::json& tpl_data)
   TOBAS_CHECK(QDir().mkpath(lib_dir));
 
   // Create from templates.
-  user_py_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
-  user_py_env_->generate(tpl_data, "setup.cfg.tplini", pkg_path, false);
-  user_py_env_->generate(tpl_data, "setup.py.tplpy", pkg_path, false);
-  user_py_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir, false);
-  user_py_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir, false);
-  user_py_env_->generate(tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
-  user_py_env_->generate(tpl_data, "user_node.py.tplpy", lib_dir, false);
+  user_py_env_->generate(_tpl_data, "package.xml.tplxml", pkg_path, false);
+  user_py_env_->generate(_tpl_data, "setup.cfg.tplini", pkg_path, false);
+  user_py_env_->generate(_tpl_data, "setup.py.tplpy", pkg_path, false);
+  user_py_env_->generate(_tpl_data, "common.launch.py.tplpy", launch_dir, false);
+  user_py_env_->generate(_tpl_data, "real.launch.py.tplpy", launch_dir, false);
+  user_py_env_->generate(_tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
+  user_py_env_->generate(_tpl_data, "user_node.py.tplpy", lib_dir, false);
 
   // Other files.
   createEmptyFile(QDir(pkg_path).filePath(kYouCanEditThisPackage));
@@ -766,41 +762,41 @@ void ProjectGenerator::generateModifiedUrdf()
   TOBAS_CHECK(doc->SaveFile(proj_paths_.xacroPath().toUtf8().constData()) == tinyxml2::XML_SUCCESS);
 }
 
-void ProjectGenerator::createEmptyFile(const QString& file_path)
+void ProjectGenerator::createEmptyFile(const QString& _file_path)
 {
-  TOBAS_CHECK(path::createFilePath(file_path.toStdString(), true));
+  TOBAS_CHECK(path::createFilePath(_file_path.toStdString(), true));
 }
 
-void ProjectGenerator::createEmptyYaml(const QString& file_path, bool overwrite)
+void ProjectGenerator::createEmptyYaml(const QString& _file_path, bool _overwrite)
 {
-  if (overwrite || !QFileInfo(file_path).isFile()) {
-    saveYamlNode(file_path, YAML::Node(YAML::NodeType::Map));
+  if (_overwrite || !QFileInfo(_file_path).isFile()) {
+    saveYamlNode(_file_path, YAML::Node(YAML::NodeType::Map));
   }
 }
 
-void ProjectGenerator::saveYamlNode(const QString& path, const YAML::Node& node)
+void ProjectGenerator::saveYamlNode(const QString& _path, const YAML::Node& _node)
 {
-  TOBAS_CHECK(yaml::save(path.toStdString(), node));
+  TOBAS_CHECK(yaml::save(_path.toStdString(), _node));
 }
 
-void ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* elem)
+void ProjectGenerator::resolveModifiedUrdfMeshFilePaths(tinyxml2::XMLElement* _elem)
 {
   // Check the current element.
-  resolveModifiedUrdfMeshFilePath(elem);
+  resolveModifiedUrdfMeshFilePath(_elem);
 
   // Check the child elements recursively.
-  for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
+  for (auto child = _elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
     resolveModifiedUrdfMeshFilePaths(child);
   }
 }
 
-void ProjectGenerator::resolveModifiedUrdfMeshFilePath(tinyxml2::XMLElement* elem)
+void ProjectGenerator::resolveModifiedUrdfMeshFilePath(tinyxml2::XMLElement* _elem)
 {
-  if (std::strcmp(elem->Name(), "mesh") != 0) {
+  if (std::strcmp(_elem->Name(), "mesh") != 0) {
     return;
   }
 
-  const auto filename = elem->Attribute("filename");
+  const auto filename = _elem->Attribute("filename");
   if (!filename) {
     qWarning() << "Mesh element does not have attribute: 'filename'";
     return;
@@ -840,27 +836,27 @@ void ProjectGenerator::resolveModifiedUrdfMeshFilePath(tinyxml2::XMLElement* ele
   // so embed a xacro command to replace them with absolute paths.
   // Ref: https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
   const auto new_filename = "file://$(find " + proj_paths_.cfgPkgName() + ")/meshes/" + base_name;
-  elem->SetAttribute("filename", new_filename.toUtf8().constData());
+  _elem->SetAttribute("filename", new_filename.toUtf8().constData());
 }
 
-void ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* elem)
+void ProjectGenerator::replaceOriginalUadfMeshFilePaths(tinyxml2::XMLElement* _elem)
 {
   // Check the current element.
-  replaceOriginalUadfMeshFilePath(elem);
+  replaceOriginalUadfMeshFilePath(_elem);
 
   // Check the child elements recursively.
-  for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
+  for (auto child = _elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
     replaceOriginalUadfMeshFilePaths(child);
   }
 }
 
-void ProjectGenerator::replaceOriginalUadfMeshFilePath(tinyxml2::XMLElement* elem)
+void ProjectGenerator::replaceOriginalUadfMeshFilePath(tinyxml2::XMLElement* _elem)
 {
-  if (std::strcmp(elem->Name(), "mesh") != 0) {
+  if (std::strcmp(_elem->Name(), "mesh") != 0) {
     return;
   }
 
-  const auto filename = elem->Attribute("filename");
+  const auto filename = _elem->Attribute("filename");
   if (!filename) {
     qWarning() << "Mesh element does not have attribute: 'filename'";
     return;
@@ -876,10 +872,10 @@ void ProjectGenerator::replaceOriginalUadfMeshFilePath(tinyxml2::XMLElement* ele
 
   // Specify as a relative path from `config_pkg`.
   const auto new_filename = "package://" + proj_paths_.cfgPkgName() + "/meshes/" + base_name;
-  elem->SetAttribute("filename", new_filename.toUtf8().constData());
+  _elem->SetAttribute("filename", new_filename.toUtf8().constData());
 }
 
-void ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
+void ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* _robot)
 {
   std::set<std::string> prop_jnt_names;
   const auto& prop = settings_->propulsion_system;
@@ -889,7 +885,7 @@ void ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
     prop_jnt_names.insert(jnt_name);
   }
 
-  for (auto child = robot->FirstChildElement(); child; child = child->NextSiblingElement()) {
+  for (auto child = _robot->FirstChildElement(); child; child = child->NextSiblingElement()) {
     if (std::strcmp(child->Name(), "joint") == 0) {
       const auto jnt_name = child->Attribute("name");
       if (!jnt_name) {
@@ -908,7 +904,7 @@ void ProjectGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
   }
 }
 
-void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
+void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* _robot)
 {
   const auto ns = uadf_.urdf->getName() + "/$(arg ID)";
   const auto& root_name = tree_.getRootName();
@@ -925,11 +921,11 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
   }
 
   // XML namespace
-  robot->SetAttribute("xmlns:xacro", "http://ros.org/wiki/xacro");
+  _robot->SetAttribute("xmlns:xacro", "http://ros.org/wiki/xacro");
 
   // IMU plugin
   xml::addImuPlugin(
-    robot,
+    _robot,
     ns,
     root_name,
     Eigen::Vector3d::Zero(),  // TODO: Offset
@@ -944,7 +940,7 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
   // Magnetometer plugin
   xml::addMagnetometerPlugin(
-    robot,
+    _robot,
     ns,
     root_name,
     Eigen::Vector3d::Zero(),  // TODO: Offset
@@ -954,7 +950,7 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
   // Barometer plugin
   xml::addBarometerPlugin(
-    robot,
+    _robot,
     ns,
     root_name,
     Eigen::Vector3d::Zero(),  // TODO: Offset
@@ -963,7 +959,7 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
   // GNSS plugin
   xml::addGnssPlugin(
-    robot,
+    _robot,
     ns,
     root_name,
     Eigen::Vector3d::Zero(),  // TODO: Offset
@@ -987,7 +983,7 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
       // Battery plugin
       constexpr double kBatterySamplingRate = 100.0;  // TODO: Set the sampling rate in the GUI.
       xml::addBatteryPlugin(
-        robot,
+        _robot,
         ns,
         kBatterySamplingRate,
         battery->maxVoltage(),
@@ -1011,7 +1007,7 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
         const auto aero = unit->aerodynamics();
 
         xml::addElectricPropulsionSystemPlugin(
-          robot,
+          _robot,
           ns,
           link_name,
           motor->kv(),
@@ -1021,7 +1017,7 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
           aero->momentConst(),
           aero->dragConst(),
           turningDirectionUadfToTbsdrn(uadf_.thrusts.at(cur_jnt.name).direction),
-          esc->maxCurrent());
+          esc->maxContinuousCurrent());
       }
 
       break;
@@ -1059,7 +1055,7 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
         rotor_params.push_back(rotor_param);
       }
 
-      xml::addIcePropulsionSystemPlugin(robot, ns, engine_param, rotor_params);
+      xml::addIcePropulsionSystemPlugin(_robot, ns, engine_param, rotor_params);
 
       break;
     }
@@ -1070,7 +1066,7 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
 
   // Fixed wing plugin
   if (drone.fixed_wing) {
-    xml::addFixedWingPlugin(robot, ns, root_name, *drone.fixed_wing);
+    xml::addFixedWingPlugin(_robot, ns, root_name, *drone.fixed_wing);
   }
 
   // Joint state broadcaster plugin
@@ -1079,7 +1075,7 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
     joint_names.push_back(jnt_name);
   }
   xml::addJointStateBroadcasterPlugin(
-    robot, ns, joint_names, 100);  // TODO: Allow the update rate to be adjusted in the GUI.
+    _robot, ns, joint_names, 100);  // TODO: Allow the update rate to be adjusted in the GUI.
 
   // Joint controller plugins
   for (const auto& [_, joint] : drone.joints) {
@@ -1105,15 +1101,15 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
         // In other words, maximum speed is reached at 60 deg error.
         // TODO: Reproduce servo motor specifications such as no-load speed more accurately.
         const auto time_const = M_PI_3 / max_vel;
-        xml::addJointPositionControllerPlugin(robot, ns, joint.name, joint.home_pos, time_const);
+        xml::addJointPositionControllerPlugin(_robot, ns, joint.name, joint.home_pos, time_const);
         break;
       }
       case JointCommandInterface::kVelocity: {
-        xml::addJointVelocityControllerPlugin(robot, ns, joint.name, joint.home_pos);
+        xml::addJointVelocityControllerPlugin(_robot, ns, joint.name, joint.home_pos);
         break;
       }
       case JointCommandInterface::kEffort: {
-        xml::addJointEffortControllerPlugin(robot, ns, joint.name, joint.home_pos);
+        xml::addJointEffortControllerPlugin(_robot, ns, joint.name, joint.home_pos);
         break;
       }
       default: {
@@ -1123,23 +1119,21 @@ void ProjectGenerator::addXmlElements(tinyxml2::XMLElement* robot)
   }
 
   // Wind plugin
-  xml::addGazeboWindPlugin(robot, ns, root_name);
+  xml::addGazeboWindPlugin(_robot, ns, root_name);
 
   // Suspended load plugin
-  xml::addGazeboSuspendedLoadPlugin(robot, ns, root_name);
+  xml::addGazeboSuspendedLoadPlugin(_robot, ns, root_name);
 
   // Fixed load plugin
-  xml::addGazeboFixedLoadPlugin(robot, ns, root_name);
+  xml::addGazeboFixedLoadPlugin(_robot, ns, root_name);
 
   // Ground truth state plugin
-  xml::addGazeboGroundTruthStatePlugin(robot, ns, root_name);
+  xml::addGazeboGroundTruthStatePlugin(_robot, ns, root_name);
 
   // LookAt position plugin
-  xml::addGazeboLookAtPositionPlugin(robot, ns, root_name);
+  xml::addGazeboLookAtPositionPlugin(_robot, ns, root_name);
 
   // Base  joint for debug
-  xml::addBaseStaticJoint(robot, tree_.getRootName());
+  xml::addBaseStaticJoint(_robot, tree_.getRootName());
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

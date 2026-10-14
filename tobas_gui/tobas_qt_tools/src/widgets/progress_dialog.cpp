@@ -9,18 +9,16 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
+namespace tobas::qt
 {
-namespace qt
+ProgressDialog::ProgressDialog(const QString& _title, int _num_steps, QWidget* _parent)
+  : super(_parent), num_steps_(_num_steps), timer_(this)
 {
-ProgressDialog::ProgressDialog(const QString& title, int num_steps, QWidget* parent)
-  : super(parent), num_steps_(num_steps), timer_(this)
-{
-  assert(num_steps > 0);
+  assert(_num_steps > 0);
 
   setWindowModality(Qt::WindowModal);  // Prevent the user from interacting with other UI elements.
   setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);  // Hide the title bar buttons.
-  setWindowTitle(title);
+  setWindowTitle(_title);
   setStep(step_);
 
   connect(&timer_, &QTimer::timeout, this, &self::onTimerTimeout);
@@ -38,25 +36,25 @@ void ProgressDialog::hide()
   super::hide();
 }
 
-void ProgressDialog::setLabelText(const QString& text)
+void ProgressDialog::setLabelText(const QString& _text)
 {
-  qInfo().noquote() << text;
-  text_ = text;
+  qInfo().noquote() << _text;
+  text_ = _text;
 }
 
-void ProgressDialog::setStep(int step)
+void ProgressDialog::setStep(int _step)
 {
-  if (step < 0) {
-    qWarning().nospace() << "The given progress step (" << step << ") is negative.";
+  if (_step < 0) {
+    qWarning().nospace() << "The given progress step (" << _step << ") is negative.";
     step_ = 0;
   }
-  else if (step > num_steps_) {
-    qWarning().nospace() << "The given progress step (" << step << ") is greater than the number of total steps ("
+  else if (_step > num_steps_) {
+    qWarning().nospace() << "The given progress step (" << _step << ") is greater than the number of total steps ("
                          << num_steps_ << ").";
     step_ = num_steps_;
   }
   else {
-    step_ = step;
+    step_ = _step;
   }
 
   const auto value = math::remap(step_, 0, num_steps_, minimum(), maximum());
@@ -85,5 +83,4 @@ void ProgressDialog::onTimerTimeout()
       .arg(text_)
       .arg(spinner));
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

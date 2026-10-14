@@ -13,34 +13,32 @@
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_msg.hpp>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 TobasLookAtCamera::TobasLookAtCamera()
 {
 }
 
-void TobasLookAtCamera::LoadConfig(const tinyxml2::XMLElement* elem)
+void TobasLookAtCamera::LoadConfig(const tinyxml2::XMLElement* _elem)
 {
   if (title.empty()) {
     title = "LookAt Camera Plugin";
   }
 
-  if (elem) {
+  if (_elem) {
     // TODO: Get XML parameters
   }
 
   gz::gui::App()->findChild<gz::gui::MainWindow*>()->installEventFilter(this);
 }
 
-bool TobasLookAtCamera::eventFilter(QObject* obj, QEvent* event)
+bool TobasLookAtCamera::eventFilter(QObject* _obj, QEvent* _event)
 {
-  if (event->type() == gz::gui::events::Render::kType) {
+  if (_event->type() == gz::gui::events::Render::kType) {
     onRender();
   }
 
-  return super::eventFilter(obj, event);
+  return super::eventFilter(_obj, _event);
 }
 
 void TobasLookAtCamera::onRender()
@@ -87,25 +85,24 @@ void TobasLookAtCamera::initialize()
     const auto camera = std::dynamic_pointer_cast<gz::rendering::Camera>(scene_->NodeByIndex(i));
     if (camera) {
       camera_ = camera;
-      gzdbg << "TobasLookAtCamera is moving camera [" << camera_->Name() << "]" << std::endl;
+      gzdbg << "TobasLookAtCamera is moving camera [" << camera_->Name() << "]\n";
       break;
     }
   }
 
   if (!camera_) {
-    gzerr << "Camera is not available." << std::endl;
+    gzerr << "Camera is not available.\n";
     return;
   }
 
   node_.Subscribe(kGzCameraLookAtTopic, &TobasLookAtCamera::lookAtPositionCb, this);
 }
 
-void TobasLookAtCamera::lookAtPositionCb(const gz::msgs::Vector3d& msg)
+void TobasLookAtCamera::lookAtPositionCb(const gz::msgs::Vector3d& _msg)
 {
   const std::lock_guard lock(mutex_);
-  vector3dMsgToGz(msg, tar_pos_);
+  vector3dMsgToGz(_msg, tar_pos_);
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(tobas::gazebo::TobasLookAtCamera, gz::gui::Plugin)

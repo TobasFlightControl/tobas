@@ -5,9 +5,7 @@
 
 #include <cmath>
 
-namespace tobas
-{
-namespace traj
+namespace tobas::traj
 {
 class VelocityLimitedOnlineTrajectoryGenerator
 {
@@ -18,15 +16,15 @@ public:
 
   inline double getTrajectoryPosition() const;
 
-  inline void setTargetPosition(double tar_pos);
+  inline void setTargetPosition(double _tar_pos);
 
-  void setMaxVelocity(double max_vel);
+  void setMaxVelocity(double _max_vel);
 
-  double update(double dt);
+  double update(double _dt);
 
-  double setTargetPointAndUpdate(double tar_pos, double dt);
+  double setTargetPointAndUpdate(double _tar_pos, double _dt);
 
-  void resetCurrentTrajectoryPoint(double pos);
+  void resetCurrentTrajectoryPoint(double _pos);
 
 private:
   // State
@@ -50,9 +48,8 @@ inline double VelocityLimitedOnlineTrajectoryGenerator::getTrajectoryPosition() 
   return traj_pos_;
 }
 
-inline void VelocityLimitedOnlineTrajectoryGenerator::setTargetPosition(double tar_pos)
+inline void VelocityLimitedOnlineTrajectoryGenerator::setTargetPosition(double _tar_pos)
 {
-  tar_pos_ = tar_pos;
+  tar_pos_ = _tar_pos;
 }
-}  // namespace traj
-}  // namespace tobas
+}  // namespace tobas::traj

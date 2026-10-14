@@ -8,9 +8,7 @@
 #include "./country_code.hpp"
 #include "./network.hpp"
 
-namespace tobas
-{
-namespace wpa
+namespace tobas::wpa
 {
 struct Data
 {
@@ -19,5 +17,4 @@ struct Data
   bool update_config = true;
   std::vector<Network> networks;
 };
-}  // namespace wpa
-}  // namespace tobas
+}  // namespace tobas::wpa

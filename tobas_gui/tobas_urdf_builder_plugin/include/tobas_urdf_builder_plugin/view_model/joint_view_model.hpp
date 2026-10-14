@@ -10,38 +10,32 @@
 #include "./base_view_model.hpp"
 #include "./joint_limits_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 class JointViewModel : public BaseViewModel<::urdf::Joint, JointViewModel>
 {
 public:
-  explicit JointViewModel(const ::urdf::JointSharedPtr& model);
+  explicit JointViewModel(const ::urdf::JointSharedPtr& _model);
 
   void sync() override;
 
   QString name() const;
-  void name(const QString& name);
+  void name(const QString& _name);
 
   QString type() const;
-  void type(const QString& type);
+  void type(const QString& _type);
 
   const ::urdf::Pose& origin() const;
-  void origin(const ::urdf::Pose& origin);
+  void origin(const ::urdf::Pose& _origin);
 
   QString parentLinkName() const;
-  void parentLinkName(const QString& name);
+  void parentLinkName(const QString& _name);
 
   QString childLinkName() const;
-  void childLinkName(const QString& name);
+  void childLinkName(const QString& _name);
 
   const ::urdf::Vector3& axis() const;
-  void axis(const ::urdf::Vector3& axis);
+  void axis(const ::urdf::Vector3& _axis);
 
   const JointLimitsViewModelPtr& limits();
 
@@ -54,7 +48,4 @@ private:
 
 using JointViewModelPtr = std::shared_ptr<JointViewModel>;
 using V_JointViewModelPtr = std::vector<JointViewModelPtr>;
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

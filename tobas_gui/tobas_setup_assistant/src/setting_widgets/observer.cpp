@@ -6,11 +6,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 ObserverWidget::ObserverWidget()
 {
@@ -122,20 +118,20 @@ YAML::Node ObserverWidget::dump() const
   return node;
 }
 
-void ObserverWidget::load(const YAML::Node& node)
+void ObserverWidget::load(const YAML::Node& _node)
 {
-  use_magnetometer_->setChecked(node[use_magnetometer_->text()].as<bool>());
-  use_barometer_->setChecked(node[use_barometer_->text()].as<bool>());
-  use_gnss_->setChecked(node[use_gnss_->text()].as<bool>());
-  use_ext_pose_->setChecked(node[use_ext_pose_->text()].as<bool>());
-  adaptive_gnss_noise_->setChecked(node[adaptive_gnss_noise_->text()].as<bool>());
-  adaptive_grav_noise_->setChecked(node[adaptive_grav_noise_->text()].as<bool>());
-  do_acc_bias_estimation_->setChecked(node[do_acc_bias_estimation_->text()].as<bool>());
-  do_gyro_bias_estimation_->setChecked(node[do_gyro_bias_estimation_->text()].as<bool>());
-  do_mag_hard_bias_estimation_->setChecked(node[do_mag_hard_bias_estimation_->text()].as<bool>());
-  do_mag_soft_bias_estimation_->setChecked(node[do_mag_soft_bias_estimation_->text()].as<bool>());
-  do_baro_alt_bias_estimation_->setChecked(node[do_baro_alt_bias_estimation_->text()].as<bool>());
-  do_grav_estimation_->setChecked(node[do_grav_estimation_->text()].as<bool>());
+  use_magnetometer_->setChecked(_node[use_magnetometer_->text()].as<bool>());
+  use_barometer_->setChecked(_node[use_barometer_->text()].as<bool>());
+  use_gnss_->setChecked(_node[use_gnss_->text()].as<bool>());
+  use_ext_pose_->setChecked(_node[use_ext_pose_->text()].as<bool>());
+  adaptive_gnss_noise_->setChecked(_node[adaptive_gnss_noise_->text()].as<bool>());
+  adaptive_grav_noise_->setChecked(_node[adaptive_grav_noise_->text()].as<bool>());
+  do_acc_bias_estimation_->setChecked(_node[do_acc_bias_estimation_->text()].as<bool>());
+  do_gyro_bias_estimation_->setChecked(_node[do_gyro_bias_estimation_->text()].as<bool>());
+  do_mag_hard_bias_estimation_->setChecked(_node[do_mag_hard_bias_estimation_->text()].as<bool>());
+  do_mag_soft_bias_estimation_->setChecked(_node[do_mag_soft_bias_estimation_->text()].as<bool>());
+  do_baro_alt_bias_estimation_->setChecked(_node[do_baro_alt_bias_estimation_->text()].as<bool>());
+  do_grav_estimation_->setChecked(_node[do_grav_estimation_->text()].as<bool>());
 }
 
 bool ObserverWidget::useMagnetometer() const
@@ -197,6 +193,4 @@ bool ObserverWidget::doGravityEstimation() const
 {
   return do_grav_estimation_->isChecked();
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

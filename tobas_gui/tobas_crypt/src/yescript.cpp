@@ -7,9 +7,7 @@
 
 #include <tobas_std_tools/error.hpp>
 
-namespace tobas
-{
-namespace crypt
+namespace tobas::crypt
 {
 Yescrypt::Yescrypt()
 {
@@ -23,5 +21,4 @@ std::expected<std::string, std::string> Yescrypt::createSalt() const
   }
   return std::string(salt);
 }
-}  // namespace crypt
-}  // namespace tobas
+}  // namespace tobas::crypt

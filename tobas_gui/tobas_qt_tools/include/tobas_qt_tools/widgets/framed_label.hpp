@@ -5,9 +5,7 @@
 
 #include <QLabel>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /** Label with a standard frame. Similar to `QLineEdit` with ReadOnly + NoFocus, but more efficient. */
 class FramedLabel : public QLabel
@@ -15,7 +13,6 @@ class FramedLabel : public QLabel
   using super = QLabel;
 
 public:
-  explicit FramedLabel(const QString& text = "", QWidget* parent = nullptr);
+  explicit FramedLabel(const QString& _text = "", QWidget* _parent = nullptr);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

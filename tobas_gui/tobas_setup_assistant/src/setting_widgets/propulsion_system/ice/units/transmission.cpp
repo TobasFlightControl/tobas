@@ -7,15 +7,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 TransmissionWidget::TransmissionWidget()
 {
@@ -53,9 +45,9 @@ bool TransmissionWidget::isValid()
   return true;
 }
 
-void TransmissionWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
+void TransmissionWidget::copyFrom(const BaseSelectedLinkSettingWidget* _src)
 {
-  const auto derived = qt::qConstPointerCast<TransmissionWidget>(src);
+  const auto derived = qt::qConstPointerCast<TransmissionWidget>(_src);
 
   gear_ratio_->setValue(derived->gear_ratio_->getValue());
 }
@@ -69,9 +61,9 @@ YAML::Node TransmissionWidget::dump() const
   return node;
 }
 
-void TransmissionWidget::load(const YAML::Node& node)
+void TransmissionWidget::load(const YAML::Node& _node)
 {
-  gear_ratio_->setValue(node[gear_ratio_->name()].as<std::pair<int, int>>());
+  gear_ratio_->setValue(_node[gear_ratio_->name()].as<std::pair<int, int>>());
 }
 
 double TransmissionWidget::gearRatio() const
@@ -79,8 +71,4 @@ double TransmissionWidget::gearRatio() const
   const auto [engine_gear, propeller_gear] = gear_ratio_->getValue();
   return static_cast<double>(engine_gear) / static_cast<double>(propeller_gear);
 }
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

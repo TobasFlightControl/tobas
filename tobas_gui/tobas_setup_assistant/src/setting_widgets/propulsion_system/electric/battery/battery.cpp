@@ -9,15 +9,7 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/lipo.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/other.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 namespace
 {
@@ -77,13 +69,13 @@ YAML::Node BatteryWidget::dump() const
   return node;
 }
 
-void BatteryWidget::load(const YAML::Node& node)
+void BatteryWidget::load(const YAML::Node& _node)
 {
-  type_->setCurrentText(node[kTypeKey].as<QString>());
+  type_->setCurrentText(_node[kTypeKey].as<QString>());
 
   for (int i = 0; i < batteries_->count(); ++i) {
     const auto battery = widget(i);
-    battery->load(node[battery->name()]);
+    battery->load(_node[battery->name()]);
   }
 }
 
@@ -117,14 +109,14 @@ double BatteryWidget::internalRegistance()
   return selected()->internalRegistance();
 }
 
-BatteryWidget_Base* BatteryWidget::widget(int index)
+BatteryWidget_Base* BatteryWidget::widget(int _index)
 {
-  return qt::qPointerCast<BatteryWidget_Base>(batteries_->widget(index));
+  return qt::qPointerCast<BatteryWidget_Base>(batteries_->widget(_index));
 }
 
-const BatteryWidget_Base* BatteryWidget::widget(int index) const
+const BatteryWidget_Base* BatteryWidget::widget(int _index) const
 {
-  return qt::qConstPointerCast<BatteryWidget_Base>(batteries_->widget(index));
+  return qt::qConstPointerCast<BatteryWidget_Base>(batteries_->widget(_index));
 }
 
 BatteryWidget_Base* BatteryWidget::selected()
@@ -136,8 +128,4 @@ const BatteryWidget_Base* BatteryWidget::selected() const
 {
   return qt::qConstPointerCast<BatteryWidget_Base>(batteries_->currentWidget());
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

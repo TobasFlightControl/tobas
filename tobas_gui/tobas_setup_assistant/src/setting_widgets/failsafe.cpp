@@ -11,11 +11,7 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 namespace
 {
@@ -128,13 +124,13 @@ YAML::Node FailsafeWidget::dump() const
   return node;
 }
 
-void FailsafeWidget::load(const YAML::Node& node)
+void FailsafeWidget::load(const YAML::Node& _node)
 {
   for (const auto& item : items_) {
-    item->setChecked(node[item->text()].as<bool>());
+    item->setChecked(_node[item->text()].as<bool>());
   }
 
-  esc_no_comm_timeout_->setValue(node[kEscNoCommTimeoutKey].as<int>());
+  esc_no_comm_timeout_->setValue(_node[kEscNoCommTimeoutKey].as<int>());
 }
 
 bool FailsafeWidget::checkRealtimeCompliance() const
@@ -221,6 +217,4 @@ double FailsafeWidget::escNoCommunicationTimeout() const
 {
   return esc_no_comm_timeout_->value() * 1e-3;
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

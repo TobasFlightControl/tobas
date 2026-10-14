@@ -3,6 +3,10 @@
 
 #include "tobas_setup_assistant/joint_state_publisher.hpp"
 
+#include <algorithm>
+#include <cmath>
+#include <functional>
+
 #include <QDebug>
 #include <QHBoxLayout>
 
@@ -12,17 +16,13 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_std_tools/vector.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 JointStatePublisherWidget::JointStatePublisherWidget(
-  rclcpp::Node::SharedPtr node,
-  const uadf::Model& uadf,
-  const kdl::Tree& tree)
-  : node_(node), uadf_(uadf), tree_(tree), rnd_gen_(rnd_dev_())
+  rclcpp::Node::SharedPtr _node,
+  const uadf::Model& _uadf,
+  const kdl::Tree& _tree)
+  : node_(_node), uadf_(_uadf), tree_(_tree), rnd_gen_(rnd_dev_())
 {
   slider_rows_ = new QVBoxLayout();
 
@@ -90,25 +90,27 @@ void JointStatePublisherWidget::updateInternalDataStructures()
       qDebug() << QString::fromStdString(joint.name) << "will rotate automatically.";
     }
     else {  // Allow users to control other movable joints with sliders.
-      const auto slider = new qt::DoubleSliderDisplay();
+      const auto slider = new qt::IntSliderDisplay();
       slider->setText(QString::fromStdString(joint.name));
+
+      const auto is_rotation = joint.type == kdl::Joint::kRotation;
+      const auto position_per_step = is_rotation ? math::kDeg2Rad : 0.001;
 
       auto lower_limit = joint.lower_limit;
       auto upper_limit = joint.upper_limit;
-      if (joint.type == kdl::Joint::kRotation && upper_limit - lower_limit > M_2PI) {
+      if (is_rotation && upper_limit - lower_limit > M_2PI) {
         lower_limit = -M_PI;
         upper_limit = +M_PI;
       }
-      slider->setMinimum(lower_limit);
-      slider->setMaximum(upper_limit);
-
-      slider->setValue(0.0);
+      slider->setRange(std::round(lower_limit / position_per_step), std::round(upper_limit / position_per_step));
+      slider->setValue(0);
+      slider->setSuffix(is_rotation ? " deg" : " mm");
 
       connect(
         slider,
-        &qt::DoubleSliderDisplay::valueChanged,
+        &qt::IntSliderDisplay::valueChanged,
         this,
-        std::bind(&self::onValueChanged, this, std::placeholders::_1, joint.name));
+        std::bind(&self::onValueChanged, this, std::placeholders::_1, joint.name, position_per_step));
 
       sliders_.push_back(slider);
       slider_rows_->addWidget(slider);
@@ -145,25 +147,26 @@ void JointStatePublisherWidget::publishCurrentPositions()
 
   auto drs = std::make_unique<tobas_visualization_msgs::msg::DisplayRobotState>();
   drs->state.joint_state = js_;
+  drs->state.is_diff = js_.name.empty();  // Mark empty states as diffs to avoid RViz's empty JointState error.
   drs_pub_->publish(std::move(drs));
 }
 
-void JointStatePublisherWidget::setControlButtonsEnabled(bool enabled)
+void JointStatePublisherWidget::setControlButtonsEnabled(bool _enabled)
 {
-  zero_button_->setEnabled(enabled);
-  center_button_->setEnabled(enabled);
-  random_button_->setEnabled(enabled);
+  zero_button_->setEnabled(_enabled);
+  center_button_->setEnabled(_enabled);
+  random_button_->setEnabled(_enabled);
 }
 
-void JointStatePublisherWidget::onValueChanged(double value, const std::string& jnt_name)
+void JointStatePublisherWidget::onValueChanged(int _value, const std::string& _jnt_name, double _position_per_step)
 {
-  const auto idx = st::index(js_.name, jnt_name);
+  const auto idx = st::index(js_.name, _jnt_name);
   if (idx < 0) {
-    qWarning() << "Joint" << QString::fromStdString(jnt_name) << "does not exist.";
+    qWarning() << "Joint" << QString::fromStdString(_jnt_name) << "does not exist.";
     return;
   }
 
-  js_.position.at(idx) = value;
+  js_.position.at(idx) = _value * _position_per_step;
 }
 
 void JointStatePublisherWidget::onZeroButtonClicked()
@@ -184,11 +187,9 @@ void JointStatePublisherWidget::onCenterButtonClicked()
 void JointStatePublisherWidget::onRandomButtonClicked()
 {
   for (auto& slider : sliders_) {
-    std::uniform_real_distribution<double> uniform(slider->getMinimum(), slider->getMaximum());
+    std::uniform_int_distribution<int> uniform(slider->getMinimum(), slider->getMaximum());
     const auto value = uniform(rnd_gen_);
     slider->setValue(value);
   }
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

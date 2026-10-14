@@ -8,11 +8,9 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
+namespace tobas::tim
 {
-namespace tim
-{
-Stopwatch::Stopwatch(size_t samples) : samples_(std::max(samples, 1UL))
+Stopwatch::Stopwatch(size_t _samples) : samples_(std::max(_samples, 1UL))
 {
 }
 
@@ -34,7 +32,7 @@ uint64_t Stopwatch::stop()
 
   if (++count_ == samples_) {
     const auto mean_duration = sum_duration_ / samples_;
-    std::cout << "The average duration of " << count_ << " measurements [us]: " << mean_duration << std::endl;
+    std::cout << "The average duration of " << count_ << " measurements [us]: " << mean_duration << '\n';
     count_ = 0;
     sum_duration_ = 0;
   }
@@ -46,5 +44,4 @@ bool Stopwatch::isRunning() const
 {
   return running_;
 }
-}  // namespace tim
-}  // namespace tobas
+}  // namespace tobas::tim

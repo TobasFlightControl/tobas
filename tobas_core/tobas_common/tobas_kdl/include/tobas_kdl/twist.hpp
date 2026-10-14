@@ -8,9 +8,7 @@
 #include "./accel.hpp"
 #include "./wrench.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class Twist;
 using TwistMap = std::map<std::string, Twist>;
@@ -28,7 +26,7 @@ public:
   Vector rot;  ///< The angular velocity of that point
 
   inline explicit Twist();
-  inline explicit Twist(const Vector& vel, const Vector& rot);
+  inline explicit Twist(const Vector& _vel, const Vector& _rot);
 
   static inline Twist Zero();
 
@@ -43,30 +41,30 @@ public:
    * The vector `p` is a vector from the old point to the new point.
    * Compute the twist of frame B in the same rigid body as self frame A.
    */
-  inline Twist refPoint(const Vector& p) const;
+  inline Twist refPoint(const Vector& _p) const;
 
   /** index-based access to components, first vel(0..2), then rot(3..5) */
-  inline double operator()(size_t i) const;
+  inline double operator()(size_t _i) const;
   /** index-based access to components, first vel(0..2), then rot(3..5) */
-  inline double& operator()(size_t i);
+  inline double& operator()(size_t _i);
 
-  inline Twist& operator+=(const Twist& arg);
-  inline Twist& operator-=(const Twist& arg);
+  inline Twist& operator+=(const Twist& _arg);
+  inline Twist& operator-=(const Twist& _arg);
 
-  inline friend Twist operator-(const Twist& arg);
-  inline friend Twist operator*(const Twist& lhs, double rhs);
-  inline friend Twist operator*(double lhs, const Twist& rhs);
-  inline friend Twist operator/(const Twist& lhs, double rhs);
-  inline friend Twist operator+(const Twist& lhs, const Twist& rhs);
-  inline friend Twist operator-(const Twist& lhs, const Twist& rhs);
+  inline friend Twist operator-(const Twist& _arg);
+  inline friend Twist operator*(const Twist& _lhs, double _rhs);
+  inline friend Twist operator*(double _lhs, const Twist& _rhs);
+  inline friend Twist operator/(const Twist& _lhs, double _rhs);
+  inline friend Twist operator+(const Twist& _lhs, const Twist& _rhs);
+  inline friend Twist operator-(const Twist& _lhs, const Twist& _rhs);
 
   /**
    * Spatial cross product for 6d motion vectors,
    * beware all of them have to be expressed in the same reference frame.
    */
-  inline friend Accel operator*(const Twist& lhs, const Twist& rhs);
+  inline friend Accel operator*(const Twist& _lhs, const Twist& _rhs);
 
-  inline friend std::ostream& operator<<(std::ostream& os, const Twist& arg);
+  inline friend std::ostream& operator<<(std::ostream& _os, const Twist& _arg);
 };
 
 inline Twist::Twist()
@@ -99,74 +97,73 @@ inline Eigen::Vector6d Twist::ravel() const
   return (Eigen::Vector6d() << vel.data, rot.data).finished();
 }
 
-inline Twist Twist::refPoint(const Vector& p) const
+inline Twist Twist::refPoint(const Vector& _p) const
 {
-  return Twist(vel + rot * p, rot);
+  return Twist(vel + rot * _p, rot);
 }
 
-inline double Twist::operator()(size_t i) const
+inline double Twist::operator()(size_t _i) const
 {
-  return i < 3 ? vel(i) : rot(i - 3);
+  return _i < 3 ? vel(_i) : rot(_i - 3);
 }
 
-inline double& Twist::operator()(size_t i)
+inline double& Twist::operator()(size_t _i)
 {
-  return i < 3 ? vel(i) : rot(i - 3);
+  return _i < 3 ? vel(_i) : rot(_i - 3);
 }
 
-inline Twist& Twist::operator+=(const Twist& arg)
+inline Twist& Twist::operator+=(const Twist& _arg)
 {
-  vel += arg.vel;
-  rot += arg.rot;
+  vel += _arg.vel;
+  rot += _arg.rot;
   return *this;
 }
 
-inline Twist& Twist::operator-=(const Twist& arg)
+inline Twist& Twist::operator-=(const Twist& _arg)
 {
-  vel -= arg.vel;
-  rot -= arg.rot;
+  vel -= _arg.vel;
+  rot -= _arg.rot;
   return *this;
 }
 
-inline Twist operator-(const Twist& arg)
+inline Twist operator-(const Twist& _arg)
 {
-  return Twist(-arg.vel, -arg.rot);
+  return Twist(-_arg.vel, -_arg.rot);
 }
 
-inline Twist operator*(const Twist& lhs, double rhs)
+inline Twist operator*(const Twist& _lhs, double _rhs)
 {
-  return Twist(lhs.vel * rhs, lhs.rot * rhs);
+  return Twist(_lhs.vel * _rhs, _lhs.rot * _rhs);
 }
 
-inline Twist operator*(double lhs, const Twist& rhs)
+inline Twist operator*(double _lhs, const Twist& _rhs)
 {
-  return Twist(lhs * rhs.vel, lhs * rhs.rot);
+  return Twist(_lhs * _rhs.vel, _lhs * _rhs.rot);
 }
 
-inline Twist operator/(const Twist& lhs, double rhs)
+inline Twist operator/(const Twist& _lhs, double _rhs)
 {
-  return Twist(lhs.vel / rhs, lhs.rot / rhs);
+  return Twist(_lhs.vel / _rhs, _lhs.rot / _rhs);
 }
 
-inline Twist operator+(const Twist& lhs, const Twist& rhs)
+inline Twist operator+(const Twist& _lhs, const Twist& _rhs)
 {
-  return Twist(lhs.vel + rhs.vel, lhs.rot + rhs.rot);
+  return Twist(_lhs.vel + _rhs.vel, _lhs.rot + _rhs.rot);
 }
 
-inline Twist operator-(const Twist& lhs, const Twist& rhs)
+inline Twist operator-(const Twist& _lhs, const Twist& _rhs)
 {
-  return Twist(lhs.vel - rhs.vel, lhs.rot - rhs.rot);
+  return Twist(_lhs.vel - _rhs.vel, _lhs.rot - _rhs.rot);
 }
 
-inline Accel operator*(const Twist& lhs, const Twist& rhs)
+inline Accel operator*(const Twist& _lhs, const Twist& _rhs)
 {
-  return Accel(lhs.rot * rhs.vel + lhs.vel * rhs.rot, lhs.rot * rhs.rot);
+  return Accel(_lhs.rot * _rhs.vel + _lhs.vel * _rhs.rot, _lhs.rot * _rhs.rot);
 }
 
-inline std::ostream& operator<<(std::ostream& os, const Twist& arg)
+inline std::ostream& operator<<(std::ostream& _os, const Twist& _arg)
 {
-  os << "Linear: " << arg.vel << ", Angular: " << arg.rot;
-  return os;
+  _os << "Linear: " << _arg.vel << ", Angular: " << _arg.rot;
+  return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

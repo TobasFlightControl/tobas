@@ -9,21 +9,18 @@
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class TreeFkSolverPos : public TreeSolverI
 {
   using super = TreeSolverI;
 
 public:
-  explicit TreeFkSolverPos(const Tree& tree);
+  explicit TreeFkSolverPos(const Tree& _tree);
 
-  Frame jntToCart(const JntArray& q, const std::string& seg_name);
+  Frame jntToCart(const JntArray& _q, const std::string& _seg_name);
 
 private:
-  Frame recursiveFk(const JntArray& q, const SegmentMap::const_iterator& seg_it);
+  Frame recursiveFk(const JntArray& _q, const SegmentMap::const_iterator& _seg_it);
 };
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

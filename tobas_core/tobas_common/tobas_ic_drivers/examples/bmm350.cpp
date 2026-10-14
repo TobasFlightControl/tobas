@@ -16,17 +16,17 @@ int main()
   float mx, my, mz;
 
   if (!mag.initialize()) {
-    std::cerr << "BMM350 initialize failed." << std::endl;
+    std::cerr << "BMM350 initialize failed.\n";
     return EXIT_FAILURE;
   }
 
   while (true) {
     if (!mag.readMag(mx, my, mz)) {
-      cerr << "Failed to read magnetic field." << endl;
+      cerr << "Failed to read magnetic field.\n";
       return EXIT_FAILURE;
     }
     const double norm = std::sqrt(mx * mx + my * my + mz * mz);
-    cout << "Magnetic Field [μT]: " << mx << ", " << my << ", " << mz << "| norm=" << norm << endl;
+    cout << "Magnetic Field [μT]: " << mx << ", " << my << ", " << mz << "| norm=" << norm << '\n';
 
     this_thread::sleep_for(1s);
   }

@@ -3,18 +3,14 @@
 
 #include "tobas_qt_tools/color.hpp"
 
-namespace tobas
-{
-namespace qt
-{
-namespace color
+namespace tobas::qt::color
 {
 namespace
 {
-QColor grayByPercentage(int percentage)
+QColor grayByPercentage(int _percentage)
 {
   // Add half of the divisor to round to the nearest integer.
-  const auto value = (percentage * 255 + 50) / 100;
+  const auto value = (_percentage * 255 + 50) / 100;
   return QColor(value, value, value);
 }
 }  // namespace
@@ -113,6 +109,4 @@ QColor steelBlue()
 {
   return QColor(70, 130, 180);
 }
-}  // namespace color
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt::color

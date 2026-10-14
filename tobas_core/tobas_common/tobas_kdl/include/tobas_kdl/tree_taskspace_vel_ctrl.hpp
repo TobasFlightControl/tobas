@@ -10,9 +10,7 @@
 #include "./tree_fk_solver_pos.hpp"
 #include "./tree_ik_solver_vel.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class TreeTaskSpaceVelCtrl : public TreeSolverI
 {
@@ -37,5 +35,4 @@ private:
   TaskSpaceDamping gain_;
 };
 
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

@@ -9,13 +9,7 @@
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_urdf/exporter.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 URDFViewModel::URDFViewModel() : urdf_(new ::urdf::Model())
 {
@@ -46,9 +40,9 @@ const std::string& URDFViewModel::name() const
   return urdf_->name_;
 }
 
-void URDFViewModel::name(const std::string& name)
+void URDFViewModel::name(const std::string& _name)
 {
-  urdf_->name_ = name;
+  urdf_->name_ = _name;
 }
 
 const ::urdf::LinkSharedPtr& URDFViewModel::rootLink() const
@@ -68,7 +62,7 @@ QStringList URDFViewModel::linkNames() const
     urdf_->links_.begin(),
     urdf_->links_.end(),
     std::back_inserter(result),
-    [](const std::pair<std::string, ::urdf::LinkSharedPtr>& pair) { return QString::fromStdString(pair.first); });
+    [](const std::pair<std::string, ::urdf::LinkSharedPtr>& _pair) { return QString::fromStdString(_pair.first); });
   return result;
 }
 
@@ -79,7 +73,7 @@ QStringList URDFViewModel::jointNames() const
     urdf_->joints_.begin(),
     urdf_->joints_.end(),
     std::back_inserter(result),
-    [](const std::pair<std::string, ::urdf::JointSharedPtr>& pair) { return QString::fromStdString(pair.first); });
+    [](const std::pair<std::string, ::urdf::JointSharedPtr>& _pair) { return QString::fromStdString(_pair.first); });
   return result;
 }
 
@@ -90,11 +84,11 @@ void URDFViewModel::newRobot()
   clone_count_ = 0;
 }
 
-bool URDFViewModel::loadRobot(const QString& file_path)
+bool URDFViewModel::loadRobot(const QString& _file_path)
 {
   newRobot();
 
-  if (!urdf_->initFile(file_path.toStdString())) {
+  if (!urdf_->initFile(_file_path.toStdString())) {
     PRINT_ERROR("Failed to parse URDF.");
     urdf_.reset();
     return false;
@@ -104,7 +98,7 @@ bool URDFViewModel::loadRobot(const QString& file_path)
   return true;
 }
 
-bool URDFViewModel::saveRobot(const QString& file_path)
+bool URDFViewModel::saveRobot(const QString& _file_path)
 {
   // Remove root-link inertia.
   urdf_->root_link_->inertial.reset();
@@ -116,7 +110,7 @@ bool URDFViewModel::saveRobot(const QString& file_path)
   removeTextureTagsWithoutFilename(doc->RootElement());
 
   // Save XML.
-  if (doc->SaveFile(file_path.toStdString().c_str()) != tinyxml2::XML_SUCCESS) {
+  if (doc->SaveFile(_file_path.toStdString().c_str()) != tinyxml2::XML_SUCCESS) {
     PRINT_ERROR("Failed to save URDF: " << doc->ErrorStr());
     return false;
   }
@@ -124,11 +118,11 @@ bool URDFViewModel::saveRobot(const QString& file_path)
   return true;
 }
 
-void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
+void URDFViewModel::addLink(const LinkViewModelPtr& _link_vm)
 {
-  const auto& joint_vm = link_vm->joint();
+  const auto& joint_vm = _link_vm->joint();
 
-  const auto link_name = link_vm->name().toStdString();
+  const auto link_name = _link_vm->name().toStdString();
   const auto joint_name = joint_vm->name().toStdString();
   const auto parent_link_name = joint_vm->parentLinkName().toStdString();
 
@@ -150,7 +144,7 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
         "The root link already exists, but the parent link of '" + link_name + "' is not specified.");
     }
 
-    urdf_->root_link_ = link_vm->model();
+    urdf_->root_link_ = _link_vm->model();
     urdf_->joints_.erase(urdf_->root_link_->parent_joint->name);
     urdf_->root_link_->parent_joint.reset();
     urdf_->root_link_->inertial.reset();  // The root link cannot have inertia.
@@ -168,38 +162,38 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
     const auto& parent_link = urdf_->links_.at(parent_link_name);
     auto& child_links = parent_link->child_links;
     auto& child_joints = parent_link->child_joints;
-    if (!st::contains(child_links, link_vm->model())) {
-      child_links.push_back(link_vm->model());
+    if (!st::contains(child_links, _link_vm->model())) {
+      child_links.push_back(_link_vm->model());
     }
     if (!st::contains(child_joints, joint_vm->model())) {
       child_joints.push_back(joint_vm->model());
     }
   }
 
-  urdf_->links_[link_name] = link_vm->model();
+  urdf_->links_[link_name] = _link_vm->model();
   urdf_->joints_[joint_name] = joint_vm->model();
 
-  for (const auto& visual : link_vm->visuals()) {
+  for (const auto& visual : _link_vm->visuals()) {
     const auto& material_vm = visual->material();
     urdf_->materials_[material_vm->name().toStdString()] = material_vm->model();
   }
 
-  for (const auto& child_link_vm : link_vm->children()) {
+  for (const auto& child_link_vm : _link_vm->children()) {
     addLink(child_link_vm);
   }
 }
 
-void URDFViewModel::cloneLink(const LinkViewModelPtr& link_vm)
+void URDFViewModel::cloneLink(const LinkViewModelPtr& _link_vm)
 {
-  const auto clone = link_vm->clone();
+  const auto clone = _link_vm->clone();
   const auto suffix = "_" + QString::number(++clone_count_);
   addNameSuffixRec(clone, suffix);
   addLink(clone);
 }
 
-void URDFViewModel::removeLink(const LinkViewModelPtr& link_vm)
+void URDFViewModel::removeLink(const LinkViewModelPtr& _link_vm)
 {
-  const auto& link = link_vm->model();
+  const auto& link = _link_vm->model();
   assert(link != urdf_->root_link_);  // Deleting the root link causes bugs.
 
   const auto& parent_link = urdf_->links_[link->parent_joint->parent_link_name];
@@ -230,14 +224,14 @@ void URDFViewModel::removeLink(const LinkViewModelPtr& link_vm)
   }
 }
 
-void URDFViewModel::updateLink(const LinkViewModelPtr& old_link_vm, const LinkViewModelPtr& new_link_vm)
+void URDFViewModel::updateLink(const LinkViewModelPtr& _old_link_vm, const LinkViewModelPtr& _new_link_vm)
 {
   // Remove old.
-  const auto& old_joint = old_link_vm->joint();
+  const auto& old_joint = _old_link_vm->joint();
 
-  urdf_->links_.erase(old_link_vm->name().toStdString());
+  urdf_->links_.erase(_old_link_vm->name().toStdString());
   urdf_->joints_.erase(old_joint->name().toStdString());
-  for (const auto& visual : old_link_vm->visuals()) {
+  for (const auto& visual : _old_link_vm->visuals()) {
     urdf_->materials_.erase(visual->material()->name().toStdString());
   }
 
@@ -249,72 +243,69 @@ void URDFViewModel::updateLink(const LinkViewModelPtr& old_link_vm, const LinkVi
     const auto& it1 = remove_if(
       child_links.begin(),
       child_links.end(),
-      [&](const ::urdf::LinkSharedPtr& link) { return link->name == old_link_vm->name().toStdString(); });
+      [&](const ::urdf::LinkSharedPtr& _link) { return _link->name == _old_link_vm->name().toStdString(); });
     child_links.erase(it1, child_links.end());
 
     auto& child_joints = old_parent_link->child_joints;
     const auto& it2 = remove_if(
       child_joints.begin(),
       child_joints.end(),
-      [&](const ::urdf::JointSharedPtr& joint) { return joint->name == old_joint->name().toStdString(); });
+      [&](const ::urdf::JointSharedPtr& _joint) { return _joint->name == old_joint->name().toStdString(); });
     child_joints.erase(it2, child_joints.end());
   }
 
   // Add new.
-  const auto& new_joint = new_link_vm->joint();
+  const auto& new_joint = _new_link_vm->joint();
   const auto& new_parent_link_it = urdf_->links_.find(new_joint->parentLinkName().toStdString());
   if (new_parent_link_it != urdf_->links_.end()) {
     const auto& new_parent_link = new_parent_link_it->second;
-    new_parent_link->child_links.push_back(new_link_vm->model());
-    new_parent_link->child_joints.push_back(new_link_vm->joint()->model());
+    new_parent_link->child_links.push_back(_new_link_vm->model());
+    new_parent_link->child_joints.push_back(_new_link_vm->joint()->model());
   }
 
   urdf_->joints_[new_joint->name().toStdString()] = new_joint->model();
-  urdf_->links_[new_link_vm->name().toStdString()] = new_link_vm->model();
-  for (const auto& visual : new_link_vm->visuals()) {
+  urdf_->links_[_new_link_vm->name().toStdString()] = _new_link_vm->model();
+  for (const auto& visual : _new_link_vm->visuals()) {
     urdf_->materials_[visual->material()->name().toStdString()] = visual->material()->model();
   }
 
-  if (new_link_vm->model() == urdf_->root_link_) {
-    urdf_->root_link_ = new_link_vm->model();
+  if (_new_link_vm->model() == urdf_->root_link_) {
+    urdf_->root_link_ = _new_link_vm->model();
     root_link_.reset(new LinkViewModel(urdf_->root_link_));
   }
 }
 
-void URDFViewModel::addNameSuffixRec(const LinkViewModelPtr& link_vm, const QString& suffix)
+void URDFViewModel::addNameSuffixRec(const LinkViewModelPtr& _link_vm, const QString& _suffix)
 {
-  const auto& joint_vm = link_vm->joint();
+  const auto& joint_vm = _link_vm->joint();
 
-  const auto new_link_name = link_vm->name() + suffix;
-  const auto new_joint_name = joint_vm->name() + suffix;
+  const auto new_link_name = _link_vm->name() + _suffix;
+  const auto new_joint_name = joint_vm->name() + _suffix;
 
-  link_vm->name(new_link_name);
+  _link_vm->name(new_link_name);
   joint_vm->name(new_joint_name);
   joint_vm->childLinkName(new_link_name);
 
-  for (const auto& child_link_vm : link_vm->children()) {
+  for (const auto& child_link_vm : _link_vm->children()) {
     child_link_vm->joint()->parentLinkName(new_link_name);
-    addNameSuffixRec(child_link_vm, suffix);
+    addNameSuffixRec(child_link_vm, _suffix);
   }
 }
 
-void URDFViewModel::removeTextureTagsWithoutFilename(tinyxml2::XMLElement* element)
+void URDFViewModel::removeTextureTagsWithoutFilename(tinyxml2::XMLElement* _element)
 {
-  if (!element) {
+  if (!_element) {
     return;
   }
 
-  for (auto child = element->FirstChildElement(); child; child = child->NextSiblingElement()) {
+  for (auto child = _element->FirstChildElement(); child; child = child->NextSiblingElement()) {
     // FIXME: Changing the tree structure during iteration may be unsafe. List target elements and delete them later.
     if (std::string(child->Name()) == "texture" && !child->Attribute("filename")) {
-      element->DeleteChild(child);
+      _element->DeleteChild(child);
     }
 
     // Check child elements recursively.
     removeTextureTagsWithoutFilename(child);
   }
 }
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

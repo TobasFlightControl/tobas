@@ -8,13 +8,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
-{
-namespace field
+namespace tobas::gui::ctrl::field
 {
 class AltitudeFrameWidget : public FieldWidget<mission::AltitudeFrame>
 {
@@ -24,12 +18,9 @@ public:
   const char* label() const override;
 
   mission::AltitudeFrame getValue() const override;
-  void setValue(mission::AltitudeFrame value) override;
+  void setValue(mission::AltitudeFrame _value) override;
 
 private:
   qt::ComboBox* combobox_;
 };
-}  // namespace field
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::field

@@ -24,9 +24,7 @@
 #include "./robot_model.hpp"
 #include "./robot_state.hpp"
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 class RobotStateDisplay : public rviz_common::Display
 {
@@ -37,8 +35,8 @@ class RobotStateDisplay : public rviz_common::Display
 public:
   explicit RobotStateDisplay();
 
-  void load(const rviz_common::Config& config) override;
-  void update(float wall_dt, float ros_dt) override;
+  void load(const rviz_common::Config& _config) override;
+  void update(float _wall_dt, float _ros_dt) override;
   void reset() override;
 
 protected:
@@ -52,11 +50,11 @@ protected:
 
   void calculateOffsetPosition();
 
-  void newRobotStateCallback(const tobas_visualization_msgs::msg::DisplayRobotState::ConstSharedPtr& state);
+  void newRobotStateCallback(const tobas_visualization_msgs::msg::DisplayRobotState::ConstSharedPtr& _state);
 
-  void setRobotHighlights(const tobas_visualization_msgs::msg::DisplayRobotState::_highlight_links_type& links);
-  void setHighlight(const std::string& link_name, const std_msgs::msg::ColorRGBA& color);
-  void unsetHighlight(const std::string& link_name);
+  void setRobotHighlights(const tobas_visualization_msgs::msg::DisplayRobotState::_highlight_links_type& _links);
+  void setHighlight(const std::string& _link_name, const std_msgs::msg::ColorRGBA& _color);
+  void unsetHighlight(const std::string& _link_name);
 
   rclcpp::Node::SharedPtr node_;
   rclcpp::Subscription<tobas_visualization_msgs::msg::DisplayRobotState>::SharedPtr robot_state_sub_;
@@ -95,5 +93,4 @@ private Q_SLOTS:
   void changedUnhighlightColor();
   void changedReload();
 };
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

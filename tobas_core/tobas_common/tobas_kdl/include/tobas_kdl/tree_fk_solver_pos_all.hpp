@@ -7,9 +7,7 @@
 #include "./jntarray.hpp"
 #include "./tree_solver_i.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /** Compute the positions of all frames at once. */
 class TreeFkSolverPosAll : public TreeSolverI
@@ -17,16 +15,15 @@ class TreeFkSolverPosAll : public TreeSolverI
   using super = TreeSolverI;
 
 public:
-  explicit TreeFkSolverPosAll(const Tree& tree);
+  explicit TreeFkSolverPosAll(const Tree& _tree);
 
   void updateInternalDataStructures() override;
 
-  const FrameMap& jntToCart(const JntArray& q);
+  const FrameMap& jntToCart(const JntArray& _q);
 
 private:
   FrameMap frames_out_;
 
-  void recursiveFk(const JntArray& q, const Frame& par_frame, const SegmentMap::const_iterator& cur_it);
+  void recursiveFk(const JntArray& _q, const Frame& _par_frame, const SegmentMap::const_iterator& _cur_it);
 };
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

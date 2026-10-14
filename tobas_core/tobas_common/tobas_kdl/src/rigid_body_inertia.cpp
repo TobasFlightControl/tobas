@@ -3,16 +3,14 @@
 
 #include "tobas_kdl/rigid_body_inertia.hpp"
 
-namespace tobas
+namespace tobas::kdl
 {
-namespace kdl
+RigidBodyInertia::RigidBodyInertia(double _m, const Vector& _oc, const RotationalInertia& _ic) : m_(_m), h_(_m * _oc)
 {
-RigidBodyInertia::RigidBodyInertia(double m, const Vector& oc, const RotationalInertia& Ic) : m_(m), h_(m * oc)
-{
-  const auto& c_eig = oc.data;
+  const auto& c_eig = _oc.data;
   Eigen::Matrix3d tmp = c_eig * c_eig.transpose();
   tmp.diagonal().array() -= c_eig.dot(c_eig);
-  I_.data = Ic.data - m * tmp;
+  I_.data = _ic.data - _m * tmp;
 }
 
 std::expected<void, std::string> RigidBodyInertia::validate() const
@@ -24,12 +22,11 @@ std::expected<void, std::string> RigidBodyInertia::validate() const
   return I_.validate();
 }
 
-std::ostream& operator<<(std::ostream& os, const RigidBodyInertia& arg)
+std::ostream& operator<<(std::ostream& _os, const RigidBodyInertia& _arg)
 {
-  os << "Mass: " << arg.m_ << std::endl;
-  os << "Spatial Momentum: " << arg.h_ << std::endl;
-  os << "Rotational Inertia: " << arg.I_;
-  return os;
+  _os << "Mass: " << _arg.m_ << '\n';
+  _os << "Spatial Momentum: " << _arg.h_ << '\n';
+  _os << "Rotational Inertia: " << _arg.I_;
+  return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

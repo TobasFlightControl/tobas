@@ -9,9 +9,7 @@
 
 #include "./jntarray.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /** This class represents a fixed `nj` matrix containing the joint-space inertia matrix. */
 class JntSpaceInertiaMatrix
@@ -20,48 +18,48 @@ public:
   Eigen::MatrixXd data;
 
   inline explicit JntSpaceInertiaMatrix();
-  inline explicit JntSpaceInertiaMatrix(int nj);
+  inline explicit JntSpaceInertiaMatrix(int _nj);
 
   /** Resize the array. */
-  inline void resize(size_t nj);
+  inline void resize(size_t _nj);
 
-  inline double operator()(size_t i, size_t j) const;
-  inline double& operator()(size_t i, size_t j);
+  inline double operator()(size_t _i, size_t _j) const;
+  inline double& operator()(size_t _i, size_t _j);
 
   inline size_t rows() const;
   inline size_t columns() const;
 
   inline friend void
-  Add(const JntSpaceInertiaMatrix& src1, const JntSpaceInertiaMatrix& src2, JntSpaceInertiaMatrix& dest);
+  Add(const JntSpaceInertiaMatrix& _src1, const JntSpaceInertiaMatrix& _src2, JntSpaceInertiaMatrix& _dest);
   inline friend void
-  Subtract(const JntSpaceInertiaMatrix& src1, const JntSpaceInertiaMatrix& src2, JntSpaceInertiaMatrix& dest);
-  inline friend void Multiply(const JntSpaceInertiaMatrix& src, double factor, JntSpaceInertiaMatrix& dest);
-  inline friend void Divide(const JntSpaceInertiaMatrix& src, double factor, JntSpaceInertiaMatrix& dest);
-  inline friend void Multiply(const JntSpaceInertiaMatrix& src, const JntArray& vec, JntArray& dest);
+  Subtract(const JntSpaceInertiaMatrix& _src1, const JntSpaceInertiaMatrix& _src2, JntSpaceInertiaMatrix& _dest);
+  inline friend void Multiply(const JntSpaceInertiaMatrix& _src, double _factor, JntSpaceInertiaMatrix& _dest);
+  inline friend void Divide(const JntSpaceInertiaMatrix& _src, double _factor, JntSpaceInertiaMatrix& _dest);
+  inline friend void Multiply(const JntSpaceInertiaMatrix& _src, const JntArray& _vec, JntArray& _dest);
 };
 
 inline JntSpaceInertiaMatrix::JntSpaceInertiaMatrix()
 {
 }
 
-inline JntSpaceInertiaMatrix::JntSpaceInertiaMatrix(int nj) : data(nj, nj)
+inline JntSpaceInertiaMatrix::JntSpaceInertiaMatrix(int _nj) : data(_nj, _nj)
 {
   data.setZero();
 }
 
-inline void JntSpaceInertiaMatrix::resize(size_t nj)
+inline void JntSpaceInertiaMatrix::resize(size_t _nj)
 {
-  data.resize(nj, nj);
+  data.resize(_nj, _nj);
 }
 
-inline double JntSpaceInertiaMatrix::operator()(size_t i, size_t j) const
+inline double JntSpaceInertiaMatrix::operator()(size_t _i, size_t _j) const
 {
-  return data(i, j);
+  return data(_i, _j);
 }
 
-inline double& JntSpaceInertiaMatrix::operator()(size_t i, size_t j)
+inline double& JntSpaceInertiaMatrix::operator()(size_t _i, size_t _j)
 {
-  return data(i, j);
+  return data(_i, _j);
 }
 
 inline size_t JntSpaceInertiaMatrix::rows() const
@@ -74,29 +72,29 @@ inline size_t JntSpaceInertiaMatrix::columns() const
   return static_cast<size_t>(data.cols());
 }
 
-inline void Add(const JntSpaceInertiaMatrix& src1, const JntSpaceInertiaMatrix& src2, JntSpaceInertiaMatrix& dest)
+inline void Add(const JntSpaceInertiaMatrix& _src1, const JntSpaceInertiaMatrix& _src2, JntSpaceInertiaMatrix& _dest)
 {
-  dest.data = src1.data + src2.data;
+  _dest.data = _src1.data + _src2.data;
 }
 
-inline void Subtract(const JntSpaceInertiaMatrix& src1, const JntSpaceInertiaMatrix& src2, JntSpaceInertiaMatrix& dest)
+inline void
+Subtract(const JntSpaceInertiaMatrix& _src1, const JntSpaceInertiaMatrix& _src2, JntSpaceInertiaMatrix& _dest)
 {
-  dest.data = src1.data - src2.data;
+  _dest.data = _src1.data - _src2.data;
 }
 
-inline void Multiply(const JntSpaceInertiaMatrix& src, double factor, JntSpaceInertiaMatrix& dest)
+inline void Multiply(const JntSpaceInertiaMatrix& _src, double _factor, JntSpaceInertiaMatrix& _dest)
 {
-  dest.data = factor * src.data;
+  _dest.data = _factor * _src.data;
 }
 
-inline void Divide(const JntSpaceInertiaMatrix& src, double factor, JntSpaceInertiaMatrix& dest)
+inline void Divide(const JntSpaceInertiaMatrix& _src, double _factor, JntSpaceInertiaMatrix& _dest)
 {
-  dest.data = src.data / factor;
+  _dest.data = _src.data / _factor;
 }
 
-inline void Multiply(const JntSpaceInertiaMatrix& src, const JntArray& vec, JntArray& dest)
+inline void Multiply(const JntSpaceInertiaMatrix& _src, const JntArray& _vec, JntArray& _dest)
 {
-  dest.data = src.data.lazyProduct(vec.data);
+  _dest.data = _src.data.lazyProduct(_vec.data);
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

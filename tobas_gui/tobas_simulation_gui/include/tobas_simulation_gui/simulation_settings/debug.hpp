@@ -5,11 +5,7 @@
 
 #include <QCheckBox>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class DebugWidget : public QWidget
 {
@@ -23,6 +19,4 @@ public:
 private:
   QCheckBox* user_debug_;
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

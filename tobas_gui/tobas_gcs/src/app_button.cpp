@@ -3,17 +3,13 @@
 
 #include "tobas_gcs/app_button.hpp"
 
-namespace tobas
+namespace tobas::gui::gcs
 {
-namespace gui
-{
-namespace gcs
-{
-AppButton::AppButton(const QString& text, const QString& icon_path)
+AppButton::AppButton(const QString& _text, const QString& _icon_path)
 {
   setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-  setText(text);
-  setIcon(QIcon(icon_path));
+  setText(_text);
+  setIcon(QIcon(_icon_path));
 
   constexpr int kButtonWidth = 120;
   setIconSize(QSize(kButtonWidth, 40));  // Make the icon as wide as possible to keep the layout aligned.
@@ -21,6 +17,4 @@ AppButton::AppButton(const QString& text, const QString& icon_path)
 
   setCheckable(true);
 }
-}  // namespace gcs
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::gcs

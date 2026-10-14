@@ -12,13 +12,7 @@
 
 #include "tobas_setup_assistant/signals.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace hw
+namespace tobas::gui::sa::hw
 {
 class PwmWidget : public qt::TableWidget
 {
@@ -39,45 +33,42 @@ public:
     kEngineThrottle,
   };
 
-  explicit PwmWidget(const uadf::Model& uadf, const Signals& sig);
+  explicit PwmWidget(const uadf::Model& _uadf, const Signals& _sig);
 
   void updateInternalDataStructures();
   bool isValid();
 
   YAML::Node dump() const;
-  void load(const YAML::Node& node);
+  void load(const YAML::Node& _node);
 
-  void setNumChannels(int num);
+  void setNumChannels(int _num);
 
-  QString targetName(int channel) const;
-  TargetType targetType(int channel) const;
+  QString targetName(int _channel) const;
+  TargetType targetType(int _channel) const;
 
-  double periodLb(int channel) const;  // [us]
-  double periodUb(int channel) const;  // [us]
+  double periodLb(int _channel) const;  // [us]
+  double periodUb(int _channel) const;  // [us]
 
-  bool contains(const QString& target_name) const;
-  int channel(const QString& target_name) const;
+  bool contains(const QString& _target_name) const;
+  int channel(const QString& _target_name) const;
 
 private:
   const uadf::Model& uadf_;
 
   PropulsionSystem prop_type_ = PropulsionSystem::kElectric;
 
-  qt::ComboBox* targetNameWidget(int row);
-  qt::DoubleSpinBox* periodLbWidget(int row);
-  qt::DoubleSpinBox* periodUbWidget(int row);
+  qt::ComboBox* targetNameWidget(int _row);
+  qt::DoubleSpinBox* periodLbWidget(int _row);
+  qt::DoubleSpinBox* periodUbWidget(int _row);
 
-  const qt::ComboBox* targetNameWidget(int row) const;
-  const qt::DoubleSpinBox* periodLbWidget(int row) const;
-  const qt::DoubleSpinBox* periodUbWidget(int row) const;
+  const qt::ComboBox* targetNameWidget(int _row) const;
+  const qt::DoubleSpinBox* periodLbWidget(int _row) const;
+  const qt::DoubleSpinBox* periodUbWidget(int _row) const;
 
   void addLastChannel();
   void removeLastChannel();
 
 private Q_SLOTS:
-  void onPropulsionTypeChanged(PropulsionSystem new_prop_type);
+  void onPropulsionTypeChanged(PropulsionSystem _new_prop_type);
 };
-}  // namespace hw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::hw

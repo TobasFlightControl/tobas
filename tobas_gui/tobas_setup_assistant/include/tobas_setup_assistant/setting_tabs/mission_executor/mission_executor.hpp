@@ -10,13 +10,7 @@
 #include "./none.hpp"
 #include "tobas_setup_assistant/frame_type.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace mission
+namespace tobas::gui::sa::mission
 {
 class MissionExecutorWidget : public BaseSettingWidget
 {
@@ -34,9 +28,9 @@ public:
   bool isValid() override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
-  void setFrameType(FrameType type);
+  void setFrameType(FrameType _type);
 
   QString executorPackage() const;
   QString pluginName() const;
@@ -49,13 +43,10 @@ private:
   NoneWidget* none_;
   MulticopterWidget* multicopter_;
 
-  BaseExecutorWidget* widget(int index);
-  const BaseExecutorWidget* widget(int index) const;
+  BaseExecutorWidget* widget(int _index);
+  const BaseExecutorWidget* widget(int _index) const;
 
   BaseExecutorWidget* selected();
   const BaseExecutorWidget* selected() const;
 };
-}  // namespace mission
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::mission

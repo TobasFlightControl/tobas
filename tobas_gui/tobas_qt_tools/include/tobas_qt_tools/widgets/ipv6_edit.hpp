@@ -8,9 +8,7 @@
 #include <QLineEdit>
 #include <QWidget>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class IPv6Edit : public QWidget
 {
@@ -21,7 +19,7 @@ class IPv6Edit : public QWidget
   static constexpr size_t kNumFields = 8;
 
 public:
-  explicit IPv6Edit(QWidget* parent = nullptr);
+  explicit IPv6Edit(QWidget* _parent = nullptr);
 
   void clear();
 
@@ -32,16 +30,15 @@ public:
   /** xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx */
   QString toString() const;
 
-  void setFromInt(__uint128_t address);
+  void setFromInt(__uint128_t _address);
 
 protected:
-  bool eventFilter(QObject* watched, QEvent* event) override;
+  bool eventFilter(QObject* _watched, QEvent* _event) override;
 
 private:
   std::array<QLineEdit*, kNumFields> fields_;
 
-  uint16_t getFieldValue(size_t idx) const;
-  void setFieldValue(size_t idx, uint16_t value);
+  uint16_t getFieldValue(size_t _idx) const;
+  void setFieldValue(size_t _idx, uint16_t _value);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

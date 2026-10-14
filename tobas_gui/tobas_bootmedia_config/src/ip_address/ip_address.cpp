@@ -10,11 +10,7 @@
 #include "tobas_bootmedia_config/constants.hpp"
 #include "tobas_bootmedia_config/ip_address/ipv4.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 IpAddressWidget::IpAddressWidget()
 {
@@ -66,14 +62,14 @@ bool IpAddressWidget::onConnected()
   return true;
 }
 
-BaseNetworkWidget* IpAddressWidget::getWidget(int index)
+BaseNetworkWidget* IpAddressWidget::getWidget(int _index)
 {
-  return qt::qPointerCast<BaseNetworkWidget>(tabs_->widget(index));
+  return qt::qPointerCast<BaseNetworkWidget>(tabs_->widget(_index));
 }
 
-std::string IpAddressWidget::networkFilePath(const std::string& name)
+std::string IpAddressWidget::networkFilePath(const std::string& _name)
 {
-  return std::string(kRootPath) + "/etc/systemd/network/20-" + name + ".network";
+  return std::string(kRootPath) + "/etc/systemd/network/20-" + _name + ".network";
 }
 
 void IpAddressWidget::onWriteButtonClicked()
@@ -89,6 +85,4 @@ void IpAddressWidget::onWriteButtonClicked()
 
   qt::qInfoBox(this, "IP address configuration was written successfully.");
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

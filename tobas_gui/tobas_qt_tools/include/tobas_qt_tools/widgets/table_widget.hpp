@@ -5,9 +5,7 @@
 
 #include <QTableWidget>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `TableWidget` =====
@@ -26,10 +24,9 @@ public:
   void removeAll();
 
   /** Fix all column widths uniformly. */
-  void setColumnsWidth(int width);
+  void setColumnsWidth(int _width);
 
   /** Set clickability in bulk. */
-  void setHeaderSectionsClickable(bool clickable);
+  void setHeaderSectionsClickable(bool _clickable);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

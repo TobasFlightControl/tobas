@@ -3,40 +3,37 @@
 
 #include "tobas_control/equations.hpp"
 
-namespace tobas
+namespace tobas::ctrl
 {
-namespace ctrl
+LinearEquation LinearEquation::scale(const Eigen::VectorXd& _scale) const
 {
-LinearEquation LinearEquation::scale(const Eigen::VectorXd& scale) const
-{
-  assert(scale.rows() == variableSize());
-  assert((scale.array() > 0).all());
+  assert(_scale.rows() == variableSize());
+  assert((_scale.array() > 0).all());
 
   auto res = *this;
   for (Eigen::Index c = 0; c < variableSize(); ++c) {
-    res.A.col(c) *= scale(c);
+    res.A.col(c) *= _scale(c);
   }
 
   return res;
 }
 
-LinearEquation LinearEquation::discretise(double dt) const
+LinearEquation LinearEquation::discretise(double _dt) const
 {
-  assert(dt >= 0);
+  assert(_dt >= 0);
 
   auto res = *this;
-  res.b *= dt;  // Simply multiply the right-hand side of the equation by dt.
+  res.b *= _dt;  // Simply multiply the right-hand side of the equation by dt.
   return res;
 }
 
-std::ostream& operator<<(std::ostream& os, const LinearEquation& arg)
+std::ostream& operator<<(std::ostream& _os, const LinearEquation& _arg)
 {
-  os << "A:" << std::endl;
-  os << arg.A << std::endl;
-  os << "b:" << std::endl;
-  os << arg.b << std::endl;
+  _os << "A:\n";
+  _os << _arg.A << '\n';
+  _os << "b:\n";
+  _os << _arg.b << '\n';
 
-  return os;
+  return _os;
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

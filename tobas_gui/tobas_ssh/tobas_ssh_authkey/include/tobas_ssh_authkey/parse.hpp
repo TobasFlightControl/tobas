@@ -9,15 +9,9 @@
 
 #include "./data.hpp"
 
-namespace tobas
+namespace tobas::ssh::ak
 {
-namespace ssh
-{
-namespace ak
-{
-std::expected<Data, std::string> parseLine(const std::string& line);
+std::expected<Data, std::string> parseLine(const std::string& _line);
 
-std::expected<std::vector<Data>, std::string> parseFile(const std::filesystem::path& path);
-}  // namespace ak
-}  // namespace ssh
-}  // namespace tobas
+std::expected<std::vector<Data>, std::string> parseFile(const std::filesystem::path& _path);
+}  // namespace tobas::ssh::ak

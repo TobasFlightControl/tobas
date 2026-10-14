@@ -7,11 +7,7 @@
 
 #include "./network.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class BaseNetworkWidget : public QWidget
 {
@@ -22,9 +18,7 @@ public:
 
   virtual void reset() = 0;
 
-  virtual bool load(const Network& src) = 0;
+  virtual bool load(const Network& _src) = 0;
   virtual Network dump() const = 0;
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

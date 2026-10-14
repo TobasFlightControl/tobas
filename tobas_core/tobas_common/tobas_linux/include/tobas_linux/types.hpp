@@ -3,10 +3,7 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace linux
+namespace tobas::linux
 {
 using sched_t = int;
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

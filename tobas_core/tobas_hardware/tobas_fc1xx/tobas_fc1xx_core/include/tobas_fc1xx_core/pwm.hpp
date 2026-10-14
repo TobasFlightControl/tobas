@@ -6,9 +6,7 @@
 #include <tobas_algorithm/crc.hpp>
 #include <tobas_linux/spi_dev.hpp>
 
-namespace tobas
-{
-namespace fc1xx
+namespace tobas::fc1xx
 {
 class PWM
 {
@@ -20,7 +18,7 @@ public:
 
   bool initialize();
 
-  void setPeriod(size_t ch, uint16_t period_us);
+  void setPeriod(size_t _ch, uint16_t _period_us);
   bool transfer();
 
 private:
@@ -30,5 +28,4 @@ private:
 
   algo::CRC32Left crc_;
 };
-}  // namespace fc1xx
-}  // namespace tobas
+}  // namespace tobas::fc1xx

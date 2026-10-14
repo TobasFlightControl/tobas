@@ -13,11 +13,7 @@
 using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 namespace
 {
@@ -104,6 +100,4 @@ void SbusWidget::onScanTimerTimeout()
     }
   }
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

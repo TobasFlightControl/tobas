@@ -11,9 +11,9 @@ constexpr char kRelativeToLaunchText[] = "relative_to_launch";
 constexpr char kMeanSeaLevelText[] = "mean_sea_level";
 }  // namespace
 
-Node convert<tobas::mission::AltitudeFrame>::encode(tobas::mission::AltitudeFrame rhs)
+Node convert<tobas::mission::AltitudeFrame>::encode(tobas::mission::AltitudeFrame _rhs)
 {
-  switch (rhs) {
+  switch (_rhs) {
     case tobas::mission::AltitudeFrame::kRelativeToLaunch:
       return Node(kRelativeToLaunchText);
     case tobas::mission::AltitudeFrame::kMeanSeaLevel:
@@ -23,20 +23,20 @@ Node convert<tobas::mission::AltitudeFrame>::encode(tobas::mission::AltitudeFram
   }
 }
 
-bool convert<tobas::mission::AltitudeFrame>::decode(const Node& node, tobas::mission::AltitudeFrame& rhs)
+bool convert<tobas::mission::AltitudeFrame>::decode(const Node& _node, tobas::mission::AltitudeFrame& _rhs)
 {
-  if (!node.IsScalar()) {
+  if (!_node.IsScalar()) {
     return false;
   }
 
-  const auto text = node.as<std::string>();
+  const auto text = _node.as<std::string>();
 
   if (text == kRelativeToLaunchText) {
-    rhs = tobas::mission::AltitudeFrame::kRelativeToLaunch;
+    _rhs = tobas::mission::AltitudeFrame::kRelativeToLaunch;
     return true;
   }
   else if (text == kMeanSeaLevelText) {
-    rhs = tobas::mission::AltitudeFrame::kMeanSeaLevel;
+    _rhs = tobas::mission::AltitudeFrame::kMeanSeaLevel;
     return true;
   }
   else {

@@ -14,11 +14,7 @@
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_std_tools/check.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 namespace
 {
@@ -27,7 +23,7 @@ class WaitUntilGazeboServerReadyThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(bool success);
+  void finished(bool _success);
 
 public:
   void run() override
@@ -44,7 +40,7 @@ class WaitUntilGazeboRenderingReadyThread : public QThread
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(bool success);
+  void finished(bool _success);
 
 public:
   void run() override
@@ -76,8 +72,6 @@ void killGazeboServer()
   qInfo() << "Killing all processes containing 'gz sim'.";
   TOBAS_CHECK(linux::executeCommand("ps aux | grep \"gz sim\" | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh"));
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim
 
 #include "gazebo.moc"

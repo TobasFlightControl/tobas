@@ -3,16 +3,12 @@
 
 #include "tobas_control_system/power_source_viewer/power_source_viewer.hpp"
 
-namespace tobas
+namespace tobas::gui::ctrl
 {
-namespace gui
+PowerSourceViewerWidget::PowerSourceViewerWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone) : drone_(_drone)
 {
-namespace ctrl
-{
-PowerSourceViewerWidget::PowerSourceViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone) : drone_(drone)
-{
-  battery_viewer_ = new BatteryViewerWidget(bridge, drone);
-  engine_viewer_ = new EngineViewerWidget(bridge, drone);
+  battery_viewer_ = new BatteryViewerWidget(_bridge, _drone);
+  engine_viewer_ = new EngineViewerWidget(_bridge, _drone);
 
   addWidget(battery_viewer_);
   addWidget(engine_viewer_);
@@ -44,6 +40,4 @@ void PowerSourceViewerWidget::updateInternalDataStructures()
       throw;
   }
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

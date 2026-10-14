@@ -11,15 +11,7 @@
 #include "./propeller.hpp"
 #include "./transmission.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 class PropulsionUnitWidget : public QWidget
 {
@@ -33,10 +25,10 @@ public:
 
   void setToDefaults();
   bool isValid();
-  void copyFrom(const PropulsionUnitWidget* src);
+  void copyFrom(const PropulsionUnitWidget* _src);
 
   YAML::Node dump() const;
-  void load(const YAML::Node& node);
+  void load(const YAML::Node& _node);
 
   const TransmissionWidget* transmission() const;
   const PropellerWidget* propeller() const;
@@ -51,8 +43,4 @@ private:
   PropellerWidget* propeller_;
   AerodynamicsWidget* aerodynamics_;
 };
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

@@ -9,11 +9,7 @@
 
 #include "./frame_type.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 struct FrameTypeDetectionResult
 {
@@ -24,7 +20,7 @@ struct FrameTypeDetectionResult
 class FrameTypeDetector
 {
 public:
-  explicit FrameTypeDetector(const uadf::Model& uadf, const kdl::Tree& tree);
+  explicit FrameTypeDetector(const uadf::Model& _uadf, const kdl::Tree& _tree);
 
   FrameTypeDetector(const FrameTypeDetector&) = delete;
   FrameTypeDetector& operator=(const FrameTypeDetector&) = delete;
@@ -35,11 +31,11 @@ public:
   FrameTypeDetectionResult determineFrameType();
 
 private:
-  bool isJntAxisAlwaysParallel(const std::string& link_name, const kdl::Vector& tar_axis, bool same_direction_only);
-  bool isJntAxisAlwaysPerpendicular(const std::string& link_name, const kdl::Vector& tar_axis);
-  bool allThrustJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only);
-  bool allThrustJointAxesAlwaysPerpendicular(const kdl::Vector& tar_axis);
-  bool allTiltJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only);
+  bool isJntAxisAlwaysParallel(const std::string& _link_name, const kdl::Vector& _tar_axis, bool _same_direction_only);
+  bool isJntAxisAlwaysPerpendicular(const std::string& _link_name, const kdl::Vector& _tar_axis);
+  bool allThrustJointAxesAlwaysParallel(const kdl::Vector& _tar_axis, bool _same_direction_only);
+  bool allThrustJointAxesAlwaysPerpendicular(const kdl::Vector& _tar_axis);
+  bool allTiltJointAxesAlwaysParallel(const kdl::Vector& _tar_axis, bool _same_direction_only);
   bool eachTiltRotorAxesPerpendicular();
   bool allTiltRotorAxesPerpendicular();
 
@@ -50,6 +46,4 @@ private:
   kdl::TreeJointParser jnt_parser_;
   kdl::TreeJointAxisSolver axis_solver_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

@@ -7,37 +7,35 @@
 #include <QLabel>
 #include <QWidget>
 
-namespace tobas
+namespace tobas::qt
 {
-namespace qt
-{
-void FormLayout::addVAlignedRow(QWidget* label, QWidget* field)
+void FormLayout::addVAlignedRow(QWidget* _label, QWidget* _field)
 {
   const auto label_layout = new QHBoxLayout();
-  label_layout->addWidget(label, 0, Qt::AlignLeft | Qt::AlignVCenter);
+  label_layout->addWidget(_label, 0, Qt::AlignLeft | Qt::AlignVCenter);
 
   const auto label_widget = new QWidget();
   label_widget->setLayout(label_layout);
 
-  addRow(label_widget, field);
+  addRow(label_widget, _field);
 }
 
-void FormLayout::addVAlignedRow(QWidget* label, QLayout* field)
+void FormLayout::addVAlignedRow(QWidget* _label, QLayout* _field)
 {
   const auto field_widget = new QWidget();
-  field_widget->setLayout(field);
+  field_widget->setLayout(_field);
 
-  addVAlignedRow(label, field_widget);
+  addVAlignedRow(_label, field_widget);
 }
 
-void FormLayout::addVAlignedRow(const QString& label_text, QWidget* field)
+void FormLayout::addVAlignedRow(const QString& _label_text, QWidget* _field)
 {
-  addVAlignedRow(new QLabel(label_text), field);
+  addVAlignedRow(new QLabel(_label_text), _field);
 }
 
-void FormLayout::addVAlignedRow(const QString& label_text, QLayout* field)
+void FormLayout::addVAlignedRow(const QString& _label_text, QLayout* _field)
 {
-  addVAlignedRow(new QLabel(label_text), field);
+  addVAlignedRow(new QLabel(_label_text), _field);
 }
 
 void FormLayout::addStretch()
@@ -52,28 +50,27 @@ void FormLayout::clear()
   }
 }
 
-QWidget* FormLayout::getLabel(int row)
+QWidget* FormLayout::getLabel(int _row)
 {
-  const auto item = itemAt(row, QFormLayout::LabelRole);
+  const auto item = itemAt(_row, QFormLayout::LabelRole);
   return item->widget();
 }
 
-QWidget* FormLayout::getWidget(int row)
+QWidget* FormLayout::getWidget(int _row)
 {
-  const auto item = itemAt(row, QFormLayout::FieldRole);
+  const auto item = itemAt(_row, QFormLayout::FieldRole);
   return item->widget();
 }
 
-void FormLayout::setEnabled(int row, bool enabled)
+void FormLayout::setEnabled(int _row, bool _enabled)
 {
-  getLabel(row)->setEnabled(enabled);
-  getWidget(row)->setEnabled(enabled);
+  getLabel(_row)->setEnabled(_enabled);
+  getWidget(_row)->setEnabled(_enabled);
 }
 
-void FormLayout::setVisible(int row, bool visible)
+void FormLayout::setVisible(int _row, bool _visible)
 {
-  getLabel(row)->setVisible(visible);
-  getWidget(row)->setVisible(visible);
+  getLabel(_row)->setVisible(_visible);
+  getWidget(_row)->setVisible(_visible);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

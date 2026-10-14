@@ -3,9 +3,7 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /**
  * Auxiliary class for argument types (Trait-template class)
@@ -36,9 +34,8 @@ public:
   typedef int Arg;
 };
 
-inline constexpr double sqr(double arg)
+inline constexpr double sqr(double _arg)
 {
-  return arg * arg;
+  return _arg * _arg;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

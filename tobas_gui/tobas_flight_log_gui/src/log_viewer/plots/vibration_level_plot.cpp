@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 VibrationLevelPlotWidget::VibrationLevelPlotWidget()
   : curves_{ "Vibration Level X [m/s²]", "Vibration Level Y [m/s²]", "Vibration Level Z [m/s²]" }
@@ -36,20 +32,20 @@ void VibrationLevelPlotWidget::clear()
   }
 }
 
-void VibrationLevelPlotWidget::setTimeScale(double t_start, double t_stop)
+void VibrationLevelPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
   for (size_t i = 0; i < kNumAxes; ++i) {
-    plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+    plots_[i]->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
   }
 }
 
-void VibrationLevelPlotWidget::setData(const QVector<tobas_msgs::msg::VibrationLevel>& msgs)
+void VibrationLevelPlotWidget::setData(const QVector<tobas_msgs::msg::VibrationLevel>& _msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> mag_data;
   VerticalScaleRange range;
 
-  for (const auto& mag : msgs) {
+  for (const auto& mag : _msgs) {
     t_data.push_back(ros2::seconds(mag.header.stamp));
 
     mag_data[0].push_back(mag.data.x);
@@ -71,6 +67,4 @@ void VibrationLevelPlotWidget::setData(const QVector<tobas_msgs::msg::VibrationL
     plot->replot();
   }
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

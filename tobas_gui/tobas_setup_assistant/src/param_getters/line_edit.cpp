@@ -3,14 +3,10 @@
 
 #include "tobas_setup_assistant/param_getters/line_edit.hpp"
 
-namespace tobas
+namespace tobas::gui::sa
 {
-namespace gui
-{
-namespace sa
-{
-ParamGetterWidget_LineEdit::ParamGetterWidget_LineEdit(const QString& param_name, const QString& description_text)
-  : super(param_name, description_text)
+ParamGetterWidget_LineEdit::ParamGetterWidget_LineEdit(const QString& _param_name, const QString& _description_text)
+  : super(_param_name, _description_text)
 {
   line_ = new QLineEdit();
   rows_->addWidget(line_);
@@ -23,16 +19,14 @@ QString ParamGetterWidget_LineEdit::getValue() const
   return line_->text();
 }
 
-bool ParamGetterWidget_LineEdit::setValue(const QString& src)
+bool ParamGetterWidget_LineEdit::setValue(const QString& _src)
 {
-  line_->setText(src);
+  line_->setText(_src);
   return true;
 }
 
-void ParamGetterWidget_LineEdit::onTextChanged(const QString& text)
+void ParamGetterWidget_LineEdit::onTextChanged(const QString& _text)
 {
-  Q_EMIT textChanged(text);
+  Q_EMIT textChanged(_text);
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

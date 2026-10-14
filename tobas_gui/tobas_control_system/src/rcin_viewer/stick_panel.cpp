@@ -10,16 +10,10 @@
 
 #include <tobas_qt_tools/color.hpp>
 
-namespace tobas
+namespace tobas::gui::ctrl::rcin
 {
-namespace gui
-{
-namespace ctrl
-{
-namespace rcin
-{
-StickPanel::StickPanel(const QString& title, const QString& x_label, const QString& y_label)
-  : title_(title), x_label_(x_label), y_label_(y_label)
+StickPanel::StickPanel(const QString& _title, const QString& _x_label, const QString& _y_label)
+  : title_(_title), x_label_(_x_label), y_label_(_y_label)
 {
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 }
@@ -29,12 +23,12 @@ void StickPanel::reset()
   setValues(0.0, 0.0, false, false);
 }
 
-void StickPanel::setValues(double x, double y, bool ok, bool enabled)
+void StickPanel::setValues(double _x, double _y, bool _ok, bool _enabled)
 {
-  x_ = x;
-  y_ = y;
-  ok_ = ok;
-  enabled_ = enabled;
+  x_ = _x;
+  y_ = _y;
+  ok_ = _ok;
+  enabled_ = _enabled;
   update();
 }
 
@@ -82,15 +76,12 @@ QRect StickPanel::fieldRect() const
   return rect().adjusted(12, 28, -12, -30);
 }
 
-QString StickPanel::axisText(double value) const
+QString StickPanel::axisText(double _value) const
 {
   if (!ok_) {
     return "---";
   }
 
-  return QString::number(std::lround(value * 100.0));
+  return QString::number(std::lround(_value * 100.0));
 }
-}  // namespace rcin
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::rcin

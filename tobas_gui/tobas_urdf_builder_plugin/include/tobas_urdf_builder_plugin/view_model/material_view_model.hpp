@@ -9,34 +9,25 @@
 #include "../utils/constants.hpp"
 #include "./base_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 class MaterialViewModel : public BaseViewModel<::urdf::Material, MaterialViewModel>
 {
 public:
-  explicit MaterialViewModel(const ::urdf::MaterialSharedPtr& model);
+  explicit MaterialViewModel(const ::urdf::MaterialSharedPtr& _model);
 
   void sync() override;
 
   QString name() const;
-  void name(const QString& name);
+  void name(const QString& _name);
 
   const ::urdf::Color& color() const;
-  void color(double r, double g, double b, double a = kDefaultRobotAlpha);
+  void color(double _r, double _g, double _b, double _a = kDefaultRobotAlpha);
   void color(const QColor& _color);
 
   QString textureFileName() const;
-  void textureFileName(const QString& filename);
+  void textureFileName(const QString& _filename);
 };
 
 using MaterialViewModelPtr = std::shared_ptr<MaterialViewModel>;
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

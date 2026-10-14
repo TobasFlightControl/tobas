@@ -11,38 +11,36 @@
 
 #include "./core.hpp"
 
-namespace tobas
-{
-namespace eigen
+namespace tobas::eigen
 {
 /** Calculate the matrix rank. */
 template <typename Derived>
-inline Eigen::Index matrixRank(const Eigen::MatrixBase<Derived>& A)
+inline Eigen::Index matrixRank(const Eigen::MatrixBase<Derived>& _a)
 {
-  return A.fullPivLu().rank();
+  return _a.fullPivLu().rank();
 }
 
 /** Check whether a square matrix is symmetric. */
 template <typename Derived>
-inline bool isSymmetric(const Eigen::MatrixBase<Derived>& A)
+inline bool isSymmetric(const Eigen::MatrixBase<Derived>& _a)
 {
-  assert(isSquare(A));
-  return A.isApprox(A.transpose());
+  assert(isSquare(_a));
+  return _a.isApprox(_a.transpose());
 }
 
 /** Check whether a square matrix is orthogonal. */
 template <typename Derived>
-inline bool isOrthogonal(const Eigen::MatrixBase<Derived>& A)
+inline bool isOrthogonal(const Eigen::MatrixBase<Derived>& _a)
 {
-  assert(isSquare(A));
-  return (A * A.transpose()).isApprox(Eigen::MatrixBase<Derived>::Identity());
+  assert(isSquare(_a));
+  return (_a * _a.transpose()).isApprox(Eigen::MatrixBase<Derived>::Identity());
 }
 
 /** Check whether a square matrix is special orthogonal. */
 template <typename Derived>
-inline bool isSpecialOrthogonal(const Eigen::MatrixBase<Derived>& A)
+inline bool isSpecialOrthogonal(const Eigen::MatrixBase<Derived>& _a)
 {
-  return isOrthogonal(A) && math::isClose(A.determinant(), 1.0);
+  return isOrthogonal(_a) && math::isClose(_a.determinant(), 1.0);
 }
 
 /**
@@ -51,21 +49,21 @@ inline bool isSpecialOrthogonal(const Eigen::MatrixBase<Derived>& A)
  * @see https://stackoverflow.com/questions/35227131/
  */
 template <typename Derived>
-inline bool isPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
+inline bool isPositiveDefinite(const Eigen::MatrixBase<Derived>& _a)
 {
-  assert(isSquare(A));
-  return A.llt().info() != Eigen::NumericalIssue;
+  assert(isSquare(_a));
+  return _a.llt().info() != Eigen::NumericalIssue;
 }
 
 /** Check whether a matrix is positive semidefinite. */
 template <typename Derived>
-bool isSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
+bool isSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& _a)
 {
-  assert(isSquare(A));
+  assert(isSquare(_a));
 
-  const auto ldlt = A.ldlt();
+  const auto ldlt = _a.ldlt();
   const auto D = ldlt.vectorD();
-  const auto tol = std::numeric_limits<typename Derived::Scalar>::epsilon() * A.cwiseAbs().maxCoeff() * 100;
+  const auto tol = std::numeric_limits<typename Derived::Scalar>::epsilon() * _a.cwiseAbs().maxCoeff() * 100;
 
   // `ldlt.isPositive()` may return false for tiny negative eigenvalues from numerical error.
   return D.minCoeff() >= -tol;
@@ -73,26 +71,26 @@ bool isSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
 
 /** Check whether a matrix is symmetric positive definite. */
 template <typename Derived>
-inline bool isSymmetricPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
+inline bool isSymmetricPositiveDefinite(const Eigen::MatrixBase<Derived>& _a)
 {
-  return isSymmetric(A) && isPositiveDefinite(A);
+  return isSymmetric(_a) && isPositiveDefinite(_a);
 }
 
 /** Check whether a matrix is symmetric positive semidefinite. */
 template <typename Derived>
-inline bool isSymmetricSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
+inline bool isSymmetricSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& _a)
 {
-  return isSymmetric(A) && isSemiPositiveDefinite(A);
+  return isSymmetric(_a) && isSemiPositiveDefinite(_a);
 }
 
 /** Find the nearest positive definite matrix. */
 template <typename Derived>
-Derived nearestPositiveDefinite(const Eigen::MatrixBase<Derived>& A, double min_eigenvalue)
+Derived nearestPositiveDefinite(const Eigen::MatrixBase<Derived>& _a, double _min_eigenvalue)
 {
-  assert(min_eigenvalue >= 0);
+  assert(_min_eigenvalue >= 0);
 
   // Symmetrize.
-  const Derived A_sym = (A + A.transpose()) / 2;
+  const Derived A_sym = (_a + _a.transpose()) / 2;
 
   // Eigendecomposition.
   const Eigen::SelfAdjointEigenSolver<Derived> es(A_sym);
@@ -100,8 +98,8 @@ Derived nearestPositiveDefinite(const Eigen::MatrixBase<Derived>& A, double min_
 
   // Correct eigenvalues.
   for (Eigen::Index i = 0; i < eigenvalues.size(); ++i) {
-    if (eigenvalues(i) < min_eigenvalue) {
-      eigenvalues(i) = min_eigenvalue;
+    if (eigenvalues(i) < _min_eigenvalue) {
+      eigenvalues(i) = _min_eigenvalue;
     }
   }
 
@@ -116,27 +114,26 @@ Derived nearestPositiveDefinite(const Eigen::MatrixBase<Derived>& A, double min_
  */
 template <typename Scalar, Eigen::Index N, Eigen::Index M>
 Eigen::Matrix<Scalar, M, 1> minimizeWeightedNorm(
-  const Eigen::Matrix<Scalar, N, M>& A,
-  const Eigen::Matrix<Scalar, N, 1>& b,
-  const Eigen::Matrix<Scalar, N, 1>& W1,
-  const Eigen::Matrix<Scalar, M, 1>& W2)
+  const Eigen::Matrix<Scalar, N, M>& _a,
+  const Eigen::Matrix<Scalar, N, 1>& _b,
+  const Eigen::Matrix<Scalar, N, 1>& _w1,
+  const Eigen::Matrix<Scalar, M, 1>& _w2)
 {
-  assert((W1.array() >= 0).all());
-  assert((W2.array() >= 0).all());
+  assert((_w1.array() >= 0).all());
+  assert((_w2.array() >= 0).all());
 
   // TODO: Use the Lagrange multiplier method for redundant problems.
-  const Eigen::Matrix<Scalar, M, N> AT_W1 = A.transpose() * W1.asDiagonal();
+  const Eigen::Matrix<Scalar, M, N> AT_W1 = _a.transpose() * _w1.asDiagonal();
 
   // Compute left matrix.
-  Eigen::Matrix<Scalar, M, M> left = AT_W1 * A;
-  left.diagonal() += W2;
+  Eigen::Matrix<Scalar, M, M> left = AT_W1 * _a;
+  left.diagonal() += _w2;
 
   // Compute right vector.
-  const auto right = AT_W1 * b;
+  const auto right = AT_W1 * _b;
 
   // Solve linear equation.
   // QR decomposition does not give the least-squares solution for underdetermined problems.
   return left.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(right);
 }
-}  // namespace eigen
-}  // namespace tobas
+}  // namespace tobas::eigen

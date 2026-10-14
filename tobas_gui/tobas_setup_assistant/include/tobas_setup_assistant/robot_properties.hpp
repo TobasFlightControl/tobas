@@ -10,22 +10,18 @@
 
 #include "./frame_type.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class RobotPropertiesWidget : public qt::ScrollArea
 {
   Q_OBJECT
 
 public:
-  explicit RobotPropertiesWidget(const uadf::Model& uadf, const kdl::Tree& tree);
+  explicit RobotPropertiesWidget(const uadf::Model& _uadf, const kdl::Tree& _tree);
 
   void updateInternalDataStructures();
 
-  void setFrameType(FrameType type);
+  void setFrameType(FrameType _type);
 
 private:
   const uadf::Model& uadf_;
@@ -37,6 +33,4 @@ private:
   qt::FramedLabel* frame_type_;
   qt::FramedLabel* mass_;
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

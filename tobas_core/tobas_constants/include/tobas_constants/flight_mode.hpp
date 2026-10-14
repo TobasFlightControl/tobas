@@ -14,8 +14,8 @@ enum class FlightMode
   kLoiter,
 };
 
-std::string textFromEnum(FlightMode mode);
-bool enumFromText(const std::string& text, FlightMode& dst);
+std::string textFromEnum(FlightMode _mode);
+bool enumFromText(const std::string& _text, FlightMode& _dst);
 }  // namespace tobas
 
 namespace YAML
@@ -23,7 +23,7 @@ namespace YAML
 template <>
 struct convert<tobas::FlightMode>
 {
-  static Node encode(tobas::FlightMode rhs);
-  static bool decode(const Node& node, tobas::FlightMode& rhs);
+  static Node encode(tobas::FlightMode _rhs);
+  static bool decode(const Node& _node, tobas::FlightMode& _rhs);
 };
 }  // namespace YAML

@@ -7,11 +7,7 @@
 
 #include <rclcpp/serialization.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 template <typename MsgType>
 class MessageDecoderCache
@@ -22,7 +18,7 @@ class MessageDecoderCache
 public:
   explicit MessageDecoderCache();
 
-  const MsgType& decode(const Time& time_ns, const SerializedDataPtr& ser_data);
+  const MsgType& decode(const Time& _time_ns, const SerializedDataPtr& _ser_data);
 
   void clearCache();
 
@@ -38,15 +34,15 @@ MessageDecoderCache<MsgType>::MessageDecoderCache()
 }
 
 template <typename MsgType>
-const MsgType& MessageDecoderCache<MsgType>::decode(const Time& time_ns, const SerializedDataPtr& ser_data)
+const MsgType& MessageDecoderCache<MsgType>::decode(const Time& _time_ns, const SerializedDataPtr& _ser_data)
 {
-  if (cache_map_.contains(time_ns)) {
-    return cache_map_[time_ns];
+  if (cache_map_.contains(_time_ns)) {
+    return cache_map_[_time_ns];
   }
 
-  const rclcpp::SerializedMessage ser_msg(*ser_data);
+  const rclcpp::SerializedMessage ser_msg(*_ser_data);
   ser_.deserialize_message(&ser_msg, &msg_);
-  return cache_map_[time_ns] = msg_;
+  return cache_map_[_time_ns] = msg_;
 }
 
 template <typename MsgType>
@@ -54,6 +50,4 @@ void MessageDecoderCache<MsgType>::clearCache()
 {
   cache_map_.clear();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

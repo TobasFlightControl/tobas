@@ -3,15 +3,13 @@
 
 #include "tobas_hardware_common/base_sensor_node.hpp"
 
-namespace tobas
+namespace tobas::hardware
 {
-namespace hardware
+BaseSensorNode::BaseSensorNode(const std::string& _name, const rclcpp::NodeOptions& _options)
+  : super(_name, nodeOptions_Default(_options))
 {
-BaseSensorNode::BaseSensorNode(const std::string& name, const rclcpp::NodeOptions& options)
-  : super(name, nodeOptions_Default(options))
-{
-  start_ss_ = createService<Empty>(name + "/start_main_timer", &self::startMainTimerSrvCb, this);
-  stop_ss_ = createService<Empty>(name + "/stop_main_timer", &self::stopMainTimerSrvCb, this);
+  start_ss_ = createService<Empty>(_name + "/start_main_timer", &self::startMainTimerSrvCb, this);
+  stop_ss_ = createService<Empty>(_name + "/stop_main_timer", &self::stopMainTimerSrvCb, this);
 }
 
 void BaseSensorNode::startMainTimerSrvCb(const Empty::Request::ConstSharedPtr&, const Empty::Response::SharedPtr&)
@@ -23,5 +21,4 @@ void BaseSensorNode::stopMainTimerSrvCb(const Empty::Request::ConstSharedPtr&, c
 {
   main_timer_->cancel();
 }
-}  // namespace hardware
-}  // namespace tobas
+}  // namespace tobas::hardware

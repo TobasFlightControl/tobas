@@ -6,11 +6,7 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_path_tools/join.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 void RecordStopThread::run()
 {
@@ -35,15 +31,13 @@ void RecordStopThread::run()
   Q_EMIT finished(true, "", QString::fromStdString(res->path));
 }
 
-void RecordStopThread::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void RecordStopThread::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  sc_.emplace(node, path::join(ns, kRemoteIfaceNS, service::kRosbagRecordStop));
+  sc_.emplace(_node, path::join(_ns, kRemoteIfaceNS, service::kRosbagRecordStop));
 }
 
 void RecordStopThread::clearRosInterfaces()
 {
   sc_.reset();
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

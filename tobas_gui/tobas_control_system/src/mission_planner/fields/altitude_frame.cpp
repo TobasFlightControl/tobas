@@ -10,41 +10,35 @@
 #include <QHBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
-{
-namespace field
+namespace tobas::gui::ctrl::field
 {
 namespace
 {
 constexpr char kRelativeToLaunchLabel[] = "Relative to Launch";
 constexpr char kMeanSeaLevelLabel[] = "Mean Sea Level";
 
-const char* altFrameToText(mission::AltitudeFrame frame)
+const char* altFrameToText(mission::AltitudeFrame _frame)
 {
-  switch (frame) {
+  switch (_frame) {
     case mission::kRelativeToLaunch:
       return kRelativeToLaunchLabel;
     case mission::kMeanSeaLevel:
       return kMeanSeaLevelLabel;
     default:
-      throw std::runtime_error(std::format("Invalid altitude frame: {}", (int)frame));
+      throw std::runtime_error(std::format("Invalid altitude frame: {}", (int)_frame));
   }
 }
 
-mission::AltitudeFrame textToAltFrame(const char* text)
+mission::AltitudeFrame textToAltFrame(const char* _text)
 {
-  if (std::strcmp(text, kRelativeToLaunchLabel) == 0) {
+  if (std::strcmp(_text, kRelativeToLaunchLabel) == 0) {
     return mission::kRelativeToLaunch;
   }
-  else if (std::strcmp(text, kMeanSeaLevelLabel) == 0) {
+  else if (std::strcmp(_text, kMeanSeaLevelLabel) == 0) {
     return mission::kMeanSeaLevel;
   }
   else {
-    throw std::runtime_error(std::format("Invalid altitude frame text: {}", text));
+    throw std::runtime_error(std::format("Invalid altitude frame text: {}", _text));
   }
 }
 }  // namespace
@@ -73,11 +67,8 @@ mission::AltitudeFrame AltitudeFrameWidget::getValue() const
   return textToAltFrame(combobox_->currentText().toUtf8().constData());
 }
 
-void AltitudeFrameWidget::setValue(mission::AltitudeFrame value)
+void AltitudeFrameWidget::setValue(mission::AltitudeFrame _value)
 {
-  combobox_->setCurrentText(altFrameToText(value));
+  combobox_->setCurrentText(altFrameToText(_value));
 }
-}  // namespace field
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::field

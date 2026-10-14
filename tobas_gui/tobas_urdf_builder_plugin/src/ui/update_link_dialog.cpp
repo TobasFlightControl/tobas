@@ -18,18 +18,12 @@
 #include "tobas_urdf_builder_plugin/utils/constants.hpp"
 #include "tobas_urdf_builder_plugin/utils/widget_item.hpp"
 
-namespace tobas
+namespace tobas::gui::ub::ui
 {
-namespace gui
-{
-namespace ub
-{
-namespace ui
-{
-UpdateLinkDialog::UpdateLinkDialog(UrdfBuilderPanel* main)
-  : super(main)
+UpdateLinkDialog::UpdateLinkDialog(UrdfBuilderPanel* _main)
+  : super(_main)
   , settings_store_("tobas", "urdf_builder")
-  , main_(main)
+  , main_(_main)
   , ui_(new Ui::UpdateLinkDialogUI())
   , link_vm_(new view_model::LinkViewModel())
 {
@@ -58,10 +52,10 @@ UpdateLinkDialog::UpdateLinkDialog(UrdfBuilderPanel* main)
   defineConnections();
 }
 
-void UpdateLinkDialog::done(int code)
+void UpdateLinkDialog::done(int _code)
 {
-  if (code == Rejected) {
-    super::done(code);
+  if (_code == Rejected) {
+    super::done(_code);
     return;
   }
 
@@ -69,13 +63,13 @@ void UpdateLinkDialog::done(int code)
     QMessageBox::warning(this, kError, "No name specified");
   }
   else {
-    super::done(code);
+    super::done(_code);
   }
 }
 
-void UpdateLinkDialog::readFromVM(const view_model::LinkViewModelPtr& link_vm)
+void UpdateLinkDialog::readFromVM(const view_model::LinkViewModelPtr& _link_vm)
 {
-  link_vm_ = link_vm->clone();
+  link_vm_ = _link_vm->clone();
 
   blockSignals(true);
 
@@ -103,13 +97,13 @@ void UpdateLinkDialog::readFromVM(const view_model::LinkViewModelPtr& link_vm)
   blockSignals(false);
 }
 
-void UpdateLinkDialog::setTabsEnabled(bool enabled)
+void UpdateLinkDialog::setTabsEnabled(bool _enabled)
 {
-  ui_->GeneralTab->setEnabled(enabled);
-  ui_->JointTab->setEnabled(enabled);
-  ui_->VisualTab->setEnabled(enabled);
-  ui_->CollisionTab->setEnabled(enabled);
-  ui_->InertialTab->setEnabled(enabled);
+  ui_->GeneralTab->setEnabled(_enabled);
+  ui_->JointTab->setEnabled(_enabled);
+  ui_->VisualTab->setEnabled(_enabled);
+  ui_->CollisionTab->setEnabled(_enabled);
+  ui_->InertialTab->setEnabled(_enabled);
 }
 
 const view_model::LinkViewModelPtr& UpdateLinkDialog::viewModel() const
@@ -141,80 +135,80 @@ void UpdateLinkDialog::onCollisionGeometryTypeComboBoxIndexChanged(int)
   emitChanged();
 }
 
-void UpdateLinkDialog::onLinkNameLineEditTextChanged(const QString& text)
+void UpdateLinkDialog::onLinkNameLineEditTextChanged(const QString& _text)
 {
-  qDebug().nospace() << "UpdateLinkDialog::onLinkNameLineEditTextChanged(" << text << ")";
+  qDebug().nospace() << "UpdateLinkDialog::onLinkNameLineEditTextChanged(" << _text << ")";
 
-  link_vm_->name(text);
+  link_vm_->name(_text);
   link_vm_->sync();
 
   emitChanged();
 }
 
-void UpdateLinkDialog::onJointNameLineEditTextChanged(const QString& text)
+void UpdateLinkDialog::onJointNameLineEditTextChanged(const QString& _text)
 {
-  qDebug().nospace() << "UpdateLinkDialog::onJointNameLineEditTextChanged(" << text << ")";
+  qDebug().nospace() << "UpdateLinkDialog::onJointNameLineEditTextChanged(" << _text << ")";
 
-  link_vm_->joint()->name(text);
+  link_vm_->joint()->name(_text);
   link_vm_->sync();
 
   emitChanged();
 }
 
-void UpdateLinkDialog::onVisualNameLineEditTextChanged(const QString& text)
+void UpdateLinkDialog::onVisualNameLineEditTextChanged(const QString& _text)
 {
-  qDebug().nospace() << "UpdateLinkDialog::onVisualNameLineEditTextChanged(" << text << ")";
+  qDebug().nospace() << "UpdateLinkDialog::onVisualNameLineEditTextChanged(" << _text << ")";
 
-  visual_vm_->name(text);
+  visual_vm_->name(_text);
   link_vm_->sync();
 
   emitChanged();
 }
 
-void UpdateLinkDialog::onVisualGeometryMeshPathLineEditTextChanged(const QString& text)
+void UpdateLinkDialog::onVisualGeometryMeshPathLineEditTextChanged(const QString& _text)
 {
-  qDebug().nospace() << "UpdateLinkDialog::onVisualGeometryMeshPathLineEditTextChanged(" << text << ")";
+  qDebug().nospace() << "UpdateLinkDialog::onVisualGeometryMeshPathLineEditTextChanged(" << _text << ")";
 
-  visual_vm_->geometry()->filePath(text);
+  visual_vm_->geometry()->filePath(_text);
   link_vm_->sync();
 
   emitChanged();
 }
 
-void UpdateLinkDialog::onCollisionNameLineEditTextChanged(const QString& text)
+void UpdateLinkDialog::onCollisionNameLineEditTextChanged(const QString& _text)
 {
-  qDebug().nospace() << "UpdateLinkDialog::onCollisionNameLineEditTextChanged(" << text << ")";
+  qDebug().nospace() << "UpdateLinkDialog::onCollisionNameLineEditTextChanged(" << _text << ")";
 
-  collision_vm_->name(text);
+  collision_vm_->name(_text);
 
   emitChanged();
 }
 
-void UpdateLinkDialog::onCollisionGeometryMeshPathEditTextChanged(const QString& text)
+void UpdateLinkDialog::onCollisionGeometryMeshPathEditTextChanged(const QString& _text)
 {
-  qDebug().nospace() << "UpdateLinkDialog::onCollisionGeometryMeshPathEditTextChanged(" << text << ")";
+  qDebug().nospace() << "UpdateLinkDialog::onCollisionGeometryMeshPathEditTextChanged(" << _text << ")";
 
-  collision_vm_->geometry()->filePath(text);
+  collision_vm_->geometry()->filePath(_text);
   link_vm_->sync();
 
   emitChanged();
 }
 
-void UpdateLinkDialog::onMaterialNameLineEditTextChanged(const QString& text)
+void UpdateLinkDialog::onMaterialNameLineEditTextChanged(const QString& _text)
 {
-  qDebug().nospace() << "UpdateLinkDialog::onMaterialNameLineEditTextChanged(" << text << ")";
+  qDebug().nospace() << "UpdateLinkDialog::onMaterialNameLineEditTextChanged(" << _text << ")";
 
-  visual_vm_->material()->name(text);
+  visual_vm_->material()->name(_text);
   link_vm_->sync();
 
   emitChanged();
 }
 
-void UpdateLinkDialog::onMaterialTexturePathLineEditTextChanged(const QString& text)
+void UpdateLinkDialog::onMaterialTexturePathLineEditTextChanged(const QString& _text)
 {
-  qDebug().nospace() << "UpdateLinkDialog::onMaterialTexturePathLineEditTextChanged(" << text << ")";
+  qDebug().nospace() << "UpdateLinkDialog::onMaterialTexturePathLineEditTextChanged(" << _text << ")";
 
-  visual_vm_->material()->textureFileName(text);
+  visual_vm_->material()->textureFileName(_text);
   link_vm_->sync();
 
   emitChanged();
@@ -283,19 +277,19 @@ void UpdateLinkDialog::onInertialSpinBoxValueChanged(double)
   emitChanged();
 }
 
-void UpdateLinkDialog::onVisualListWidgetItemClicked(QListWidgetItem* item)
+void UpdateLinkDialog::onVisualListWidgetItemClicked(QListWidgetItem* _item)
 {
-  qDebug().nospace() << "UpdateLinkDialog::onVisualListWidgetItemClicked(" << item->text() << ")";
+  qDebug().nospace() << "UpdateLinkDialog::onVisualListWidgetItemClicked(" << _item->text() << ")";
 
-  const auto visual_item = dynamic_cast<VisualListWidgetItem*>(item);
+  const auto visual_item = dynamic_cast<VisualListWidgetItem*>(_item);
   readFromVM(visual_item->viewModel());
 }
 
-void UpdateLinkDialog::onCollisionListWidgetItemClicked(QListWidgetItem* item)
+void UpdateLinkDialog::onCollisionListWidgetItemClicked(QListWidgetItem* _item)
 {
-  qDebug().nospace() << "UpdateLinkDialog::onCollisionListWidgetItemClicked(" << item->text() << ")";
+  qDebug().nospace() << "UpdateLinkDialog::onCollisionListWidgetItemClicked(" << _item->text() << ")";
 
-  const auto collision_item = dynamic_cast<CollisionListWidgetItem*>(item);
+  const auto collision_item = dynamic_cast<CollisionListWidgetItem*>(_item);
   readFromVM(collision_item->viewModel());
 }
 
@@ -554,11 +548,11 @@ void UpdateLinkDialog::onBuildInertiaSphereButtonClicked()
   emitChanged();
 }
 
-void UpdateLinkDialog::readFromVM(const view_model::JointViewModelPtr& joint)
+void UpdateLinkDialog::readFromVM(const view_model::JointViewModelPtr& _joint)
 {
   blockSignals(true);
 
-  ui_->JointNameLineEdit->setText(joint->name());
+  ui_->JointNameLineEdit->setText(_joint->name());
 
   ui_->JointParentLinkComboBox->clear();
   for (const auto& link_name : main_->linkNames()) {
@@ -566,25 +560,25 @@ void UpdateLinkDialog::readFromVM(const view_model::JointViewModelPtr& joint)
       ui_->JointParentLinkComboBox->addItem(link_name);
     }
   }
-  if (joint->parentLinkName().isEmpty()) {
+  if (_joint->parentLinkName().isEmpty()) {
     ui_->JointParentLinkComboBox->setCurrentIndex(-1);
   }
   else {
-    ui_->JointParentLinkComboBox->setCurrentText(joint->parentLinkName());
+    ui_->JointParentLinkComboBox->setCurrentText(_joint->parentLinkName());
   }
 
-  ui_->JointTypeComboBox->setCurrentText(joint->type());
+  ui_->JointTypeComboBox->setCurrentText(_joint->type());
 
-  ui_->JointLimitGroupBox->setVisible(joint->limitsEnabled());
-  if (joint->limitsEnabled()) {
-    ui_->JointLimitLowerSpinBox->setValue(joint->limits()->lower());
-    ui_->JointLimitUpperSpinBox->setValue(joint->limits()->upper());
-    ui_->JointLimitEffortSpinBox->setValue(joint->limits()->effort());
-    ui_->JointLimitVelocitySpinBox->setValue(joint->limits()->velocity());
+  ui_->JointLimitGroupBox->setVisible(_joint->limitsEnabled());
+  if (_joint->limitsEnabled()) {
+    ui_->JointLimitLowerSpinBox->setValue(_joint->limits()->lower());
+    ui_->JointLimitUpperSpinBox->setValue(_joint->limits()->upper());
+    ui_->JointLimitEffortSpinBox->setValue(_joint->limits()->effort());
+    ui_->JointLimitVelocitySpinBox->setValue(_joint->limits()->velocity());
   }
 
   // Do not show Axis or Dynamics for fixed joints.
-  if (joint->isFixed()) {
+  if (_joint->isFixed()) {
     ui_->JointAxisGroupBox->setVisible(false);
     ui_->JointDynamicsGroupBox->setVisible(false);
   }
@@ -593,7 +587,7 @@ void UpdateLinkDialog::readFromVM(const view_model::JointViewModelPtr& joint)
     ui_->JointDynamicsGroupBox->setVisible(true);
   }
 
-  const auto& origin = joint->origin();
+  const auto& origin = _joint->origin();
   ui_->JointOriginXSpinBox->setValue(origin.position.x);
   ui_->JointOriginYSpinBox->setValue(origin.position.y);
   ui_->JointOriginZSpinBox->setValue(origin.position.z);
@@ -604,27 +598,27 @@ void UpdateLinkDialog::readFromVM(const view_model::JointViewModelPtr& joint)
   ui_->JointOriginPitchSpinBox->setValue(p);
   ui_->JointOriginYawSpinBox->setValue(y);
 
-  ui_->JointAxisXSpinBox->setValue(joint->axis().x);
-  ui_->JointAxisYSpinBox->setValue(joint->axis().y);
-  ui_->JointAxisZSpinBox->setValue(joint->axis().z);
+  ui_->JointAxisXSpinBox->setValue(_joint->axis().x);
+  ui_->JointAxisYSpinBox->setValue(_joint->axis().y);
+  ui_->JointAxisZSpinBox->setValue(_joint->axis().z);
 
   blockSignals(false);
 }
 
-void UpdateLinkDialog::readFromVM(const view_model::VisualViewModelPtr& visual)
+void UpdateLinkDialog::readFromVM(const view_model::VisualViewModelPtr& _visual)
 {
-  visual_vm_ = visual;
-  ui_->VisualOriginGroupBox->setVisible(visual != nullptr);
-  ui_->VisualGeometryGroupBox->setVisible(visual != nullptr);
-  ui_->VisualMaterialGroupBox->setVisible(visual != nullptr);
+  visual_vm_ = _visual;
+  ui_->VisualOriginGroupBox->setVisible(_visual != nullptr);
+  ui_->VisualGeometryGroupBox->setVisible(_visual != nullptr);
+  ui_->VisualMaterialGroupBox->setVisible(_visual != nullptr);
 
-  if (!visual) {
+  if (!_visual) {
     return;
   }
 
   blockSignals(true);
 
-  ui_->VisualNameLineEdit->setText(visual->name());
+  ui_->VisualNameLineEdit->setText(_visual->name());
   ui_->VisualGeometryTypeComboBox->setCurrentText(visual_vm_->geometry()->name());
 
   ui_->VisualOriginXSpinBox->setValue(visual_vm_->origin().position.x);
@@ -659,19 +653,19 @@ void UpdateLinkDialog::readFromVM(const view_model::VisualViewModelPtr& visual)
   blockSignals(false);
 }
 
-void UpdateLinkDialog::readFromVM(const view_model::CollisionViewModelPtr& collision)
+void UpdateLinkDialog::readFromVM(const view_model::CollisionViewModelPtr& _collision)
 {
-  collision_vm_ = collision;
-  ui_->CollisionOriginGroupBox->setVisible(collision != nullptr);
-  ui_->CollisionGeometryGroupBox->setVisible(collision != nullptr);
+  collision_vm_ = _collision;
+  ui_->CollisionOriginGroupBox->setVisible(_collision != nullptr);
+  ui_->CollisionGeometryGroupBox->setVisible(_collision != nullptr);
 
-  if (!collision) {
+  if (!_collision) {
     return;
   }
 
   blockSignals(true);
 
-  ui_->CollisionNameLineEdit->setText(collision->name());
+  ui_->CollisionNameLineEdit->setText(_collision->name());
   ui_->CollisionGeometryTypeComboBox->setCurrentText(collision_vm_->geometry()->name());
   ui_->CollisionOriginXSpinBox->setValue(collision_vm_->origin().position.x);
   ui_->CollisionOriginYSpinBox->setValue(collision_vm_->origin().position.y);
@@ -698,11 +692,11 @@ void UpdateLinkDialog::readFromVM(const view_model::CollisionViewModelPtr& colli
   blockSignals(false);
 }
 
-void UpdateLinkDialog::readFromVM(const view_model::InertialViewModelPtr& inertial)
+void UpdateLinkDialog::readFromVM(const view_model::InertialViewModelPtr& _inertial)
 {
   blockSignals(true);
 
-  const auto& origin = inertial->origin();
+  const auto& origin = _inertial->origin();
   ui_->InertialOriginXSpinBox->setValue(origin.position.x);
   ui_->InertialOriginYSpinBox->setValue(origin.position.y);
   ui_->InertialOriginZSpinBox->setValue(origin.position.z);
@@ -715,7 +709,7 @@ void UpdateLinkDialog::readFromVM(const view_model::InertialViewModelPtr& inerti
 
   ui_->InertialMassSpinBox->setValue(link_vm_->inertial()->mass());
 
-  const auto& inertia = inertial->inertia();
+  const auto& inertia = _inertial->inertia();
   ui_->InertiaIXXSpinBox->setValue(inertia.ixx);
   ui_->InertiaIXYSpinBox->setValue(inertia.ixy);
   ui_->InertiaIXZSpinBox->setValue(inertia.ixz);
@@ -726,9 +720,9 @@ void UpdateLinkDialog::readFromVM(const view_model::InertialViewModelPtr& inerti
   blockSignals(false);
 }
 
-void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& visual) const
+void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& _visual) const
 {
-  assert(visual);
+  assert(_visual);
 
   ::urdf::Pose pose;
   pose.position.x = ui_->VisualOriginXSpinBox->value();
@@ -736,9 +730,9 @@ void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& visual) 
   pose.position.z = ui_->VisualOriginZSpinBox->value();
   pose.rotation.setFromRPY(
     ui_->VisualOriginRollSpinBox->value(), ui_->VisualOriginPitchSpinBox->value(), ui_->VisualOriginYawSpinBox->value());
-  visual->origin(pose);
+  _visual->origin(pose);
 
-  const auto& geometry_vm = visual->geometry();
+  const auto& geometry_vm = _visual->geometry();
   switch (geometry_vm->type()) {
     case GeometryType::BOX:
       geometry_vm->length(ui_->VisualGeometryBoxLengthSpinBox->value());
@@ -769,9 +763,9 @@ void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& visual) 
   link_vm_->sync();
 }
 
-void UpdateLinkDialog::readFromUI(const view_model::CollisionViewModelPtr& collision) const
+void UpdateLinkDialog::readFromUI(const view_model::CollisionViewModelPtr& _collision) const
 {
-  assert(collision);
+  assert(_collision);
 
   ::urdf::Pose pose;
   pose.position.x = ui_->CollisionOriginXSpinBox->value();
@@ -781,9 +775,9 @@ void UpdateLinkDialog::readFromUI(const view_model::CollisionViewModelPtr& colli
     ui_->CollisionOriginRollSpinBox->value(),
     ui_->CollisionOriginPitchSpinBox->value(),
     ui_->CollisionOriginYawSpinBox->value());
-  collision->origin(pose);
+  _collision->origin(pose);
 
-  const auto& geometry_vm = collision->geometry();
+  const auto& geometry_vm = _collision->geometry();
   switch (geometry_vm->type()) {
     case GeometryType::BOX:
       geometry_vm->length(ui_->CollisionGeometryBoxLengthSpinBox->value());
@@ -806,18 +800,18 @@ void UpdateLinkDialog::readFromUI(const view_model::CollisionViewModelPtr& colli
   link_vm_->sync();
 }
 
-void UpdateLinkDialog::readFromUI(const view_model::JointViewModelPtr& joint) const
+void UpdateLinkDialog::readFromUI(const view_model::JointViewModelPtr& _joint) const
 {
-  joint->name(ui_->JointNameLineEdit->text());
-  joint->parentLinkName(ui_->JointParentLinkComboBox->currentText());
-  joint->childLinkName(ui_->LinkNameLineEdit->text());
-  joint->type(ui_->JointTypeComboBox->currentText());
+  _joint->name(ui_->JointNameLineEdit->text());
+  _joint->parentLinkName(ui_->JointParentLinkComboBox->currentText());
+  _joint->childLinkName(ui_->LinkNameLineEdit->text());
+  _joint->type(ui_->JointTypeComboBox->currentText());
 
-  if (joint->limitsEnabled()) {
-    joint->limits()->lower(ui_->JointLimitLowerSpinBox->value());
-    joint->limits()->upper(ui_->JointLimitUpperSpinBox->value());
-    joint->limits()->effort(ui_->JointLimitEffortSpinBox->value());
-    joint->limits()->velocity(ui_->JointLimitVelocitySpinBox->value());
+  if (_joint->limitsEnabled()) {
+    _joint->limits()->lower(ui_->JointLimitLowerSpinBox->value());
+    _joint->limits()->upper(ui_->JointLimitUpperSpinBox->value());
+    _joint->limits()->effort(ui_->JointLimitEffortSpinBox->value());
+    _joint->limits()->velocity(ui_->JointLimitVelocitySpinBox->value());
   }
 
   ::urdf::Pose pose;
@@ -826,18 +820,18 @@ void UpdateLinkDialog::readFromUI(const view_model::JointViewModelPtr& joint) co
   pose.position.z = ui_->JointOriginZSpinBox->value();
   pose.rotation.setFromRPY(
     ui_->JointOriginRollSpinBox->value(), ui_->JointOriginPitchSpinBox->value(), ui_->JointOriginYawSpinBox->value());
-  joint->origin(pose);
+  _joint->origin(pose);
 
   ::urdf::Vector3 axis;
   axis.x = ui_->JointAxisXSpinBox->value();
   axis.y = ui_->JointAxisYSpinBox->value();
   axis.z = ui_->JointAxisZSpinBox->value();
-  joint->axis(axis);
+  _joint->axis(axis);
 
   link_vm_->sync();
 }
 
-void UpdateLinkDialog::readFromUI(const view_model::InertialViewModelPtr& inertial) const
+void UpdateLinkDialog::readFromUI(const view_model::InertialViewModelPtr& _inertial) const
 {
   ::urdf::Pose pose;
   pose.position.x = ui_->InertialOriginXSpinBox->value();
@@ -847,9 +841,9 @@ void UpdateLinkDialog::readFromUI(const view_model::InertialViewModelPtr& inerti
     ui_->InertialOriginRollSpinBox->value(),
     ui_->InertialOriginPitchSpinBox->value(),
     ui_->InertialOriginYawSpinBox->value());
-  inertial->origin(pose);
+  _inertial->origin(pose);
 
-  inertial->mass(ui_->InertialMassSpinBox->value());
+  _inertial->mass(ui_->InertialMassSpinBox->value());
 
   view_model::Inertia inertia;
   inertia.ixx = ui_->InertiaIXXSpinBox->value();
@@ -858,19 +852,19 @@ void UpdateLinkDialog::readFromUI(const view_model::InertialViewModelPtr& inerti
   inertia.iyy = ui_->InertiaIYYSpinBox->value();
   inertia.iyz = ui_->InertiaIYZSpinBox->value();
   inertia.izz = ui_->InertiaIZZSpinBox->value();
-  inertial->inertia(inertia);
+  _inertial->inertia(inertia);
 
   link_vm_->sync();
 }
 
-void UpdateLinkDialog::blockSignals(bool block)
+void UpdateLinkDialog::blockSignals(bool _block)
 {
   const auto widget_list = findChildren<QWidget*>();
   const QList<QWidget*>::const_iterator last_widget(widget_list.end());
   QList<QWidget*>::const_iterator widget_iter(widget_list.begin());
 
   while (widget_iter != last_widget) {
-    (*widget_iter)->blockSignals(block);
+    (*widget_iter)->blockSignals(_block);
     ++widget_iter;
   }
 }
@@ -880,14 +874,11 @@ void UpdateLinkDialog::emitChanged()
   Q_EMIT Changed();
 }
 
-void UpdateLinkDialog::arrangeVisualGeometryTypeFrames(const std::map<QString, QFrame*>& map, const QString& type)
+void UpdateLinkDialog::arrangeVisualGeometryTypeFrames(const std::map<QString, QFrame*>& _map, const QString& _type)
 {
-  for (const auto& pair : map) {
+  for (const auto& pair : _map) {
     pair.second->hide();
   }
-  map.at(type)->show();
+  _map.at(_type)->show();
 }
-}  // namespace ui
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::ui

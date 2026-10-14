@@ -8,39 +8,39 @@
 
 using namespace std;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
-  if (argc != 2) {
-    cerr << "Usage: " << argv[0] << " <SPI Device>" << endl;
+  if (_argc != 2) {
+    cerr << "Usage: " << _argv[0] << " <SPI Device>\n";
     return EXIT_FAILURE;
   }
-  const auto device = argv[1];
+  const auto device = _argv[1];
 
   tobas::stm::ISM330DLC imu;
   double ax, ay, az, gx, gy, gz;
 
   if (!imu.initialize(device)) {
-    cerr << "Failed to initialize IMU." << endl;
+    cerr << "Failed to initialize IMU.\n";
     return EXIT_FAILURE;
   }
 
   if (!imu.setAccelOutputDataRate(tobas::stm::ISM330DLC::odr_xl_t::ODR_XL_6664HZ)) {
-    cerr << "Failed to set accelerometer output data rate." << endl;
+    cerr << "Failed to set accelerometer output data rate.\n";
     return EXIT_FAILURE;
   }
   if (!imu.setGyroOutputDataRate(tobas::stm::ISM330DLC::odr_g_t::ODR_G_6664HZ)) {
-    cerr << "Failed to set gyroscope output data rate." << endl;
+    cerr << "Failed to set gyroscope output data rate.\n";
     return EXIT_FAILURE;
   }
 
   while (true) {
     if (!imu.readImu(ax, ay, az, gx, gy, gz)) {
-      cerr << "Failed to read IMU." << endl;
+      cerr << "Failed to read IMU.\n";
       return EXIT_FAILURE;
     }
 
-    cout << "Accel [m/s^2]: " << ax << ", " << ay << ", " << az << endl;
-    cout << "Gyro [rad/s] : " << gx << ", " << gy << ", " << gz << endl;
+    cout << "Accel [m/s^2]: " << ax << ", " << ay << ", " << az << '\n';
+    cout << "Gyro [rad/s] : " << gx << ", " << gy << ", " << gz << '\n';
 
     this_thread::sleep_for(100ms);
   }

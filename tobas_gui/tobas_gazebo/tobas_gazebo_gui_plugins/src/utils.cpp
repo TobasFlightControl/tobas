@@ -5,9 +5,7 @@
 
 #include <gz/gui/Helpers.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 std::expected<std::string, std::string> getWorldName()
 {
@@ -17,5 +15,4 @@ std::expected<std::string, std::string> getWorldName()
   }
   return world_names[0].toStdString();
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

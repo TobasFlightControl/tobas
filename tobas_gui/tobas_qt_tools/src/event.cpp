@@ -7,9 +7,7 @@
 #include <QEventLoop>
 #include <QTimer>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 void processAllQueuedEvents()
 {
@@ -24,5 +22,4 @@ void processAllQueuedEvents()
   // One final processing pass, sometimes required for screen updates.
   QCoreApplication::processEvents();
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

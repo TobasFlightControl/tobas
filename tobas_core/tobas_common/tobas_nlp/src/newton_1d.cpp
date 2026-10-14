@@ -8,32 +8,30 @@
 
 // #define TRACE_SOLVER
 
-namespace tobas
-{
-namespace nlp
+namespace tobas::nlp
 {
 NewtonSolver1d::NewtonSolver1d()
 {
 }
 
-void NewtonSolver1d::initialize(std::function<double(double)> f, std::function<double(double)> dfdx)
+void NewtonSolver1d::initialize(std::function<double(double)> _f, std::function<double(double)> _dfdx)
 {
-  f_ = f;
-  dfdx_ = dfdx;
+  f_ = _f;
+  dfdx_ = _dfdx;
 }
 
-std::expected<double, std::string> NewtonSolver1d::solve(double x)
+std::expected<double, std::string> NewtonSolver1d::solve(double _x)
 {
   for (size_t iter = 0; iter < max_iter_; ++iter) {
-    const auto f = f_(x);
-    const auto dfdx = dfdx_(x);
+    const auto f = f_(_x);
+    const auto dfdx = dfdx_(_x);
 
 #ifdef TRACE_SOLVER
-    std::cout << "Iteration: " << iter << std::endl;
-    std::cout << "x = " << x << std::endl;
-    std::cout << "f(x) = " << f << std::endl;
-    std::cout << "df/dx(x) = " << dfdx << std::endl;
-    std::cout << "----------" << std::endl;
+    std::cout << "Iteration: " << iter << '\n';
+    std::cout << "x = " << _x << '\n';
+    std::cout << "f(x) = " << f << '\n';
+    std::cout << "df/dx(x) = " << dfdx << '\n';
+    std::cout << "----------\n";
 #endif
 
     assert(std::isfinite(f));
@@ -44,7 +42,7 @@ std::expected<double, std::string> NewtonSolver1d::solve(double x)
     if (dfdx < kEps) {
       if (f < kEps) {
         // Exit if already at the solution.
-        return x;
+        return _x;
       }
       else {
         // Return an error if not converged.
@@ -53,27 +51,26 @@ std::expected<double, std::string> NewtonSolver1d::solve(double x)
     }
 
     const auto dx = -f / dfdx;
-    x += dx;
+    _x += dx;
 
     // Termination check.
     if (std::abs(dx) < abs_tol_) {
-      return x;
+      return _x;
     }
   }
 
   return std::unexpected("The number of iterations exceeded the limit.");
 }
 
-void NewtonSolver1d::setMaximumIterations(size_t max_iter)
+void NewtonSolver1d::setMaximumIterations(size_t _max_iter)
 {
-  max_iter_ = max_iter;
+  max_iter_ = _max_iter;
 }
 
-void NewtonSolver1d::setAbsoluteTolerance(double abs_tol)
+void NewtonSolver1d::setAbsoluteTolerance(double _abs_tol)
 {
-  assert(abs_tol > 0.0);
+  assert(_abs_tol > 0.0);
 
-  abs_tol_ = abs_tol;
+  abs_tol_ = _abs_tol;
 }
-}  // namespace nlp
-}  // namespace tobas
+}  // namespace tobas::nlp

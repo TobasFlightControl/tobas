@@ -7,11 +7,7 @@
 #include "./suspended_load.hpp"
 #include "./wind_parameters.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class DynamicConfigWidget : public QWidget
 {
@@ -21,7 +17,7 @@ public:
   explicit DynamicConfigWidget();
 
   void reset();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:
@@ -29,6 +25,4 @@ private:
   FixedLoadWidget* fixed_load_;
   SuspendedLoadWidget* suspended_load_;
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

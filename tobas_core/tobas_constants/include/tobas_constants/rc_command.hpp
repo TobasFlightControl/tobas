@@ -23,8 +23,8 @@ enum class RcCommand
   kSpeedRollDPitch,
 };
 
-std::string textFromEnum(RcCommand cmd);
-bool enumFromText(const std::string& text, RcCommand& dst);
+std::string textFromEnum(RcCommand _cmd);
+bool enumFromText(const std::string& _text, RcCommand& _dst);
 }  // namespace tobas
 
 namespace YAML
@@ -32,7 +32,7 @@ namespace YAML
 template <>
 struct convert<tobas::RcCommand>
 {
-  static Node encode(tobas::RcCommand rhs);
-  static bool decode(const Node& node, tobas::RcCommand& rhs);
+  static Node encode(tobas::RcCommand _rhs);
+  static bool decode(const Node& _node, tobas::RcCommand& _rhs);
 };
 }  // namespace YAML

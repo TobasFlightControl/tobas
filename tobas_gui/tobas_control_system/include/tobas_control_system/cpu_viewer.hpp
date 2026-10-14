@@ -8,11 +8,7 @@
 #include <tobas_qt_tools/widgets/progress_bar.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class CpuViewerWidget : public QWidget
 {
@@ -21,7 +17,7 @@ class CpuViewerWidget : public QWidget
   using self = CpuViewerWidget;
 
 public:
-  explicit CpuViewerWidget(const rqt::RosQtBridge& bridge);
+  explicit CpuViewerWidget(const rqt::RosQtBridge& _bridge);
 
   void reset();
 
@@ -30,8 +26,6 @@ private:
   qt::ProgressBar* load_;
 
 private Q_SLOTS:
-  void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
+  void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& _cpu);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

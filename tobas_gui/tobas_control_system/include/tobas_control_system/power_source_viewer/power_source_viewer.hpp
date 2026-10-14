@@ -8,18 +8,14 @@
 #include "./battery_viewer.hpp"
 #include "./engine_viewer.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class PowerSourceViewerWidget : public qt::StackedWidget
 {
   Q_OBJECT
 
 public:
-  explicit PowerSourceViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
+  explicit PowerSourceViewerWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone);
 
   void reset();
   void updateInternalDataStructures();
@@ -30,6 +26,4 @@ private:
   BatteryViewerWidget* battery_viewer_;
   EngineViewerWidget* engine_viewer_;
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

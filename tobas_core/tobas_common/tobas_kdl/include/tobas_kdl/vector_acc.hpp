@@ -7,9 +7,7 @@
 #include "./utilities/rall2d.hpp"
 #include "./vector.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class VectorAcc
 {
@@ -30,32 +28,32 @@ public:
 
   inline doubleAcc norm() const;
 
-  inline doubleAcc dot(const Vector& rhs) const;
-  inline doubleAcc dot(const VectorAcc& rhs) const;
+  inline doubleAcc dot(const Vector& _rhs) const;
+  inline doubleAcc dot(const VectorAcc& _rhs) const;
 
-  inline VectorAcc& operator+=(const VectorAcc& arg);
-  inline VectorAcc& operator-=(const VectorAcc& arg);
+  inline VectorAcc& operator+=(const VectorAcc& _arg);
+  inline VectorAcc& operator-=(const VectorAcc& _arg);
 
-  inline friend VectorAcc operator+(const VectorAcc& r1, const VectorAcc& r2);
-  inline friend VectorAcc operator-(const VectorAcc& r1, const VectorAcc& r2);
-  inline friend VectorAcc operator+(const Vector& r1, const VectorAcc& r2);
-  inline friend VectorAcc operator-(const Vector& r1, const VectorAcc& r2);
-  inline friend VectorAcc operator+(const VectorAcc& r1, const Vector& r2);
-  inline friend VectorAcc operator-(const VectorAcc& r1, const Vector& r2);
+  inline friend VectorAcc operator+(const VectorAcc& _r1, const VectorAcc& _r2);
+  inline friend VectorAcc operator-(const VectorAcc& _r1, const VectorAcc& _r2);
+  inline friend VectorAcc operator+(const Vector& _r1, const VectorAcc& _r2);
+  inline friend VectorAcc operator-(const Vector& _r1, const VectorAcc& _r2);
+  inline friend VectorAcc operator+(const VectorAcc& _r1, const Vector& _r2);
+  inline friend VectorAcc operator-(const VectorAcc& _r1, const Vector& _r2);
   /** cross prod. */
-  inline friend VectorAcc operator*(const VectorAcc& r1, const VectorAcc& r2);
-  inline friend VectorAcc operator*(const VectorAcc& r1, const Vector& r2);
-  inline friend VectorAcc operator*(const Vector& r1, const VectorAcc& r2);
-  inline friend VectorAcc operator*(const VectorAcc& r1, double r2);
+  inline friend VectorAcc operator*(const VectorAcc& _r1, const VectorAcc& _r2);
+  inline friend VectorAcc operator*(const VectorAcc& _r1, const Vector& _r2);
+  inline friend VectorAcc operator*(const Vector& _r1, const VectorAcc& _r2);
+  inline friend VectorAcc operator*(const VectorAcc& _r1, double _r2);
   /** scalar mult. */
-  inline friend VectorAcc operator*(double r1, const VectorAcc& r2);
-  inline friend VectorAcc operator*(const doubleAcc& r1, const VectorAcc& r2);
-  inline friend VectorAcc operator*(const VectorAcc& r2, const doubleAcc& r1);
-  inline friend VectorAcc operator*(const Rotation& R, const VectorAcc& x);
-  inline friend VectorAcc operator/(const VectorAcc& r1, double r2);
-  inline friend VectorAcc operator/(const VectorAcc& r2, const doubleAcc& r1);
+  inline friend VectorAcc operator*(double _r1, const VectorAcc& _r2);
+  inline friend VectorAcc operator*(const doubleAcc& _r1, const VectorAcc& _r2);
+  inline friend VectorAcc operator*(const VectorAcc& _r2, const doubleAcc& _r1);
+  inline friend VectorAcc operator*(const Rotation& _r, const VectorAcc& _x);
+  inline friend VectorAcc operator/(const VectorAcc& _r1, double _r2);
+  inline friend VectorAcc operator/(const VectorAcc& _r2, const doubleAcc& _r1);
   /** unary - */
-  inline friend VectorAcc operator-(const VectorAcc& r);
+  inline friend VectorAcc operator-(const VectorAcc& _r);
 };
 
 inline VectorAcc::VectorAcc()
@@ -102,114 +100,113 @@ inline doubleAcc VectorAcc::norm() const
   return res;
 }
 
-inline doubleAcc VectorAcc::dot(const Vector& rhs) const
+inline doubleAcc VectorAcc::dot(const Vector& _rhs) const
 {
-  return doubleAcc(p.dot(rhs), v.dot(rhs), dv.dot(rhs));
+  return doubleAcc(p.dot(_rhs), v.dot(_rhs), dv.dot(_rhs));
 }
 
-inline doubleAcc VectorAcc::dot(const VectorAcc& rhs) const
+inline doubleAcc VectorAcc::dot(const VectorAcc& _rhs) const
 {
-  return doubleAcc(p.dot(rhs.p), p.dot(rhs.v) + v.dot(rhs.p), p.dot(rhs.dv) + 2 * v.dot(rhs.v) + dv.dot(rhs.p));
+  return doubleAcc(p.dot(_rhs.p), p.dot(_rhs.v) + v.dot(_rhs.p), p.dot(_rhs.dv) + 2 * v.dot(_rhs.v) + dv.dot(_rhs.p));
 }
 
-inline VectorAcc& VectorAcc::operator+=(const VectorAcc& arg)
+inline VectorAcc& VectorAcc::operator+=(const VectorAcc& _arg)
 {
-  p += arg.p;
-  v += arg.v;
-  dv += arg.dv;
+  p += _arg.p;
+  v += _arg.v;
+  dv += _arg.dv;
   return *this;
 }
-inline VectorAcc& VectorAcc::operator-=(const VectorAcc& arg)
+inline VectorAcc& VectorAcc::operator-=(const VectorAcc& _arg)
 {
-  p -= arg.p;
-  v -= arg.v;
-  dv -= arg.dv;
+  p -= _arg.p;
+  v -= _arg.v;
+  dv -= _arg.dv;
   return *this;
 }
 
-inline VectorAcc operator+(const VectorAcc& r1, const VectorAcc& r2)
+inline VectorAcc operator+(const VectorAcc& _r1, const VectorAcc& _r2)
 {
-  return VectorAcc(r1.p + r2.p, r1.v + r2.v, r1.dv + r2.dv);
+  return VectorAcc(_r1.p + _r2.p, _r1.v + _r2.v, _r1.dv + _r2.dv);
 }
 
-inline VectorAcc operator-(const VectorAcc& r1, const VectorAcc& r2)
+inline VectorAcc operator-(const VectorAcc& _r1, const VectorAcc& _r2)
 {
-  return VectorAcc(r1.p - r2.p, r1.v - r2.v, r1.dv - r2.dv);
+  return VectorAcc(_r1.p - _r2.p, _r1.v - _r2.v, _r1.dv - _r2.dv);
 }
-inline VectorAcc operator+(const Vector& r1, const VectorAcc& r2)
+inline VectorAcc operator+(const Vector& _r1, const VectorAcc& _r2)
 {
-  return VectorAcc(r1 + r2.p, r2.v, r2.dv);
-}
-
-inline VectorAcc operator-(const Vector& r1, const VectorAcc& r2)
-{
-  return VectorAcc(r1 - r2.p, -r2.v, -r2.dv);
+  return VectorAcc(_r1 + _r2.p, _r2.v, _r2.dv);
 }
 
-inline VectorAcc operator+(const VectorAcc& r1, const Vector& r2)
+inline VectorAcc operator-(const Vector& _r1, const VectorAcc& _r2)
 {
-  return VectorAcc(r1.p + r2, r1.v, r1.dv);
+  return VectorAcc(_r1 - _r2.p, -_r2.v, -_r2.dv);
 }
 
-inline VectorAcc operator-(const VectorAcc& r1, const Vector& r2)
+inline VectorAcc operator+(const VectorAcc& _r1, const Vector& _r2)
 {
-  return VectorAcc(r1.p - r2, r1.v, r1.dv);
+  return VectorAcc(_r1.p + _r2, _r1.v, _r1.dv);
 }
 
-inline VectorAcc operator-(const VectorAcc& r)
+inline VectorAcc operator-(const VectorAcc& _r1, const Vector& _r2)
 {
-  return VectorAcc(-r.p, -r.v, -r.dv);
+  return VectorAcc(_r1.p - _r2, _r1.v, _r1.dv);
 }
 
-inline VectorAcc operator*(const VectorAcc& r1, const VectorAcc& r2)
+inline VectorAcc operator-(const VectorAcc& _r)
 {
-  return VectorAcc(r1.p * r2.p, r1.p * r2.v + r1.v * r2.p, r1.dv * r2.p + 2 * r1.v * r2.v + r1.p * r2.dv);
+  return VectorAcc(-_r.p, -_r.v, -_r.dv);
 }
 
-inline VectorAcc operator*(const VectorAcc& r1, const Vector& r2)
+inline VectorAcc operator*(const VectorAcc& _r1, const VectorAcc& _r2)
 {
-  return VectorAcc(r1.p * r2, r1.v * r2, r1.dv * r2);
+  return VectorAcc(_r1.p * _r2.p, _r1.p * _r2.v + _r1.v * _r2.p, _r1.dv * _r2.p + 2 * _r1.v * _r2.v + _r1.p * _r2.dv);
 }
 
-inline VectorAcc operator*(const Vector& r1, const VectorAcc& r2)
+inline VectorAcc operator*(const VectorAcc& _r1, const Vector& _r2)
 {
-  return VectorAcc(r1 * r2.p, r1 * r2.v, r1 * r2.dv);
+  return VectorAcc(_r1.p * _r2, _r1.v * _r2, _r1.dv * _r2);
 }
 
-inline VectorAcc operator*(double r1, const VectorAcc& r2)
+inline VectorAcc operator*(const Vector& _r1, const VectorAcc& _r2)
 {
-  return VectorAcc(r1 * r2.p, r1 * r2.v, r1 * r2.dv);
+  return VectorAcc(_r1 * _r2.p, _r1 * _r2.v, _r1 * _r2.dv);
 }
 
-inline VectorAcc operator*(const VectorAcc& r1, double r2)
+inline VectorAcc operator*(double _r1, const VectorAcc& _r2)
 {
-  return VectorAcc(r1.p * r2, r1.v * r2, r1.dv * r2);
+  return VectorAcc(_r1 * _r2.p, _r1 * _r2.v, _r1 * _r2.dv);
 }
 
-inline VectorAcc operator*(const doubleAcc& r1, const VectorAcc& r2)
+inline VectorAcc operator*(const VectorAcc& _r1, double _r2)
 {
-  return VectorAcc(r1.t * r2.p, r1.t * r2.v + r1.d * r2.p, r1.t * r2.dv + 2 * r1.d * r2.v + r1.dd * r2.p);
+  return VectorAcc(_r1.p * _r2, _r1.v * _r2, _r1.dv * _r2);
 }
 
-inline VectorAcc operator*(const VectorAcc& r2, const doubleAcc& r1)
+inline VectorAcc operator*(const doubleAcc& _r1, const VectorAcc& _r2)
 {
-  return VectorAcc(r1.t * r2.p, r1.t * r2.v + r1.d * r2.p, r1.t * r2.dv + 2 * r1.d * r2.v + r1.dd * r2.p);
+  return VectorAcc(_r1.t * _r2.p, _r1.t * _r2.v + _r1.d * _r2.p, _r1.t * _r2.dv + 2 * _r1.d * _r2.v + _r1.dd * _r2.p);
 }
 
-inline VectorAcc operator*(const Rotation& R, const VectorAcc& x)
+inline VectorAcc operator*(const VectorAcc& _r2, const doubleAcc& _r1)
 {
-  return VectorAcc(R * x.p, R * x.v, R * x.dv);
+  return VectorAcc(_r1.t * _r2.p, _r1.t * _r2.v + _r1.d * _r2.p, _r1.t * _r2.dv + 2 * _r1.d * _r2.v + _r1.dd * _r2.p);
 }
 
-inline VectorAcc operator/(const VectorAcc& r1, double r2)
+inline VectorAcc operator*(const Rotation& _r, const VectorAcc& _x)
 {
-  assert(r2 != 0.0);
-  return VectorAcc(r1.p / r2, r1.v / r2, r1.dv / r2);
+  return VectorAcc(_r * _x.p, _r * _x.v, _r * _x.dv);
 }
 
-inline VectorAcc operator/(const VectorAcc& r2, const doubleAcc& r1)
+inline VectorAcc operator/(const VectorAcc& _r1, double _r2)
 {
-  return r2 * (1.0 / r1);
+  assert(_r2 != 0.0);
+  return VectorAcc(_r1.p / _r2, _r1.v / _r2, _r1.dv / _r2);
 }
-}  // namespace kdl
-}  // namespace tobas
+
+inline VectorAcc operator/(const VectorAcc& _r2, const doubleAcc& _r1)
+{
+  return _r2 * (1.0 / _r1);
+}
+}  // namespace tobas::kdl

@@ -34,24 +34,24 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::PosVelAccYaw, tobas_command_msgs:
   using custom_type = tobas_command_msgs::PosVelAccYaw;
   using ros_message_type = tobas_command_msgs::msg::PosVelAccYaw;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.header = src.header;
-    dst.priority = src.priority;
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.pos, dst.pos);
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.vel, dst.vel);
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.acc, dst.acc);
-    dst.yaw = src.yaw;
+    _dst.header = _src.header;
+    _dst.priority = _src.priority;
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.pos, _dst.pos);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.vel, _dst.vel);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.acc, _dst.acc);
+    _dst.yaw = _src.yaw;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.header = src.header;
-    dst.priority = src.priority;
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.pos, dst.pos);
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.vel, dst.vel);
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.acc, dst.acc);
-    dst.yaw = src.yaw;
+    _dst.header = _src.header;
+    _dst.priority = _src.priority;
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.pos, _dst.pos);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.vel, _dst.vel);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.acc, _dst.acc);
+    _dst.yaw = _src.yaw;
   }
 };
 

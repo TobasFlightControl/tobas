@@ -12,9 +12,7 @@
 
 #include "./future.hpp"
 
-namespace tobas
-{
-namespace ros2
+namespace tobas::ros2
 {
 /**
  * Synchronous service client.
@@ -26,27 +24,27 @@ class SyncServiceClient
 {
 public:
   explicit SyncServiceClient(
-    rclcpp::Node::SharedPtr node,
-    const std::string& name,
-    rclcpp::CallbackGroup::SharedPtr group = nullptr);
+    rclcpp::Node::SharedPtr _node,
+    const std::string& _name,
+    rclcpp::CallbackGroup::SharedPtr _group = nullptr);
 
   /**
    * Call the service and wait for a response.
    *
-   * @param req Service request.
-   * @param timeout Maximum time to wait for a response. Waits indefinitely when non-positive.
+   * @param _req Service request.
+   * @param _timeout Maximum time to wait for a response. Waits indefinitely when non-positive.
    *
    * @note Calling this from a callback that runs on the same thread as the ROS node causes a deadlock.
    */
   template <typename RepT = int64_t, typename RatioT = std::milli>
   typename SrvType::Response::ConstSharedPtr sendRequestAndWait(
-    const typename SrvType::Request::SharedPtr& req,
-    std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1));
+    const typename SrvType::Request::SharedPtr& _req,
+    std::chrono::duration<RepT, RatioT> _timeout = std::chrono::duration<RepT, RatioT>(-1));
 
   inline bool serviceIsReady() const;
 
   template <typename RepT = int64_t, typename RatioT = std::milli>
-  inline bool waitForService(std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1));
+  inline bool waitForService(std::chrono::duration<RepT, RatioT> _timeout = std::chrono::duration<RepT, RatioT>(-1));
 
 private:
   rclcpp::Node::SharedPtr node_;
@@ -55,19 +53,19 @@ private:
 
 template <typename SrvType>
 SyncServiceClient<SrvType>::SyncServiceClient(
-  rclcpp::Node::SharedPtr node,
-  const std::string& name,
-  rclcpp::CallbackGroup::SharedPtr group)
-  : node_(node)
+  rclcpp::Node::SharedPtr _node,
+  const std::string& _name,
+  rclcpp::CallbackGroup::SharedPtr _group)
+  : node_(_node)
 {
-  client_ = node->create_client<SrvType>(name, rclcpp::ServicesQoS(), group);
+  client_ = _node->create_client<SrvType>(_name, rclcpp::ServicesQoS(), _group);
 }
 
 template <typename SrvType>
 template <typename RepT, typename RatioT>
 typename SrvType::Response::ConstSharedPtr SyncServiceClient<SrvType>::sendRequestAndWait(
-  const typename SrvType::Request::SharedPtr& req,
-  std::chrono::duration<RepT, RatioT> timeout)
+  const typename SrvType::Request::SharedPtr& _req,
+  std::chrono::duration<RepT, RatioT> _timeout)
 {
   // The service may not be ready immediately after client creation because DDS discovery may still be in progress.
   if (!client_->service_is_ready()) {
@@ -76,8 +74,8 @@ typename SrvType::Response::ConstSharedPtr SyncServiceClient<SrvType>::sendReque
   }
 
   // Send the request and wait for the response.
-  auto future = client_->async_send_request(req);
-  if (waitForFuture(future, timeout) != std::future_status::ready) {
+  auto future = client_->async_send_request(_req);
+  if (waitForFuture(future, _timeout) != std::future_status::ready) {
     RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before '" << client_->get_service_name() << "' response.");
     return nullptr;
   }
@@ -93,9 +91,8 @@ inline bool SyncServiceClient<SrvType>::serviceIsReady() const
 
 template <typename SrvType>
 template <typename RepT, typename RatioT>
-inline bool SyncServiceClient<SrvType>::waitForService(std::chrono::duration<RepT, RatioT> timeout)
+inline bool SyncServiceClient<SrvType>::waitForService(std::chrono::duration<RepT, RatioT> _timeout)
 {
-  return client_->wait_for_service(timeout);
+  return client_->wait_for_service(_timeout);
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

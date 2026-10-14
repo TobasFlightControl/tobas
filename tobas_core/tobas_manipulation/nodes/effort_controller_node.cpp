@@ -22,9 +22,7 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace manipulation
+namespace tobas::manipulation
 {
 class EffortControllerNode : public BaseNode
 {
@@ -32,7 +30,7 @@ class EffortControllerNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit EffortControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit EffortControllerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   // Parameters
@@ -70,32 +68,32 @@ private:
   void initialize();
 
   bool jointSpaceControl(
-    const tobas_msgs::msg::JointStateArray& cur_js,
-    const tobas_msgs::msg::JointStateArray& tar_js,
-    tobas_msgs::msg::JointCommandArray& efforts_msg);
+    const tobas_msgs::msg::JointStateArray& _cur_js,
+    const tobas_msgs::msg::JointStateArray& _tar_js,
+    tobas_msgs::msg::JointCommandArray& _efforts_msg);
   bool taskSpaceControl(
-    const tobas_msgs::msg::JointStateArray& cur_js,
-    const tobas_msgs::LinkStateArray& tar_ls,
-    tobas_msgs::msg::JointCommandArray& efforts_msg);
+    const tobas_msgs::msg::JointStateArray& _cur_js,
+    const tobas_msgs::LinkStateArray& _tar_ls,
+    tobas_msgs::msg::JointCommandArray& _efforts_msg);
 
-  void jointStiffnessCb(long p);
-  void jointDamping(long p);
-  void linearStiffnessCb(long p);
-  void angularStiffnessCb(long p);
-  void linearDampingCb(long p);
-  void angularDampingCb(long p);
+  void jointStiffnessCb(long _p);
+  void jointDamping(long _p);
+  void linearStiffnessCb(long _p);
+  void angularStiffnessCb(long _p);
+  void linearDampingCb(long _p);
+  void angularDampingCb(long _p);
 
-  void droneCb(const Drone::ConstSharedPtr& drone);
-  void treeCb(const kdl::Tree::ConstSharedPtr& tree);
-  void currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js);
-  void targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js);
-  void targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls);
+  void droneCb(const Drone::ConstSharedPtr& _drone);
+  void treeCb(const kdl::Tree::ConstSharedPtr& _tree);
+  void currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _cur_js);
+  void targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _tar_js);
+  void targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& _tar_ls);
 
   void autoResetTimerCb();
 };
 
-EffortControllerNode::EffortControllerNode(const rclcpp::NodeOptions& options)
-  : super("jointeff_trajectory_controller", nodeOptions_DParam(options))
+EffortControllerNode::EffortControllerNode(const rclcpp::NodeOptions& _options)
+  : super("jointeff_trajectory_controller", nodeOptions_DParam(_options))
   , jnt_parser_(tree_)
   , pid_js_(tree_)
   , pid_ts_(tree_)
@@ -138,16 +136,16 @@ void EffortControllerNode::initialize()
 }
 
 bool EffortControllerNode::jointSpaceControl(
-  const tobas_msgs::msg::JointStateArray& cur_js,
-  const tobas_msgs::msg::JointStateArray& tar_js,
-  tobas_msgs::msg::JointCommandArray& efforts_msg)
+  const tobas_msgs::msg::JointStateArray& _cur_js,
+  const tobas_msgs::msg::JointStateArray& _tar_js,
+  tobas_msgs::msg::JointCommandArray& _efforts_msg)
 {
   // JointState -> JntArray
-  if (const auto result = cur_js_conv_.convert(cur_js); !result) {
+  if (const auto result = cur_js_conv_.convert(_cur_js); !result) {
     TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", result.error());
     return false;
   }
-  if (const auto result = tar_js_conv_.convert(tar_js); !result) {
+  if (const auto result = tar_js_conv_.convert(_tar_js); !result) {
     TOBAS_ERROR("Failed to convert target JointState to Jntarray: ", result.error());
     return false;
   }
@@ -163,33 +161,33 @@ bool EffortControllerNode::jointSpaceControl(
   const auto efforts = efforts_ff + efforts_fb;
 
   // Fill output message.
-  for (const auto& tar_state : tar_js.states) {
+  for (const auto& tar_state : _tar_js.states) {
     const auto& jnt_name = tar_state.name;
     if (!jnt_names_.contains(jnt_name)) {
       TOBAS_ERROR("The target joint '", jnt_name, "' is not included in the joint group.");
       return false;
     }
-    efforts_msg.commands.emplace_back();
-    efforts_msg.commands.back().name = jnt_name;
-    efforts_msg.commands.back().data = efforts(jnt_parser_.jointIndex(jnt_name));
+    _efforts_msg.commands.emplace_back();
+    _efforts_msg.commands.back().name = jnt_name;
+    _efforts_msg.commands.back().data = efforts(jnt_parser_.jointIndex(jnt_name));
   }
 
   return true;
 }
 
 bool EffortControllerNode::taskSpaceControl(
-  const tobas_msgs::msg::JointStateArray& cur_js,
-  const tobas_msgs::LinkStateArray& tar_ls,
-  tobas_msgs::msg::JointCommandArray& efforts_msg)
+  const tobas_msgs::msg::JointStateArray& _cur_js,
+  const tobas_msgs::LinkStateArray& _tar_ls,
+  tobas_msgs::msg::JointCommandArray& _efforts_msg)
 {
-  const auto active_jnt_names = findActiveJointNames(tree_, linkNames(tar_ls));
+  const auto active_jnt_names = findActiveJointNames(tree_, linkNames(_tar_ls));
   if (!active_jnt_names) {
     TOBAS_ERROR("Failed to extract active joint names: ", active_jnt_names.error());
     return false;
   }
 
   // JointState -> JntArray
-  if (const auto result = cur_js_conv_.convert(cur_js); !result) {
+  if (const auto result = cur_js_conv_.convert(_cur_js); !result) {
     TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", result.error());
     return false;
   }
@@ -200,8 +198,8 @@ bool EffortControllerNode::taskSpaceControl(
   kdl::TwistMap tar_v;
   kdl::AccelMap a_ff;
   kdl::WrenchMap f_ext;
-  for (const auto& ls : tar_ls.states) {
-    const auto transform = tf_listener_->lookupTransform(tree_.getRootName(), tar_ls.header.frame_id);
+  for (const auto& ls : _tar_ls.states) {
+    const auto transform = tf_listener_->lookupTransform(tree_.getRootName(), _tar_ls.header.frame_id);
     if (!transform) {
       TOBAS_ERROR(transform.error());
       continue;
@@ -230,54 +228,54 @@ bool EffortControllerNode::taskSpaceControl(
       TOBAS_ERROR("The target joint '", jnt_name, "' is not included in the joint group.");
       return false;
     }
-    efforts_msg.commands.emplace_back();
-    efforts_msg.commands.back().name = jnt_name;
-    efforts_msg.commands.back().data = efforts.value()(jnt_parser_.jointIndex(jnt_name));
+    _efforts_msg.commands.emplace_back();
+    _efforts_msg.commands.back().name = jnt_name;
+    _efforts_msg.commands.back().data = efforts.value()(jnt_parser_.jointIndex(jnt_name));
   }
 
   return true;
 }
 
-void EffortControllerNode::jointStiffnessCb(long p)
+void EffortControllerNode::jointStiffnessCb(long _p)
 {
-  pid_js_.setStiffness(p);
+  pid_js_.setStiffness(_p);
 }
 
-void EffortControllerNode::jointDamping(long p)
+void EffortControllerNode::jointDamping(long _p)
 {
-  pid_js_.setDamping(p);
+  pid_js_.setDamping(_p);
 }
 
-void EffortControllerNode::linearStiffnessCb(long p)
+void EffortControllerNode::linearStiffnessCb(long _p)
 {
-  pid_ts_.setLinearStiffness(p);
+  pid_ts_.setLinearStiffness(_p);
 }
 
-void EffortControllerNode::angularStiffnessCb(long p)
+void EffortControllerNode::angularStiffnessCb(long _p)
 {
-  pid_ts_.setAngularStiffness(p);
+  pid_ts_.setAngularStiffness(_p);
 }
 
-void EffortControllerNode::linearDampingCb(long p)
+void EffortControllerNode::linearDampingCb(long _p)
 {
-  pid_ts_.setLinearDamping(p);
+  pid_ts_.setLinearDamping(_p);
 }
 
-void EffortControllerNode::angularDampingCb(long p)
+void EffortControllerNode::angularDampingCb(long _p)
 {
-  pid_ts_.setAngularDamping(p);
+  pid_ts_.setAngularDamping(_p);
 }
 
-void EffortControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
+void EffortControllerNode::droneCb(const Drone::ConstSharedPtr& _drone)
 {
-  drone_ = drone;
+  drone_ = _drone;
 
   home_js_.states.clear();
 
   // Get joint home positions.
   for (const auto& jnt_name : jnt_names_) {
-    const auto joint_it = drone->joints.find(jnt_name);
-    if (joint_it == drone->joints.end()) {
+    const auto joint_it = _drone->joints.find(jnt_name);
+    if (joint_it == _drone->joints.end()) {
       TOBAS_WARN("The drone does not have joint '", jnt_name, "'.");
       continue;
     }
@@ -297,9 +295,9 @@ void EffortControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
   }
 }
 
-void EffortControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
+void EffortControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& _tree)
 {
-  tree_ = *tree;
+  tree_ = *_tree;
 
   jnt_parser_.updateInternalDataStructures();
   pid_js_.updateInternalDataStructures();
@@ -308,7 +306,7 @@ void EffortControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   tar_js_conv_.updateInternalDataStructures();
 }
 
-void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js)
+void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _cur_js)
 {
   if (tree_.empty()) {
     return;
@@ -322,16 +320,16 @@ void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointState
 
   // Create joint efforts command.
   auto efforts_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
-  efforts_msg->header.stamp = cur_js->header.stamp;
+  efforts_msg->header.stamp = _cur_js->header.stamp;
 
   // Joint space control or Task space control
   if (tar_js_) {
-    if (!jointSpaceControl(*cur_js, *tar_js_, *efforts_msg)) {
+    if (!jointSpaceControl(*_cur_js, *tar_js_, *efforts_msg)) {
       return;
     }
   }
   else if (tar_ls_) {
-    if (!taskSpaceControl(*cur_js, *tar_ls_, *efforts_msg)) {
+    if (!taskSpaceControl(*_cur_js, *tar_ls_, *efforts_msg)) {
       return;
     }
   }
@@ -344,17 +342,17 @@ void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointState
   efforts_pub_->publish(std::move(efforts_msg));
 }
 
-void EffortControllerNode::targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js)
+void EffortControllerNode::targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _tar_js)
 {
-  tar_js_ = tar_js;
+  tar_js_ = _tar_js;
   tar_ls_.reset();
 
   auto_reset_timer_->reset();
 }
 
-void EffortControllerNode::targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls)
+void EffortControllerNode::targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& _tar_ls)
 {
-  tar_ls_ = tar_ls;
+  tar_ls_ = _tar_ls;
   tar_js_.reset();
 
   auto_reset_timer_->reset();
@@ -372,7 +370,6 @@ void EffortControllerNode::autoResetTimerCb()
 
   auto_reset_timer_->cancel();
 }
-}  // namespace manipulation
-}  // namespace tobas
+}  // namespace tobas::manipulation
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::manipulation::EffortControllerNode)

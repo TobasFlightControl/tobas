@@ -5,13 +5,7 @@
 
 #include "./base.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace hw
+namespace tobas::gui::sa::hw
 {
 class FC1xxWidget : public BaseHardwareWidget
 {
@@ -23,7 +17,7 @@ public:
   const char* name() const override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   void setToDefaults() override;
   bool isValid() override;
@@ -55,7 +49,4 @@ public:
 
   bool hasRpmFilter() const override;
 };
-}  // namespace hw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::hw

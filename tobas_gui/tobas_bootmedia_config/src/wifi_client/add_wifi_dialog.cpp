@@ -10,13 +10,9 @@
 
 #include "tobas_bootmedia_config/constants.hpp"
 
-namespace tobas
+namespace tobas::gui::bm
 {
-namespace gui
-{
-namespace bm
-{
-AddWifiDialog::AddWifiDialog(QWidget* parent) : super(parent)
+AddWifiDialog::AddWifiDialog(QWidget* _parent) : super(_parent)
 {
   setWindowTitle("Add New Network");
 
@@ -89,9 +85,9 @@ bool AddWifiDialog::getHidden() const
   return hidden_->isChecked();
 }
 
-void AddWifiDialog::enableOkButton(bool enable)
+void AddWifiDialog::enableOkButton(bool _enable)
 {
-  btn_box_->button(QDialogButtonBox::Ok)->setEnabled(enable);
+  btn_box_->button(QDialogButtonBox::Ok)->setEnabled(_enable);
 }
 
 void AddWifiDialog::onChanged()
@@ -118,6 +114,4 @@ void AddWifiDialog::onChanged()
 
   enableOkButton(true);
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

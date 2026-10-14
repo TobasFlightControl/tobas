@@ -5,13 +5,10 @@
 
 #include <cstring>
 
-namespace tobas
+namespace tobas::st
 {
-namespace st
+std::string strError(int _error_number)
 {
-std::string strError(int error_number)
-{
-  return "[Errno " + std::to_string(error_number) + "] " + std::strerror(error_number);
+  return "[Errno " + std::to_string(_error_number) + "] " + std::strerror(_error_number);
 }
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

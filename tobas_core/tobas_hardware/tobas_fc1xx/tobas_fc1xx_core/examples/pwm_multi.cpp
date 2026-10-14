@@ -15,7 +15,7 @@ int main()
   constexpr uint16_t periods[] = { 0, 100, 200, 400, 800, 1200, 1600, 2000 };
 
   if (!pwm.initialize()) {
-    cerr << "Failed to initialize PWM driver." << endl;
+    cerr << "Failed to initialize PWM driver.\n";
     return EXIT_FAILURE;
   }
 
@@ -25,7 +25,7 @@ int main()
     }
 
     if (!pwm.transfer()) {
-      cerr << "Failed to command PWM periods." << endl;
+      cerr << "Failed to command PWM periods.\n";
       continue;
     }
 

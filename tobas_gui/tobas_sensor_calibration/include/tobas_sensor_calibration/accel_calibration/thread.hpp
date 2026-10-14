@@ -13,11 +13,7 @@
 
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 class AccelCalibrationThread : public QThread
 {
@@ -26,16 +22,16 @@ class AccelCalibrationThread : public QThread
   using self = AccelCalibrationThread;
 
 Q_SIGNALS:
-  void finished(bool success, const QString& message);
+  void finished(bool _success, const QString& _message);
 
 public:
-  explicit AccelCalibrationThread(const rqt::RosQtBridge& bridge);
+  explicit AccelCalibrationThread(const rqt::RosQtBridge& _bridge);
   ~AccelCalibrationThread();
 
   void run() override;
 
   void reset();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:
@@ -51,9 +47,7 @@ private:
   std::array<algo::Kahan<double>, 3> acc_sum_;
 
 private Q_SLOTS:
-  void imuCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void imuCb(const tobas_msgs::Imu::ConstSharedPtr& _imu_raw);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
 };
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

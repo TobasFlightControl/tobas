@@ -9,28 +9,24 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/check.hpp>
 
-namespace tobas
+namespace tobas::gui::sa
 {
-namespace gui
-{
-namespace sa
-{
-SettingsWidget::SettingsWidget(const uadf::Model& uadf, const kdl::Tree& tree, Signals& sig) : uadf_(uadf)
+SettingsWidget::SettingsWidget(const uadf::Model& _uadf, const kdl::Tree& _tree, Signals& _sig) : uadf_(_uadf)
 {
   stack_ = new qt::StackedWidget();
   navigation_ = new SettingsNavigationWidget();
   connect(navigation_, &SettingsNavigationWidget::currentEntryChanged, stack_, &QStackedWidget::setCurrentIndex);
 
   // Pages
-  propulsion_system = new propulsion::PropulsionSystemWidget(uadf, sig);
-  fixed_wing = new fw::FixedWingWidget(uadf);
-  hardware = new hw::HardwareWidget(uadf, sig);
+  propulsion_system = new propulsion::PropulsionSystemWidget(_uadf, _sig);
+  fixed_wing = new fw::FixedWingWidget(_uadf);
+  hardware = new hw::HardwareWidget(_uadf, _sig);
   network = new network::NetworkWidget();
   observer = new ObserverWidget();
   controller = new ctrl::ControllerWidget();
   mission = new mission::MissionExecutorWidget();
   rc_input = new RcInputWidget();
-  extra_joints = new ExtraJointsWidget(uadf, tree);
+  extra_joints = new ExtraJointsWidget(_uadf, _tree);
   failsafe = new FailsafeWidget();
   author_info = new AuthorInformationWidget();
 
@@ -148,14 +144,14 @@ YAML::Node SettingsWidget::dump() const
   return node;
 }
 
-bool SettingsWidget::load(const YAML::Node& node)
+bool SettingsWidget::load(const YAML::Node& _node)
 {
   bool success = true;
 
   for (int i = 0; i < stack_->count(); ++i) {
     const auto page = qt::qPointerCast<BaseSettingWidget>(stack_->widget(i));
     try {
-      page->load(node[page->name()]);
+      page->load(_node[page->name()]);
     }
     catch (const std::exception& e) {
       qt::qErrorBox(this, "Failed to load settings of '" + QString(page->name()) + "':\n\n" + e.what());
@@ -166,52 +162,50 @@ bool SettingsWidget::load(const YAML::Node& node)
   return success;
 }
 
-void SettingsWidget::setFrameType(FrameType type)
+void SettingsWidget::setFrameType(FrameType _type)
 {
   // Disable controller settings if the frame type is undefined.
-  if (type == FrameType::kUndefined) {
+  if (_type == FrameType::kUndefined) {
     const auto reason = "The airframe type could not be determined from the UADF.";
     setPageEnabled(controller, false, reason);
     setPageEnabled(mission, false, reason);
   }
 
-  controller->setFrameType(type);
-  mission->setFrameType(type);
+  controller->setFrameType(_type);
+  mission->setFrameType(_type);
 }
 
-int SettingsWidget::getIndex(BaseSettingWidget* page) const
+int SettingsWidget::getIndex(BaseSettingWidget* _page) const
 {
-  const auto idx = stack_->indexOf(page);
+  const auto idx = stack_->indexOf(_page);
   TOBAS_CHECK(idx >= 0);
   return idx;
 }
 
-void SettingsWidget::addPage(BaseSettingWidget* page)
+void SettingsWidget::addPage(BaseSettingWidget* _page)
 {
-  const auto idx = stack_->addWidget(page);
-  navigation_->addEntry(page->name(), idx);
+  const auto idx = stack_->addWidget(_page);
+  navigation_->addEntry(_page->name(), idx);
 }
 
-void SettingsWidget::setCurrentPage(int idx)
+void SettingsWidget::setCurrentPage(int _idx)
 {
-  navigation_->setCurrentEntry(idx);
+  navigation_->setCurrentEntry(_idx);
 }
 
-void SettingsWidget::setCurrentPage(BaseSettingWidget* page)
+void SettingsWidget::setCurrentPage(BaseSettingWidget* _page)
 {
-  setCurrentPage(getIndex(page));
+  setCurrentPage(getIndex(_page));
 }
 
-void SettingsWidget::setPageEnabled(int idx, bool enabled, const QString& disabled_reason)
+void SettingsWidget::setPageEnabled(int _idx, bool _enabled, const QString& _disabled_reason)
 {
-  stack_->widget(idx)->setEnabled(enabled);
-  navigation_->setEntryEnabled(idx, enabled, disabled_reason);
+  stack_->widget(_idx)->setEnabled(_enabled);
+  navigation_->setEntryEnabled(_idx, _enabled, _disabled_reason);
 }
 
-void SettingsWidget::setPageEnabled(BaseSettingWidget* page, bool enabled, const QString& disabled_reason)
+void SettingsWidget::setPageEnabled(BaseSettingWidget* _page, bool _enabled, const QString& _disabled_reason)
 {
-  setPageEnabled(getIndex(page), enabled, disabled_reason);
+  setPageEnabled(getIndex(_page), _enabled, _disabled_reason);
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

@@ -14,25 +14,23 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
+namespace tobas::linux
 {
-namespace linux
-{
-bool setNonStandardBaudRate(int fd, uint32_t baud_rate)
+bool setNonStandardBaudRate(int _fd, uint32_t _baud_rate)
 {
   struct termios2 buf;
 
-  if (ioctl(fd, TCGETS2, &buf) != 0) {
-    std::cerr << "Failed to get termios2 struct (TCGETS2): " << st::strError() << std::endl;
+  if (ioctl(_fd, TCGETS2, &buf) != 0) {
+    std::cerr << "Failed to get termios2 struct (TCGETS2): " << st::strError() << '\n';
     return false;
   }
 
   buf.c_cflag &= ~CBAUD;
   buf.c_cflag |= CBAUDEX;
-  buf.c_ispeed = buf.c_ospeed = baud_rate;
+  buf.c_ispeed = buf.c_ospeed = _baud_rate;
 
-  if (ioctl(fd, TCSETS2, &buf) != 0) {
-    std::cerr << "Failed to set termios2 struct (TCSETS2): " << st::strError() << std::endl;
+  if (ioctl(_fd, TCSETS2, &buf) != 0) {
+    std::cerr << "Failed to set termios2 struct (TCSETS2): " << st::strError() << '\n';
     return false;
   }
 
@@ -40,5 +38,4 @@ bool setNonStandardBaudRate(int fd, uint32_t baud_rate)
 
   return true;
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

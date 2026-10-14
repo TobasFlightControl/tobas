@@ -8,13 +8,7 @@
 #include <QLineEdit>
 #include <QRadioButton>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace network
+namespace tobas::gui::sa::network
 {
 class NetworkIfaceWidget : public QWidget
 {
@@ -29,7 +23,7 @@ public:
   bool isValid();
 
   YAML::Node dump() const;
-  void load(const YAML::Node& node);
+  void load(const YAML::Node& _node);
 
   QString networkInterface() const;
 
@@ -37,12 +31,9 @@ private:
   QButtonGroup* nic_btn_group_;
   QLineEdit* other_nic_name_;
 
-  QRadioButton* addNicTypeButton(const QString& text, int id);
+  QRadioButton* addNicTypeButton(const QString& _text, int _id);
 
 private Q_SLOTS:
-  void onOtherButtonToggled(bool checked);
+  void onOtherButtonToggled(bool _checked);
 };
-}  // namespace network
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::network

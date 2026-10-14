@@ -3,12 +3,10 @@
 
 #include "tobas_rviz_plugin/joint_model/fixed_joint_model.hpp"
 
-namespace tobas
+namespace tobas::rviz
 {
-namespace rviz
-{
-FixedJointModel::FixedJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
-  : JointModel(name, joint_index, first_variable_index)
+FixedJointModel::FixedJointModel(const std::string& _name, size_t _joint_index, size_t _first_variable_index)
+  : JointModel(_name, _joint_index, _first_variable_index)
 {
   type_ = kFixed;
 }
@@ -17,13 +15,12 @@ void FixedJointModel::getVariableDefaultPositions(double*) const
 {
 }
 
-void FixedJointModel::computeTransform(const double*, Eigen::Isometry3d& transform) const
+void FixedJointModel::computeTransform(const double*, Eigen::Isometry3d& _transform) const
 {
-  transform.setIdentity();
+  _transform.setIdentity();
 }
 
 void FixedJointModel::computeVariablePositions(const Eigen::Isometry3d&, double*) const
 {
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

@@ -7,13 +7,7 @@
 
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
-{
-namespace field
+namespace tobas::gui::ctrl::field
 {
 MaxHeadingRateWidget::MaxHeadingRateWidget()
 {
@@ -41,11 +35,8 @@ double MaxHeadingRateWidget::getValue() const
   return st::deg2rad(spin_box_->value());
 }
 
-void MaxHeadingRateWidget::setValue(double value)
+void MaxHeadingRateWidget::setValue(double _value)
 {
-  spin_box_->setValue(st::rad2deg(value));
+  spin_box_->setValue(st::rad2deg(_value));
 }
-}  // namespace field
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::field

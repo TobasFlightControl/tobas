@@ -5,11 +5,9 @@
 
 #include <tobas_algorithm/kahan.hpp>
 
-namespace tobas
+namespace tobas::kdl
 {
-namespace kdl
-{
-TreeMassHolder::TreeMassHolder(const Tree& tree) : super(tree)
+TreeMassHolder::TreeMassHolder(const Tree& _tree) : super(_tree)
 {
   updateTotalMass();
 }
@@ -24,9 +22,9 @@ void TreeMassHolder::updateTotalMass()
   mass_ = computeMass(tree_.getRootSegment());
 }
 
-double TreeMassHolder::computeMass(const SegmentMap::const_iterator& cur_it) const
+double TreeMassHolder::computeMass(const SegmentMap::const_iterator& _cur_it) const
 {
-  const auto& cur_ele = cur_it->second;
+  const auto& cur_ele = _cur_it->second;
   const auto& cur_seg = cur_ele.segment;
 
   algo::Kahan<double> mass_sum;
@@ -42,5 +40,4 @@ double TreeMassHolder::computeMass(const SegmentMap::const_iterator& cur_it) con
 
   return mass_sum.get();
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

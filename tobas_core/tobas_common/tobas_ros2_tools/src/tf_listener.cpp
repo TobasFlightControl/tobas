@@ -3,24 +3,21 @@
 
 #include "tobas_ros2_tools/tf_listener.hpp"
 
-namespace tobas
+namespace tobas::ros2
 {
-namespace ros2
-{
-TransformListener::TransformListener(rclcpp::Node::SharedPtr node)
-  : tf_buffer_(node->get_clock()), tf_listener_(tf_buffer_, node)
+TransformListener::TransformListener(rclcpp::Node::SharedPtr _node)
+  : tf_buffer_(_node->get_clock()), tf_listener_(tf_buffer_, _node)
 {
 }
 
 std::expected<geometry_msgs::msg::TransformStamped, std::string>
-TransformListener::lookupTransform(const std::string& parent, const std::string& child, const rclcpp::Time& time)
+TransformListener::lookupTransform(const std::string& _parent, const std::string& _child, const rclcpp::Time& _time)
 {
   try {
-    return tf_buffer_.lookupTransform(parent, child, time);
+    return tf_buffer_.lookupTransform(_parent, _child, _time);
   }
   catch (const tf2::TransformException& e) {
     return std::unexpected(std::string(e.what()));
   }
 }
-}  // namespace ros2
-}  // namespace tobas
+}  // namespace tobas::ros2

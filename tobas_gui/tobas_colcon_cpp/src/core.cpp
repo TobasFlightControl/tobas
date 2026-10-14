@@ -15,22 +15,21 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
+namespace tobas::colcon
 {
-namespace colcon
-{
-std::expected<void, std::string> build(const fs::path& pkg_path, const fs::path& ws_path, const BuildOptions& options)
+std::expected<void, std::string> build(const fs::path& _pkg_path, const fs::path& _ws_path, const BuildOptions& _options)
 {
   // Get the package name.
-  const auto pkg_name = ros2::getPackageNameOf(pkg_path);
+  const auto pkg_name = ros2::getPackageNameOf(_pkg_path);
   if (!pkg_name) {
     return std::unexpected("Failed to get the package name: " + pkg_name.error());
   }
 
   // Estimate the workspace path.
-  const auto exec_path = ros2::estimateWorkspaceOf(pkg_path);
+  const auto exec_path = ros2::estimateWorkspaceOf(_pkg_path);
   if (!exec_path) {
-    return std::unexpected("Failed to estimate the workspace path of '" + pkg_path.string() + "': " + exec_path.error());
+    return std::unexpected(
+      "Failed to estimate the workspace path of '" + _pkg_path.string() + "': " + exec_path.error());
   }
 
   // Navigate to the estimated workspace.
@@ -39,7 +38,7 @@ std::expected<void, std::string> build(const fs::path& pkg_path, const fs::path&
   }
 
   // Specify the log directory.
-  if (setenv("COLCON_LOG_PATH", (ws_path / "log").c_str(), 1) != 0) {
+  if (setenv("COLCON_LOG_PATH", (_ws_path / "log").c_str(), 1) != 0) {
     return std::unexpected("Failed to set the colcon log directory path: " + st::strError());
   }
 
@@ -50,29 +49,29 @@ std::expected<void, std::string> build(const fs::path& pkg_path, const fs::path&
     "--build-base {} "
     "--install-base {} "
     "--packages-up-to {} ",
-    (ws_path / "build").string(),
-    (ws_path / "install").string(),
+    (_ws_path / "build").string(),
+    (_ws_path / "install").string(),
     *pkg_name);
 
   // Add options.
-  if (options.parallel_workers == 0) {
+  if (_options.parallel_workers == 0) {
     build_cmd += "--parallel-workers $(nproc) ";
   }
   else {
-    build_cmd += std::format("--parallel-workers {} ", options.parallel_workers);
+    build_cmd += std::format("--parallel-workers {} ", _options.parallel_workers);
   }
-  if (options.merge_install) {
+  if (_options.merge_install) {
     build_cmd += "--merge-install ";
   }
-  if (options.symlink_install) {
+  if (_options.symlink_install) {
     build_cmd += "--symlink-install ";
   }
-  if (options.cmake_clean_cache) {
+  if (_options.cmake_clean_cache) {
     build_cmd += "--cmake-clean-cache ";
   }
 
   // Build the Tobas project packages.
-  std::cout << "Executing '" << build_cmd << "' on " << *exec_path << "." << std::endl;
+  std::cout << "Executing '" << build_cmd << "' on " << *exec_path << ".\n" << std::flush;
   if (const auto result = linux::executeCommand(build_cmd); !result) {
     return std::unexpected("Failed to build '" + *pkg_name + "':\n" + result.error());
   }
@@ -80,20 +79,19 @@ std::expected<void, std::string> build(const fs::path& pkg_path, const fs::path&
   return {};
 }
 
-std::expected<void, std::string> cleanWorkspace(const fs::path& ws_path)
+std::expected<void, std::string> cleanWorkspace(const fs::path& _ws_path)
 {
   // Navigate to the colcon workspace.
-  if (chdir(ws_path.c_str()) != 0) {
-    return std::unexpected("Failed to navigate to '" + ws_path.string() + "': " + st::strError());
+  if (chdir(_ws_path.c_str()) != 0) {
+    return std::unexpected("Failed to navigate to '" + _ws_path.string() + "': " + st::strError());
   }
 
   // Clean the workspace.
   if (const auto result = linux::executeCommand("colcon clean workspace -y"); !result) {
-    return std::unexpected("Failed to clean '" + ws_path.string() + "':\n" + result.error());
+    return std::unexpected("Failed to clean '" + _ws_path.string() + "':\n" + result.error());
   }
 
   return {};
 }
 
-}  // namespace colcon
-}  // namespace tobas
+}  // namespace tobas::colcon

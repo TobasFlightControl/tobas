@@ -5,13 +5,7 @@
 
 #include <filesystem>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 std::filesystem::path getPkgShareDir();
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

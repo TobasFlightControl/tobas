@@ -9,11 +9,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class ImuPlotWidget : public BasePlotWidget
 {
@@ -29,9 +25,9 @@ public:
   explicit ImuPlotWidget();
 
   void clear() override;
-  void setTimeScale(double t_start, double t_stop) override;
+  void setTimeScale(double _t_start, double _t_stop) override;
 
-  void setData(const QVector<tobas_msgs::msg::Imu>& raw_msgs, const QVector<tobas_msgs::msg::Imu>& filt_msgs);
+  void setData(const QVector<tobas_msgs::msg::Imu>& _raw_msgs, const QVector<tobas_msgs::msg::Imu>& _filt_msgs);
 
 private:
   std::array<QwtPlot2*, kNumAxes> plots_;
@@ -39,8 +35,6 @@ private:
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> filt_curves_;
 
   static ValueRanges
-  updateSamples(const QVector<tobas_msgs::msg::Imu>& msgs, std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& curves);
+  updateSamples(const QVector<tobas_msgs::msg::Imu>& _msgs, std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& _curves);
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

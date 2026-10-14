@@ -9,13 +9,7 @@
 #include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
 #include "tobas_setup_assistant/param_getters/vector3d.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace fw
+namespace tobas::gui::sa::fw
 {
 class VehicleParametersWidget : public QWidget
 {
@@ -29,7 +23,7 @@ public:
   bool isValid();
 
   YAML::Node dump() const;
-  void load(const YAML::Node& node);
+  void load(const YAML::Node& _node);
 
   double wingSurface() const;
   double wingSpan() const;
@@ -44,7 +38,4 @@ private:
   ParamGetterWidget_Vector3d* aerodynamic_center_;
   ParamGetterWidget_DoubleRange* alpha_limit_;
 };
-}  // namespace fw
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::fw

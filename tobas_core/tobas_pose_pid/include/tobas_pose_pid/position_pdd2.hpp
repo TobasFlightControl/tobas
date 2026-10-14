@@ -13,17 +13,17 @@ public:
   explicit PositionPDD2();
 
   kdl::Vector update(
-    const kdl::Vector& cur_pos,
-    const kdl::Vector& cur_vel,
-    const kdl::Vector& cur_acc,
-    const kdl::Vector& tar_pos,
-    const kdl::Vector& tar_vel,
-    const kdl::Vector& tar_acc,
-    double dt);
+    const kdl::Vector& _cur_pos,
+    const kdl::Vector& _cur_vel,
+    const kdl::Vector& _cur_acc,
+    const kdl::Vector& _tar_pos,
+    const kdl::Vector& _tar_vel,
+    const kdl::Vector& _tar_acc,
+    double _dt);
 
-  void setNaturalFreq(int idx, double value);
-  void setInertiaRatio(int idx, double value);
-  void setDampingRatio(int idx, double value);
+  void setNaturalFreq(int _idx, double _value);
+  void setInertiaRatio(int _idx, double _value);
+  void setDampingRatio(int _idx, double _value);
 
 private:
   // Config

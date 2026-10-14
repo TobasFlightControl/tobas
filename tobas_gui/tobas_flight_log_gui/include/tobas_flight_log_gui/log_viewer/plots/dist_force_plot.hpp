@@ -9,11 +9,7 @@
 
 #include "./utilities/utilities.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class DisturbanceForcePlotWidget : public BasePlotWidget
 {
@@ -27,14 +23,12 @@ public:
   explicit DisturbanceForcePlotWidget();
 
   void clear() override;
-  void setTimeScale(double t_start, double t_stop) override;
+  void setTimeScale(double _t_start, double _t_stop) override;
 
-  void setData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& msgs);
+  void setData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _msgs);
 
 private:
   std::array<QwtPlot2*, kNumAxes> plots_;
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> curves_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

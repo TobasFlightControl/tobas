@@ -6,15 +6,7 @@
 #include "./base.hpp"
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 class ESCWidget : public BaseSelectedLinkSettingWidget
 {
@@ -26,18 +18,14 @@ public:
   const char* name() const override;
   void setToDefaults() override;
   bool isValid() override;
-  void copyFrom(const BaseSelectedLinkSettingWidget* src) override;
+  void copyFrom(const BaseSelectedLinkSettingWidget* _src) override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
-  double maxCurrent() const;
+  double maxContinuousCurrent() const;
 
 private:
-  ParamGetterWidget_SpinBox* max_current_;
+  ParamGetterWidget_SpinBox* max_cont_current_;
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

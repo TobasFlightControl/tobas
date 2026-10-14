@@ -5,9 +5,7 @@
 
 #include <QSpinBox>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /**
  * ===== Differences from `QSpinBox` =====
@@ -22,11 +20,10 @@ class SpinBox : public QSpinBox
   using super = QSpinBox;
 
 public:
-  explicit SpinBox(QWidget* parent = nullptr);
+  explicit SpinBox(QWidget* _parent = nullptr);
 
 protected:
-  void wheelEvent(QWheelEvent* event) override;
-  void focusInEvent(QFocusEvent* event) override;
+  void wheelEvent(QWheelEvent* _event) override;
+  void focusInEvent(QFocusEvent* _event) override;
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

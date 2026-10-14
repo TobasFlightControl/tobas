@@ -12,18 +12,16 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
-{
-namespace driver
+namespace tobas::driver
 {
 ADS1220::ADS1220()
 {
 }
 
-bool ADS1220::initialize(const char* spi_device)
+bool ADS1220::initialize(const char* _spi_device)
 {
   constexpr uint32_t kSpiClockFreq = 5'000'000;  // Minimum period is 150ns (6.67MHz)
-  if (!spi_.initialize(spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
+  if (!spi_.initialize(_spi_device, tx_buf_, rx_buf_, kSpiClockFreq)) {
     return false;
   }
 
@@ -50,7 +48,7 @@ bool ADS1220::initialize(const char* spi_device)
   return true;
 }
 
-bool ADS1220::readVoltage(double& dst)
+bool ADS1220::readVoltage(double& _dst)
 {
   // Read data.
   // Ref: 8.5.4 Reading Data (p.37)
@@ -71,7 +69,7 @@ bool ADS1220::readVoltage(double& dst)
   // TODO: Convert to the actual voltage.
   constexpr double kVref = 2.048;  // Internal 2.048-V reference (p.42)
   constexpr double kGain = 1.0;
-  dst = math::remap<double>(lsb, -(1 << 23), (1 << 23), 0.0, 2 * kVref / kGain);
+  _dst = math::remap<double>(lsb, -(1 << 23), (1 << 23), 0.0, 2 * kVref / kGain);
 
   return true;
 }
@@ -82,7 +80,7 @@ bool ADS1220::readCurrent(double&)
   // and read the current data before the switch takes effect.
   // Ref: section 8.5.5, "Sending Commands" (p. 38).
 
-  std::cerr << "Not implemented." << std::endl;
+  std::cerr << "Not implemented.\n";
   return false;
 }
 
@@ -108,9 +106,9 @@ bool ADS1220::powerDown()
   return sendStandAloneCommand(POWERDOWN);
 }
 
-bool ADS1220::sendStandAloneCommand(uint8_t cmd)
+bool ADS1220::sendStandAloneCommand(uint8_t _cmd)
 {
-  tx_buf_[0] = cmd;
+  tx_buf_[0] = _cmd;
   if (!spi_.transfer(1)) {
     return false;
   }
@@ -118,16 +116,16 @@ bool ADS1220::sendStandAloneCommand(uint8_t cmd)
   return true;
 }
 
-bool ADS1220::configure(uint8_t rr, uint8_t tar_cfg)
+bool ADS1220::configure(uint8_t _rr, uint8_t _tar_cfg)
 {
   constexpr uint8_t nn = 0b00;  // 1 [byte] - 1 = 0
-  const uint8_t rrnn = rr | nn;
+  const uint8_t rrnn = _rr | nn;
 
   // Send write command.
   tx_buf_[0] = WREG | rrnn;
-  tx_buf_[1] = tar_cfg;
+  tx_buf_[1] = _tar_cfg;
   if (!spi_.transfer(2)) {
-    std::cerr << "Failed to send write register command." << std::endl;
+    std::cerr << "Failed to send write register command.\n";
     return false;
   }
 
@@ -138,20 +136,19 @@ bool ADS1220::configure(uint8_t rr, uint8_t tar_cfg)
   // Verify that the configuration is reflected.
   tx_buf_[0] = RREG | rrnn;
   if (!spi_.transfer(2)) {
-    std::cerr << "Failed to send read register command." << std::endl;
+    std::cerr << "Failed to send read register command.\n";
     return false;
   }
 
   const auto cur_cfg = rx_buf_[1];
-  if (cur_cfg != tar_cfg) {
-    std::cerr << "Configuration is not reflected." << std::endl;
-    std::cerr << "Register   : " << std::bitset<2>(rr >> 2) << std::endl;
-    std::cerr << "Target data: " << std::bitset<8>(tar_cfg) << std::endl;
-    std::cerr << "Actual data: " << std::bitset<8>(cur_cfg) << std::endl;
+  if (cur_cfg != _tar_cfg) {
+    std::cerr << "Configuration is not reflected.\n";
+    std::cerr << "Register   : " << std::bitset<2>(_rr >> 2) << '\n';
+    std::cerr << "Target data: " << std::bitset<8>(_tar_cfg) << '\n';
+    std::cerr << "Actual data: " << std::bitset<8>(cur_cfg) << '\n';
     return false;
   }
 
   return true;
 }
-}  // namespace driver
-}  // namespace tobas
+}  // namespace tobas::driver

@@ -12,9 +12,7 @@
 #include "./vector.hpp"
 #include "./wrench.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class Rotation;
 using RotationMap = std::map<std::string, Rotation>;
@@ -26,42 +24,42 @@ public:
 
   inline explicit Rotation();
   inline explicit Rotation(
-    double xx,
-    double yx,
-    double zx,
-    double xy,
-    double yy,
-    double zy,
-    double xz,
-    double yz,
-    double zz);
+    double _xx,
+    double _yx,
+    double _zx,
+    double _xy,
+    double _yy,
+    double _zy,
+    double _xz,
+    double _yz,
+    double _zz);
   inline explicit Rotation(const std::array<double, 9>& _data);
-  inline explicit Rotation(const Vector& x, const Vector& y, const Vector& z);
+  inline explicit Rotation(const Vector& _x, const Vector& _y, const Vector& _z);
   inline explicit Rotation(const Eigen::Matrix3d& _data);
 
   /** Gives back an identity rotation matrix. */
   static inline Rotation Identity();
 
   /** The Rot... static functions give the value of the appropriate rotation matrix back. */
-  static Rotation RotX(double angle);
+  static Rotation RotX(double _angle);
   /** The Rot... static functions give the value of the appropriate rotation matrix back. */
-  static Rotation RotY(double angle);
+  static Rotation RotY(double _angle);
   /** The Rot... static functions give the value of the appropriate rotation matrix back. */
-  static Rotation RotZ(double angle);
+  static Rotation RotZ(double _angle);
 
   /**
    * Along an arbitrary axes. Axis must be normalized.
    * Returns the identity rotation matrix if the norm of the axis is too small to use.
    * R = std::exp(ω)
    */
-  static Rotation Rot(const Vector& axis, double angle);
-  static Rotation Rot(const Vector& vec);
+  static Rotation Rot(const Vector& _axis, double _angle);
+  static Rotation Rot(const Vector& _vec);
 
   /** Gives back a rotation matrix specified with ZYX euler angles. */
-  static Rotation RPY(double roll, double pitch, double yaw);
+  static Rotation RPY(double _roll, double _pitch, double _yaw);
 
   /** Gives back a rotation matrix specified with Quaternion convention. */
-  static Rotation Quaternion(double x, double y, double z, double w);
+  static Rotation Quaternion(double _x, double _y, double _z, double _w);
 
   /** Check validity. */
   std::expected<void, std::string> validate() const;
@@ -73,32 +71,32 @@ public:
   inline void setNaN();
 
   /** Access to elements 0..2,0..2, bounds are checked when NDEBUG is not set. */
-  inline double& operator()(int i, int j);
+  inline double& operator()(int _i, int _j);
   /** Access to elements 0..2,0..2, bounds are checked when NDEBUG is not set. */
-  inline double operator()(int i, int j) const;
+  inline double operator()(int _i, int _j) const;
 
-  inline Rotation operator*(const Rotation& rhs) const;
-  inline Vector operator*(const Vector& rhs) const;
-  inline Twist operator*(const Twist& rhs) const;
-  inline Accel operator*(const Accel& rhs) const;
-  inline Wrench operator*(const Wrench& rhs) const;
-  inline SegmentJacobian operator*(const SegmentJacobian& rhs) const;
+  inline Rotation operator*(const Rotation& _rhs) const;
+  inline Vector operator*(const Vector& _rhs) const;
+  inline Twist operator*(const Twist& _rhs) const;
+  inline Accel operator*(const Accel& _rhs) const;
+  inline Wrench operator*(const Wrench& _rhs) const;
+  inline SegmentJacobian operator*(const SegmentJacobian& _rhs) const;
 
   /** Compute the difference of two rotations wrt. the same frame. */
-  inline Rotation operator-(const Rotation& rhs) const;
+  inline Rotation operator-(const Rotation& _rhs) const;
 
   /** Gives back the inverse rotation matrix of *this. */
   inline Rotation inverse() const;
   /** The same as R.inverse()*v but more efficient. */
-  inline Vector inverse(const Vector& v) const;
+  inline Vector inverse(const Vector& _v) const;
   /** The same as R.inverse()*arg but more efficient. */
-  inline Twist inverse(const Twist& arg) const;
+  inline Twist inverse(const Twist& _arg) const;
   /** The same as R.inverse()*arg but more efficient. */
-  inline Accel inverse(const Accel& arg) const;
+  inline Accel inverse(const Accel& _arg) const;
   /** The same as R.inverse()*arg but more efficient. */
-  inline Wrench inverse(const Wrench& arg) const;
+  inline Wrench inverse(const Wrench& _arg) const;
   /** The same as R.inverse()*arg but more efficient. */
-  inline SegmentJacobian inverse(const SegmentJacobian& arg) const;
+  inline SegmentJacobian inverse(const SegmentJacobian& _arg) const;
 
   /** X axis of the child frame wrt. the parent frame. The same as R*(1,0,0). */
   inline Vector axisX() const;
@@ -117,10 +115,10 @@ public:
   std::pair<double, Vector> getAngleAxis() const;
 
   /** Get the quaternion of this matrix. */
-  void getQuaternion(double& x, double& y, double& z, double& w) const;
+  void getQuaternion(double& _x, double& _y, double& _z, double& _w) const;
 
   /** Get ZYX euler angles. */
-  void getRPY(double& roll, double& pitch, double& yaw) const;
+  void getRPY(double& _roll, double& _pitch, double& _yaw) const;
   std::tuple<double, double, double> getRPY() const;
 
   inline double getPitch() const;
@@ -128,7 +126,7 @@ public:
 
   inline double trace() const;
 
-  inline friend std::ostream& operator<<(std::ostream& os, const Rotation& arg);
+  inline friend std::ostream& operator<<(std::ostream& _os, const Rotation& _arg);
 };
 
 inline Rotation::Rotation()
@@ -136,9 +134,18 @@ inline Rotation::Rotation()
   *this = Rotation::Identity();
 }
 
-inline Rotation::Rotation(double xx, double yx, double zx, double xy, double yy, double zy, double xz, double yz, double zz)
+inline Rotation::Rotation(
+  double _xx,
+  double _yx,
+  double _zx,
+  double _xy,
+  double _yy,
+  double _zy,
+  double _xz,
+  double _yz,
+  double _zz)
 {
-  data << xx, yx, zx, xy, yy, zy, xz, yz, zz;
+  data << _xx, _yx, _zx, _xy, _yy, _zy, _xz, _yz, _zz;
 }
 
 inline Rotation::Rotation(const std::array<double, 9>& _data)
@@ -146,11 +153,11 @@ inline Rotation::Rotation(const std::array<double, 9>& _data)
 {
 }
 
-inline Rotation::Rotation(const Vector& x, const Vector& y, const Vector& z)
+inline Rotation::Rotation(const Vector& _x, const Vector& _y, const Vector& _z)
 {
-  data.col(0) = x.data;
-  data.col(1) = y.data;
-  data.col(2) = z.data;
+  data.col(0) = _x.data;
+  data.col(1) = _y.data;
+  data.col(2) = _z.data;
 }
 
 inline Rotation::Rotation(const Eigen::Matrix3d& _data) : data(_data)
@@ -182,51 +189,51 @@ inline void Rotation::setNaN()
   data.setConstant(NAN);
 }
 
-inline double& Rotation::operator()(int i, int j)
+inline double& Rotation::operator()(int _i, int _j)
 {
-  assert(0 <= i && i <= 2 && 0 <= j && j <= 2);
-  return data(i, j);
+  assert(0 <= _i && _i <= 2 && 0 <= _j && _j <= 2);
+  return data(_i, _j);
 }
 
-inline double Rotation::operator()(int i, int j) const
+inline double Rotation::operator()(int _i, int _j) const
 {
-  assert(0 <= i && i <= 2 && 0 <= j && j <= 2);
-  return data(i, j);
+  assert(0 <= _i && _i <= 2 && 0 <= _j && _j <= 2);
+  return data(_i, _j);
 }
 
-inline Rotation Rotation::operator*(const Rotation& rhs) const
+inline Rotation Rotation::operator*(const Rotation& _rhs) const
 {
-  return Rotation(data * rhs.data);  // TODO: Add processing to preserve SO3.
+  return Rotation(data * _rhs.data);  // TODO: Add processing to preserve SO3.
 }
 
-inline Vector Rotation::operator*(const Vector& rhs) const
+inline Vector Rotation::operator*(const Vector& _rhs) const
 {
-  return Vector(data * rhs.data);
+  return Vector(data * _rhs.data);
 }
 
-inline Twist Rotation::operator*(const Twist& rhs) const
+inline Twist Rotation::operator*(const Twist& _rhs) const
 {
-  return Twist((*this) * rhs.vel, (*this) * rhs.rot);
+  return Twist((*this) * _rhs.vel, (*this) * _rhs.rot);
 }
 
-inline Accel Rotation::operator*(const Accel& rhs) const
+inline Accel Rotation::operator*(const Accel& _rhs) const
 {
-  return Accel((*this) * rhs.linear, (*this) * rhs.angular);
+  return Accel((*this) * _rhs.linear, (*this) * _rhs.angular);
 }
 
-inline Wrench Rotation::operator*(const Wrench& rhs) const
+inline Wrench Rotation::operator*(const Wrench& _rhs) const
 {
-  return Wrench((*this) * rhs.force, (*this) * rhs.torque);
+  return Wrench((*this) * _rhs.force, (*this) * _rhs.torque);
 }
 
-inline SegmentJacobian Rotation::operator*(const SegmentJacobian& rhs) const
+inline SegmentJacobian Rotation::operator*(const SegmentJacobian& _rhs) const
 {
-  return SegmentJacobian((*this) * rhs.linear, (*this) * rhs.angular);
+  return SegmentJacobian((*this) * _rhs.linear, (*this) * _rhs.angular);
 }
 
-inline Rotation Rotation::operator-(const Rotation& rhs) const
+inline Rotation Rotation::operator-(const Rotation& _rhs) const
 {
-  return (*this) * rhs.inverse();
+  return (*this) * _rhs.inverse();
 }
 
 inline Rotation Rotation::inverse() const
@@ -234,29 +241,29 @@ inline Rotation Rotation::inverse() const
   return Rotation(data.transpose());
 }
 
-inline Vector Rotation::inverse(const Vector& v) const
+inline Vector Rotation::inverse(const Vector& _v) const
 {
-  return Vector(data.transpose() * v.data);
+  return Vector(data.transpose() * _v.data);
 }
 
-inline Twist Rotation::inverse(const Twist& arg) const
+inline Twist Rotation::inverse(const Twist& _arg) const
 {
-  return Twist(inverse(arg.vel), inverse(arg.rot));
+  return Twist(inverse(_arg.vel), inverse(_arg.rot));
 }
 
-inline Accel Rotation::inverse(const Accel& arg) const
+inline Accel Rotation::inverse(const Accel& _arg) const
 {
-  return Accel(inverse(arg.linear), inverse(arg.angular));
+  return Accel(inverse(_arg.linear), inverse(_arg.angular));
 }
 
-inline Wrench Rotation::inverse(const Wrench& arg) const
+inline Wrench Rotation::inverse(const Wrench& _arg) const
 {
-  return Wrench(inverse(arg.force), inverse(arg.torque));
+  return Wrench(inverse(_arg.force), inverse(_arg.torque));
 }
 
-inline SegmentJacobian Rotation::inverse(const SegmentJacobian& arg) const
+inline SegmentJacobian Rotation::inverse(const SegmentJacobian& _arg) const
 {
-  return SegmentJacobian(inverse(arg.linear), inverse(arg.angular));
+  return SegmentJacobian(inverse(_arg.linear), inverse(_arg.angular));
 }
 
 inline Vector Rotation::axisX() const
@@ -289,10 +296,9 @@ inline double Rotation::trace() const
   return data.trace();
 }
 
-inline std::ostream& operator<<(std::ostream& os, const Rotation& arg)
+inline std::ostream& operator<<(std::ostream& _os, const Rotation& _arg)
 {
-  os << arg.data.reshaped(1, 9);
-  return os;
+  _os << _arg.data.reshaped(1, 9);
+  return _os;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

@@ -7,20 +7,20 @@ namespace ch = std::chrono;
 
 namespace tobas
 {
-void TimerCoalescingEventsQueue::enqueue(const ExecutorEvent& event)
+void TimerCoalescingEventsQueue::enqueue(const ExecutorEvent& _event)
 {
   bool event_added = false;
 
   {
     const std::lock_guard lock(mutex_);
 
-    auto single_event = event;
+    auto single_event = _event;
     single_event.num_events = 1;
 
-    switch (event.type) {
+    switch (_event.type) {
       case rclcpp::experimental::executors::TIMER_EVENT:
-        if (event.num_events > 0) {
-          auto& is_pending = timer_pending_states_[event.entity_key];
+        if (_event.num_events > 0) {
+          auto& is_pending = timer_pending_states_[_event.entity_key];
           if (!is_pending) {
             event_queue_.push(single_event);
             is_pending = true;
@@ -29,7 +29,7 @@ void TimerCoalescingEventsQueue::enqueue(const ExecutorEvent& event)
         }
         break;
       default:
-        for (size_t _ = 0; _ < event.num_events; ++_) {
+        for (size_t _ = 0; _ < _event.num_events; ++_) {
           event_queue_.push(single_event);
           event_added = true;
         }
@@ -42,27 +42,27 @@ void TimerCoalescingEventsQueue::enqueue(const ExecutorEvent& event)
   }
 }
 
-bool TimerCoalescingEventsQueue::dequeue(ExecutorEvent& event, ch::nanoseconds timeout)
+bool TimerCoalescingEventsQueue::dequeue(ExecutorEvent& _event, ch::nanoseconds _timeout)
 {
   std::unique_lock lock(mutex_);
 
   bool has_data = true;
-  if (timeout == ch::nanoseconds::max()) {
+  if (_timeout == ch::nanoseconds::max()) {
     events_queue_cv_.wait(lock, [this]() { return !event_queue_.empty(); });
   }
   else {
-    has_data = events_queue_cv_.wait_for(lock, timeout, [this]() { return !event_queue_.empty(); });
+    has_data = events_queue_cv_.wait_for(lock, _timeout, [this]() { return !event_queue_.empty(); });
   }
 
   if (!has_data) {
     return false;
   }
 
-  event = event_queue_.front();
+  _event = event_queue_.front();
   event_queue_.pop();
 
-  if (event.type == rclcpp::experimental::executors::TIMER_EVENT) {
-    const auto it = timer_pending_states_.find(event.entity_key);
+  if (_event.type == rclcpp::experimental::executors::TIMER_EVENT) {
+    const auto it = timer_pending_states_.find(_event.entity_key);
     if (it != timer_pending_states_.end()) {
       // Keep the entry to avoid allocating memory again on every timer period.
       it->second = false;

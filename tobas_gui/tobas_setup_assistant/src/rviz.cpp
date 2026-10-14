@@ -15,14 +15,10 @@
 #include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/util.hpp"
 
-namespace tobas
+namespace tobas::gui::sa
 {
-namespace gui
-{
-namespace sa
-{
-RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
-  : uadf_(uadf), tree_(tree), rviz_manager_("rviz_robot_state_display")
+RvizWidget::RvizWidget(const uadf::Model& _uadf, const kdl::Tree& _tree)
+  : uadf_(_uadf), tree_(_tree), rviz_manager_("rviz_robot_state_display")
 {
   constexpr bool kDefaultVisualEnabled = true;
   constexpr bool kDefaultCollisionEnabled = false;
@@ -96,9 +92,9 @@ void RvizWidget::updateInternalDataStructures()
   reload_->setBool(true);
 }
 
-void RvizWidget::heightLink(const QString& link_name)
+void RvizWidget::heightLink(const QString& _link_name)
 {
-  if (link_name == highlighted_link_) {
+  if (_link_name == highlighted_link_) {
     return;
   }
 
@@ -106,13 +102,13 @@ void RvizWidget::heightLink(const QString& link_name)
     unheightLink(highlighted_link_);
   }
 
-  highlight_link_->setValue(link_name);
-  highlighted_link_ = link_name;
+  highlight_link_->setValue(_link_name);
+  highlighted_link_ = _link_name;
 }
 
-void RvizWidget::unheightLink(const QString& link_name)
+void RvizWidget::unheightLink(const QString& _link_name)
 {
-  unhighlight_link_->setValue(link_name);
+  unhighlight_link_->setValue(_link_name);
 }
 
 void RvizWidget::resetOrbitView()
@@ -120,20 +116,18 @@ void RvizWidget::resetOrbitView()
   rviz_manager_.setOrbitView(1.7f, M_PIf, M_PI_4f, 0.0f, 0.0f, 0.0f);
 }
 
-void RvizWidget::onVisualBoxToggled(bool checked)
+void RvizWidget::onVisualBoxToggled(bool _checked)
 {
-  enable_visual_->setBool(checked);
+  enable_visual_->setBool(_checked);
 }
 
-void RvizWidget::onCollisionBoxToggled(bool checked)
+void RvizWidget::onCollisionBoxToggled(bool _checked)
 {
-  enable_collision_->setBool(checked);
+  enable_collision_->setBool(_checked);
 }
 
-void RvizWidget::onInertiaBoxToggled(bool checked)
+void RvizWidget::onInertiaBoxToggled(bool _checked)
 {
-  enable_inertia_->setBool(checked);
+  enable_inertia_->setBool(_checked);
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

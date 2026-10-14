@@ -26,29 +26,29 @@ public:
 
   std::expected<void, std::string> validate() const;
 
-  std::expected<void, std::string> load(const YAML::Node& node);
+  std::expected<void, std::string> load(const YAML::Node& _node);
   YAML::Node dump() const;
 
-  inline double periodFromValue(double value) const;
+  inline double periodFromValue(double _value) const;
 
 private:
-  inline double clampPeriod(double period) const;
+  inline double clampPeriod(double _period) const;
 };
 
-inline double PwmConfig::periodFromValue(double value) const
+inline double PwmConfig::periodFromValue(double _value) const
 {
   const auto period =
-    math::remap(value, value_range.first, value_range.second, period_range.first, period_range.second);
+    math::remap(_value, value_range.first, value_range.second, period_range.first, period_range.second);
   return clampPeriod(period);
 }
 
-inline double PwmConfig::clampPeriod(double period) const
+inline double PwmConfig::clampPeriod(double _period) const
 {
   if (period_range.first < period_range.second) {
-    return std::clamp(period, period_range.first, period_range.second);
+    return std::clamp(_period, period_range.first, period_range.second);
   }
   else {
-    return std::clamp(period, period_range.second, period_range.first);
+    return std::clamp(_period, period_range.second, period_range.first);
   }
 }
 }  // namespace tobas

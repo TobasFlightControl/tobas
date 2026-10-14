@@ -25,18 +25,18 @@ struct rclcpp::TypeAdapter<tobas::mission::Mission, tobas_mission_msgs::msg::Mis
   using custom_type = tobas::mission::Mission;
   using ros_message_type = tobas_mission_msgs::msg::Mission;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.items.resize(src.items.size());
-    for (const auto& [src_item, dst_item] : std::views::zip(src.items, dst.items)) {
+    _dst.items.resize(_src.items.size());
+    for (const auto& [src_item, dst_item] : std::views::zip(_src.items, _dst.items)) {
       tobas_mission_msgs::MissionItemAdapter::convert_to_ros_message(src_item, dst_item);
     }
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.items.resize(src.items.size());
-    for (const auto& [src_item, dst_item] : std::views::zip(src.items, dst.items)) {
+    _dst.items.resize(_src.items.size());
+    for (const auto& [src_item, dst_item] : std::views::zip(_src.items, _dst.items)) {
       tobas_mission_msgs::MissionItemAdapter::convert_to_custom(src_item, dst_item);
     }
   }

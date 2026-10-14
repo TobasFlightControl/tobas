@@ -5,23 +5,17 @@
 
 #include <QAbstractListModel>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
-{
-namespace map
+namespace tobas::gui::ctrl::map
 {
 template <typename... Args>
 class MapItemModel : public QAbstractListModel
 {
 public:
-  int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+  int rowCount(const QModelIndex& _parent = QModelIndex()) const override;
+  QVariant data(const QModelIndex& _index, int _role = Qt::DisplayRole) const override;
   QHash<int, QByteArray> roleNames() const override;
 
-  void add(const Args&... args);
+  void add(const Args&... _args);
   void clear();
 
   virtual QString modelName() const = 0;
@@ -38,9 +32,9 @@ int MapItemModel<Args...>::rowCount(const QModelIndex&) const
 }
 
 template <typename... Args>
-QVariant MapItemModel<Args...>::data(const QModelIndex& index, int role) const
+QVariant MapItemModel<Args...>::data(const QModelIndex& _index, int _role) const
 {
-  return list_[index.row()][role - Qt::UserRole];
+  return list_[_index.row()][_role - Qt::UserRole];
 }
 
 template <typename... Args>
@@ -55,10 +49,10 @@ QHash<int, QByteArray> MapItemModel<Args...>::roleNames() const
 }
 
 template <typename... Args>
-void MapItemModel<Args...>::add(const Args&... args)
+void MapItemModel<Args...>::add(const Args&... _args)
 {
   beginInsertRows(QModelIndex(), rowCount(), rowCount());
-  list_.append({ QVariant::fromValue(args)... });
+  list_.append({ QVariant::fromValue(_args)... });
   endInsertRows();
 }
 
@@ -69,7 +63,4 @@ void MapItemModel<Args...>::clear()
   list_.clear();
   endRemoveRows();
 }
-}  // namespace map
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl::map

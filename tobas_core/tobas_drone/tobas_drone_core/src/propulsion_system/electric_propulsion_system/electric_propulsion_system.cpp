@@ -28,16 +28,16 @@ std::expected<void, std::string> ElectricPropulsionSystemConfig::validate() cons
   return battery.validate();
 }
 
-std::expected<void, std::string> ElectricPropulsionSystemConfig::load(const YAML::Node& root_node)
+std::expected<void, std::string> ElectricPropulsionSystemConfig::load(const YAML::Node& _root_node)
 {
-  if (!root_node.IsDefined() || !root_node.IsMap()) {
+  if (!_root_node.IsDefined() || !_root_node.IsMap()) {
     return std::unexpected("Electric propulsion system node must be a map.");
   }
 
   clear();
 
   // Rotors
-  const auto rotors_node = root_node[kRotorsKey];
+  const auto rotors_node = _root_node[kRotorsKey];
   if (!rotors_node.IsDefined()) {
     return std::unexpected(std::string("'") + kRotorsKey + "' is not defined.");
   }
@@ -53,7 +53,7 @@ std::expected<void, std::string> ElectricPropulsionSystemConfig::load(const YAML
   }
 
   // Battery
-  const auto battery_node = root_node[kBatteryKey];
+  const auto battery_node = _root_node[kBatteryKey];
   if (!battery_node.IsDefined()) {
     return std::unexpected(std::string("'") + kBatteryKey + "' is not defined.");
   }
@@ -85,52 +85,52 @@ PropulsionSystem ElectricPropulsionSystemConfig::type() const
   return PropulsionSystem::kElectric;
 }
 
-double ElectricPropulsionSystemConfig::minSpeed(const std::string& link_name)
+double ElectricPropulsionSystemConfig::minSpeed(const std::string& _link_name)
 {
-  const auto rotor = getRotor(link_name);
+  const auto rotor = getRotor(_link_name);
   return rotor->min_speed;
 }
 
-double ElectricPropulsionSystemConfig::maxSpeed(const std::string& link_name)
+double ElectricPropulsionSystemConfig::maxSpeed(const std::string& _link_name)
 {
   // FIXME: Reflect the maximum thrust while absorbing errors between electric and ICE models
   // and considering the battery or engine state.
   // It may be better for `PropulsionLimitCalculator` to publish maximum speed and thrust values as topics.
-  const auto rotor = getRotor(link_name);
+  const auto rotor = getRotor(_link_name);
   return rotor->speedFromVoltage(battery.nominal_voltage);
 }
 
-double ElectricPropulsionSystemConfig::minThrust(const std::string& link_name)
+double ElectricPropulsionSystemConfig::minThrust(const std::string& _link_name)
 {
-  const auto rotor = getRotor(link_name);
-  return rotor->thrustFromSpeed(minSpeed(link_name));
+  const auto rotor = getRotor(_link_name);
+  return rotor->thrustFromSpeed(minSpeed(_link_name));
 }
 
-double ElectricPropulsionSystemConfig::maxThrust(const std::string& link_name)
+double ElectricPropulsionSystemConfig::maxThrust(const std::string& _link_name)
 {
-  const auto rotor = getRotor(link_name);
-  return rotor->thrustFromSpeed(maxSpeed(link_name));
+  const auto rotor = getRotor(_link_name);
+  return rotor->thrustFromSpeed(maxSpeed(_link_name));
 }
 
-double ElectricPropulsionSystemConfig::thrustFromThrottle(const std::string& link_name, double throttle)
+double ElectricPropulsionSystemConfig::thrustFromThrottle(const std::string& _link_name, double _throttle)
 {
-  const auto rotor = getRotor(link_name);
-  const auto input_voltage = battery.nominal_voltage * throttle;
+  const auto rotor = getRotor(_link_name);
+  const auto input_voltage = battery.nominal_voltage * _throttle;
   return rotor->thrustFromVoltage(input_voltage);
 }
 
-ElectricRotorConfig::SharedPtr ElectricPropulsionSystemConfig::getRotor(const std::string& link_name)
+ElectricRotorConfig::SharedPtr ElectricPropulsionSystemConfig::getRotor(const std::string& _link_name)
 {
-  const auto it = rotors.find(link_name);
+  const auto it = rotors.find(_link_name);
   if (it == rotors.end()) {
     return nullptr;
   }
   return std::static_pointer_cast<ElectricRotorConfig>(it->second);
 }
 
-ElectricRotorConfig::ConstSharedPtr ElectricPropulsionSystemConfig::getRotor(const std::string& link_name) const
+ElectricRotorConfig::ConstSharedPtr ElectricPropulsionSystemConfig::getRotor(const std::string& _link_name) const
 {
-  const auto it = rotors.find(link_name);
+  const auto it = rotors.find(_link_name);
   if (it == rotors.end()) {
     return nullptr;
   }

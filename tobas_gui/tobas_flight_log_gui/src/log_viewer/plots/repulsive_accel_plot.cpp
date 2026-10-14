@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 RepulsiveAccelPlotWidget::RepulsiveAccelPlotWidget() : curves_{ "Accel X [m/s²]", "Accel Y [m/s²]", "Accel Z [m/s²]" }
 {
@@ -35,20 +31,20 @@ void RepulsiveAccelPlotWidget::clear()
   }
 }
 
-void RepulsiveAccelPlotWidget::setTimeScale(double t_start, double t_stop)
+void RepulsiveAccelPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
   for (size_t i = 0; i < kNumAxes; ++i) {
-    plots_[i]->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+    plots_[i]->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
   }
 }
 
-void RepulsiveAccelPlotWidget::setData(const QVector<tobas_msgs::msg::RepulsiveAcceleration>& msgs)
+void RepulsiveAccelPlotWidget::setData(const QVector<tobas_msgs::msg::RepulsiveAcceleration>& _msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> acc_data;
   VerticalScaleRange range;
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
 
     acc_data[0].push_back(msg.accel.x);
@@ -70,6 +66,4 @@ void RepulsiveAccelPlotWidget::setData(const QVector<tobas_msgs::msg::RepulsiveA
     plot->replot();
   }
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

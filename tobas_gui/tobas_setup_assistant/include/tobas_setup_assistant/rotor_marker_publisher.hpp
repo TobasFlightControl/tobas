@@ -15,11 +15,7 @@ namespace rclcpp
 class Node;
 }  // namespace rclcpp
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class RotorMarkerPublisher : public QObject
 {
@@ -28,7 +24,7 @@ class RotorMarkerPublisher : public QObject
   using self = RotorMarkerPublisher;
 
 public:
-  explicit RotorMarkerPublisher(rclcpp::Node::SharedPtr node, const uadf::Model& uadf);
+  explicit RotorMarkerPublisher(rclcpp::Node::SharedPtr _node, const uadf::Model& _uadf);
 
   void updateInternalDataStructures();
 
@@ -45,6 +41,4 @@ private:
 private Q_SLOTS:
   void publishTimerCb();
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

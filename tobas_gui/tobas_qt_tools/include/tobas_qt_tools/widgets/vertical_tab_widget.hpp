@@ -5,9 +5,7 @@
 
 #include "./tab_widget.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 class VerticalTabBar : public TabBar
 {
@@ -16,8 +14,8 @@ class VerticalTabBar : public TabBar
   using super = TabBar;
 
 protected:
-  QSize tabSizeHint(int index) const override;
-  void paintEvent(QPaintEvent* event) override;
+  QSize tabSizeHint(int _index) const override;
+  void paintEvent(QPaintEvent* _event) override;
 };
 
 class VerticalTabWidget : public TabWidget
@@ -27,13 +25,12 @@ class VerticalTabWidget : public TabWidget
   using super = TabWidget;
 
 public:
-  explicit VerticalTabWidget(QWidget* parent = nullptr);
+  explicit VerticalTabWidget(QWidget* _parent = nullptr);
 
-  void setTabBackgroundColor(int index, const QColor& color) override;
-  void clearTabBackgroundColor(int index) override;
+  void setTabBackgroundColor(int _index, const QColor& _color) override;
+  void clearTabBackgroundColor(int _index) override;
 
 private:
   VerticalTabBar* tab_bar_;
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

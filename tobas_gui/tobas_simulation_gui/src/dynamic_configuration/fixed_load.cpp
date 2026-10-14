@@ -19,11 +19,7 @@
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 FixedLoadWidget::FixedLoadWidget()
 {
@@ -86,10 +82,10 @@ void FixedLoadWidget::reset()
   setParamsToDefault();
 }
 
-void FixedLoadWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void FixedLoadWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  attach_sc_.emplace(node, path::join(ns, gazebo::kAttachFixedLoadSrv));
-  detach_sc_.emplace(node, path::join(ns, gazebo::kDetachFixedLoadSrv));
+  attach_sc_.emplace(_node, path::join(_ns, gazebo::kAttachFixedLoadSrv));
+  detach_sc_.emplace(_node, path::join(_ns, gazebo::kDetachFixedLoadSrv));
 }
 
 void FixedLoadWidget::clearRosInterfaces()
@@ -153,6 +149,4 @@ void FixedLoadWidget::onDetachButtonClicked()
     return;
   }
 }
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

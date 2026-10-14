@@ -11,11 +11,7 @@
 
 #include "./param_block.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace param
+namespace tobas::gui::param
 {
 class ParameterTuningWidget : public QWidget
 {
@@ -29,8 +25,8 @@ public:
   explicit ParameterTuningWidget();
 
   void reset();
-  void setProjectPath(const QString& proj_path);
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void setProjectPath(const QString& _proj_path);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:
@@ -57,6 +53,4 @@ private Q_SLOTS:
   void onResetButtonClicked();
   void onDefaultButtonClicked();
 };
-}  // namespace param
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::param

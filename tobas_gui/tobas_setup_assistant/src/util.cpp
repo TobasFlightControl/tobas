@@ -7,16 +7,10 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 fs::path getPkgShareDir()
 {
   return ament_index_cpp::get_package_share_directory("tobas_setup_assistant");
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

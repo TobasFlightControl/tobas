@@ -5,11 +5,9 @@
 
 #include <QHBoxLayout>
 
-namespace tobas
+namespace tobas::qt
 {
-namespace qt
-{
-Vector3dEditHorizontal::Vector3dEditHorizontal(QWidget* parent) : super(parent)
+Vector3dEditHorizontal::Vector3dEditHorizontal(QWidget* _parent) : super(_parent)
 {
   const auto cols = new QHBoxLayout();
   setLayout(cols);
@@ -33,46 +31,46 @@ Eigen::Vector3d Vector3dEditHorizontal::vector() const
   return { x(), y(), z() };
 }
 
-void Vector3dEditHorizontal::setVector(const Eigen::Vector3d& src)
+void Vector3dEditHorizontal::setVector(const Eigen::Vector3d& _src)
 {
-  x_->setValue(src.x());
-  y_->setValue(src.y());
-  z_->setValue(src.z());
+  x_->setValue(_src.x());
+  y_->setValue(_src.y());
+  z_->setValue(_src.z());
 }
 
-void Vector3dEditHorizontal::setDecimals(int decimals)
+void Vector3dEditHorizontal::setDecimals(int _decimals)
 {
-  x_->setDecimals(decimals);
-  y_->setDecimals(decimals);
-  z_->setDecimals(decimals);
+  x_->setDecimals(_decimals);
+  y_->setDecimals(_decimals);
+  z_->setDecimals(_decimals);
 }
 
-void Vector3dEditHorizontal::setMinimum(double minimum)
+void Vector3dEditHorizontal::setMinimum(double _minimum)
 {
-  x_->setMinimum(minimum);
-  y_->setMinimum(minimum);
-  z_->setMinimum(minimum);
+  x_->setMinimum(_minimum);
+  y_->setMinimum(_minimum);
+  z_->setMinimum(_minimum);
 }
 
-void Vector3dEditHorizontal::setMaximum(double maximum)
+void Vector3dEditHorizontal::setMaximum(double _maximum)
 {
-  x_->setMaximum(maximum);
-  y_->setMaximum(maximum);
-  z_->setMaximum(maximum);
+  x_->setMaximum(_maximum);
+  y_->setMaximum(_maximum);
+  z_->setMaximum(_maximum);
 }
 
-void Vector3dEditHorizontal::setSingleStep(double single_step)
+void Vector3dEditHorizontal::setSingleStep(double _single_step)
 {
-  x_->setSingleStep(single_step);
-  y_->setSingleStep(single_step);
-  z_->setSingleStep(single_step);
+  x_->setSingleStep(_single_step);
+  y_->setSingleStep(_single_step);
+  z_->setSingleStep(_single_step);
 }
 
-void Vector3dEditHorizontal::setSuffix(const QString& suffix)
+void Vector3dEditHorizontal::setSuffix(const QString& _suffix)
 {
-  x_->setSuffix(suffix);
-  y_->setSuffix(suffix);
-  z_->setSuffix(suffix);
+  x_->setSuffix(_suffix);
+  y_->setSuffix(_suffix);
+  z_->setSuffix(_suffix);
 }
 
 double Vector3dEditHorizontal::x() const
@@ -94,5 +92,4 @@ void Vector3dEditHorizontal::onValueChanged(double)
 {
   Q_EMIT valueChanged({ x(), y(), z() });
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

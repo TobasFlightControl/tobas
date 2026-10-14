@@ -18,11 +18,7 @@
 #include "./setting_tabs/rc_input.hpp"
 #include "./settings_navigation.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class SettingsWidget : public QWidget
 {
@@ -41,16 +37,16 @@ public:
   FailsafeWidget* failsafe;
   AuthorInformationWidget* author_info;
 
-  explicit SettingsWidget(const uadf::Model& uadf, const kdl::Tree& tree, Signals& sig);
+  explicit SettingsWidget(const uadf::Model& _uadf, const kdl::Tree& _tree, Signals& _sig);
 
   void updateInternalDataStructures();
   void setToDefaults();
   bool isValid();
 
   YAML::Node dump() const;
-  bool load(const YAML::Node& node);
+  bool load(const YAML::Node& _node);
 
-  void setFrameType(FrameType type);
+  void setFrameType(FrameType _type);
 
 private:
   const uadf::Model& uadf_;
@@ -58,13 +54,11 @@ private:
   SettingsNavigationWidget* navigation_;
   qt::StackedWidget* stack_;
 
-  int getIndex(BaseSettingWidget* page) const;
-  void addPage(BaseSettingWidget* page);
-  void setCurrentPage(int idx);
-  void setCurrentPage(BaseSettingWidget* page);
-  void setPageEnabled(int idx, bool enabled, const QString& disabled_reason = {});
-  void setPageEnabled(BaseSettingWidget* page, bool enabled, const QString& disabled_reason = {});
+  int getIndex(BaseSettingWidget* _page) const;
+  void addPage(BaseSettingWidget* _page);
+  void setCurrentPage(int _idx);
+  void setCurrentPage(BaseSettingWidget* _page);
+  void setPageEnabled(int _idx, bool _enabled, const QString& _disabled_reason = {});
+  void setPageEnabled(BaseSettingWidget* _page, bool _enabled, const QString& _disabled_reason = {});
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

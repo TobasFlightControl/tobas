@@ -12,33 +12,30 @@
 
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 ModelLinksParser::ModelLinksParser()
 {
 }
 
-bool ModelLinksParser::initialize(const gz::sim::Entity& model, const gz::sim::EntityComponentManager& ecm)
+bool ModelLinksParser::initialize(const gz::sim::Entity& _model, const gz::sim::EntityComponentManager& _ecm)
 {
-  if (!ecm.Component<cmp::Model>(model)) {
-    ignerr << "Model does not exist." << std::endl;
+  if (!_ecm.Component<cmp::Model>(_model)) {
+    ignerr << "Model does not exist.\n";
     return false;
   }
 
   links_.clear();
 
-  ecm.Each<cmp::Link, cmp::Name>(
-    [&](const gz::sim::Entity& entity, const cmp::Link*, const cmp::Name* name) -> bool
+  _ecm.Each<cmp::Link, cmp::Name>(
+    [&](const gz::sim::Entity& _entity, const cmp::Link*, const cmp::Name* _name) -> bool
     {
-      if (belongsTo(entity, model, ecm)) {
-        links_[name->Data()] = entity;
+      if (belongsTo(_entity, _model, _ecm)) {
+        links_[_name->Data()] = _entity;
       }
       return true;
     });
 
   return true;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

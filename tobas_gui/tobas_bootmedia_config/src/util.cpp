@@ -7,16 +7,10 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 fs::path getPkgShareDir()
 {
   return ament_index_cpp::get_package_share_directory("tobas_bootmedia_config");
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

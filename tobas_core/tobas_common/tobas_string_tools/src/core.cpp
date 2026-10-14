@@ -8,93 +8,91 @@
 #include <regex>
 #include <sstream>
 
-namespace tobas
+namespace tobas::str
 {
-namespace str
-{
-std::vector<std::string> split(const std::string& s, char c)
+std::vector<std::string> split(const std::string& _s, char _c)
 {
   std::vector<std::string> res;
-  if (s.find(c) == std::string::npos) {
-    res.push_back(s);
+  if (_s.find(_c) == std::string::npos) {
+    res.push_back(_s);
   }
   else {
     size_t first = 0;
-    size_t last = s.find_first_of(c);
-    while (first < s.size()) {
-      std::string subStr(s, first, last - first);
+    size_t last = _s.find_first_of(_c);
+    while (first < _s.size()) {
+      std::string subStr(_s, first, last - first);
       res.push_back(subStr);
       first = last + 1;
-      last = s.find_first_of(c, first);
+      last = _s.find_first_of(_c, first);
       if (last == std::string::npos) {
-        last = s.size();
+        last = _s.size();
       }
     }
   }
   return res;
 }
 
-std::expected<std::pair<std::string, std::string>, std::string> rsplit(const std::string& s, char c)
+std::expected<std::pair<std::string, std::string>, std::string> rsplit(const std::string& _s, char _c)
 {
   // Find the last specified character.
-  const auto pos = s.rfind(c);
+  const auto pos = _s.rfind(_c);
 
   if (pos != std::string::npos) {
-    std::string before = s.substr(0, pos);
-    std::string after = s.substr(pos + 1);
+    std::string before = _s.substr(0, pos);
+    std::string after = _s.substr(pos + 1);
     return std::pair{ before, after };
   }
   else {
-    return std::unexpected("String '" + s + "' does not contain '" + c + "'.");
+    return std::unexpected("String '" + _s + "' does not contain '" + _c + "'.");
   }
 }
 
-std::string lstrip(const std::string& s, const std::string& del)
+std::string lstrip(const std::string& _s, const std::string& _del)
 {
-  if (s.find(del) == 0) {
-    return s.substr(del.length());
+  if (_s.find(_del) == 0) {
+    return _s.substr(_del.length());
   }
   else {
-    return s;
+    return _s;
   }
 }
 
-std::string rstrip(const std::string& s, const std::string& del)
+std::string rstrip(const std::string& _s, const std::string& _del)
 {
-  if (s.size() >= del.size() && s.compare(s.size() - del.size(), del.size(), del) == 0) {
-    return s.substr(0, s.size() - del.size());
+  if (_s.size() >= _del.size() && _s.compare(_s.size() - _del.size(), _del.size(), _del) == 0) {
+    return _s.substr(0, _s.size() - _del.size());
   }
   else {
-    return s;
+    return _s;
   }
 }
 
-std::string stripQuates(const std::string& s)
+std::string stripQuates(const std::string& _s)
 {
-  if (s.front() == '"' && s.back() == '"') {
-    return s.substr(1, s.size() - 2);
+  if (_s.front() == '"' && _s.back() == '"') {
+    return _s.substr(1, _s.size() - 2);
   }
-  return s;
+  return _s;
 }
 
-std::string trim(const std::string& s)
+std::string trim(const std::string& _s)
 {
   // Return as-is for an empty string. Otherwise, `find_(first,last)_not_of` would return `inf`.
-  if (s.empty()) {
+  if (_s.empty()) {
     return {};
   }
 
   constexpr char del[] = " \t\n\r\f\v";
-  const auto first = s.find_first_not_of(del);
-  const auto last = s.find_last_not_of(del);
+  const auto first = _s.find_first_not_of(del);
+  const auto last = _s.find_last_not_of(del);
 
-  return s.substr(first, last - first + 1);
+  return _s.substr(first, last - first + 1);
 }
 
-std::vector<std::string> splitLines(const std::string& text)
+std::vector<std::string> splitLines(const std::string& _text)
 {
   std::vector<std::string> lines;
-  std::istringstream stream(text);
+  std::istringstream stream(_text);
   std::string line;
   while (std::getline(stream, line)) {
     lines.push_back(line);
@@ -102,10 +100,10 @@ std::vector<std::string> splitLines(const std::string& text)
   return lines;
 }
 
-std::string deleteNl(const std::string& s)
+std::string deleteNl(const std::string& _s)
 {
   std::string res;
-  for (const auto& ch : s) {
+  for (const auto& ch : _s) {
     if (ch != '\r' && ch != '\n') {
       res += ch;
     }
@@ -113,35 +111,35 @@ std::string deleteNl(const std::string& s)
   return res;
 }
 
-std::string toLower(std::string arg)
+std::string toLower(std::string _arg)
 {
-  transform(arg.begin(), arg.end(), arg.begin(), [](char c) { return std::tolower(c); });
-  return arg;
+  transform(_arg.begin(), _arg.end(), _arg.begin(), [](char _c) { return std::tolower(_c); });
+  return _arg;
 }
 
-std::string toUpper(std::string arg)
+std::string toUpper(std::string _arg)
 {
-  transform(arg.begin(), arg.end(), arg.begin(), [](char c) { return std::toupper(c); });
-  return arg;
+  transform(_arg.begin(), _arg.end(), _arg.begin(), [](char _c) { return std::toupper(_c); });
+  return _arg;
 }
 
-std::string replace(std::string s, const std::string& from, const std::string& to)
+std::string replace(std::string _s, const std::string& _from, const std::string& _to)
 {
   size_t start_pos = 0;
-  while ((start_pos = s.find(from, start_pos)) != std::string::npos) {
-    s.replace(start_pos, from.length(), to);
-    start_pos += to.length();  // Set the next search position.
+  while ((start_pos = _s.find(_from, start_pos)) != std::string::npos) {
+    _s.replace(start_pos, _from.length(), _to);
+    start_pos += _to.length();  // Set the next search position.
   }
-  return s;
+  return _s;
 }
 
-std::string sanitize(const char* s)
+std::string sanitize(const char* _s)
 {
-  if (!s) {
+  if (!_s) {
     return {};
   }
 
-  std::string out(s);
+  std::string out(_s);
 
   // Replace newlines and tabs with spaces.
   for (auto& c : out) {
@@ -159,13 +157,13 @@ std::string sanitize(const char* s)
   }
 
   // Remove other control characters (0x00-0x1F, 0x7F).
-  out.erase(remove_if(out.begin(), out.end(), [](char ch) { return (ch < 0x20 || ch == 0x7F); }), out.end());
+  out.erase(remove_if(out.begin(), out.end(), [](char _ch) { return (_ch < 0x20 || _ch == 0x7F); }), out.end());
 
   // Collapse consecutive spaces to one.
-  out.erase(unique(out.begin(), out.end(), [](char a, char b) { return a == ' ' && b == ' '; }), out.end());
+  out.erase(unique(out.begin(), out.end(), [](char _a, char _b) { return _a == ' ' && _b == ' '; }), out.end());
 
   // Trim leading and trailing spaces.
-  const auto notspace = [](char c) { return c != ' '; };
+  const auto notspace = [](char _c) { return _c != ' '; };
   const auto first = find_if(out.begin(), out.end(), notspace);
   if (first == out.end()) {
     return {};  // All spaces.
@@ -174,29 +172,29 @@ std::string sanitize(const char* s)
   return std::string(first, last);
 }
 
-bool isValidFileName(const std::string& file_name)
+bool isValidFileName(const std::string& _file_name)
 {
-  if (file_name.empty() || file_name == "." || file_name == "..") {
+  if (_file_name.empty() || _file_name == "." || _file_name == "..") {
     return false;
   }
 
   // Reject path separators and reserved punctuation.
   constexpr char kInvalidChars[] = R"(<>:"/\|?*)";
-  if (file_name.find_first_of(kInvalidChars) != std::string::npos) {
+  if (_file_name.find_first_of(kInvalidChars) != std::string::npos) {
     return false;
   }
 
   // Check ASCII control bytes, including NUL, without rejecting UTF-8 bytes.
-  return std::none_of(file_name.begin(), file_name.end(), [](unsigned char ch) { return ch < 0x20 || ch == 0x7F; });
+  return std::none_of(_file_name.begin(), _file_name.end(), [](unsigned char _ch) { return _ch < 0x20 || _ch == 0x7F; });
 }
 
-bool isValidEmail(const std::string& email)
+bool isValidEmail(const std::string& _email)
 {
   const std::regex pattern(R"(\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b)");
-  return std::regex_match(email, pattern);
+  return std::regex_match(_email, pattern);
 }
 
-std::string convertToSuperscript(const std::string& input)
+std::string convertToSuperscript(const std::string& _input)
 {
   // Superscript mapping table.
   const std::map<std::string, std::string> superscripts = {
@@ -207,9 +205,9 @@ std::string convertToSuperscript(const std::string& input)
   std::string output;
   size_t pos = 0;
 
-  while (pos < input.size()) {
-    if (input[pos] == '^' && pos + 1 < input.size() && std::isdigit(input[pos + 1])) {
-      const auto key = input.substr(pos, 2);  // Get "^N".
+  while (pos < _input.size()) {
+    if (_input[pos] == '^' && pos + 1 < _input.size() && std::isdigit(_input[pos + 1])) {
+      const auto key = _input.substr(pos, 2);  // Get "^N".
       const auto it = superscripts.find(key);
       if (it != superscripts.end()) {
         output += it->second;  // Convert to superscript.
@@ -217,22 +215,22 @@ std::string convertToSuperscript(const std::string& input)
         continue;
       }
     }
-    output += input[pos];
+    output += _input[pos];
     ++pos;
   }
 
   return output;
 }
 
-std::string pascalFromTitle(const std::string& title_case)
+std::string pascalFromTitle(const std::string& _title_case)
 {
-  return regex_replace(title_case, std::regex(" "), "");
+  return regex_replace(_title_case, std::regex(" "), "");
 }
 
-std::string pascalFromSnake(const std::string& snake_case)
+std::string pascalFromSnake(const std::string& _snake_case)
 {
   std::stringstream result;
-  std::stringstream ss(snake_case);
+  std::stringstream ss(_snake_case);
   std::string item;
   while (std::getline(ss, item, '_')) {
     item[0] = std::toupper(item[0]);
@@ -241,10 +239,10 @@ std::string pascalFromSnake(const std::string& snake_case)
   return result.str();
 }
 
-std::string titleFromSnake(const std::string& snake_case)
+std::string titleFromSnake(const std::string& _snake_case)
 {
   std::stringstream result;
-  std::stringstream ss(snake_case);
+  std::stringstream ss(_snake_case);
   std::string item;
   bool first = true;
   while (std::getline(ss, item, '_')) {
@@ -258,21 +256,20 @@ std::string titleFromSnake(const std::string& snake_case)
   return result.str();
 }
 
-std::string snakeFromPascal(const std::string& pascal_case)
+std::string snakeFromPascal(const std::string& _pascal_case)
 {
   std::stringstream result;
-  for (size_t i = 0; i < pascal_case.size(); ++i) {
-    if (isupper(pascal_case[i]) && i > 0) {
+  for (size_t i = 0; i < _pascal_case.size(); ++i) {
+    if (isupper(_pascal_case[i]) && i > 0) {
       result << '_';
     }
-    result << static_cast<char>(std::tolower(pascal_case[i]));
+    result << static_cast<char>(std::tolower(_pascal_case[i]));
   }
   return result.str();
 }
 
-std::string snakeFromTitle(const std::string& title_case)
+std::string snakeFromTitle(const std::string& _title_case)
 {
-  return snakeFromPascal(pascalFromTitle(title_case));
+  return snakeFromPascal(pascalFromTitle(_title_case));
 }
-}  // namespace str
-}  // namespace tobas
+}  // namespace tobas::str

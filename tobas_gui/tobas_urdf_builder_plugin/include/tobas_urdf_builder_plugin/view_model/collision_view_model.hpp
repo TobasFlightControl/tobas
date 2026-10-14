@@ -6,26 +6,20 @@
 #include "./base_view_model.hpp"
 #include "./geometry_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 class CollisionViewModel : public BaseViewModel<::urdf::Collision, CollisionViewModel>
 {
 public:
-  explicit CollisionViewModel(const ::urdf::CollisionSharedPtr& model);
+  explicit CollisionViewModel(const ::urdf::CollisionSharedPtr& _model);
 
   void sync() override;
 
   const ::urdf::Pose& origin() const;
-  void origin(const ::urdf::Pose& origin);
+  void origin(const ::urdf::Pose& _origin);
 
   QString name() const;
-  void name(const QString& name);
+  void name(const QString& _name);
 
   const GeometryViewModelPtr& geometry();
 
@@ -35,7 +29,4 @@ private:
 
 using CollisionViewModelPtr = std::shared_ptr<CollisionViewModel>;
 using V_CollisionViewModelPtr = std::vector<CollisionViewModelPtr>;
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

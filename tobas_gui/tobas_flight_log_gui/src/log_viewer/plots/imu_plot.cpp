@@ -7,11 +7,7 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 ImuPlotWidget::ImuPlotWidget()
   : raw_curves_{ "Raw Accel X [m/s²]", "Raw Accel Y [m/s²]", "Raw Accel Z [m/s²]",
@@ -44,17 +40,19 @@ void ImuPlotWidget::clear()
   }
 }
 
-void ImuPlotWidget::setTimeScale(double t_start, double t_stop)
+void ImuPlotWidget::setTimeScale(double _t_start, double _t_stop)
 {
   for (auto& plot : plots_) {
-    plot->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
+    plot->setAxisScale(QwtPlot::xBottom, _t_start, _t_stop);
   }
 }
 
-void ImuPlotWidget::setData(const QVector<tobas_msgs::msg::Imu>& raw_msgs, const QVector<tobas_msgs::msg::Imu>& filt_msgs)
+void ImuPlotWidget::setData(
+  const QVector<tobas_msgs::msg::Imu>& _raw_msgs,
+  const QVector<tobas_msgs::msg::Imu>& _filt_msgs)
 {
-  auto ranges = updateSamples(raw_msgs, raw_curves_);
-  const auto filt_ranges = updateSamples(filt_msgs, filt_curves_);
+  auto ranges = updateSamples(_raw_msgs, raw_curves_);
+  const auto filt_ranges = updateSamples(_filt_msgs, filt_curves_);
 
   for (size_t group = 0; group < kNumGroups; ++group) {
     ranges[group].include(filt_ranges[group]);
@@ -68,14 +66,14 @@ void ImuPlotWidget::setData(const QVector<tobas_msgs::msg::Imu>& raw_msgs, const
 }
 
 ImuPlotWidget::ValueRanges ImuPlotWidget::updateSamples(
-  const QVector<tobas_msgs::msg::Imu>& msgs,
-  std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& curves)
+  const QVector<tobas_msgs::msg::Imu>& _msgs,
+  std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& _curves)
 {
   QVector<double> t_data;
   std::array<QVector<double>, kNumAxes> val_data;
   ValueRanges ranges;
 
-  for (const auto& msg : msgs) {
+  for (const auto& msg : _msgs) {
     t_data.push_back(ros2::seconds(msg.header.stamp));
 
     const auto& accel = msg.accel;
@@ -94,11 +92,9 @@ ImuPlotWidget::ValueRanges ImuPlotWidget::updateSamples(
   }
 
   for (size_t i = 0; i < kNumAxes; ++i) {
-    curves[i].setSamples(t_data, val_data[i]);
+    _curves[i].setSamples(t_data, val_data[i]);
   }
 
   return ranges;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

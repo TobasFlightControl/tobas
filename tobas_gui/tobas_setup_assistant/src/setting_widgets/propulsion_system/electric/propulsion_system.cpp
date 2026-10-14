@@ -10,15 +10,7 @@
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 namespace
 {
@@ -26,10 +18,10 @@ constexpr char kBatteryTitle[] = "Battery";
 constexpr char kPropulsionUnitTitle[] = "Propulsion Units";
 }  // namespace
 
-PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& uadf)
+PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& _uadf)
 {
   battery = new BatteryWidget();
-  units = new PropulsionUnitsWidget(uadf);
+  units = new PropulsionUnitsWidget(_uadf);
 
   // Layout
   const auto battery_rows = new QVBoxLayout();
@@ -86,10 +78,10 @@ YAML::Node PropulsionSystemWidget::dump() const
   return node;
 }
 
-void PropulsionSystemWidget::load(const YAML::Node& node)
+void PropulsionSystemWidget::load(const YAML::Node& _node)
 {
-  battery->load(node[kBatteryTitle]);
-  units->load(node[kPropulsionUnitTitle]);
+  battery->load(_node[kBatteryTitle]);
+  units->load(_node[kPropulsionUnitTitle]);
 }
 
 PropulsionSystem PropulsionSystemWidget::type() const
@@ -102,12 +94,8 @@ int PropulsionSystemWidget::numUnits() const
   return units->count();
 }
 
-QString PropulsionSystemWidget::linkName(int index) const
+QString PropulsionSystemWidget::linkName(int _index) const
 {
-  return units->linkName(index);
+  return units->linkName(_index);
 }
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

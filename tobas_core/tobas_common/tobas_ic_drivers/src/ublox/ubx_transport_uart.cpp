@@ -3,9 +3,7 @@
 
 #include "tobas_ic_drivers/ublox/ubx_transport_uart.hpp"
 
-namespace tobas
-{
-namespace ublox
+namespace tobas::ublox
 {
 UbxTransportUart::UbxTransportUart(const char* _device, uint32_t _baud_rate) : device_(_device), baud_rate_(_baud_rate)
 {
@@ -83,5 +81,4 @@ bool UbxTransportUart::disableReceiveTimeout() noexcept
 }
 
 
-}  // namespace ublox
-}  // namespace tobas
+}  // namespace tobas::ublox

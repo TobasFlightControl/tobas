@@ -34,6 +34,21 @@ To update hook repository versions:
 $ pre-commit autoupdate
 ```
 
+## Clang-Tidy
+
+Install clang-tidy 20:
+
+```bash
+$ sudo apt install -y clang-tidy-20
+```
+
+Build with `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON` as described in [Setup](./SETUP.md),
+then run static analysis from the repository root:
+
+```bash
+$ tobas_dev_tools/scripts/tobas_clang_tidy
+```
+
 ## Code Style
 
 ### C++

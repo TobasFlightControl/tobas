@@ -3,9 +3,7 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 inline constexpr char kBlackPrefix[] = "\033[30m";
 inline constexpr char kRedPrefix[] = "\033[31m";
@@ -17,5 +15,4 @@ inline constexpr char kCyanPrefix[] = "\033[36m";
 inline constexpr char kWhitePrefix[] = "\033[37m";
 
 inline constexpr char kColorReset[] = "\033[0m";
-}  // namespace st
-}  // namespace tobas
+}  // namespace tobas::st

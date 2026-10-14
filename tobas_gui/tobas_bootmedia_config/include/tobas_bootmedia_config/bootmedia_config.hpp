@@ -8,11 +8,7 @@
 #include "./base.hpp"
 #include "./media_manager.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 class BootmediaConfigWidget : public QWidget
 {
@@ -26,20 +22,18 @@ public:
   void reset();
 
 protected:
-  void closeEvent(QCloseEvent* event) override;
+  void closeEvent(QCloseEvent* _event) override;
 
 private:
   MediaManagerWidget* media_manager_;
   qt::VerticalTabWidget* tabs_;
 
-  BaseConfigWidget* getWidget(int index);
+  BaseConfigWidget* getWidget(int _index);
 
-  void setTabsEnabled(bool enabled);
+  void setTabsEnabled(bool _enabled);
 
 private Q_SLOTS:
   void onMediaConnected();
   void onMediaDisconnected();
 };
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

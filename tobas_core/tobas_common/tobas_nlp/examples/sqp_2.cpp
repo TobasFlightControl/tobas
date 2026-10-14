@@ -16,51 +16,51 @@
 using namespace std;
 using namespace Eigen;
 
-double f(const VectorXd& x)
+double f(const VectorXd& _x)
 {
-  return x(0) * x(3) * (x(0) + x(1) + x(2)) + x(2);
+  return _x(0) * _x(3) * (_x(0) + _x(1) + _x(2)) + _x(2);
 }
 
-VectorXd g(const VectorXd& x)
+VectorXd g(const VectorXd& _x)
 {
   VectorXd res(9);
-  res(0) = 25 - x(0) * x(1) * x(2) * x(3);
-  res(1) = -x(0) - 1;
-  res(2) = -x(1) - 1;
-  res(3) = -x(2) - 1;
-  res(4) = -x(3) - 1;
-  res(5) = x(0) - 5;
-  res(6) = x(1) - 5;
-  res(7) = x(2) - 5;
-  res(8) = x(3) - 5;
+  res(0) = 25 - _x(0) * _x(1) * _x(2) * _x(3);
+  res(1) = -_x(0) - 1;
+  res(2) = -_x(1) - 1;
+  res(3) = -_x(2) - 1;
+  res(4) = -_x(3) - 1;
+  res(5) = _x(0) - 5;
+  res(6) = _x(1) - 5;
+  res(7) = _x(2) - 5;
+  res(8) = _x(3) - 5;
   return res;
 }
 
-VectorXd h(const VectorXd& x)
+VectorXd h(const VectorXd& _x)
 {
   VectorXd res(1);
-  res(0) = tobas::math::sqr(x(0)) + tobas::math::sqr(x(1)) + tobas::math::sqr(x(2)) + tobas::math::sqr(x(3)) - 40;
+  res(0) = tobas::math::sqr(_x(0)) + tobas::math::sqr(_x(1)) + tobas::math::sqr(_x(2)) + tobas::math::sqr(_x(3)) - 40;
   return res;
 }
 
-RowVectorXd dfdx(const VectorXd& x)
+RowVectorXd dfdx(const VectorXd& _x)
 {
   RowVectorXd res(4);
-  res(0) = x(3) * (2 * x(0) + x(1) + x(2));
-  res(1) = x(0) * x(3);
-  res(2) = x(0) * x(3) + 1;
-  res(3) = x(0) * (x(0) + x(1) + x(2));
+  res(0) = _x(3) * (2 * _x(0) + _x(1) + _x(2));
+  res(1) = _x(0) * _x(3);
+  res(2) = _x(0) * _x(3) + 1;
+  res(3) = _x(0) * (_x(0) + _x(1) + _x(2));
   return res;
 }
 
-MatrixXd dgdx(const VectorXd& x)
+MatrixXd dgdx(const VectorXd& _x)
 {
   MatrixXd res(9, 4);
 
-  res(0, 0) = -x(1) * x(2) * x(3);
-  res(0, 1) = -x(0) * x(2) * x(3);
-  res(0, 2) = -x(0) * x(1) * x(3);
-  res(0, 3) = -x(0) * x(1) * x(2);
+  res(0, 0) = -_x(1) * _x(2) * _x(3);
+  res(0, 1) = -_x(0) * _x(2) * _x(3);
+  res(0, 2) = -_x(0) * _x(1) * _x(3);
+  res(0, 3) = -_x(0) * _x(1) * _x(2);
 
   res.block(1, 0, 4, 4).setZero();
   res.block(1, 0, 4, 4).diagonal().fill(-1);
@@ -70,61 +70,61 @@ MatrixXd dgdx(const VectorXd& x)
   return res;
 }
 
-MatrixXd dhdx(const VectorXd& x)
+MatrixXd dhdx(const VectorXd& _x)
 {
   MatrixXd res(1, 4);
-  res(0, 0) = 2 * x(0);
-  res(0, 1) = 2 * x(1);
-  res(0, 2) = 2 * x(2);
-  res(0, 3) = 2 * x(3);
+  res(0, 0) = 2 * _x(0);
+  res(0, 1) = 2 * _x(1);
+  res(0, 2) = 2 * _x(2);
+  res(0, 3) = 2 * _x(3);
   return res;
 }
 
-MatrixXd dFdx(const VectorXd& x)
+MatrixXd dFdx(const VectorXd& _x)
 {
   MatrixXd res(4, 4);
-  res(0, 0) = 2 * x(3);
-  res(0, 1) = x(3);
-  res(0, 2) = x(3);
-  res(0, 3) = 2 * x(0) + x(1) + x(2);
-  res(1, 0) = x(3);
+  res(0, 0) = 2 * _x(3);
+  res(0, 1) = _x(3);
+  res(0, 2) = _x(3);
+  res(0, 3) = 2 * _x(0) + _x(1) + _x(2);
+  res(1, 0) = _x(3);
   res(1, 1) = 0;
   res(1, 2) = 0;
-  res(1, 3) = x(0);
-  res(2, 0) = x(3);
+  res(1, 3) = _x(0);
+  res(2, 0) = _x(3);
   res(2, 1) = 0;
   res(2, 2) = 0;
-  res(2, 3) = x(0);
-  res(3, 0) = 2 * x(0) + x(1) + x(2);
-  res(3, 1) = x(0);
-  res(3, 2) = x(0);
+  res(2, 3) = _x(0);
+  res(3, 0) = 2 * _x(0) + _x(1) + _x(2);
+  res(3, 1) = _x(0);
+  res(3, 2) = _x(0);
   res(3, 3) = 0;
   return res;
 }
 
-Tensor3Xd dGdx(const VectorXd& x)
+Tensor3Xd dGdx(const VectorXd& _x)
 {
   Tensor3Xd res(9, 4, 4);
   res.setZero();
 
   res(0, 0, 0) = 0;
-  res(0, 0, 1) = -x(2) * x(3);
-  res(0, 0, 2) = -x(1) * x(3);
-  res(0, 0, 3) = -x(1) * x(2);
+  res(0, 0, 1) = -_x(2) * _x(3);
+  res(0, 0, 2) = -_x(1) * _x(3);
+  res(0, 0, 3) = -_x(1) * _x(2);
 
-  res(0, 1, 0) = -x(2) * x(3);
+  res(0, 1, 0) = -_x(2) * _x(3);
   res(0, 1, 1) = 0;
-  res(0, 1, 2) = -x(0) * x(3);
-  res(0, 1, 3) = -x(0) * x(2);
+  res(0, 1, 2) = -_x(0) * _x(3);
+  res(0, 1, 3) = -_x(0) * _x(2);
 
-  res(0, 2, 0) = -x(1) * x(3);
-  res(0, 2, 1) = -x(0) * x(3);
+  res(0, 2, 0) = -_x(1) * _x(3);
+  res(0, 2, 1) = -_x(0) * _x(3);
   res(0, 2, 2) = 0;
-  res(0, 2, 3) = -x(0) * x(1);
+  res(0, 2, 3) = -_x(0) * _x(1);
 
-  res(0, 3, 0) = -x(1) * x(2);
-  res(0, 3, 1) = -x(0) * x(2);
-  res(0, 3, 2) = -x(0) * x(1);
+  res(0, 3, 0) = -_x(1) * _x(2);
+  res(0, 3, 1) = -_x(0) * _x(2);
+  res(0, 3, 2) = -_x(0) * _x(1);
   res(0, 3, 3) = 0;
 
   return res;
@@ -154,16 +154,16 @@ int main()
 
   const auto x_opt = sqp.solve();
   if (!x_opt) {
-    cerr << x_opt.error() << endl;
+    cerr << x_opt.error() << '\n';
     return EXIT_FAILURE;
   }
 
-  cout << "Optimal solution: " << x_opt->transpose() << endl;
-  cout << "Number of iterations: " << sqp.iterations() << endl;  // 5 with scipy.optimize.minimize.
-  cout << "----------" << endl;
-  cout << "f(x*) = " << f(*x_opt) << endl;  // 17.014017247073575 with scipy.optimize.minimize.
-  cout << "g(x*) = " << g(*x_opt).transpose() << endl;
-  cout << "h(x*) = " << h(*x_opt).transpose() << endl;
+  cout << "Optimal solution: " << x_opt->transpose() << '\n';
+  cout << "Number of iterations: " << sqp.iterations() << '\n';  // 5 with scipy.optimize.minimize.
+  cout << "----------\n";
+  cout << "f(x*) = " << f(*x_opt) << '\n';  // 17.014017247073575 with scipy.optimize.minimize.
+  cout << "g(x*) = " << g(*x_opt).transpose() << '\n';
+  cout << "h(x*) = " << h(*x_opt).transpose() << '\n';
 
   return EXIT_SUCCESS;
 }

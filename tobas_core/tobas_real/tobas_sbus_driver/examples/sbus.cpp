@@ -7,38 +7,38 @@
 
 using namespace std;
 
-void onPacket(const tobas::SBUS::Packet& packet)
+void onPacket(const tobas::SBUS::Packet& _packet)
 {
   for (size_t ch = 0; ch < tobas::SBUS::kChannelSize; ++ch) {
-    cout << "Channel " << ch << ": " << packet.periods.at(ch) << endl;
+    cout << "Channel " << ch << ": " << _packet.periods.at(ch) << '\n';
   }
-  cout << "-----" << endl;
+  cout << "-----\n";
 
   cout << boolalpha;
-  cout << "Channel 17: " << packet.ch17 << endl;
-  cout << "Channel 18: " << packet.ch18 << endl;
-  cout << "Frame Lost: " << packet.frame_lost << endl;
-  cout << "Fail-Safe: " << packet.failsafe << endl;
+  cout << "Channel 17: " << _packet.ch17 << '\n';
+  cout << "Channel 18: " << _packet.ch18 << '\n';
+  cout << "Frame Lost: " << _packet.frame_lost << '\n';
+  cout << "Fail-Safe: " << _packet.failsafe << '\n';
   cout << noboolalpha;
 
-  cout << endl;
+  cout << '\n';
 }
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
-  if (argc != 2) {
-    cerr << "Usage: " << argv[0] << " <Device>" << endl;
+  if (_argc != 2) {
+    cerr << "Usage: " << _argv[0] << " <Device>\n";
     return EXIT_FAILURE;
   }
-  const auto device = argv[1];
+  const auto device = _argv[1];
 
   tobas::SBUS sbus(&onPacket);
 
   if (!sbus.initialize(device)) {
-    cerr << "Failed to initialize S.BUS driver." << endl;
+    cerr << "Failed to initialize S.BUS driver.\n";
     return EXIT_FAILURE;
   }
-  cout << "S.BUS driver has been initialized." << endl;
+  cout << "S.BUS driver has been initialized.\n";
 
   sbus.start();
   sbus.spin();

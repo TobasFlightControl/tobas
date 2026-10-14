@@ -5,12 +5,10 @@
 
 #include <eigen3/Eigen/Geometry>
 
-namespace tobas
+namespace tobas::rviz
 {
-namespace rviz
-{
-FloatingJointModel::FloatingJointModel(const std::string& name, size_t joint_index, size_t first_variable_index)
-  : JointModel(name, joint_index, first_variable_index)
+FloatingJointModel::FloatingJointModel(const std::string& _name, size_t _joint_index, size_t _first_variable_index)
+  : JointModel(_name, _joint_index, _first_variable_index)
 {
   type_ = kFloating;
   for (const auto* variable_name : { "trans_x", "trans_y", "trans_z", "rot_x", "rot_y", "rot_z", "rot_w" }) {
@@ -18,35 +16,34 @@ FloatingJointModel::FloatingJointModel(const std::string& name, size_t joint_ind
   }
 }
 
-void FloatingJointModel::getVariableDefaultPositions(double* values) const
+void FloatingJointModel::getVariableDefaultPositions(double* _values) const
 {
   for (size_t i = 0; i < 3; ++i) {
-    values[i] = 0.0;
+    _values[i] = 0.0;
   }
 
-  values[3] = 0.0;
-  values[4] = 0.0;
-  values[5] = 0.0;
-  values[6] = 1.0;
+  _values[3] = 0.0;
+  _values[4] = 0.0;
+  _values[5] = 0.0;
+  _values[6] = 1.0;
 }
 
-void FloatingJointModel::computeTransform(const double* joint_values, Eigen::Isometry3d& transform) const
+void FloatingJointModel::computeTransform(const double* _joint_values, Eigen::Isometry3d& _transform) const
 {
-  transform = Eigen::Isometry3d(
-    Eigen::Translation3d(joint_values[0], joint_values[1], joint_values[2]) *
-    Eigen::Quaterniond(joint_values[6], joint_values[3], joint_values[4], joint_values[5]).normalized());
+  _transform = Eigen::Isometry3d(
+    Eigen::Translation3d(_joint_values[0], _joint_values[1], _joint_values[2]) *
+    Eigen::Quaterniond(_joint_values[6], _joint_values[3], _joint_values[4], _joint_values[5]).normalized());
 }
 
-void FloatingJointModel::computeVariablePositions(const Eigen::Isometry3d& transform, double* joint_values) const
+void FloatingJointModel::computeVariablePositions(const Eigen::Isometry3d& _transform, double* _joint_values) const
 {
-  joint_values[0] = transform.translation().x();
-  joint_values[1] = transform.translation().y();
-  joint_values[2] = transform.translation().z();
-  const Eigen::Quaterniond q(transform.linear());
-  joint_values[3] = q.x();
-  joint_values[4] = q.y();
-  joint_values[5] = q.z();
-  joint_values[6] = q.w();
+  _joint_values[0] = _transform.translation().x();
+  _joint_values[1] = _transform.translation().y();
+  _joint_values[2] = _transform.translation().z();
+  const Eigen::Quaterniond q(_transform.linear());
+  _joint_values[3] = q.x();
+  _joint_values[4] = q.y();
+  _joint_values[5] = q.z();
+  _joint_values[6] = q.w();
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

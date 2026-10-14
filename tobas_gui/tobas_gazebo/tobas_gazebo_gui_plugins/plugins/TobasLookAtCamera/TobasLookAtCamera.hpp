@@ -9,9 +9,7 @@
 #include <gz/rendering/Scene.hh>
 #include <gz/transport/Node.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /**
  * Gazebo GUI plugin that points the camera at a target position received over Gazebo transport.
@@ -27,15 +25,15 @@ class TobasLookAtCamera : public gz::gui::Plugin
 public:
   explicit TobasLookAtCamera();
 
-  void LoadConfig(const tinyxml2::XMLElement* elem) override;
+  void LoadConfig(const tinyxml2::XMLElement* _elem) override;
 
 private:
-  bool eventFilter(QObject* obj, QEvent* event) override;
+  bool eventFilter(QObject* _obj, QEvent* _event) override;
 
   void onRender();
   void initialize();
 
-  void lookAtPositionCb(const gz::msgs::Vector3d& msg);
+  void lookAtPositionCb(const gz::msgs::Vector3d& _msg);
 
   gz::transport::Node node_;
 
@@ -46,5 +44,4 @@ private:
 
   std::mutex mutex_;
 };
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

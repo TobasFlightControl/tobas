@@ -3,9 +3,7 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace dxl
+namespace tobas::dxl
 {
 namespace topic
 {
@@ -19,5 +17,4 @@ namespace service
 {
 static constexpr char kEnableTorques[] = "dynamixel/enable_torques";
 }  // namespace service
-}  // namespace dxl
-}  // namespace tobas
+}  // namespace tobas::dxl

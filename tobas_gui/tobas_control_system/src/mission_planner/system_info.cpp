@@ -5,13 +5,9 @@
 
 #include <QStandardPaths>
 
-namespace tobas
+namespace tobas::gui::ctrl
 {
-namespace gui
-{
-namespace ctrl
-{
-SystemInfo::SystemInfo(QObject* parent) : QObject(parent)
+SystemInfo::SystemInfo(QObject* _parent) : QObject(_parent)
 {
   home_dir_ = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
 }
@@ -25,6 +21,4 @@ QString SystemInfo::homeDirectory() const
 {
   return home_dir_;
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

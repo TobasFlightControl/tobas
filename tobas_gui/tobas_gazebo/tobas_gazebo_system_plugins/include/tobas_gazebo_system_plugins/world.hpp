@@ -8,13 +8,10 @@
 #include <gz/math/SphericalCoordinates.hh>
 #include <gz/sim/EntityComponentManager.hh>
 
-namespace tobas
+namespace tobas::gazebo
 {
-namespace gazebo
-{
-std::expected<std::string, const char*> getWorldName(const gz::sim::EntityComponentManager& ecm);
+std::expected<std::string, const char*> getWorldName(const gz::sim::EntityComponentManager& _ecm);
 
 std::expected<gz::math::SphericalCoordinates, const char*>
-getWorldSphericalCoordinates(const gz::sim::EntityComponentManager& ecm);
-}  // namespace gazebo
-}  // namespace tobas
+getWorldSphericalCoordinates(const gz::sim::EntityComponentManager& _ecm);
+}  // namespace tobas::gazebo

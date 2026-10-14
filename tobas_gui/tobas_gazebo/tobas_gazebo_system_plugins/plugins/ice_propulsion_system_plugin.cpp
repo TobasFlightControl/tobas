@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
 #include <optional>
 
 #include <tobas_constants/ros_interface.hpp>
@@ -25,9 +26,7 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /** Simulates engine and propellers. */
 class GazeboIcePropulsionSystemPlugin : public BaseNode,
@@ -42,13 +41,13 @@ public:
   explicit GazeboIcePropulsionSystemPlugin();
 
   void Configure(
-    const gz::sim::Entity& model_entity,
-    const sdf::ElementConstPtr& sdf,
-    gz::sim::EntityComponentManager& ecm,
+    const gz::sim::Entity& _model_entity,
+    const sdf::ElementConstPtr& _sdf,
+    gz::sim::EntityComponentManager& _ecm,
     gz::sim::EventManager&) override;
 
-  void PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm) override;
-  void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
+  void PreUpdate(const gz::sim::UpdateInfo& _info, gz::sim::EntityComponentManager& _ecm) override;
+  void PostUpdate(const gz::sim::UpdateInfo& _info, const gz::sim::EntityComponentManager& _ecm) override;
 
 private:
   IceRotorModelMap rotors_;
@@ -73,11 +72,11 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::IcePropulsionSystemCommand> ice_cmd_sub_;
   ros2::SubscriberPtr<tobas_msgs::Wind> wind_gt_sub_;
 
-  void getSdfParams(const sdf::ElementConstPtr& sdf);
+  void getSdfParams(const sdf::ElementConstPtr& _sdf);
   void registerPubSub();
 
-  void iceCommandCb(const tobas_msgs::msg::IcePropulsionSystemCommand::ConstSharedPtr& ice_cmd);
-  void windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt);
+  void iceCommandCb(const tobas_msgs::msg::IcePropulsionSystemCommand::ConstSharedPtr& _ice_cmd);
+  void windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& _wind_gt);
 };
 
 GazeboIcePropulsionSystemPlugin::GazeboIcePropulsionSystemPlugin() : engine_(rotors_)
@@ -85,34 +84,34 @@ GazeboIcePropulsionSystemPlugin::GazeboIcePropulsionSystemPlugin() : engine_(rot
 }
 
 void GazeboIcePropulsionSystemPlugin::Configure(
-  const gz::sim::Entity& model_entity,
-  const sdf::ElementConstPtr& sdf,
-  gz::sim::EntityComponentManager& ecm,
+  const gz::sim::Entity& _model_entity,
+  const sdf::ElementConstPtr& _sdf,
+  gz::sim::EntityComponentManager& _ecm,
   gz::sim::EventManager&)
 {
   constexpr char kRotorKey[] = "rotor";
   constexpr char kEngineKey[] = "engine";
 
-  initialize("gazebo_ice_propulsion_system_plugin", sdf);
-  getSdfParams(sdf);
+  initialize("gazebo_ice_propulsion_system_plugin", _sdf);
+  getSdfParams(_sdf);
 
   publish_state_rate_manager_.emplace(publish_state_rate_);
 
   // Get robot model.
-  const gz::sim::Model model(model_entity);
-  if (!model.Valid(ecm)) {
+  const gz::sim::Model model(_model_entity);
+  if (!model.Valid(_ecm)) {
     TOBAS_EXIT("Failed to find model.");
   }
 
   // Initialize rotor models.
-  auto rotor_elem = sdf->FindElement(kRotorKey);
+  auto rotor_elem = _sdf->FindElement(kRotorKey);
   if (!rotor_elem) {
     TOBAS_EXIT("Please specify '", kRotorKey, "' elements.");
   }
   while (rotor_elem) {
     IceRotorModel rotor;
 
-    if (!rotor.initialize(rotor_elem, ecm, model)) {
+    if (!rotor.initialize(rotor_elem, _ecm, model)) {
       TOBAS_EXIT("Failed to initialize ICE rotor model.");
     }
 
@@ -125,7 +124,7 @@ void GazeboIcePropulsionSystemPlugin::Configure(
   }
 
   // Initialize engine model.
-  const auto engine_elem = sdf->FindElement(kEngineKey);
+  const auto engine_elem = _sdf->FindElement(kEngineKey);
   if (!engine_elem) {
     TOBAS_EXIT("Please specify '", kEngineKey, "' element.");
   }
@@ -137,12 +136,16 @@ void GazeboIcePropulsionSystemPlugin::Configure(
   registerPubSub();
 }
 
-void GazeboIcePropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
+void GazeboIcePropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& _info, gz::sim::EntityComponentManager& _ecm)
 {
+  if (_info.paused || _info.dt <= ch::steady_clock::duration::zero()) {
+    return;
+  }
+
   constexpr double kAutoStopTimeout = 0.5;  // [s]
 
   // Update the previous simulation step time.
-  ros2::timeChronoToMsg(info.simTime, prev_sim_time_);
+  ros2::timeChronoToMsg(_info.simTime, prev_sim_time_);
 
   // Force throttle to zero after a fixed time has elapsed since the last throttle command was issued.
   const auto secs_from_last_cmd = (prev_sim_time_ - last_cmd_time_).seconds();
@@ -152,22 +155,26 @@ void GazeboIcePropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info,
 
   // Update gazebo states.
   for (auto& [_, rotor] : rotors_) {
-    rotor.applyWrench(ecm, engine_.getSpeed(), wind_vel_W_);
-    rotor.updateJointPosition(ecm, engine_.getPosition());
+    rotor.applyWrench(_ecm, engine_.getSpeed(), wind_vel_W_);
+    rotor.updateJointPosition(_ecm, engine_.getPosition());
   }
 }
 
-void GazeboIcePropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
+void GazeboIcePropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& _info, const gz::sim::EntityComponentManager&)
 {
+  if (_info.paused || _info.dt <= ch::steady_clock::duration::zero()) {
+    return;
+  }
+
   // Step simulation
-  const auto dt = ch::duration<double>(info.dt).count();
+  const auto dt = ch::duration<double>(_info.dt).count();
   for (auto& [_, rotor] : rotors_) {
     rotor.step(dt);
   }
   engine_.step(dt);
 
   // Publish observed states.
-  if (publish_state_rate_manager_->update(info.simTime)) {
+  if (publish_state_rate_manager_->update(_info.simTime)) {
     for (const auto& [link_name, rotor] : rotors_) {
       auto rotor_state_obs = std::make_unique<tobas_msgs::msg::RotorState>();
       rotor_state_obs->link_name = link_name;
@@ -178,7 +185,7 @@ void GazeboIcePropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info
     }
 
     auto engine_state_obs = std::make_unique<tobas_msgs::msg::EngineState>();
-    ros2::timeChronoToMsg(info.simTime, engine_state_obs->header.stamp);
+    ros2::timeChronoToMsg(_info.simTime, engine_state_obs->header.stamp);
     engine_state_obs->speed = engine_.getSpeed();
     engine_state_obs->fuel_quantity = NAN;    // TODO
     engine_state_obs->oil_temperature = NAN;  // TODO
@@ -188,7 +195,7 @@ void GazeboIcePropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info
   // Publish ground-truth states.
   for (const auto& [link_name, rotor] : rotors_) {
     auto rotor_state_gt = std::make_unique<tobas_gazebo_msgs::msg::RotorState>();
-    ros2::timeChronoToMsg(info.simTime, rotor_state_gt->header.stamp);
+    ros2::timeChronoToMsg(_info.simTime, rotor_state_gt->header.stamp);
     rotor_state_gt->rotation_speed = rotor.getSpeed(engine_.getSpeed());
     rotor_state_gt->current = 0.0;
     rotor_state_gt->vibration_force = 0.0;  // TODO: Vibration model for engine-driven propellers.
@@ -196,17 +203,17 @@ void GazeboIcePropulsionSystemPlugin::PostUpdate(const gz::sim::UpdateInfo& info
   }
 
   auto engine_state_gt = std::make_unique<tobas_gazebo_msgs::msg::EngineState>();
-  ros2::timeChronoToMsg(info.simTime, engine_state_gt->header.stamp);
+  ros2::timeChronoToMsg(_info.simTime, engine_state_gt->header.stamp);
   engine_state_gt->speed = engine_.getSpeed();
   engine_state_gt->vibration_force = engine_.getVibrationForce();
   engine_state_gt_pub_->publish(std::move(engine_state_gt));
 }
 
-void GazeboIcePropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+void GazeboIcePropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& _sdf)
 {
   constexpr size_t kDefaultPublishStateRate = 100;  // [Hz]
 
-  publish_state_rate_ = getSdfParam<size_t>(sdf, "publishStateRate", kDefaultPublishStateRate, kNonNegative);
+  publish_state_rate_ = getSdfParam<size_t>(_sdf, "publishStateRate", kDefaultPublishStateRate, kNonNegative);
 }
 
 void GazeboIcePropulsionSystemPlugin::registerPubSub()
@@ -227,7 +234,7 @@ void GazeboIcePropulsionSystemPlugin::registerPubSub()
 }
 
 void GazeboIcePropulsionSystemPlugin::iceCommandCb(
-  const tobas_msgs::msg::IcePropulsionSystemCommand::ConstSharedPtr& ice_cmd)
+  const tobas_msgs::msg::IcePropulsionSystemCommand::ConstSharedPtr& _ice_cmd)
 {
   constexpr double kThrotLimitMargin = 1e-3;  // [-]
 
@@ -235,7 +242,7 @@ void GazeboIcePropulsionSystemPlugin::iceCommandCb(
   last_cmd_time_ = prev_sim_time_;
 
   // Update engine throttle.
-  const auto& engine_throt = ice_cmd->engine_throttle;
+  const auto& engine_throt = _ice_cmd->engine_throttle;
   if (!std::isfinite(engine_throt)) {
     TOBAS_WARN("The commanded engine throttle is not finite: ", engine_throt);
     engine_.setThrottle(engine_throt);
@@ -247,7 +254,7 @@ void GazeboIcePropulsionSystemPlugin::iceCommandCb(
   engine_.setThrottle(engine_throt);
 
   // Update propeller pitch angle.
-  for (const auto& elem : ice_cmd->pitch_angles) {
+  for (const auto& elem : _ice_cmd->pitch_angles) {
     if (!rotors_.contains(elem.link_name)) {
       TOBAS_WARN("Rotor link '", elem.link_name, "' does not exist.");
       continue;
@@ -263,16 +270,15 @@ void GazeboIcePropulsionSystemPlugin::iceCommandCb(
   // Publish control latency.
   auto latency = std::make_unique<tobas_msgs::msg::Latency>();
   latency->header.stamp = prev_sim_time_;
-  latency->data = prev_sim_time_ - ice_cmd->header.stamp;
+  latency->data = prev_sim_time_ - _ice_cmd->header.stamp;
   latency_pub_->publish(std::move(latency));
 }
 
-void GazeboIcePropulsionSystemPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt)
+void GazeboIcePropulsionSystemPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& _wind_gt)
 {
-  vectorKDLToGazebo(wind_gt->vel, wind_vel_W_);
+  vectorKDLToGazebo(_wind_gt->vel, wind_vel_W_);
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboIcePropulsionSystemPlugin,

@@ -12,15 +12,7 @@
 #include "./motor.hpp"
 #include "./propeller.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 class PropulsionUnitWidget : public QWidget
 {
@@ -34,10 +26,10 @@ public:
 
   void setToDefaults();
   bool isValid();
-  void copyFrom(const PropulsionUnitWidget* src);
+  void copyFrom(const PropulsionUnitWidget* _src);
 
   YAML::Node dump() const;
-  void load(const YAML::Node& node);
+  void load(const YAML::Node& _node);
 
   const ESCWidget* esc() const;
   const MotorWidget* motor() const;
@@ -54,8 +46,4 @@ private:
   PropellerWidget* propeller_;
   AerodynamicsWidget* aerodynamics_;
 };
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::electric

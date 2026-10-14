@@ -7,26 +7,24 @@
 
 #include "tobas_control/care.hpp"
 
-namespace tobas
+namespace tobas::ctrl
 {
-namespace ctrl
-{
-LQID::LQID(Eigen::Index state_size, Eigen::Index input_size, Eigen::Index integrate_size)
-  : dynamics(state_size, input_size)
-  , C(integrate_size, state_size)
-  , state_weight(state_size)
-  , integrated_error_weight(integrate_size)
-  , input_weight(input_size)
-  , input_rate_weight(input_size)
-  , current_state(state_size)
-  , target_state(state_size)
-  , max_integrated_error(integrate_size)
+LQID::LQID(Eigen::Index _state_size, Eigen::Index _input_size, Eigen::Index _integrate_size)
+  : dynamics(_state_size, _input_size)
+  , C(_integrate_size, _state_size)
+  , state_weight(_state_size)
+  , integrated_error_weight(_integrate_size)
+  , input_weight(_input_size)
+  , input_rate_weight(_input_size)
+  , current_state(_state_size)
+  , target_state(_state_size)
+  , max_integrated_error(_integrate_size)
   ,
 
-  x_size_(state_size)
-  , u_size_(input_size)
-  , r_size_(integrate_size)
-  , x_tilde_size_(state_size + input_size + integrate_size)
+  x_size_(_state_size)
+  , u_size_(_input_size)
+  , r_size_(_integrate_size)
+  , x_tilde_size_(_state_size + _input_size + _integrate_size)
   , x_idx_(0)
   , u_idx_(x_idx_ + x_size_)
   , eps_idx_(u_idx_ + u_size_)
@@ -60,9 +58,9 @@ LQID::LQID(Eigen::Index state_size, Eigen::Index input_size, Eigen::Index integr
   R_tilde_.setZero();
 }
 
-std::expected<Eigen::VectorXd, std::string> LQID::solve(double dt, bool update_gain)
+std::expected<Eigen::VectorXd, std::string> LQID::solve(double _dt, bool _update_gain)
 {
-  assert(dt >= 0);
+  assert(_dt >= 0);
 
   assert(current_state.rows() == x_size_);
   assert(eigen::isFinite(current_state));
@@ -74,7 +72,7 @@ std::expected<Eigen::VectorXd, std::string> LQID::solve(double dt, bool update_g
   assert(eigen::isFinite(max_integrated_error));
   assert((max_integrated_error.array() >= 0).all());
 
-  if (update_gain) {
+  if (_update_gain) {
     if (const auto result = updateGainMatrix(); !result) {
       return std::unexpected("Failed to update gain matrix: " + result.error());
     }
@@ -83,9 +81,8 @@ std::expected<Eigen::VectorXd, std::string> LQID::solve(double dt, bool update_g
   // Update the integrated error.
   const Eigen::VectorXd y = C * current_state;
   const Eigen::VectorXd r = C * target_state;
-  eps_ += (r - y) * dt;
+  eps_ += (r - y) * _dt;
   eps_ = eps_.cwiseMax(-max_integrated_error).cwiseMin(max_integrated_error);
-  // cout << "Integrated error: " << eps_ << endl;
 
   // Create the augmented state.
   x_tilde_ << current_state, last_u_, eps_;
@@ -95,7 +92,7 @@ std::expected<Eigen::VectorXd, std::string> LQID::solve(double dt, bool update_g
   const auto ud_scaled = K_ * (s_tilde_ - x_tilde_);
 
   // Update the latest control input.
-  last_u_ += ud_scaled * dt;
+  last_u_ += ud_scaled * _dt;
 
   return last_u_;
 }
@@ -148,15 +145,14 @@ std::expected<void, std::string> LQID::updateGainMatrix()
   return {};
 }
 
-std::ostream& operator<<(std::ostream& os, const LQID& arg)
+std::ostream& operator<<(std::ostream& _os, const LQID& _arg)
 {
-  os << "Dynamics:\n" << arg.dynamics << std::endl;
-  os << "Current state:\n" << arg.current_state << std::endl;
-  os << "Target state:\n" << arg.target_state << std::endl;
-  os << "State error:\n" << arg.target_state - arg.current_state << std::endl;
-  os << "Gain:\n" << arg.K_ << std::endl;
+  _os << "Dynamics:\n" << _arg.dynamics << '\n';
+  _os << "Current state:\n" << _arg.current_state << '\n';
+  _os << "Target state:\n" << _arg.target_state << '\n';
+  _os << "State error:\n" << _arg.target_state - _arg.current_state << '\n';
+  _os << "Gain:\n" << _arg.K_ << '\n';
 
-  return os;
+  return _os;
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

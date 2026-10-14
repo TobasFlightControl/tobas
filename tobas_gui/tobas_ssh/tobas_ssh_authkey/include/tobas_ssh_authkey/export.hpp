@@ -7,13 +7,7 @@
 
 #include "./data.hpp"
 
-namespace tobas
+namespace tobas::ssh::ak
 {
-namespace ssh
-{
-namespace ak
-{
-std::expected<std::string, std::string> exportLine(const Data& src);
-}  // namespace ak
-}  // namespace ssh
-}  // namespace tobas
+std::expected<std::string, std::string> exportLine(const Data& _src);
+}  // namespace tobas::ssh::ak

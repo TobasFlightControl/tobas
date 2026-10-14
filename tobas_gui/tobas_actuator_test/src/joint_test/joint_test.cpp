@@ -7,14 +7,10 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
-namespace tobas
+namespace tobas::gui::at
 {
-namespace gui
-{
-namespace at
-{
-JointTestWidget::JointTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree& tree, const Drone& drone)
-  : tree_(tree), drone_(drone)
+JointTestWidget::JointTestWidget(const rqt::RosQtBridge& _bridge, const kdl::Tree& _tree, const Drone& _drone)
+  : tree_(_tree), drone_(_drone)
 {
   constexpr int kButtonWidth = 100;
   constexpr int kButtonHeight = 40;
@@ -35,7 +31,7 @@ JointTestWidget::JointTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree
   home_button_ = new QPushButton("Home");
   home_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  commands_publisher_ = new JointCommandsPublisherWidget(tree, drone);
+  commands_publisher_ = new JointCommandsPublisherWidget(_tree, _drone);
 
   // Layout
   const auto cols = new QHBoxLayout();
@@ -54,7 +50,7 @@ JointTestWidget::JointTestWidget(const rqt::RosQtBridge& bridge, const kdl::Tree
   connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onStopButtonClicked);
   connect(zero_button_, &QPushButton::clicked, this, &self::onZeroButtonClicked);
   connect(home_button_, &QPushButton::clicked, this, &self::onHomeButtonClicked);
-  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 
   updateActionAvailability();
 }
@@ -79,9 +75,9 @@ void JointTestWidget::updateInternalDataStructures()
   commands_publisher_->updateInternalDataStructures();
 }
 
-void JointTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void JointTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  commands_publisher_->initializeRosInterfaces(std::move(node), ns);
+  commands_publisher_->initializeRosInterfaces(std::move(_node), _ns);
   ros_initialized_ = true;
 }
 
@@ -137,12 +133,10 @@ void JointTestWidget::onHomeButtonClicked()
   commands_publisher_->setHome();
 }
 
-void JointTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void JointTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming)
 {
-  arming_ = arming;
+  arming_ = _arming;
 
   updateActionAvailability();
 }
-}  // namespace at
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::at

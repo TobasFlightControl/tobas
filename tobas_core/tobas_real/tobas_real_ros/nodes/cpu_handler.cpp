@@ -14,9 +14,7 @@
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace real
+namespace tobas::real
 {
 class CpuHandlerNode : public BaseNode
 {
@@ -26,7 +24,7 @@ class CpuHandlerNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit CpuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit CpuHandlerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   int temp_millidegrees_;
@@ -51,8 +49,8 @@ private:
   void mainTimerCb();
 };
 
-CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& options)
-  : super("real_cpu_handler", nodeOptions_Default(options))
+CpuHandlerNode::CpuHandlerNode(const rclcpp::NodeOptions& _options)
+  : super("real_cpu_handler", nodeOptions_Default(_options))
 {
   // Configure the LPFs.
   temp_lpf_.setCutoffFrequency(dsp::cutoffFromTimeConst(5.0));
@@ -213,7 +211,6 @@ void CpuHandlerNode::mainTimerCb()
   cpu_msg->load = load_lpf_.getValue();
   cpu_pub_->publish(std::move(cpu_msg));
 }
-}  // namespace real
-}  // namespace tobas
+}  // namespace tobas::real
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::CpuHandlerNode)

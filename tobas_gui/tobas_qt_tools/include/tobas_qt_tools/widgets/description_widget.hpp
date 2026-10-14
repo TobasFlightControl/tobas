@@ -5,9 +5,7 @@
 
 #include <QLabel>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 /** `QLabel` configured for placing longer text. */
 class DescriptionWidget : public QLabel
@@ -17,7 +15,6 @@ class DescriptionWidget : public QLabel
   using super = QLabel;
 
 public:
-  explicit DescriptionWidget(const QString& text, int point_size, QWidget* parent = nullptr);
+  explicit DescriptionWidget(const QString& _text, int _point_size, QWidget* _parent = nullptr);
 };
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

@@ -3,76 +3,73 @@
 
 #include "tobas_eigen_conversions/eigen_msg.hpp"
 
-namespace tobas
+namespace tobas::tf
 {
-namespace tf
+void vectorEigenToMsg(const Eigen::Vector3d& _e, geometry_msgs::msg::Vector3& _m)
 {
-void vectorEigenToMsg(const Eigen::Vector3d& e, geometry_msgs::msg::Vector3& m)
-{
-  m.x = e.x();
-  m.y = e.y();
-  m.z = e.z();
+  _m.x = _e.x();
+  _m.y = _e.y();
+  _m.z = _e.z();
 }
 
-void vectorMsgToEigen(const geometry_msgs::msg::Vector3& m, Eigen::Vector3d& e)
+void vectorMsgToEigen(const geometry_msgs::msg::Vector3& _m, Eigen::Vector3d& _e)
 {
-  e.x() = m.x;
-  e.y() = m.y;
-  e.z() = m.z;
+  _e.x() = _m.x;
+  _e.y() = _m.y;
+  _e.z() = _m.z;
 }
 
-void pointEigenToMsg(const Eigen::Vector3d& e, geometry_msgs::msg::Point& m)
+void pointEigenToMsg(const Eigen::Vector3d& _e, geometry_msgs::msg::Point& _m)
 {
-  m.x = e.x();
-  m.y = e.y();
-  m.z = e.z();
+  _m.x = _e.x();
+  _m.y = _e.y();
+  _m.z = _e.z();
 }
 
-void pointMsgToEigen(const geometry_msgs::msg::Point& m, Eigen::Vector3d& e)
+void pointMsgToEigen(const geometry_msgs::msg::Point& _m, Eigen::Vector3d& _e)
 {
-  e.x() = m.x;
-  e.y() = m.y;
-  e.z() = m.z;
+  _e.x() = _m.x;
+  _e.y() = _m.y;
+  _e.z() = _m.z;
 }
 
-void point32EigenToMsg(const Eigen::Vector3f& e, geometry_msgs::msg::Point32& m)
+void point32EigenToMsg(const Eigen::Vector3f& _e, geometry_msgs::msg::Point32& _m)
 {
-  m.x = e.x();
-  m.y = e.y();
-  m.z = e.z();
+  _m.x = _e.x();
+  _m.y = _e.y();
+  _m.z = _e.z();
 }
 
-void point32MsgToEigen(const geometry_msgs::msg::Point32& m, Eigen::Vector3f& e)
+void point32MsgToEigen(const geometry_msgs::msg::Point32& _m, Eigen::Vector3f& _e)
 {
-  e.x() = m.x;
-  e.y() = m.y;
-  e.z() = m.z;
+  _e.x() = _m.x;
+  _e.y() = _m.y;
+  _e.z() = _m.z;
 }
 
-void quaternionEigenToMsg(const Eigen::Quaterniond& e, geometry_msgs::msg::Quaternion& m)
+void quaternionEigenToMsg(const Eigen::Quaterniond& _e, geometry_msgs::msg::Quaternion& _m)
 {
-  m.w = e.w();
-  m.x = e.x();
-  m.y = e.y();
-  m.z = e.z();
+  _m.w = _e.w();
+  _m.x = _e.x();
+  _m.y = _e.y();
+  _m.z = _e.z();
 }
 
-void quaternionMsgToEigen(const geometry_msgs::msg::Quaternion& m, Eigen::Quaterniond& e)
+void quaternionMsgToEigen(const geometry_msgs::msg::Quaternion& _m, Eigen::Quaterniond& _e)
 {
-  e.w() = m.w;
-  e.x() = m.x;
-  e.y() = m.y;
-  e.z() = m.z;
+  _e.w() = _m.w;
+  _e.x() = _m.x;
+  _e.y() = _m.y;
+  _e.z() = _m.z;
 }
 
-void matrix3EigenToMsg(const Eigen::Matrix3d& e, std::array<double, 9>& m)
+void matrix3EigenToMsg(const Eigen::Matrix3d& _e, std::array<double, 9>& _m)
 {
-  std::memcpy(m.data(), e.data(), sizeof(double) * 9);
+  std::memcpy(_m.data(), _e.data(), sizeof(double) * 9);
 }
 
-void matrix3MsgToEigen(const std::array<double, 9>& m, Eigen::Matrix3d& e)
+void matrix3MsgToEigen(const std::array<double, 9>& _m, Eigen::Matrix3d& _e)
 {
-  std::memcpy(e.data(), m.data(), sizeof(double) * 9);
+  std::memcpy(_e.data(), _m.data(), sizeof(double) * 9);
 }
-}  // namespace tf
-}  // namespace tobas
+}  // namespace tobas::tf

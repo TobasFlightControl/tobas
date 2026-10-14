@@ -5,9 +5,7 @@
 
 #include "./state_spaces.hpp"
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 /**
  * Linear Kalman filter.
@@ -25,11 +23,11 @@ public:
   Eigen::VectorXd u;    ///< Control input, if any
 
   explicit KalmanFilter();
-  explicit KalmanFilter(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size, Eigen::Index v_size);
+  explicit KalmanFilter(Eigen::Index _x_size, Eigen::Index _u_size, Eigen::Index _y_size, Eigen::Index _v_size);
 
-  void resize(Eigen::Index x_size, Eigen::Index u_size, Eigen::Index y_size, Eigen::Index v_size);
+  void resize(Eigen::Index _x_size, Eigen::Index _u_size, Eigen::Index _y_size, Eigen::Index _v_size);
   void setZero();
-  void initialize(const Eigen::VectorXd& init_x, const Eigen::MatrixXd& init_P);
+  void initialize(const Eigen::VectorXd& _init_x, const Eigen::MatrixXd& _init_p);
   void update();
 
   inline Eigen::Index stateSize() const;
@@ -55,11 +53,11 @@ public:
   Eigen::MatrixXd R;  ///< Observation noise covariance
   Eigen::VectorXd y;  ///< Observation
 
-  explicit IdentityKalmanFilter(Eigen::Index size = 0);
+  explicit IdentityKalmanFilter(Eigen::Index _size = 0);
 
-  void resize(Eigen::Index size);
+  void resize(Eigen::Index _size);
   void setZero();
-  void initialize(const Eigen::VectorXd& init_x, const Eigen::MatrixXd& init_P);
+  void initialize(const Eigen::VectorXd& _init_x, const Eigen::MatrixXd& _init_p);
   void update();
 
   inline const Eigen::VectorXd& state() const;
@@ -108,5 +106,4 @@ inline const Eigen::MatrixXd& IdentityKalmanFilter::covariance() const
 {
   return kf_.covariance();
 }
-}  // namespace ctrl
-}  // namespace tobas
+}  // namespace tobas::ctrl

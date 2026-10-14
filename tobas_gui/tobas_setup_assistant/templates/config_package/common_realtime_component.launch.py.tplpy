@@ -88,6 +88,7 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "observer_dynamic.yaml"]),
                     ],
                     remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package=CONTROLLER_PKG,
@@ -98,11 +99,13 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "controller_static.yaml"]),
                         PathJoinSubstitution([config_pkg_share, "config", "controller_dynamic.yaml"]),
                     ],
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_rotor_controller",
                     plugin="tobas::RotorControllerNode",
                     namespace=namespace,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
             ],
         )
@@ -117,6 +120,7 @@ def generate_launch_description():
                     package="tobas_disturbance_observer",
                     plugin="tobas::DisturbanceObserverNode",
                     namespace=namespace,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_rc_teleop",
@@ -126,17 +130,20 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_static.yaml"]),
                         PathJoinSubstitution([config_pkg_share, "config", "rc_teleop_dynamic.yaml"]),
                     ],
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package=MISSION_EXECUTOR_PKG,
                     plugin=MISSION_EXECUTOR_PLUGIN,
                     namespace=namespace,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "mission_executor_static.yaml"])],
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_object_avoidance",
                     plugin="tobas::ObjectAvoidance",
                     namespace=namespace,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
             ],
         )
@@ -151,27 +158,27 @@ def generate_launch_description():
                     package="tobas_connection_monitor",
                     plugin="tobas::HeartbeatSenderNode",
                     namespace=namespace,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_tree_server",
                     plugin="tobas::TreeServerNode",
                     namespace=namespace,
                     parameters=[{"robot_description": urdf_text}],
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_drone_server",
                     plugin="tobas::DroneServerNode",
                     namespace=namespace,
-                    parameters=[
-                        {
-                            "tbsdrn_path": PathJoinSubstitution([config_pkg_share, "config", "drone.tbsdrn"]),
-                        }
-                    ],
+                    parameters=[{"tbsdrn_path": PathJoinSubstitution([config_pkg_share, "config", "drone.tbsdrn"])}],
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_rosbag_recorder",
                     plugin="tobas::RosbagRecorderNode",
                     namespace=namespace,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_config_servers",
@@ -181,49 +188,58 @@ def generate_launch_description():
                         PathJoinSubstitution([config_pkg_share, "config", "imu_filter_static.yaml"]),
                         PathJoinSubstitution([config_pkg_share, "config", "imu_filter_dynamic.yaml"]),
                     ],
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_config_servers",
                     plugin="tobas::RpmControlConfigServer",
                     namespace=namespace,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "rpm_control_dynamic.yaml"])],
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_failsafe",
                     plugin="tobas::HealthMonitorNode",
                     namespace=namespace,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "health_monitor.yaml"])],
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_failsafe",
                     plugin="tobas::FailsafeExecutorNode",
                     namespace=namespace,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_landing_detection",
                     plugin="tobas::LandingDetectorNode",
                     namespace=namespace,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_rotor_anomaly_detection",
                     plugin="tobas::RotorAnomalyDetectorNode",
                     namespace=namespace,
                     parameters=[PathJoinSubstitution([config_pkg_share, "config", "rotor_anomaly_detector.yaml"])],
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_vibration_filter",
                     plugin="tobas::VibrationFilterNode",
                     namespace=namespace,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_joint_states_bridge",
                     plugin="tobas::JointStatesBridgeNode",
                     namespace=namespace,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
                 ComposableNode(
                     package="tobas_topic_throttle",
                     plugin="tobas::TopicThrottleNode",
                     namespace=namespace,
+                    extra_arguments=[{"use_intra_process_comms": True}],
                 ),
             ],
         )

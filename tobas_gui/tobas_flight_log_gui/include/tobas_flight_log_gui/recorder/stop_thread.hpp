@@ -12,28 +12,22 @@
 
 #include <tobas_msgs/srv/bag_record_stop.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class RecordStopThread : public QThread
 {
   Q_OBJECT
 
 Q_SIGNALS:
-  void finished(bool success, const QString& message, const QString& log_path);
+  void finished(bool _success, const QString& _message, const QString& _log_path);
 
 public:
   void run() override;
 
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:
   std::optional<ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop>> sc_;
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

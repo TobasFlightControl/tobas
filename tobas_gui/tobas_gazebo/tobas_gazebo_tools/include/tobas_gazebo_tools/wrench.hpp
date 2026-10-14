@@ -6,9 +6,7 @@
 #include <gz/math/Quaternion.hh>
 #include <gz/math/Vector3.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class Wrench
 {
@@ -28,20 +26,20 @@ public:
    * The vector p is expressed in the same base as the wrench.
    * The vector p is a vector from the old point to the new point.
    */
-  inline Wrench refPoint(const gz::math::Vector3d& p) const;
+  inline Wrench refPoint(const gz::math::Vector3d& _p) const;
 
-  inline Wrench& operator+=(const Wrench& arg);
-  inline Wrench& operator-=(const Wrench& arg);
+  inline Wrench& operator+=(const Wrench& _arg);
+  inline Wrench& operator-=(const Wrench& _arg);
 
-  inline friend Wrench operator-(const Wrench& arg);
-  inline friend Wrench operator*(const Wrench& lhs, double rhs);
-  inline friend Wrench operator*(double lhs, const Wrench& rhs);
-  inline friend Wrench operator/(const Wrench& lhs, double rhs);
-  inline friend Wrench operator+(const Wrench& lhs, const Wrench& rhs);
-  inline friend Wrench operator-(const Wrench& lhs, const Wrench& rhs);
+  inline friend Wrench operator-(const Wrench& _arg);
+  inline friend Wrench operator*(const Wrench& _lhs, double _rhs);
+  inline friend Wrench operator*(double _lhs, const Wrench& _rhs);
+  inline friend Wrench operator/(const Wrench& _lhs, double _rhs);
+  inline friend Wrench operator+(const Wrench& _lhs, const Wrench& _rhs);
+  inline friend Wrench operator-(const Wrench& _lhs, const Wrench& _rhs);
 
   /** Rotate wrench. */
-  inline friend Wrench operator*(const gz::math::Quaterniond& lhs, const Wrench& rhs);
+  inline friend Wrench operator*(const gz::math::Quaterniond& _lhs, const Wrench& _rhs);
 };
 
 inline Wrench::Wrench()
@@ -64,58 +62,57 @@ inline void Wrench::setZero()
   torque = gz::math::Vector3d::Zero;
 }
 
-inline Wrench Wrench::refPoint(const gz::math::Vector3d& p) const
+inline Wrench Wrench::refPoint(const gz::math::Vector3d& _p) const
 {
-  return Wrench(force, torque + force.Cross(p));
+  return Wrench(force, torque + force.Cross(_p));
 }
 
-inline Wrench& Wrench::operator+=(const Wrench& arg)
+inline Wrench& Wrench::operator+=(const Wrench& _arg)
 {
-  torque += arg.torque;
-  force += arg.force;
+  torque += _arg.torque;
+  force += _arg.force;
   return *this;
 }
 
-inline Wrench& Wrench::operator-=(const Wrench& arg)
+inline Wrench& Wrench::operator-=(const Wrench& _arg)
 {
-  torque -= arg.torque;
-  force -= arg.force;
+  torque -= _arg.torque;
+  force -= _arg.force;
   return *this;
 }
 
-inline Wrench operator-(const Wrench& arg)
+inline Wrench operator-(const Wrench& _arg)
 {
-  return Wrench(-arg.force, -arg.torque);
+  return Wrench(-_arg.force, -_arg.torque);
 }
 
-inline Wrench operator*(const Wrench& lhs, double rhs)
+inline Wrench operator*(const Wrench& _lhs, double _rhs)
 {
-  return Wrench(lhs.force * rhs, lhs.torque * rhs);
+  return Wrench(_lhs.force * _rhs, _lhs.torque * _rhs);
 }
 
-inline Wrench operator*(double lhs, const Wrench& rhs)
+inline Wrench operator*(double _lhs, const Wrench& _rhs)
 {
-  return Wrench(lhs * rhs.force, lhs * rhs.torque);
+  return Wrench(_lhs * _rhs.force, _lhs * _rhs.torque);
 }
 
-inline Wrench operator/(const Wrench& lhs, double rhs)
+inline Wrench operator/(const Wrench& _lhs, double _rhs)
 {
-  return Wrench(lhs.force / rhs, lhs.torque / rhs);
+  return Wrench(_lhs.force / _rhs, _lhs.torque / _rhs);
 }
 
-inline Wrench operator+(const Wrench& lhs, const Wrench& rhs)
+inline Wrench operator+(const Wrench& _lhs, const Wrench& _rhs)
 {
-  return Wrench(lhs.force + rhs.force, lhs.torque + rhs.torque);
+  return Wrench(_lhs.force + _rhs.force, _lhs.torque + _rhs.torque);
 }
 
-inline Wrench operator-(const Wrench& lhs, const Wrench& rhs)
+inline Wrench operator-(const Wrench& _lhs, const Wrench& _rhs)
 {
-  return Wrench(lhs.force - rhs.force, lhs.torque - rhs.torque);
+  return Wrench(_lhs.force - _rhs.force, _lhs.torque - _rhs.torque);
 }
 
-inline Wrench operator*(const gz::math::Quaterniond& lhs, const Wrench& rhs)
+inline Wrench operator*(const gz::math::Quaterniond& _lhs, const Wrench& _rhs)
 {
-  return Wrench(lhs.RotateVector(rhs.force), lhs.RotateVector(rhs.torque));
+  return Wrench(_lhs.RotateVector(_rhs.force), _lhs.RotateVector(_rhs.torque));
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

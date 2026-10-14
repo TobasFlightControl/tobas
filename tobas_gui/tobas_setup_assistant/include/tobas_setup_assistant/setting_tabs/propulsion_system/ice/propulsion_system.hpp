@@ -7,15 +7,7 @@
 #include "./engine/engine.hpp"
 #include "./propulsion_units/propulsion_units.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 class PropulsionSystemWidget : public BasePropulsionSystemWidget
 {
@@ -27,7 +19,7 @@ public:
   EngineWidget* engine;
   PropulsionUnitsWidget* units;
 
-  explicit PropulsionSystemWidget(const uadf::Model& uadf);
+  explicit PropulsionSystemWidget(const uadf::Model& _uadf);
 
   const char* name() const override;
 
@@ -36,15 +28,11 @@ public:
   bool isValid() override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   PropulsionSystem type() const override;
   int numUnits() const override;
 
-  QString linkName(int index) const override;
+  QString linkName(int _index) const override;
 };
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

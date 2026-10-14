@@ -7,26 +7,20 @@
 #include "./geometry_view_model.hpp"
 #include "./material_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 class VisualViewModel : public BaseViewModel<::urdf::Visual, VisualViewModel>
 {
 public:
-  explicit VisualViewModel(const ::urdf::VisualSharedPtr& model);
+  explicit VisualViewModel(const ::urdf::VisualSharedPtr& _model);
 
   void sync() override;
 
   QString name() const;
-  void name(const QString& name);
+  void name(const QString& _name);
 
   const ::urdf::Pose& origin() const;
-  void origin(const ::urdf::Pose& origin);
+  void origin(const ::urdf::Pose& _origin);
 
   const GeometryViewModelPtr& geometry();
   const MaterialViewModelPtr& material();
@@ -38,7 +32,4 @@ private:
 
 using VisualViewModelPtr = std::shared_ptr<VisualViewModel>;
 using V_VisualViewModelPtr = std::vector<VisualViewModelPtr>;
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

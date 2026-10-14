@@ -5,15 +5,7 @@
 
 #include <eigen3/Eigen/Core>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace electric
+namespace tobas::gui::sa::propulsion::electric
 {
 static constexpr char kRpmColName[] = "RPM";
 static constexpr char kThrustColName[] = "Thrust [N]";
@@ -21,13 +13,9 @@ static constexpr char kTorqueColName[] = "Torque [Nm]";
 static constexpr char kUiucCtColName[] = "CT";
 static constexpr char kUiucCpColName[] = "CP";
 
-double motorConstFromThrustStand(const Eigen::VectorXd& rpms, const Eigen::VectorXd& thrusts);
-double momentConstFromThrustStand(const Eigen::VectorXd& thrusts, const Eigen::VectorXd& torques);
+double motorConstFromThrustStand(const Eigen::VectorXd& _rpms, const Eigen::VectorXd& _thrusts);
+double momentConstFromThrustStand(const Eigen::VectorXd& _thrusts, const Eigen::VectorXd& _torques);
 
-double motorConstFromUiuc(const Eigen::VectorXd& cts, double d);
-double momentConstFromUiuc(const Eigen::VectorXd& cts, const Eigen::VectorXd& cps, double d);
-}  // namespace electric
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+double motorConstFromUiuc(const Eigen::VectorXd& _cts, double _d);
+double momentConstFromUiuc(const Eigen::VectorXd& _cts, const Eigen::VectorXd& _cps, double _d);
+}  // namespace tobas::gui::sa::propulsion::electric

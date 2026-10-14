@@ -8,9 +8,7 @@
 #include <gz/common/Console.hh>
 #include <gz/transport/Node.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /** Receive exactly one Gazebo message. */
 template <typename MsgT, typename RepT = int64_t, typename RatioT = std::milli>
@@ -25,20 +23,20 @@ bool waitForMessage(
   bool got = false;
 
   // Callback; only the first message is accepted.
-  const std::function<void(const MsgT&)> cb = [&](const MsgT& msg)
+  const std::function<void(const MsgT&)> cb = [&](const MsgT& _msg)
   {
     const std::lock_guard lock(mutex);
     if (got) {
       return;  // Ignore the second and later messages.
     }
-    _msg_out = msg;
+    _msg_out = _msg;
     got = true;
     cv.notify_one();
   };
 
   // Start subscription.
   if (!node.Subscribe(_topic, cb)) {
-    gzerr << "Failed to subscribe '" << _topic << "'." << std::endl;
+    gzerr << "Failed to subscribe '" << _topic << "'.\n";
     return false;
   }
 
@@ -59,5 +57,4 @@ bool waitForMessage(
 
   return got;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

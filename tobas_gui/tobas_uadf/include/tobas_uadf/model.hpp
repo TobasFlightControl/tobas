@@ -13,9 +13,7 @@
 #include "./thrust.hpp"
 #include "./tilt_rotor.hpp"
 
-namespace tobas
-{
-namespace uadf
+namespace tobas::uadf
 {
 class Model
 {
@@ -32,5 +30,4 @@ public:
 
   std::expected<void, std::string> validate() const;
 };
-}  // namespace uadf
-}  // namespace tobas
+}  // namespace tobas::uadf

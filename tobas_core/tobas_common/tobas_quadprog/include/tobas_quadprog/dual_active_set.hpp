@@ -5,9 +5,7 @@
 
 #include "./qpsolver.hpp"
 
-namespace tobas
-{
-namespace quadprog
+namespace tobas::quadprog
 {
 /** A numerically stable dual method for solving strictly convex quadratic programs [D. Goldfarb & A. Idnani] */
 class DualActiveSetSolver : public QuadProgSolver
@@ -56,10 +54,9 @@ private:
 
   void update_r();
   bool addConstraint();
-  void deleteConstraint(Eigen::Index l);
+  void deleteConstraint(Eigen::Index _l);
 
   /** Euclidean distance between two numbers. */
-  static double distance(double a, double b);
+  static double distance(double _a, double _b);
 };
-}  // namespace quadprog
-}  // namespace tobas
+}  // namespace tobas::quadprog

@@ -6,38 +6,39 @@
 #include <tobas_dparam_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 
-namespace tobas
+namespace tobas::dparam
 {
-namespace dparam
-{
-DynamicParamClient::DynamicParamClient(rclcpp::Node::SharedPtr node, const std::string& node_name, const std::string& ns)
-  : node_(node)
-  , node_name_(node_name)
-  , bool_sc_(node_, path::join(ns, kSetBoolSrv))
-  , int_sc_(node_, path::join(ns, kSetIntSrv))
-  , double_sc_(node_, path::join(ns, kSetDoubleSrv))
-  , string_sc_(node_, path::join(ns, kSetStringSrv))
+DynamicParamClient::DynamicParamClient(
+  rclcpp::Node::SharedPtr _node,
+  const std::string& _node_name,
+  const std::string& _ns)
+  : node_(_node)
+  , node_name_(_node_name)
+  , bool_sc_(node_, path::join(_ns, kSetBoolSrv))
+  , int_sc_(node_, path::join(_ns, kSetIntSrv))
+  , double_sc_(node_, path::join(_ns, kSetDoubleSrv))
+  , string_sc_(node_, path::join(_ns, kSetStringSrv))
 {
 }
 
-DynamicParamClient::Error DynamicParamClient::setBool(const std::string& param_name, bool value)
+DynamicParamClient::Error DynamicParamClient::setBool(const std::string& _param_name, bool _value)
 {
-  return setParam(bool_sc_, param_name, value);
+  return setParam(bool_sc_, _param_name, _value);
 }
 
-DynamicParamClient::Error DynamicParamClient::setInt(const std::string& param_name, long value)
+DynamicParamClient::Error DynamicParamClient::setInt(const std::string& _param_name, long _value)
 {
-  return setParam(int_sc_, param_name, value);
+  return setParam(int_sc_, _param_name, _value);
 }
 
-DynamicParamClient::Error DynamicParamClient::setDouble(const std::string& param_name, long value)
+DynamicParamClient::Error DynamicParamClient::setDouble(const std::string& _param_name, long _value)
 {
-  return setParam(double_sc_, param_name, value);
+  return setParam(double_sc_, _param_name, _value);
 }
 
-DynamicParamClient::Error DynamicParamClient::setString(const std::string& param_name, const std::string& value)
+DynamicParamClient::Error DynamicParamClient::setString(const std::string& _param_name, const std::string& _value)
 {
-  return setParam(string_sc_, param_name, value);
+  return setParam(string_sc_, _param_name, _value);
 }
 
 DynamicParamClient::Error DynamicParamClient::errorCode() const
@@ -58,5 +59,4 @@ const char* DynamicParamClient::errorMessage() const
       return "Unexpected error.";
   }
 }
-}  // namespace dparam
-}  // namespace tobas
+}  // namespace tobas::dparam

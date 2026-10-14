@@ -3,9 +3,7 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 // Gazebo Topics
 static constexpr char kGzStatsTopic[] = "/stats";
@@ -37,5 +35,4 @@ static constexpr char kAttachFixedLoadSrv[] = "gazebo/attach_fixed_load";
 static constexpr char kDetachFixedLoadSrv[] = "gazebo/detach_fixed_load";
 static constexpr char kAttachSuspenedLoadSrv[] = "gazebo/attach_suspended_load";
 static constexpr char kDetachSuspenedLoadSrv[] = "gazebo/detach_suspended_load";
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

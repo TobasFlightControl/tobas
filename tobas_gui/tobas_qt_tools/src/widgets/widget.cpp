@@ -6,18 +6,16 @@
 #include <QDebug>
 #include <QPainter>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 QPoint Widget::getCenter() const
 {
   return QPoint(width() / 2, height() / 2);
 }
 
-int Widget::calcMaxTextPointSize(const QString& text, const QPoint& center) const
+int Widget::calcMaxTextPointSize(const QString& _text, const QPoint& _center) const
 {
-  if (text.isEmpty()) {
+  if (_text.isEmpty()) {
     qWarning() << "Text is empty.";
     return -1;
   }
@@ -29,14 +27,14 @@ int Widget::calcMaxTextPointSize(const QString& text, const QPoint& center) cons
     font.setPointSize(point_size++);
     QFontMetrics fm(font);
 
-    const auto text_width = fm.horizontalAdvance(text);
+    const auto text_width = fm.horizontalAdvance(_text);
     const auto text_height = fm.height();
 
     constexpr double kMargin = 0.1;
-    if (center.x() - text_width / 2 < width() * kMargin || width() * (1 - kMargin) < center.x() + text_width / 2) {
+    if (_center.x() - text_width / 2 < width() * kMargin || width() * (1 - kMargin) < _center.x() + text_width / 2) {
       break;
     }
-    if (center.y() - text_height / 2 < height() * kMargin || height() * (1 - kMargin) < center.y() + text_height / 2) {
+    if (_center.y() - text_height / 2 < height() * kMargin || height() * (1 - kMargin) < _center.y() + text_height / 2) {
       break;
     }
   }
@@ -44,49 +42,48 @@ int Widget::calcMaxTextPointSize(const QString& text, const QPoint& center) cons
   return point_size;
 }
 
-void Widget::setBackgroundColor(QPalette::ColorRole cr)
+void Widget::setBackgroundColor(QPalette::ColorRole _cr)
 {
   setAutoFillBackground(true);
   auto pal = palette();
-  pal.setColor(QPalette::Window, pal.color(cr));
+  pal.setColor(QPalette::Window, pal.color(_cr));
 }
 
-void Widget::drawText(QPainter& painter, const QString& text, const QPoint& center, const QFont& font)
+void Widget::drawText(QPainter& _painter, const QString& _text, const QPoint& _center, const QFont& _font)
 {
-  painter.save();
+  _painter.save();
 
-  painter.setFont(font);
-  QFontMetrics fm(font);
+  _painter.setFont(_font);
+  QFontMetrics fm(_font);
 
-  const auto text_width = fm.horizontalAdvance(text);
+  const auto text_width = fm.horizontalAdvance(_text);
   const auto text_height = fm.height();
-  const auto x = center.x() - text_width / 2;
-  const auto y = center.y() + text_height / 2 - fm.descent();  // Baseline correction.
-  painter.drawText(x, y, text);
+  const auto x = _center.x() - text_width / 2;
+  const auto y = _center.y() + text_height / 2 - fm.descent();  // Baseline correction.
+  _painter.drawText(x, y, _text);
 
-  painter.restore();
+  _painter.restore();
 }
 
-void Widget::drawText(QPainter& painter, const QString& text, const QPoint& center, int point_size)
+void Widget::drawText(QPainter& _painter, const QString& _text, const QPoint& _center, int _point_size)
 {
   auto font = this->font();
-  font.setPointSize(point_size);
-  drawText(painter, text, center, font);
+  font.setPointSize(_point_size);
+  drawText(_painter, _text, _center, font);
 }
 
-void Widget::drawMaximumText(QPainter& painter, const QString& text, const QPoint& center)
+void Widget::drawMaximumText(QPainter& _painter, const QString& _text, const QPoint& _center)
 {
-  if (text.isEmpty()) {
+  if (_text.isEmpty()) {
     return;
   }
 
-  const auto point_size = calcMaxTextPointSize(text, center);
-  drawText(painter, text, center, point_size);
+  const auto point_size = calcMaxTextPointSize(_text, _center);
+  drawText(_painter, _text, _center, point_size);
 }
 
-void Widget::drawMaximumText(QPainter& painter, const QString& text)
+void Widget::drawMaximumText(QPainter& _painter, const QString& _text)
 {
-  drawMaximumText(painter, text, getCenter());
+  drawMaximumText(_painter, _text, getCenter());
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

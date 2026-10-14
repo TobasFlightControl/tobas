@@ -7,9 +7,7 @@
 #include <iostream>
 #include <thread>
 
-namespace tobas
-{
-namespace driver
+namespace tobas::driver
 {
 namespace
 {
@@ -25,47 +23,47 @@ BMM150::BMM150()
 {
 }
 
-bool BMM150::initialize(const char* i2c_device)
+bool BMM150::initialize(const char* _i2c_device)
 {
-  if (!i2c_.initialize(i2c_device, 0x10)) {
-    std::cerr << "Failed to initialize I2C device." << std::endl;
+  if (!i2c_.initialize(_i2c_device, 0x10)) {
+    std::cerr << "Failed to initialize I2C device.\n";
     return false;
   }
 
   if (!enterSuspendMode()) {
-    std::cerr << "Failed to enter suspend mode." << std::endl;
+    std::cerr << "Failed to enter suspend mode.\n";
     return false;
   }
 
   if (!suspendToSleepMode()) {
-    std::cerr << "Failed to change mode from suspend to sleep." << std::endl;
+    std::cerr << "Failed to change mode from suspend to sleep.\n";
     return false;
   }
 
   if (!checkWhoAmI()) {
-    std::cerr << "Who-Am-I check failed." << std::endl;
+    std::cerr << "Who-Am-I check failed.\n";
     return false;
   }
 
   if (!execSelfTest()) {
-    std::cerr << "Self test failed." << std::endl;
+    std::cerr << "Self test failed.\n";
     return false;
   }
 
   if (!readTrimRegisters()) {
-    std::cerr << "Failed to read trim registers." << std::endl;
+    std::cerr << "Failed to read trim registers.\n";
     return false;
   }
 
   if (!configure()) {
-    std::cerr << "Failed to configure magnetometer." << std::endl;
+    std::cerr << "Failed to configure magnetometer.\n";
     return false;
   }
 
   return true;
 }
 
-bool BMM150::readMag(double& mx, double& my, double& mz)
+bool BMM150::readMag(double& _mx, double& _my, double& _mz)
 {
   if (!i2c_.readBytes(OUTX_LSB_REG, sizeof(mag_buf_), mag_buf_)) {
     return false;
@@ -73,15 +71,15 @@ bool BMM150::readMag(double& mx, double& my, double& mz)
 
   constexpr uint8_t kSelfTestRef = 0x01;
   if ((mag_buf_[0] & 1) != kSelfTestRef) {
-    std::cerr << "Failed in x-axis self test." << std::endl;
+    std::cerr << "Failed in x-axis self test.\n";
     return false;
   }
   if ((mag_buf_[2] & 1) != kSelfTestRef) {
-    std::cerr << "Failed in y-axis self test." << std::endl;
+    std::cerr << "Failed in y-axis self test.\n";
     return false;
   }
   if ((mag_buf_[4] & 1) != kSelfTestRef) {
-    std::cerr << "Failed in z-axis self test." << std::endl;
+    std::cerr << "Failed in z-axis self test.\n";
     return false;
   }
 
@@ -97,9 +95,9 @@ bool BMM150::readMag(double& mx, double& my, double& mz)
   // Ref: https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c compensate_x
   // (int16_t)raw_data * kResolution is approximately microteslas.
   constexpr double kResolution = 1.0 / 16.0;
-  mx = static_cast<double>(compensateX(raw_data_x, r_hall)) * kResolution;
-  my = static_cast<double>(compensateY(raw_data_y, r_hall)) * kResolution;
-  mz = static_cast<double>(compensateZ(raw_data_z, r_hall)) * kResolution;
+  _mx = static_cast<double>(compensateX(raw_data_x, r_hall)) * kResolution;
+  _my = static_cast<double>(compensateY(raw_data_y, r_hall)) * kResolution;
+  _mz = static_cast<double>(compensateZ(raw_data_z, r_hall)) * kResolution;
 
   return true;
 }
@@ -107,7 +105,7 @@ bool BMM150::readMag(double& mx, double& my, double& mz)
 bool BMM150::enterSuspendMode()
 {
   if (!i2c_.writeByte(CFG_REG_A, 0x00, true)) {
-    std::cerr << "Failed to write power control reg." << std::endl;
+    std::cerr << "Failed to write power control reg.\n";
     return false;
   }
 
@@ -118,7 +116,7 @@ bool BMM150::enterSuspendMode()
 bool BMM150::suspendToSleepMode()
 {
   if (!i2c_.writeByte(CFG_REG_A, 0x01), true) {
-    std::cerr << "Failed to write power control reg." << std::endl;
+    std::cerr << "Failed to write power control reg.\n";
     return false;
   }
 
@@ -131,12 +129,12 @@ bool BMM150::checkWhoAmI()
   uint8_t byte;
 
   if (!i2c_.readByte(WHO_AM_I_REG, byte)) {
-    std::cerr << "Failed to read WHO_AM_I data." << std::endl;
+    std::cerr << "Failed to read WHO_AM_I data.\n";
     return false;
   }
 
   if (byte != CHIP_ID) {
-    std::cerr << "Magnetometer is not recognized." << std::endl;
+    std::cerr << "Magnetometer is not recognized.\n";
     return false;
   }
 
@@ -146,7 +144,7 @@ bool BMM150::checkWhoAmI()
 bool BMM150::execSelfTest()
 {
   if (!i2c_.writeByte(CFG_REG_B, ADV_SELF_TEST_NORMAL | ODR_10HZ | OP_SLEEP | SELF_TEST), true) {
-    std::cerr << "Failed to write to CFG_REG_B." << std::endl;
+    std::cerr << "Failed to write to CFG_REG_B.\n";
     return false;
   }
 
@@ -158,17 +156,17 @@ bool BMM150::execSelfTest()
 bool BMM150::configure()
 {
   if (!i2c_.writeByte(CFG_REG_B, ADV_SELF_TEST_NORMAL | ODR_30HZ | OP_NORMAL), true) {
-    std::cerr << "Failed to write to CFG_REG_B." << std::endl;
+    std::cerr << "Failed to write to CFG_REG_B.\n";
     return false;
   }
 
   if (!i2c_.writeByte(CFG_REG_E, REPXY), true) {
-    std::cerr << "Failed to write to CFG_REG_E." << std::endl;
+    std::cerr << "Failed to write to CFG_REG_E.\n";
     return false;
   }
 
   if (!i2c_.writeByte(CFG_REG_F, REPZ), true) {
-    std::cerr << "Failed to write to CFG_REG_F." << std::endl;
+    std::cerr << "Failed to write to CFG_REG_F.\n";
     return false;
   }
 
@@ -184,15 +182,15 @@ bool BMM150::readTrimRegisters()
 
   // Trim register value is read.
   if (!i2c_.readBytes(DIG_X1_REG, sizeof(trim_x1y1), trim_x1y1)) {
-    std::cerr << "Failed to read DIG_X1_REG." << std::endl;
+    std::cerr << "Failed to read DIG_X1_REG.\n";
     return false;
   }
   if (!i2c_.readBytes(DIG_Z4_LSB_REG, sizeof(trim_xyz_data), trim_xyz_data)) {
-    std::cerr << "Failed to read DIG_Z4_REG." << std::endl;
+    std::cerr << "Failed to read DIG_Z4_REG.\n";
     return false;
   }
   if (!i2c_.readBytes(DIG_Z2_LSB_REG, sizeof(trim_xy1xy2), trim_xy1xy2)) {
-    std::cerr << "Failed to read DIG_Z2_LSB_REG." << std::endl;
+    std::cerr << "Failed to read DIG_Z2_LSB_REG.\n";
     return false;
   }
 
@@ -217,15 +215,15 @@ bool BMM150::readTrimRegisters()
   return true;
 }
 
-int16_t BMM150::compensateX(int16_t mag_data_x, uint16_t data_r_hall)
+int16_t BMM150::compensateX(int16_t _mag_data_x, uint16_t _data_r_hall)
 {
   uint16_t process_comp_x0 = 0;
 
   // Overflow condition check
-  if (mag_data_x != kXyaxesFlipOverflowAdcval) {
-    if (data_r_hall != 0) {
+  if (_mag_data_x != kXyaxesFlipOverflowAdcval) {
+    if (_data_r_hall != 0) {
       // Availability of valid data
-      process_comp_x0 = data_r_hall;
+      process_comp_x0 = _data_r_hall;
     }
     else if (trim_data_.dig_xyz1 != 0) {
       process_comp_x0 = trim_data_.dig_xyz1;
@@ -245,7 +243,7 @@ int16_t BMM150::compensateX(int16_t mag_data_x, uint16_t data_r_hall)
       const int32_t process_comp_x7 = (((process_comp_x4 + process_comp_x6) / 512) + ((int32_t)0x100000));
       const int32_t process_comp_x8 = ((int32_t)(((int16_t)trim_data_.dig_x2) + ((int16_t)0xA0)));
       const int32_t process_comp_x9 = ((process_comp_x7 * process_comp_x8) / 4096);
-      const int32_t process_comp_x10 = ((int32_t)mag_data_x) * process_comp_x9;
+      const int32_t process_comp_x10 = ((int32_t)_mag_data_x) * process_comp_x9;
       retval = ((int16_t)(process_comp_x10 / 8192));
       return (retval + (((int16_t)trim_data_.dig_x1) * 8)) / 16;
     }
@@ -259,15 +257,15 @@ int16_t BMM150::compensateX(int16_t mag_data_x, uint16_t data_r_hall)
   }
 }
 
-int16_t BMM150::compensateY(int16_t mag_data_y, uint16_t data_r_hall)
+int16_t BMM150::compensateY(int16_t _mag_data_y, uint16_t _data_r_hall)
 {
   uint16_t process_comp_y0 = 0;
 
   // Overflow condition check
-  if (mag_data_y != kXyaxesFlipOverflowAdcval) {
-    if (data_r_hall != 0) {
+  if (_mag_data_y != kXyaxesFlipOverflowAdcval) {
+    if (_data_r_hall != 0) {
       // Availability of valid data
-      process_comp_y0 = data_r_hall;
+      process_comp_y0 = _data_r_hall;
     }
     else if (trim_data_.dig_xyz1 != 0) {
       process_comp_y0 = trim_data_.dig_xyz1;
@@ -286,7 +284,7 @@ int16_t BMM150::compensateY(int16_t mag_data_y, uint16_t data_r_hall)
       const int32_t process_comp_y6 = ((process_comp_y4 + (((int32_t)retval) * process_comp_y5)) / 512);
       const int32_t process_comp_y7 = ((int32_t)(((int16_t)trim_data_.dig_y2) + ((int16_t)0xA0)));
       const int32_t process_comp_y8 = (((process_comp_y6 + ((int32_t)0x100000)) * process_comp_y7) / 4096);
-      const int32_t process_comp_y9 = (((int32_t)mag_data_y) * process_comp_y8);
+      const int32_t process_comp_y9 = (((int32_t)_mag_data_y) * process_comp_y8);
       retval = (int16_t)(process_comp_y9 / 8192);
       return (retval + (((int16_t)trim_data_.dig_y1) * 8)) / 16;
     }
@@ -300,15 +298,15 @@ int16_t BMM150::compensateY(int16_t mag_data_y, uint16_t data_r_hall)
   }
 }
 
-int16_t BMM150::compensateZ(int16_t mag_data_z, uint16_t data_r_hall)
+int16_t BMM150::compensateZ(int16_t _mag_data_z, uint16_t _data_r_hall)
 {
-  if (mag_data_z != kZaxisHallOverflowAdcval) {
-    if ((trim_data_.dig_z2 != 0) && (trim_data_.dig_z1 != 0) && (data_r_hall != 0) && (trim_data_.dig_xyz1 != 0)) {
+  if (_mag_data_z != kZaxisHallOverflowAdcval) {
+    if ((trim_data_.dig_z2 != 0) && (trim_data_.dig_z1 != 0) && (_data_r_hall != 0) && (trim_data_.dig_xyz1 != 0)) {
       // Processing compensation equations
-      const int16_t process_comp_z0 = ((int16_t)data_r_hall) - ((int16_t)trim_data_.dig_xyz1);
+      const int16_t process_comp_z0 = ((int16_t)_data_r_hall) - ((int16_t)trim_data_.dig_xyz1);
       const int32_t process_comp_z1 = (((int32_t)trim_data_.dig_z3) * ((int32_t)(process_comp_z0))) / 4;
-      const int32_t process_comp_z2 = (((int32_t)(mag_data_z - trim_data_.dig_z4)) * 32768);
-      const int32_t process_comp_z3 = ((int32_t)trim_data_.dig_z1) * (((int16_t)data_r_hall) * 2);
+      const int32_t process_comp_z2 = (((int32_t)(_mag_data_z - trim_data_.dig_z4)) * 32768);
+      const int32_t process_comp_z3 = ((int32_t)trim_data_.dig_z1) * (((int16_t)_data_r_hall) * 2);
       const int16_t process_comp_z4 = (int16_t)((process_comp_z3 + 32768) / 65536);
       const int32_t retval = ((process_comp_z2 - process_comp_z1) / (trim_data_.dig_z2 + process_comp_z4));
 
@@ -332,5 +330,4 @@ int16_t BMM150::compensateZ(int16_t mag_data_z, uint16_t data_r_hall)
     return kOverflowOutput;
   }
 }
-}  // namespace driver
-}  // namespace tobas
+}  // namespace tobas::driver

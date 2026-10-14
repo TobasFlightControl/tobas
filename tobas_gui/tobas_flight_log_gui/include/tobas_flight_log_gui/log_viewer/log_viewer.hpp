@@ -11,11 +11,7 @@
 #include "./playback_control.hpp"
 #include "./plot_tab.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class FlightLogViewerWidget : public QWidget
 {
@@ -28,7 +24,7 @@ public:
 
   void reset();
 
-  void setLogName(const QString& log_name);
+  void setLogName(const QString& _log_name);
 
 private:
   std::filesystem::path log_path_;
@@ -40,23 +36,21 @@ private:
   PlaybackControlWidget* playback_ctrl_;
 
   template <typename MsgType>
-  std::shared_ptr<Data<MsgType>> addData(const std::string& topic);
+  std::shared_ptr<Data<MsgType>> addData(const std::string& _topic);
 
-  bool open(const std::string& rosbag_path);
+  bool open(const std::string& _rosbag_path);
 
-  void setPlotData(double time_from_start);
+  void setPlotData(double _time_from_start);
 
 private Q_SLOTS:
-  void onPlaybackTimeChanged(double time_from_start);
+  void onPlaybackTimeChanged(double _time_from_start);
 };
 
 template <typename MsgType>
-std::shared_ptr<Data<MsgType>> FlightLogViewerWidget::addData(const std::string& topic)
+std::shared_ptr<Data<MsgType>> FlightLogViewerWidget::addData(const std::string& _topic)
 {
-  const auto res = std::make_shared<Data<MsgType>>(topic);
+  const auto res = std::make_shared<Data<MsgType>>(_topic);
   data_.push_back(res);
   return res;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

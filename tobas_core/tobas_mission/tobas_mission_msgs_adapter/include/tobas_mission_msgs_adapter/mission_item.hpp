@@ -21,16 +21,16 @@ struct rclcpp::TypeAdapter<tobas::mission::MissionItem, tobas_mission_msgs::msg:
   using custom_type = tobas::mission::MissionItem;
   using ros_message_type = tobas_mission_msgs::msg::MissionItem;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.type = static_cast<uint8_t>(src.type);
-    dst.data = src.data;
+    _dst.type = static_cast<uint8_t>(_src.type);
+    _dst.data = _src.data;
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    dst.type = static_cast<tobas::mission::Type>(src.type);
-    dst.data = src.data;
+    _dst.type = static_cast<tobas::mission::Type>(_src.type);
+    _dst.data = _src.data;
   }
 };
 

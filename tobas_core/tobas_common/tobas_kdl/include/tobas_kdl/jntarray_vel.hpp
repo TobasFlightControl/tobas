@@ -7,9 +7,7 @@
 #include "./jntarray.hpp"
 #include "./utilities/utility.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class JntArrayVel
 {
@@ -18,26 +16,26 @@ public:
   JntArray qd;
 
   inline explicit JntArrayVel();
-  inline explicit JntArrayVel(size_t nj);
-  inline explicit JntArrayVel(const JntArray& q, const JntArray& qd);
-  inline explicit JntArrayVel(const JntArray& q);
+  inline explicit JntArrayVel(size_t _nj);
+  inline explicit JntArrayVel(const JntArray& _q, const JntArray& _qd);
+  inline explicit JntArrayVel(const JntArray& _q);
 
-  inline void resize(size_t nj);
+  inline void resize(size_t _nj);
   inline void setZero();
 
-  inline JntArrayVel operator+(const JntArrayVel& rhs) const;
-  inline JntArrayVel operator-(const JntArrayVel& rhs) const;
-  inline JntArrayVel operator*(double rhs) const;
-  inline JntArrayVel operator*(const doubleVel& rhs) const;
-  inline JntArrayVel operator/(double rhs) const;
-  inline JntArrayVel operator/(const doubleVel& rhs) const;
+  inline JntArrayVel operator+(const JntArrayVel& _rhs) const;
+  inline JntArrayVel operator-(const JntArrayVel& _rhs) const;
+  inline JntArrayVel operator*(double _rhs) const;
+  inline JntArrayVel operator*(const doubleVel& _rhs) const;
+  inline JntArrayVel operator/(double _rhs) const;
+  inline JntArrayVel operator/(const doubleVel& _rhs) const;
 };
 
 inline JntArrayVel::JntArrayVel()
 {
 }
 
-inline JntArrayVel::JntArrayVel(size_t nj) : q(nj), qd(nj)
+inline JntArrayVel::JntArrayVel(size_t _nj) : q(_nj), qd(_nj)
 {
 }
 
@@ -50,10 +48,10 @@ inline JntArrayVel::JntArrayVel(const JntArray& _q) : q(_q), qd(q.size())
 {
 }
 
-inline void JntArrayVel::resize(size_t nj)
+inline void JntArrayVel::resize(size_t _nj)
 {
-  q.resize(nj);
-  qd.resize(nj);
+  q.resize(_nj);
+  qd.resize(_nj);
 }
 
 inline void JntArrayVel::setZero()
@@ -62,36 +60,35 @@ inline void JntArrayVel::setZero()
   qd.setZero();
 }
 
-inline JntArrayVel JntArrayVel::operator+(const JntArrayVel& rhs) const
+inline JntArrayVel JntArrayVel::operator+(const JntArrayVel& _rhs) const
 {
-  return JntArrayVel(q + rhs.q, qd + rhs.qd);
+  return JntArrayVel(q + _rhs.q, qd + _rhs.qd);
 }
 
-inline JntArrayVel JntArrayVel::operator-(const JntArrayVel& rhs) const
+inline JntArrayVel JntArrayVel::operator-(const JntArrayVel& _rhs) const
 {
-  return JntArrayVel(q - rhs.q, qd - rhs.qd);
+  return JntArrayVel(q - _rhs.q, qd - _rhs.qd);
 }
 
-inline JntArrayVel JntArrayVel::operator*(double rhs) const
+inline JntArrayVel JntArrayVel::operator*(double _rhs) const
 {
-  return JntArrayVel(q * rhs, qd * rhs);
+  return JntArrayVel(q * _rhs, qd * _rhs);
 }
 
-inline JntArrayVel JntArrayVel::operator*(const doubleVel& rhs) const
+inline JntArrayVel JntArrayVel::operator*(const doubleVel& _rhs) const
 {
-  return JntArrayVel(q * rhs.t, qd * rhs.t + q * rhs.grad);
+  return JntArrayVel(q * _rhs.t, qd * _rhs.t + q * _rhs.grad);
 }
 
-inline JntArrayVel JntArrayVel::operator/(double rhs) const
+inline JntArrayVel JntArrayVel::operator/(double _rhs) const
 {
-  assert(rhs != 0);
-  return JntArrayVel(q / rhs, qd / rhs);
+  assert(_rhs != 0);
+  return JntArrayVel(q / _rhs, qd / _rhs);
 }
 
-inline JntArrayVel JntArrayVel::operator/(const doubleVel& rhs) const
+inline JntArrayVel JntArrayVel::operator/(const doubleVel& _rhs) const
 {
-  assert(rhs.t != 0);
-  return JntArrayVel(q / rhs.t, qd / rhs.t - q * (rhs.grad / sqr(rhs.t)));
+  assert(_rhs.t != 0);
+  return JntArrayVel(q / _rhs.t, qd / _rhs.t - q * (_rhs.grad / sqr(_rhs.t)));
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

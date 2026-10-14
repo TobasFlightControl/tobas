@@ -12,33 +12,31 @@
 #include "./tree_joint_parser.hpp"
 #include "./tree_solver_i.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class TreeIkSolverVel : public TreeSolverI
 {
   using super = TreeSolverI;
 
 public:
-  explicit TreeIkSolverVel(const Tree& tree);
+  explicit TreeIkSolverVel(const Tree& _tree);
 
   void updateInternalDataStructures() override;
 
   /**
    * Calculate inverse velocity kinematics, from joint positions and cartesian velocities to joint velocities.
    *
-   * @param q_in input joint positions
-   * @param v_in input cartesian velocity
+   * @param _q_in input joint positions
+   * @param _v_in input cartesian velocity
    * @return The solution, or the QP solver error.
    */
-  std::expected<JntArray, std::string> cartToJnt(const JntArray& q_in, const TwistMap& v_in);
+  std::expected<JntArray, std::string> cartToJnt(const JntArray& _q_in, const TwistMap& _v_in);
 
   const Eigen::Vector6d& getWeightTS() const;
-  void setWeightTS(const Eigen::Vector6d& Wt);
+  void setWeightTS(const Eigen::Vector6d& _wt);
 
   const double& getWeightJS() const;
-  void setWeightJS(double Wj);
+  void setWeightJS(double _wj);
 
 private:
   TreeJacobianSolver jnt2jac_;
@@ -53,5 +51,4 @@ private:
 
   void resize();
 };
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

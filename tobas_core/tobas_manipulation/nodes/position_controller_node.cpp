@@ -11,9 +11,7 @@
 
 #include "tobas_manipulation/constants.hpp"
 
-namespace tobas
-{
-namespace manipulation
+namespace tobas::manipulation
 {
 class PositionControllerNode : public BaseNode
 {
@@ -21,7 +19,7 @@ class PositionControllerNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit PositionControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit PositionControllerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   // Parameters
@@ -46,19 +44,19 @@ private:
   // Timer
   ros2::TimerPtr auto_reset_timer_;
 
-  bool jointSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg);
-  bool taskSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg);
+  bool jointSpaceControl(tobas_msgs::msg::JointCommandArray& _positions_msg);
+  bool taskSpaceControl(tobas_msgs::msg::JointCommandArray& _positions_msg);
 
-  void droneCb(const Drone::ConstSharedPtr& drone);
-  void currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js);
-  void targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js);
-  void targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls);
+  void droneCb(const Drone::ConstSharedPtr& _drone);
+  void currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _cur_js);
+  void targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _tar_js);
+  void targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& _tar_ls);
 
   void autoResetTimerCb();
 };
 
-PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& options)
-  : super("jointpos_trajectory_controller", nodeOptions_Default(options))
+PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& _options)
+  : super("jointpos_trajectory_controller", nodeOptions_Default(_options))
 {
   const auto jnt_names = getStringArrayParam("joint_names", {});
   if (jnt_names.empty()) {
@@ -77,7 +75,7 @@ PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& option
   auto_reset_timer_ = createTimer(kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 }
 
-bool PositionControllerNode::jointSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg)
+bool PositionControllerNode::jointSpaceControl(tobas_msgs::msg::JointCommandArray& _positions_msg)
 {
   // Pass position commands through as-is.
   for (const auto& tar_state : tar_js_->states) {
@@ -86,9 +84,9 @@ bool PositionControllerNode::jointSpaceControl(tobas_msgs::msg::JointCommandArra
       TOBAS_ERROR("The target joint '", jnt_name, "' is not included in the joint group.");
       return false;
     }
-    positions_msg.commands.emplace_back();
-    positions_msg.commands.back().name = jnt_name;
-    positions_msg.commands.back().data = tar_state.position;
+    _positions_msg.commands.emplace_back();
+    _positions_msg.commands.back().name = jnt_name;
+    _positions_msg.commands.back().data = tar_state.position;
   }
 
   return true;
@@ -101,16 +99,16 @@ bool PositionControllerNode::taskSpaceControl(tobas_msgs::msg::JointCommandArray
   return true;
 }
 
-void PositionControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
+void PositionControllerNode::droneCb(const Drone::ConstSharedPtr& _drone)
 {
-  drone_ = drone;
+  drone_ = _drone;
 
   home_js_.states.clear();
 
   // Get joint home positions.
   for (const auto& jnt_name : jnt_names_) {
-    const auto joint_it = drone->joints.find(jnt_name);
-    if (joint_it == drone->joints.end()) {
+    const auto joint_it = _drone->joints.find(jnt_name);
+    if (joint_it == _drone->joints.end()) {
       TOBAS_WARN("The drone does not have joint '", jnt_name, "'.");
       continue;
     }
@@ -163,17 +161,17 @@ void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
   positions_pub_->publish(std::move(positions_msg));
 }
 
-void PositionControllerNode::targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js)
+void PositionControllerNode::targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _tar_js)
 {
-  tar_js_ = tar_js;
+  tar_js_ = _tar_js;
   tar_ls_.reset();
 
   auto_reset_timer_->reset();
 }
 
-void PositionControllerNode::targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls)
+void PositionControllerNode::targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& _tar_ls)
 {
-  tar_ls_ = tar_ls;
+  tar_ls_ = _tar_ls;
   tar_js_.reset();
 
   auto_reset_timer_->reset();
@@ -191,7 +189,6 @@ void PositionControllerNode::autoResetTimerCb()
 
   auto_reset_timer_->cancel();
 }
-}  // namespace manipulation
-}  // namespace tobas
+}  // namespace tobas::manipulation
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::manipulation::PositionControllerNode)

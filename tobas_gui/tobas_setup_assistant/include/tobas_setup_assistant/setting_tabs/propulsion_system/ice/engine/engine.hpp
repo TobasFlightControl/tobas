@@ -8,15 +8,7 @@
 #include "./dynamics.hpp"
 #include "./response.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 class EngineWidget : public qt::TabWidget
 {
@@ -29,7 +21,7 @@ public:
   bool isValid();
 
   YAML::Node dump() const;
-  void load(const YAML::Node& node);
+  void load(const YAML::Node& _node);
 
   const EngineDynamicsWidget* dynamics() const;
   const EngineResponseWidget* response() const;
@@ -38,8 +30,4 @@ private:
   EngineDynamicsWidget* dynamics_;
   EngineResponseWidget* response_;
 };
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

@@ -28,18 +28,14 @@
 
 #include "tobas_sensor_calibration/util.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 namespace
 {
 constexpr double kRvizPointScale = 10.0;
 }  // namespace
 
-CompleteMagCalibWidget::CompleteMagCalibWidget(const rqt::RosQtBridge& bridge) : rviz_manager_("rviz_mag_calibration")
+CompleteMagCalibWidget::CompleteMagCalibWidget(const rqt::RosQtBridge& _bridge) : rviz_manager_("rviz_mag_calibration")
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Click 'Start,' and the magnetic field points (white) will begin appearing in the view.\n\n"
@@ -97,9 +93,9 @@ CompleteMagCalibWidget::CompleteMagCalibWidget(const rqt::RosQtBridge& bridge) :
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
   connect(finish_button_, &QPushButton::clicked, this, &self::onFinishButtonClicked);
   connect(cancel_button_, &QPushButton::clicked, this, &self::onCancelButtonClicked);
-  connect(&bridge, &rqt::RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
-  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
-  connect(&bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
 }
 
 void CompleteMagCalibWidget::reset()
@@ -113,11 +109,11 @@ void CompleteMagCalibWidget::reset()
   odom_.reset();
 }
 
-void CompleteMagCalibWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void CompleteMagCalibWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  node_ = std::move(node);
+  node_ = std::move(_node);
 
-  set_params_sc_.emplace(node_, path::join(ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
+  set_params_sc_.emplace(node_, path::join(_ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
 }
 
 void CompleteMagCalibWidget::clearRosInterfaces()
@@ -358,16 +354,16 @@ void CompleteMagCalibWidget::removeOutliers()
 }
 
 bool CompleteMagCalibWidget::computeHardBias(
-  const Eigen::VectorXd& x,
-  const Eigen::VectorXd& y,
-  const Eigen::VectorXd& z,
-  Eigen::Vector3d& dst)
+  const Eigen::VectorXd& _x,
+  const Eigen::VectorXd& _y,
+  const Eigen::VectorXd& _z,
+  Eigen::Vector3d& _dst)
 {
   const auto size = numActiveSamples();
 
-  const auto xx = x.cwiseProduct(x).eval();
-  const auto yy = y.cwiseProduct(y).eval();
-  const auto zz = z.cwiseProduct(z).eval();
+  const auto xx = _x.cwiseProduct(_x).eval();
+  const auto yy = _y.cwiseProduct(_y).eval();
+  const auto zz = _z.cwiseProduct(_z).eval();
 
   // Choose a rough scale.
   const auto scale = (xx + yy + zz).mean();
@@ -378,9 +374,9 @@ bool CompleteMagCalibWidget::computeHardBias(
   // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
   Eigen::MatrixX4d CE(size, 4);
   CE.col(0) = xx + yy + zz;
-  CE.col(1) = x;
-  CE.col(2) = y;
-  CE.col(3) = z;
+  CE.col(1) = _x;
+  CE.col(2) = _y;
+  CE.col(3) = _z;
   const auto sol = CE.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV).solve(ce0).eval();
 
   eigen::EllipsoidCoefficients coefs;
@@ -402,24 +398,24 @@ bool CompleteMagCalibWidget::computeHardBias(
   }
 
   // Use only the offset.
-  dst = ellipsoid.getHardBias();
+  _dst = ellipsoid.getHardBias();
   return true;
 }
 
 bool CompleteMagCalibWidget::computeSoftBias(
-  const Eigen::VectorXd& x,
-  const Eigen::VectorXd& y,
-  const Eigen::VectorXd& z,
-  Eigen::Vector6d& dst)
+  const Eigen::VectorXd& _x,
+  const Eigen::VectorXd& _y,
+  const Eigen::VectorXd& _z,
+  Eigen::Vector6d& _dst)
 {
   const auto size = numActiveSamples();
 
-  const auto xx = x.cwiseProduct(x).eval();
-  const auto yy = y.cwiseProduct(y).eval();
-  const auto zz = z.cwiseProduct(z).eval();
-  const auto xy = x.cwiseProduct(y).eval();
-  const auto yz = y.cwiseProduct(z).eval();
-  const auto zx = z.cwiseProduct(x).eval();
+  const auto xx = _x.cwiseProduct(_x).eval();
+  const auto yy = _y.cwiseProduct(_y).eval();
+  const auto zz = _z.cwiseProduct(_z).eval();
+  const auto xy = _x.cwiseProduct(_y).eval();
+  const auto yz = _y.cwiseProduct(_z).eval();
+  const auto zx = _z.cwiseProduct(_x).eval();
 
   // Choose a rough scale.
   const auto scale = (xx + yy + zz).mean();
@@ -456,16 +452,16 @@ bool CompleteMagCalibWidget::computeSoftBias(
     return false;
   }
 
-  dst = ellipsoid.getSoftBias();
+  _dst = ellipsoid.getSoftBias();
   return true;
 }
 
-bool CompleteMagCalibWidget::updateRemoteParameters(const Eigen::Vector3d& hard_bias, const Eigen::Vector6d& soft_bias)
+bool CompleteMagCalibWidget::updateRemoteParameters(const Eigen::Vector3d& _hard_bias, const Eigen::Vector6d& _soft_bias)
 {
   // Create parameters.
   const auto req = std::make_shared<tobas_real_msgs::srv::SetMagnetometerParams::Request>();
-  req->hard_bias = eigen::toStdArray(hard_bias);
-  req->soft_bias = eigen::toStdArray(soft_bias);
+  req->hard_bias = eigen::toStdArray(_hard_bias);
+  req->soft_bias = eigen::toStdArray(_soft_bias);
 
   // Update parameters.
   const auto res = set_params_sc_->sendRequestAndWait(req);
@@ -483,7 +479,7 @@ bool CompleteMagCalibWidget::updateRemoteParameters(const Eigen::Vector3d& hard_
   return true;
 }
 
-void CompleteMagCalibWidget::displayPointClouds(const eigen::Ellipsoid& ellipsoid)
+void CompleteMagCalibWidget::displayPointClouds(const eigen::Ellipsoid& _ellipsoid)
 {
   auto used_points = std::make_unique<sensor_msgs::msg::PointCloud>();
   auto removed_points = std::make_unique<sensor_msgs::msg::PointCloud>();
@@ -505,7 +501,7 @@ void CompleteMagCalibWidget::displayPointClouds(const eigen::Ellipsoid& ellipsoi
       used_points->points.emplace_back();
       tf::point32EigenToMsg(p_raw.cast<float>() * kRvizPointScale, used_points->points.back());
 
-      const auto p_calib = ellipsoid.toUnitSphere(p_raw);
+      const auto p_calib = _ellipsoid.toUnitSphere(p_raw);
       calibrated_points->points.emplace_back();
       tf::point32EigenToMsg(p_calib.cast<float>() * kRvizPointScale, calibrated_points->points.back());
     }
@@ -520,7 +516,7 @@ void CompleteMagCalibWidget::displayPointClouds(const eigen::Ellipsoid& ellipsoi
   calibrated_pub_->publish(std::move(calibrated_points));
 }
 
-void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& ellipsoid)
+void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& _ellipsoid)
 {
   constexpr int kEllipsoidLineStep = 20;  // [deg]
 
@@ -546,7 +542,7 @@ void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& e
     const auto theta = st::deg2rad(theta_deg);
     for (int phi_deg = 0; phi_deg <= 360; ++phi_deg) {
       const auto phi = st::deg2rad(phi_deg);
-      addEllipsoidPoint(theta, phi, ellipsoid, marker.points);
+      addEllipsoidPoint(theta, phi, _ellipsoid, marker.points);
     }
 
     markers->markers.push_back(marker);
@@ -560,7 +556,7 @@ void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& e
     const auto phi = st::deg2rad(phi_deg);
     for (int theta_deg = -90; theta_deg <= 90; ++theta_deg) {
       const auto theta = st::deg2rad(theta_deg);
-      addEllipsoidPoint(theta, phi, ellipsoid, marker.points);
+      addEllipsoidPoint(theta, phi, _ellipsoid, marker.points);
     }
 
     markers->markers.push_back(marker);
@@ -572,17 +568,17 @@ void CompleteMagCalibWidget::displayEllipsoidWireFrame(const eigen::Ellipsoid& e
 }
 
 void CompleteMagCalibWidget::addEllipsoidPoint(
-  double theta,
-  double phi,
-  const eigen::Ellipsoid& ellipsoid,
-  std::vector<geometry_msgs::msg::Point>& points)
+  double _theta,
+  double _phi,
+  const eigen::Ellipsoid& _ellipsoid,
+  std::vector<geometry_msgs::msg::Point>& _points)
 {
   const Eigen::Vector3d p(
-    std::cos(theta) * std::cos(phi), std::cos(theta) * std::sin(phi), std::sin(theta));  // Unit sphere
-  const Eigen::Vector3d q = ellipsoid.fromUnitSphere(p);                                 // Ellipsoid
+    std::cos(_theta) * std::cos(_phi), std::cos(_theta) * std::sin(_phi), std::sin(_theta));  // Unit sphere
+  const Eigen::Vector3d q = _ellipsoid.fromUnitSphere(p);                                     // Ellipsoid
 
-  points.emplace_back();
-  tf::pointEigenToMsg(kRvizPointScale * q, points.back());
+  _points.emplace_back();
+  tf::pointEigenToMsg(kRvizPointScale * q, _points.back());
 }
 
 void CompleteMagCalibWidget::onStartButtonClicked()
@@ -693,19 +689,19 @@ void CompleteMagCalibWidget::onFinishButtonClicked()
   displayEllipsoidWireFrame(ellipsoid);
 
   // Show debug information.
-  std::cout << "The number of samples before preprocessing: " << cnt_ << std::endl;
-  std::cout << "The number of samples after preprocessing: " << size << std::endl;
-  std::cout << "The number of removed samples: " << cnt_ - size << std::endl;
-  std::cout << "Hard-iron bias: " << hard_bias.transpose() << std::endl;
-  std::cout << "Soft-iron bias: " << soft_bias.transpose() << std::endl;
+  std::cout << "The number of samples before preprocessing: " << cnt_ << '\n';
+  std::cout << "The number of samples after preprocessing: " << size << '\n';
+  std::cout << "The number of removed samples: " << cnt_ - size << '\n';
+  std::cout << "Hard-iron bias: " << hard_bias.transpose() << '\n';
+  std::cout << "Soft-iron bias: " << soft_bias.transpose() << '\n';
 
   resetToPreStart();
   qt::qInfoBox(this, "Magnetometer calibration finished successfully. Please restart the flight controller.");
 }
 
-void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg)
+void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& _msg)
 {
-  mag_raw_ = msg;
+  mag_raw_ = _msg;
 
   if (!running_) {
     return;
@@ -713,7 +709,7 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
 
   // First data point.
   if (cnt_ == 0) {
-    last_time_ = msg->header.stamp;
+    last_time_ = _msg->header.stamp;
     last_face_idx_ = computeFaceIndex();
     face_circles_.at(last_face_idx_)->setSelected(true);
   }
@@ -726,17 +722,17 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
   }
 
   // Add data.
-  buf_.at(cnt_++) = msg->mag;
+  buf_.at(cnt_++) = _msg->mag;
 
   // Publish a display message.
   auto point_msg = std::make_unique<geometry_msgs::msg::PointStamped>();
-  point_msg->header = msg->header;
+  point_msg->header = _msg->header;
   point_msg->header.frame_id = frame::kWorld;  // Match the RViz `Global Options/Fixed Frame` setting.
-  kdl::pointKDLToMsg(msg->mag * kRvizPointScale, point_msg->point);
+  kdl::pointKDLToMsg(_msg->mag * kRvizPointScale, point_msg->point);
   samples_pub_->publish(std::move(point_msg));
 
   // Update the time.
-  const auto& cur_time = msg->header.stamp;
+  const auto& cur_time = _msg->header.stamp;
   const auto dt = (cur_time - last_time_).seconds();
   last_time_ = cur_time;
 
@@ -791,21 +787,19 @@ void CompleteMagCalibWidget::magCb(const tobas_msgs::MagneticField::ConstSharedP
   }
 }
 
-void CompleteMagCalibWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& msg)
+void CompleteMagCalibWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _msg)
 {
-  if (running_ && msg->data) {
+  if (running_ && _msg->data) {
     resetToPreStart();
     clearDisplayPoints();
     qt::qWarnBox(this, "Magnetometer calibration was canceled because an arming command was issued.");
   }
 
-  arming_ = msg;
+  arming_ = _msg;
 }
 
-void CompleteMagCalibWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& msg)
+void CompleteMagCalibWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _msg)
 {
-  odom_ = msg;
+  odom_ = _msg;
 }
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

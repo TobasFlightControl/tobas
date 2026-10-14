@@ -12,7 +12,8 @@
   {                                                                                                                    \
     if (!static_cast<bool>(expr)) {                                                                                    \
       std::cerr << ::tobas::st::kRedPrefix << "Check failed: " << #expr << " (" << __FILE__ << ":" << __LINE__ << ")"  \
-                << ::tobas::st::kColorReset << std::endl;                                                              \
+                << ::tobas::st::kColorReset << '\n'                                                                    \
+                << std::flush;                                                                                         \
       std::abort();                                                                                                    \
     }                                                                                                                  \
   }

@@ -1,0 +1,214 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
+#include "tobas_mcu_driver/tobas_t2/dshot.hpp"
+
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <format>
+#include <iostream>
+#include <numbers>
+
+#include <tobas_std_tools/error.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
+
+namespace tobas::t2
+{
+namespace
+{
+constexpr uint32_t kParameterMask = 0xFFFFFFF;
+}  // namespace
+
+DShot::DShot() noexcept : crc_(algo::CRC32Left::CRC_32)
+{
+  crc_.initialize();
+}
+
+bool DShot::initialize(const char* _spi_device) noexcept
+{
+  // Initialize SPI communication.
+  if (!spi_.initialize(_spi_device, tx_buf_, rx_buf_, 12'000'000)) {
+    return false;
+  }
+
+  // Initialize the number of motor pole pairs.
+  half_num_poles_.fill(1);
+
+  // Set no-operation commands for all channels.
+  for (size_t ch = 0; ch < kChannelSize; ++ch) {
+    setNoOperation(ch);
+  }
+
+  // Discard the first response.
+  if (!spi_.transfer(sizeof(tx_buf_))) {
+    return false;
+  }
+
+  return true;
+}
+
+std::expected<void, std::string> DShot::transfer() noexcept
+{
+  // Compute CRC.
+  tx_buf_[kChannelSize] = crc_.compute(reinterpret_cast<const uint8_t*>(tx_buf_), sizeof(uint32_t) * kChannelSize);
+
+  // Transfer.
+  if (!spi_.transfer(sizeof(tx_buf_))) {
+    return std::unexpected("SPI transfer failed: " + st::strError());
+  }
+
+  // Check CRC.
+  const auto cs = rx_buf_[kChannelSize];
+  const auto cr = crc_.compute(reinterpret_cast<const uint8_t*>(rx_buf_), sizeof(uint32_t) * kChannelSize);
+  if (cs != cr) {
+    return std::unexpected(std::format("CRC mismatch: received 0x{:08X}, computed 0x{:08X}.", cs, cr));
+  }
+
+  return {};
+}
+
+void DShot::setThrottle(size_t _ch, uint16_t _throttle) noexcept
+{
+  assert(_ch < kChannelSize);
+
+  constexpr uint8_t kSetThrottleCmd = 0;
+  tx_buf_[_ch] = (kSetThrottleCmd << 28) | (_throttle & kParameterMask);
+}
+
+void DShot::setTargetSpeed(size_t _ch, double _rps) noexcept
+{
+  assert(_ch < kChannelSize);
+
+  constexpr uint8_t kSetTargetRPMCmd = 1;
+  const auto rpm = static_cast<uint32_t>(st::rps2rpm(std::max(_rps, 0.0)));
+  tx_buf_[_ch] = (kSetTargetRPMCmd << 28) | (rpm & kParameterMask);
+}
+
+void DShot::setKv(size_t _ch, double _kv_si) noexcept
+{
+  assert(_ch < kChannelSize);
+  assert(_kv_si > 0.0);
+
+  constexpr uint8_t kSetKvCmd = 2;
+  const auto kv = static_cast<uint32_t>(st::rps2rpm(_kv_si));  // [rpm/V]
+  tx_buf_[_ch] = (kSetKvCmd << 28) | (kv & kParameterMask);
+}
+
+void DShot::setInternalResistance(size_t _ch, double _resistance) noexcept
+{
+  assert(_ch < kChannelSize);
+  assert(_resistance > 0.0);
+
+  constexpr uint8_t kSetResistanceCmd = 3;
+  const auto resistance_mohm = static_cast<uint32_t>(_resistance * 1e+3);
+  tx_buf_[_ch] = (kSetResistanceCmd << 28) | (resistance_mohm & kParameterMask);
+}
+
+void DShot::setPropellerDiameter(size_t _ch, double _diameter) noexcept
+{
+  assert(_ch < kChannelSize);
+  assert(_diameter > 0.0);
+
+  constexpr uint8_t kSetDiameterCmd = 4;
+  const auto diameter_mm = static_cast<uint32_t>(_diameter * 1e+3);
+  tx_buf_[_ch] = (kSetDiameterCmd << 28) | (diameter_mm & kParameterMask);
+}
+
+void DShot::setMomentConstant(size_t _ch, double _moment_const) noexcept
+{
+  assert(_ch < kChannelSize);
+  assert(_moment_const > 0.0);
+
+  constexpr uint8_t kSetMomentConstCmd = 5;
+  const auto moment_const_scaled = static_cast<uint32_t>(_moment_const * 1e+9);
+  tx_buf_[_ch] = (kSetMomentConstCmd << 28) | (moment_const_scaled & kParameterMask);
+}
+
+void DShot::setNumPoles(size_t _ch, uint16_t _num_poles) noexcept
+{
+  assert(_ch < kChannelSize);
+  assert(_num_poles > 0);
+  assert(_num_poles % 2 == 0);
+
+  constexpr uint8_t kSetHalfNumPolesCmd = 6;
+  const auto half_num_poles = _num_poles / 2;
+  tx_buf_[_ch] = (kSetHalfNumPolesCmd << 28) | (half_num_poles & kParameterMask);
+  half_num_poles_.at(_ch) = half_num_poles;
+}
+
+void DShot::setRpmControlGain(size_t _ch, uint8_t _gain) noexcept
+{
+  assert(_ch < kChannelSize);
+
+  constexpr uint8_t kSetGainCmd = 7;
+  tx_buf_[_ch] = (kSetGainCmd << 28) | (_gain & kParameterMask);
+}
+
+void DShot::setNoOperation(size_t _ch) noexcept
+{
+  assert(_ch < kChannelSize);
+
+  constexpr uint8_t kNoOperationCmd = UINT8_MAX;
+  tx_buf_[_ch] = (kNoOperationCmd << 28);
+}
+
+bool DShot::getValidity(size_t _ch) noexcept
+{
+  return rx_buf_[_ch] > 0;
+}
+
+double DShot::getSpeed(size_t _ch) noexcept
+{
+  const auto erpm = (rx_buf_[_ch] >> 0) & 0x0FFF;
+
+  if (erpm == 0) {
+    return NAN;
+  }
+  else if (erpm == 0x0FFF) {
+    return 0.0;
+  }
+
+  const auto exp = erpm >> 9;
+  const auto base = erpm & 0x01FF;
+  const auto eperiod_us = (base << exp);
+
+  const auto period_us = eperiod_us * half_num_poles_.at(_ch);
+  return ((2.0 * std::numbers::pi) * 1e+6) / static_cast<double>(period_us);
+}
+
+double DShot::getTemperature(size_t _ch) noexcept
+{
+  const auto temperature = (rx_buf_[_ch] >> 12) & 0x0F;
+  return static_cast<double>(temperature << 4);
+}
+
+double DShot::getVoltage(size_t _ch) noexcept
+{
+  const auto voltage = (rx_buf_[_ch] >> 16) & 0xFF;
+  return static_cast<double>(voltage) / 4;
+}
+
+double DShot::getCurrent(size_t _ch) noexcept
+{
+  const auto current = (rx_buf_[_ch] >> 24) & 0xFF;
+  return static_cast<double>(current);
+}
+
+void DShot::printCurrentState(size_t _ch) noexcept
+{
+  std::cout << "Channel " << _ch << ":\n";
+  std::cout << "\tValid             : " << std::boolalpha << getValidity(_ch) << std::noboolalpha << '\n';
+  std::cout << "\tSpeed [rpm]       : " << st::rps2rpm(getSpeed(_ch)) << '\n';
+  std::cout << "\tTemperature [degC]: " << getTemperature(_ch) << '\n';
+  std::cout << "\tVoltage [V]       : " << getVoltage(_ch) << '\n';
+  std::cout << "\tCurrent [A]       : " << getCurrent(_ch) << '\n';
+}
+
+void DShot::printCurrentStates() noexcept
+{
+  for (size_t ch = 0; ch < DShot::kChannelSize; ++ch) {
+    printCurrentState(ch);
+  }
+}
+}  // namespace tobas::t2

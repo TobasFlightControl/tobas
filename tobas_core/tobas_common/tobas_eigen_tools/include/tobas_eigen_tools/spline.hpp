@@ -6,9 +6,7 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/unsupported/Eigen/Splines>
 
-namespace tobas
-{
-namespace eigen
+namespace tobas::eigen
 {
 /**
  * Polynomial interpolation class that accepts arbitrary horizontal-axis values.
@@ -19,9 +17,9 @@ namespace eigen
 class SplineFunction
 {
 public:
-  explicit SplineFunction(const Eigen::VectorXd& x_vec, const Eigen::VectorXd& y_vec, size_t degree);
+  explicit SplineFunction(const Eigen::VectorXd& _x_vec, const Eigen::VectorXd& _y_vec, size_t _degree);
 
-  double operator()(double x) const;
+  double operator()(double _x) const;
 
 private:
   double x_min_;
@@ -29,8 +27,7 @@ private:
   Eigen::Spline<double, 1> spline_;  ///< Spline of one-dimensional points
 
   /** Helpers to scale X values down to [0, 1]. */
-  double scaledValue(double x) const;
-  Eigen::RowVectorXd scaledValues(const Eigen::VectorXd& x_vec) const;
+  double scaledValue(double _x) const;
+  Eigen::RowVectorXd scaledValues(const Eigen::VectorXd& _x_vec) const;
 };
-}  // namespace eigen
-}  // namespace tobas
+}  // namespace tobas::eigen

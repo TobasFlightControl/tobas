@@ -3,11 +3,7 @@
 
 #include "tobas_control_system/mission_planner/commands/land.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 LandWidget::LandWidget()
 {
@@ -31,9 +27,9 @@ mission::Land LandWidget::dump() const
   return res;
 }
 
-void LandWidget::load(const mission::Land& src)
+void LandWidget::load(const mission::Land& _src)
 {
-  speed(src.speed);
+  speed(_src.speed);
 }
 
 double LandWidget::speed() const
@@ -41,10 +37,8 @@ double LandWidget::speed() const
   return getValueOrDefault(speed_);
 }
 
-void LandWidget::speed(double value)
+void LandWidget::speed(double _value)
 {
-  setValueOrDefault(speed_, value);
+  setValueOrDefault(speed_, _value);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

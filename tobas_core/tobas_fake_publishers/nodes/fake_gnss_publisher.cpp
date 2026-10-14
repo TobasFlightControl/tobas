@@ -16,7 +16,7 @@ class FakeGnssPublisherNode : public BaseNode
   using super = BaseNode;
 
 public:
-  explicit FakeGnssPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit FakeGnssPublisherNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   double pos_stddev_;  ///< [m]
@@ -28,8 +28,8 @@ private:
   void timerCb();
 };
 
-FakeGnssPublisherNode::FakeGnssPublisherNode(const rclcpp::NodeOptions& options)
-  : super("fake_batt_publisher", nodeOptions_Default(options))
+FakeGnssPublisherNode::FakeGnssPublisherNode(const rclcpp::NodeOptions& _options)
+  : super("fake_batt_publisher", nodeOptions_Default(_options))
 {
   pos_stddev_ = getDoubleParam("position_stddev", 3.0);
   vel_stddev_ = getDoubleParam("velocity_stddev", 0.3);

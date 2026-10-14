@@ -5,11 +5,8 @@
 
 #include <cinttypes>
 
-namespace tobas
-{
-namespace st
+namespace tobas::st
 {
 /** Calculate GPS delay from the given GPS ToW (GPS Time of Week) and UTC obtained from an NTP server. */
-long computeGpsDelayFromToW(uint32_t gps_tow_ms);
-}  // namespace st
-}  // namespace tobas
+long computeGpsDelayFromToW(uint32_t _gps_tow_ms);
+}  // namespace tobas::st

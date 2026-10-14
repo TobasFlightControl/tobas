@@ -8,13 +8,9 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-namespace tobas
+namespace tobas::gui::ctrl
 {
-namespace gui
-{
-namespace ctrl
-{
-GnssViewerWidget::GnssViewerWidget(const rqt::RosQtBridge& bridge)
+GnssViewerWidget::GnssViewerWidget(const rqt::RosQtBridge& _bridge)
 {
   status_ = new qt::FramedLabel();
   nsats_ = new qt::FramedLabel();
@@ -31,7 +27,7 @@ GnssViewerWidget::GnssViewerWidget(const rqt::RosQtBridge& bridge)
   setLayout(form);
 
   // Connection
-  connect(&bridge, &rqt::RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
 }
 
 void GnssViewerWidget::reset()
@@ -40,9 +36,9 @@ void GnssViewerWidget::reset()
   nsats_->clear();
 }
 
-void GnssViewerWidget::setStatus(uint8_t status)
+void GnssViewerWidget::setStatus(uint8_t _status)
 {
-  switch (status) {
+  switch (_status) {
     case tobas_msgs::msg::Gnss::NO_FIX:
       status_->setText("No Fix");
       break;
@@ -62,22 +58,20 @@ void GnssViewerWidget::setStatus(uint8_t status)
       status_->setText("Time Fix Only");
       break;
     default:
-      qWarning() << "Unknown status:" << (int)status;
+      qWarning() << "Unknown status:" << (int)_status;
       status_->setText("Unknown");
       break;
   }
 }
 
-void GnssViewerWidget::setNSats(int nsats)
+void GnssViewerWidget::setNSats(int _nsats)
 {
-  nsats_->setText(QString::number(nsats));
+  nsats_->setText(QString::number(_nsats));
 }
 
-void GnssViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
+void GnssViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss)
 {
-  setStatus(gnss->fix_type);
-  setNSats(gnss->num_satellites_used);
+  setStatus(_gnss->fix_type);
+  setNSats(_gnss->num_satellites_used);
 }
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

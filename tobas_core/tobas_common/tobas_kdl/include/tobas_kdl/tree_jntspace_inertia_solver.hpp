@@ -7,25 +7,23 @@
 #include "./tree_id_solver.hpp"
 #include "./tree_solver_i.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 class TreeJntSpaceInertiaSolver : public TreeSolverI
 {
   using super = TreeSolverI;
 
 public:
-  explicit TreeJntSpaceInertiaSolver(const Tree& tree);
+  explicit TreeJntSpaceInertiaSolver(const Tree& _tree);
 
   void updateInternalDataStructures() override;
 
   /**
    * Compute the joint-space inertia matrix using the unit vector method.
    *
-   * @param q Joint angles.
+   * @param _q Joint angles.
    */
-  const JntSpaceInertiaMatrix& jntToMass(const JntArray& q);
+  const JntSpaceInertiaMatrix& jntToMass(const JntArray& _q);
 
 private:
   TreeIdSolver rne_bias_, rne_mass_;
@@ -39,5 +37,4 @@ private:
   void resize();
 };
 
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

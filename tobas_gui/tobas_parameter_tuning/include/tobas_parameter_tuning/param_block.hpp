@@ -17,11 +17,7 @@
 
 #include <tobas_dparam_msgs/srv/get_params.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace param
+namespace tobas::gui::param
 {
 struct IntConfig
 {
@@ -60,13 +56,13 @@ class ParamBlockWidget : public QWidget
   using self = ParamBlockWidget;
 
 public:
-  explicit ParamBlockWidget(const std::string& node_name, const QString& label);
+  explicit ParamBlockWidget(const std::string& _node_name, const QString& _label);
 
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
   bool load();
-  bool save(const QString& path);
+  bool save(const QString& _path);
   void clear();
 
   bool setToInitialValues();
@@ -87,21 +83,19 @@ private:
   YAML::Node createCurrentConfig() const;
 
   template <typename Config>
-  bool setValue(const std::string& name, const Config& config, int32_t value);
+  bool setValue(const std::string& _name, const Config& _config, int32_t _value);
 
 private Q_SLOTS:
-  void onIntDownButtonClicked(const std::string& name);
-  void onIntUpButtonClicked(const std::string& name);
-  void onIntResetButtonClicked(const std::string& name);
-  void onIntHomeButtonClicked(const std::string& name);
-  void onIntSliderValueChanged(long value, const std::string& name);
+  void onIntDownButtonClicked(const std::string& _name);
+  void onIntUpButtonClicked(const std::string& _name);
+  void onIntResetButtonClicked(const std::string& _name);
+  void onIntHomeButtonClicked(const std::string& _name);
+  void onIntSliderValueChanged(long _value, const std::string& _name);
 
-  void onDoubleDownButtonClicked(const std::string& name);
-  void onDoubleUpButtonClicked(const std::string& name);
-  void onDoubleResetButtonClicked(const std::string& name);
-  void onDoubleHomeButtonClicked(const std::string& name);
-  void onDoubleSliderValueChanged(long value, const std::string& name);
+  void onDoubleDownButtonClicked(const std::string& _name);
+  void onDoubleUpButtonClicked(const std::string& _name);
+  void onDoubleResetButtonClicked(const std::string& _name);
+  void onDoubleHomeButtonClicked(const std::string& _name);
+  void onDoubleSliderValueChanged(long _value, const std::string& _name);
 };
-}  // namespace param
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::param

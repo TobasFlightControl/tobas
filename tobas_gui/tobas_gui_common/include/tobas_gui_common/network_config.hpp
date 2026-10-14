@@ -7,19 +7,13 @@
 
 #include <QString>
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 struct NetworkConfig
 {
   QString interface;
 };
 
-std::expected<NetworkConfig, QString> loadNetworkConfig(const QString& path);
-std::expected<void, QString> saveNetworkConfig(const QString& path, const NetworkConfig& config);
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+std::expected<NetworkConfig, QString> loadNetworkConfig(const QString& _path);
+std::expected<void, QString> saveNetworkConfig(const QString& _path, const NetworkConfig& _config);
+}  // namespace tobas::gui::cmn

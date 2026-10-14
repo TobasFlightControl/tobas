@@ -11,9 +11,7 @@
 #include "./rigid_body_inertia.hpp"
 #include "./segment_jacobian.hpp"
 
-namespace tobas
-{
-namespace kdl
+namespace tobas::kdl
 {
 /**
  * This class encapsulates a simple segment, that is a "rigid body" (i.e., a frame and a rigid body inertia)
@@ -32,28 +30,28 @@ public:
   /**
    * Constructor of the segment.
    *
-   * @param name Name of the segment
-   * @param joint Joint of the segment
-   * @param f_tip Frame from the end of the joint to the tip of the segment
-   * @param I Rigid body inertia of the segment
+   * @param _name Name of the segment
+   * @param _joint Joint of the segment
+   * @param _f_tip Frame from the end of the joint to the tip of the segment
+   * @param _i Rigid body inertia of the segment
    */
   inline explicit Segment(
-    const std::string& name = "",
-    const Joint& joint = Joint(),
-    const Frame& f_tip = Frame::Identity(),
-    const RigidBodyInertia& I = RigidBodyInertia::Zero());
+    const std::string& _name = "",
+    const Joint& _joint = Joint(),
+    const Frame& _f_tip = Frame::Identity(),
+    const RigidBodyInertia& _i = RigidBodyInertia::Zero());
 
   /** Check validity (except for the root segment). */
   std::expected<void, std::string> validate() const;
 
   /** Request the pose of the segment wrt. the parent frame. */
-  inline Frame pose(double q) const;
+  inline Frame pose(double _q) const;
 
   /** Request the 6D-velocity of the tip of the segment wrt. the parent frame. */
-  inline Twist twist(double q, double qd) const;
+  inline Twist twist(double _q, double _qd) const;
 
   /** Request the jacobian for the joint of this segment wrt. the parent frame. */
-  inline SegmentJacobian jacobian(double q) const;
+  inline SegmentJacobian jacobian(double _q) const;
 
   /** Request the name of the segment. */
   inline const std::string& name() const;
@@ -65,13 +63,13 @@ public:
    * Compute the first derivative of the rotation matrix from the parent segment to the tip of this segment
    * with respect to the joint position.
    */
-  inline Eigen::Matrix3d rotGrad(double q) const;
+  inline Eigen::Matrix3d rotGrad(double _q) const;
 
   /**
    * Compute the second derivative of the rotation matrix from the parent segment to the tip of this segment
    * with respect to the joint position.
    */
-  inline Eigen::Matrix3d rotGrad2(double q) const;
+  inline Eigen::Matrix3d rotGrad2(double _q) const;
 
   /** Request the frame from the end of the joint (= drive shaft) to the tip of the segment. */
   inline Frame frame() const;
@@ -79,7 +77,7 @@ public:
   /** Request the inertia of the segment. */
   inline const RigidBodyInertia& inertia() const;
 
-  friend std::ostream& operator<<(std::ostream& os, const Segment& arg);
+  friend std::ostream& operator<<(std::ostream& _os, const Segment& _arg);
 
 private:
   std::string name_;
@@ -88,34 +86,34 @@ private:
   RigidBodyInertia I_;
 };
 
-inline Segment::Segment(const std::string& name, const Joint& joint, const Frame& f_tip, const RigidBodyInertia& I)
-  : name_(name), joint_(joint), f_tip_(joint.pose(0.0).inverse() * f_tip), I_(I)
+inline Segment::Segment(const std::string& _name, const Joint& _joint, const Frame& _f_tip, const RigidBodyInertia& _i)
+  : name_(_name), joint_(_joint), f_tip_(_joint.pose(0.0).inverse() * _f_tip), I_(_i)
 {
 }
 
-inline Frame Segment::pose(double q) const
+inline Frame Segment::pose(double _q) const
 {
-  return joint_.pose(q) * f_tip_;
+  return joint_.pose(_q) * f_tip_;
 }
 
-inline Twist Segment::twist(double q, double qd) const
+inline Twist Segment::twist(double _q, double _qd) const
 {
-  return joint_.twist(qd).refPoint(joint_.pose(q).M * f_tip_.p);
+  return joint_.twist(_qd).refPoint(joint_.pose(_q).M * f_tip_.p);
 }
 
-inline SegmentJacobian Segment::jacobian(double q) const
+inline SegmentJacobian Segment::jacobian(double _q) const
 {
-  return joint_.jacobian().refPoint(joint_.pose(q).M * f_tip_.p);
+  return joint_.jacobian().refPoint(joint_.pose(_q).M * f_tip_.p);
 }
 
-inline Eigen::Matrix3d Segment::rotGrad(double q) const
+inline Eigen::Matrix3d Segment::rotGrad(double _q) const
 {
-  return joint_.rotGrad(q) * f_tip_.M.data;
+  return joint_.rotGrad(_q) * f_tip_.M.data;
 }
 
-inline Eigen::Matrix3d Segment::rotGrad2(double q) const
+inline Eigen::Matrix3d Segment::rotGrad2(double _q) const
 {
-  return joint_.rotGrad2(q) * f_tip_.M.data;
+  return joint_.rotGrad2(_q) * f_tip_.M.data;
 }
 
 inline const std::string& Segment::name() const
@@ -137,5 +135,4 @@ inline const RigidBodyInertia& Segment::inertia() const
 {
   return I_;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

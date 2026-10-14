@@ -8,11 +8,7 @@
 
 #include <tobas_std_tools/check.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 namespace
 {
@@ -71,49 +67,49 @@ double PlaybackControlWidget::getCurrentTime() const
   return slider_->value() * 1e-3;
 }
 
-void PlaybackControlWidget::setDuration(double sec)
+void PlaybackControlWidget::setDuration(double _sec)
 {
-  TOBAS_CHECK(sec >= 0.0);
+  TOBAS_CHECK(_sec >= 0.0);
 
-  slider_->setMaximum(sec * 1e+3);
+  slider_->setMaximum(_sec * 1e+3);
   updateTimeLabels(slider_->value());
 }
 
-void PlaybackControlWidget::setCurrentTime(double sec)
+void PlaybackControlWidget::setCurrentTime(double _sec)
 {
-  TOBAS_CHECK(sec >= 0.0);
+  TOBAS_CHECK(_sec >= 0.0);
 
-  slider_->setValue(sec * 1e+3);
+  slider_->setValue(_sec * 1e+3);
 }
 
-void PlaybackControlWidget::updateCurrentTimeLabel(int cur_msec)
+void PlaybackControlWidget::updateCurrentTimeLabel(int _cur_msec)
 {
-  current_time_->setText(formatTime(cur_msec));
+  current_time_->setText(formatTime(_cur_msec));
 }
 
-void PlaybackControlWidget::updateRemainingTimeLabel(int cur_msec)
+void PlaybackControlWidget::updateRemainingTimeLabel(int _cur_msec)
 {
-  remaining_time_->setText(formatTime(slider_->maximum() - cur_msec));
+  remaining_time_->setText(formatTime(slider_->maximum() - _cur_msec));
 }
 
-void PlaybackControlWidget::updateTimeLabels(int cur_msec)
+void PlaybackControlWidget::updateTimeLabels(int _cur_msec)
 {
-  updateCurrentTimeLabel(cur_msec);
-  updateRemainingTimeLabel(cur_msec);
+  updateCurrentTimeLabel(_cur_msec);
+  updateRemainingTimeLabel(_cur_msec);
 }
 
-QString PlaybackControlWidget::formatTime(int msec)
+QString PlaybackControlWidget::formatTime(int _msec)
 {
-  auto seconds = msec / 1000;
+  auto seconds = _msec / 1000;
   const auto minutes = seconds / 60;
   seconds %= 60;
 
   return QString("%1:%2").arg(minutes, 2, 10, QLatin1Char('0')).arg(seconds, 2, 10, QLatin1Char('0'));
 }
 
-void PlaybackControlWidget::onPlayButtonToggled(bool checked)
+void PlaybackControlWidget::onPlayButtonToggled(bool _checked)
 {
-  if (checked) {
+  if (_checked) {
     // If playback has finished, return to the beginning and start.
     if (slider_->value() == slider_->maximum()) {
       slider_->setValue(0);
@@ -130,10 +126,10 @@ void PlaybackControlWidget::onPlayButtonToggled(bool checked)
   Q_EMIT timeChanged(getCurrentTime());
 }
 
-void PlaybackControlWidget::onSliderValueChanged(int value)
+void PlaybackControlWidget::onSliderValueChanged(int _value)
 {
-  updateTimeLabels(value);
-  Q_EMIT timeChanged(value * 1e-3);
+  updateTimeLabels(_value);
+  Q_EMIT timeChanged(_value * 1e-3);
 }
 
 void PlaybackControlWidget::onSliderPressed()
@@ -162,6 +158,4 @@ void PlaybackControlWidget::onTimerTimeout()
 
   slider_->setValue(next_time);
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

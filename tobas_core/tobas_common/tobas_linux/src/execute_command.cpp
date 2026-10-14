@@ -11,27 +11,25 @@
 
 #include <tobas_std_tools/error.hpp>
 
-namespace tobas
+namespace tobas::linux
 {
-namespace linux
-{
-std::expected<std::string, std::string> executeCommand(std::string command)
+std::expected<std::string, std::string> executeCommand(std::string _command)
 {
   // Capture stderr together with stdout so command failures retain their diagnostic output.
   // With a simple stdout redirection, duplicate the pipe's stdout onto stderr before redirecting stdout to the file.
   // This keeps diagnostics in the pipe without mixing them into the file.
   // TODO: Support more complex shell redirection syntax.
-  const auto pos = command.find('>');
+  const auto pos = _command.find('>');
   if (pos == std::string::npos) {
-    command += " 2>&1";  // Append to the end when there is no redirection.
+    _command += " 2>&1";  // Append to the end when there is no redirection.
   }
   else {
-    command.insert(pos, " 2>&1 1");  // Insert in the middle so only standard output is written to the file.
+    _command.insert(pos, " 2>&1 1");  // Insert in the middle so only standard output is written to the file.
   }
 
   // popen runs the command through a shell and exposes its stdout as a readable pipe.
   // The deleter closes the pipe and waits for the child even when reading exits early.
-  std::unique_ptr<FILE, int (*)(FILE*)> pipe(popen(command.c_str(), "r"), pclose);
+  std::unique_ptr<FILE, int (*)(FILE*)> pipe(popen(_command.c_str(), "r"), pclose);
   if (!pipe) {
     return std::unexpected("popen() failed: " + st::strError());
   }
@@ -79,5 +77,4 @@ std::expected<std::string, std::string> executeCommand(std::string command)
   }
   return std::unexpected(error);
 }
-}  // namespace linux
-}  // namespace tobas
+}  // namespace tobas::linux

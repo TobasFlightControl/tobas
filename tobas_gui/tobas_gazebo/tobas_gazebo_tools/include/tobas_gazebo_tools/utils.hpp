@@ -8,24 +8,24 @@
 #include <gz/sim/Entity.hh>
 #include <gz/sim/EntityComponentManager.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 /** Get the component directly under an entity. Create a new one if it does not exist. */
 template <typename CompType>
-CompType* getComponent(const gz::sim::Entity& entity, gz::sim::EntityComponentManager& ecm)
+CompType* getComponent(const gz::sim::Entity& _entity, gz::sim::EntityComponentManager& _ecm)
 {
-  if (ecm.EntityHasComponentType(entity, CompType().TypeId())) {
-    return ecm.Component<CompType>(entity);
+  if (_ecm.EntityHasComponentType(_entity, CompType().TypeId())) {
+    return _ecm.Component<CompType>(_entity);
   }
   else {
-    return ecm.CreateComponent(entity, CompType());
+    return _ecm.CreateComponent(_entity, CompType());
   }
 }
 
-bool belongsTo(const gz::sim::Entity& entity, const gz::sim::Entity& target, const gz::sim::EntityComponentManager& ecm);
+bool belongsTo(
+  const gz::sim::Entity& _entity,
+  const gz::sim::Entity& _target,
+  const gz::sim::EntityComponentManager& _ecm);
 
-gz::sim::Entity findJointWithChildLink(const gz::sim::EntityComponentManager& ecm, const std::string& link_name);
-}  // namespace gazebo
-}  // namespace tobas
+gz::sim::Entity findJointWithChildLink(const gz::sim::EntityComponentManager& _ecm, const std::string& _link_name);
+}  // namespace tobas::gazebo

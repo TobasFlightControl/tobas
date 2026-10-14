@@ -5,15 +5,7 @@
 
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
-{
-namespace ice
+namespace tobas::gui::sa::propulsion::ice
 {
 EngineResponseWidget::EngineResponseWidget()
 {
@@ -54,10 +46,10 @@ YAML::Node EngineResponseWidget::dump() const
   return node;
 }
 
-void EngineResponseWidget::load(const YAML::Node& node)
+void EngineResponseWidget::load(const YAML::Node& _node)
 {
-  time_const_up_->setValue(node[time_const_up_->name()].as<int>());
-  time_const_down_->setValue(node[time_const_down_->name()].as<int>());
+  time_const_up_->setValue(_node[time_const_up_->name()].as<int>());
+  time_const_down_->setValue(_node[time_const_down_->name()].as<int>());
 }
 
 double EngineResponseWidget::timeConstUp() const
@@ -69,8 +61,4 @@ double EngineResponseWidget::timeConstDown() const
 {
   return time_const_down_->getValue() * 1e-3;
 }
-}  // namespace ice
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion::ice

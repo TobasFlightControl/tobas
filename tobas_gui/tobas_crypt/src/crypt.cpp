@@ -15,18 +15,16 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace crypt
+namespace tobas::crypt
 {
 namespace
 {
 /** Read `/etc/shadow` line by line. */
-std::vector<std::string> readLines(const std::string& path)
+std::vector<std::string> readLines(const std::string& _path)
 {
-  std::ifstream ifs(path);
+  std::ifstream ifs(_path);
   if (!ifs) {
-    std::cerr << "Failed to open " << path << ": " << st::strError() << std::endl;
+    std::cerr << "Failed to open " << _path << ": " << st::strError() << '\n';
     return {};
   }
 
@@ -40,19 +38,19 @@ std::vector<std::string> readLines(const std::string& path)
 }
 
 /** Convert colon-separated text to an array. */
-std::vector<std::string> splitShadow(const std::string& line)
+std::vector<std::string> splitShadow(const std::string& _line)
 {
   std::vector<std::string> fields;
   size_t start = 0;
 
   while (true) {
-    const auto pos = line.find(':', start);
+    const auto pos = _line.find(':', start);
     if (pos == std::string::npos) {
-      fields.push_back(line.substr(start));
+      fields.push_back(_line.substr(start));
       break;
     }
 
-    fields.push_back(line.substr(start, pos - start));
+    fields.push_back(_line.substr(start, pos - start));
     start = pos + 1;
   }
 
@@ -60,64 +58,64 @@ std::vector<std::string> splitShadow(const std::string& line)
 }
 
 /** Convert an array back to colon-separated text. */
-std::string joinShadow(const std::vector<std::string>& fields)
+std::string joinShadow(const std::vector<std::string>& _fields)
 {
   std::ostringstream ss;
-  for (size_t i = 0; i < fields.size(); ++i) {
+  for (size_t i = 0; i < _fields.size(); ++i) {
     if (i) {
       ss << ':';
     }
-    ss << fields[i];
+    ss << _fields[i];
   }
   return ss.str();
 }
 
 /** Safely overwrite a file. */
-bool atomicOverwrite(const std::string& path, const std::string& content)
+bool atomicOverwrite(const std::string& _path, const std::string& _content)
 {
   // Save existing metadata.
   struct stat st;
-  if (stat(path.c_str(), &st) < 0) {
-    std::cerr << "stat failed on " + path + ": " << st::strError() << std::endl;
+  if (stat(_path.c_str(), &st) < 0) {
+    std::cerr << "stat failed on " + _path + ": " << st::strError() << '\n';
     return false;
   }
 
   // Create a temporary file in the same directory.
-  const auto dir = path.substr(0, path.find_last_of('/'));
+  const auto dir = _path.substr(0, _path.find_last_of('/'));
   auto tmp = dir + "/.shadow.tmp.XXXXXX";
   std::vector<char> tmpc(tmp.begin(), tmp.end());
   tmpc.push_back('\0');
 
   auto fd = ::mkstemp(tmpc.data());
   if (fd < 0) {
-    std::cerr << "mkstemp failed: " << st::strError() << std::endl;
+    std::cerr << "mkstemp failed: " << st::strError() << '\n';
     return false;
   }
   tmp.assign(tmpc.data());
 
   // Match permissions and owner, overwriting with 0640 for safety.
   if (fchmod(fd, st.st_mode & 0640 ? st.st_mode : 0640) < 0) {
-    std::cerr << "Failed to change mode." << std::endl;
+    std::cerr << "Failed to change mode.\n";
     return false;
   }
   if (fchown(fd, st.st_uid, st.st_gid) < 0) {
-    std::cerr << "Failed to change owner." << std::endl;
+    std::cerr << "Failed to change owner.\n";
     return false;
   }
 
   // Write.
-  const auto wr = ::write(fd, content.data(), content.size());
-  if (wr != static_cast<ssize_t>(content.size())) {
+  const auto wr = ::write(fd, _content.data(), _content.size());
+  if (wr != static_cast<ssize_t>(_content.size())) {
     ::close(fd);
     ::unlink(tmp.c_str());
-    std::cerr << "write failed" << std::endl;
+    std::cerr << "write failed\n";
     return false;
   }
 
   // Append a newline if missing.
-  if (content.empty() || content.back() != '\n') {
+  if (_content.empty() || _content.back() != '\n') {
     if (::write(fd, "\n", 1) != 1) {
-      std::cerr << "write failed: " << st::strError() << std::endl;
+      std::cerr << "write failed: " << st::strError() << '\n';
       return false;
     }
   }
@@ -126,15 +124,15 @@ bool atomicOverwrite(const std::string& path, const std::string& content)
   if (::fsync(fd) < 0) {
     ::close(fd);
     ::unlink(tmp.c_str());
-    std::cerr << "fsync failed" << std::endl;
+    std::cerr << "fsync failed\n";
     return false;
   }
   ::close(fd);
 
   // Replace atomically.
-  if (::rename(tmp.c_str(), path.c_str()) < 0) {
+  if (::rename(tmp.c_str(), _path.c_str()) < 0) {
     ::unlink(tmp.c_str());
-    std::cerr << "rename failed: " << st::strError() << std::endl;
+    std::cerr << "rename failed: " << st::strError() << '\n';
     return false;
   }
 
@@ -156,7 +154,7 @@ bool setShadowPassword(
   // Generate hash.
   const auto hash = _crypt.crypt(_new_password);
   if (!hash) {
-    std::cerr << "Failed to generate hash: " << hash.error() << std::endl;
+    std::cerr << "Failed to generate hash: " << hash.error() << '\n';
     return false;
   }
 
@@ -192,7 +190,7 @@ bool setShadowPassword(
   }
 
   if (!found) {
-    std::cerr << "user not found in shadow: " << _username << std::endl;
+    std::cerr << "user not found in shadow: " << _username << '\n';
     return false;
   }
 
@@ -201,7 +199,7 @@ bool setShadowPassword(
   for (size_t i = 0; i < lines.size(); ++i) {
     out << lines[i];
     if (i + 1 < lines.size()) {
-      out << std::endl;
+      out << '\n';
     }
   }
 
@@ -212,5 +210,4 @@ bool setShadowPassword(
 
   return true;
 }
-}  // namespace crypt
-}  // namespace tobas
+}  // namespace tobas::crypt

@@ -8,24 +8,24 @@
 
 using namespace std;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
   // Parse arguments.
-  if (argc != 3) {
-    cerr << "Usage: " << argv[0] << " <Channel> <Throttle>" << endl;
+  if (_argc != 3) {
+    cerr << "Usage: " << _argv[0] << " <Channel> <Throttle>\n";
     return EXIT_FAILURE;
   }
-  const auto channel = stoul(argv[1]);
-  const auto throttle = stoul(argv[2]);
+  const auto channel = stoul(_argv[1]);
+  const auto throttle = stoul(_argv[2]);
   if (channel >= tobas::fc1xx::DShot::kChannelSize) {
-    cerr << "DShot channel is out of range." << endl;
+    cerr << "DShot channel is out of range.\n";
     return EXIT_FAILURE;
   }
 
   // Initialize driver.
   tobas::fc1xx::DShot dshot;
   if (!dshot.initialize()) {
-    cerr << "Failed to initialize DShot driver." << endl;
+    cerr << "Failed to initialize DShot driver.\n";
     return EXIT_FAILURE;
   }
 
@@ -33,7 +33,7 @@ int main(int argc, char** argv)
   dshot.setThrottle(channel, throttle);
   while (true) {
     if (const auto result = dshot.transfer(); !result) {
-      cerr << "Failed to command DShot throttles: " << result.error() << endl;
+      cerr << "Failed to command DShot throttles: " << result.error() << '\n';
       continue;
     }
     dshot.printCurrentState(channel);

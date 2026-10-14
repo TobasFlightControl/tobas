@@ -3,15 +3,9 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 bool waitUntilGazeboServerReady();
 bool waitUntilGazeboRenderingReady();
 void killGazeboServer();
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

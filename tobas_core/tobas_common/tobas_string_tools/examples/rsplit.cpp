@@ -13,10 +13,10 @@ int main()
   const auto output = tobas::str::rsplit(input, '/');
 
   if (!output) {
-    cerr << output.error() << endl;
+    cerr << output.error() << '\n';
     return 1;
   }
 
-  cout << "Input : " << input << endl;
-  cout << "Output: " << output->first << ", " << output->second << endl;
+  cout << "Input : " << input << '\n';
+  cout << "Output: " << output->first << ", " << output->second << '\n';
 }

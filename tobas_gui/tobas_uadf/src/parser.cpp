@@ -6,22 +6,20 @@
 #include <tobas_string_tools/stream.hpp>
 #include <tobas_xml_tools/core.hpp>
 
-namespace tobas
-{
-namespace uadf
+namespace tobas::uadf
 {
 Parser::Parser()
 {
 }
 
-std::expected<Model, std::string> Parser::parseFromXml(const tinyxml2::XMLDocument* uadf_doc)
+std::expected<Model, std::string> Parser::parseFromXml(const tinyxml2::XMLDocument* _uadf_doc)
 {
   // Initialize the model.
   Model uadf_model;
 
   // Copy the XML document for editing.
   tinyxml2::XMLDocument uadf_doc_cp;
-  uadf_doc->DeepCopy(&uadf_doc_cp);
+  _uadf_doc->DeepCopy(&uadf_doc_cp);
 
   // Get the root element.
   const auto robot = uadf_doc_cp.RootElement();
@@ -96,24 +94,23 @@ std::expected<Model, std::string> Parser::parseFromXml(const tinyxml2::XMLDocume
   return uadf_model;
 }
 
-std::expected<Model, std::string> Parser::parseFromText(const std::string& uadf_text)
+std::expected<Model, std::string> Parser::parseFromText(const std::string& _uadf_text)
 {
   tinyxml2::XMLDocument uadf_doc;
-  if (uadf_doc.Parse(uadf_text.c_str()) != tinyxml2::XML_SUCCESS) {
+  if (uadf_doc.Parse(_uadf_text.c_str()) != tinyxml2::XML_SUCCESS) {
     return std::unexpected(uadf_doc.ErrorStr());
   }
 
   return parseFromXml(&uadf_doc);
 }
 
-std::expected<Model, std::string> Parser::parseFromPath(const std::string& uadf_path)
+std::expected<Model, std::string> Parser::parseFromPath(const std::string& _uadf_path)
 {
   std::string uadf_text;
-  if (!str::readText(uadf_path, uadf_text)) {
-    return std::unexpected("Failed to open file: " + uadf_path);
+  if (!str::readText(_uadf_path, uadf_text)) {
+    return std::unexpected("Failed to open file: " + _uadf_path);
   }
 
   return parseFromText(uadf_text);
 }
-}  // namespace uadf
-}  // namespace tobas
+}  // namespace tobas::uadf

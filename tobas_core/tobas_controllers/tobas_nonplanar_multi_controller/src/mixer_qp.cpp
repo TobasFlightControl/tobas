@@ -11,12 +11,10 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
-namespace tobas
+namespace tobas::nonplanar_multicopter
 {
-namespace nonplanar_multicopter
-{
-QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree)
-  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
+QpMixer::QpMixer(const Drone& _drone, const kdl::Tree& _tree)
+  : super(_drone, _tree), fk_solver_(_tree), inertia_solver_(_tree)
 {
 }
 
@@ -31,19 +29,19 @@ void QpMixer::updateInternalDataStructures()
 }
 
 std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
-  const kdl::JntArray& cur_q,
-  const kdl::Rotation& cur_rot,
-  const kdl::Vector& cur_gyro_B,
-  const kdl::Vector& tar_acc_W,
-  const kdl::Vector& tar_dgyro_B,
-  const kdl::Vector& ext_force_W,
-  const kdl::Vector& ext_torque_B)
+  const kdl::JntArray& _cur_q,
+  const kdl::Rotation& _cur_rot,
+  const kdl::Vector& _cur_gyro_b,
+  const kdl::Vector& _tar_acc_w,
+  const kdl::Vector& _tar_dgyro_b,
+  const kdl::Vector& _ext_force_w,
+  const kdl::Vector& _ext_torque_b)
 {
   // Compute forward kinematics.
-  const auto& frames = fk_solver_.jntToCart(cur_q);
+  const auto& frames = fk_solver_.jntToCart(_cur_q);
 
   // Compute mass properties.
-  const auto inertia = inertia_solver_.jntToCart(cur_q);
+  const auto inertia = inertia_solver_.jntToCart(_cur_q);
   const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
@@ -70,12 +68,12 @@ std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
 
   // Right-hand side of the translational EoM.
   const kdl::Vector grav_W(0, 0, -st::kGravity);
-  auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
+  auto eom_trans_right_W = mass * (_tar_acc_w - grav_W) - _ext_force_w;  // [N]
   eom_trans_right_W.z(std::max(eom_trans_right_W.z(), 0.0));
-  h_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
+  h_.head<3>() = _cur_rot.inverse(eom_trans_right_W).data;
 
   // Right-hand side of the rotational EoM.
-  const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
+  const auto eom_rot_right_B = I_B * _tar_dgyro_b + _cur_gyro_b * (I_B * _cur_gyro_b) - _ext_torque_b;  // [Nm]
   h_.tail<3>() = eom_rot_right_B.data;
 
   // Weights for the EoM.
@@ -118,22 +116,22 @@ std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
   return thrustDeadband(*thrusts);
 }
 
-void QpMixer::setLinearWeight(double p)
+void QpMixer::setLinearWeight(double _p)
 {
-  assert(p > 0.0);
-  cfg_.linear_weight = p;
+  assert(_p > 0.0);
+  cfg_.linear_weight = _p;
 }
 
-void QpMixer::setAngularWeight(double p)
+void QpMixer::setAngularWeight(double _p)
 {
-  assert(p > 0.0);
-  cfg_.angular_weight = p;
+  assert(_p > 0.0);
+  cfg_.angular_weight = _p;
 }
 
-void QpMixer::setThrustWeight(double p)
+void QpMixer::setThrustWeight(double _p)
 {
-  assert(p > 0.0);
-  cfg_.thrust_weight = p;
+  assert(_p > 0.0);
+  cfg_.thrust_weight = _p;
 }
 
 void QpMixer::resizeAndFill()
@@ -152,5 +150,4 @@ void QpMixer::resizeAndFill()
   R_.resize(var_size);
   G_.resize(Eigen::NoChange, var_size);
 }
-}  // namespace nonplanar_multicopter
-}  // namespace tobas
+}  // namespace tobas::nonplanar_multicopter

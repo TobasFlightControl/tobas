@@ -12,11 +12,7 @@
 
 #include <tobas_msgs/msg/engine_state.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class EngineViewerWidget : public QWidget
 {
@@ -25,7 +21,7 @@ class EngineViewerWidget : public QWidget
   using self = EngineViewerWidget;
 
 public:
-  explicit EngineViewerWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
+  explicit EngineViewerWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone);
 
   void reset();
   void updateInternalDataStructures();
@@ -37,12 +33,10 @@ private:
   qt::ProgressBar* fuel_quantity_;
   qt::ProgressBar* oil_temp_;
 
-  void updateFuelQuantity(double fuel_quantity);
-  void updateOilTemperature(double oil_temp);
+  void updateFuelQuantity(double _fuel_quantity);
+  void updateOilTemperature(double _oil_temp);
 
 private Q_SLOTS:
-  void engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& engine_state);
+  void engineStateCb(const tobas_msgs::msg::EngineState::ConstSharedPtr& _engine_state);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

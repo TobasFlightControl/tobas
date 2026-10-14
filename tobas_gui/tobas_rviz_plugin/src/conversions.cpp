@@ -6,65 +6,64 @@
 #include <QDebug>
 #include <tf2_eigen/tf2_eigen.hpp>
 
-namespace tobas
-{
-namespace rviz
+namespace tobas::rviz
 {
 namespace
 {
-bool jointStateToRobotState(const sensor_msgs::msg::JointState& joint_state, RobotState& state)
+bool jointStateToRobotState(const sensor_msgs::msg::JointState& _joint_state, RobotState& _state)
 {
-  if (joint_state.name.size() != joint_state.position.size()) {
+  if (_joint_state.name.size() != _joint_state.position.size()) {
     qCritical().nospace() << "Different number of names and positions in JointState message: "
-                          << joint_state.name.size() << ", " << joint_state.position.size();
+                          << _joint_state.name.size() << ", " << _joint_state.position.size();
     return false;
   }
 
-  state.setVariablePositions(joint_state.name, joint_state.position);
+  _state.setVariablePositions(_joint_state.name, _joint_state.position);
   return true;
 }
 
-bool multiDofJointsToRobotState(const sensor_msgs::msg::MultiDOFJointState& multi_dof_state, RobotState& state)
+bool multiDofJointsToRobotState(const sensor_msgs::msg::MultiDOFJointState& _multi_dof_state, RobotState& _state)
 {
-  if (multi_dof_state.joint_names.size() != multi_dof_state.transforms.size()) {
+  if (_multi_dof_state.joint_names.size() != _multi_dof_state.transforms.size()) {
     qCritical() << "Different number of names and transforms in MultiDOFJointState message.";
     return false;
   }
 
   bool valid = true;
-  if (!multi_dof_state.joint_names.empty() && multi_dof_state.header.frame_id != state.getRobotModel().getModelFrame()) {
+  if (!_multi_dof_state.joint_names.empty() && _multi_dof_state.header.frame_id != _state.getRobotModel().getModelFrame()) {
     qWarning().nospace() << "The transform for multi-dof joints was specified in frame '"
-                         << multi_dof_state.header.frame_id.c_str()
+                         << _multi_dof_state.header.frame_id.c_str()
                          << "' but it was not possible to transform that to frame '"
-                         << state.getRobotModel().getModelFrame().c_str() << "'.";
+                         << _state.getRobotModel().getModelFrame().c_str() << "'.";
     valid = false;
   }
 
-  for (size_t i = 0; i < multi_dof_state.joint_names.size(); ++i) {
-    const auto& joint_name = multi_dof_state.joint_names[i];
-    if (!state.getRobotModel().hasJointModel(joint_name)) {
+  for (size_t i = 0; i < _multi_dof_state.joint_names.size(); ++i) {
+    const auto& joint_name = _multi_dof_state.joint_names[i];
+    if (!_state.getRobotModel().hasJointModel(joint_name)) {
       qWarning().nospace() << "No joint matching multi-dof joint '" << joint_name.c_str() << "'.";
       valid = false;
       continue;
     }
-    state.setJointPositions(joint_name, tf2::transformToEigen(multi_dof_state.transforms[i]));
+    _state.setJointPositions(joint_name, tf2::transformToEigen(_multi_dof_state.transforms[i]));
   }
 
   return valid;
 }
 }  // namespace
 
-bool robotStateMsgToRobotState(const tobas_visualization_msgs::msg::RobotState& robot_state, RobotState& state)
+bool robotStateMsgToRobotState(const tobas_visualization_msgs::msg::RobotState& _robot_state, RobotState& _state)
 {
-  if (!robot_state.is_diff && robot_state.joint_state.name.empty() && robot_state.multi_dof_joint_state.joint_names.empty()) {
+  if (
+    !_robot_state.is_diff && _robot_state.joint_state.name.empty() &&
+    _robot_state.multi_dof_joint_state.joint_names.empty()) {
     qCritical() << "Found empty JointState message.";
     return false;
   }
 
-  const bool joint_state_valid = jointStateToRobotState(robot_state.joint_state, state);
-  const bool multi_dof_state_valid = multiDofJointsToRobotState(robot_state.multi_dof_joint_state, state);
-  state.update();
+  const bool joint_state_valid = jointStateToRobotState(_robot_state.joint_state, _state);
+  const bool multi_dof_state_valid = multiDofJointsToRobotState(_robot_state.multi_dof_joint_state, _state);
+  _state.update();
   return joint_state_valid || multi_dof_state_valid;
 }
-}  // namespace rviz
-}  // namespace tobas
+}  // namespace tobas::rviz

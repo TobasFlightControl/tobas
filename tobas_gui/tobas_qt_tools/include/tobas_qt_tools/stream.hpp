@@ -7,4 +7,4 @@
 
 #include <QString>
 
-std::ostream& operator<<(std::ostream& os, const QString& arg);
+std::ostream& operator<<(std::ostream& _os, const QString& _arg);

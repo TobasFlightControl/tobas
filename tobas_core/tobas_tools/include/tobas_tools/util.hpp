@@ -8,8 +8,8 @@
 namespace tobas
 {
 /** Return the topic name in the `throttled` namespace. */
-std::string addThrotNS(const std::string& topic);
+std::string addThrotNS(const std::string& _topic);
 
 /** Return the topic name in the `remote_interface` namespace. */
-std::string addIfaceNS(const std::string& topic);
+std::string addIfaceNS(const std::string& _topic);
 }  // namespace tobas

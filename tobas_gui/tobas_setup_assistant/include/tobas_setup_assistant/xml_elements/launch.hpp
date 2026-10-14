@@ -7,25 +7,16 @@
 
 #include <tinyxml2.h>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace xml
+namespace tobas::gui::sa::xml
 {
 tinyxml2::XMLElement* addNode(
-  tinyxml2::XMLElement* parent,
-  const std::string& pkg,
-  const std::string& exec,
-  const std::string& name = "",
-  const std::string& ns = "",
-  const std::string& output = "screen",
-  const std::string& args = "");
+  tinyxml2::XMLElement* _parent,
+  const std::string& _pkg,
+  const std::string& _exec,
+  const std::string& _name = "",
+  const std::string& _ns = "",
+  const std::string& _output = "screen",
+  const std::string& _args = "");
 
-tinyxml2::XMLElement* addNodeParam(tinyxml2::XMLElement* node, const std::string& name, const std::string& value);
-}  // namespace xml
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+tinyxml2::XMLElement* addNodeParam(tinyxml2::XMLElement* _node, const std::string& _name, const std::string& _value);
+}  // namespace tobas::gui::sa::xml

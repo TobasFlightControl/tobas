@@ -8,22 +8,22 @@
 using namespace std;
 
 template <typename T>
-ostream& operator<<(ostream& os, const vector<T>& vec)
+ostream& operator<<(ostream& _os, const vector<T>& _vec)
 {
-  const auto size = vec.size();
+  const auto size = _vec.size();
 
   if (size == 0) {
-    os << "[]";
-    return os;
+    _os << "[]";
+    return _os;
   }
 
-  os << "[";
+  _os << "[";
   for (size_t i = 0; i < size - 1; ++i) {
-    os << vec[i] << " ";
+    _os << _vec[i] << " ";
   }
-  os << vec[size - 1] << "]";
+  _os << _vec[size - 1] << "]";
 
-  return os;
+  return _os;
 }
 
 int main()
@@ -38,7 +38,7 @@ int main()
   tobas::ptree::PropertyTree pt;
 
   if (const auto result = pt.initialize("/tmp/example.json"); !result) {
-    cerr << result.error() << endl;
+    cerr << result.error() << '\n';
     return EXIT_FAILURE;
   }
 
@@ -50,7 +50,7 @@ int main()
   pt.set<string>(kStringListKey, { "apple", "orange", "banana" });
 
   if (const auto result = pt.save(); !result) {
-    cerr << result.error() << endl;
+    cerr << result.error() << '\n';
     return EXIT_FAILURE;
   }
 
@@ -62,40 +62,40 @@ int main()
   vector<string> string_list;
 
   if (!pt.get(kIntKey, int_value)) {
-    cerr << "Failed to get " << kIntKey << "." << endl;
+    cerr << "Failed to get " << kIntKey << ".\n";
     return EXIT_FAILURE;
   }
-  cout << kIntKey << ": " << int_value << endl;
+  cout << kIntKey << ": " << int_value << '\n';
 
   if (!pt.get(kDoubleKey, double_value)) {
-    cerr << "Failed to get " << kDoubleKey << "." << endl;
+    cerr << "Failed to get " << kDoubleKey << ".\n";
     return EXIT_FAILURE;
   }
-  cout << kDoubleKey << ": " << double_value << endl;
+  cout << kDoubleKey << ": " << double_value << '\n';
 
   if (!pt.get(kStringKey, string_value)) {
-    cerr << "Failed to get " << kStringKey << "." << endl;
+    cerr << "Failed to get " << kStringKey << ".\n";
     return EXIT_FAILURE;
   }
-  cout << kStringKey << ": " << string_value << endl;
+  cout << kStringKey << ": " << string_value << '\n';
 
   if (!pt.get(kIntListKey, int_list)) {
-    cerr << "Failed to get " << kIntListKey << "." << endl;
+    cerr << "Failed to get " << kIntListKey << ".\n";
     return EXIT_FAILURE;
   }
-  cout << kIntListKey << ": " << int_list << endl;
+  cout << kIntListKey << ": " << int_list << '\n';
 
   if (!pt.get(kDoubleListKey, dobule_list)) {
-    cerr << "Failed to get " << kDoubleListKey << "." << endl;
+    cerr << "Failed to get " << kDoubleListKey << ".\n";
     return EXIT_FAILURE;
   }
-  cout << kDoubleListKey << ": " << dobule_list << endl;
+  cout << kDoubleListKey << ": " << dobule_list << '\n';
 
   if (!pt.get(kStringListKey, string_list)) {
-    cerr << "Failed to get " << kStringListKey << "." << endl;
+    cerr << "Failed to get " << kStringListKey << ".\n";
     return EXIT_FAILURE;
   }
-  cout << kStringListKey << ": " << string_list << endl;
+  cout << kStringListKey << ": " << string_list << '\n';
 
   return EXIT_SUCCESS;
 }

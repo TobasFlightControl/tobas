@@ -3,11 +3,7 @@
 
 #pragma once
 
-namespace tobas
-{
-namespace gui
-{
-namespace cmn
+namespace tobas::gui::cmn
 {
 static constexpr int kTitlePSize = 18;
 static constexpr int kLabelPSize = 12;
@@ -18,6 +14,4 @@ static constexpr int kSaveLogTextSizeThresh = 1000;
 static constexpr char kUserNameFC[] = "pi";
 static constexpr char kProjectExtension[] = ".TBS";
 static constexpr char kMissionExtension[] = ".mission";
-}  // namespace cmn
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::cmn

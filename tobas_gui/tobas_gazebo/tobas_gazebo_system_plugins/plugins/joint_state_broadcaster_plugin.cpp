@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
 #include <optional>
 
 #include <gz/sim/Joint.hh>
@@ -21,9 +22,7 @@
 namespace ch = std::chrono;
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class GazeboJointStateBroadcasterPlugin : public BaseNode,
                                           public gz::sim::System,
@@ -34,12 +33,12 @@ public:
   explicit GazeboJointStateBroadcasterPlugin();
 
   void Configure(
-    const gz::sim::Entity& model_entity,
-    const sdf::ElementConstPtr& sdf,
-    gz::sim::EntityComponentManager& ecm,
+    const gz::sim::Entity& _model_entity,
+    const sdf::ElementConstPtr& _sdf,
+    gz::sim::EntityComponentManager& _ecm,
     gz::sim::EventManager&) override;
 
-  void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
+  void PostUpdate(const gz::sim::UpdateInfo& _info, const gz::sim::EntityComponentManager& _ecm) override;
 
 private:
   std::vector<std::string> joint_names_;
@@ -58,34 +57,34 @@ GazeboJointStateBroadcasterPlugin::GazeboJointStateBroadcasterPlugin()
 }
 
 void GazeboJointStateBroadcasterPlugin::Configure(
-  const gz::sim::Entity& model_entity,
-  const sdf::ElementConstPtr& sdf,
-  gz::sim::EntityComponentManager& ecm,
+  const gz::sim::Entity& _model_entity,
+  const sdf::ElementConstPtr& _sdf,
+  gz::sim::EntityComponentManager& _ecm,
   gz::sim::EventManager&)
 {
-  initialize("gazebo_joint_state_broadcaster_plugin", sdf);
+  initialize("gazebo_joint_state_broadcaster_plugin", _sdf);
 
   // Get robot model.
-  const gz::sim::Model model(model_entity);
-  if (!model.Valid(ecm)) {
+  const gz::sim::Model model(_model_entity);
+  if (!model.Valid(_ecm)) {
     TOBAS_EXIT("Failed to find model.");
   }
 
   // Get joint states.
-  joint_names_ = getSdfParam<std::vector<std::string>>(sdf, "jointNames");
+  joint_names_ = getSdfParam<std::vector<std::string>>(_sdf, "jointNames");
   for (const auto& jnt_name : joint_names_) {
-    const auto joint_entity = model.JointByName(ecm, jnt_name);
+    const auto joint_entity = model.JointByName(_ecm, jnt_name);
     const auto joint = std::make_shared<gz::sim::Joint>(joint_entity);
-    if (!joint->Valid(ecm)) {
+    if (!joint->Valid(_ecm)) {
       TOBAS_EXIT("Failed to find joint '", jnt_name, "'.");
     }
-    jnt_pos_[jnt_name] = getComponent<cmp::JointPosition>(joint_entity, ecm);
-    jnt_vel_[jnt_name] = getComponent<cmp::JointVelocity>(joint_entity, ecm);
-    jnt_eff_[jnt_name] = getComponent<cmp::JointTransmittedWrench>(joint_entity, ecm);
+    jnt_pos_[jnt_name] = getComponent<cmp::JointPosition>(joint_entity, _ecm);
+    jnt_vel_[jnt_name] = getComponent<cmp::JointVelocity>(joint_entity, _ecm);
+    jnt_eff_[jnt_name] = getComponent<cmp::JointTransmittedWrench>(joint_entity, _ecm);
   }
 
   // Set update rate.
-  const auto update_rate = getSdfParam<int>(sdf, "updateRate", kNonNegative);
+  const auto update_rate = getSdfParam<int>(_sdf, "updateRate", kNonNegative);
   rate_manager_.emplace(update_rate);
 
   // Register ROS interfaces.
@@ -93,15 +92,19 @@ void GazeboJointStateBroadcasterPlugin::Configure(
 }
 
 void GazeboJointStateBroadcasterPlugin::PostUpdate(
-  const gz::sim::UpdateInfo& info,
+  const gz::sim::UpdateInfo& _info,
   const gz::sim::EntityComponentManager&)
 {
-  if (!rate_manager_->update(info.simTime)) {
+  if (_info.paused || _info.dt <= ch::steady_clock::duration::zero()) {
+    return;
+  }
+
+  if (!rate_manager_->update(_info.simTime)) {
     return;
   }
 
   auto js = std::make_unique<tobas_msgs::msg::JointStateArray>();
-  ros2::timeChronoToMsg(info.simTime, js->header.stamp);
+  ros2::timeChronoToMsg(_info.simTime, js->header.stamp);
 
   for (const auto& jnt_name : joint_names_) {
     tobas_msgs::msg::JointState state;
@@ -114,8 +117,7 @@ void GazeboJointStateBroadcasterPlugin::PostUpdate(
 
   js_pub_->publish(std::move(js));
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboJointStateBroadcasterPlugin,

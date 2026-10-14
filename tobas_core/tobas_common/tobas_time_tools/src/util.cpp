@@ -5,15 +5,13 @@
 
 namespace ch = std::chrono;
 
-namespace tobas
+namespace tobas::tim
 {
-namespace tim
-{
-std::expected<ch::system_clock::time_point, std::string> tmToTimePoint(tm tm)
+std::expected<ch::system_clock::time_point, std::string> tmToTimePoint(tm _tm)
 {
   // Convert `tm` represented in UTC to `time_t`.
   // Ref: https://dev.activebasic.com/egtra/2017/01/03/941/
-  const auto tt = timegm(&tm);
+  const auto tt = timegm(&_tm);
   if (tt < 0) {
     return std::unexpected("Failed to convert tm to time_t.");
   }
@@ -22,43 +20,42 @@ std::expected<ch::system_clock::time_point, std::string> tmToTimePoint(tm tm)
   return ch::system_clock::from_time_t(tt);
 }
 
-tm timePointToTm(const ch::system_clock::time_point& tp)
+tm timePointToTm(const ch::system_clock::time_point& _tp)
 {
-  const auto tt = ch::system_clock::to_time_t(tp);
+  const auto tt = ch::system_clock::to_time_t(_tp);
   return *std::gmtime(&tt);
 }
 
-tm tmFromUTC(int year, int month, int day, int hour, int min, int sec)
+tm tmFromUTC(int _year, int _month, int _day, int _hour, int _min, int _sec)
 {
   tm tm;
-  tm.tm_year = year - 1900;  // Year is an offset from 1900.
-  tm.tm_mon = month - 1;     // Month starts from 0.
-  tm.tm_mday = day;
-  tm.tm_hour = hour;
-  tm.tm_min = min;
-  tm.tm_sec = sec;
+  tm.tm_year = _year - 1900;  // Year is an offset from 1900.
+  tm.tm_mon = _month - 1;     // Month starts from 0.
+  tm.tm_mday = _day;
+  tm.tm_hour = _hour;
+  tm.tm_min = _min;
+  tm.tm_sec = _sec;
   return tm;
 }
 
 std::expected<ch::system_clock::time_point, std::string>
-timePointFromUTC(int year, int month, int day, int hour, int min, int sec, int nano)
+timePointFromUTC(int _year, int _month, int _day, int _hour, int _min, int _sec, int _nano)
 {
-  const auto tm = tmFromUTC(year, month, day, hour, min, sec);
+  const auto tm = tmFromUTC(_year, _month, _day, _hour, _min, _sec);
   const auto tp = tmToTimePoint(tm);
   if (!tp) {
     return std::unexpected(tp.error());
   }
-  return *tp + ch::nanoseconds(nano);
+  return *tp + ch::nanoseconds(_nano);
 }
 
-double yearFraction(const ch::system_clock::time_point& tp)
+double yearFraction(const ch::system_clock::time_point& _tp)
 {
-  const auto tm = timePointToTm(tp);
+  const auto tm = timePointToTm(_tp);
   const auto year = tm.tm_year + 1900;  // Year.
   const auto is_leap_year = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
   const auto day_of_year = tm.tm_yday;                 // Current day in the year, starting from 0.
   const auto days_in_year = is_leap_year ? 366 : 365;  // 366 days in a leap year.
   return year + static_cast<double>(day_of_year) / days_in_year;
 }
-}  // namespace tim
-}  // namespace tobas
+}  // namespace tobas::tim

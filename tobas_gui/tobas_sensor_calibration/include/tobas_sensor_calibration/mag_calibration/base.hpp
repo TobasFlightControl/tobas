@@ -6,11 +6,7 @@
 #include <QWidget>
 #include <rclcpp/node.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sc
+namespace tobas::gui::sc
 {
 class BaseMagCalibWidget : public QWidget
 {
@@ -18,9 +14,7 @@ class BaseMagCalibWidget : public QWidget
 
 public:
   virtual void reset() = 0;
-  virtual void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns) = 0;
+  virtual void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns) = 0;
   virtual void clearRosInterfaces() = 0;
 };
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

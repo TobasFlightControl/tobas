@@ -11,17 +11,13 @@
 
 using namespace std::chrono_literals;
 
-namespace tobas
+namespace tobas::gui::sc
 {
-namespace gui
+LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(const rqt::RosQtBridge& _bridge)
 {
-namespace sc
-{
-LargeVehicleMagCalibThread::LargeVehicleMagCalibThread(const rqt::RosQtBridge& bridge)
-{
-  connect(&bridge, &rqt::RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
-  connect(&bridge, &rqt::RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
-  connect(&bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::rawMagReceived, this, &self::magCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
+  connect(&_bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);
 }
 
 LargeVehicleMagCalibThread::~LargeVehicleMagCalibThread()
@@ -142,11 +138,11 @@ void LargeVehicleMagCalibThread::reset()
   }
 }
 
-void LargeVehicleMagCalibThread::initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns)
+void LargeVehicleMagCalibThread::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
 {
-  node_ = std::move(node);
+  node_ = std::move(_node);
 
-  const auto srv_name = path::join(ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv);
+  const auto srv_name = path::join(_ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv);
   set_params_sc_.emplace(node_, srv_name);
 }
 
@@ -156,9 +152,9 @@ void LargeVehicleMagCalibThread::clearRosInterfaces()
   set_params_sc_.reset();
 }
 
-void LargeVehicleMagCalibThread::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_raw)
+void LargeVehicleMagCalibThread::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& _mag_raw)
 {
-  mag_raw_ = mag_raw;
+  mag_raw_ = _mag_raw;
 
   if (!get_data_) {
     return;
@@ -166,19 +162,17 @@ void LargeVehicleMagCalibThread::magCb(const tobas_msgs::MagneticField::ConstSha
 
   ++cnt_;
   for (size_t i = 0; i < 3; ++i) {
-    mag_sum_.at(i).add(mag_raw->mag(i));
+    mag_sum_.at(i).add(_mag_raw->mag(i));
   }
 }
 
-void LargeVehicleMagCalibThread::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
+void LargeVehicleMagCalibThread::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss)
 {
-  gnss_ = gnss;
+  gnss_ = _gnss;
 }
 
-void LargeVehicleMagCalibThread::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
+void LargeVehicleMagCalibThread::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming)
 {
-  arming_ = arming;
+  arming_ = _arming;
 }
-}  // namespace sc
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sc

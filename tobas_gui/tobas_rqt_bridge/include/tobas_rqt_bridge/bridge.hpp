@@ -13,9 +13,7 @@
 
 #include "./declare.hpp"
 
-namespace tobas
-{
-namespace rqt
+namespace tobas::rqt
 {
 class RosQtBridge : public QObject
 {
@@ -25,32 +23,32 @@ class RosQtBridge : public QObject
   using super = QObject;
 
 Q_SIGNALS:
-  void messageReceived(const tobas_msgs::msg::Message::ConstSharedPtr& msg);
-  void batteryReceived(const tobas_msgs::msg::Battery::ConstSharedPtr& msg);
-  void engineStateReceived(const tobas_msgs::msg::EngineState::ConstSharedPtr& msg);
-  void cpuReceived(const tobas_msgs::msg::Cpu::ConstSharedPtr& msg);
-  void sbusReceived(const tobas_msgs::msg::Sbus::ConstSharedPtr& msg);
-  void rcInputReceived(const tobas_msgs::RCInput::ConstSharedPtr& msg);
-  void imuReceived(const tobas_msgs::Imu::ConstSharedPtr& msg);
-  void magReceived(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
-  void airPressureReceived(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& msg);
-  void gnssReceived(const tobas_msgs::Gnss::ConstSharedPtr& msg);
-  void rotorStatesReceived(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
-  void rotorLivelinessReceived(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& msg);
-  void jointStatesReceived(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& msg);
-  void odomReceived(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& msg);
-  void armingReceived(const tobas_msgs::msg::Arming::ConstSharedPtr& msg);
-  void vehicleHealthReceived(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& msg);
-  void rosbagStateReceived(const tobas_msgs::msg::RosbagState::ConstSharedPtr& msg);
-  void localHeartbeatReceived(const tobas_msgs::msg::Heartbeat::ConstSharedPtr& msg);
-  void remoteHeartbeatReceived(const tobas_msgs::msg::Heartbeat::ConstSharedPtr& msg);
-  void rawImuReceived(const tobas_msgs::Imu::ConstSharedPtr& msg);
-  void rawMagReceived(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
+  void messageReceived(const tobas_msgs::msg::Message::ConstSharedPtr& _msg);
+  void batteryReceived(const tobas_msgs::msg::Battery::ConstSharedPtr& _msg);
+  void engineStateReceived(const tobas_msgs::msg::EngineState::ConstSharedPtr& _msg);
+  void cpuReceived(const tobas_msgs::msg::Cpu::ConstSharedPtr& _msg);
+  void sbusReceived(const tobas_msgs::msg::Sbus::ConstSharedPtr& _msg);
+  void rcInputReceived(const tobas_msgs::RCInput::ConstSharedPtr& _msg);
+  void imuReceived(const tobas_msgs::Imu::ConstSharedPtr& _msg);
+  void magReceived(const tobas_msgs::MagneticField::ConstSharedPtr& _msg);
+  void airPressureReceived(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& _msg);
+  void gnssReceived(const tobas_msgs::Gnss::ConstSharedPtr& _msg);
+  void rotorStatesReceived(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& _msg);
+  void rotorLivelinessReceived(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& _msg);
+  void jointStatesReceived(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _msg);
+  void odomReceived(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _msg);
+  void armingReceived(const tobas_msgs::msg::Arming::ConstSharedPtr& _msg);
+  void vehicleHealthReceived(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _msg);
+  void rosbagStateReceived(const tobas_msgs::msg::RosbagState::ConstSharedPtr& _msg);
+  void localHeartbeatReceived(const tobas_msgs::msg::Heartbeat::ConstSharedPtr& _msg);
+  void remoteHeartbeatReceived(const tobas_msgs::msg::Heartbeat::ConstSharedPtr& _msg);
+  void rawImuReceived(const tobas_msgs::Imu::ConstSharedPtr& _msg);
+  void rawMagReceived(const tobas_msgs::MagneticField::ConstSharedPtr& _msg);
 
 public:
-  explicit RosQtBridge(QObject* parent = nullptr);
+  explicit RosQtBridge(QObject* _parent = nullptr);
 
-  void initializeRosInterfaces(const rclcpp::Node::SharedPtr& node, const std::string& ns);
+  void initializeRosInterfaces(const rclcpp::Node::SharedPtr& _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:
@@ -58,12 +56,11 @@ private:
 
   template <typename MsgType, auto SignalType>
   void add(
-    const rclcpp::Node::SharedPtr& node,
-    const std::string& ns,
-    const char* base_topic,
-    bool latch = ros2::qos::kDefaultLatch,
-    bool reliable = ros2::qos::kDefaultReliable,
-    size_t queue_size = ros2::qos::kDefaultQueueSize);
+    const rclcpp::Node::SharedPtr& _node,
+    const std::string& _ns,
+    const char* _base_topic,
+    bool _latch = ros2::qos::kDefaultLatch,
+    bool _reliable = ros2::qos::kDefaultReliable,
+    size_t _queue_size = ros2::qos::kDefaultQueueSize);
 };
-}  // namespace rqt
-}  // namespace tobas
+}  // namespace tobas::rqt

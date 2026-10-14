@@ -8,23 +8,23 @@
 
 using namespace std;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
-  if (argc != 3) {
-    cerr << "Usage: " << argv[0] << " <Channel> <Period>" << endl;
+  if (_argc != 3) {
+    cerr << "Usage: " << _argv[0] << " <Channel> <Period>\n";
     return EXIT_FAILURE;
   }
-  const size_t channel = stoul(argv[1]);
-  const uint16_t period = stoi(argv[2]);
+  const size_t channel = stoul(_argv[1]);
+  const uint16_t period = stoi(_argv[2]);
 
   if (channel >= tobas::fc1xx::PWM::kChannelSize) {
-    cerr << "PWM channel out of range: " << channel << endl;
+    cerr << "PWM channel out of range: " << channel << '\n';
     return EXIT_FAILURE;
   }
 
   tobas::fc1xx::PWM pwm;
   if (!pwm.initialize()) {
-    cerr << "Failed to initialize PWM driver." << endl;
+    cerr << "Failed to initialize PWM driver.\n";
     return EXIT_FAILURE;
   }
 
@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 
   while (true) {
     if (!pwm.transfer()) {
-      cerr << "Failed to command PWM periods." << endl;
+      cerr << "Failed to command PWM periods.\n";
       continue;
     }
     this_thread::sleep_for(100ms);

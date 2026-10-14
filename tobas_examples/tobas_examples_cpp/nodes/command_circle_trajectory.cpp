@@ -16,10 +16,11 @@
 
 using namespace std::chrono_literals;
 
-bool takeoff(rclcpp::Node::SharedPtr node)
+bool takeoff(rclcpp::Node::SharedPtr _node)
 {
   // Create an action client.
-  tobas::ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
+  tobas::ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(
+    _node, tobas::action::kExecuteMission);
   client.waitForServer();
 
   // Create a goal.
@@ -40,23 +41,24 @@ bool takeoff(rclcpp::Node::SharedPtr node)
   // Execute the action.
   const auto result = client.sendGoalAndWait(goal);
   if (!result) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to call takeoff action.");
+    RCLCPP_ERROR(_node->get_logger(), "Failed to call takeoff action.");
     return false;
   }
 
   // Check whether the action succeeded.
   if (result->code != rclcpp_action::ResultCode::SUCCEEDED) {
-    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to takeoff: " << result->result->error_message);
+    RCLCPP_ERROR_STREAM(_node->get_logger(), "Failed to takeoff: " << result->result->error_message);
     return false;
   }
 
   return true;
 }
 
-bool land(rclcpp::Node::SharedPtr node)
+bool land(rclcpp::Node::SharedPtr _node)
 {
   // Create an action client.
-  tobas::ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(node, tobas::action::kExecuteMission);
+  tobas::ros2::SyncActionClient<tobas_mission_msgs::action::ExecuteMission> client(
+    _node, tobas::action::kExecuteMission);
   client.waitForServer();
 
   // Create a goal.
@@ -73,20 +75,20 @@ bool land(rclcpp::Node::SharedPtr node)
   // Execute the action.
   const auto result = client.sendGoalAndWait(goal);
   if (!result) {
-    RCLCPP_ERROR(node->get_logger(), "Failed to call land action.");
+    RCLCPP_ERROR(_node->get_logger(), "Failed to call land action.");
     return false;
   }
 
   // Check whether the action succeeded.
   if (result->code != rclcpp_action::ResultCode::SUCCEEDED) {
-    RCLCPP_ERROR_STREAM(node->get_logger(), "Failed to land: " << result->result->error_message);
+    RCLCPP_ERROR_STREAM(_node->get_logger(), "Failed to land: " << result->result->error_message);
     return false;
   }
 
   return true;
 }
 
-bool followCirclePath(rclcpp::Node::SharedPtr node)
+bool followCirclePath(rclcpp::Node::SharedPtr _node)
 {
   constexpr double kRadius = 5.0;                                // [m]
   constexpr double kPeriod = 10.0;                               // [s]
@@ -96,13 +98,13 @@ bool followCirclePath(rclcpp::Node::SharedPtr node)
 
   // Create a command publisher.
   const auto pub =
-    tobas::ros2::createPublisher<tobas_command_msgs::msg::PosVelAccYaw>(node, tobas::topic::kPosVelAccYawCmd);
+    tobas::ros2::createPublisher<tobas_command_msgs::msg::PosVelAccYaw>(_node, tobas::topic::kPosVelAccYawCmd);
 
-  const auto start_time = node->now();
+  const auto start_time = _node->now();
 
-  rclcpp::Rate rate(100.0, node->get_clock());
+  rclcpp::Rate rate(100.0, _node->get_clock());
   while (rclcpp::ok()) {
-    const auto cur_time = node->now();
+    const auto cur_time = _node->now();
     const auto t = (cur_time - start_time).seconds();
 
     if (t > kPeriod * 3) {
@@ -134,9 +136,9 @@ bool followCirclePath(rclcpp::Node::SharedPtr node)
   return true;
 }
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
-  tobas::ros2::AsyncNodeManager node_manager(argc, argv, "command_circle_trajectory");
+  tobas::ros2::AsyncNodeManager node_manager(_argc, _argv, "command_circle_trajectory");
   const auto node = node_manager.node();
 
   // Take off.

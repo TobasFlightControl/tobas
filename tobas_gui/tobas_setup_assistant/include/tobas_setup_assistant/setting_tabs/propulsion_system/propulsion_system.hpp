@@ -12,13 +12,7 @@
 #include "./base.hpp"
 #include "tobas_setup_assistant/signals.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace propulsion
+namespace tobas::gui::sa::propulsion
 {
 class PropulsionSystemWidget : public BaseSettingWidget
 {
@@ -27,7 +21,7 @@ class PropulsionSystemWidget : public BaseSettingWidget
   using self = PropulsionSystemWidget;
 
 public:
-  explicit PropulsionSystemWidget(const uadf::Model& uadf, Signals& sig);
+  explicit PropulsionSystemWidget(const uadf::Model& _uadf, Signals& _sig);
 
   const char* name() const override;
   const char* title() const override;
@@ -38,15 +32,15 @@ public:
   bool isValid() override;
 
   YAML::Node dump() const override;
-  void load(const YAML::Node& node) override;
+  void load(const YAML::Node& _node) override;
 
   PropulsionSystem type() const;
   int numUnits() const;
 
-  QString linkName(int index) const;
+  QString linkName(int _index) const;
 
-  BasePropulsionSystemWidget* widget(int index);
-  const BasePropulsionSystemWidget* widget(int index) const;
+  BasePropulsionSystemWidget* widget(int _index);
+  const BasePropulsionSystemWidget* widget(int _index) const;
 
   BasePropulsionSystemWidget* selected();
   const BasePropulsionSystemWidget* selected() const;
@@ -59,15 +53,12 @@ private:
 
   int cur_idx_;
 
-  void addPropulsionSystemWidget(BasePropulsionSystemWidget* widget, int id);
+  void addPropulsionSystemWidget(BasePropulsionSystemWidget* _widget, int _id);
 
-  void setCurrentButtonIndex(int index);
-  void setCurrentIndex(int index);
+  void setCurrentButtonIndex(int _index);
+  void setCurrentIndex(int _index);
 
 private Q_SLOTS:
-  void onPropulsionTypeClicked(int new_idx);
+  void onPropulsionTypeClicked(int _new_idx);
 };
-}  // namespace propulsion
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::propulsion

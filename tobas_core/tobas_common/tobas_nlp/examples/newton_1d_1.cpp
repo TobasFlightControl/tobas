@@ -10,14 +10,14 @@
 
 using namespace std;
 
-double f(double x)
+double f(double _x)
 {
-  return tobas::math::sqr(x) + 2 * x - 1;
+  return tobas::math::sqr(_x) + 2 * _x - 1;
 }
 
-double dfdx(double x)
+double dfdx(double _x)
 {
-  return 2 * x + 2;
+  return 2 * _x + 2;
 }
 
 int main()
@@ -28,13 +28,13 @@ int main()
 
   const auto x = newton.solve(1.0);
   if (!x) {
-    cerr << x.error() << endl;
+    cerr << x.error() << '\n';
     return EXIT_FAILURE;
   }
 
-  cout << "Optimal solution: " << *x << endl;  // 0.4142
-  cout << "----------" << endl;
-  cout << "f(x*) = " << f(*x) << endl;
+  cout << "Optimal solution: " << *x << '\n';  // 0.4142
+  cout << "----------\n";
+  cout << "f(x*) = " << f(*x) << '\n';
 
   return EXIT_SUCCESS;
 }

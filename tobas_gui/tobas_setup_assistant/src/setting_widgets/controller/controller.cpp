@@ -16,13 +16,7 @@
 #include "tobas_setup_assistant/setting_tabs/controller/random_axis_tilt_multicopter.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/y_axis_tilt_multicopter.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace ctrl
+namespace tobas::gui::sa::ctrl
 {
 ControllerWidget::ControllerWidget()
 {
@@ -100,22 +94,22 @@ YAML::Node ControllerWidget::dump() const
   return node;
 }
 
-void ControllerWidget::load(const YAML::Node& node)
+void ControllerWidget::load(const YAML::Node& _node)
 {
-  dont_use_builtin_ctrl_->setChecked(node[dont_use_builtin_ctrl_->text()].as<bool>());
+  dont_use_builtin_ctrl_->setChecked(_node[dont_use_builtin_ctrl_->text()].as<bool>());
 
   for (int i = 0; i < stack_->count(); ++i) {
     const auto controller = widget(i);
-    controller->load(node[textFromEnum(controller->frameType())]);
+    controller->load(_node[textFromEnum(controller->frameType())]);
   }
 }
 
-void ControllerWidget::setFrameType(FrameType type)
+void ControllerWidget::setFrameType(FrameType _type)
 {
-  frame_type_ = type;
+  frame_type_ = _type;
 
   // Built-in controllers cannot be used if the frame type is undefined.
-  if (type == FrameType::kUndefined) {
+  if (_type == FrameType::kUndefined) {
     dont_use_builtin_ctrl_->setChecked(true);
     dont_use_builtin_ctrl_->setEnabled(false);
   }
@@ -124,7 +118,7 @@ void ControllerWidget::setFrameType(FrameType type)
     dont_use_builtin_ctrl_->setEnabled(true);
   }
 
-  showCtrlWidgetWithFrameType(type);
+  showCtrlWidgetWithFrameType(_type);
 }
 
 bool ControllerWidget::useBuiltinContrller() const
@@ -162,14 +156,14 @@ YAML::Node ControllerWidget::staticParams() const
   return selected()->staticParams();
 }
 
-BaseControllerWidget* ControllerWidget::widget(int index)
+BaseControllerWidget* ControllerWidget::widget(int _index)
 {
-  return qt::qPointerCast<BaseControllerWidget>(stack_->widget(index));
+  return qt::qPointerCast<BaseControllerWidget>(stack_->widget(_index));
 }
 
-const BaseControllerWidget* ControllerWidget::widget(int index) const
+const BaseControllerWidget* ControllerWidget::widget(int _index) const
 {
-  return qt::qConstPointerCast<BaseControllerWidget>(stack_->widget(index));
+  return qt::qConstPointerCast<BaseControllerWidget>(stack_->widget(_index));
 }
 
 BaseControllerWidget* ControllerWidget::selected()
@@ -182,28 +176,25 @@ const BaseControllerWidget* ControllerWidget::selected() const
   return qt::qConstPointerCast<BaseControllerWidget>(stack_->currentWidget());
 }
 
-void ControllerWidget::showCtrlWidgetWithFrameType(FrameType type)
+void ControllerWidget::showCtrlWidgetWithFrameType(FrameType _type)
 {
   for (int i = 0; i < stack_->count(); ++i) {
-    if (widget(i)->frameType() == type) {
+    if (widget(i)->frameType() == _type) {
       stack_->setCurrentIndex(i);
       return;
     }
   }
 
-  throw std::runtime_error("Controller widget not found for frame type: " + textFromEnum(type));
+  throw std::runtime_error("Controller widget not found for frame type: " + textFromEnum(_type));
 }
 
-void ControllerWidget::onDontUseBuiltinCtrlCheckBoxToggled(bool checked)
+void ControllerWidget::onDontUseBuiltinCtrlCheckBoxToggled(bool _checked)
 {
-  if (checked) {
+  if (_checked) {
     showCtrlWidgetWithFrameType(FrameType::kUndefined);
   }
   else {
     showCtrlWidgetWithFrameType(frame_type_);
   }
 }
-}  // namespace ctrl
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::ctrl

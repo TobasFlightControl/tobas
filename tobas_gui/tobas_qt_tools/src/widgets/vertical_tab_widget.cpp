@@ -6,13 +6,11 @@
 #include <QStyleOptionTab>
 #include <QStylePainter>
 
-namespace tobas
+namespace tobas::qt
 {
-namespace qt
+QSize VerticalTabBar::tabSizeHint(int _index) const
 {
-QSize VerticalTabBar::tabSizeHint(int index) const
-{
-  auto s = super::tabSizeHint(index);
+  auto s = super::tabSizeHint(_index);
   if (s.width() < s.height()) {
     s.transpose();
   }
@@ -51,7 +49,7 @@ void VerticalTabBar::paintEvent(QPaintEvent*)
   }
 }
 
-VerticalTabWidget::VerticalTabWidget(QWidget* parent) : super(parent)
+VerticalTabWidget::VerticalTabWidget(QWidget* _parent) : super(_parent)
 {
   tab_bar_ = new VerticalTabBar();
   setTabBar(tab_bar_);
@@ -59,14 +57,13 @@ VerticalTabWidget::VerticalTabWidget(QWidget* parent) : super(parent)
   setTabPosition(QTabWidget::West);
 }
 
-void VerticalTabWidget::setTabBackgroundColor(int index, const QColor& color)
+void VerticalTabWidget::setTabBackgroundColor(int _index, const QColor& _color)
 {
-  tab_bar_->setTabBackgroundColor(index, color);
+  tab_bar_->setTabBackgroundColor(_index, _color);
 }
 
-void VerticalTabWidget::clearTabBackgroundColor(int index)
+void VerticalTabWidget::clearTabBackgroundColor(int _index)
 {
-  tab_bar_->clearTabBackgroundColor(index);
+  tab_bar_->clearTabBackgroundColor(_index);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

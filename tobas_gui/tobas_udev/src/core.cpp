@@ -5,19 +5,17 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace udv
+namespace tobas::udv
 {
 namespace
 {
-std::string sanitize(const char* s)
+std::string sanitize(const char* _s)
 {
-  if (!s) {
+  if (!_s) {
     return {};
   }
 
-  std::string out(s);
+  std::string out(_s);
   for (char& c : out) {
     if (c == '\n' || c == '\t') {
       c = ' ';
@@ -28,41 +26,40 @@ std::string sanitize(const char* s)
 }
 }  // namespace
 
-std::string getDevNode(udev_device* dev)
+std::string getDevNode(udev_device* _dev)
 {
-  const auto devnode = udev_device_get_devnode(dev);
+  const auto devnode = udev_device_get_devnode(_dev);
   if (!devnode) {
     return {};
   }
   return std::string(devnode);
 }
 
-std::string getPropertyValue(udev_device* dev, const char* key)
+std::string getPropertyValue(udev_device* _dev, const char* _key)
 {
-  const auto value = udev_device_get_property_value(dev, key);
+  const auto value = udev_device_get_property_value(_dev, _key);
   if (!value) {
     return {};
   }
   return std::string(value);
 }
 
-std::string getSysAttrValue(udev_device* dev, const char* attr)
+std::string getSysAttrValue(udev_device* _dev, const char* _attr)
 {
-  const auto value = udev_device_get_sysattr_value(dev, attr);
+  const auto value = udev_device_get_sysattr_value(_dev, _attr);
   if (!value) {
     return {};
   }
   return sanitize(value);
 }
 
-std::string getBlockLabel(udev* u, const fs::path& devnode)
+std::string getBlockLabel(udev* _u, const fs::path& _devnode)
 {
-  const auto sysname = devnode.filename().c_str();
-  const auto dev = udev_device_new_from_subsystem_sysname(u, "block", sysname);
+  const auto sysname = _devnode.filename().c_str();
+  const auto dev = udev_device_new_from_subsystem_sysname(_u, "block", sysname);
   if (!dev) {
     return {};
   }
   return getPropertyValue(dev, "ID_FS_LABEL");
 }
-}  // namespace udv
-}  // namespace tobas
+}  // namespace tobas::udv

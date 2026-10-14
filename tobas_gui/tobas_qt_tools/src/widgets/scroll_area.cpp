@@ -3,16 +3,14 @@
 
 #include "tobas_qt_tools/widgets/scroll_area.hpp"
 
-namespace tobas
+namespace tobas::qt
 {
-namespace qt
-{
-ScrollArea::ScrollArea(QWidget* parent) : QScrollArea(parent)
+ScrollArea::ScrollArea(QWidget* _parent) : QScrollArea(_parent)
 {
   setWidgetResizable(true);
 }
 
-void ScrollArea::setLayout(QLayout* layout)
+void ScrollArea::setLayout(QLayout* _layout)
 {
   if (widget()) {
     throw std::runtime_error("Widget already set.");
@@ -21,7 +19,7 @@ void ScrollArea::setLayout(QLayout* layout)
   // Only one widget can be placed in a scroll area, so an empty widget must be inserted to use a layout.
   const auto inner_widget = new QWidget();
   setWidget(inner_widget);
-  inner_widget->setLayout(layout);
+  inner_widget->setLayout(_layout);
 }
 
 void ScrollArea::setBackgroundTransparent()
@@ -44,5 +42,4 @@ void ScrollArea::setBackgroundTransparent()
   _widget->setAttribute(Qt::WA_TranslucentBackground);
   _widget->setAutoFillBackground(false);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

@@ -24,11 +24,7 @@ namespace rclcpp
 class Node;
 }  // namespace rclcpp
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
+namespace tobas::gui::sa
 {
 class JointStatePublisherWidget : public QWidget
 {
@@ -37,7 +33,10 @@ class JointStatePublisherWidget : public QWidget
   using self = JointStatePublisherWidget;
 
 public:
-  explicit JointStatePublisherWidget(std::shared_ptr<rclcpp::Node> node, const uadf::Model& uadf, const kdl::Tree& tree);
+  explicit JointStatePublisherWidget(
+    std::shared_ptr<rclcpp::Node> _node,
+    const uadf::Model& _uadf,
+    const kdl::Tree& _tree);
 
   void updateInternalDataStructures();
 
@@ -61,7 +60,7 @@ private:
   QPushButton* random_button_;
 
   sensor_msgs::msg::JointState js_;
-  std::vector<qt::DoubleSliderDisplay*> sliders_;
+  std::vector<qt::IntSliderDisplay*> sliders_;
   std::vector<ThrustJoint> thrust_joints_;
 
   ros2::PublisherPtr<sensor_msgs::msg::JointState> js_pub_;
@@ -71,15 +70,13 @@ private:
   QElapsedTimer thrust_rotation_timer_;
 
   void publishCurrentPositions();
-  void setControlButtonsEnabled(bool enabled);
+  void setControlButtonsEnabled(bool _enabled);
 
 private Q_SLOTS:
-  void onValueChanged(double value, const std::string& jnt_name);
+  void onValueChanged(int _value, const std::string& _jnt_name, double _position_per_step);
 
   void onZeroButtonClicked();
   void onCenterButtonClicked();
   void onRandomButtonClicked();
 };
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

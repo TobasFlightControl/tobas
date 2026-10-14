@@ -11,9 +11,7 @@
 
 #include "tobas_quadprog/dual_active_set.hpp"
 
-namespace tobas
-{
-namespace quadprog
+namespace tobas::quadprog
 {
 PrimalDualInteriorPointSolver::PrimalDualInteriorPointSolver()
 {
@@ -91,33 +89,33 @@ std::expected<Eigen::VectorXd, std::string> PrimalDualInteriorPointSolver::solve
   return theta_.cwiseProduct(x_scale).eval();
 }
 
-void PrimalDualInteriorPointSolver::setNumberOfIterations(size_t num_iter)
+void PrimalDualInteriorPointSolver::setNumberOfIterations(size_t _num_iter)
 {
-  assert(num_iter > 0);
-  num_iter_ = num_iter;
+  assert(_num_iter > 0);
+  num_iter_ = _num_iter;
 }
 
-void PrimalDualInteriorPointSolver::setSigma(double sigma)
+void PrimalDualInteriorPointSolver::setSigma(double _sigma)
 {
-  assert(sigma > 0.0 && sigma < 1.0);
-  sigma_ = sigma;
+  assert(_sigma > 0.0 && _sigma < 1.0);
+  sigma_ = _sigma;
 }
 
-void PrimalDualInteriorPointSolver::setAlphaTolerance(double alpha_tol)
+void PrimalDualInteriorPointSolver::setAlphaTolerance(double _alpha_tol)
 {
-  assert(alpha_tol > 0.0 && alpha_tol < 1.0);
-  alpha_tol_ = alpha_tol;
+  assert(_alpha_tol > 0.0 && _alpha_tol < 1.0);
+  alpha_tol_ = _alpha_tol;
 }
 
-std::expected<void, std::string> PrimalDualInteriorPointSolver::initialize(const QuadProgProblem& scaled)
+std::expected<void, std::string> PrimalDualInteriorPointSolver::initialize(const QuadProgProblem& _scaled)
 {
-  var_dim_ = scaled.q.rows();
-  eq_dim_ = scaled.h.rows();
-  ineq_dim_ = scaled.b.rows();
+  var_dim_ = _scaled.q.rows();
+  eq_dim_ = _scaled.h.rows();
+  ineq_dim_ = _scaled.b.rows();
 
   // Find a feasible initial solution using the active-set method.
   DualActiveSetSolver active_set_solver_;
-  active_set_solver_.problem = scaled;
+  active_set_solver_.problem = _scaled;
   active_set_solver_.x_scale = Eigen::VectorXd::Ones(problem.varSize());
   const auto init_theta = active_set_solver_.solve();
   if (!init_theta) {
@@ -135,15 +133,15 @@ std::expected<void, std::string> PrimalDualInteriorPointSolver::initialize(const
   return {};
 }
 
-double PrimalDualInteriorPointSolver::findAlpha(const Eigen::VectorXd& dlam, const Eigen::VectorXd& ds) const
+double PrimalDualInteriorPointSolver::findAlpha(const Eigen::VectorXd& _dlam, const Eigen::VectorXd& _ds) const
 {
   double lb = 0.0;
   double ub = 1.0;
 
   while (ub - lb > alpha_tol_) {
     const auto mid = (lb + ub) / 2;
-    const Eigen::VectorXd lam = lam_ + mid * dlam;
-    const Eigen::VectorXd s = s_ + mid * ds;
+    const Eigen::VectorXd lam = lam_ + mid * _dlam;
+    const Eigen::VectorXd s = s_ + mid * _ds;
     if ((lam.array() > 0).all() && (s.array() > 0).all()) {
       lb = mid;
     }
@@ -154,5 +152,4 @@ double PrimalDualInteriorPointSolver::findAlpha(const Eigen::VectorXd& dlam, con
 
   return lb;
 }
-}  // namespace quadprog
-}  // namespace tobas
+}  // namespace tobas::quadprog

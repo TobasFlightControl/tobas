@@ -5,9 +5,7 @@
 
 #include <QHeaderView>
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 void TableWidget::removeAll()
 {
@@ -16,17 +14,16 @@ void TableWidget::removeAll()
   }
 }
 
-void TableWidget::setColumnsWidth(int width)
+void TableWidget::setColumnsWidth(int _width)
 {
   for (int col = 0; col < columnCount(); ++col) {
-    setColumnWidth(col, width);
+    setColumnWidth(col, _width);
   }
 }
 
-void TableWidget::setHeaderSectionsClickable(bool clickable)
+void TableWidget::setHeaderSectionsClickable(bool _clickable)
 {
-  horizontalHeader()->setSectionsClickable(clickable);
-  verticalHeader()->setSectionsClickable(clickable);
+  horizontalHeader()->setSectionsClickable(_clickable);
+  verticalHeader()->setSectionsClickable(_clickable);
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

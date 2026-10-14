@@ -5,22 +5,19 @@
 
 #include <cctype>
 
-namespace tobas
+namespace tobas::gazebo
 {
-namespace gazebo
-{
-std::string sanitizeNodeName(std::string str)
+std::string sanitizeNodeName(std::string _str)
 {
   // Filter that allows only `[0-9A-Za-z_]`.
-  const auto is_allowed = [](unsigned char c) { return std::isalnum(c) || c == '_'; };
+  const auto is_allowed = [](unsigned char _c) { return std::isalnum(_c) || _c == '_'; };
 
-  for (char& ch : str) {
+  for (char& ch : _str) {
     if (!is_allowed(static_cast<unsigned char>(ch))) {
       ch = '_';
     }
   }
 
-  return str;
+  return _str;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

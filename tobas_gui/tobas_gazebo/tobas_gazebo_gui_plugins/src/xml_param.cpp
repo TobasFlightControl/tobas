@@ -5,29 +5,26 @@
 
 #include <gz/common/Console.hh>
 
-namespace tobas
+namespace tobas::gazebo
 {
-namespace gazebo
+bool getXmlParam(const tinyxml2::XMLElement* _elem, const char* _name, double& _param)
 {
-bool getXmlParam(const tinyxml2::XMLElement* elem, const char* name, double& param)
-{
-  const auto child_elem = elem->FirstChildElement(name);
+  const auto child_elem = _elem->FirstChildElement(_name);
   if (!child_elem) {
-    gzerr << "XML parameter '" << name << "' does not exist." << std::endl;
+    gzerr << "XML parameter '" << _name << "' does not exist.\n";
     return false;
   }
 
   const std::string text(child_elem->GetText());
 
   try {
-    param = stod(text);
+    _param = stod(text);
   }
   catch (const std::exception& e) {
-    gzerr << e.what() << std::endl;
+    gzerr << e.what() << '\n';
     return false;
   }
 
   return true;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

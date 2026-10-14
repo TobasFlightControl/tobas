@@ -20,27 +20,27 @@ struct rclcpp::TypeAdapter<tobas::kdl::Segment, tobas_kdl_msgs::msg::Segment>
   using custom_type = tobas::kdl::Segment;
   using ros_message_type = tobas_kdl_msgs::msg::Segment;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    dst.name = src.name();
-    tobas_kdl_msgs::JointAdapter::convert_to_ros_message(src.joint(), dst.joint);
-    tobas_kdl_msgs::FrameAdapter::convert_to_ros_message(src.frame(), dst.frame);
-    tobas_kdl_msgs::RigidBodyInertiaAdapter::convert_to_ros_message(src.inertia(), dst.inertia);
+    _dst.name = _src.name();
+    tobas_kdl_msgs::JointAdapter::convert_to_ros_message(_src.joint(), _dst.joint);
+    tobas_kdl_msgs::FrameAdapter::convert_to_ros_message(_src.frame(), _dst.frame);
+    tobas_kdl_msgs::RigidBodyInertiaAdapter::convert_to_ros_message(_src.inertia(), _dst.inertia);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
     std::string name;
     tobas::kdl::Joint joint;
     tobas::kdl::Frame frame;
     tobas::kdl::RigidBodyInertia inertia;
 
-    name = src.name;
-    tobas_kdl_msgs::JointAdapter::convert_to_custom(src.joint, joint);
-    tobas_kdl_msgs::FrameAdapter::convert_to_custom(src.frame, frame);
-    tobas_kdl_msgs::RigidBodyInertiaAdapter::convert_to_custom(src.inertia, inertia);
+    name = _src.name;
+    tobas_kdl_msgs::JointAdapter::convert_to_custom(_src.joint, joint);
+    tobas_kdl_msgs::FrameAdapter::convert_to_custom(_src.frame, frame);
+    tobas_kdl_msgs::RigidBodyInertiaAdapter::convert_to_custom(_src.inertia, inertia);
 
-    dst = tobas::kdl::Segment(name, joint, frame, inertia);
+    _dst = tobas::kdl::Segment(name, joint, frame, inertia);
   }
 };
 

@@ -16,11 +16,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace gui
-{
-namespace bm
+namespace tobas::gui::bm
 {
 SshAuthorizedKeysWidget::SshAuthorizedKeysWidget()
 {
@@ -104,16 +100,16 @@ bool SshAuthorizedKeysWidget::onConnected()
   return true;
 }
 
-bool SshAuthorizedKeysWidget::addKey(const ssh::ak::Data& key)
+bool SshAuthorizedKeysWidget::addKey(const ssh::ak::Data& _key)
 {
-  const auto key_disp = ssh::ak::prettify(key);
+  const auto key_disp = ssh::ak::prettify(_key);
   if (!key_disp) {
     qt::qErrorBox(
       this, "Failed to convert the SSH public key to a display string: " + QString::fromStdString(key_disp.error()));
     return false;
   }
 
-  keys_.push_back(key);
+  keys_.push_back(_key);
   list_->addItem(QString::fromStdString(*key_disp));
 
   return true;
@@ -219,6 +215,4 @@ void SshAuthorizedKeysWidget::onClearButtonClicked()
     return;
   }
 }
-}  // namespace bm
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::bm

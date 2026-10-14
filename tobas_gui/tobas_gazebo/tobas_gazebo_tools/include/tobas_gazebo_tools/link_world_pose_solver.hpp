@@ -7,18 +7,16 @@
 #include <gz/sim/Entity.hh>
 #include <gz/sim/EntityComponentManager.hh>
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class LinkWorldPoseSolver
 {
 public:
   explicit LinkWorldPoseSolver();
 
-  bool initialize(const gz::sim::Entity& model, const gz::sim::EntityComponentManager& ecm);
+  bool initialize(const gz::sim::Entity& _model, const gz::sim::EntityComponentManager& _ecm);
 
-  bool solve(const gz::sim::Entity& link, const gz::sim::EntityComponentManager& ecm);
+  bool solve(const gz::sim::Entity& _link, const gz::sim::EntityComponentManager& _ecm);
 
   const gz::math::Pose3d& getWorldPose() const
   {
@@ -29,5 +27,4 @@ private:
   gz::sim::Entity model_;
   gz::math::Pose3d pose_out_;
 };
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo

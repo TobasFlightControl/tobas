@@ -3,13 +3,9 @@
 
 #include "tobas_setup_assistant/frame_tree.hpp"
 
-namespace tobas
+namespace tobas::gui::sa
 {
-namespace gui
-{
-namespace sa
-{
-FrameTreeWidget::FrameTreeWidget(const kdl::Tree& tree, RvizWidget* rviz) : tree_(tree), rviz_(rviz)
+FrameTreeWidget::FrameTreeWidget(const kdl::Tree& _tree, RvizWidget* _rviz) : tree_(_tree), rviz_(_rviz)
 {
   setColumnCount(1);
   setHeaderLabels({ "Frames Tree" });
@@ -37,9 +33,14 @@ void FrameTreeWidget::updateInternalDataStructures()
   resizeColumns();
 }
 
-void FrameTreeWidget::onItemChanged(QTreeWidgetItem* item)
+void FrameTreeWidget::onItemChanged(QTreeWidgetItem* _item)
 {
-  const auto link_name = item->text(0);
+  // Clearing the tree during a reload also clears the current item.
+  if (!_item) {
+    return;
+  }
+
+  const auto link_name = _item->text(0);
   rviz_->heightLink(link_name);
 }
 
@@ -48,9 +49,9 @@ void FrameTreeWidget::resizeColumns()
   resizeColumnToContents(0);
 }
 
-void FrameTreeWidget::addTreeItemsRec(QTreeWidgetItem* parent_item)
+void FrameTreeWidget::addTreeItemsRec(QTreeWidgetItem* _parent_item)
 {
-  const auto parent_name = parent_item->text(0).toStdString();
+  const auto parent_name = _parent_item->text(0).toStdString();
 
   if (tree_.isEndSegment(parent_name)) {
     return;
@@ -60,10 +61,8 @@ void FrameTreeWidget::addTreeItemsRec(QTreeWidgetItem* parent_item)
   for (const auto& child_it : parent_it->second.children) {
     const auto& child_name = child_it->first;
     const auto child_item = new QTreeWidgetItem({ QString::fromStdString(child_name) });
-    parent_item->addChild(child_item);
+    _parent_item->addChild(child_item);
     addTreeItemsRec(child_item);
   }
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

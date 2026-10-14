@@ -7,13 +7,7 @@
 
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sa
-{
-namespace ctrl
+namespace tobas::gui::sa::ctrl
 {
 NonPlanarMulticopterWidget::NonPlanarMulticopterWidget()
 {
@@ -85,17 +79,14 @@ YAML::Node NonPlanarMulticopterWidget::dump() const
   return node;
 }
 
-void NonPlanarMulticopterWidget::load(const YAML::Node& node)
+void NonPlanarMulticopterWidget::load(const YAML::Node& _node)
 {
-  do_dist_comp_trans_->setChecked(node[do_dist_comp_trans_->text()].as<bool>());
-  do_dist_comp_rot_->setChecked(node[do_dist_comp_rot_->text()].as<bool>());
+  do_dist_comp_trans_->setChecked(_node[do_dist_comp_trans_->text()].as<bool>());
+  do_dist_comp_rot_->setChecked(_node[do_dist_comp_rot_->text()].as<bool>());
 }
 
 bool NonPlanarMulticopterWidget::isValid()
 {
   return true;
 }
-}  // namespace ctrl
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa::ctrl

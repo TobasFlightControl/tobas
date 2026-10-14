@@ -5,10 +5,7 @@
 
 #include <chrono>
 
-namespace tobas
-{
-namespace hardware
+namespace tobas::hardware
 {
 static constexpr auto kRetryInitializationInterval = std::chrono::seconds(1);
-}  // namespace hardware
-}  // namespace tobas
+}  // namespace tobas::hardware

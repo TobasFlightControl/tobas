@@ -3,14 +3,10 @@
 
 #include "tobas_setup_assistant/param_getters/combo_box.hpp"
 
-namespace tobas
+namespace tobas::gui::sa
 {
-namespace gui
-{
-namespace sa
-{
-ParamGetterWidget_ComboBox::ParamGetterWidget_ComboBox(const QString& param_name, const QString& description_text)
-  : super(param_name, description_text)
+ParamGetterWidget_ComboBox::ParamGetterWidget_ComboBox(const QString& _param_name, const QString& _description_text)
+  : super(_param_name, _description_text)
 {
   box_ = new qt::ComboBox();
   rows_->addWidget(box_);
@@ -24,13 +20,13 @@ QString ParamGetterWidget_ComboBox::getValue() const
   return box_->currentText();
 }
 
-bool ParamGetterWidget_ComboBox::setValue(const QString& src)
+bool ParamGetterWidget_ComboBox::setValue(const QString& _src)
 {
-  if (!box_->contains(src)) {
+  if (!box_->contains(_src)) {
     return false;
   }
 
-  box_->setCurrentText(src);
+  box_->setCurrentText(_src);
   return true;
 }
 
@@ -39,31 +35,29 @@ int ParamGetterWidget_ComboBox::currentIndex() const
   return box_->currentIndex();
 }
 
-void ParamGetterWidget_ComboBox::addChoice(const QString& item)
+void ParamGetterWidget_ComboBox::addChoice(const QString& _item)
 {
-  box_->addItem(item);
+  box_->addItem(_item);
 }
 
-void ParamGetterWidget_ComboBox::addChoices(const QStringList& items)
+void ParamGetterWidget_ComboBox::addChoices(const QStringList& _items)
 {
-  box_->addItems(items);
+  box_->addItems(_items);
 }
 
-void ParamGetterWidget_ComboBox::setChoices(const QStringList& items)
+void ParamGetterWidget_ComboBox::setChoices(const QStringList& _items)
 {
   box_->clear();
-  addChoices(items);
+  addChoices(_items);
 }
 
-void ParamGetterWidget_ComboBox::onIndexChanged(int index)
+void ParamGetterWidget_ComboBox::onIndexChanged(int _index)
 {
-  Q_EMIT indexChanged(index);
+  Q_EMIT indexChanged(_index);
 }
 
-void ParamGetterWidget_ComboBox::onTextChanged(const QString& text)
+void ParamGetterWidget_ComboBox::onTextChanged(const QString& _text)
 {
-  Q_EMIT textChanged(text);
+  Q_EMIT textChanged(_text);
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

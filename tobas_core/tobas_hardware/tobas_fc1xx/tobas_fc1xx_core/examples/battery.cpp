@@ -14,18 +14,18 @@ int main()
   float voltage, current;
 
   if (!battery.initialize()) {
-    cerr << "Failed to initialize ADC." << endl;
+    cerr << "Failed to initialize ADC.\n";
     return EXIT_FAILURE;
   }
 
   while (true) {
     if (!battery.read(voltage, current)) {
-      cerr << "Failed to read battery status." << endl;
+      cerr << "Failed to read battery status.\n";
       continue;
     }
 
-    cout << "Voltage [V]: " << voltage << endl;
-    cout << "Current [A]: " << current << endl;
+    cout << "Voltage [V]: " << voltage << '\n';
+    cout << "Current [A]: " << current << '\n';
 
     this_thread::sleep_for(10ms);
   }

@@ -3,9 +3,7 @@
 
 #include "tobas_qt_tools/file_system_watcher.hpp"
 
-namespace tobas
-{
-namespace qt
+namespace tobas::qt
 {
 void FileSystemWatcher::clear()
 {
@@ -17,5 +15,4 @@ void FileSystemWatcher::clear()
     removePath(p);
   }
 }
-}  // namespace qt
-}  // namespace tobas
+}  // namespace tobas::qt

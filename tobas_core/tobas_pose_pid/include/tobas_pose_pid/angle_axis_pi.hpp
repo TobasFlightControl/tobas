@@ -12,10 +12,10 @@ class AngleAxisPI
 public:
   explicit AngleAxisPI();
 
-  kdl::Vector update(const kdl::Rotation& cur_rot, const kdl::Rotation& tar_rot, double dt);
+  kdl::Vector update(const kdl::Rotation& _cur_rot, const kdl::Rotation& _tar_rot, double _dt);
 
-  void setProportionalGain(int idx, double value);
-  void setIntegralGain(int idx, double value);
+  void setProportionalGain(int _idx, double _value);
+  void setIntegralGain(int _idx, double _value);
 
   inline const kdl::Vector& getIntegralError() const;
   inline void resetIntegralError();

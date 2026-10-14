@@ -8,11 +8,7 @@
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace sim
+namespace tobas::gui::sim
 {
 class PoseWidget : public QWidget
 {
@@ -34,6 +30,4 @@ private:
   std::array<qt::DoubleSpinBox*, 3> xyz_;  ///< [m]
   std::array<qt::SpinBox*, 3> rpy_;        ///< [deg]
 };
-}  // namespace sim
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sim

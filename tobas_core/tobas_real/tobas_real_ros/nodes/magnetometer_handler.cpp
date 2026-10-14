@@ -16,9 +16,7 @@
 
 namespace fs = std::filesystem;
 
-namespace tobas
-{
-namespace real
+namespace tobas::real
 {
 class MagnetometerHandlerNode : public BaseNode
 {
@@ -27,7 +25,7 @@ class MagnetometerHandlerNode : public BaseNode
   using SetParams = tobas_real_msgs::srv::SetMagnetometerParams;
 
 public:
-  explicit MagnetometerHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit MagnetometerHandlerNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
   std::string section_;
@@ -44,12 +42,12 @@ private:
   bool getConfig();
   void registerPubSub();
 
-  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_in);
-  void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
+  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& _mag_in);
+  void setParamsCb(const SetParams::Request::ConstSharedPtr& _req, const SetParams::Response::SharedPtr& _res);
 };
 
-MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& options)
-  : super("real_magnetometer_handler", nodeOptions_Default(options))
+MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& _options)
+  : super("real_magnetometer_handler", nodeOptions_Default(_options))
 {
   section_ = getStringParam("section");
 
@@ -95,27 +93,27 @@ void MagnetometerHandlerNode::registerPubSub()
   mag_sub_ = createSubscriber(real::topic::kMagneticField, &self::magCb, this);
 }
 
-void MagnetometerHandlerNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& mag_in)
+void MagnetometerHandlerNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& _mag_in)
 {
-  auto mag_out = std::make_unique<tobas_msgs::MagneticField>(*mag_in);
-  mag_out->mag.data = ellipsoid_.toUnitSphere(mag_in->mag.data);
+  auto mag_out = std::make_unique<tobas_msgs::MagneticField>(*_mag_in);
+  mag_out->mag.data = ellipsoid_.toUnitSphere(_mag_in->mag.data);
   mag_pub_->publish(std::move(mag_out));
 }
 
 void MagnetometerHandlerNode::setParamsCb(
-  const SetParams::Request::ConstSharedPtr& req,
-  const SetParams::Response::SharedPtr& res)
+  const SetParams::Request::ConstSharedPtr& _req,
+  const SetParams::Response::SharedPtr& _res)
 {
   // Update parameters.
-  ellipsoid_.setHardBias(eigen::fromStdArray(req->hard_bias));
-  ellipsoid_.setSoftBias(eigen::fromStdArray(req->soft_bias));
+  ellipsoid_.setHardBias(eigen::fromStdArray(_req->hard_bias));
+  ellipsoid_.setSoftBias(eigen::fromStdArray(_req->soft_bias));
 
   // Save parameters.
-  pt_.set(section_, handler::mag::kHardBiasKey, req->hard_bias);
-  pt_.set(section_, handler::mag::kSoftBiasKey, req->soft_bias);
+  pt_.set(section_, handler::mag::kHardBiasKey, _req->hard_bias);
+  pt_.set(section_, handler::mag::kSoftBiasKey, _req->soft_bias);
   if (const auto result = pt_.save(); !result) {
-    res->success = false;
-    res->message = "Failed to save parameters: " + result.error();
+    _res->success = false;
+    _res->message = "Failed to save parameters: " + result.error();
     return;
   }
 
@@ -123,10 +121,9 @@ void MagnetometerHandlerNode::setParamsCb(
     registerPubSub();
   }
 
-  res->success = true;
-  res->message.clear();
+  _res->success = true;
+  _res->message.clear();
 }
-}  // namespace real
-}  // namespace tobas
+}  // namespace tobas::real
 
 RCLCPP_COMPONENTS_REGISTER_NODE(tobas::real::MagnetometerHandlerNode)

@@ -14,22 +14,18 @@
 #include "./rcin_viewer/rcin_viewer.hpp"
 #include "./rotors_viewer/rotors_viewer.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class ControlSystemWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit ControlSystemWidget(const rqt::RosQtBridge& bridge, const Drone& drone);
+  explicit ControlSystemWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone);
 
   void reset();
   void updateInternalDataStructures();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr node, const std::string& ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:
@@ -46,6 +42,4 @@ private:
   HealthViewerWidget* health_viewer_;
   MissionPlannerWidget* mission_planner_;
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

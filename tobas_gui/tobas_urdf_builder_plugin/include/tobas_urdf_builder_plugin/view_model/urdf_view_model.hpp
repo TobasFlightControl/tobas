@@ -9,13 +9,7 @@
 #include "./joint_view_model.hpp"
 #include "./link_view_model.hpp"
 
-namespace tobas
-{
-namespace gui
-{
-namespace ub
-{
-namespace view_model
+namespace tobas::gui::ub::view_model
 {
 class URDFViewModel
 {
@@ -37,7 +31,7 @@ public:
   /** Get the name of the robot model. */
   const std::string& name() const;
   /** Set the name of the robot model. */
-  void name(const std::string& name);
+  void name(const std::string& _name);
 
   /** Get the root link (the parent of the tree describing the robot). */
   const ::urdf::LinkSharedPtr& rootLink() const;
@@ -48,13 +42,13 @@ public:
   QStringList jointNames() const;
 
   void newRobot();
-  bool loadRobot(const QString& file_path);
-  bool saveRobot(const QString& file_path);
+  bool loadRobot(const QString& _file_path);
+  bool saveRobot(const QString& _file_path);
 
-  void addLink(const LinkViewModelPtr& link_vm);
-  void cloneLink(const LinkViewModelPtr& link_vm);
-  void removeLink(const LinkViewModelPtr& link_vm);
-  void updateLink(const LinkViewModelPtr& old_link_vm, const LinkViewModelPtr& new_link_vm);
+  void addLink(const LinkViewModelPtr& _link_vm);
+  void cloneLink(const LinkViewModelPtr& _link_vm);
+  void removeLink(const LinkViewModelPtr& _link_vm);
+  void updateLink(const LinkViewModelPtr& _old_link_vm, const LinkViewModelPtr& _new_link_vm);
 
 private:
   ::urdf::ModelSharedPtr urdf_;
@@ -62,11 +56,8 @@ private:
   size_t clone_count_ = 0;
 
   /** Add a suffix to all links and joints under this node. */
-  void addNameSuffixRec(const LinkViewModelPtr& link_vm, const QString& suffix);
+  void addNameSuffixRec(const LinkViewModelPtr& _link_vm, const QString& _suffix);
 
-  static void removeTextureTagsWithoutFilename(tinyxml2::XMLElement* element);
+  static void removeTextureTagsWithoutFilename(tinyxml2::XMLElement* _element);
 };
-}  // namespace view_model
-}  // namespace ub
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ub::view_model

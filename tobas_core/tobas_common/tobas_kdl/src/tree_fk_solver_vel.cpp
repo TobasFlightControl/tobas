@@ -5,40 +5,37 @@
 
 #include <cassert>
 
-namespace tobas
+namespace tobas::kdl
 {
-namespace kdl
-{
-TreeFkSolverVel::TreeFkSolverVel(const Tree& tree) : super(tree)
+TreeFkSolverVel::TreeFkSolverVel(const Tree& _tree) : super(_tree)
 {
 }
 
-FrameVel TreeFkSolverVel::jntToCart(const JntArray& q, const JntArray& qd, const std::string& seg_name)
+FrameVel TreeFkSolverVel::jntToCart(const JntArray& _q, const JntArray& _qd, const std::string& _seg_name)
 {
-  assert(q.size() == tree_.getNrOfJoints());
-  assert(qd.size() == tree_.getNrOfJoints());
-  assert(tree_.hasSegment(seg_name));
+  assert(_q.size() == tree_.getNrOfJoints());
+  assert(_qd.size() == tree_.getNrOfJoints());
+  assert(tree_.hasSegment(_seg_name));
 
-  const auto seg_it = tree_.getSegment(seg_name);
-  return recursiveFk(q, qd, seg_it);
+  const auto seg_it = tree_.getSegment(_seg_name);
+  return recursiveFk(_q, _qd, seg_it);
 }
 
-FrameVel TreeFkSolverVel::recursiveFk(const JntArray& q, const JntArray& qd, const SegmentMap::const_iterator& cur_it)
+FrameVel TreeFkSolverVel::recursiveFk(const JntArray& _q, const JntArray& _qd, const SegmentMap::const_iterator& _cur_it)
 {
-  const auto& cur_ele = cur_it->second;
+  const auto& cur_ele = _cur_it->second;
   const auto& cur_seg = cur_ele.segment;
   const auto& cur_idx = cur_ele.q_nr;
 
-  const auto pose = cur_seg.pose(q(cur_idx));
-  const auto twist = cur_seg.twist(q(cur_idx), qd(cur_idx));
+  const auto pose = cur_seg.pose(_q(cur_idx));
+  const auto twist = cur_seg.twist(_q(cur_idx), _qd(cur_idx));
   const FrameVel cur_framevel(pose, twist);
 
-  if (cur_it == tree_.getRootSegment()) {
+  if (_cur_it == tree_.getRootSegment()) {
     return cur_framevel;
   }
 
   const auto& parent_it = cur_ele.parent;
-  return recursiveFk(q, qd, parent_it) * cur_framevel;
+  return recursiveFk(_q, _qd, parent_it) * cur_framevel;
 }
-}  // namespace kdl
-}  // namespace tobas
+}  // namespace tobas::kdl

@@ -11,14 +11,10 @@
 #include <tobas_constants/path.hpp>
 #include <tobas_qt_tools/path.hpp>
 
-namespace tobas
+namespace tobas::gui::log
 {
-namespace gui
-{
-namespace log
-{
-ExportThreadRosbag::ExportThreadRosbag(const QString& log_name, const QString& save_path)
-  : log_name_(log_name), save_path_(save_path)
+ExportThreadRosbag::ExportThreadRosbag(const QString& _log_name, const QString& _save_path)
+  : log_name_(_log_name), save_path_(_save_path)
 {
 }
 
@@ -77,27 +73,27 @@ void ExportThreadRosbag::run()
   Q_EMIT finished(true, "");
 }
 
-bool ExportThreadRosbag::addZipEntry(QuaZip& zip, const QString& abs_path, const QString& zip_path)
+bool ExportThreadRosbag::addZipEntry(QuaZip& _zip, const QString& _abs_path, const QString& _zip_path)
 {
-  const QFileInfo info(abs_path);
+  const QFileInfo info(_abs_path);
 
-  QuaZipFile zip_file(&zip);
+  QuaZipFile zip_file(&_zip);
 
-  QuaZipNewInfo zip_info(zip_path, abs_path);
+  QuaZipNewInfo zip_info(_zip_path, _abs_path);
   zip_info.setPermissions(info.permissions());
 
   // Create the zip file.
   if (!zip_file.open(QIODevice::WriteOnly, zip_info)) {
-    Q_EMIT finished(false, "Failed to add entry to zip: " + zip_path);
+    Q_EMIT finished(false, "Failed to add entry to zip: " + _zip_path);
     return false;
   }
 
   // If the source is a file, write its contents.
   if (info.isFile()) {
-    QFile input_file(abs_path);
+    QFile input_file(_abs_path);
 
     if (!input_file.open(QIODevice::ReadOnly)) {
-      Q_EMIT finished(false, "Failed to open file: " + abs_path);
+      Q_EMIT finished(false, "Failed to open file: " + _abs_path);
       return false;
     }
 
@@ -108,7 +104,7 @@ bool ExportThreadRosbag::addZipEntry(QuaZip& zip, const QString& abs_path, const
       const auto read_size = input_file.read(buffer.data(), buffer.size());
 
       if (read_size < 0) {
-        Q_EMIT finished(false, "Failed to read file: " + abs_path);
+        Q_EMIT finished(false, "Failed to read file: " + _abs_path);
         return false;
       }
 
@@ -119,7 +115,7 @@ bool ExportThreadRosbag::addZipEntry(QuaZip& zip, const QString& abs_path, const
       const auto write_size = zip_file.write(buffer.constData(), read_size);
 
       if (write_size != read_size) {
-        Q_EMIT finished(false, "Failed to write file to zip: " + zip_path);
+        Q_EMIT finished(false, "Failed to write file to zip: " + _zip_path);
         return false;
       }
     }
@@ -128,12 +124,10 @@ bool ExportThreadRosbag::addZipEntry(QuaZip& zip, const QString& abs_path, const
   zip_file.close();
 
   if (zip_file.getZipError() != 0) {
-    Q_EMIT finished(false, "Zip error while closing entry: " + zip_path);
+    Q_EMIT finished(false, "Zip error while closing entry: " + _zip_path);
     return false;
   }
 
   return true;
 }
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

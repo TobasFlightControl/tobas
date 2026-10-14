@@ -13,7 +13,7 @@ int main()
   // Initialize driver.
   tobas::fc1xx::DShot dshot;
   if (!dshot.initialize()) {
-    cerr << "Failed to initialize DShot driver." << endl;
+    cerr << "Failed to initialize DShot driver.\n";
     return EXIT_FAILURE;
   }
 
@@ -26,11 +26,11 @@ int main()
   // Command throttles.
   while (true) {
     if (const auto result = dshot.transfer(); !result) {
-      cerr << "Failed to command DShot throttles: " << result.error() << endl;
+      cerr << "Failed to command DShot throttles: " << result.error() << '\n';
       continue;
     }
     dshot.printCurrentStates();
-    cout << "----------" << endl;
+    cout << "----------\n";
     this_thread::sleep_for(10ms);
   }
 

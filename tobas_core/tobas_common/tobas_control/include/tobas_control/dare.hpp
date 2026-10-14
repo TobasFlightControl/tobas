@@ -8,17 +8,14 @@
 
 #include <eigen3/Eigen/Core>
 
-namespace tobas
-{
-namespace ctrl
+namespace tobas::ctrl
 {
 /** Solve the discrete-time algebraic Riccati equation. */
 std::expected<Eigen::MatrixXd, std::string> dare(
-  const Eigen::MatrixXd& A,
-  const Eigen::MatrixXd& B,
-  const Eigen::MatrixXd& Q,
-  const Eigen::MatrixXd& R,
-  double tol = 1e-3,
-  size_t max_iter = 10000) noexcept;
-}  // namespace ctrl
-}  // namespace tobas
+  const Eigen::MatrixXd& _a,
+  const Eigen::MatrixXd& _b,
+  const Eigen::MatrixXd& _q,
+  const Eigen::MatrixXd& _r,
+  double _tol = 1e-3,
+  size_t _max_iter = 10000) noexcept;
+}  // namespace tobas::ctrl

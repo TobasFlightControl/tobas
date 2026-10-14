@@ -34,16 +34,16 @@ struct rclcpp::TypeAdapter<tobas_kdl_msgs::TwistWithCovariance, tobas_kdl_msgs::
   using custom_type = tobas_kdl_msgs::TwistWithCovariance;
   using ros_message_type = tobas_kdl_msgs::msg::TwistWithCovariance;
 
-  static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
+  static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
-    tobas_kdl_msgs::TwistAdapter::convert_to_ros_message(src.twist, dst.twist);
-    tobas_eigen_msgs::Matrix6dAdapter::convert_to_ros_message(src.covariance, dst.covariance);
+    tobas_kdl_msgs::TwistAdapter::convert_to_ros_message(_src.twist, _dst.twist);
+    tobas_eigen_msgs::Matrix6dAdapter::convert_to_ros_message(_src.covariance, _dst.covariance);
   }
 
-  static void convert_to_custom(const ros_message_type& src, custom_type& dst)
+  static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
-    tobas_kdl_msgs::TwistAdapter::convert_to_custom(src.twist, dst.twist);
-    tobas_eigen_msgs::Matrix6dAdapter::convert_to_custom(src.covariance, dst.covariance);
+    tobas_kdl_msgs::TwistAdapter::convert_to_custom(_src.twist, _dst.twist);
+    tobas_eigen_msgs::Matrix6dAdapter::convert_to_custom(_src.covariance, _dst.covariance);
   }
 };
 

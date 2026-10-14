@@ -6,9 +6,7 @@
 #include <optional>
 #include <string>
 
-namespace tobas
-{
-namespace cyclonedds
+namespace tobas::cyclonedds
 {
 struct NetworkInterface
 {
@@ -16,5 +14,4 @@ struct NetworkInterface
   std::optional<int> priority;
   std::optional<bool> multicast;
 };
-}  // namespace cyclonedds
-}  // namespace tobas
+}  // namespace tobas::cyclonedds

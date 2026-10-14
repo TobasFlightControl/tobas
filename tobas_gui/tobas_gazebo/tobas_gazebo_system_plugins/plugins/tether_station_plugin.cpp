@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
+
 #include <gz/msgs/marker.pb.h>
 #include <gz/sim/Link.hh>
 #include <gz/sim/Model.hh>
@@ -22,9 +24,7 @@
 
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class GazeboTetherStationPlugin : public BaseNode,
                                   public gz::sim::System,
@@ -39,12 +39,12 @@ public:
   explicit GazeboTetherStationPlugin();
 
   void Configure(
-    const gz::sim::Entity& model_entity,
-    const sdf::ElementConstPtr& sdf,
-    gz::sim::EntityComponentManager& ecm,
+    const gz::sim::Entity& _model_entity,
+    const sdf::ElementConstPtr& _sdf,
+    gz::sim::EntityComponentManager& _ecm,
     gz::sim::EventManager&) override;
 
-  void PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm) override;
+  void PreUpdate(const gz::sim::UpdateInfo& _info, gz::sim::EntityComponentManager& _ecm) override;
 
 private:
   // SDF parameters
@@ -75,10 +75,10 @@ private:
   gz::msgs::Vector3d* line_p0_;
   gz::msgs::Vector3d* line_p1_;
 
-  void getSdfParams(const sdf::ElementConstPtr& sdf);
+  void getSdfParams(const sdf::ElementConstPtr& _sdf);
 
-  void getParamsCb(const GetSrv::Request::ConstSharedPtr& req, const GetSrv::Response::SharedPtr& res);
-  void setParamsCb(const SetSrv::Request::ConstSharedPtr& req, const SetSrv::Response::SharedPtr& res);
+  void getParamsCb(const GetSrv::Request::ConstSharedPtr& _req, const GetSrv::Response::SharedPtr& _res);
+  void setParamsCb(const SetSrv::Request::ConstSharedPtr& _req, const SetSrv::Response::SharedPtr& _res);
 };
 
 GazeboTetherStationPlugin::GazeboTetherStationPlugin() : rate_manager_(60)
@@ -86,31 +86,31 @@ GazeboTetherStationPlugin::GazeboTetherStationPlugin() : rate_manager_(60)
 }
 
 void GazeboTetherStationPlugin::Configure(
-  const gz::sim::Entity& model_entity,
-  const sdf::ElementConstPtr& sdf,
-  gz::sim::EntityComponentManager& ecm,
+  const gz::sim::Entity& _model_entity,
+  const sdf::ElementConstPtr& _sdf,
+  gz::sim::EntityComponentManager& _ecm,
   gz::sim::EventManager&)
 {
   constexpr char kPluginName[] = "gazebo_tether_station_plugin";
 
-  initialize(kPluginName, sdf);
-  getSdfParams(sdf);
+  initialize(kPluginName, _sdf);
+  getSdfParams(_sdf);
 
   params_.tension = init_tension_;
   params_.maximum_length = init_max_length_;
 
-  const gz::sim::Model model(model_entity);
-  const auto link_entity = model.LinkByName(ecm, link_name_);
+  const gz::sim::Model model(_model_entity);
+  const auto link_entity = model.LinkByName(_ecm, link_name_);
   link_ = gz::sim::Link(link_entity);
-  if (!link_.Valid(ecm)) {
+  if (!link_.Valid(_ecm)) {
     TOBAS_EXIT("Failed to find the specified link '", link_name_, "'.");
   }
 
-  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
-  linvel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm);
-  angvel_W_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm);
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, _ecm);
+  linvel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, _ecm);
+  angvel_W_ = getComponent<cmp::WorldAngularVelocity>(link_entity, _ecm);
 
-  if (!mass_holder_.initialize(model_entity, ecm)) {
+  if (!mass_holder_.initialize(_model_entity, _ecm)) {
     TOBAS_EXIT("Failed to initialize model mass holder.");
   }
 
@@ -125,8 +125,12 @@ void GazeboTetherStationPlugin::Configure(
   line_p1_ = marker_.add_point();
 }
 
-void GazeboTetherStationPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
+void GazeboTetherStationPlugin::PreUpdate(const gz::sim::UpdateInfo& _info, gz::sim::EntityComponentManager& _ecm)
 {
+  if (_info.paused || _info.dt <= std::chrono::steady_clock::duration::zero()) {
+    return;
+  }
+
   // Get the current state.
   const auto& T_W_B = pose_W_->Data();
   const auto& W_Pos_WB = T_W_B.Pos();
@@ -165,65 +169,64 @@ void GazeboTetherStationPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::s
   // Apply tension along the cable direction.
   const auto axis_W = -W_Pos_PQ.Normalized();
   const auto force_W = T * axis_W;
-  link_.AddWorldForce(ecm, force_W, B_Pos_BQ_);
+  link_.AddWorldForce(_ecm, force_W, B_Pos_BQ_);
 
   // Update the line marker for visualization.
-  if (rate_manager_.update(info.simTime)) {
+  if (rate_manager_.update(_info.simTime)) {
     vector3dGzToMsg(W_Pos_WP_, *line_p0_);
     vector3dGzToMsg(W_Pos_WQ, *line_p1_);
     node_.Request(kGzMarkerSrv, marker_);
   }
 }
 
-void GazeboTetherStationPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+void GazeboTetherStationPlugin::getSdfParams(const sdf::ElementConstPtr& _sdf)
 {
   constexpr double kDefaultInitTension = 1.0;       // [N]
   constexpr double kDefaultInitMaxLength = 5.0;     // [N]
   constexpr double kDefaultYoungModulus = 200.0;    // [MPa] Low-density polyethylene.
   constexpr double kDefaultCrossSectionArea = 1.0;  // [mm^2]
 
-  link_name_ = getSdfParam<std::string>(sdf, "linkName");
-  W_Pos_WP_ = getSdfParam<gz::math::Vector3d>(sdf, "worldEnd", gz::math::Vector3d::Zero);
-  B_Pos_BQ_ = getSdfParam<gz::math::Vector3d>(sdf, "droneEnd", gz::math::Vector3d::Zero);
-  init_tension_ = getSdfParam<double>(sdf, "initialTension", kDefaultInitTension, kNonNegative);
-  init_max_length_ = getSdfParam<double>(sdf, "initialMaximumLength", kDefaultInitMaxLength, kPositive);
-  young_ = getSdfParam<double>(sdf, "youngModulus", kDefaultYoungModulus, kPositive);
-  csa_ = getSdfParam<double>(sdf, "crossSectionArea", kDefaultCrossSectionArea, kPositive);
+  link_name_ = getSdfParam<std::string>(_sdf, "linkName");
+  W_Pos_WP_ = getSdfParam<gz::math::Vector3d>(_sdf, "worldEnd", gz::math::Vector3d::Zero);
+  B_Pos_BQ_ = getSdfParam<gz::math::Vector3d>(_sdf, "droneEnd", gz::math::Vector3d::Zero);
+  init_tension_ = getSdfParam<double>(_sdf, "initialTension", kDefaultInitTension, kNonNegative);
+  init_max_length_ = getSdfParam<double>(_sdf, "initialMaximumLength", kDefaultInitMaxLength, kPositive);
+  young_ = getSdfParam<double>(_sdf, "youngModulus", kDefaultYoungModulus, kPositive);
+  csa_ = getSdfParam<double>(_sdf, "crossSectionArea", kDefaultCrossSectionArea, kPositive);
 }
 
 void GazeboTetherStationPlugin::getParamsCb(
   const GetSrv::Request::ConstSharedPtr&,
-  const GetSrv::Response::SharedPtr& res)
+  const GetSrv::Response::SharedPtr& _res)
 {
-  res->params = params_;
+  _res->params = params_;
 }
 
 void GazeboTetherStationPlugin::setParamsCb(
-  const SetSrv::Request::ConstSharedPtr& req,
-  const SetSrv::Response::SharedPtr& res)
+  const SetSrv::Request::ConstSharedPtr& _req,
+  const SetSrv::Response::SharedPtr& _res)
 {
-  res->params = params_;
+  _res->params = params_;
 
   // Tension
-  if (req->params.tension < 0) {
+  if (_req->params.tension < 0) {
     TOBAS_ERROR("Tension must be non-negative.");
-    res->success = false;
+    _res->success = false;
     return;
   }
-  params_.tension = res->params.tension = req->params.tension;
+  params_.tension = _res->params.tension = _req->params.tension;
 
   // Maximum length
-  if (req->params.maximum_length <= 0) {
+  if (_req->params.maximum_length <= 0) {
     TOBAS_ERROR(": Maximum length must be positive.");
-    res->success = false;
+    _res->success = false;
     return;
   }
-  params_.maximum_length = res->params.maximum_length = req->params.maximum_length;
+  params_.maximum_length = _res->params.maximum_length = _req->params.maximum_length;
 
-  res->success = true;
+  _res->success = true;
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboTetherStationPlugin,

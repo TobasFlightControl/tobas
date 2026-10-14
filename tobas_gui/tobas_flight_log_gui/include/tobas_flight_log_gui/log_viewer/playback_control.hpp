@@ -8,11 +8,7 @@
 #include <QSlider>
 #include <QTimer>
 
-namespace tobas
-{
-namespace gui
-{
-namespace log
+namespace tobas::gui::log
 {
 class PlaybackControlWidget : public QWidget
 {
@@ -21,7 +17,7 @@ class PlaybackControlWidget : public QWidget
   using self = PlaybackControlWidget;
 
 Q_SIGNALS:
-  void timeChanged(double sec);
+  void timeChanged(double _sec);
 
 public:
   explicit PlaybackControlWidget();
@@ -31,8 +27,8 @@ public:
   double getDuration() const;
   double getCurrentTime() const;
 
-  void setDuration(double sec);
-  void setCurrentTime(double sec);
+  void setDuration(double _sec);
+  void setCurrentTime(double _sec);
 
 private:
   QPushButton* play_button_;
@@ -44,19 +40,17 @@ private:
 
   QTimer timer_;
 
-  QString formatTime(int msec);
+  QString formatTime(int _msec);
 
-  void updateCurrentTimeLabel(int cur_msec);
-  void updateRemainingTimeLabel(int cur_msec);
-  void updateTimeLabels(int cur_msec);
+  void updateCurrentTimeLabel(int _cur_msec);
+  void updateRemainingTimeLabel(int _cur_msec);
+  void updateTimeLabels(int _cur_msec);
 
 private Q_SLOTS:
-  void onPlayButtonToggled(bool checked);
-  void onSliderValueChanged(int value);
+  void onPlayButtonToggled(bool _checked);
+  void onSliderValueChanged(int _value);
   void onSliderPressed();
   void onSliderReleased();
   void onTimerTimeout();
 };
-}  // namespace log
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::log

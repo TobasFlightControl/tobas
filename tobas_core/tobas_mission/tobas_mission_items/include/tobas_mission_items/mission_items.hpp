@@ -10,9 +10,7 @@
 
 #define PACKED __attribute__((__packed__))  // Struct member variables are stored contiguously in memory.
 
-namespace tobas
-{
-namespace mission
+namespace tobas::mission
 {
 struct PACKED Waypoint
 {
@@ -79,7 +77,6 @@ struct PACKED ReturnToLaunch
 
   std::float64_t timeout = 0.0;  ///< [s]
 };
-}  // namespace mission
-}  // namespace tobas
+}  // namespace tobas::mission
 
 #undef PACKED

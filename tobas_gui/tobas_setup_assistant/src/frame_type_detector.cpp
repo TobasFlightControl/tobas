@@ -6,14 +6,10 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-namespace tobas
+namespace tobas::gui::sa
 {
-namespace gui
-{
-namespace sa
-{
-FrameTypeDetector::FrameTypeDetector(const uadf::Model& uadf, const kdl::Tree& tree)
-  : uadf_(uadf), tree_(tree), jnt_parser_(tree), axis_solver_(tree)
+FrameTypeDetector::FrameTypeDetector(const uadf::Model& _uadf, const kdl::Tree& _tree)
+  : uadf_(_uadf), tree_(_tree), jnt_parser_(_tree), axis_solver_(_tree)
 {
 }
 
@@ -91,11 +87,11 @@ FrameTypeDetectionResult FrameTypeDetector::determineFrameType()
 }
 
 bool FrameTypeDetector::isJntAxisAlwaysParallel(
-  const std::string& link_name,
-  const kdl::Vector& tar_axis,
-  bool same_direction_only)
+  const std::string& _link_name,
+  const kdl::Vector& _tar_axis,
+  bool _same_direction_only)
 {
-  const auto seg_it = tree_.getSegment(link_name);
+  const auto seg_it = tree_.getSegment(_link_name);
   const auto& elem = seg_it->second;
 
   // Return true if traversal reaches the root link without problems.
@@ -108,28 +104,28 @@ bool FrameTypeDetector::isJntAxisAlwaysParallel(
   const auto& joint = elem.segment.joint();
   if (joint.type != kdl::Joint::kFixed) {
     constexpr double kJntAxisParallelTol = st::deg2rad(5);  // [rad]
-    const auto cur_axis = axis_solver_.jntToCart(q_zeros_, link_name);
-    if (!cur_axis.isParallel(tar_axis, same_direction_only, kJntAxisParallelTol)) {
+    const auto cur_axis = axis_solver_.jntToCart(q_zeros_, _link_name);
+    if (!cur_axis.isParallel(_tar_axis, _same_direction_only, kJntAxisParallelTol)) {
       return false;
     }
   }
 
   // Check the parent link.
   const auto& par_name = elem.parent->first;
-  return isJntAxisAlwaysParallel(par_name, tar_axis, same_direction_only);
+  return isJntAxisAlwaysParallel(par_name, _tar_axis, _same_direction_only);
 }
 
-bool FrameTypeDetector::isJntAxisAlwaysPerpendicular(const std::string& link_name, const kdl::Vector& tar_axis)
+bool FrameTypeDetector::isJntAxisAlwaysPerpendicular(const std::string& _link_name, const kdl::Vector& _tar_axis)
 {
-  const auto seg_it = tree_.getSegment(link_name);
+  const auto seg_it = tree_.getSegment(_link_name);
   const auto& elem = seg_it->second;
 
   const auto& joint = elem.segment.joint();
   TOBAS_CHECK(joint.type == kdl::Joint::kRotation);
 
   // Condition 1: The axis in question is perpendicular to the target at some generalized coordinate configuration.
-  const auto axis = axis_solver_.jntToCart(q_zeros_, link_name);
-  if (!axis.isPerpendicular(tar_axis)) {
+  const auto axis = axis_solver_.jntToCart(q_zeros_, _link_name);
+  if (!axis.isPerpendicular(_tar_axis)) {
     return false;
   }
 
@@ -138,14 +134,14 @@ bool FrameTypeDetector::isJntAxisAlwaysPerpendicular(const std::string& link_nam
   // by any number of joint axes perpendicular to the axis in question,
   // but this case is ignored because such a configuration is probably quite rare.
   const auto& par_name = elem.parent->first;
-  return isJntAxisAlwaysParallel(par_name, tar_axis, false);
+  return isJntAxisAlwaysParallel(par_name, _tar_axis, false);
 }
 
-bool FrameTypeDetector::allThrustJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only)
+bool FrameTypeDetector::allThrustJointAxesAlwaysParallel(const kdl::Vector& _tar_axis, bool _same_direction_only)
 {
   for (const auto& [joint_name, _] : uadf_.thrusts) {
     const auto& link_name = jnt_parser_.segmentName(joint_name);
-    if (!isJntAxisAlwaysParallel(link_name, tar_axis, same_direction_only)) {
+    if (!isJntAxisAlwaysParallel(link_name, _tar_axis, _same_direction_only)) {
       return false;
     }
   }
@@ -153,11 +149,11 @@ bool FrameTypeDetector::allThrustJointAxesAlwaysParallel(const kdl::Vector& tar_
   return true;
 }
 
-bool FrameTypeDetector::allThrustJointAxesAlwaysPerpendicular(const kdl::Vector& tar_axis)
+bool FrameTypeDetector::allThrustJointAxesAlwaysPerpendicular(const kdl::Vector& _tar_axis)
 {
   for (const auto& [joint_name, _] : uadf_.thrusts) {
     const auto& link_name = jnt_parser_.segmentName(joint_name);
-    if (!isJntAxisAlwaysPerpendicular(link_name, tar_axis)) {
+    if (!isJntAxisAlwaysPerpendicular(link_name, _tar_axis)) {
       return false;
     }
   }
@@ -165,11 +161,11 @@ bool FrameTypeDetector::allThrustJointAxesAlwaysPerpendicular(const kdl::Vector&
   return true;
 }
 
-bool FrameTypeDetector::allTiltJointAxesAlwaysParallel(const kdl::Vector& tar_axis, bool same_direction_only)
+bool FrameTypeDetector::allTiltJointAxesAlwaysParallel(const kdl::Vector& _tar_axis, bool _same_direction_only)
 {
   for (const auto& [joint_name, _] : uadf_.tilts) {
     const auto& link_name = jnt_parser_.segmentName(joint_name);
-    if (!isJntAxisAlwaysParallel(link_name, tar_axis, same_direction_only)) {
+    if (!isJntAxisAlwaysParallel(link_name, _tar_axis, _same_direction_only)) {
       return false;
     }
   }
@@ -228,6 +224,4 @@ bool FrameTypeDetector::allTiltRotorAxesPerpendicular()
 
   return true;
 }
-}  // namespace sa
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::sa

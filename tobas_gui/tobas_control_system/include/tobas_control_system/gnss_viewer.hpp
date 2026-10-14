@@ -6,11 +6,7 @@
 #include <tobas_qt_tools/widgets/framed_label.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
-namespace tobas
-{
-namespace gui
-{
-namespace ctrl
+namespace tobas::gui::ctrl
 {
 class GnssViewerWidget : public QWidget
 {
@@ -19,7 +15,7 @@ class GnssViewerWidget : public QWidget
   using self = GnssViewerWidget;
 
 public:
-  explicit GnssViewerWidget(const rqt::RosQtBridge& bridge);
+  explicit GnssViewerWidget(const rqt::RosQtBridge& _bridge);
 
   void reset();
 
@@ -27,12 +23,10 @@ private:
   qt::FramedLabel* status_;
   qt::FramedLabel* nsats_;
 
-  void setStatus(uint8_t status);
-  void setNSats(int nsats);
+  void setStatus(uint8_t _status);
+  void setNSats(int _nsats);
 
 private Q_SLOTS:
-  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
+  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss);
 };
-}  // namespace ctrl
-}  // namespace gui
-}  // namespace tobas
+}  // namespace tobas::gui::ctrl

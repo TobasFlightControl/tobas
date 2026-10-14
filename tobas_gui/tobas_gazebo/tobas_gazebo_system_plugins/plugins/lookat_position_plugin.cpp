@@ -14,9 +14,7 @@
 
 namespace cmp = gz::sim::components;
 
-namespace tobas
-{
-namespace gazebo
+namespace tobas::gazebo
 {
 class GazeboLookAtPositionPlugin : public BaseNode,
                                    public gz::sim::System,
@@ -27,12 +25,12 @@ public:
   explicit GazeboLookAtPositionPlugin();
 
   void Configure(
-    const gz::sim::Entity& model_entity,
-    const sdf::ElementConstPtr& sdf,
-    gz::sim::EntityComponentManager& ecm,
+    const gz::sim::Entity& _model_entity,
+    const sdf::ElementConstPtr& _sdf,
+    gz::sim::EntityComponentManager& _ecm,
     gz::sim::EventManager&) override;
 
-  void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
+  void PostUpdate(const gz::sim::UpdateInfo& _info, const gz::sim::EntityComponentManager& _ecm) override;
 
 private:
   const cmp::WorldPose* pose_W_;
@@ -47,21 +45,21 @@ GazeboLookAtPositionPlugin::GazeboLookAtPositionPlugin()
 }
 
 void GazeboLookAtPositionPlugin::Configure(
-  const gz::sim::Entity& model_entity,
-  const sdf::ElementConstPtr& sdf,
-  gz::sim::EntityComponentManager& ecm,
+  const gz::sim::Entity& _model_entity,
+  const sdf::ElementConstPtr& _sdf,
+  gz::sim::EntityComponentManager& _ecm,
   gz::sim::EventManager&)
 {
-  initialize("gazebo_lookat_position_plugin", sdf);
+  initialize("gazebo_lookat_position_plugin", _sdf);
 
-  const gz::sim::Model model(model_entity);
-  const auto link_name = getSdfParam<std::string>(sdf, "linkName");
-  const auto link_entity = model.LinkByName(ecm, link_name);
+  const gz::sim::Model model(_model_entity);
+  const auto link_name = getSdfParam<std::string>(_sdf, "linkName");
+  const auto link_entity = model.LinkByName(_ecm, link_name);
   if (link_entity == gz::sim::kNullEntity) {
     TOBAS_EXIT("Failed to find specified link '", link_name, "'.");
   }
 
-  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, _ecm);
 
   lookat_pos_pub_ = node_.Advertise<gz::msgs::Vector3d>(kGzCameraLookAtTopic);
 }
@@ -71,8 +69,7 @@ void GazeboLookAtPositionPlugin::PostUpdate(const gz::sim::UpdateInfo&, const gz
   vector3dGzToMsg(pose_W_->Data().Pos(), lookat_pos_);
   lookat_pos_pub_.Publish(lookat_pos_);
 }
-}  // namespace gazebo
-}  // namespace tobas
+}  // namespace tobas::gazebo
 
 GZ_ADD_PLUGIN(
   tobas::gazebo::GazeboLookAtPositionPlugin,
