@@ -15,4 +15,8 @@ rosidl_generate_interfaces(${PROJECT_NAME} ${IFACE_TARGETS} DEPENDENCIES ${AMENT
 
 ament_export_dependencies(rosidl_default_runtime ${AMENT_DEPENDENCIES})
 
+# Include license texts and third-party notices to satisfy redistribution requirements.
+install(FILES ../../LICENSE ../../THIRD_PARTY_NOTICES.txt DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY ../../LICENSES DESTINATION share/${PROJECT_NAME})
+
 ament_package()

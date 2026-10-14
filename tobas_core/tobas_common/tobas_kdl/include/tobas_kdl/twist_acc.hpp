@@ -1,5 +1,36 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
+// Source: https://github.com/orocos/orocos_kinematics_dynamics/blob/HEAD/orocos_kdl/src/frameacc.hpp
+// Source: https://github.com/orocos/orocos_kinematics_dynamics/blob/HEAD/orocos_kdl/src/frameacc.inl
+// Modified by Tobas, Inc.
+
+/*****************************************************************************
+ * \file
+ *      This file contains the definition of classes for a
+ *      Rall Algebra of (subset of) the classes defined in frames,
+ *      i.e. classes that contain a set (value,derivative,2nd derivative)
+ *      and define operations on that set
+ *      this classes are useful for automatic differentiation ( <-> symbolic diff ,
+ *      <-> numeric diff).
+ *      Defines VectorAcc, RotationAcc, FrameAcc, doubleAcc.
+ *      Look at the corresponding classes Vector Rotation Frame Twist and
+ *      Wrench for the semantics of the methods.
+ *
+ *      It also contains the 2nd derivative <-> RFrames.h
+ *
+ *  \author
+ *      Erwin Aertbelien, Div. PMA, Dep. of Mech. Eng., K.U.Leuven
+ *
+ *  \version
+ *      ORO_Geometry V0.2
+ *
+ *  \par History
+ *      - $log$
+ *
+ *  \par Release
+ *      $Id: rrframes.h,v 1.1.1.1 2002/08/26 14:14:21 rmoreas Exp $
+ *      $Name:  $
+ ****************************************************************************/
 
 #pragma once
 

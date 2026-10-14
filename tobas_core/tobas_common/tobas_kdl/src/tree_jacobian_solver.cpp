@@ -1,5 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
+// Source: https://github.com/orocos/orocos_kinematics_dynamics/blob/HEAD/orocos_kdl/src/treejnttojacsolver.cpp
+// Modified by Tobas, Inc.
+
+/*
+ * TreeJntToJacSolver.cpp
+ *
+ *  Created on: Nov 27, 2008
+ *      Author: rubensmits
+ */
 
 #include "tobas_kdl/tree_jacobian_solver.hpp"
 

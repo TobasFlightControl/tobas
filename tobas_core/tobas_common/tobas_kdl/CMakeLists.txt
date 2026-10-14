@@ -48,4 +48,8 @@ install(TARGETS ${TARGETS_TO_INSTALL} DESTINATION lib/${PROJECT_NAME})
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})
 
+# Include license texts and third-party notices to satisfy redistribution requirements.
+install(FILES ../../../LICENSE ../../../THIRD_PARTY_NOTICES.txt DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY ../../../LICENSES DESTINATION share/${PROJECT_NAME})
+
 ament_package()

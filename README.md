@@ -50,6 +50,9 @@ are licensed under Apache-2.0.
 See [LICENSE](./LICENSE) for the default open source license,
 and [LICENSES/Apache-2.0.txt](./LICENSES/Apache-2.0.txt) for the Apache-2.0 license text.
 
+Third-party copyright, attribution, and license notices are retained
+in the affected sources and [THIRD_PARTY_NOTICES.txt](./THIRD_PARTY_NOTICES.txt).
+
 If you want to distribute Tobas as part of a proprietary product,
 or if you do not wish to comply with the GPL for distribution,
 alternative commercial licensing is available from Tobas.

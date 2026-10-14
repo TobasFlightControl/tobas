@@ -1,5 +1,31 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
+// Source: https://github.com/orocos/orocos_kinematics_dynamics/blob/HEAD/orocos_kdl/src/utilities/rall2d.h
+// Modified by Tobas, Inc.
+
+/*****************************************************************************
+ * \file
+ *      class for automatic differentiation on scalar values and 1st
+ *      derivatives and 2nd derivative.
+ *
+ *  \author
+ *      Erwin Aertbelien, Div. PMA, Dep. of Mech. Eng., K.U.Leuven
+ *
+ *  \version
+ *      ORO_Geometry V0.2
+ *
+ *  \par Note
+ *      VC6++ contains a bug, concerning the use of inlined friend functions
+ *      in combination with namespaces.  So, try to avoid inlined friend
+ *      functions !
+ *
+ *  \par History
+ *      - $log$
+ *
+ *  \par Release
+ *      $Id: rall2d.h,v 1.1.1.1 2002/08/26 14:14:21 rmoreas Exp $
+ *      $Name:  $
+ ****************************************************************************/
 
 #pragma once
 
