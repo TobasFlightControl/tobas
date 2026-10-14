@@ -143,9 +143,9 @@ void ExportThreadCsv::run()
         const auto& msg = vibe_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kVibrationLevel] = ser_data;
       }
-      else if (topic.ends_with(str::concat('/', topic::kRepulsiveAccel).data())) {
-        const auto& msg = repulsive_accel_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kRepulsiveAccel] = ser_data;
+      else if (topic.ends_with(str::concat('/', topic::kAdditionalAccel).data())) {
+        const auto& msg = accel_decoder_.decode(ser_data);
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kAdditionalAccel] = ser_data;
       }
       else if (topic.ends_with(str::concat('/', topic::kDisturbanceForce).data())) {
         const auto& msg = wrench_decoder_.decode(ser_data);
@@ -251,7 +251,7 @@ std::string ExportThreadCsv::makeCsvHeader() const
 
   csv_header += "Latency/ControlLatency[us],"
                 "VibrationLevel/X[m/s^2],VibrationLevel/Y[m/s^2],VibrationLevel/Z[m/s^2],"
-                "RepulsiveAccel/X[m/s^2],RepulsiveAccel/Y[m/s^2],RepulsiveAccel/Z[m/s^2],"
+                "AdditionalAccel/X[m/s^2],AdditionalAccel/Y[m/s^2],AdditionalAccel/Z[m/s^2],"
                 "DisturbanceForce/Force/X[N],DisturbanceForce/Force/Y[N],DisturbanceForce/Force/Z[N],"
                 "DisturbanceForce/Torque/X[Nm],DisturbanceForce/Torque/Y[Nm],DisturbanceForce/Torque/Z[Nm],"
                 "Observer/AccelBias/X[m/s^2],Observer/AccelBias/Y[m/s^2],Observer/AccelBias/Z[m/s^2],"
@@ -443,11 +443,11 @@ std::string ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedDataMap&
     res += ",,,";
   }
 
-  // Repulsive Acceleration
-  const auto repulsive_accel_it = _data.find(topic::kRepulsiveAccel);
-  if (repulsive_accel_it != _data.end()) {
-    const auto& msg = repulsive_accel_decoder_.decode(repulsive_accel_it->second);
-    const auto& accel = msg.accel;
+  // Additional Acceleration
+  const auto additional_accel_it = _data.find(topic::kAdditionalAccel);
+  if (additional_accel_it != _data.end()) {
+    const auto& msg = accel_decoder_.decode(additional_accel_it->second);
+    const auto& accel = msg.accel.linear;
     res += std::to_string(accel.x) + ',' + std::to_string(accel.y) + ',' + std::to_string(accel.z) + ',';
   }
   else {

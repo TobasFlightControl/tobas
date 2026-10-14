@@ -29,7 +29,7 @@ PlotTabWidget::PlotTabWidget(
   const QVector<tobas_msgs::msg::Latency>& _sampling_time_data,
   const QVector<tobas_msgs::msg::Latency>& _ctrl_latency_data,
   const QVector<tobas_msgs::msg::VibrationLevel>& _vibe_data,
-  const QVector<tobas_msgs::msg::RepulsiveAcceleration>& _repulsive_accel_data,
+  const QVector<tobas_kdl_msgs::msg::AccelStamped>& _additional_accel_data,
   const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _dist_force_data,
   const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _obsv_fb_data,
   const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& _mr_ctrl_fb_data)
@@ -54,7 +54,7 @@ PlotTabWidget::PlotTabWidget(
   , sampling_time_data_(_sampling_time_data)
   , ctrl_latency_data_(_ctrl_latency_data)
   , vibe_data_(_vibe_data)
-  , repulsive_accel_data_(_repulsive_accel_data)
+  , additional_accel_data_(_additional_accel_data)
   , dist_force_data_(_dist_force_data)
   , obsv_fb_data_(_obsv_fb_data)
   , mr_ctrl_fb_data_(_mr_ctrl_fb_data)
@@ -80,7 +80,7 @@ PlotTabWidget::PlotTabWidget(
   pwm_plot_ = new PwmPlotWidget();
   latency_plot_ = new LatencyPlotWidget();
   vibe_plot_ = new VibrationLevelPlotWidget();
-  repulsive_accel_plot_ = new RepulsiveAccelPlotWidget();
+  additional_accel_plot_ = new AdditionalAccelPlotWidget();
   dist_force_plot_ = new DisturbanceForcePlotWidget();
   obsv_fb_plot_ = new ObserverFeedbackPlotWidget();
   mr_ctrl_fb_plot_ = new MRControllerFeedbackPlotWidget();
@@ -106,7 +106,7 @@ PlotTabWidget::PlotTabWidget(
   addTab(pwm_plot_, "PWM");
   addTab(latency_plot_, "Latency");
   addTab(vibe_plot_, "Vibration\nLevel");
-  addTab(repulsive_accel_plot_, "Repulsive\nAccel");
+  addTab(additional_accel_plot_, "Additional\nAccel");
   addTab(dist_force_plot_, "Disturbance\nForce");
   addTab(obsv_fb_plot_, "Observer");
   addTab(mr_ctrl_fb_plot_, "Multirotor\nController");
@@ -204,8 +204,8 @@ void PlotTabWidget::plot(int _index)
   else if (cur_widget == vibe_plot_) {
     vibe_plot_->setData(vibe_data_);
   }
-  else if (cur_widget == repulsive_accel_plot_) {
-    repulsive_accel_plot_->setData(repulsive_accel_data_);
+  else if (cur_widget == additional_accel_plot_) {
+    additional_accel_plot_->setData(additional_accel_data_);
   }
   else if (cur_widget == dist_force_plot_) {
     dist_force_plot_->setData(dist_force_data_);

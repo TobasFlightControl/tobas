@@ -5,25 +5,25 @@
 
 #include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
 
-#include <tobas_msgs/msg/repulsive_acceleration.hpp>
+#include <tobas_kdl_msgs/msg/accel_stamped.hpp>
 
 #include "./utilities/utilities.hpp"
 
 namespace tobas::gui::log
 {
-class RepulsiveAccelPlotWidget : public BasePlotWidget
+class AdditionalAccelPlotWidget : public BasePlotWidget
 {
   Q_OBJECT
 
   static constexpr size_t kNumAxes = 3;
 
 public:
-  explicit RepulsiveAccelPlotWidget();
+  explicit AdditionalAccelPlotWidget();
 
   void clear() override;
   void setTimeScale(double _t_start, double _t_stop) override;
 
-  void setData(const QVector<tobas_msgs::msg::RepulsiveAcceleration>& _msgs);
+  void setData(const QVector<tobas_kdl_msgs::msg::AccelStamped>& _msgs);
 
 private:
   std::array<QwtPlot2*, kNumAxes> plots_;

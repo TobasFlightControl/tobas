@@ -15,6 +15,7 @@ set(AMENT_DEPENDENCIES
     std_srvs
     tobas_node
     tobas_tools
+    tobas_kdl_msgs
     tobas_msgs
     tobas_drone_msgs
     tobas_real_common
