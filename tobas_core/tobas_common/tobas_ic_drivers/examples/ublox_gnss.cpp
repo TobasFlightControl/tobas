@@ -3,14 +3,13 @@
 
 #include <iostream>
 
-
+#include <tobas_ic_drivers/ublox/ublox_gnss.hpp>
 #include <tobas_ic_drivers/ublox/ubx_transport_spi.hpp>
 #include <tobas_ic_drivers/ublox/ubx_transport_uart.hpp>
-#include <tobas_ic_drivers/ublox/ublox_gnss.hpp>
 
 using namespace std;
 
-int main(int argc, char** argv)
+int main(int _argc, char** _argv)
 {
   constexpr uint32_t kInitialUartBaudRate = 38400;
   constexpr uint32_t kUartBaudRate = 230400;
@@ -19,23 +18,20 @@ int main(int argc, char** argv)
   tobas::ublox::UbxTransportUart* uart_transport = nullptr;
   bool use_uart = false;
 
-  if (argc == 3 && string(argv[1]) == "spi") {
-    transport = make_unique<tobas::ublox::UbxTransportSpi>(argv[2]);
+  if (_argc == 3 && string(_argv[1]) == "spi") {
+    transport = make_unique<tobas::ublox::UbxTransportSpi>(_argv[2]);
   }
-  else if (argc == 3 && string(argv[1]) == "uart") {
+  else if (_argc == 3 && string(_argv[1]) == "uart") {
     use_uart = true;
 
-    auto uart = make_unique<tobas::ublox::UbxTransportUart>(
-      argv[2], kInitialUartBaudRate);
+    auto uart = make_unique<tobas::ublox::UbxTransportUart>(_argv[2], kInitialUartBaudRate);
 
     uart_transport = uart.get();
     transport = move(uart);
   }
   else {
-    cerr << "Usage 1: " << argv[0]
-         << " spi <SPI Device>" << endl;
-    cerr << "Usage 2: " << argv[0]
-         << " uart <UART Device>" << endl;
+    cerr << "Usage 1: " << _argv[0] << " spi <SPI Device>" << endl;
+    cerr << "Usage 2: " << _argv[0] << " uart <UART Device>" << endl;
     return EXIT_FAILURE;
   }
 
@@ -66,8 +62,7 @@ int main(int argc, char** argv)
   auto module_name = gnss.getModuleName();
 
   if (!module_name && use_uart) {
-    cout << "No response at " << kInitialUartBaudRate
-         << " baud. Trying " << kUartBaudRate << " baud." << endl;
+    cout << "No response at " << kInitialUartBaudRate << " baud. Trying " << kUartBaudRate << " baud." << endl;
 
     if (!uart_transport->setBaudRate(kUartBaudRate)) {
       cerr << "Failed to change host UART baud rate." << endl;
@@ -88,7 +83,7 @@ int main(int argc, char** argv)
 
   if (*module_name == "ZED-F9P") {
     gnss.setReceiverProfile(tobas::ublox::UbloxGnss::F9P);
-    measurement_period_ms = 100;
+    measurement_period_ms = 40;
   }
   else if (*module_name == "ZED-X20P") {
     gnss.setReceiverProfile(tobas::ublox::UbloxGnss::X20P);
@@ -98,7 +93,7 @@ int main(int argc, char** argv)
     cerr << "Unknown Device: " << *module_name << endl;
     return EXIT_FAILURE;
   }
-  
+
   if (use_uart) {
     if (!uart_transport->disableReceiveTimeout()) {
       cerr << "Failed to disable UART receive timeout." << endl;
@@ -195,7 +190,8 @@ int main(int argc, char** argv)
       cerr << "Failed to enable NAV_VELNED message." << endl;
       return EXIT_FAILURE;
     }
-  } else {
+  }
+  else {
     if (!gnss.enableSpiMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_COV, true)) {
       cerr << "Failed to enable NAV_COV message." << endl;
       return EXIT_FAILURE;

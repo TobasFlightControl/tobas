@@ -26,9 +26,9 @@ public:
   bool initialize() noexcept override;
   std::optional<uint8_t> receiveByte() noexcept override;
   bool send(const uint8_t* _data, size_t _length) noexcept override;
-  bool setBaudRate(uint32_t baud_rate) noexcept;
+  bool setBaudRate(uint32_t _baud_rate) noexcept;
 
-  bool setReceiveTimeout(uint8_t timeout_100ms) noexcept;
+  bool setReceiveTimeout(uint8_t _timeout_100ms) noexcept;
   bool disableReceiveTimeout() noexcept;
 
 private:

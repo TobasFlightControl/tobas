@@ -44,23 +44,23 @@ bool UbxTransportUart::send(const uint8_t* _data, size_t _length) noexcept
   return uart_.send(_data, _length);
 }
 
-bool UbxTransportUart::setBaudRate(uint32_t baud_rate) noexcept
+bool UbxTransportUart::setBaudRate(uint32_t _baud_rate) noexcept
 {
-  if (!uart_.setBaudRate(baud_rate)) {
+  if (!uart_.setBaudRate(_baud_rate)) {
     return false;
   }
 
-  baud_rate_ = baud_rate;
+  baud_rate_ = _baud_rate;
   return true;
 }
 
-bool UbxTransportUart::setReceiveTimeout(uint8_t timeout_100ms) noexcept
+bool UbxTransportUart::setReceiveTimeout(uint8_t _timeout_100ms) noexcept
 {
   if (!uart_.setMinimumChars(0)) {
     return false;
   }
 
-  if (!uart_.setTimeout(timeout_100ms)) {
+  if (!uart_.setTimeout(_timeout_100ms)) {
     return false;
   }
 
@@ -79,6 +79,5 @@ bool UbxTransportUart::disableReceiveTimeout() noexcept
 
   return true;
 }
-
 
 }  // namespace tobas::ublox

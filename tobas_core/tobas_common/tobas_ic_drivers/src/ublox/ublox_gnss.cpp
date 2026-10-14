@@ -25,9 +25,9 @@ bool UbloxGnss::initialize()
   return transport_->initialize();
 }
 
-void UbloxGnss::setReceiverProfile(ReceiverProfile profile)
+void UbloxGnss::setReceiverProfile(ReceiverProfile _profile)
 {
-  receiver_profile_ = profile;
+  receiver_profile_ = _profile;
 }
 
 std::optional<std::string> UbloxGnss::getModuleName()
@@ -55,9 +55,7 @@ std::optional<std::string> UbloxGnss::getModuleName()
   }
 
   const auto* length = scanner_.getLength();
-  const uint16_t payload_length =
-    static_cast<uint16_t>(length[0]) |
-    (static_cast<uint16_t>(length[1]) << 8);
+  const uint16_t payload_length = static_cast<uint16_t>(length[0]) | (static_cast<uint16_t>(length[1]) << 8);
 
   const auto* data = payload();
 
@@ -68,20 +66,15 @@ std::optional<std::string> UbloxGnss::getModuleName()
     return std::nullopt;
   }
 
-  for (uint16_t offset = kMonVerFixedLength;
-       offset + kExtensionLength <= payload_length;
-       offset += kExtensionLength) {
-
-    const char* extension =
-      reinterpret_cast<const char*>(&data[offset]);
+  for (uint16_t offset = kMonVerFixedLength; offset + kExtensionLength <= payload_length; offset += kExtensionLength) {
+    const char* extension = reinterpret_cast<const char*>(&data[offset]);
 
     constexpr char kModelPrefix[] = "MOD=";
 
     if (std::strncmp(extension, kModelPrefix, 4) == 0) {
       const char* model = extension + 4;
 
-      const size_t model_length =
-        strnlen(model, kExtensionLength - 4);
+      const size_t model_length = strnlen(model, kExtensionLength - 4);
 
       return std::string(model, model_length);
     }
@@ -90,14 +83,14 @@ std::optional<std::string> UbloxGnss::getModuleName()
   return std::string{};
 }
 
-bool UbloxGnss::update(bool blocking, std::chrono::milliseconds timeout)
+bool UbloxGnss::update(bool _blocking, std::chrono::milliseconds _timeout)
 {
   scanner_.reset();
 
-  const bool use_timeout = timeout.count() > 0;
-  const auto deadline = ch::steady_clock::now() + timeout;
+  const bool use_timeout = _timeout.count() > 0;
+  const auto deadline = ch::steady_clock::now() + _timeout;
 
-  if (!blocking) {
+  if (!_blocking) {
     // Check the start byte.
     const auto first_byte = transport_->receiveByte();
     if (!first_byte) {
@@ -133,14 +126,14 @@ bool UbloxGnss::update(bool blocking, std::chrono::milliseconds timeout)
   return true;
 }
 
-bool UbloxGnss::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
+bool UbloxGnss::enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable)
 {
   constexpr char kNotImplemented[] = "Not implemented.";
   constexpr char kNotReceivable[] = "Not receivable.";
 
   CfgValSet<uint8_t, 1> cfg;
 
-  switch (cls) {
+  switch (_cls) {
     case CLASS_ACK: {
       std::cerr << kNotReceivable << std::endl;
       return false;
@@ -166,7 +159,7 @@ bool UbloxGnss::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
       return false;
     }
     case CLASS_NAV: {
-      switch (id) {
+      switch (_id) {
         case NAV_CLOCK:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x069);  // CFG-MSGOUT-UBX_NAV_CLOCK_SPI
           break;
@@ -284,42 +277,46 @@ bool UbloxGnss::enableSpiMessage(UbxClass cls, uint8_t id, bool enable)
       return false;
     }
     default: {
-      std::cerr << "Invalid UBX class type: " << std::hex << cls << std::endl;
+      std::cerr << "Invalid UBX class type: " << std::hex << _cls << std::endl;
       return false;
     }
   }
 
-  cfg.data[0].value = enable ? 1 : 0;  // Maximum rate if enabled.
+  cfg.data[0].value = _enable ? 1 : 0;  // Maximum rate if enabled.
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool UbloxGnss::configureDynamicsModel(DynamicsModel model)
+bool UbloxGnss::configureDynamicsModel(DynamicsModel _model)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BYTE, CFG_NAVSPG, 0x21, model);  // CFG-NAVSPG-DYNMODEL
+  return cfgValSetSingle<uint8_t>(ONE_BYTE, CFG_NAVSPG, 0x21, _model);  // CFG-NAVSPG-DYNMODEL
 }
 
-bool UbloxGnss::configureMeasurementRate(uint16_t period_ms)
+bool UbloxGnss::configureMeasurementRate(uint16_t _period_ms)
 {
-  return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_RATE, 0x01, period_ms);  // CFG-RATE-MEAS
+  if (!cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_RATE, 0x01, _period_ms)) {  // CFG-RATE-MEAS
+    return false;
+  }
+
+  return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_RATE, 0x02, 1);  // CFG-RATE-NAV
 }
 
-bool UbloxGnss::configureUartBaudRate(uint32_t baud_rate)
+bool UbloxGnss::configureUartBaudRate(uint32_t _baud_rate)
 {
   CfgValSet<uint32_t, 1> cfg;
   cfg.data[0].key = configKeyID(FOUR_BYTES, CFG_UART1, 0x01);
-  cfg.data[0].value = baud_rate;
+  cfg.data[0].value = _baud_rate;
   return sendMessage(CLASS_CFG, CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool UbloxGnss::enableUartMessage(UbxClass cls, uint8_t id, bool enable)
+bool UbloxGnss::enableUartMessage(UbxClass _cls, uint8_t _id, bool _enable)
 {
   constexpr char kNotImplemented[] = "Not implemented.";
   constexpr char kNotReceivable[] = "Not receivable.";
 
   CfgValSet<uint8_t, 1> cfg;
 
-  switch (cls) {
+  switch (_cls) {
     case CLASS_ACK: {
       std::cerr << kNotReceivable << std::endl;
       return false;
@@ -345,7 +342,7 @@ bool UbloxGnss::enableUartMessage(UbxClass cls, uint8_t id, bool enable)
       return false;
     }
     case CLASS_NAV: {
-      switch (id) {
+      switch (_id) {
         case NAV_CLOCK:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x066);  // CFG-MSGOUT-UBX_NAV_CLOCK_UART
           break;
@@ -463,12 +460,12 @@ bool UbloxGnss::enableUartMessage(UbxClass cls, uint8_t id, bool enable)
       return false;
     }
     default: {
-      std::cerr << "Invalid UBX class type: " << std::hex << cls << std::endl;
+      std::cerr << "Invalid UBX class type: " << std::hex << _cls << std::endl;
       return false;
     }
   }
 
-  cfg.data[0].value = enable ? 1 : 0;  // Maximum rate if enabled.
+  cfg.data[0].value = _enable ? 1 : 0;  // Maximum rate if enabled.
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
@@ -488,7 +485,7 @@ bool UbloxGnss::enableGps()
   }
 
   // Enable L2 band for ZED-F9P.
-  if(receiver_profile_ == F9P) {
+  if (receiver_profile_ == F9P) {
     if (!enableGpsL2()) {
       std::cerr << "Failed to enable GPS L2." << std::endl;
       return false;
@@ -496,8 +493,9 @@ bool UbloxGnss::enableGps()
 
     std::cout << "GPS L1/L2 is enabled." << std::endl;
     return true;
+  }
 
-  }    // Enable L2 and L5 band for ZED-X20P.
+  // Enable L2 and L5 bands for ZED-X20P.
   if (receiver_profile_ == X20P) {
     if (!enableGpsL2()) {
       std::cerr << "Failed to enable GPS L2." << std::endl;
@@ -557,7 +555,7 @@ bool UbloxGnss::enableGalileo()
     return false;
   }
 
-  /// Enable E5b band for ZED-F9P.
+  // Enable E5b band for ZED-F9P.
   if (receiver_profile_ == F9P) {
     if (!enableGalileoE5b()) {
       std::cerr << "Failed to enable Galileo E5b." << std::endl;
@@ -600,9 +598,9 @@ bool UbloxGnss::enableBeiDou()
     return false;
   }
 
-  // Enable B1I bands
+  // Enable B1I band.
   if (!enableBeiDouB1I()) {
-    std::cerr << "Failed to enable GPS B1I." << std::endl;
+    std::cerr << "Failed to enable BeiDou B1I." << std::endl;
     return false;
   }
 
@@ -661,7 +659,7 @@ bool UbloxGnss::enableQzss()
   }
 
   // Enable L2 band for ZED-F9P.
-  if(receiver_profile_ == F9P) {
+  if (receiver_profile_ == F9P) {
     if (!enableQzssL2()) {
       std::cerr << "Failed to enable QZSS L2." << std::endl;
       return false;
@@ -669,7 +667,6 @@ bool UbloxGnss::enableQzss()
 
     std::cout << "QZSS L1/L2 is enabled." << std::endl;
     return true;
-
   }
   // Enable L2 and L5 band for ZED-X20P.
   if (receiver_profile_ == X20P) {
@@ -747,67 +744,67 @@ bool UbloxGnss::disableNavIc()
   return enableNavIc(false);
 }
 
-bool UbloxGnss::enableSpiProtocol_UBX(bool enable_input, bool enable_output)
+bool UbloxGnss::enableSpiProtocol_UBX(bool _enable_input, bool _enable_output)
 {
-  return enableSpiInputProtocol(UBX, enable_input) && enableSpiOutputProtocol(UBX, enable_output);
+  return enableSpiInputProtocol(UBX, _enable_input) && enableSpiOutputProtocol(UBX, _enable_output);
 }
 
-bool UbloxGnss::enableSpiProtocol_NMEA(bool enable_input, bool enable_output)
+bool UbloxGnss::enableSpiProtocol_NMEA(bool _enable_input, bool _enable_output)
 {
-  return enableSpiInputProtocol(NMEA, enable_input) && enableSpiOutputProtocol(NMEA, enable_output);
+  return enableSpiInputProtocol(NMEA, _enable_input) && enableSpiOutputProtocol(NMEA, _enable_output);
 }
 
-bool UbloxGnss::enableSpiProtocol_RTCM3X(bool enable_input, bool enable_output)
+bool UbloxGnss::enableSpiProtocol_RTCM3X(bool _enable_input, bool _enable_output)
 {
-  return enableSpiInputProtocol(RTCM3X, enable_input) && enableSpiOutputProtocol(RTCM3X, enable_output);
+  return enableSpiInputProtocol(RTCM3X, _enable_input) && enableSpiOutputProtocol(RTCM3X, _enable_output);
 }
 
-bool UbloxGnss::enableSpiProtocol_SPARTN(bool enable_input)
+bool UbloxGnss::enableSpiProtocol_SPARTN(bool _enable_input)
 {
-  return enableSpiInputProtocol(SPARTN, enable_input);
+  return enableSpiInputProtocol(SPARTN, _enable_input);
 }
 
-bool UbloxGnss::enableUartProtocol_UBX(bool enable_input, bool enable_output)
+bool UbloxGnss::enableUartProtocol_UBX(bool _enable_input, bool _enable_output)
 {
-  return enableUartInputProtocol(UBX, enable_input) && enableUartOutputProtocol(UBX, enable_output);
+  return enableUartInputProtocol(UBX, _enable_input) && enableUartOutputProtocol(UBX, _enable_output);
 }
 
-bool UbloxGnss::enableUartProtocol_NMEA(bool enable_input, bool enable_output)
+bool UbloxGnss::enableUartProtocol_NMEA(bool _enable_input, bool _enable_output)
 {
-  return enableUartInputProtocol(NMEA, enable_input) && enableUartOutputProtocol(NMEA, enable_output);
+  return enableUartInputProtocol(NMEA, _enable_input) && enableUartOutputProtocol(NMEA, _enable_output);
 }
 
-bool UbloxGnss::enableUartProtocol_RTCM3X(bool enable_input, bool enable_output)
+bool UbloxGnss::enableUartProtocol_RTCM3X(bool _enable_input, bool _enable_output)
 {
-  return enableUartInputProtocol(RTCM3X, enable_input) && enableUartOutputProtocol(RTCM3X, enable_output);
+  return enableUartInputProtocol(RTCM3X, _enable_input) && enableUartOutputProtocol(RTCM3X, _enable_output);
 }
 
-bool UbloxGnss::enableUartProtocol_SPARTN(bool enable_input)
+bool UbloxGnss::enableUartProtocol_SPARTN(bool _enable_input)
 {
-  return enableUartInputProtocol(SPARTN, enable_input);
+  return enableUartInputProtocol(SPARTN, _enable_input);
 }
-bool UbloxGnss::setAntennaLength(uint8_t length_m)
+bool UbloxGnss::setAntennaLength(uint8_t _length_m)
 {
   constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] Coaxial cable delay.
-  return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_TP, 0x01, length_m * kRG174CableDelay);  // CFG-TP-ANT_CABLEDELAY
+  return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_TP, 0x01, _length_m * kRG174CableDelay);  // CFG-TP-ANT_CABLEDELAY
 }
 
-bool UbloxGnss::enableUsb(bool enable)
+bool UbloxGnss::enableUsb(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_USB, 0x01, enable);  // CFG-USB-ENABLED
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_USB, 0x01, _enable);  // CFG-USB-ENABLED
 }
 
-bool UbloxGnss::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t size)
+bool UbloxGnss::sendMessage(UbxClass _cls, uint8_t _id, const void* _msg, uint16_t _size)
 {
   UbxHeader header;
   header.sync1 = kUbxSync1;
   header.sync2 = kUbxSync2;
-  header.cls = cls;
-  header.id = id;
-  header.length = size;
+  header.cls = _cls;
+  header.id = _id;
+  header.length = _size;
 
   const auto payload_pos = spliceMemory(tx_buf_, &header, sizeof(UbxHeader), 0);
-  const auto checksum_pos = spliceMemory(tx_buf_, msg, size, payload_pos);
+  const auto checksum_pos = spliceMemory(tx_buf_, _msg, _size, payload_pos);
 
   const auto ck = computeChecksum(tx_buf_, checksum_pos);
   const auto message_length = spliceMemory(tx_buf_, &ck, sizeof(CheckSum), checksum_pos);
@@ -815,13 +812,13 @@ bool UbloxGnss::sendMessage(UbxClass cls, uint8_t id, const void* msg, uint16_t 
   return transport_->send(tx_buf_, message_length);
 }
 
-bool UbloxGnss::waitForAcknowledge(UbxClass cls, uint8_t id)
+bool UbloxGnss::waitForAcknowledge(UbxClass _cls, uint8_t _id)
 {
   payload::ACK_ACK ack;
   payload::ACK_NAK nak;
 
-  const auto cls_str = std::to_string(static_cast<int>(cls));
-  const auto id_str = std::to_string(static_cast<int>(id));
+  const auto cls_str = std::to_string(static_cast<int>(_cls));
+  const auto id_str = std::to_string(static_cast<int>(_id));
 
   constexpr auto kWaitForGnssAck = 1s;
   const auto deadline = ch::steady_clock::now() + kWaitForGnssAck;
@@ -839,7 +836,7 @@ bool UbloxGnss::waitForAcknowledge(UbxClass cls, uint8_t id)
       case ACK_ACK:
         ack.decode(payload());
 
-        if (ack.clsID == cls && ack.msgID == id) {
+        if (ack.clsID == _cls && ack.msgID == _id) {
           return true;
         }
         else {
@@ -852,7 +849,7 @@ bool UbloxGnss::waitForAcknowledge(UbxClass cls, uint8_t id)
       case ACK_NAK:
         nak.decode(payload());
 
-        if (nak.clsID == cls && nak.msgID == id) {
+        if (nak.clsID == _cls && nak.msgID == _id) {
           std::cerr << "Configuration was rejected: (class, id) = (" << cls_str << ", " << id_str << ")" << std::endl;
           return false;
         }
@@ -873,9 +870,9 @@ bool UbloxGnss::waitForAcknowledge(UbxClass cls, uint8_t id)
   return false;
 }
 
-bool UbloxGnss::configure(UbxCfgId cfg_id, const void* msg, uint16_t size)
+bool UbloxGnss::configure(UbxCfgId _cfg_id, const void* _msg, uint16_t _size)
 {
-  return sendMessage(CLASS_CFG, cfg_id, msg, size) && waitForAcknowledge(CLASS_CFG, cfg_id);
+  return sendMessage(CLASS_CFG, _cfg_id, _msg, _size) && waitForAcknowledge(CLASS_CFG, _cfg_id);
 }
 
 bool UbloxGnss::verifyMessage() const
@@ -900,9 +897,9 @@ bool UbloxGnss::verifyMessage() const
   return true;
 }
 
-bool UbloxGnss::enableGps(bool enable)
+bool UbloxGnss::enableGps(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1F, enable);  // CFG-SIGNAL-GPS_ENA
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1F, _enable);  // CFG-SIGNAL-GPS_ENA
 }
 
 bool UbloxGnss::enableGpsL1()
@@ -920,9 +917,9 @@ bool UbloxGnss::enableGpsL5()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x04, true);  // CFG-SIGNAL-GPS_L5_ENA
 }
 
-bool UbloxGnss::enableSbas(bool enable)
+bool UbloxGnss::enableSbas(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x20, enable);  // CFG-SIGNAL-SBAS_ENA
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x20, _enable);  // CFG-SIGNAL-SBAS_ENA
 }
 
 bool UbloxGnss::enableSbasL1()
@@ -930,9 +927,9 @@ bool UbloxGnss::enableSbasL1()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x05, true);  // CFG-SIGNAL-SBAS_L1CA_ENA
 }
 
-bool UbloxGnss::enableGalileo(bool enable)
+bool UbloxGnss::enableGalileo(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x21, enable);  // CFG-SIGNAL-GAL_ENA
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x21, _enable);  // CFG-SIGNAL-GAL_ENA
 }
 
 bool UbloxGnss::enableGalileoE1()
@@ -955,9 +952,9 @@ bool UbloxGnss::enableGalileoE6()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0B, true);  // CFG-SIGNAL-GAL_E6_ENA
 }
 
-bool UbloxGnss::enableBeiDou(bool enable)
+bool UbloxGnss::enableBeiDou(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x22, enable);  // CFG-SIGNAL-BDS_ENA
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x22, _enable);  // CFG-SIGNAL-BDS_ENA
 }
 
 bool UbloxGnss::enableBeiDouB1I()
@@ -985,9 +982,9 @@ bool UbloxGnss::enableBeiDouB2a()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x28, true);  // CFG-SIGNAL-BDS_B2A_ENA
 }
 
-bool UbloxGnss::enableQzss(bool enable)
+bool UbloxGnss::enableQzss(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x24, enable);  // CFG-SIGNAL-QZSS_ENA
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x24, _enable);  // CFG-SIGNAL-QZSS_ENA
 }
 
 bool UbloxGnss::enableQzssL1()
@@ -1015,9 +1012,9 @@ bool UbloxGnss::enableQzssL5()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x17, true);  // CFG-SIGNAL-QZSS_L5_ENA
 }
 
-bool UbloxGnss::enableGlonass(bool enable)
+bool UbloxGnss::enableGlonass(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x25, enable);  // CFG-SIGNAL-GLO_ENA
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x25, _enable);  // CFG-SIGNAL-GLO_ENA
 }
 
 bool UbloxGnss::enableGlonassL1()
@@ -1030,9 +1027,9 @@ bool UbloxGnss::enableGlonassL2()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1A, true);  // CFG-SIGNAL-GLO_L2_ENA
 }
 
-bool UbloxGnss::enableNavIc(bool enable)
+bool UbloxGnss::enableNavIc(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x26, enable);  // CFG-SIGNAL-NAVIC_ENA
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x26, _enable);  // CFG-SIGNAL-NAVIC_ENA
 }
 
 bool UbloxGnss::enableNavIcL5()
@@ -1040,48 +1037,48 @@ bool UbloxGnss::enableNavIcL5()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1D, true);  // CFG-SIGNAL-NAVIC_L5_ENA
 }
 
-bool UbloxGnss::enableSpiInputProtocol(CfgProtocol prot, bool enable)
+bool UbloxGnss::enableSpiInputProtocol(CfgProtocol _prot, bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIINPROT, prot, enable);  // CFG-SPIINPROT-XXX
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIINPROT, _prot, _enable);  // CFG-SPIINPROT-XXX
 }
 
-bool UbloxGnss::enableSpiOutputProtocol(CfgProtocol prot, bool enable)
+bool UbloxGnss::enableSpiOutputProtocol(CfgProtocol _prot, bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIOUTPROT, prot, enable);  // CFG-SPIOUTPROT-XXX
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIOUTPROT, _prot, _enable);  // CFG-SPIOUTPROT-XXX
 }
 
-bool UbloxGnss::enableUartInputProtocol(CfgProtocol prot, bool enable)
+bool UbloxGnss::enableUartInputProtocol(CfgProtocol _prot, bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_UART1INPROT, prot, enable);  // CFG-UART1INPROT-XXX
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_UART1INPROT, _prot, _enable);  // CFG-UART1INPROT-XXX
 }
 
-bool UbloxGnss::enableUartOutputProtocol(CfgProtocol prot, bool enable)
+bool UbloxGnss::enableUartOutputProtocol(CfgProtocol _prot, bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_UART1OUTPROT, prot, enable);  // CFG-UART1OUTPROT-XXX
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_UART1OUTPROT, _prot, _enable);  // CFG-UART1OUTPROT-XXX
 }
 
-UbloxGnss::CheckSum UbloxGnss::computeChecksum(const uint8_t* message, size_t checksum_pos)
+UbloxGnss::CheckSum UbloxGnss::computeChecksum(const uint8_t* _message, size_t _checksum_pos)
 {
   CheckSum ck;
   ck.CK_A = ck.CK_B = 0;
 
-  for (size_t i = kUbxSyncLength; i < checksum_pos; ++i) {
-    ck.CK_A += message[i];
+  for (size_t i = kUbxSyncLength; i < _checksum_pos; ++i) {
+    ck.CK_A += _message[i];
     ck.CK_B += ck.CK_A;
   }
 
   return ck;
 }
 
-size_t UbloxGnss::spliceMemory(uint8_t* dest, const void* src, size_t size, size_t dest_offset)
+size_t UbloxGnss::spliceMemory(uint8_t* _dest, const void* _src, size_t _size, size_t _dest_offset)
 {
-  std::memmove(dest + dest_offset, src, size);
-  return dest_offset + size;
+  std::memmove(_dest + _dest_offset, _src, _size);
+  return _dest_offset + _size;
 }
 
-uint32_t UbloxGnss::configKeyID(CfgSize size, CfgGroup group, uint16_t id)
+uint32_t UbloxGnss::configKeyID(CfgSize _size, CfgGroup _group, uint16_t _id)
 {
-  return (size << 28) | (group << 16) | (id & 0x0FFF);
+  return (_size << 28) | (_group << 16) | (_id & 0x0FFF);
 }
 }  // namespace ublox
 }  // namespace tobas
