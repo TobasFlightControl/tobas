@@ -60,6 +60,7 @@ private:
   bool maxPitchRateCb(const double& p);
   bool maxSideSlipCb(const double& p);
   bool maxYawRateCb(const double& p);
+  bool maxThrustAngleRateCb(const double& p);
   bool rollExpoCb(const double& p);
   bool pitchExpoCb(const double& p);
   bool yawExpoCb(const double& p);

@@ -44,6 +44,8 @@ void AngleSideSlipThrottleVectorController::initialize(BaseNode* node, FlightMod
   node->addDynamicDoubleParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 15.0, 6, 1, 12, " dps");
   node->addDynamicDoubleParam(addMode("max_side_slip", mode), &self::maxSideSlipCb, this, 1.0, 6, 1, 12, " deg");
   node->addDynamicDoubleParam(addMode("max_yaw_rate", mode), &self::maxYawRateCb, this, 15.0, 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(
+    addMode("max_thrust_angle_rate", mode), &self::maxThrustAngleRateCb, this, 5.0, 6, 1, 12, " dps");
   node->addDynamicDoubleParam(addMode("roll_expo", mode), &self::rollExpoCb, this, 5.0, -6, -20, 20);
   node->addDynamicDoubleParam(addMode("pitch_expo", mode), &self::pitchExpoCb, this, 5.0, -6, -20, 20);
   node->addDynamicDoubleParam(addMode("yaw_expo", mode), &self::yawExpoCb, this, 5.0, -3, -20, 20);
@@ -63,7 +65,7 @@ void AngleSideSlipThrottleVectorController::reset(
   const auto [roll, pitch, yaw] = setpoint.frame.M.getRPY();
   roll_filt_.resetCurrentTrajectoryPoint(roll);
   pitch_filt_.resetCurrentTrajectoryPoint(pitch);
-  thrust_angle_filt_.resetCurrentTrajectoryPoint(-pitch);
+  // TODO: thrust_angle_filt_を現在のthrust_angleに設定
   tar_yaw_ = yaw;
 }
 
@@ -75,15 +77,18 @@ void AngleSideSlipThrottleVectorController::update(const tobas_msgs::RCInput& rc
 
   // Roll
   roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, roll_expo_, -max_roll_, max_roll_), dt);
+  const auto roll = roll_filt_.getTrajectoryPosition();
 
   // Pitch
   pitch_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.pitch, pitch_expo_, -max_pitch_, max_pitch_), dt);
+  const auto pitch = pitch_filt_.getTrajectoryPosition();
 
   // Throttle
   const auto throttle = expo(remap(rcin.throttle, kMinThrot, kMaxThrot), throt_expo_);
 
   // Tilt
-  const auto thrust_angle = remap(0.0, kMinThrustAngle, kMaxThrustAngle); // TODO: VRの値を使用
+  thrust_angle_filt_.setTargetPointAndUpdate(remap(rcin.vr, kMinThrustAngle, kMaxThrustAngle), dt);
+  const auto thrust_angle = thrust_angle_filt_.getTrajectoryPosition();
 
   // Pitch & Thrust Angle
   if (thrust_angle < kModeChangeThrustAngle) {
@@ -94,8 +99,8 @@ void AngleSideSlipThrottleVectorController::update(const tobas_msgs::RCInput& rc
     auto cmd = std::make_unique<tobas_command_msgs::AngleThrottleVector>();
     cmd->header = rcin.header;
     cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
-    cmd->angle.roll = roll_filt_.getTrajectoryPosition();
-    cmd->angle.pitch = pitch_filt_.getTrajectoryPosition();
+    cmd->angle.roll = roll;
+    cmd->angle.pitch = pitch;
     cmd->angle.yaw = tar_yaw_;
     cmd->throttle = throttle;
     cmd->thrust_angle = thrust_angle;
@@ -104,8 +109,8 @@ void AngleSideSlipThrottleVectorController::update(const tobas_msgs::RCInput& rc
     auto cmd = std::make_unique<tobas_command_msgs::msg::RollPitchSideSlipThrottleVector>();
     cmd->header = rcin.header;
     cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
-    cmd->roll = roll_filt_.getTrajectoryPosition();
-    cmd->pitch = pitch_filt_.getTrajectoryPosition();
+    cmd->roll = roll;
+    cmd->pitch = pitch;
     cmd->side_slip = expoRemapDead(rcin.yaw, yaw_expo_, -max_side_slip_, max_side_slip_);
     cmd->throttle = throttle;
     cmd->thrust_angle = thrust_angle;
@@ -146,6 +151,12 @@ bool AngleSideSlipThrottleVectorController::maxSideSlipCb(const double& p)
 bool AngleSideSlipThrottleVectorController::maxYawRateCb(const double& p)
 {
   max_yaw_rate_ = st::deg2rad(p);
+  return true;
+}
+
+bool AngleSideSlipThrottleVectorController::maxThrustAngleRateCb(const double& p)
+{
+  thrust_angle_filt_.setMaxVelocity(st::deg2rad(p));
   return true;
 }
 
