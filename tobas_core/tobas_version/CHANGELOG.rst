@@ -2,6 +2,9 @@
 Changelog for package tobas_version
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.7 (2026-10-14)
 -------------------
 * fix: Derive version from package.xml

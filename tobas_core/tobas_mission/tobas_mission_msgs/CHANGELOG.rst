@@ -2,6 +2,9 @@
 Changelog for package tobas_mission_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.7 (2026-10-14)
 -------------------
 

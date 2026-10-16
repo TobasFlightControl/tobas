@@ -2,6 +2,9 @@
 Changelog for package tobas_property_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.7 (2026-10-14)
 -------------------
 

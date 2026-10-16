@@ -2,6 +2,9 @@
 Changelog for package tobas_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.7 (2026-10-14)
 -------------------
 * change: Receive external repulsive acceleration
