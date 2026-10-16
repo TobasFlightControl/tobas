@@ -45,10 +45,13 @@ git for-each-ref --format='%(refname)' refs/heads refs/tags > "$log_dir/refs.txt
 printf 'Release repository: %s\nLog: %s\n' "$release_dir" "$log_file"
 
 # Push one ref at a time, retrying failures until success or Ctrl+C.
+total_refs=$(wc -l < "$log_dir/refs.txt")
+current_ref=0
 while IFS= read -r ref; do
-  printf '\nPushing %s\n' "$ref" | tee -a "$log_file"
+  current_ref=$((current_ref + 1))
+  printf '\n[%d/%d] Pushing %s\n' "$current_ref" "$total_refs" "$ref" | tee -a "$log_file"
   until git -c push.followTags=false push origin "$ref:$ref" 2>&1 | tee -a "$log_file"; do
-    printf 'Push failed; retrying in 5 seconds. Press Ctrl+C to stop.\n' | tee -a "$log_file"
+    printf '[%d/%d] Push failed; retrying in 5 seconds. Press Ctrl+C to stop.\n' "$current_ref" "$total_refs" | tee -a "$log_file"
     sleep 5
   done
 done < "$log_dir/refs.txt"
