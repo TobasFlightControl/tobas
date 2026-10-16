@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include "tobas_fixed_wing_controller/pi_controller.hpp"
-
+#include <tobas_control/pid/pi_velocity_form.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_tools/mixer_i.hpp>
 
@@ -45,10 +44,10 @@ private:
   Eigen::Matrix3Xd E_;
   Eigen::Vector3d f_;  // [M_x, M_y, Mz]
   Eigen::VectorXd x_;
-  PIController x_controller_;
-  PIController y_controller_;
-  PIController z_controller_;
-  PIController z2_controller_;
+  ctrl::PIVelocityForm x_controller_;
+  ctrl::PIVelocityForm y_controller_;
+  ctrl::PIVelocityForm z_controller_;
+  ctrl::PIVelocityForm z2_controller_;
 
   bool calcModesAngularFreq();
 };

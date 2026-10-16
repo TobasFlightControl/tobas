@@ -2,15 +2,14 @@
 
 namespace tobas
 {
-namespace fixed_wing
+namespace ctrl
 {
-// TODO: 別のライブラリに移す
 // 速度型PI制御器 アンチワインドアップする
-class PIController
+class PIVelocityForm
 {
 public:
-  explicit PIController();
-  explicit PIController(const double& p, const double& i);
+  explicit PIVelocityForm();
+  explicit PIVelocityForm(const double& p, const double& i);
   void setGains(const double& p, const double& i);
   void setMaxMin(const double& max, const double& min);
   void update(const double& u, const double& dt);
@@ -25,5 +24,5 @@ private:
   double max_ = 0.0;
   double min_ = 0.0;
 };
-}  // namespace fixed_wing
+}  // namespace ctrl
 }  // namespace tobas

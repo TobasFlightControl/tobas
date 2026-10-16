@@ -7,6 +7,7 @@
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/throttle.hpp>
 #include <tobas_constants/time.hpp>
+#include <tobas_dsp/incomplete_differentiation.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/kinematics.hpp>
@@ -33,7 +34,6 @@
 #include <tobas_msgs_adapter/odometry_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
-#include "tobas_fixed_wing_controller/incomplete_differentiation.hpp"
 #include "tobas_fixed_wing_controller/mixer.hpp"
 
 namespace tobas
@@ -58,7 +58,7 @@ private:
   Eigen::VectorXd max_thrusts_;
   Eigen::VectorXd min_deflections_;
   Eigen::VectorXd max_deflections_;
-  IncompleteDifferentiation beta_dot_filter_;
+  dsp::IncompleteDifferentiation<double> beta_dot_filter_;
 
   // State
   bool is_initialized_ = false;

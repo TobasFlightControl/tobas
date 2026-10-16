@@ -1,0 +1,21 @@
+<package format="3">
+
+	<name>tobas_y_axis_tilt_vtol</name>
+	<version>2.17.0</version>
+	<description>ROS 2 flight-controller node for Y-axis tilt VTOL aircraft.</description>
+	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+	<license>GPL-3.0-or-later</license>
+
+	<buildtool_depend>ament_cmake</buildtool_depend>
+
+	<depend>tobas_control</depend>
+	<depend>tobas_dsp</depend>
+	<depend>tobas_node</depend>
+	<depend>tobas_tools</depend>
+	<depend>tobas_drone_msgs_adapter</depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>
