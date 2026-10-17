@@ -15,8 +15,8 @@ if [ "$(id -un)" = "pi" ]; then
 fi
 
 # Navigate to the repository root
-script_dir=$(realpath $(dirname "$0"))
-cd "${script_dir}/../.."
+script_dir=$(dirname "$(realpath "$0")")
+cd "${script_dir}/.."
 
 # Sync
 dest_dir="/home/pi/colcon_ws/src/tobas"

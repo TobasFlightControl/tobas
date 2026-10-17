@@ -3,7 +3,7 @@
 set -e
 
 script_dir=$(dirname "$(realpath "$0")")
-cd ${script_dir}/../..
+cd "${script_dir}/.."
 
 gcc_library=$(g++ -print-libgcc-file-name)
 source_filter=$(python3 -c 'import re, sys; print(re.escape(sys.argv[1]) + r"/(?!tobas_external/).*\.cpp$")' "${PWD}")

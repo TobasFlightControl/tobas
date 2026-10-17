@@ -11,8 +11,8 @@ if [ $# -eq 0 ]; then
 fi
 
 # Navigate to the repository root
-script_dir=$(realpath $(dirname "$0"))
-cd "${script_dir}/../.."
+script_dir=$(dirname "$(realpath "$0")")
+cd "${script_dir}/.."
 
 # Check that this is a git repository
 if ! git rev-parse --git-dir >/dev/null 2>&1; then

@@ -43,7 +43,7 @@ def make_header(comment_prefix: str, license_name: str) -> str:
 
 
 if __name__ == "__main__":
-    base_dir = Path(__file__).resolve().parents[2]
+    base_dir = Path(__file__).resolve().parents[1]
     print(f"Searching in {base_dir}")
 
     num_updated = 0
