@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 namespace tobas
 {
 namespace ctrl
@@ -21,8 +23,8 @@ private:
 
   double input_ = 0.0;
   double last_u_ = 0.0;
-  double max_ = 0.0;
-  double min_ = 0.0;
+  double max_ = INFINITY;
+  double min_ = -INFINITY;
 };
 }  // namespace ctrl
 }  // namespace tobas

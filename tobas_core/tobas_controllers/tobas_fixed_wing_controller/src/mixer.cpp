@@ -125,7 +125,7 @@ bool Mixer::solve(const double& dt, const double& rho, const double& airspeed, c
 
 double Mixer::getDeflection(size_t idx) const
 {
-  return thrustDeadband(x_(idx));
+  return x_(idx);
 }
 
 bool Mixer::calcModesAngularFreq()

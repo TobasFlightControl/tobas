@@ -13,6 +13,7 @@
 	<exec_depend>tobas_planar_multi_controller</exec_depend>
 	<exec_depend>tobas_random_axis_tilt_multi_controller</exec_depend>
 	<exec_depend>tobas_y_axis_tilt_multi_controller</exec_depend>
+	<exec_depend>tobas_y_axis_tilt_vtol_controller</exec_depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

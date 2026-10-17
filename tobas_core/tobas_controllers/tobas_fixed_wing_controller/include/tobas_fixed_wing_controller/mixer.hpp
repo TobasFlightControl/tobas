@@ -15,7 +15,7 @@ namespace fixed_wing
 class Mixer : public MixerI
 {
   using super = MixerI;
-  static constexpr double kCruiseSpeed = 15.0;  // m/s, 短周期モード計算のための仮のクルーズ時対気速度
+  static constexpr double kCruiseSpeed = 15.0;  // m/s, 固定翼機運動モード計算のための仮のクルーズ時対気速度
   static constexpr double kLowerLimitSpeed =
     5.0;  // m/s, 超低速時でも制御入力計算が発散しないようにするため, これ以下の速度でもこの対気速度であるとして舵面の影響を計算
 

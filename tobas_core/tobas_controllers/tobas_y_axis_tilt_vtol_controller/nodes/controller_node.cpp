@@ -8,8 +8,8 @@
 #include <tobas_constants/throttle.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
+#include <tobas_dsp/incomplete_differentiation.hpp>
 #include <tobas_eigen_tools/core.hpp>
-#include <tobas_eigen_tools/kinematics.hpp>
 #include <tobas_kdl/conversion/coordinates.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_kdl/jntarray.hpp>
@@ -21,9 +21,10 @@
 #include <tobas_tools/command_priority_handler.hpp>
 #include <tobas_tools/coordinates.hpp>
 #include <tobas_tools/fixed_wing.hpp>
+#include <tobas_tools/tree_joint_state_converter.hpp>
 
-#include <tobas_command_msgs/msg/aile_elev_rud_throttle.hpp>
-#include <tobas_command_msgs/msg/roll_pitch_side_slip_throttle.hpp>
+#include <tobas_command_msgs_adapter/angle_throttle_vector.hpp>
+#include <tobas_command_msgs/msg/roll_pitch_side_slip_throttle_vector.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_msgs/msg/arming.hpp>
@@ -33,8 +34,7 @@
 #include <tobas_msgs_adapter/odometry_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
-#include "tobas_fixed_wing_controller/incomplete_differentiation.hpp"
-#include "tobas_fixed_wing_controller/mixer.hpp"
+#include "tobas_y_axis_tilt_vtol_controller/mixer.hpp"
 
 namespace tobas
 {
@@ -54,16 +54,15 @@ private:
   kdl::Tree tree_;
 
   kdl::TreeMassHolder mass_holder_;
-  Eigen::VectorXd min_thrusts_;
-  Eigen::VectorXd max_thrusts_;
-  Eigen::VectorXd min_deflections_;
-  Eigen::VectorXd max_deflections_;
-  IncompleteDifferentiation beta_dot_filter_;
+  TreeJointStateConverter js_converter_;
+
+  dsp::IncompleteDifferentiation<double> beta_dot_filter_;
 
   // State
   bool is_initialized_ = false;
   bool drone_received_ = false;
   bool tree_received_ = false;
+  bool js_received_ = false;
   bool topics_received_ = false;
   CommandPriorityHandler cmd_priority_handler_;
   tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;         // Atmospheric pressure
@@ -77,11 +76,11 @@ private:
     double pitch;      // [rad]
     double side_slip;  // [rad]
   };
+  std::unique_ptr<kdl::Rotation> tar_rot_ = nullptr;
   std::unique_ptr<RollPitchSideSlip> tar_roll_pitch_sideslip_ = nullptr;
-  std::unique_ptr<kdl::Vector> tar_drpb_ = nullptr;
+  std::unique_ptr<kdl::Vector> tar_gyro_ = nullptr;
   kdl::Vector tar_dgyro_;
-  std::unique_ptr<Eigen::VectorXd> thrusts_ = nullptr;
-  std::unique_ptr<Eigen::VectorXd> deflections_ = nullptr;
+  double ux_ = 0.0, uz_ = 0.0;  // Target thrust in the body coordinate system.
 
   // Controller
   Mixer mixer_;
@@ -103,17 +102,15 @@ private:
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::FluidPressure> air_pressure_sub_;
   ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::msg::AileElevRudThrottle> manual_cmd_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::msg::RollPitchSideSlipThrottle> stabilize_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::AngleThrottleVector> multicopter_manual_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::msg::RollPitchSideSlipThrottleVector> fixed_wing_manual_cmd_sub_;
 
   // Timers
   ros2::TimerPtr check_topics_timer_;
 
   bool initialize();
-  void setInputLimits();
-  void publishThrusts(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& thrusts);
-  void publishDeflections(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& deflections);
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
 
   // Parameter callbacks
@@ -124,17 +121,18 @@ private:
 
   void droneCb(const Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
+  void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom_flu);
-  void manualCmdCb(const tobas_command_msgs::msg::AileElevRudThrottle::ConstSharedPtr& cmd);
-  void stabilizeCmdCb(const tobas_command_msgs::msg::RollPitchSideSlipThrottle::ConstSharedPtr& cmd);
+  void multicopterManualCmdCb(const tobas_command_msgs::AngleThrottleVector::ConstSharedPtr& cmd);
+  void fixedWingManualCmdCb(const tobas_command_msgs::msg::RollPitchSideSlipThrottleVector::ConstSharedPtr& cmd);
 
   void checkTopicsTimerCb();
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(node::kController, nodeOptions_DParam(options)), mass_holder_(tree_), mixer_(drone_, tree_)
+  : super(node::kController, nodeOptions_DParam(options)), mass_holder_(tree_), js_converter_(tree_), mixer_(drone_, tree_)
 {
   // setup beta_dot filter
   beta_dot_filter_.setCutoffFrequency(kBetaDotCutOffFreq);
@@ -156,8 +154,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
   air_pressure_sub_ = createSubscriber(topic::kAirPressure, &self::airPressureCb, this);
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
-  manual_cmd_sub_ = createSubscriber(topic::kAileElevRudThrottleCmd, &self::manualCmdCb, this);
-  stabilize_cmd_sub_ = createSubscriber(topic::kRollPitchSideSlipThrottleCmd, &self::stabilizeCmdCb, this);
+  multicopter_manual_cmd_sub_ = createSubscriber(topic::kAngleThrotVectorCmd, &self::multicopterManualCmdCb, this);
+  fixed_wing_manual_cmd_sub_ = createSubscriber(topic::kRollPitchSideSlipThrotVectorCmd, &self::fixedWingManualCmdCb, this);
 
   // Register timers.
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
@@ -172,67 +170,8 @@ bool ControllerNode::initialize()
     return false;
   }
 
-  setInputLimits();
-
   is_initialized_ = true;
   return true;
-}
-
-void ControllerNode::setInputLimits()
-{
-  min_thrusts_.conservativeResize(drone_.prop->numRotors());
-  max_thrusts_.conservativeResize(drone_.prop->numRotors());
-  min_deflections_.conservativeResize(drone_.fixed_wing->numControlSurfaces());
-  max_deflections_.conservativeResize(drone_.fixed_wing->numControlSurfaces());
-
-  for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
-    const auto& link_name = elem.first;
-    min_thrusts_(idx) = drone_.prop->minThrust(link_name);
-    max_thrusts_(idx) = drone_.prop->maxThrust(link_name);
-  }
-
-  size_t cs_idx = 0;
-  for (const auto& [_, cs] : drone_.fixed_wing->control_surfaces) {
-    const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
-    min_deflections_(cs_idx) = joint.lower_limit;
-    max_deflections_(cs_idx) = joint.upper_limit;
-    ++cs_idx;
-  }
-}
-
-void ControllerNode::publishThrusts(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& thrusts)
-{
-  assert(static_cast<size_t>(thrusts.size()) == drone_.prop->numRotors());
-
-  auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
-  thrusts_msg->header.stamp = stamp;
-
-  for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
-    thrusts_msg->thrusts.emplace_back();
-    thrusts_msg->thrusts.back().link_name = elem.first;
-    thrusts_msg->thrusts.back().thrust = std::max(thrusts(idx), 0.0);
-  }
-
-  tar_thrusts_pub_->publish(std::move(thrusts_msg));
-}
-
-void ControllerNode::publishDeflections(const builtin_interfaces::msg::Time& stamp, const Eigen::VectorXd& deflections)
-{
-  assert(static_cast<size_t>(deflections.size()) == drone_.fixed_wing->numControlSurfaces());
-
-  auto tar_angles_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
-  tar_angles_msg->header.stamp = stamp;
-
-  for (const auto& [idx, cs_item] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
-    const auto& link_name = cs_item.first;
-    const auto& joint = tree_.getSegment(link_name)->second.segment.joint();
-
-    tar_angles_msg->commands.emplace_back();
-    tar_angles_msg->commands.back().name = joint.name;
-    tar_angles_msg->commands.back().data = deflections(idx);
-  }
-
-  tar_angles_pub_->publish(std::move(tar_angles_msg));
 }
 
 bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& priority)
@@ -283,6 +222,13 @@ void ControllerNode::droneCb(const Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
 
+  if (drone->hasServoJoint()) {
+    js_sub_ = createSubscriber(topic::kJointStates, &self::jointStateCb, this);
+  }
+  else {
+    js_sub_.reset();
+  }
+
   if (tree_received_) {
     if (!initialize()) {
       TOBAS_FATAL("Error occurred while initializing controller.");
@@ -307,14 +253,26 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   tree_received_ = true;
 }
 
+void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js)
+{
+  // Assume that information for different joints may arrive in separate messages,
+  // and convert to KDL inside the callback instead of storing the message itself.
+  if (js_converter_.convert(*js) < 0) {
+    TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
+    return;
+  }
+
+  js_received_ = true;
+}
+
 void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 
   if (!arming->data) {
+    tar_rot_.reset();
     tar_roll_pitch_sideslip_.reset();
-    thrusts_.reset();
-    deflections_.reset();
+    tar_gyro_.reset();
   }
 }
 
@@ -350,9 +308,34 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   const auto airspeed = cur_vel_G.norm();
 
   // Attitude controller.
+  // multicopter like
+  if (tar_rot_) {
+    if (!tar_gyro_) {
+      tar_gyro_ = std::make_unique<kdl::Vector>();
+    }
+
+    // Determine gains.
+    const auto atti_wn = rot_ctrl_.atti_wn;
+    const auto head_wn = rot_ctrl_.head_wn;
+    const auto atti_angle_gain = atti_wn / rot_ctrl_.atti_zeta / 2;
+    const auto head_angle_gain = head_wn / rot_ctrl_.head_zeta / 2;
+    const kdl::Vector angle_gain(atti_angle_gain, atti_angle_gain, head_angle_gain);
+
+    // Compute rotation error.
+    const auto ep = (cur_rot.inverse() * *tar_rot_).getRot();
+
+    // TODO: Accumulate integral error while airborne.
+
+    // Compute target angular velocity.
+    *tar_gyro_ = angle_gain.hadamard(ep);
+
+    // Fill the feedback message.
+    setpoint->odom.frame.M = *tar_rot_;
+  }
+  // fixed wing like
   if (tar_roll_pitch_sideslip_) {
-    if (!tar_drpb_) {
-      tar_drpb_ = std::make_unique<kdl::Vector>();
+    if (!tar_gyro_) {
+      tar_gyro_ = std::make_unique<kdl::Vector>();
     }
 
     // Determine gains.
@@ -360,6 +343,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     const auto head_wn = rot_ctrl_.head_wn;
     const auto atti_angle_gain = atti_wn / rot_ctrl_.atti_zeta / 2;
     const auto head_angle_gain = head_wn / rot_ctrl_.atti_zeta / 2;
+    const kdl::Vector angle_gain(atti_angle_gain, atti_angle_gain, head_angle_gain);
 
     // Determine target attitude.
     // TODO: Limit the target-attitude rate during transition to avoid discontinuous target-attitude changes
@@ -375,6 +359,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     const auto beta = angleOfSideSlip(cur_vel_G_frd.x(), cur_vel_G_frd.y(), cur_vel_G_frd.z());
     beta_dot_filter_.update(beta, dt);
     const auto beta_err = algo::wrapPi(tar_rpb.side_slip - beta);
+    kdl::Vector ep(roll_err, pitch_err, beta_err);
     // std::cout << "beta : " << beta / M_PI * 180.0 << " [deg]" << std::endl;
     // std::cout << "beta_err : " << beta_err / M_PI * 180.0 << " [deg]" << std::endl;
     // std::cout << "beta_sp : " << tar_rpb.sideslip / M_PI * 180.0 << " [deg]" << std::endl;
@@ -382,14 +367,14 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     // TODO: Accumulate integral error while airborne.
 
     // Compute target Euler angle rates.
-    *tar_drpb_ = kdl::Vector(atti_angle_gain * roll_err, atti_angle_gain * pitch_err, head_angle_gain * beta_err);
+    *tar_gyro_ = angle_gain.hadamard(ep);
 
     // Fill the feedback message.
     setpoint->odom.frame.M =
       kdl::Euler(tar_roll_pitch_sideslip_->roll, tar_roll_pitch_sideslip_->pitch, 0.0).toRotation();
   }
 
-  if (tar_drpb_) {
+  if (tar_gyro_) {
     // Angular velocity controller.
     {
       // Determine gains.
@@ -405,18 +390,18 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       // std::cout << "tar_drpb_->z() : " << tar_drpb_->z() / M_PI * 180.0 << " [deg/s]" << std::endl;
       // std::cout << "beta_dot_filter_.getValue() : " << beta_dot_filter_.getValue() / M_PI * 180.0 << " [deg/s]" << std::endl;
       tar_dgyro_ = kdl::Vector(
-        atti_rate_gain * (tar_drpb_->x() - cur_gyro_G.x()),
-        atti_rate_gain * (tar_drpb_->y() - cur_gyro_G.y()),
-        head_rate_gain * (tar_drpb_->z() - beta_dot_filter_.getValue()));
+        atti_rate_gain * (tar_gyro_->x() - cur_gyro_G.x()),
+        atti_rate_gain * (tar_gyro_->y() - cur_gyro_G.y()),
+        head_rate_gain * (tar_gyro_->z() - beta_dot_filter_.getValue()));
 
       // Fill the feedback message.
-      setpoint->odom.twist.rot = *tar_drpb_;
+      setpoint->odom.twist.rot = *tar_gyro_;
     }
 
     // Mixer.
     {
       const auto rho = st::pressureToDensity(air_pressure_->pressure);
-      if (!mixer_.solve(dt, rho, airspeed, tar_dgyro_)) {
+      if (!mixer_.solve(dt, rho, airspeed, js_converter_.getPosition(), cur_gyro_G, tar_dgyro_, ux_, uz_)) {
         TOBAS_FATAL("Failed to solve the mixing equation.");
         return;
       }
@@ -425,84 +410,80 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       setpoint->odom.accel.angular = tar_dgyro_;
     }
 
-    if (!deflections_) {
-      deflections_ = std::make_unique<Eigen::VectorXd>();
+    // Publish target thrust.
+    auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
+    tar_thrusts->header.stamp = cur_time;
+    for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+      tar_thrusts->thrusts.emplace_back();
+      tar_thrusts->thrusts.back().link_name = rotor_it.first;
+      tar_thrusts->thrusts.back().thrust = mixer_.getThrust(idx);
     }
-    *deflections_ = Eigen::VectorXd::Zero(drone_.fixed_wing->numControlSurfaces());
-    for (size_t idx = 0; idx < drone_.fixed_wing->numControlSurfaces(); idx++) {
-      deflections_->operator()(idx) =
-        std::clamp(mixer_.getDeflection(idx), min_deflections_(idx), max_deflections_(idx));
-    }
-  }
+    tar_thrusts_pub_->publish(std::move(tar_thrusts));
 
-  if (deflections_) {
-    publishThrusts(odom_flu->header.stamp, *thrusts_);
-    publishDeflections(odom_flu->header.stamp, *deflections_);
+    // Publish joint command angles.
+    auto tar_angles_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
+    tar_angles_msg->header.stamp = cur_time;
+    // tilt joints
+    for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+      const auto& rotor = rotor_it.second;
+      if (rotor->tilt_joint_name.empty()) {
+        continue;
+      }
+      tar_angles_msg->commands.emplace_back();
+      tar_angles_msg->commands.back().name = rotor->tilt_joint_name;
+      tar_angles_msg->commands.back().data = mixer_.getTiltAngle(idx);
+    }
+    // control surfaces
+    for (const auto& [idx, cs_item] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
+      const auto& link_name = cs_item.first;
+      const auto& joint = tree_.getSegment(link_name)->second.segment.joint();
+
+      tar_angles_msg->commands.emplace_back();
+      tar_angles_msg->commands.back().name = joint.name;
+      tar_angles_msg->commands.back().data = std::clamp(mixer_.getDeflection(idx), joint.lower_limit, joint.upper_limit);
+    }
+
+    tar_angles_pub_->publish(std::move(tar_angles_msg));
   }
 
   // Publish the feedback message.
   setpoint_pub_->publish(std::move(setpoint));
 }
 
-void ControllerNode::manualCmdCb(const tobas_command_msgs::msg::AileElevRudThrottle::ConstSharedPtr& manual_cmd)
+void ControllerNode::multicopterManualCmdCb(const tobas_command_msgs::AngleThrottleVector::ConstSharedPtr& cmd)
 {
-  if (!isCommandAccepted(manual_cmd->priority)) {
+  if (!isCommandAccepted(cmd->priority)) {
     return;
   }
 
-  // Stop the outer control loop.
+  // Check command range.
+  if (std::abs(cmd->angle.roll) > M_PI_2) {
+    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "Target roll is invalid.");
+    return;
+  }
+  if (std::abs(cmd->angle.pitch) > M_PI_2) {
+    TOBAS_WARN_THROTTLE(kIgnoreCmdMsgPeriod, "Target pitch is invalid.");
+    return;
+  }
+
+  // TODO: Stop the outer control loop.
+
+  // Stop the same level fixed_wing like control
   tar_roll_pitch_sideslip_.reset();
-  tar_drpb_.reset();
 
   // Create the command.
-  if (!thrusts_) {
-    thrusts_ = std::make_unique<Eigen::VectorXd>();
-  }
-  if (!deflections_) {
-    deflections_ = std::make_unique<Eigen::VectorXd>();
+  if (!tar_rot_) {
+    tar_rot_ = std::make_unique<kdl::Rotation>();
   }
 
-  // Set command
-  // thrusts
-  *thrusts_ = Eigen::VectorXd::Zero(drone_.prop->numRotors());
-  for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
-    thrusts_->operator()(idx) = max_thrusts_(idx) * manual_cmd->throttle;
-  }
-  // control surface deflections
-  *deflections_ = Eigen::VectorXd::Zero(drone_.fixed_wing->numControlSurfaces());
-  for (const auto& [idx, cs_item] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
-    const auto type = cs_item.second.type;
-    if (type == ControlSurfaceType::kAileron) {
-      deflections_->operator()(idx) = math::remap(
-        manual_cmd->aileron,
-        manual_cmd->MIN_DEFLECTION,
-        manual_cmd->MAX_DEFLECTION,
-        min_deflections_(idx),
-        max_deflections_(idx));
-    }
-    else if (type == ControlSurfaceType::kElevator) {
-      deflections_->operator()(idx) = math::remap(
-        manual_cmd->elevator,
-        manual_cmd->MIN_DEFLECTION,
-        manual_cmd->MAX_DEFLECTION,
-        min_deflections_(idx),
-        max_deflections_(idx));
-    }
-    else if (type == ControlSurfaceType::kRudder) {
-      deflections_->operator()(idx) = math::remap(
-        manual_cmd->rudder,
-        manual_cmd->MIN_DEFLECTION,
-        manual_cmd->MAX_DEFLECTION,
-        min_deflections_(idx),
-        max_deflections_(idx));
-    }
-    else {
-      deflections_->operator()(idx) = 0.0;
-    }
-  }
+  // Update the command.
+  *tar_rot_ = cmd->angle.toRotation();
+  const auto tar_thrust = mixer_.calcMaxThrust(cmd->thrust_angle) * std::clamp(cmd->throttle, kMinThrot, kMaxThrot);
+  ux_ = tar_thrust * std::sin(cmd->thrust_angle);
+  uz_ = tar_thrust * std::cos(cmd->thrust_angle);
 }
 
-void ControllerNode::stabilizeCmdCb(const tobas_command_msgs::msg::RollPitchSideSlipThrottle::ConstSharedPtr& cmd)
+void ControllerNode::fixedWingManualCmdCb(const tobas_command_msgs::msg::RollPitchSideSlipThrottleVector::ConstSharedPtr& cmd)
 {
   if (!isCommandAccepted(cmd->priority)) {
     return;
@@ -520,23 +501,21 @@ void ControllerNode::stabilizeCmdCb(const tobas_command_msgs::msg::RollPitchSide
 
   // TODO: Stop the outer control loop.
 
+  // Stop the same level multicopter like control
+  tar_rot_.reset();
+
   // Create the command.
   if (!tar_roll_pitch_sideslip_) {
     tar_roll_pitch_sideslip_ = std::make_unique<RollPitchSideSlip>();
-  }
-  if (!thrusts_) {
-    thrusts_ = std::make_unique<Eigen::VectorXd>();
   }
 
   // Update the command.
   tar_roll_pitch_sideslip_->roll = cmd->roll;
   tar_roll_pitch_sideslip_->pitch = cmd->pitch;
   tar_roll_pitch_sideslip_->side_slip = cmd->side_slip;
-  // thrusts
-  *thrusts_ = Eigen::VectorXd::Zero(drone_.prop->numRotors());
-  for (const auto& [idx, elem] : std::views::enumerate(drone_.prop->rotors)) {
-    thrusts_->operator()(idx) = max_thrusts_(idx) * cmd->throttle;
-  }
+  const auto tar_thrust = mixer_.calcMaxThrust(cmd->thrust_angle) * std::clamp(cmd->throttle, kMinThrot, kMaxThrot);
+  ux_ = tar_thrust * std::sin(cmd->thrust_angle);
+  uz_ = tar_thrust * std::cos(cmd->thrust_angle);
 }
 
 void ControllerNode::checkTopicsTimerCb()
@@ -548,6 +527,11 @@ void ControllerNode::checkTopicsTimerCb()
 
   if (!tree_received_) {
     TOBAS_WARN("Waiting for \"", topic::kKdlTree, "\".");
+    return;
+  }
+
+  if (js_sub_ && !js_received_) {
+    TOBAS_WARN("Waiting for \"", topic::kJointStates, "\".");
     return;
   }
 

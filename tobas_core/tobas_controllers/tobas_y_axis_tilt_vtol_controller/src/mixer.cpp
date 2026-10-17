@@ -1,0 +1,333 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
+#include "tobas_y_axis_tilt_vtol_controller/mixer.hpp"
+
+#include <ranges>
+
+#include <tobas_kdl/conversion/coordinates.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_tools/fixed_wing.hpp>
+
+namespace tobas
+{
+namespace y_axis_tilt_vtol
+{
+Mixer::Mixer(const Drone& drone, const kdl::Tree& tree) : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
+{
+}
+
+bool Mixer::updateInternalDataStructures()
+{
+  if (!super::updateInternalDataStructures()) {
+    return false;
+  }
+
+  if (!fk_solver_.updateInternalDataStructures()) {
+    std::cerr << fk_solver_.errorMessage() << std::endl;
+    return false;
+  }
+  if (!inertia_solver_.updateInternalDataStructures()) {
+    std::cerr << inertia_solver_.errorMessage() << std::endl;
+    return false;
+  }
+
+  // Compute forward kinematics.
+  if (fk_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0) {
+    std::cerr << fk_solver_.errorMessage() << std::endl;
+    return false;
+  }
+
+  const auto nr = drone_.prop->numRotors();
+  info_.resize(nr);
+  state_.resize(nr);
+
+  // resize E_, x_, scale_
+  size_t col = 0;
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
+    auto& info = info_[idx];
+    info.column = col;
+    if (rotor->tilt_joint_name.empty()) {
+      info.is_tilt = false;
+      col += 1;
+    }
+    else {
+      info.is_tilt = true;
+      col += 2;
+    }
+  }
+  cs_start_idx_ = col;
+  col += drone_.fixed_wing->numControlSurfaces();
+
+  E_.conservativeResize(Eigen::NoChange, col);
+  x_.conservativeResize(col);
+  scale_.conservativeResize(col);
+
+  // setup info_ & scale_
+  // setup rotor part
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
+
+    // info
+    auto& info = info_[idx];
+    if (info.is_tilt) {
+      const auto& cur_elem = tree_.getSegment(rotor->link_name)->second;
+      const auto& par_elem = cur_elem.parent->second;
+      const auto& gpar_elem = par_elem.parent->second;
+
+      // Store the sign of the tilt axis.
+      const auto& B_T_gpar = fk_solver_.getFrame(gpar_elem.segment.name());
+      const auto tilt_axis = B_T_gpar.M * par_elem.segment.joint().axis();  // Tilt axis viewed from the base link.
+      const auto tilt_axis_y = tilt_axis.normalized().y();
+      if (!math::isClose(std::abs(tilt_axis_y), 1.0)) {
+        std::cerr << "Tilt axis must be parallel to the Y axis." << std::endl;
+        return false;
+      }
+      info.sign = math::sign(tilt_axis_y);
+    }
+    // scale
+    scale_(idx) = drone_.prop->maxThrust(rotor->link_name);
+  }
+  // setup control surface part
+  for (const auto& [idx, pair] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
+    const auto& cs = pair.second;
+    const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
+    const auto max_deflection = joint.upper_limit;
+    scale_(cs_start_idx_ + idx) = max_deflection;
+  }
+
+  // setup max thrusts
+  max_thrust_multicopter_ = 0.0;
+  max_thrust_fixed_wing_ = 0.0;
+  for (const auto& [link_name, rotor] : drone_.prop->rotors) {
+    const auto max_thrust = drone_.prop->maxThrust(link_name);
+    max_thrust_multicopter_ += max_thrust;
+    if (!rotor->tilt_joint_name.empty()) {
+      max_thrust_fixed_wing_ += max_thrust;
+    }
+  }
+
+  // setup fixed wing related information
+  if (!calcModesAngularFreq()) {
+    return false;
+  }
+
+  return true;
+}
+
+double Mixer::calcMaxThrust(const double& thrust_angle) const
+{
+  return max_thrust_multicopter_ * cos(thrust_angle) + max_thrust_fixed_wing_ * sin(thrust_angle);
+}
+
+bool Mixer::solve(
+  const double& dt,
+  const double& rho,
+  const double& airspeed, 
+  const kdl::JntArray& cur_q,
+  const kdl::Vector& cur_gyro_B,
+  const kdl::Vector& tar_dgyro_B,
+  const double& ux,
+  const double& uz)
+{
+  // Compute forward kinematics.
+  if (fk_solver_.jntToCart(cur_q) < 0) {
+    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
+    return false;
+  }
+
+  // Compute mass properties.
+  if (inertia_solver_.jntToCart(cur_q) < 0) {
+    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
+    return false;
+  }
+  const auto& inertia = inertia_solver_.getInertia();
+  const auto B_Pos_B2G = inertia.getCOG();
+  const auto I_B = inertia.getRotationalInertiaCoG();
+
+  // Left-hand side of the EoM matrix equality. tilt rotors + fixed rotors
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
+    const auto& info = info_[idx];
+    auto& state = state_[idx];
+
+    const auto& cur_elem = tree_.getSegment(rotor->link_name)->second;
+    const auto& cur_seg = cur_elem.segment;
+    const auto& par_elem = cur_elem.parent->second;
+    const auto& par_seg = par_elem.segment;
+
+    const auto d_cm = rotor->sign() * rotor->momentConst();
+
+    if (info.is_tilt) {
+      // Update the rotor axis angle relative to the body frame at zero tilt angle.
+      const auto& gpar_elem = par_elem.parent->second;
+      const auto& gpar_seg = gpar_elem.segment;
+      const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
+      const auto B_T_par = B_T_gpar * par_seg.pose(0.0);
+      const auto n = B_T_par.M * cur_seg.joint().axis();
+      state.alpha = std::atan2(n.x(), n.z());
+
+      // Compute the left-hand side of the equations of motion.
+      // When the rotor is dead, force the optimal thrust to zero by setting the transfer from thrust to vehicle motion to zero.
+      if (rotor_alive_[rotor->link_name]) {
+        // Compute the point of thrust application viewed from the grandparent link.
+        const auto& par_joint = par_seg.joint();
+        const auto gpar_T_cur = par_seg.frame() * cur_seg.frame();
+        const auto gpar_P_gpar2P =
+          eigen::projectPointOnToLine(par_joint.origin.data, par_joint.axis().data, gpar_T_cur.p.data);
+
+        const auto B_Pos_B2P = B_T_gpar * gpar_P_gpar2P;
+        const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
+        const auto col_tx = info.column;
+        const auto col_tz = col_tx + 1;
+        E_(0, col_tx) = -d_cm;
+        E_(1, col_tx) = B_Pos_G2P.z();
+        E_(2, col_tx) = -B_Pos_G2P.y();
+        E_(0, col_tz) = B_Pos_G2P.y();
+        E_(1, col_tz) = -B_Pos_G2P.x();
+        E_(2, col_tz) = -d_cm;
+        E_.block<2, 2>(3, col_tx).setIdentity();
+      }
+      else {
+        E_.middleCols<2>(info.column).setZero();
+      }
+    }
+    else {
+      // Update the rotor axis angle relative to the body frame.
+      const auto& B_T_par = fk_solver_.getFrame(par_seg.name());
+      const auto n = B_T_par.M * cur_seg.joint().axis();
+      state.alpha = std::atan2(n.x(), n.z());
+
+      // Update the left-hand side of the equations of motion.
+      if (rotor_alive_[rotor->link_name]) {
+        const auto& B_Pos_B2P = fk_solver_.getFrame(cur_seg.name()).p;
+        const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
+        E_.block<3, 1>(0, info.column) = (B_Pos_G2P * n - d_cm * n).data;
+        E_(3, info.column) = std::sin(state.alpha);
+        E_(4, info.column) = std::cos(state.alpha);
+      }
+      else {
+        E_.col(info.column).setZero();
+      }
+    }
+  }
+
+  // Left-hand side of the EoM matrix equality. control surfaces
+  for (const auto& [idx, pair] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
+    const auto& cs = pair.second;
+    const kdl::Vector effectiveness_frd = kdl::Vector(cs.c_roll_delta, cs.c_pitch_delta, cs.c_yaw_delta);
+    kdl::Vector effectiveness_flu;
+    kdl::vectorFrdToFlu(effectiveness_frd, effectiveness_flu);
+    E_(0, cs_start_idx_ + idx) = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
+                 drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.x();  // [Nm / rad]
+    E_(1, cs_start_idx_ + idx) = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
+                 drone_.fixed_wing->vehicle.mac * effectiveness_flu.y();  // [Nm / rad]
+    E_(2, cs_start_idx_ + idx) = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
+                 drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.z();  // [Nm / rad]
+    E_(3, cs_start_idx_ + idx) = 0.0; // [N]
+    E_(4, cs_start_idx_ + idx) = 0.0; // [N]
+  }
+
+  // Right-hand side of the EoM matrix equality.
+  // 空力による応答遅れの影響を考慮してPI要素を挟む
+  x_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_roll_);
+  x_controller_.update(tar_dgyro_B.x(), dt);
+
+  y_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_s_);
+  y_controller_.update(tar_dgyro_B.y(), dt);
+
+  z_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_dutch_roll_);
+  z_controller_.update(tar_dgyro_B.z(), dt);
+  z2_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_dutch_roll_);
+  z2_controller_.update(z_controller_.getValue(), dt);
+
+  const auto eom_rot_right_B = Eigen::Vector3d(
+    I_B.ixx() * x_controller_.getValue(),
+    I_B.iyy() * y_controller_.getValue(),
+    I_B.izz() * z2_controller_.getValue())
+    + cur_gyro_B * (I_B * cur_gyro_B);  // [Nm]
+  f_.head<3>() = eom_rot_right_B.data;
+  f_(3) = ux;
+  f_(4) = uz;
+
+  // Solve `Ex = f`.
+  // E S (S^-1 x) = fを解くことでスケーリング
+  const Eigen::MatrixXd S = scale_.asDiagonal();
+  x_ = S * (E_ * S).jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
+  return true;
+}
+
+double Mixer::getDeflection(size_t idx) const
+{
+  return x_(cs_start_idx_ + idx);
+}
+
+double Mixer::getThrust(size_t idx) const
+{
+  const auto& info = info_.at(idx);
+
+  if (info.is_tilt) {
+    return thrustDeadband(x_.segment<2>(info.column).norm());
+  }
+  else {
+    return thrustDeadband(x_(info.column));
+  }
+}
+
+double Mixer::getTiltAngle(size_t idx) const
+{
+  const auto& info = info_.at(idx);
+  const auto& state = state_.at(idx);
+
+  if (info.is_tilt) {
+    const auto tx = x_(info.column);
+    const auto tz = x_(info.column + 1);
+    return info.sign * (std::atan2(tx, tz) - state.alpha); // TODO: tx, tzがどちらも0に近かった場合にどうするか
+  }
+  else {
+    std::cerr << "Rotor " << idx << " is not a tilt rotor." << std::endl;
+    return 0.0;
+  }
+}
+
+bool Mixer::calcModesAngularFreq()
+{
+  // Compute mass properties.
+  const auto& inertia = inertia_solver_.getInertia();
+  const auto I_B = inertia.getRotationalInertiaCoG();
+  const auto I_xx = I_B.ixx();
+  const auto I_yy = I_B.iyy();
+  const auto I_zz = I_B.izz();
+
+  // ロールモードの良い近似は\dot{p} - L_p p = 0
+  const auto b = drone_.fixed_wing->vehicle.wing_span;
+  const auto S = drone_.fixed_wing->vehicle.wing_surface;
+  const auto L_p = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * b *
+                   drone_.fixed_wing->aerodynamics.c_roll_p * b / (2.0 * kCruiseSpeed) / I_xx;
+  if (L_p > 0) {
+    return false;
+  }
+  omega_roll_ = -L_p;
+
+  // 短周期モードの良い近似は\ddot{\theta} - (M_q + M_alpha_dot) \dot{\theta} - M_\alpha \theta = 0
+  const auto c_mac = drone_.fixed_wing->vehicle.mac;
+  const auto M_alpha = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * c_mac *
+                       drone_.fixed_wing->aerodynamics.c_pitch_alpha / I_yy;
+  const auto omega_squared = -M_alpha;
+  if (omega_squared < 0) {
+    return false;
+  }
+  omega_s_ = std::sqrt(omega_squared);
+
+  // ダッチロールモードの粗い近似はs^2 - N_r s + N_beta = 0
+  const auto N_beta = 0.5 * st::kStandardAirDensity * std::pow(kCruiseSpeed, 2) * S * b *
+                      drone_.fixed_wing->aerodynamics.c_yaw_beta / I_zz;
+  if (N_beta < 0) {
+    return false;
+  }
+  omega_dutch_roll_ = std::sqrt(N_beta);
+  return true;
+}
+}  // namespace y_axis_tilt_vtol
+}  // namespace tobas
