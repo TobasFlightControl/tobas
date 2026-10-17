@@ -27,12 +27,12 @@ so unconventional aircraft can be simulated, configured, and flown through the s
 
 ## Repository Layout
 
+- `debian`: Debian packaging resources for supported images.
 - `docs`: MkDocs-based user and developer documentation.
 - `tobas_core`: Core flight-control, estimation, hardware, message, failsafe, and utility packages.
 - `tobas_gui`: Setup, ground-station, simulation, tuning, and visualization tools.
 - `tobas_examples`: Example packages and code-style references.
 - `tobas_dev_tools`: Development, synchronization, and deployment helper scripts.
-- `tobas_deb`: Debian packaging resources for supported images.
 - `tobas_external`: Third-party libraries wrapped for the Tobas workspace.
 
 ## For Contributors

@@ -3,8 +3,8 @@
 set -e
 
 # Set paths.
-tobas_deb=$(realpath $(dirname "$0"))
-ubuntu_workspace=${tobas_deb}/ubuntu
+pardir=$(realpath $(dirname "$0"))
+ubuntu_workspace=${pardir}/ubuntu
 tmp_build_dir=${ROS2_WORKSPACE}/tmp # Temporal build directory
 install_base=${ubuntu_workspace}/opt/ros/jazzy
 build_base=${tmp_build_dir}/build
@@ -34,7 +34,7 @@ find "${install_base}" -mindepth 1 -maxdepth 1 \
   -exec rm -rf -- {} +
 
 # Create deb package.
-fakeroot dpkg-deb --build ${ubuntu_workspace} ${tobas_deb}
+fakeroot dpkg-deb --build ${ubuntu_workspace} ${pardir}
 
 # Remove generated objects.
 rm -rf ${tmp_build_dir} ${ubuntu_workspace}/opt/ros/jazzy

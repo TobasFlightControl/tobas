@@ -7,4 +7,4 @@ log/
 __pycache__/
 .venv/
 docs/site/
-tobas_deb/ubuntu/opt/
+debian/ubuntu/opt/
