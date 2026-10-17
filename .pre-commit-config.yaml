@@ -46,7 +46,7 @@ repos:
       - id: codespell
         args:
           - "--write-changes"
-          - "--ignore-words=.codespell_words"
+          - "--ignore-words=config/codespell_words"
         exclude: (^|/)CHANGELOG\.rst$
 
   - repo: local
@@ -85,7 +85,7 @@ repos:
       - id: prettier-markdown
         name: prettier-markdown
         # Add spaces between Japanese text/punctuation and alphanumerics.
-        entry: sh -c 'textlint --fix --config .textlintrc.json "$@" && prettier --write "$@"' --
+        entry: sh -c 'textlint --fix --config config/textlintrc.json "$@" && prettier --write "$@"' --
         language: node
         language_version: 22.17.1
         additional_dependencies:
