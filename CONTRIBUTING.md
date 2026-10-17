@@ -46,7 +46,7 @@ Build with `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON` as described in [Setup](./SETUP.
 then run static analysis from the repository root:
 
 ```bash
-$ tobas_dev_tools/scripts/tobas_clang_tidy
+$ tools/tobas_clang_tidy
 ```
 
 ## Code Style

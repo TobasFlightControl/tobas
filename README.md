@@ -32,8 +32,8 @@ so unconventional aircraft can be simulated, configured, and flown through the s
 - `tobas_core`: Core flight-control, estimation, hardware, message, failsafe, and utility packages.
 - `tobas_gui`: Setup, ground-station, simulation, tuning, and visualization tools.
 - `tobas_examples`: Example packages and code-style references.
-- `tobas_dev_tools`: Development, synchronization, and deployment helper scripts.
 - `tobas_external`: Third-party libraries wrapped for the Tobas workspace.
+- `tools`: Development, synchronization, and deployment helper scripts.
 
 ## For Contributors
 

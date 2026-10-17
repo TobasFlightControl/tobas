@@ -62,7 +62,7 @@ export CCACHE_DIR="$HOME/.cache/ccache/"
 ### Install ROS 2
 
 ```bash
-$ ~/colcon_ws/src/tobas/tobas_dev_tools/scripts/install_ros2_raspbian
+$ ~/colcon_ws/src/tobas/tools/install_ros2_raspbian
 ```
 
 ## Notes
