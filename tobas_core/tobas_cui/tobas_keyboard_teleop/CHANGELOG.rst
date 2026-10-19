@@ -2,6 +2,9 @@
 Changelog for package tobas_keyboard_teleop
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.8 (2026-10-16)
 -------------------
 

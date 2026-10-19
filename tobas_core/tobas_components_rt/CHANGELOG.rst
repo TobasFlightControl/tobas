@@ -2,6 +2,14 @@
 Changelog for package tobas_components_rt
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix: Serialize component load and unload
+  Serialize component construction and destruction across managers to
+  prevent plugin unloads in constructors from racing with library loads.
+  Match the rolling implementation and remove the factory-only loader cache.
+* Contributors: Masayoshi Dohi
+
 2.16.8 (2026-10-16)
 -------------------
 
