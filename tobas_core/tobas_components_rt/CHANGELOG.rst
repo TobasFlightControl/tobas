@@ -2,8 +2,8 @@
 Changelog for package tobas_components_rt
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.9 (2026-10-19)
+-------------------
 * fix: Serialize component load and unload
   Serialize component construction and destruction across managers to
   prevent plugin unloads in constructors from racing with library loads.
