@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Run this for a Tobas release when Bloom's bulk push is rejected because
+# GitHub push protection reports: "The Secrets detected rule did not run because of a timeout."
+# Leave Bloom waiting at its force-push confirmation and run this script without
+# arguments in another terminal. Keep only one bloom-release process running.
+# This pushes branches and tags individually, retrying failures every 5 seconds.
+# After success, follow the printed instructions to create the rosdistro PR.
+
+# Stop on unhandled errors (including pipeline failures), unset variables, or signals.
+set -euo pipefail
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+# Find the release repository used by the waiting Bloom process.
+mapfile -t bloom_pids < <(pgrep -u "$(id -u)" -f '[b]loom-release')
+if [ "${#bloom_pids[@]}" -ne 1 ]; then
+  echo "Expected one running bloom-release process; found ${#bloom_pids[@]}." >&2
+  exit 1
+fi
+release_dir=$(readlink "/proc/${bloom_pids[0]}/cwd")
+cd -- "$release_dir"
+
+# Check that this is the Tobas release repository.
+push_url=$(git remote get-url --push --all origin)
+case "$push_url" in
+  https://github.com/ros2-gbp/tobas-release|\
+  https://github.com/ros2-gbp/tobas-release.git|\
+  git@github.com:ros2-gbp/tobas-release|\
+  git@github.com:ros2-gbp/tobas-release.git|\
+  ssh://git@github.com/ros2-gbp/tobas-release|\
+  ssh://git@github.com/ros2-gbp/tobas-release.git) ;;
+  *)
+    printf 'Unexpected origin push URL(s): %s\n' "$push_url" >&2
+    exit 1
+    ;;
+esac
+git rev-parse --verify refs/heads/upstream >/dev/null
+git show refs/heads/master:tracks.yaml >/dev/null
+
+# Create a log directory and save the local branches and tags to push.
+log_dir=$(mktemp -d "${TMPDIR:-/tmp}/tobas-release-push.XXXXXX")
+log_file="$log_dir/push.log"
+git for-each-ref --format='%(refname)' refs/heads refs/tags > "$log_dir/refs.txt"
+printf 'Release repository: %s\nLog: %s\n' "$release_dir" "$log_file"
+
+# Push one ref at a time, retrying failures until success or Ctrl+C.
+total_refs=$(wc -l < "$log_dir/refs.txt")
+current_ref=0
+while IFS= read -r ref; do
+  current_ref=$((current_ref + 1))
+  printf '\n[%d/%d] Pushing %s\n' "$current_ref" "$total_refs" "$ref" | tee -a "$log_file"
+  until git -c push.followTags=false push origin "$ref:$ref" 2>&1 | tee -a "$log_file"; do
+    printf '[%d/%d] Push failed; retrying in 5 seconds. Press Ctrl+C to stop.\n' "$current_ref" "$total_refs" | tee -a "$log_file"
+    sleep 5
+  done
+done < "$log_dir/refs.txt"
+
+# Report success and show how to stop the original Bloom and create the rosdistro PR.
+printf '\nAll local branches and tags were pushed successfully.\n'
+printf 'Answer n to the original Bloom force-push prompt, then run:\n'
+printf '  bloom-release --rosdistro <rosdistro> --track <track> --pull-request-only tobas\n'
+printf 'Replace <rosdistro> and <track> with the values from the original Bloom invocation.\n'
