@@ -79,7 +79,7 @@ private:
   std::unique_ptr<kdl::Rotation> tar_rot_ = nullptr;
   std::unique_ptr<RollPitchSideSlip> tar_roll_pitch_sideslip_ = nullptr;
   std::unique_ptr<kdl::Vector> tar_gyro_ = nullptr;
-  kdl::Vector tar_dgyro_;
+  std::unique_ptr<kdl::Vector> tar_dgyro_ = nullptr;
   double ux_ = 0.0, uz_ = 0.0;  // Target thrust in the body coordinate system.
 
   // Controller
@@ -164,6 +164,9 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 bool ControllerNode::initialize()
 {
   if (!mass_holder_.updateInternalDataStructures()) {
+    return false;
+  }
+  if (!js_converter_.updateInternalDataStructures()) {
     return false;
   }
   if (!mixer_.updateInternalDataStructures()) {
@@ -273,6 +276,7 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
     tar_rot_.reset();
     tar_roll_pitch_sideslip_.reset();
     tar_gyro_.reset();
+    tar_dgyro_.reset();
   }
 }
 
@@ -331,6 +335,21 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
     // Fill the feedback message.
     setpoint->odom.frame.M = *tar_rot_;
+
+    // Angular velocity controller
+    if (!tar_dgyro_) {
+      tar_dgyro_ = std::make_unique<kdl::Vector>();
+    }
+    // Determine gains.
+    const auto atti_rate_gain = atti_wn * rot_ctrl_.atti_zeta * 2;
+    const auto head_rate_gain = head_wn * rot_ctrl_.head_zeta * 2;
+    const kdl::Vector rate_gain(atti_rate_gain, atti_rate_gain, head_rate_gain);
+
+    // Compute target angular acceleration.
+    *tar_dgyro_ = rate_gain.hadamard(*tar_gyro_ - cur_gyro_G);
+
+    // Fill the feedback message.
+    setpoint->odom.twist.rot = *tar_gyro_;
   }
   // fixed wing like
   if (tar_roll_pitch_sideslip_) {
@@ -372,42 +391,41 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     // Fill the feedback message.
     setpoint->odom.frame.M =
       kdl::Euler(tar_roll_pitch_sideslip_->roll, tar_roll_pitch_sideslip_->pitch, 0.0).toRotation();
+
+    // Angular velocity controller
+    if (!tar_dgyro_) {
+      tar_dgyro_ = std::make_unique<kdl::Vector>();
+    }
+    // Determine gains.
+    const auto atti_rate_gain = atti_wn * rot_ctrl_.atti_zeta * 2;
+    const auto head_rate_gain = head_wn * rot_ctrl_.head_zeta * 2;
+    const kdl::Vector rate_gain(atti_rate_gain, atti_rate_gain, head_rate_gain);
+
+    // Compute target angular acceleration.
+    // roll = pitch = 0のときbeta = -yaw_frd = yaw_flu
+    // TODO: 若干beta_dotが振動気味
+    // std::cout << "tar_drpb_->z() : " << tar_drpb_->z() / M_PI * 180.0 << " [deg/s]" << std::endl;
+    // std::cout << "beta_dot_filter_.getValue() : " << beta_dot_filter_.getValue() / M_PI * 180.0 << " [deg/s]" << std::endl;
+    *tar_dgyro_ = kdl::Vector(
+      atti_rate_gain * (tar_gyro_->x() - cur_gyro_G.x()),
+      atti_rate_gain * (tar_gyro_->y() - cur_gyro_G.y()),
+      head_rate_gain * (tar_gyro_->z() - beta_dot_filter_.getValue()));
+
+    // Fill the feedback message.
+    setpoint->odom.twist.rot = *tar_gyro_;
   }
 
-  if (tar_gyro_) {
-    // Angular velocity controller.
-    {
-      // Determine gains.
-      const auto atti_wn = rot_ctrl_.atti_wn;
-      const auto head_wn = rot_ctrl_.head_wn;
-      const auto atti_rate_gain = atti_wn * rot_ctrl_.atti_zeta * 2;
-      const auto head_rate_gain = head_wn * rot_ctrl_.head_zeta * 2;
-      const kdl::Vector rate_gain(atti_rate_gain, atti_rate_gain, head_rate_gain);
-
-      // Compute target angular acceleration.
-      // roll = pitch = 0のときbeta = -yaw_frd = yaw_flu
-      // TODO: 若干beta_dotが振動気味
-      // std::cout << "tar_drpb_->z() : " << tar_drpb_->z() / M_PI * 180.0 << " [deg/s]" << std::endl;
-      // std::cout << "beta_dot_filter_.getValue() : " << beta_dot_filter_.getValue() / M_PI * 180.0 << " [deg/s]" << std::endl;
-      tar_dgyro_ = kdl::Vector(
-        atti_rate_gain * (tar_gyro_->x() - cur_gyro_G.x()),
-        atti_rate_gain * (tar_gyro_->y() - cur_gyro_G.y()),
-        head_rate_gain * (tar_gyro_->z() - beta_dot_filter_.getValue()));
-
-      // Fill the feedback message.
-      setpoint->odom.twist.rot = *tar_gyro_;
-    }
-
+  if (tar_dgyro_) {
     // Mixer.
     {
       const auto rho = st::pressureToDensity(air_pressure_->pressure);
-      if (!mixer_.solve(dt, rho, airspeed, js_converter_.getPosition(), cur_gyro_G, tar_dgyro_, ux_, uz_)) {
+      if (!mixer_.solve(dt, rho, airspeed, js_converter_.getPosition(), cur_gyro_G, *tar_dgyro_, ux_, uz_)) {
         TOBAS_FATAL("Failed to solve the mixing equation.");
         return;
       }
 
       // Fill the feedback message.
-      setpoint->odom.accel.angular = tar_dgyro_;
+      setpoint->odom.accel.angular = *tar_dgyro_;
     }
 
     // Publish target thrust.

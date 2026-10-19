@@ -27,7 +27,7 @@ void YAxisTiltVtolWidget::setToDefaults()
 
 FrameType YAxisTiltVtolWidget::frameType() const
 {
-  return FrameType::kFixedWing;
+  return FrameType::kYAxisTiltVtol;
 }
 
 QString YAxisTiltVtolWidget::controllerPackage() const

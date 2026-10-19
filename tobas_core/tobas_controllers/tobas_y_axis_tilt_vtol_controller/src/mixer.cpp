@@ -64,8 +64,7 @@ bool Mixer::updateInternalDataStructures()
   x_.conservativeResize(col);
   scale_.conservativeResize(col);
 
-  // setup info_ & scale_
-  // setup rotor part
+  // setup info_
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
@@ -86,8 +85,21 @@ bool Mixer::updateInternalDataStructures()
       }
       info.sign = math::sign(tilt_axis_y);
     }
-    // scale
-    scale_(idx) = drone_.prop->maxThrust(rotor->link_name);
+  }
+
+  // setup scale_
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
+    const auto& info = info_[idx];
+    size_t size = 0;
+    if (info.is_tilt) {
+      size = 2;
+    } else {
+      size = 1;
+    }
+    for (size_t i = 0; i < size; i++) {
+      scale_(info.column + i) = drone_.prop->maxThrust(rotor->link_name);
+    }
   }
   // setup control surface part
   for (const auto& [idx, pair] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
@@ -293,6 +305,12 @@ double Mixer::getTiltAngle(size_t idx) const
 
 bool Mixer::calcModesAngularFreq()
 {
+  // Compute mass properties.
+  if (inertia_solver_.jntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0) {
+    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
+    return false;
+  }
+
   // Compute mass properties.
   const auto& inertia = inertia_solver_.getInertia();
   const auto I_B = inertia.getRotationalInertiaCoG();

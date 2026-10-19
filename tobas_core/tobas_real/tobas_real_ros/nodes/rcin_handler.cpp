@@ -156,6 +156,7 @@ bool RCInputHandlerNode::getConfig()
     TOBAS_ERROR("Failed to get \"", handler::rcin::kSubModeOffKey, "\".");
     return false;
   }
+  vr_.set(sub_mode_off_, sub_mode_on_);
 
   if (!pt_.get(ns(), handler::rcin::kEnableOnKey, enable_on_)) {
     TOBAS_ERROR("Failed to get \"", handler::rcin::kEnableOnKey, "\".");
@@ -280,8 +281,7 @@ void RCInputHandlerNode::setParamsCb(
   modes_.at(FlightMode::kLoiter) = req->mode_loiter;
   sub_mode_on_ = req->sub_mode_on;
   sub_mode_off_ = req->sub_mode_off;
-  vr_.upper = req->sub_mode_on;
-  vr_.lower = req->sub_mode_off;
+  vr_.set(sub_mode_off_, sub_mode_on_);
   enable_on_ = req->enable_on;
   enable_off_ = req->enable_off;
   kill_on_ = req->kill_on;
