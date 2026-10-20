@@ -11,9 +11,7 @@
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
-namespace tobas
-{
-namespace ublox
+namespace tobas::ublox
 {
 UbloxGnss::UbloxGnss(std::unique_ptr<UbxTransport> _transport) : transport_(std::move(_transport)), scan_rate_(50us)
 {
@@ -135,27 +133,27 @@ bool UbloxGnss::enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable)
 
   switch (_cls) {
     case CLASS_ACK: {
-      std::cerr << kNotReceivable << std::endl;
+      std::cerr << kNotReceivable << '\n';
       return false;
     }
     case CLASS_CFG: {
-      std::cerr << kNotReceivable << std::endl;
+      std::cerr << kNotReceivable << '\n';
       return false;
     }
     case CLASS_INF: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_LOG: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_MGA: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_MON: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_NAV: {
@@ -251,33 +249,33 @@ bool UbloxGnss::enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable)
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x046);  // CFG-MSGOUT-UBX_NAV_VELNED_SPI
           break;
         default:
-          std::cerr << kNotImplemented << std::endl;  // TODO
+          std::cerr << kNotImplemented << '\n';  // TODO
           return false;
       }
       break;
     }
     case CLASS_NAV2: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_RXM: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_SEC: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_TIM: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_UPD: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     default: {
-      std::cerr << "Invalid UBX class type: " << std::hex << _cls << std::endl;
+      std::cerr << "Invalid UBX class type: " << std::hex << _cls << '\n';
       return false;
     }
   }
@@ -318,27 +316,27 @@ bool UbloxGnss::enableUartMessage(UbxClass _cls, uint8_t _id, bool _enable)
 
   switch (_cls) {
     case CLASS_ACK: {
-      std::cerr << kNotReceivable << std::endl;
+      std::cerr << kNotReceivable << '\n';
       return false;
     }
     case CLASS_CFG: {
-      std::cerr << kNotReceivable << std::endl;
+      std::cerr << kNotReceivable << '\n';
       return false;
     }
     case CLASS_INF: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_LOG: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_MGA: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_MON: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_NAV: {
@@ -386,7 +384,7 @@ bool UbloxGnss::enableUartMessage(UbxClass _cls, uint8_t _id, bool _enable)
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x08E);  // CFG-MSGOUT-UBX_NAV_RELPOSNED_UART
           break;
         case NAV_RESETODO:
-          std::cerr << kNotReceivable << std::endl;
+          std::cerr << kNotReceivable << '\n';
           return false;
         case NAV_SAT:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x016);  // CFG-MSGOUT-UBX_NAV_SAT_UART
@@ -434,33 +432,33 @@ bool UbloxGnss::enableUartMessage(UbxClass _cls, uint8_t _id, bool _enable)
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x043);  // CFG-MSGOUT-UBX_NAV_VELNED_UART
           break;
         default:
-          std::cerr << kNotImplemented << std::endl;  // TODO
+          std::cerr << kNotImplemented << '\n';  // TODO
           return false;
       }
       break;
     }
     case CLASS_NAV2: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_RXM: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_SEC: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_TIM: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     case CLASS_UPD: {
-      std::cerr << kNotImplemented << std::endl;  // TODO
+      std::cerr << kNotImplemented << '\n';  // TODO
       return false;
     }
     default: {
-      std::cerr << "Invalid UBX class type: " << std::hex << _cls << std::endl;
+      std::cerr << "Invalid UBX class type: " << std::hex << _cls << '\n';
       return false;
     }
   }
@@ -474,40 +472,40 @@ bool UbloxGnss::enableGps()
 {
   // Enable GPS.
   if (!enableGps(true)) {
-    std::cerr << "Failed to enable GPS." << std::endl;
+    std::cerr << "Failed to enable GPS." << '\n';
     return false;
   }
 
   // Enable L1 band.
   if (!enableGpsL1()) {
-    std::cerr << "Failed to enable GPS L1." << std::endl;
+    std::cerr << "Failed to enable GPS L1." << '\n';
     return false;
   }
 
   // Enable L2 band for ZED-F9P.
   if (receiver_profile_ == F9P) {
     if (!enableGpsL2()) {
-      std::cerr << "Failed to enable GPS L2." << std::endl;
+      std::cerr << "Failed to enable GPS L2." << '\n';
       return false;
     }
 
-    std::cout << "GPS L1/L2 is enabled." << std::endl;
+    std::cout << "GPS L1/L2 is enabled." << '\n';
     return true;
   }
 
   // Enable L2 and L5 bands for ZED-X20P.
   if (receiver_profile_ == X20P) {
     if (!enableGpsL2()) {
-      std::cerr << "Failed to enable GPS L2." << std::endl;
+      std::cerr << "Failed to enable GPS L2." << '\n';
       return false;
     }
 
     if (!enableGpsL5()) {
-      std::cerr << "Failed to enable GPS L5." << std::endl;
+      std::cerr << "Failed to enable GPS L5." << '\n';
       return false;
     }
 
-    std::cout << "GPS L1/L2/L5 is enabled." << std::endl;
+    std::cout << "GPS L1/L2/L5 is enabled." << '\n';
     return true;
   }
 
@@ -523,13 +521,13 @@ bool UbloxGnss::enableSbas()
 {
   // Enable SBAS.
   if (!enableSbas(true)) {
-    std::cerr << "Failed to enable SBAS." << std::endl;
+    std::cerr << "Failed to enable SBAS." << '\n';
     return false;
   }
 
   // Enable L1 band.
   if (!enableSbasL1()) {
-    std::cerr << "Failed to enable SBAS L1." << std::endl;
+    std::cerr << "Failed to enable SBAS L1." << '\n';
     return false;
   }
 
@@ -545,40 +543,40 @@ bool UbloxGnss::enableGalileo()
 {
   // Enable Galileo.
   if (!enableGalileo(true)) {
-    std::cerr << "Failed to enable Galileo." << std::endl;
+    std::cerr << "Failed to enable Galileo." << '\n';
     return false;
   }
 
   // Enable E1 band.
   if (!enableGalileoE1()) {
-    std::cerr << "Failed to enable Galileo E1." << std::endl;
+    std::cerr << "Failed to enable Galileo E1." << '\n';
     return false;
   }
 
   // Enable E5b band for ZED-F9P.
   if (receiver_profile_ == F9P) {
     if (!enableGalileoE5b()) {
-      std::cerr << "Failed to enable Galileo E5b." << std::endl;
+      std::cerr << "Failed to enable Galileo E5b." << '\n';
       return false;
     }
 
-    std::cout << "Galileo E1/E5b is enabled." << std::endl;
+    std::cout << "Galileo E1/E5b is enabled." << '\n';
     return true;
   }
 
   // Enable E5a and E6 bands for ZED-X20P.
   if (receiver_profile_ == X20P) {
     if (!enableGalileoE5a()) {
-      std::cerr << "Failed to enable Galileo E5a." << std::endl;
+      std::cerr << "Failed to enable Galileo E5a." << '\n';
       return false;
     }
 
     if (!enableGalileoE6()) {
-      std::cerr << "Failed to enable Galileo E6." << std::endl;
+      std::cerr << "Failed to enable Galileo E6." << '\n';
       return false;
     }
 
-    std::cout << "Galileo E1/E5a/E6 is enabled." << std::endl;
+    std::cout << "Galileo E1/E5a/E6 is enabled." << '\n';
     return true;
   }
 
@@ -594,45 +592,45 @@ bool UbloxGnss::enableBeiDou()
 {
   // Enable BeiDou.
   if (!enableBeiDou(true)) {
-    std::cerr << "Failed to enable BeiDou." << std::endl;
+    std::cerr << "Failed to enable BeiDou." << '\n';
     return false;
   }
 
   // Enable B1I band.
   if (!enableBeiDouB1I()) {
-    std::cerr << "Failed to enable BeiDou B1I." << std::endl;
+    std::cerr << "Failed to enable BeiDou B1I." << '\n';
     return false;
   }
 
   // Enable B2I bands for ZED-F9P.
   if (receiver_profile_ == F9P) {
     if (!enableBeiDouB2I()) {
-      std::cerr << "Failed to enable BeiDou B2I." << std::endl;
+      std::cerr << "Failed to enable BeiDou B2I." << '\n';
       return false;
     }
 
-    std::cout << "BeiDou B1I/B2I is enabled." << std::endl;
+    std::cout << "BeiDou B1I/B2I is enabled." << '\n';
     return true;
   }
 
   // Enable B1C, B2a and B3I bands for ZED-X20P.
   if (receiver_profile_ == X20P) {
     if (!enableBeiDouB1C()) {
-      std::cerr << "Failed to enable BeiDou B1C." << std::endl;
+      std::cerr << "Failed to enable BeiDou B1C." << '\n';
       return false;
     }
 
     if (!enableBeiDouB2a()) {
-      std::cerr << "Failed to enable BeiDou B2a." << std::endl;
+      std::cerr << "Failed to enable BeiDou B2a." << '\n';
       return false;
     }
 
     if (!enableBeiDouB3I()) {
-      std::cerr << "Failed to enable BeiDou B3I." << std::endl;
+      std::cerr << "Failed to enable BeiDou B3I." << '\n';
       return false;
     }
 
-    std::cout << "BeiDou B1I/B1C/B2a/B3I is enabled." << std::endl;
+    std::cout << "BeiDou B1I/B1C/B2a/B3I is enabled." << '\n';
     return true;
   }
 
@@ -648,39 +646,39 @@ bool UbloxGnss::enableQzss()
 {
   // Enable QZSS.
   if (!enableQzss(true)) {
-    std::cerr << "Failed to enable QZSS." << std::endl;
+    std::cerr << "Failed to enable QZSS." << '\n';
     return false;
   }
 
   // Enable L1 band.
   if (!enableQzssL1()) {
-    std::cerr << "Failed to enable QZSS L1." << std::endl;
+    std::cerr << "Failed to enable QZSS L1." << '\n';
     return false;
   }
 
   // Enable L2 band for ZED-F9P.
   if (receiver_profile_ == F9P) {
     if (!enableQzssL2()) {
-      std::cerr << "Failed to enable QZSS L2." << std::endl;
+      std::cerr << "Failed to enable QZSS L2." << '\n';
       return false;
     }
 
-    std::cout << "QZSS L1/L2 is enabled." << std::endl;
+    std::cout << "QZSS L1/L2 is enabled." << '\n';
     return true;
   }
   // Enable L2 and L5 band for ZED-X20P.
   if (receiver_profile_ == X20P) {
     if (!enableQzssL2()) {
-      std::cerr << "Failed to enable QZSS L2." << std::endl;
+      std::cerr << "Failed to enable QZSS L2." << '\n';
       return false;
     }
 
     if (!enableQzssL5()) {
-      std::cerr << "Failed to enable QZSS L5." << std::endl;
+      std::cerr << "Failed to enable QZSS L5." << '\n';
       return false;
     }
 
-    std::cout << "QZSS L1/L2/L5 is enabled." << std::endl;
+    std::cout << "QZSS L1/L2/L5 is enabled." << '\n';
     return true;
   }
 
@@ -696,23 +694,23 @@ bool UbloxGnss::enableGlonass()
 {
   // Enable GLONASS.
   if (!enableGlonass(true)) {
-    std::cerr << "Failed to enable GLONASS." << std::endl;
+    std::cerr << "Failed to enable GLONASS." << '\n';
     return false;
   }
 
   // Enable L1 band.
   if (!enableGlonassL1()) {
-    std::cerr << "Failed to enable GLONASS L1." << std::endl;
+    std::cerr << "Failed to enable GLONASS L1." << '\n';
     return false;
   }
 
   // Try to enable L2 band.
   if (enableGlonassL2()) {
-    std::cout << "GLONASS L1/L2 is enabled." << std::endl;
+    std::cout << "GLONASS L1/L2 is enabled." << '\n';
     return true;
   }
 
-  std::cout << "GLONASS L1 is enabled." << std::endl;
+  std::cout << "GLONASS L1 is enabled." << '\n';
   return true;
 }
 
@@ -725,17 +723,17 @@ bool UbloxGnss::enableNavIc()
 {
   // Enable NavIC.
   if (!enableNavIc(true)) {
-    std::cerr << "Failed to enable NavIC." << std::endl;
+    std::cerr << "Failed to enable NavIC." << '\n';
     return false;
   }
 
   // Enable L5 band.
   if (!enableNavIcL5()) {
-    std::cerr << "Failed to enable NavIC L5." << std::endl;
+    std::cerr << "Failed to enable NavIC L5." << '\n';
     return false;
   }
 
-  std::cout << "NavIC L5 is enabled." << std::endl;
+  std::cout << "NavIC L5 is enabled." << '\n';
   return true;
 }
 
@@ -840,7 +838,7 @@ bool UbloxGnss::waitForAcknowledge(UbxClass _cls, uint8_t _id)
           return true;
         }
         else {
-          std::cerr << "An acknowledment message for an unspecified message is received." << std::endl;
+          std::cerr << "An acknowledment message for an unspecified message is received." << '\n';
           return false;
         }
 
@@ -850,23 +848,23 @@ bool UbloxGnss::waitForAcknowledge(UbxClass _cls, uint8_t _id)
         nak.decode(payload());
 
         if (nak.clsID == _cls && nak.msgID == _id) {
-          std::cerr << "Configuration was rejected: (class, id) = (" << cls_str << ", " << id_str << ")" << std::endl;
+          std::cerr << "Configuration was rejected: (class, id) = (" << cls_str << ", " << id_str << ")" << '\n';
           return false;
         }
         else {
-          std::cerr << "A non-acknowledment message for an unspecified message is received." << std::endl;
+          std::cerr << "A non-acknowledment message for an unspecified message is received." << '\n';
           return false;
         }
 
         break;
 
       default:
-        std::cerr << "Unexpected ACK ID: " << static_cast<int>(latestId()) << std::endl;
+        std::cerr << "Unexpected ACK ID: " << static_cast<int>(latestId()) << '\n';
         break;
     }
   }
 
-  std::cerr << "Acknowledment message not received: (class, id) = (" << cls_str << ", " << id_str << ")" << std::endl;
+  std::cerr << "Acknowledment message not received: (class, id) = (" << cls_str << ", " << id_str << ")" << '\n';
   return false;
 }
 
@@ -879,7 +877,7 @@ bool UbloxGnss::verifyMessage() const
 {
   // Sync chars
   if (*scanner_.getSync1() != kUbxSync1 || *scanner_.getSync2() != kUbxSync2) {
-    std::cerr << "The current message is not UBX format." << std::endl;
+    std::cerr << "The current message is not UBX format." << '\n';
     return false;
   }
 
@@ -890,7 +888,7 @@ bool UbloxGnss::verifyMessage() const
     CK_B += CK_A;
   }
   if (CK_A != *scanner_.getChecksumA() || CK_B != *scanner_.getChecksumB()) {
-    std::cerr << "Checksum failed." << std::endl;
+    std::cerr << "Checksum failed." << '\n';
     return false;
   }
 
@@ -1080,5 +1078,4 @@ uint32_t UbloxGnss::configKeyID(CfgSize _size, CfgGroup _group, uint16_t _id)
 {
   return (_size << 28) | (_group << 16) | (_id & 0x0FFF);
 }
-}  // namespace ublox
-}  // namespace tobas
+}  // namespace tobas::ublox

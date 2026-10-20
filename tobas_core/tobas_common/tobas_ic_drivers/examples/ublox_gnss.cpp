@@ -30,8 +30,8 @@ int main(int _argc, char** _argv)
     transport = move(uart);
   }
   else {
-    cerr << "Usage 1: " << _argv[0] << " spi <SPI Device>" << endl;
-    cerr << "Usage 2: " << _argv[0] << " uart <UART Device>" << endl;
+    cerr << "Usage 1: " << _argv[0] << " spi <SPI Device>" << '\n';
+    cerr << "Usage 2: " << _argv[0] << " uart <UART Device>" << '\n';
     return EXIT_FAILURE;
   }
 
@@ -46,15 +46,15 @@ int main(int _argc, char** _argv)
   tobas::ublox::payload::NAV_TIMEGPS timegps;
   tobas::ublox::payload::NAV_VELNED velned;
 
-  cout << "Initializing GNSS device." << endl;
+  cout << "Initializing GNSS device." << '\n';
   if (!gnss.initialize()) {
-    cerr << "Failed to initialize GNSS driver." << endl;
+    cerr << "Failed to initialize GNSS driver." << '\n';
     return EXIT_FAILURE;
   }
 
   if (use_uart) {
     if (!uart_transport->setReceiveTimeout(10)) {
-      cerr << "Failed to set UART receive timeout." << endl;
+      cerr << "Failed to set UART receive timeout." << '\n';
       return EXIT_FAILURE;
     }
   }
@@ -62,10 +62,10 @@ int main(int _argc, char** _argv)
   auto module_name = gnss.getModuleName();
 
   if (!module_name && use_uart) {
-    cout << "No response at " << kInitialUartBaudRate << " baud. Trying " << kUartBaudRate << " baud." << endl;
+    cout << "No response at " << kInitialUartBaudRate << " baud. Trying " << kUartBaudRate << " baud." << '\n';
 
     if (!uart_transport->setBaudRate(kUartBaudRate)) {
-      cerr << "Failed to change host UART baud rate." << endl;
+      cerr << "Failed to change host UART baud rate." << '\n';
       return EXIT_FAILURE;
     }
 
@@ -73,11 +73,11 @@ int main(int _argc, char** _argv)
   }
 
   if (!module_name) {
-    cerr << "Failed to detect GNSS module." << endl;
+    cerr << "Failed to detect GNSS module." << '\n';
     return EXIT_FAILURE;
   }
 
-  cout << "Detected module: " << *module_name << endl;
+  cout << "Detected module: " << *module_name << '\n';
 
   uint16_t measurement_period_ms;
 
@@ -90,147 +90,147 @@ int main(int _argc, char** _argv)
     measurement_period_ms = 40;
   }
   else {
-    cerr << "Unknown Device: " << *module_name << endl;
+    cerr << "Unknown Device: " << *module_name << '\n';
     return EXIT_FAILURE;
   }
 
   if (use_uart) {
     if (!uart_transport->disableReceiveTimeout()) {
-      cerr << "Failed to disable UART receive timeout." << endl;
+      cerr << "Failed to disable UART receive timeout." << '\n';
       return EXIT_FAILURE;
     }
   }
 
   if (use_uart) {
     if (!gnss.configureUartBaudRate(kUartBaudRate)) {
-      cerr << "Failed to configure UART baud rate." << endl;
+      cerr << "Failed to configure UART baud rate." << '\n';
       return EXIT_FAILURE;
     }
 
     if (!uart_transport->setBaudRate(kUartBaudRate)) {
-      cerr << "Failed to change host UART baud rate." << endl;
+      cerr << "Failed to change host UART baud rate." << '\n';
       return EXIT_FAILURE;
     }
   }
 
-  cout << "Configuring measurement rate." << endl;
+  cout << "Configuring measurement rate." << '\n';
   if (!gnss.configureMeasurementRate(measurement_period_ms)) {
-    cerr << "Failed to configure measurement rate." << endl;
+    cerr << "Failed to configure measurement rate." << '\n';
     return EXIT_FAILURE;
   }
 
   // Enable GNSS.
-  cout << "Enabling GNSS." << endl;
+  cout << "Enabling GNSS." << '\n';
   if (!gnss.enableGps()) {
-    cerr << "Failed to enable GPS." << endl;
+    cerr << "Failed to enable GPS." << '\n';
     return EXIT_FAILURE;
   }
   if (!gnss.enableSbas()) {
-    cerr << "Failed to enable SBAS." << endl;
+    cerr << "Failed to enable SBAS." << '\n';
     return EXIT_FAILURE;
   }
   if (!gnss.disableGalileo()) {
-    cerr << "Failed to disable Galileo." << endl;
+    cerr << "Failed to disable Galileo." << '\n';
     return EXIT_FAILURE;
   }
   if (!gnss.disableBeiDou()) {
-    cerr << "Failed to disable BeiDou." << endl;
+    cerr << "Failed to disable BeiDou." << '\n';
     return EXIT_FAILURE;
   }
   if (!gnss.enableQzss()) {
-    cerr << "Failed to enable QZSS." << endl;
+    cerr << "Failed to enable QZSS." << '\n';
     return EXIT_FAILURE;
   }
 
   if (*module_name == "ZED-F9P") {
     if (!gnss.disableGlonass()) {
-      cerr << "Failed to disable GLONASS." << endl;
+      cerr << "Failed to disable GLONASS." << '\n';
       return EXIT_FAILURE;
     }
   }
   else if (*module_name == "ZED-X20P") {
     if (!gnss.enableNavIc()) {
-      cerr << "Failed to enable NavIC." << endl;
+      cerr << "Failed to enable NavIC." << '\n';
       return EXIT_FAILURE;
     }
   }
 
   // Enable messages.
-  cout << "Enabling messages." << endl;
+  cout << "Enabling messages." << '\n';
   if (use_uart) {
     if (!gnss.enableUartMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_COV, true)) {
-      cerr << "Failed to enable NAV_COV message." << endl;
+      cerr << "Failed to enable NAV_COV message." << '\n';
       return EXIT_FAILURE;
     }
     if (!gnss.enableUartMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_HPPOSLLH, true)) {
-      cerr << "Failed to enable NAV_HPPOSLLH message." << endl;
+      cerr << "Failed to enable NAV_HPPOSLLH message." << '\n';
       return EXIT_FAILURE;
     }
     if (!gnss.enableUartMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_POSLLH, true)) {
-      cerr << "Failed to enable NAV_POSLLH message." << endl;
+      cerr << "Failed to enable NAV_POSLLH message." << '\n';
       return EXIT_FAILURE;
     }
     if (!gnss.enableUartMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_PVT, true)) {
-      cerr << "Failed to enable NAV_PVT message." << endl;
+      cerr << "Failed to enable NAV_PVT message." << '\n';
       return EXIT_FAILURE;
     }
     if (!gnss.enableUartMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_SAT, true)) {
-      cerr << "Failed to enable NAV_SAT message." << endl;
+      cerr << "Failed to enable NAV_SAT message." << '\n';
       return EXIT_FAILURE;
     }
     if (!gnss.enableUartMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_STATUS, true)) {
-      cerr << "Failed to enable NAV_STATUS message." << endl;
+      cerr << "Failed to enable NAV_STATUS message." << '\n';
       return EXIT_FAILURE;
     }
     if (!gnss.enableUartMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_TIMEGPS, true)) {
-      cerr << "Failed to enable NAV_TIMEGPS message." << endl;
+      cerr << "Failed to enable NAV_TIMEGPS message." << '\n';
       return EXIT_FAILURE;
     }
     if (!gnss.enableUartMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_VELNED, true)) {
-      cerr << "Failed to enable NAV_VELNED message." << endl;
+      cerr << "Failed to enable NAV_VELNED message." << '\n';
       return EXIT_FAILURE;
     }
   }
   else {
     if (!gnss.enableSpiMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_COV, true)) {
-      cerr << "Failed to enable NAV_COV message." << endl;
+      cerr << "Failed to enable NAV_COV message." << '\n';
       return EXIT_FAILURE;
     }
     if (!gnss.enableSpiMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_HPPOSLLH, true)) {
-      cerr << "Failed to enable NAV_HPPOSLLH message." << endl;
+      cerr << "Failed to enable NAV_HPPOSLLH message." << '\n';
       return EXIT_FAILURE;
     }
     if (!gnss.enableSpiMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_POSLLH, true)) {
-      cerr << "Failed to enable NAV_POSLLH message." << endl;
+      cerr << "Failed to enable NAV_POSLLH message." << '\n';
       return EXIT_FAILURE;
     }
     if (!gnss.enableSpiMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_PVT, true)) {
-      cerr << "Failed to enable NAV_PVT message." << endl;
+      cerr << "Failed to enable NAV_PVT message." << '\n';
       return EXIT_FAILURE;
     }
     if (!gnss.enableSpiMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_SAT, true)) {
-      cerr << "Failed to enable NAV_SAT message." << endl;
+      cerr << "Failed to enable NAV_SAT message." << '\n';
       return EXIT_FAILURE;
     }
     if (!gnss.enableSpiMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_STATUS, true)) {
-      cerr << "Failed to enable NAV_STATUS message." << endl;
+      cerr << "Failed to enable NAV_STATUS message." << '\n';
       return EXIT_FAILURE;
     }
     if (!gnss.enableSpiMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_TIMEGPS, true)) {
-      cerr << "Failed to enable NAV_TIMEGPS message." << endl;
+      cerr << "Failed to enable NAV_TIMEGPS message." << '\n';
       return EXIT_FAILURE;
     }
     if (!gnss.enableSpiMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_VELNED, true)) {
-      cerr << "Failed to enable NAV_VELNED message." << endl;
+      cerr << "Failed to enable NAV_VELNED message." << '\n';
       return EXIT_FAILURE;
     }
   }
 
-  cout << "Initial configuration finished successfully." << endl;
+  cout << "Initial configuration finished successfully." << '\n';
 
   while (true) {
     if (!gnss.update(true)) {
-      cerr << "Failed to receive a GNSS message." << endl;
+      cerr << "Failed to receive a GNSS message." << '\n';
       return EXIT_FAILURE;
     }
 
@@ -241,43 +241,43 @@ int main(int _argc, char** _argv)
     switch (gnss.latestId()) {
       case tobas::ublox::UbloxGnss::NAV_COV:
         cov.decode(gnss.payload());
-        cout << "[NAV_COV]" << endl;
-        cout << cov << endl;
+        cout << "[NAV_COV]" << '\n';
+        cout << cov << '\n';
         break;
       case tobas::ublox::UbloxGnss::NAV_HPPOSLLH:
         hpposllh.decode(gnss.payload());
-        cout << "[NAV_HPPOSLLH]" << endl;
-        cout << hpposllh << endl;
+        cout << "[NAV_HPPOSLLH]" << '\n';
+        cout << hpposllh << '\n';
         break;
       case tobas::ublox::UbloxGnss::NAV_POSLLH:
         posllh.decode(gnss.payload());
-        cout << "[NAV_POSLLH]" << endl;
-        cout << posllh << endl;
+        cout << "[NAV_POSLLH]" << '\n';
+        cout << posllh << '\n';
         break;
       case tobas::ublox::UbloxGnss::NAV_PVT:
         pvt.decode(gnss.payload());
-        cout << "[NAV_PVT]" << endl;
-        cout << pvt << endl;
+        cout << "[NAV_PVT]" << '\n';
+        cout << pvt << '\n';
         break;
       case tobas::ublox::UbloxGnss::NAV_SAT:
         sat.decode(gnss.payload());
-        cout << "[NAV_SAT]" << endl;
-        cout << sat << endl;
+        cout << "[NAV_SAT]" << '\n';
+        cout << sat << '\n';
         break;
       case tobas::ublox::UbloxGnss::NAV_STATUS:
         status.decode(gnss.payload());
-        cout << "[NAV_STATUS]" << endl;
-        cout << status << endl;
+        cout << "[NAV_STATUS]" << '\n';
+        cout << status << '\n';
         break;
       case tobas::ublox::UbloxGnss::NAV_TIMEGPS:
         timegps.decode(gnss.payload());
-        cout << "[NAV_TIMEGPS]" << endl;
-        cout << timegps << endl;
+        cout << "[NAV_TIMEGPS]" << '\n';
+        cout << timegps << '\n';
         break;
       case tobas::ublox::UbloxGnss::NAV_VELNED:
         velned.decode(gnss.payload());
-        cout << "[NAV_VELNED]" << endl;
-        cout << velned << endl;
+        cout << "[NAV_VELNED]" << '\n';
+        cout << velned << '\n';
         break;
       default:
         continue;

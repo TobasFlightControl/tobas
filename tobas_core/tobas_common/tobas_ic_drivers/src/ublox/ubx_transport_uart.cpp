@@ -46,6 +46,10 @@ bool UbxTransportUart::send(const uint8_t* _data, size_t _length) noexcept
 
 bool UbxTransportUart::setBaudRate(uint32_t _baud_rate) noexcept
 {
+  if (!uart_.drainOutput()) {
+    return false;
+  }
+
   if (!uart_.setBaudRate(_baud_rate)) {
     return false;
   }
