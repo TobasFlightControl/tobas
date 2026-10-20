@@ -80,7 +80,7 @@ std::expected<void, QString> ParamBlockWidget::load()
 
   // Get dynamic parameters.
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
-  const auto res = get_param_sc_->sendRequestAndWait(req, 10s);
+  const auto res = get_param_sc_->sendRequestAndWait(req, 5s);
   if (!res) {
     return std::unexpected("Failed to get dynamic parameters configuration of '" + getLabelText() + "'.");
   }
