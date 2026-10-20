@@ -7,6 +7,7 @@
 #include <cstring>
 #include <memory>
 #include <utility>
+#include <vector>
 
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
@@ -794,6 +795,9 @@ bool UbloxGnss::enableUsb(bool _enable)
 
 bool UbloxGnss::sendMessage(UbxClass _cls, uint8_t _id, const void* _msg, uint16_t _size)
 {
+  // Allocate space for the header, payload, and checksum of this message.
+  std::vector<uint8_t> tx_buf(sizeof(UbxHeader) + _size + sizeof(CheckSum));
+
   UbxHeader header;
   header.sync1 = kUbxSync1;
   header.sync2 = kUbxSync2;
@@ -801,13 +805,16 @@ bool UbloxGnss::sendMessage(UbxClass _cls, uint8_t _id, const void* _msg, uint16
   header.id = _id;
   header.length = _size;
 
-  const auto payload_pos = spliceMemory(tx_buf_, &header, sizeof(UbxHeader), 0);
-  const auto checksum_pos = spliceMemory(tx_buf_, _msg, _size, payload_pos);
+  const auto payload_pos = spliceMemory(tx_buf.data(), &header, sizeof(UbxHeader), 0);
+  auto checksum_pos = payload_pos;
+  if (_size != 0) {
+    checksum_pos = spliceMemory(tx_buf.data(), _msg, _size, payload_pos);
+  }
 
-  const auto ck = computeChecksum(tx_buf_, checksum_pos);
-  const auto message_length = spliceMemory(tx_buf_, &ck, sizeof(CheckSum), checksum_pos);
+  const auto ck = computeChecksum(tx_buf.data(), checksum_pos);
+  const auto message_length = spliceMemory(tx_buf.data(), &ck, sizeof(CheckSum), checksum_pos);
 
-  return transport_->send(tx_buf_, message_length);
+  return transport_->send(tx_buf.data(), message_length);
 }
 
 bool UbloxGnss::waitForAcknowledge(UbxClass _cls, uint8_t _id)

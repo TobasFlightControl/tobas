@@ -294,7 +294,6 @@ private:
   UbxScanner scanner_;
   tim::Rate scan_rate_;
   ReceiverProfile receiver_profile_ = F9P;
-  uint8_t tx_buf_[kUbxBufferLength];
 
   template <typename T>
   bool cfgValSetSingle(CfgSize _size, CfgGroup _group, uint16_t _id, T _value);
