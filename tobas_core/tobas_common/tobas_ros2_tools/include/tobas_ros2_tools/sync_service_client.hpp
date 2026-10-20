@@ -47,7 +47,7 @@ public:
   inline bool waitForService(std::chrono::duration<RepT, RatioT> _timeout = std::chrono::duration<RepT, RatioT>(-1));
 
 private:
-  rclcpp::Node::SharedPtr node_;
+  const rclcpp::Node::SharedPtr node_;
   typename rclcpp::Client<SrvType>::SharedPtr client_;
 };
 
