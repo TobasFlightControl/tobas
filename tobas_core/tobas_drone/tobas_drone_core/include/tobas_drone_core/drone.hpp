@@ -41,7 +41,7 @@ public:
   YAML::Node dump() const;
 
   std::expected<void, std::string> load(const std::filesystem::path& _path);
-  bool save(const std::filesystem::path& _path) const;
+  std::expected<void, std::string> save(const std::filesystem::path& _path) const;
 
   bool hasServoJoint() const;
 };

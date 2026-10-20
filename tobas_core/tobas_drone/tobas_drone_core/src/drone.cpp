@@ -221,15 +221,9 @@ std::expected<void, std::string> Drone::load(const fs::path& _path)
   return {};
 }
 
-bool Drone::save(const fs::path& _path) const
+std::expected<void, std::string> Drone::save(const fs::path& _path) const
 {
-  const auto node = dump();
-
-  if (!yaml::save(_path, node)) {
-    return false;
-  }
-
-  return true;
+  return yaml::save(_path, dump());
 }
 
 bool Drone::hasServoJoint() const
