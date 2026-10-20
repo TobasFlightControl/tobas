@@ -3,12 +3,14 @@
 
 #pragma once
 
+#include <expected>
 #include <optional>
 
 #include <yaml-cpp/yaml.h>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QString>
 
 #include <tobas_dparam_client/dparam_client.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
@@ -63,12 +65,12 @@ public:
 
   QString getLabelText() const;
 
-  bool load();
-  bool save(const QString& _path);
+  std::expected<void, QString> load();
+  std::expected<void, QString> save(const QString& _path);
   void clear();
 
-  bool setToInitialValues();
-  bool setToDefaultValues();
+  std::expected<void, QString> setToInitialValues();
+  std::expected<void, QString> setToDefaultValues();
 
 private:
   const std::string node_name_;
@@ -85,7 +87,7 @@ private:
   YAML::Node createCurrentConfig() const;
 
   template <typename Config>
-  bool setValue(const std::string& _name, const Config& _config, int32_t _value);
+  std::expected<void, QString> setValue(const std::string& _name, const Config& _config, int32_t _value);
 
 private Q_SLOTS:
   void onIntDownButtonClicked(const std::string& _name);
