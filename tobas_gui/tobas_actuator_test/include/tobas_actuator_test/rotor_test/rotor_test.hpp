@@ -15,8 +15,8 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
+#include <tobas_rqt_tools/sync_service_client.hpp>
 
 #include <tobas_constants/hardware.hpp>
 #include <tobas_dparam_client/dparam_client.hpp>
@@ -69,7 +69,7 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_pub_;
   std::optional<dparam::DynamicParamClient> dparam_cli_;
-  std::optional<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>> get_params_sc_;
+  std::optional<rqt::SyncServiceClientWrapper<tobas_dparam_msgs::srv::GetParams>> get_params_sc_;
 
   QMetaObject::Connection rotor_states_conn_;
 

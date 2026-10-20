@@ -10,8 +10,8 @@
 #include <tobas_constants/rc_input.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
+#include <tobas_rqt_tools/sync_service_client.hpp>
 
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
 
@@ -37,7 +37,7 @@ public:
 private:
   const Drone& drone_;
 
-  std::optional<ros2::SyncServiceClient<tobas_real_msgs::srv::SetRcInputParams>> set_params_sc_;
+  std::optional<rqt::SyncServiceClientWrapper<tobas_real_msgs::srv::SetRcInputParams>> set_params_sc_;
 
   bool ros_initialized_ = false;
   bool running_ = false;

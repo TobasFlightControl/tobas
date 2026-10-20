@@ -13,7 +13,7 @@
 #include <tobas_dparam_client/dparam_client.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/slider.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_rqt_tools/sync_service_client.hpp>
 
 #include <tobas_dparam_msgs/srv/get_params.hpp>
 
@@ -61,6 +61,8 @@ public:
   void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
+  QString getLabelText() const;
+
   bool load();
   bool save(const QString& _path);
   void clear();
@@ -71,7 +73,7 @@ public:
 private:
   const std::string node_name_;
 
-  std::optional<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>> get_param_sc_;
+  std::optional<rqt::SyncServiceClientWrapper<tobas_dparam_msgs::srv::GetParams>> get_param_sc_;
   std::optional<dparam::DynamicParamClient> dparam_cli_;
 
   std::map<std::string, IntConfig> int_configs_;

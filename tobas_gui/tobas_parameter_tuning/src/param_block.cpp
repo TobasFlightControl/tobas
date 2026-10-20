@@ -17,6 +17,7 @@
 #include <tobas_string_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
+using namespace std::chrono_literals;
 using namespace std::placeholders;
 
 namespace tobas::gui::param
@@ -61,6 +62,11 @@ void ParamBlockWidget::clearRosInterfaces()
   get_param_sc_.reset();
 }
 
+QString ParamBlockWidget::getLabelText() const
+{
+  return label_->text();
+}
+
 bool ParamBlockWidget::load()
 {
   constexpr int kParamNameWidth = 250;
@@ -75,9 +81,9 @@ bool ParamBlockWidget::load()
 
   // Get dynamic parameters.
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
-  const auto res = get_param_sc_->sendRequestAndWait(req);
+  const auto res = get_param_sc_->sendRequestAndWait(req, 10s);
   if (!res) {
-    qt::qErrorBox(this, "Failed to get dynamic parameters configuration of '" + label_->text() + "'.");
+    qt::qErrorBox(this, "Failed to get dynamic parameters configuration of '" + getLabelText() + "'.");
     return false;
   }
   const auto& params = res->params;
@@ -301,7 +307,7 @@ bool ParamBlockWidget::setValue(const std::string& _name, const Config& _config,
 
   if (dparam_cli_->setInt(_name, _value) != dparam::DynamicParamClient::kNoError) {
     qWarning() << dparam_cli_->errorMessage();
-    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + _name.c_str() + "'.");
+    qt::qErrorBox(this, "Failed to set " + getLabelText() + "'s parameter '" + _name.c_str() + "'.");
     return false;
   }
 
@@ -344,7 +350,7 @@ void ParamBlockWidget::onIntSliderValueChanged(long _value, const std::string& _
   updateButtonStates(config);
 
   if (dparam_cli_->setInt(_name, _value) != dparam::DynamicParamClient::kNoError) {
-    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + _name.c_str() + "'.");
+    qt::qErrorBox(this, "Failed to set " + getLabelText() + "'s parameter '" + _name.c_str() + "'.");
   }
 }
 
@@ -393,7 +399,7 @@ void ParamBlockWidget::onDoubleSliderValueChanged(long _value, const std::string
   updateButtonStates(config);
 
   if (dparam_cli_->setDouble(_name, _value) != dparam::DynamicParamClient::kNoError) {
-    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + _name.c_str() + "'.");
+    qt::qErrorBox(this, "Failed to set " + getLabelText() + "'s parameter '" + _name.c_str() + "'.");
   }
 }
 }  // namespace tobas::gui::param

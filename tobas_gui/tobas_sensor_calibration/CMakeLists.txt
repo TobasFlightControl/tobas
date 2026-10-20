@@ -26,6 +26,7 @@ set(AMENT_DEPENDENCIES
     tobas_real_common
     tobas_real_msgs
     tobas_qt_tools
+    tobas_rqt_tools
     tobas_rqt_bridge
     tobas_rviz_wrapper
     tobas_gui_common

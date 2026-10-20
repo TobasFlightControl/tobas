@@ -12,12 +12,12 @@
 #include <tobas_eigen_tools/ellipsoid.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
+#include <tobas_rqt_tools/sync_service_client.hpp>
 #include <tobas_rviz_wrapper/rviz.hpp>
 
 #include <geometry_msgs/msg/point_stamped.hpp>
 #include <sensor_msgs/msg/point_cloud.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
 #include "../base.hpp"
@@ -54,7 +54,7 @@ protected:
 private:
   rclcpp::Node::SharedPtr node_;
 
-  std::optional<ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams>> set_params_sc_;
+  std::optional<rqt::SyncServiceClientWrapper<tobas_real_msgs::srv::SetMagnetometerParams>> set_params_sc_;
 
   rviz::RvizFrameManager rviz_manager_;
 

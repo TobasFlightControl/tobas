@@ -8,7 +8,7 @@
 
 namespace tobas::rqt
 {
-/** `tobas::ros2::SyncServiceClient`の各処理をQtのメインスレッドを止めずに実行する． */
+/** Executes `tobas::ros2::SyncServiceClient` operations without blocking Qt's main thread. */
 template <typename SrvType>
 class SyncServiceClientWrapper
 {
