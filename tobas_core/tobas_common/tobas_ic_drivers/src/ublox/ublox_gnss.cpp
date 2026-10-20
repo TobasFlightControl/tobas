@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cstring>
 #include <memory>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -39,7 +40,7 @@ std::expected<GnssReceiver::ReceiverProfile, std::string> GnssReceiver::detectRe
   const auto deadline = ch::steady_clock::now() + kWaitForGnssMonVerResponse;
 
   while (ch::steady_clock::now() < deadline) {
-    const auto remaining = ch::duration_cast<ch::milliseconds>(deadline - ch::steady_clock::now());
+    const auto remaining = ch::ceil<ch::milliseconds>(deadline - ch::steady_clock::now());
     if (remaining <= 0ms) {
       return std::unexpected("MON-VER response timed out");
     }
@@ -78,18 +79,24 @@ std::expected<GnssReceiver::ReceiverProfile, std::string> GnssReceiver::detectRe
 
 bool GnssReceiver::update(bool _blocking, std::chrono::milliseconds _timeout)
 {
-  scanner_.reset();
+  if (scanner_.state() == UbxScanner::kDone) {
+    scanner_.reset();
+  }
 
   const bool use_timeout = _timeout.count() > 0;
   const auto deadline = ch::steady_clock::now() + _timeout;
 
-  if (!_blocking) {
+  if (!_blocking && scanner_.state() == UbxScanner::kSync1) {
     // Check the start byte.
     const auto first_byte = transport_->receiveByte();
     if (!first_byte) {
+      scanner_.reset();
       return false;
     }
-    scanner_.update(*first_byte);
+    if (!*first_byte) {
+      return false;
+    }
+    scanner_.update(**first_byte);
 
     // Return if no data has arrived.
     if (scanner_.state() == UbxScanner::kSync1) {
@@ -101,14 +108,23 @@ bool GnssReceiver::update(bool _blocking, std::chrono::milliseconds _timeout)
   scan_rate_.start();
   while (scanner_.state() != UbxScanner::kDone) {
     if (use_timeout && ch::steady_clock::now() >= deadline) {
+      scanner_.reset();
       return false;
     }
 
     const auto data = transport_->receiveByte();
     if (!data) {
+      scanner_.reset();
       return false;
     }
-    scanner_.update(*data);
+    if (!*data) {
+      if (!_blocking) {
+        return false;
+      }
+      std::this_thread::sleep_for(1ms);
+      continue;
+    }
+    scanner_.update(**data);
     scan_rate_.sleep();
   }
 
@@ -823,7 +839,8 @@ bool GnssReceiver::waitForAcknowledge(UbxClass _cls, uint8_t _id)
   const auto deadline = ch::steady_clock::now() + kWaitForGnssAck;
 
   while (ch::steady_clock::now() < deadline) {
-    if (!update(true)) {
+    const auto remaining = ch::duration_cast<ch::milliseconds>(deadline - ch::steady_clock::now());
+    if (remaining <= 0ms || !update(true, remaining)) {
       return false;
     }
 

@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <optional>
 
 #include <tobas_linux/spi_dev.hpp>
@@ -24,7 +25,7 @@ public:
   UbxTransportSpi& operator=(const UbxTransportSpi& _other) = delete;
 
   bool initialize() noexcept override;
-  std::optional<uint8_t> receiveByte() noexcept override;
+  std::expected<std::optional<uint8_t>, int> receiveByte() noexcept override;
   bool send(const uint8_t* _data, size_t _length) noexcept override;
 
 private:

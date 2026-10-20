@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <optional>
 
 #include <tobas_linux/uart_dev.hpp>
@@ -24,12 +25,9 @@ public:
   UbxTransportUart& operator=(const UbxTransportUart& _other) = delete;
 
   bool initialize() noexcept override;
-  std::optional<uint8_t> receiveByte() noexcept override;
+  std::expected<std::optional<uint8_t>, int> receiveByte() noexcept override;
   bool send(const uint8_t* _data, size_t _length) noexcept override;
   bool setBaudRate(uint32_t _baud_rate) noexcept;
-
-  bool setReceiveTimeout(uint8_t _timeout_100ms) noexcept;
-  bool disableReceiveTimeout() noexcept;
 
 private:
   const char* device_;

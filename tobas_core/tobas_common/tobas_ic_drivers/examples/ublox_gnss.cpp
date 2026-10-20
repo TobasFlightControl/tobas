@@ -52,13 +52,6 @@ int main(int _argc, char** _argv)
     return EXIT_FAILURE;
   }
 
-  if (use_uart) {
-    if (!uart_transport->setReceiveTimeout(10)) {
-      cerr << "Failed to set UART receive timeout." << '\n';
-      return EXIT_FAILURE;
-    }
-  }
-
   auto receiver_profile = gnss.detectReceiverProfile();
 
   if (
@@ -96,13 +89,6 @@ int main(int _argc, char** _argv)
   else {
     cerr << "Unknown Device: " << *receiver_profile << '\n';
     return EXIT_FAILURE;
-  }
-
-  if (use_uart) {
-    if (!uart_transport->disableReceiveTimeout()) {
-      cerr << "Failed to disable UART receive timeout." << '\n';
-      return EXIT_FAILURE;
-    }
   }
 
   if (use_uart) {

@@ -11,7 +11,7 @@ UbxTransportUart::UbxTransportUart(const char* _device, uint32_t _baud_rate) : d
 
 bool UbxTransportUart::initialize() noexcept
 {
-  if (!uart_.initialize(device_, true)) {
+  if (!uart_.initialize(device_, false)) {
     return false;
   }
 
@@ -34,14 +34,15 @@ bool UbxTransportUart::initialize() noexcept
   return true;
 }
 
-std::optional<uint8_t> UbxTransportUart::receiveByte() noexcept
+std::expected<std::optional<uint8_t>, int> UbxTransportUart::receiveByte() noexcept
 {
-  return uart_.receiveByte();
+  return uart_.tryReceiveByte();
 }
 
 bool UbxTransportUart::send(const uint8_t* _data, size_t _length) noexcept
 {
-  return uart_.send(_data, _length);
+  constexpr auto kSendTimeout = std::chrono::seconds(1);
+  return uart_.sendAll(_data, _length, kSendTimeout);
 }
 
 bool UbxTransportUart::setBaudRate(uint32_t _baud_rate) noexcept
@@ -55,32 +56,6 @@ bool UbxTransportUart::setBaudRate(uint32_t _baud_rate) noexcept
   }
 
   baud_rate_ = _baud_rate;
-  return true;
-}
-
-bool UbxTransportUart::setReceiveTimeout(uint8_t _timeout_100ms) noexcept
-{
-  if (!uart_.setMinimumChars(0)) {
-    return false;
-  }
-
-  if (!uart_.setTimeout(_timeout_100ms)) {
-    return false;
-  }
-
-  return true;
-}
-
-bool UbxTransportUart::disableReceiveTimeout() noexcept
-{
-  if (!uart_.setTimeout(0)) {
-    return false;
-  }
-
-  if (!uart_.setMinimumChars(1)) {
-    return false;
-  }
-
   return true;
 }
 
