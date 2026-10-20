@@ -57,6 +57,13 @@ repos:
         language: system
         files: \.(py|tplpy)$
         exclude: ^tobas_external/
+      - id: shfmt
+        name: shfmt
+        entry: shfmt
+        language: system
+        args: ["-w"]
+        types: [shell]
+        exclude: ^tobas_external/
       - id: clang-format
         name: clang-format
         entry: clang-format

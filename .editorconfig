@@ -1,0 +1,10 @@
+root = true
+
+# This shfmt-specific option is ignored by formatters for other languages.
+[*]
+switch_case_indent = true
+
+# shfmt also recognizes shell scripts without extensions by their shebang.
+[[shell]]
+indent_style = space
+indent_size = 2
