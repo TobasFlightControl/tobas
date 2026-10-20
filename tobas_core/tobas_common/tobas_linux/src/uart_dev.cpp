@@ -340,30 +340,26 @@ std::expected<std::optional<uint8_t>, int> UARTdev::tryReceiveByte()
   if (uart_fd_ < 0) {
     return std::unexpected(EBADF);
   }
-  pollfd fd{ uart_fd_, POLLIN, 0 };
-  const auto ready = ::poll(&fd, 1, 0);
-  if (ready < 0) {
-    if (errno == EINTR) {
-      return std::optional<uint8_t>{};
-    }
-    return std::unexpected(errno);
-  }
-  if (fd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
-    return std::unexpected(EIO);
-  }
-  if (ready == 0) {
-    return std::optional<uint8_t>{};
-  }
 
   uint8_t byte;
   const auto res = ::read(uart_fd_, &byte, 1);
   if (res == 1) {
     return byte;
   }
-  if (res == 0 || (res < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR))) {
-    return std::optional<uint8_t>{};
+  if (res < 0) {
+    const auto error = errno;
+    if (error == EAGAIN || error == EWOULDBLOCK || error == EINTR) {
+      return std::optional<uint8_t>{};
+    }
+    return std::unexpected(error);
   }
-  return std::unexpected(errno);
+
+  // Distinguish an empty read from a disconnected TTY.
+  struct termios options;
+  if (::tcgetattr(uart_fd_, &options) != 0 && errno != EINTR) {
+    return std::unexpected(errno);
+  }
+  return std::optional<uint8_t>{};
 }
 
 bool UARTdev::getConfig()
