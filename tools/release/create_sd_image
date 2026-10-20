@@ -37,6 +37,7 @@ if [[ "$device" == *[0-9] ]]; then
   partition_prefix+=p
 fi
 # Zero unused filesystem blocks before reading the image to improve compression.
+printf 'Zeroing unused filesystem blocks on %s...\n' "${partition_prefix}2"
 sudo zerofree -v "${partition_prefix}2"
 
 # Read the actual logical sector size instead of assuming 512 bytes.
@@ -52,4 +53,7 @@ printf 'Image size: %s MiB (rounded up)\n' "$mib"
 # noclobber also prevents overwriting a file created since the earlier check.
 set -o noclobber
 sudo -v
+printf 'Reading %s and writing compressed image to %s...\n' "$device" "$output"
 sudo dd if="$device" count="$mib" bs=1M | pv | pigz > "$output"
+
+printf 'SD card image created successfully: %s\n' "$output"
