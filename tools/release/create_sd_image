@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Run after shrinking the filesystem and partition with resize_filesystem and GParted.
+# Keep all SD card partitions unmounted while creating the image.
+# Requires parted, util-linux, pv, pigz, and zerofree.
+
+set -euo pipefail
+
+if [[ $# -ne 2 ]]; then
+  echo "Usage: $0 <disk device> <output.img.gz>" >&2
+  exit 1
+fi
+
+device=$1
+output=$2
+if [[ -e "$output" || -L "$output" ]]; then
+  echo "Output already exists: $output" >&2
+  exit 1
+fi
+
+# Use the highest partition end sector, even if table entries are out of order.
+table=$(sudo parted -m -s "$device" unit s print)
+# A truncated GPT image would omit the backup partition table at the disk end.
+if [[ $(awk -F: 'NR == 2 {print $6}' <<< "$table") != msdos ]]; then
+  echo "Only MBR (msdos) partition tables are supported." >&2
+  exit 1
+fi
+last=$(awk -F: '$1 ~ /^[0-9]+$/ {sub(/s$/, "", $3); if ($3+0 > e) e=$3+0} END {if (e) printf "%.0f\n", e}' <<< "$table")
+if [[ ! "$last" =~ ^[0-9]+$ ]]; then
+  echo "Could not determine the final partition sector." >&2
+  exit 1
+fi
+
+partition_prefix=$device
+# Devices ending in a digit use a 'p' separator (e.g. /dev/mmcblk0p2).
+if [[ "$device" == *[0-9] ]]; then
+  partition_prefix+=p
+fi
+# Zero unused filesystem blocks before reading the image to improve compression.
+sudo zerofree -v "${partition_prefix}2"
+
+# Read the actual logical sector size instead of assuming 512 bytes.
+sector_size=$(sudo blockdev --getss "$device")
+bytes=$(( (last + 1) * sector_size ))
+# Round up to whole MiB, since dd uses a 1 MiB block size below.
+mib=$(( (bytes + 1024 * 1024 - 1) / (1024 * 1024) ))
+printf 'Image size: %s MiB (rounded up)\n' "$mib"
+
+# Refresh sudo credentials before starting the pipeline to avoid a password
+# prompt while pv/pigz are already running. count * bs is measured in bytes.
+# Do not add conv padding; read errors must stop the pipeline.
+# noclobber also prevents overwriting a file created since the earlier check.
+set -o noclobber
+sudo -v
+sudo dd if="$device" count="$mib" bs=1M | pv | pigz > "$output"
