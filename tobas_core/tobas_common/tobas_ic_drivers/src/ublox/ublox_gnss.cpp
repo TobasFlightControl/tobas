@@ -35,7 +35,8 @@ std::optional<std::string> UbloxGnss::getModuleName()
     return std::nullopt;
   }
 
-  const auto deadline = ch::steady_clock::now() + 1s;
+  constexpr auto kWaitForGnssMonVerResponse = 1s;
+  const auto deadline = ch::steady_clock::now() + kWaitForGnssMonVerResponse;
 
   while (ch::steady_clock::now() < deadline) {
     const auto remaining = ch::duration_cast<ch::milliseconds>(deadline - ch::steady_clock::now());
