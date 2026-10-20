@@ -133,8 +133,6 @@ public:
   std::expected<ReceiverProfile, std::string> detectReceiverProfile();
   bool update(bool _blocking = false, std::chrono::milliseconds _timeout = std::chrono::milliseconds(0));
 
-  void setReceiverProfile(ReceiverProfile _profile);
-
   // ===== Configurations =====
 
   bool enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable);
@@ -294,7 +292,7 @@ private:
   const std::unique_ptr<UbxTransport> transport_;
   UbxScanner scanner_;
   tim::Rate scan_rate_;
-  ReceiverProfile receiver_profile_ = F9P;
+  std::optional<ReceiverProfile> receiver_profile_;
 
   template <typename T>
   bool cfgValSetSingle(CfgSize _size, CfgGroup _group, uint16_t _id, T _value);

@@ -105,10 +105,6 @@ bool GnssDriverNode::configure()
     TOBAS_ERROR("Failed to enable QZSS.");
     return false;
   }
-  if (!gnss_.disableGlonass()) {
-    TOBAS_ERROR("Failed to disable GLONASS.");
-    return false;
-  }
 
   // Enable messages.
   if (!gnss_.enableSpiMessage(ublox::GnssReceiver::CLASS_NAV, ublox::GnssReceiver::NAV_PVT, true)) {

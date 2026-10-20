@@ -11,11 +11,7 @@ using namespace std;
 
 int main(int _argc, char** _argv)
 {
-  constexpr uint32_t kInitialUartBaudRate = 38400;
-  constexpr uint32_t kUartBaudRate = 230400;
-
   unique_ptr<tobas::ublox::UbxTransport> transport;
-  tobas::ublox::UbxTransportUart* uart_transport = nullptr;
   bool use_uart = false;
 
   if (_argc == 3 && string(_argv[1]) == "spi") {
@@ -24,10 +20,7 @@ int main(int _argc, char** _argv)
   else if (_argc == 3 && string(_argv[1]) == "uart") {
     use_uart = true;
 
-    auto uart = make_unique<tobas::ublox::UbxTransportUart>(_argv[2], kInitialUartBaudRate);
-
-    uart_transport = uart.get();
-    transport = move(uart);
+    transport = make_unique<tobas::ublox::UbxTransportUart>(_argv[2]);
   }
   else {
     cerr << "Usage 1: " << _argv[0] << " spi <SPI Device>" << '\n';
@@ -52,59 +45,8 @@ int main(int _argc, char** _argv)
     return EXIT_FAILURE;
   }
 
-  auto receiver_profile = gnss.detectReceiverProfile();
-
-  if (
-    !receiver_profile && use_uart &&
-    (receiver_profile.error() == "Failed to receive MON-VER response" ||
-     receiver_profile.error() == "MON-VER response timed out")) {
-    cout << receiver_profile.error() << " At " << kInitialUartBaudRate << " baud. Trying " << kUartBaudRate << " baud."
-         << '\n';
-
-    if (!uart_transport->setBaudRate(kUartBaudRate)) {
-      cerr << "Failed to change host UART baud rate." << '\n';
-      return EXIT_FAILURE;
-    }
-
-    receiver_profile = gnss.detectReceiverProfile();
-  }
-
-  if (!receiver_profile) {
-    cerr << "Failed to detect GNSS module: " << receiver_profile.error() << '\n';
-    return EXIT_FAILURE;
-  }
-
-  uint16_t measurement_period_ms;
-
-  if (*receiver_profile == tobas::ublox::GnssReceiver::F9P) {
-    cout << "Detected receiver profile: ZED-F9P\n";
-    gnss.setReceiverProfile(tobas::ublox::GnssReceiver::F9P);
-    measurement_period_ms = 40;
-  }
-  else if (*receiver_profile == tobas::ublox::GnssReceiver::X20P) {
-    cout << "Detected receiver profile: ZED-X20P\n";
-    gnss.setReceiverProfile(tobas::ublox::GnssReceiver::X20P);
-    measurement_period_ms = 40;
-  }
-  else {
-    cerr << "Unknown Device: " << *receiver_profile << '\n';
-    return EXIT_FAILURE;
-  }
-
-  if (use_uart) {
-    if (!gnss.configureUartBaudRate(kUartBaudRate)) {
-      cerr << "Failed to configure UART baud rate." << '\n';
-      return EXIT_FAILURE;
-    }
-
-    if (!uart_transport->setBaudRate(kUartBaudRate)) {
-      cerr << "Failed to change host UART baud rate." << '\n';
-      return EXIT_FAILURE;
-    }
-  }
-
   cout << "Configuring measurement rate." << '\n';
-  if (!gnss.configureMeasurementRate(measurement_period_ms)) {
+  if (!gnss.configureMeasurementRate(40)) {
     cerr << "Failed to configure measurement rate." << '\n';
     return EXIT_FAILURE;
   }
@@ -130,19 +72,6 @@ int main(int _argc, char** _argv)
   if (!gnss.enableQzss()) {
     cerr << "Failed to enable QZSS." << '\n';
     return EXIT_FAILURE;
-  }
-
-  if (*receiver_profile == tobas::ublox::GnssReceiver::F9P) {
-    if (!gnss.disableGlonass()) {
-      cerr << "Failed to disable GLONASS." << '\n';
-      return EXIT_FAILURE;
-    }
-  }
-  else if (*receiver_profile == tobas::ublox::GnssReceiver::X20P) {
-    if (!gnss.enableNavIc()) {
-      cerr << "Failed to enable NavIC." << '\n';
-      return EXIT_FAILURE;
-    }
   }
 
   // Enable messages.

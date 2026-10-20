@@ -17,7 +17,7 @@ namespace tobas::ublox
 class UbxTransportUart final : public UbxTransport
 {
 public:
-  explicit UbxTransportUart(const char* _device, uint32_t _baud_rate);
+  explicit UbxTransportUart(const char* _device, uint32_t _baud_rate = 38400);
 
   UbxTransportUart(UbxTransportUart&& _other) = delete;
   UbxTransportUart& operator=(UbxTransportUart&& _other) = delete;
@@ -27,7 +27,8 @@ public:
   bool initialize() noexcept override;
   std::expected<std::optional<uint8_t>, int> receiveByte() noexcept override;
   bool send(const uint8_t* _data, size_t _length) noexcept override;
-  bool setBaudRate(uint32_t _baud_rate) noexcept;
+  std::optional<uint32_t> baudRate() const noexcept override;
+  bool setBaudRate(uint32_t _baud_rate) noexcept override;
 
 private:
   const char* device_;

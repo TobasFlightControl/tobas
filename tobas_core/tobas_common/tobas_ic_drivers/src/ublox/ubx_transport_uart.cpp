@@ -45,6 +45,11 @@ bool UbxTransportUart::send(const uint8_t* _data, size_t _length) noexcept
   return uart_.sendAll(_data, _length, kSendTimeout);
 }
 
+std::optional<uint32_t> UbxTransportUart::baudRate() const noexcept
+{
+  return baud_rate_;
+}
+
 bool UbxTransportUart::setBaudRate(uint32_t _baud_rate) noexcept
 {
   if (!uart_.drainOutput()) {

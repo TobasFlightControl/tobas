@@ -22,12 +22,57 @@ GnssReceiver::GnssReceiver(std::unique_ptr<UbxTransport> _transport) : transport
 
 bool GnssReceiver::initialize()
 {
-  return transport_->initialize();
-}
+  receiver_profile_.reset();
+  scanner_.reset();
+  if (!transport_->initialize()) {
+    return false;
+  }
 
-void GnssReceiver::setReceiverProfile(ReceiverProfile _profile)
-{
-  receiver_profile_ = _profile;
+  constexpr uint32_t kUartBaudRate = 230400;
+  auto receiver_profile = detectReceiverProfile();
+  const auto baud_rate = transport_->baudRate();
+  if (
+    !receiver_profile && receiver_profile.error() == "MON-VER response timed out" && baud_rate &&
+    *baud_rate != kUartBaudRate) {
+    if (!transport_->setBaudRate(kUartBaudRate)) {
+      return false;
+    }
+    receiver_profile = detectReceiverProfile();
+  }
+  if (!receiver_profile) {
+    std::cerr << receiver_profile.error() << '\n';
+    return false;
+  }
+
+  if (baud_rate && transport_->baudRate() != kUartBaudRate) {
+    if (!configureUartBaudRate(kUartBaudRate) || !transport_->setBaudRate(kUartBaudRate)) {
+      return false;
+    }
+
+    const auto confirmed_profile = detectReceiverProfile();
+    if (!confirmed_profile) {
+      std::cerr << confirmed_profile.error() << '\n';
+      return false;
+    }
+    if (*confirmed_profile != *receiver_profile) {
+      std::cerr << "GNSS receiver profile changed after baud rate configuration.\n";
+      return false;
+    }
+  }
+
+  if (*receiver_profile == F9P) {
+    if (!disableGlonass()) {
+      return false;
+    }
+  }
+  else if (*receiver_profile == X20P) {
+    if (!enableNavIc()) {
+      return false;
+    }
+  }
+
+  receiver_profile_ = *receiver_profile;
+  return true;
 }
 
 std::expected<GnssReceiver::ReceiverProfile, std::string> GnssReceiver::detectReceiverProfile()
