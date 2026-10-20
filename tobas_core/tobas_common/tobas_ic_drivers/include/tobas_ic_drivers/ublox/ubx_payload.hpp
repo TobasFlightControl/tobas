@@ -3,8 +3,11 @@
 
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <iostream>
+#include <string>
 #include <vector>
 
 namespace tobas::ublox::payload
@@ -48,6 +51,13 @@ struct ACK_ACK : public Payload
 
   void decode(const uint8_t* _p) override;
   void print(std::ostream& _os) const override;
+};
+
+struct MON_VER
+{
+  std::string module;
+
+  std::expected<void, std::string> decode(const uint8_t* _p, size_t _length);
 };
 
 struct NAV_CLOCK : public Payload

@@ -4,6 +4,7 @@
 #pragma once
 
 #include <chrono>
+#include <expected>
 #include <memory>
 #include <optional>
 #include <string>
@@ -129,7 +130,7 @@ public:
   GnssReceiver& operator=(const GnssReceiver& _other) = delete;
 
   bool initialize();
-  std::optional<std::string> getModuleName();
+  std::expected<ReceiverProfile, std::string> detectReceiverProfile();
   bool update(bool _blocking = false, std::chrono::milliseconds _timeout = std::chrono::milliseconds(0));
 
   void setReceiverProfile(ReceiverProfile _profile);

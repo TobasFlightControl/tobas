@@ -59,38 +59,42 @@ int main(int _argc, char** _argv)
     }
   }
 
-  auto module_name = gnss.getModuleName();
+  auto receiver_profile = gnss.detectReceiverProfile();
 
-  if (!module_name && use_uart) {
-    cout << "No response at " << kInitialUartBaudRate << " baud. Trying " << kUartBaudRate << " baud." << '\n';
+  if (
+    !receiver_profile && use_uart &&
+    (receiver_profile.error() == "Failed to receive MON-VER response" ||
+     receiver_profile.error() == "MON-VER response timed out")) {
+    cout << receiver_profile.error() << " At " << kInitialUartBaudRate << " baud. Trying " << kUartBaudRate << " baud."
+         << '\n';
 
     if (!uart_transport->setBaudRate(kUartBaudRate)) {
       cerr << "Failed to change host UART baud rate." << '\n';
       return EXIT_FAILURE;
     }
 
-    module_name = gnss.getModuleName();
+    receiver_profile = gnss.detectReceiverProfile();
   }
 
-  if (!module_name) {
-    cerr << "Failed to detect GNSS module." << '\n';
+  if (!receiver_profile) {
+    cerr << "Failed to detect GNSS module: " << receiver_profile.error() << '\n';
     return EXIT_FAILURE;
   }
 
-  cout << "Detected module: " << *module_name << '\n';
-
   uint16_t measurement_period_ms;
 
-  if (*module_name == "ZED-F9P") {
+  if (*receiver_profile == tobas::ublox::GnssReceiver::F9P) {
+    cout << "Detected receiver profile: ZED-F9P\n";
     gnss.setReceiverProfile(tobas::ublox::GnssReceiver::F9P);
     measurement_period_ms = 40;
   }
-  else if (*module_name == "ZED-X20P") {
+  else if (*receiver_profile == tobas::ublox::GnssReceiver::X20P) {
+    cout << "Detected receiver profile: ZED-X20P\n";
     gnss.setReceiverProfile(tobas::ublox::GnssReceiver::X20P);
     measurement_period_ms = 40;
   }
   else {
-    cerr << "Unknown Device: " << *module_name << '\n';
+    cerr << "Unknown Device: " << *receiver_profile << '\n';
     return EXIT_FAILURE;
   }
 
@@ -142,13 +146,13 @@ int main(int _argc, char** _argv)
     return EXIT_FAILURE;
   }
 
-  if (*module_name == "ZED-F9P") {
+  if (*receiver_profile == tobas::ublox::GnssReceiver::F9P) {
     if (!gnss.disableGlonass()) {
       cerr << "Failed to disable GLONASS." << '\n';
       return EXIT_FAILURE;
     }
   }
-  else if (*module_name == "ZED-X20P") {
+  else if (*receiver_profile == tobas::ublox::GnssReceiver::X20P) {
     if (!gnss.enableNavIc()) {
       cerr << "Failed to enable NavIC." << '\n';
       return EXIT_FAILURE;

@@ -4,6 +4,7 @@
 #include "tobas_ic_drivers/ublox/ubx_payload.hpp"
 
 #include <bit>
+#include <cstring>
 #include <ranges>
 
 #include <tobas_algorithm/binary.hpp>
@@ -22,6 +23,30 @@ void ACK_ACK::decode(const uint8_t* _p)
 {
   clsID = algo::decodeU8(_p + 0);
   msgID = algo::decodeU8(_p + 1);
+}
+
+std::expected<void, std::string> MON_VER::decode(const uint8_t* _p, size_t _length)
+{
+  module.clear();
+
+  constexpr size_t kFixedLength = 40;
+  constexpr size_t kExtensionLength = 30;
+  if (!_p || _length < kFixedLength || (_length - kFixedLength) % kExtensionLength != 0) {
+    return std::unexpected("Invalid MON-VER payload length");
+  }
+
+  for (size_t offset = kFixedLength; offset < _length; offset += kExtensionLength) {
+    const char* extension = reinterpret_cast<const char*>(_p + offset);
+    constexpr char kModelPrefix[] = "MOD=";
+    constexpr size_t kModelPrefixLength = sizeof(kModelPrefix) - 1;
+    if (std::strncmp(extension, kModelPrefix, kModelPrefixLength) == 0) {
+      const char* model = extension + kModelPrefixLength;
+      module.assign(model, strnlen(model, kExtensionLength - kModelPrefixLength));
+      return {};
+    }
+  }
+
+  return std::unexpected("MON-VER MOD information missing");
 }
 
 void NAV_CLOCK::decode(const uint8_t*)

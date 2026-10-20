@@ -29,10 +29,10 @@ void GnssReceiver::setReceiverProfile(ReceiverProfile _profile)
   receiver_profile_ = _profile;
 }
 
-std::optional<std::string> GnssReceiver::getModuleName()
+std::expected<GnssReceiver::ReceiverProfile, std::string> GnssReceiver::detectReceiverProfile()
 {
   if (!sendMessage(CLASS_MON, MON_VER, nullptr, 0)) {
-    return std::nullopt;
+    return std::unexpected("Failed to send MON-VER request");
   }
 
   constexpr auto kWaitForGnssMonVerResponse = 1s;
@@ -40,47 +40,40 @@ std::optional<std::string> GnssReceiver::getModuleName()
 
   while (ch::steady_clock::now() < deadline) {
     const auto remaining = ch::duration_cast<ch::milliseconds>(deadline - ch::steady_clock::now());
+    if (remaining <= 0ms) {
+      return std::unexpected("MON-VER response timed out");
+    }
 
     if (!update(true, remaining)) {
-      return std::nullopt;
+      if (ch::steady_clock::now() >= deadline) {
+        return std::unexpected("MON-VER response timed out");
+      }
+      return std::unexpected("Failed to receive MON-VER response");
     }
 
-    if (latestClass() == CLASS_MON && latestId() == MON_VER) {
-      break;
+    if (latestClass() != CLASS_MON || latestId() != MON_VER) {
+      continue;
     }
-  }
 
-  if (latestClass() != CLASS_MON || latestId() != MON_VER) {
-    return std::nullopt;
-  }
+    const auto* length = scanner_.getLength();
+    const uint16_t payload_length = static_cast<uint16_t>(length[0]) | (static_cast<uint16_t>(length[1]) << 8);
 
-  const auto* length = scanner_.getLength();
-  const uint16_t payload_length = static_cast<uint16_t>(length[0]) | (static_cast<uint16_t>(length[1]) << 8);
-
-  const auto* data = payload();
-
-  constexpr uint16_t kMonVerFixedLength = 40;
-  constexpr uint16_t kExtensionLength = 30;
-
-  if (payload_length < kMonVerFixedLength) {
-    return std::nullopt;
-  }
-
-  for (uint16_t offset = kMonVerFixedLength; offset + kExtensionLength <= payload_length; offset += kExtensionLength) {
-    const char* extension = reinterpret_cast<const char*>(&data[offset]);
-
-    constexpr char kModelPrefix[] = "MOD=";
-
-    if (std::strncmp(extension, kModelPrefix, 4) == 0) {
-      const char* model = extension + 4;
-
-      const size_t model_length = strnlen(model, kExtensionLength - 4);
-
-      return std::string(model, model_length);
+    payload::MON_VER mon_ver;
+    const auto result = mon_ver.decode(payload(), payload_length);
+    if (!result) {
+      return std::unexpected(result.error());
     }
+
+    if (mon_ver.module == "ZED-F9P") {
+      return F9P;
+    }
+    if (mon_ver.module == "ZED-X20P") {
+      return X20P;
+    }
+    return std::unexpected("Unsupported GNSS module: " + mon_ver.module);
   }
 
-  return std::string{};
+  return std::unexpected("MON-VER response timed out");
 }
 
 bool GnssReceiver::update(bool _blocking, std::chrono::milliseconds _timeout)
