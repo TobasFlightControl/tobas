@@ -17,7 +17,7 @@ void RecordStartThread::run()
   }
 
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStart::Request>();
-  req->name = log_name_;
+  req->name = log_name_.toStdString();
 
   const auto res = sc_->sendRequestAndWait(req);
   if (!res) {
@@ -43,7 +43,7 @@ void RecordStartThread::clearRosInterfaces()
   sc_.reset();
 }
 
-void RecordStartThread::setLogName(const std::string& _log_name)
+void RecordStartThread::setLogName(const QString& _log_name)
 {
   log_name_ = _log_name;
 }
