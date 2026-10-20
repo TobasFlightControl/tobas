@@ -27,7 +27,7 @@ namespace tobas::ublox
  * - [ZED-F9P L1/L2](https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-1.51_InterfaceDescription_UBXDOC-963802114-13124.pdf)
  * - [ZED-X20P](https://content.u-blox.com/sites/default/files/documents/u-blox-X20-HPG-2.02_InterfaceDescription_UBXDOC-304424225-19967.pdf)
  */
-class UbloxGnss
+class GnssReceiver
 {
 public:
   enum UbxClass : uint8_t
@@ -121,12 +121,12 @@ public:
     X20P,
   };
 
-  explicit UbloxGnss(std::unique_ptr<UbxTransport> _transport);
+  explicit GnssReceiver(std::unique_ptr<UbxTransport> _transport);
 
-  UbloxGnss(UbloxGnss&& _other) = delete;
-  UbloxGnss& operator=(UbloxGnss&& _other) = delete;
-  UbloxGnss(const UbloxGnss& _other) = delete;
-  UbloxGnss& operator=(const UbloxGnss& _other) = delete;
+  GnssReceiver(GnssReceiver&& _other) = delete;
+  GnssReceiver& operator=(GnssReceiver&& _other) = delete;
+  GnssReceiver(const GnssReceiver& _other) = delete;
+  GnssReceiver& operator=(const GnssReceiver& _other) = delete;
 
   bool initialize();
   std::optional<std::string> getModuleName();
@@ -350,23 +350,23 @@ private:
   static uint32_t configKeyID(CfgSize _size, CfgGroup _group, uint16_t _id);
 };
 
-inline UbloxGnss::UbxClass UbloxGnss::latestClass() const
+inline GnssReceiver::UbxClass GnssReceiver::latestClass() const
 {
   return static_cast<UbxClass>(*scanner_.getClass());
 }
 
-inline uint8_t UbloxGnss::latestId() const
+inline uint8_t GnssReceiver::latestId() const
 {
   return *scanner_.getId();
 }
 
-inline const uint8_t* UbloxGnss::payload() const
+inline const uint8_t* GnssReceiver::payload() const
 {
   return scanner_.getPayload();
 }
 
 template <typename T>
-bool UbloxGnss::cfgValSetSingle(CfgSize _size, CfgGroup _group, uint16_t _id, T _value)
+bool GnssReceiver::cfgValSetSingle(CfgSize _size, CfgGroup _group, uint16_t _id, T _value)
 {
   CfgValSet<T, 1> cfg;
   cfg.data[0].key = configKeyID(_size, _group, _id);

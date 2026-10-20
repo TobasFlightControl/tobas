@@ -182,7 +182,7 @@ bool testPowerSensor()
 
 bool testGnssReceiver()
 {
-  tobas::ublox::UbloxGnss gnss(std::make_unique<tobas::ublox::UbxTransportSpi>("/dev/spidev1.2"));
+  tobas::ublox::GnssReceiver gnss(std::make_unique<tobas::ublox::UbxTransportSpi>("/dev/spidev1.2"));
 
   if (!gnss.initialize()) {
     std::cerr << "Failed to initialize GNSS driver.\n";
@@ -209,7 +209,7 @@ bool testGnssReceiver()
   }
 
   // Enable messages.
-  if (!gnss.enableSpiMessage(tobas::ublox::UbloxGnss::CLASS_NAV, tobas::ublox::UbloxGnss::NAV_PVT, true)) {
+  if (!gnss.enableSpiMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_PVT, true)) {
     std::cerr << "Failed to enable NAV_PVT message." << '\n';
     return false;
   }
@@ -222,12 +222,12 @@ bool testGnssReceiver()
       return false;
     }
 
-    if (gnss.latestClass() != tobas::ublox::UbloxGnss::CLASS_NAV) {
+    if (gnss.latestClass() != tobas::ublox::GnssReceiver::CLASS_NAV) {
       continue;
     }
 
     switch (gnss.latestId()) {
-      case tobas::ublox::UbloxGnss::NAV_PVT:
+      case tobas::ublox::GnssReceiver::NAV_PVT:
         return true;
       default:
         continue;

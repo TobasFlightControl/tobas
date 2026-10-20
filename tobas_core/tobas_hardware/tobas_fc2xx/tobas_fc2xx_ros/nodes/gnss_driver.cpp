@@ -22,12 +22,12 @@ public:
   explicit GnssDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
-  ublox::UbloxGnss gnss_;
+  ublox::GnssReceiver gnss_;
 
   ublox::payload::NAV_PVT pvt_;
   ublox::payload::NAV_COV cov_;
 
-  std::map<ublox::UbloxGnss::UbxNavId, bool> is_received_;
+  std::map<ublox::GnssReceiver::UbxNavId, bool> is_received_;
 
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
   ros2::TimerPtr initialize_timer_, main_timer_;
@@ -61,8 +61,8 @@ bool GnssDriverNode::initialize()
     return false;
   }
 
-  is_received_[ublox::UbloxGnss::NAV_PVT] = false;
-  is_received_[ublox::UbloxGnss::NAV_COV] = false;
+  is_received_[ublox::GnssReceiver::NAV_PVT] = false;
+  is_received_[ublox::GnssReceiver::NAV_COV] = false;
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
 
@@ -74,7 +74,7 @@ bool GnssDriverNode::initialize()
 
 bool GnssDriverNode::configure()
 {
-  if (!gnss_.configureDynamicsModel(ublox::UbloxGnss::AIRBORNE_2G)) {
+  if (!gnss_.configureDynamicsModel(ublox::GnssReceiver::AIRBORNE_2G)) {
     TOBAS_ERROR("Failed to configure dynamics model.");
     return false;
   }
@@ -115,11 +115,11 @@ bool GnssDriverNode::configure()
   }
 
   // Enable messages.
-  if (!gnss_.enableSpiMessage(ublox::UbloxGnss::CLASS_NAV, ublox::UbloxGnss::NAV_PVT, true)) {
+  if (!gnss_.enableSpiMessage(ublox::GnssReceiver::CLASS_NAV, ublox::GnssReceiver::NAV_PVT, true)) {
     TOBAS_ERROR("Failed to enable NAV_PVT message.");
     return false;
   }
-  if (!gnss_.enableSpiMessage(ublox::UbloxGnss::CLASS_NAV, ublox::UbloxGnss::NAV_COV, true)) {
+  if (!gnss_.enableSpiMessage(ublox::GnssReceiver::CLASS_NAV, ublox::GnssReceiver::NAV_COV, true)) {
     TOBAS_ERROR("Failed to enable NAV_COV message.");
     return false;
   }
@@ -179,19 +179,19 @@ void GnssDriverNode::mainTimerCb()
     return;
   }
 
-  if (gnss_.latestClass() != ublox::UbloxGnss::CLASS_NAV) {
+  if (gnss_.latestClass() != ublox::GnssReceiver::CLASS_NAV) {
     warnUnnecessaryUBXMessage();
     return;
   }
 
   switch (gnss_.latestId()) {
-    case ublox::UbloxGnss::NAV_PVT:
+    case ublox::GnssReceiver::NAV_PVT:
       pvt_.decode(gnss_.payload());
-      is_received_.at(ublox::UbloxGnss::NAV_PVT) = true;
+      is_received_.at(ublox::GnssReceiver::NAV_PVT) = true;
       break;
-    case ublox::UbloxGnss::NAV_COV:
+    case ublox::GnssReceiver::NAV_COV:
       cov_.decode(gnss_.payload());
-      is_received_.at(ublox::UbloxGnss::NAV_COV) = true;
+      is_received_.at(ublox::GnssReceiver::NAV_COV) = true;
       break;
     default:
       warnUnnecessaryUBXMessage();
