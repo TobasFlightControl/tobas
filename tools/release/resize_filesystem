@@ -24,7 +24,7 @@ sudo umount "${partition_prefix}1" "${partition_prefix}2"
 # Exit status 1 means filesystem errors were successfully corrected.
 status=0
 sudo e2fsck -f "${partition_prefix}2" || status=$?
-if (( status > 1 )); then
+if ((status > 1)); then
   exit "$status"
 fi
 

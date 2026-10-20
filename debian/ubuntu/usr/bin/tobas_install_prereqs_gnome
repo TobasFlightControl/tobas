@@ -4,7 +4,7 @@ env \
   DISPLAY=$DISPLAY \
   XAUTHORITY=$XAUTHORITY \
   USER=$(id -nu "$PKEXEC_UID") \
-gnome-terminal -- bash -lc '
+  gnome-terminal -- bash -lc '
   /usr/bin/tobas_install_prereqs
   status=$?
   echo

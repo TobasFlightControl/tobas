@@ -41,7 +41,7 @@ sudo apt upgrade -y
 sudo apt install -y ros-jazzy-desktop
 
 # Initialize rosdep (added)
-sudo rosdep init || true  # Treat already-initialized rosdep as success.
+sudo rosdep init || true # Treat already-initialized rosdep as success.
 
 # Setup environment
 source /opt/ros/jazzy/setup.bash

@@ -4,7 +4,7 @@ set -e
 
 # Navigate to the workspace root
 script_dir=$(dirname "$(realpath "$0")")
-cd "${script_dir}/../../.."  # colcon_ws/src/tobas/tools
+cd "${script_dir}/../../.." # colcon_ws/src/tobas/tools
 
 gcc_library=$(g++ -print-libgcc-file-name)
 gcc_library_dir=$(dirname "${gcc_library}")
@@ -15,5 +15,5 @@ colcon build \
   --cmake-clean-first \
   --packages-up-to tobas \
   --cmake-args \
-    -DCMAKE_BUILD_TYPE=Release \
-    "-DCMAKE_CXX_CLANG_TIDY=clang-tidy-20;--extra-arg=--gcc-install-dir=${gcc_library_dir}"
+  -DCMAKE_BUILD_TYPE=Release \
+  "-DCMAKE_CXX_CLANG_TIDY=clang-tidy-20;--extra-arg=--gcc-install-dir=${gcc_library_dir}"
