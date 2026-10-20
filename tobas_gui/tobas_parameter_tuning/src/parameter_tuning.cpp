@@ -136,6 +136,7 @@ void ParameterTuningWidget::onLoadButtonClicked()
     progress.setLabelText("Loading the dynamic parameters of '" + block->getLabelText() + "'.");
     if (const auto result = block->load(); !result) {
       progress.close();
+      reset();
       qt::qErrorBox(this, result.error());
       return;
     }
