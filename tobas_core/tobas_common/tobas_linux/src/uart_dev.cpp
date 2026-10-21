@@ -4,8 +4,10 @@
 #include "tobas_linux/uart_dev.hpp"
 
 #include <fcntl.h>
+#include <poll.h>
 #include <unistd.h>
 
+#include <cerrno>
 #include <chrono>
 #include <iostream>
 #include <map>
@@ -128,6 +130,16 @@ bool UARTdev::initialize(const char* _uart_dev, bool _block_mode)
   // Reset input buffer.
   if (tcflush(uart_fd_, TCIFLUSH) != 0) {
     std::cerr << "Failed to reset input buffer: " << st::strError() << '\n';
+    return false;
+  }
+
+  return true;
+}
+
+bool UARTdev::drainOutput()
+{
+  if (::tcdrain(uart_fd_) != 0) {
+    std::cerr << "Failed to drain UART output: " << st::strError() << '\n';
     return false;
   }
 
@@ -259,6 +271,44 @@ bool UARTdev::send(const uint8_t* _data, size_t _length)
   return true;
 }
 
+bool UARTdev::sendAll(const uint8_t* _data, size_t _length, std::chrono::milliseconds _timeout)
+{
+  const auto deadline = std::chrono::steady_clock::now() + _timeout;
+  size_t sent = 0;
+  while (sent < _length) {
+    const auto remaining =
+      std::chrono::duration_cast<std::chrono::milliseconds>(deadline - std::chrono::steady_clock::now());
+    if (remaining <= 0ms) {
+      std::cerr << "UART TX timed out.\n";
+      return false;
+    }
+
+    pollfd fd{ uart_fd_, POLLOUT, 0 };
+    const auto ready = ::poll(&fd, 1, static_cast<int>(remaining.count()));
+    if (ready < 0 && errno == EINTR) {
+      continue;
+    }
+    if (ready <= 0 || (fd.revents & (POLLERR | POLLHUP | POLLNVAL))) {
+      std::cerr << "UART TX wait failed.\n";
+      return false;
+    }
+
+    const auto res = ::write(uart_fd_, _data + sent, _length - sent);
+    if (res > 0) {
+      sent += static_cast<size_t>(res);
+    }
+    else if (res < 0 && errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
+      std::cerr << "UART TX failed: " << st::strError() << '\n';
+      return false;
+    }
+    else {
+      std::this_thread::sleep_for(1ms);
+    }
+  }
+
+  return true;
+}
+
 bool UARTdev::receive(uint8_t* _data, size_t _length)
 {
   const auto res = ::read(uart_fd_, _data, _length);
@@ -283,6 +333,33 @@ std::optional<uint8_t> UARTdev::receiveByte()
   else {
     return std::nullopt;
   }
+}
+
+std::expected<std::optional<uint8_t>, int> UARTdev::tryReceiveByte()
+{
+  if (uart_fd_ < 0) {
+    return std::unexpected(EBADF);
+  }
+
+  uint8_t byte;
+  const auto res = ::read(uart_fd_, &byte, 1);
+  if (res == 1) {
+    return byte;
+  }
+  if (res < 0) {
+    const auto error = errno;
+    if (error == EAGAIN || error == EWOULDBLOCK || error == EINTR) {
+      return std::optional<uint8_t>{};
+    }
+    return std::unexpected(error);
+  }
+
+  // Distinguish an empty read from a disconnected TTY.
+  struct termios options;
+  if (::tcgetattr(uart_fd_, &options) != 0 && errno != EINTR) {
+    return std::unexpected(errno);
+  }
+  return std::optional<uint8_t>{};
 }
 
 bool UARTdev::getConfig()

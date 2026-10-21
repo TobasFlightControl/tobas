@@ -5,8 +5,10 @@
 
 #include <termios.h>  // <asm/termios.h> does not work.
 
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <optional>
 
 namespace tobas::linux
@@ -30,6 +32,8 @@ public:
 
   bool initialize(const char* _uart_dev, bool _block_mode = false);
 
+  bool drainOutput();
+
   bool setBaudRate(uint32_t _baud_rate);
   bool setDataBits(uint8_t _data_bits);
   bool setSingleStopBit();
@@ -44,10 +48,13 @@ public:
   bool setMinimumChars(uint8_t _num);
 
   bool send(const uint8_t* _data, size_t _length);
+  bool sendAll(const uint8_t* _data, size_t _length, std::chrono::milliseconds _timeout);
   bool receive(uint8_t* _data, size_t _length);
 
   /** Receive 1 byte. */
   std::optional<uint8_t> receiveByte();
+  /** Receive 1 byte without blocking. Distinguish no data from read errors. */
+  std::expected<std::optional<uint8_t>, int> tryReceiveByte();
 
 private:
   bool block_mode_ = false;

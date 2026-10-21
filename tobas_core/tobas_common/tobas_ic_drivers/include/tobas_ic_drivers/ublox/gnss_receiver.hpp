@@ -3,7 +3,11 @@
 
 #pragma once
 
+#include <chrono>
+#include <expected>
 #include <memory>
+#include <optional>
+#include <string>
 
 #include <tobas_time_tools/rate.hpp>
 
@@ -16,13 +20,15 @@
 namespace tobas::ublox
 {
 /**
- * A Linux driver of u-blox ZED-F9P using UBX protocol.
+ * A Linux driver of u-blox GNSS receivers using UBX protocol.
  *
- * [Product Page](https://www.u-blox.com/en/product/zed-f9p-module)
+ * Supported receiver profiles: ZED-F9P (L1/L2) and ZED-X20P.
  *
  * Interface Description:
- * - [L1/L2](https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-1.51_InterfaceDescription_UBXDOC-963802114-13124.pdf)
- * - [L1/L5](https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-L1L5-1.40_InterfaceDescription_UBX-23006991.pdf)
+ * - [ZED-F9P
+ * L1/L2](https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-1.51_InterfaceDescription_UBXDOC-963802114-13124.pdf)
+ * -
+ * [ZED-X20P](https://content.u-blox.com/sites/default/files/documents/u-blox-X20-HPG-2.02_InterfaceDescription_UBXDOC-304424225-19967.pdf)
  */
 class GnssReceiver
 {
@@ -54,6 +60,11 @@ public:
     CFG_VALDEL = 0x8C,
     CFG_VALGET = 0x8B,
     CFG_VALSET = 0x8A,
+  };
+
+  enum UbxMonId : uint8_t
+  {
+    MON_VER = 0x04,
   };
 
   enum UbxNavId : uint8_t
@@ -107,6 +118,12 @@ public:
     E_SCOOTER = 12,
   };
 
+  enum ReceiverProfile : uint8_t
+  {
+    F9P,
+    X20P,
+  };
+
   explicit GnssReceiver(std::unique_ptr<UbxTransport> _transport);
 
   GnssReceiver(GnssReceiver&& _other) = delete;
@@ -115,13 +132,15 @@ public:
   GnssReceiver& operator=(const GnssReceiver& _other) = delete;
 
   bool initialize();
-  bool update(bool _blocking = false);
+  std::expected<ReceiverProfile, std::string> detectReceiverProfile();
+  bool update(bool _blocking = false, std::chrono::milliseconds _timeout = std::chrono::milliseconds(0));
 
   // ===== Configurations =====
 
-  bool enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable);
+  bool enableMessage(UbxClass _cls, uint8_t _id, bool _enable);
   bool configureDynamicsModel(DynamicsModel _model);
   bool configureMeasurementRate(uint16_t _period_ms);
+  bool configureUartBaudRate(uint32_t _baud_rate);
 
   bool enableGps();
   bool disableGps();
@@ -148,8 +167,12 @@ public:
   bool enableSpiProtocol_NMEA(bool _enable_input, bool _enable_output);
   bool enableSpiProtocol_RTCM3X(bool _enable_input, bool _enable_output);
   bool enableSpiProtocol_SPARTN(bool _enable_input);
+  bool enableUartProtocol_UBX(bool _enable_input, bool _enable_output);
+  bool enableUartProtocol_NMEA(bool _enable_input, bool _enable_output);
+  bool enableUartProtocol_RTCM3X(bool _enable_input, bool _enable_output);
+  bool enableUartProtocol_SPARTN(bool _enable_input);
 
-  /** Set the analog transmission delay from the length of the `RF174` cable. */
+  /** Set the analog transmission delay from the length of the `RG174` cable. */
   bool setAntennaLength(uint8_t _length_m);
 
   bool enableUsb(bool _enable);
@@ -203,10 +226,10 @@ private:
     CFG_TMODE = 0x03,         ///< Time Mode Configuration
     CFG_TP = 0x05,            ///< Timepulse Configuration
     CFG_TXREADY = 0xA2,       ///< Tx-Ready Configuration
-    CFG_URART1 = 0x52,        ///< Configuration of the UART1 Interface
+    CFG_UART1 = 0x52,         ///< Configuration of the UART1 Interface
     CFG_UART1INPROT = 0x73,   ///< Input Protocol Configuration of the UART1 Interface
     CFG_UART1OUTPROT = 0x74,  ///< Output Protocol Configuration of the UART1 Interface
-    CFG_URART2 = 0x53,        ///< Configuration of the UART2 Interface
+    CFG_UART2 = 0x53,         ///< Configuration of the UART2 Interface
     CFG_UART2INPROT = 0x75,   ///< Input Protocol Configuration of the UART2 Interface
     CFG_UART2OUTPROT = 0x76,  ///< Output Protocol Configuration of the UART2 Interface
     CFG_USB = 0x65,           ///< Configuration of the USB Interface
@@ -214,7 +237,7 @@ private:
     CFG_USBOUTPROT = 0x78,    ///< Output Protocol Configuration of the USB Interface
   };
 
-  /** SPI Protocol Key ID */
+  /** SPI/UART Protocol Key ID */
   enum CfgProtocol : uint8_t
   {
     UBX = 0x01,
@@ -270,9 +293,13 @@ private:
   const std::unique_ptr<UbxTransport> transport_;
   UbxScanner scanner_;
   tim::Rate scan_rate_;
+  std::optional<ReceiverProfile> receiver_profile_;
 
   template <typename T>
-  bool cfgValSetSingle(CfgSize _size, CfgGroup _group, uint8_t _id, T _value);
+  bool cfgValSetSingle(CfgSize _size, CfgGroup _group, uint16_t _id, T _value);
+
+  bool enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable);
+  bool enableUartMessage(UbxClass _cls, uint8_t _id, bool _enable);
 
   bool sendMessage(UbxClass _cls, uint8_t _id, const void* _msg, uint16_t _size);
   bool waitForAcknowledge(UbxClass _cls, uint8_t _id);
@@ -288,14 +315,17 @@ private:
   bool enableSbasL1();
 
   bool enableGalileo(bool _enable);
-  bool enableGalileoL1();
-  bool enableGalileoL2();
-  bool enableGalileoL5();
+  bool enableGalileoE1();
+  bool enableGalileoE5b();
+  bool enableGalileoE5a();
+  bool enableGalileoE6();
 
   bool enableBeiDou(bool _enable);
-  bool enableBeiDouL1();
-  bool enableBeiDouL2();
-  bool enableBeiDouL5();
+  bool enableBeiDouB1I();
+  bool enableBeiDouB1C();
+  bool enableBeiDouB2I();
+  bool enableBeiDouB3I();
+  bool enableBeiDouB2a();
 
   bool enableQzss(bool _enable);
   bool enableQzssL1();
@@ -311,6 +341,8 @@ private:
 
   bool enableSpiInputProtocol(CfgProtocol _prot, bool _enable);
   bool enableSpiOutputProtocol(CfgProtocol _prot, bool _enable);
+  bool enableUartInputProtocol(CfgProtocol _prot, bool _enable);
+  bool enableUartOutputProtocol(CfgProtocol _prot, bool _enable);
 
   /** 5.4 UBX Checksum */
   static CheckSum computeChecksum(const uint8_t* _message, size_t _checksum_pos);
@@ -337,7 +369,7 @@ inline const uint8_t* GnssReceiver::payload() const
 }
 
 template <typename T>
-bool GnssReceiver::cfgValSetSingle(CfgSize _size, CfgGroup _group, uint8_t _id, T _value)
+bool GnssReceiver::cfgValSetSingle(CfgSize _size, CfgGroup _group, uint16_t _id, T _value)
 {
   CfgValSet<T, 1> cfg;
   cfg.data[0].key = configKeyID(_size, _group, _id);

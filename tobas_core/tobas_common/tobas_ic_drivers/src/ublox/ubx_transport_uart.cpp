@@ -11,7 +11,7 @@ UbxTransportUart::UbxTransportUart(const char* _device, uint32_t _baud_rate) : d
 
 bool UbxTransportUart::initialize() noexcept
 {
-  if (!uart_.initialize(device_, true)) {
+  if (!uart_.initialize(device_, false)) {
     return false;
   }
 
@@ -34,13 +34,35 @@ bool UbxTransportUart::initialize() noexcept
   return true;
 }
 
-std::optional<uint8_t> UbxTransportUart::receiveByte() noexcept
+std::expected<std::optional<uint8_t>, int> UbxTransportUart::receiveByte() noexcept
 {
-  return uart_.receiveByte();
+  return uart_.tryReceiveByte();
 }
 
 bool UbxTransportUart::send(const uint8_t* _data, size_t _length) noexcept
 {
-  return uart_.send(_data, _length);
+  constexpr auto kSendTimeout = std::chrono::seconds(1);
+  return uart_.sendAll(_data, _length, kSendTimeout);
 }
+
+std::optional<uint32_t> UbxTransportUart::baudRate() const noexcept
+{
+  return baud_rate_;
+}
+
+bool UbxTransportUart::setBaudRate(uint32_t _baud_rate) noexcept
+{
+  // Wait for pending data transmission before changing the baud rate.
+  if (!uart_.drainOutput()) {
+    return false;
+  }
+
+  if (!uart_.setBaudRate(_baud_rate)) {
+    return false;
+  }
+
+  baud_rate_ = _baud_rate;
+  return true;
+}
+
 }  // namespace tobas::ublox

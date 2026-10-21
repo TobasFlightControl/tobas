@@ -3,6 +3,7 @@
 
 #include "tobas_ic_drivers/ublox/ubx_transport_spi.hpp"
 
+#include <cerrno>
 #include <cstring>
 
 namespace tobas::ublox
@@ -16,10 +17,10 @@ bool UbxTransportSpi::initialize() noexcept
   return spi_.initialize(device_, tx_buf_, rx_buf_, kSpiClockFreq);
 }
 
-std::optional<uint8_t> UbxTransportSpi::receiveByte() noexcept
+std::expected<std::optional<uint8_t>, int> UbxTransportSpi::receiveByte() noexcept
 {
   if (!spi_.transfer(1)) {
-    return std::nullopt;
+    return std::unexpected(EIO);
   }
 
   return rx_buf_[0];

@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <optional>
 
 namespace tobas::ublox
@@ -22,7 +23,15 @@ public:
   virtual ~UbxTransport() = default;
 
   virtual bool initialize() noexcept = 0;
-  virtual std::optional<uint8_t> receiveByte() noexcept = 0;
+  virtual std::optional<uint32_t> baudRate() const noexcept
+  {
+    return std::nullopt;
+  }
+  virtual bool setBaudRate(uint32_t) noexcept
+  {
+    return false;
+  }
+  virtual std::expected<std::optional<uint8_t>, int> receiveByte() noexcept = 0;
   virtual bool send(const uint8_t* _data, size_t _length) noexcept = 0;
 };
 }  // namespace tobas::ublox
