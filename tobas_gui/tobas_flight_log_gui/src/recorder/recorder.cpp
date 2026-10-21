@@ -63,6 +63,7 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& _bridge
   setLayout(root_rows);
 
   // Connection
+  connect(log_name_, &QLineEdit::textChanged, this, &self::onLogNameChanged);
   connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartRequested);
   connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onStopRequested);
   connect(&_bridge, &rqt::RosQtBridge::rosbagStateReceived, this, &self::rosbagStateCb, Qt::QueuedConnection);
@@ -76,7 +77,7 @@ void FlightLogRecorderWidget::reset()
 
   clearRosbagStateViewerWidgets();
 
-  rosbag_state_.reset();
+  rosbag_state_received_ = false;
 }
 
 void FlightLogRecorderWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
@@ -91,6 +92,13 @@ void FlightLogRecorderWidget::clearRosInterfaces()
   stop_thread_.clearRosInterfaces();
 }
 
+void FlightLogRecorderWidget::updateStartStopButtonAvailability()
+{
+  const auto log_name = log_name_->text().toStdString();
+  const auto log_name_valid = str::isValidFileName(log_name);
+  start_stop_button_->setEnabled(log_name_valid && rosbag_state_received_);
+}
+
 void FlightLogRecorderWidget::clearRosbagStateViewerWidgets()
 {
   duration_->display("00:00:00");
@@ -101,29 +109,14 @@ void FlightLogRecorderWidget::clearRosbagStateViewerWidgets()
   message_count_->setText("0");
 }
 
+void FlightLogRecorderWidget::onLogNameChanged()
+{
+  updateStartStopButtonAvailability();
+}
+
 void FlightLogRecorderWidget::onStartRequested()
 {
-  // Check the file name.
-  const auto log_name = log_name_->text().toStdString();
-  if (log_name.empty()) {
-    qt::qWarnBox(this, "Please specify the name of log file.");
-    start_stop_button_->setChecked(false);
-    return;
-  }
-  if (!str::isValidFileName(log_name)) {
-    qt::qWarnBox(this, "The name of the log file is invalid.");
-    start_stop_button_->setChecked(false);
-    return;
-  }
-
-  // Check whether the logger state has been received.
-  if (!rosbag_state_) {
-    qt::qWarnBox(this, "Unable to start recording because the logger state has not been received yet.");
-    start_stop_button_->setChecked(false);
-    return;
-  }
-
-  start_thread_.setLogName(log_name);
+  start_thread_.setLogName(log_name_->text());
 
   spinner_.start();
   const auto [success, message] = qt::startThreadAndWait(start_thread_, &RecordStartThread::finished);
@@ -166,17 +159,19 @@ void FlightLogRecorderWidget::onStopRequested()
   qt::qInfoBox(this, "Flight log recording has stopped.");
 }
 
-void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& _rosbag_state)
+void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& _msg)
 {
-  // Switch and enable the widget state according to the current recorder state.
-  start_stop_button_->setChecked(_rosbag_state->recording);
-  start_stop_button_->setEnabled(true);
+  rosbag_state_received_ = true;
 
-  if (_rosbag_state->recording) {
-    log_name_->setText(fs::path(_rosbag_state->file_path).lexically_normal().filename().c_str());
+  // Switch and enable the widget state according to the current recorder state.
+  updateStartStopButtonAvailability();
+  start_stop_button_->setChecked(_msg->recording);
+
+  if (_msg->recording) {
+    log_name_->setText(fs::path(_msg->file_path).lexically_normal().filename().c_str());
     log_name_->setEnabled(false);
 
-    const auto& total_secs = _rosbag_state->duration.sec;
+    const auto& total_secs = _msg->duration.sec;
     const auto hours = total_secs / 3600;
     const auto minutes = (total_secs % 3600) / 60;
     const auto seconds = total_secs % 60;
@@ -186,17 +181,15 @@ void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::
                           .arg(seconds, 2, 10, QLatin1Char('0'));
     duration_->display(hhmmss);
 
-    file_size_->setUpper(_rosbag_state->file_size);
-    file_size_->setMaximum(_rosbag_state->file_size + _rosbag_state->available_size);
-    file_size_->setCenterText(QString::number(_rosbag_state->file_size / 1'000'000) + " MB");
+    file_size_->setUpper(_msg->file_size);
+    file_size_->setMaximum(_msg->file_size + _msg->available_size);
+    file_size_->setCenterText(QString::number(_msg->file_size / 1'000'000) + " MB");
 
-    message_count_->setText(QString::number(_rosbag_state->message_count));
+    message_count_->setText(QString::number(_msg->message_count));
   }
   else {
     log_name_->setEnabled(true);
     clearRosbagStateViewerWidgets();
   }
-
-  rosbag_state_ = _rosbag_state;
 }
 }  // namespace tobas::gui::log

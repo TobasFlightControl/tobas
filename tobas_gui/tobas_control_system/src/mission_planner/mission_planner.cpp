@@ -538,8 +538,8 @@ void MissionPlannerWidget::onSaveButtonClicked()
   // Save the mission.
   const auto mission = createMission();
   const auto node = mission::dumpMission(mission);
-  if (!yaml::save(file_path.toStdString(), node)) {
-    qt::qErrorBox(this, "Failed to save the current mission: " + file_path);
+  if (const auto result = yaml::save(file_path.toStdString(), node); !result) {
+    qt::qErrorBox(this, "Failed to save the current mission: " + QString::fromStdString(result.error()));
     return;
   }
 

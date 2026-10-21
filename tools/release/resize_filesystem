@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Run on a Linux PC to shrink the ext2/ext3/ext4 filesystem on SD card partition 2.
+# Pass the whole disk device (e.g. /dev/sda or /dev/mmcblk0).
+
+set -eu
+
+if [[ $# -ne 1 ]]; then
+  echo "Usage: $0 <disk device>" >&2
+  exit 1
+fi
+
+device=$1
+partition_prefix=$device
+# Devices ending in a digit use a 'p' separator (e.g. /dev/mmcblk0p2).
+if [[ "$device" == *[0-9] ]]; then
+  partition_prefix+=p
+fi
+
+# Unmount both partitions before checking or resizing the filesystem.
+sudo umount "${partition_prefix}1" "${partition_prefix}2"
+
+# Check and repair filesystem inconsistencies before shrinking.
+# Exit status 1 means filesystem errors were successfully corrected.
+status=0
+sudo e2fsck -f "${partition_prefix}2" || status=$?
+if ((status > 1)); then
+  exit "$status"
+fi
+
+# Shrink the filesystem to the minimum size supported by resize2fs.
+# This does not shrink the partition; resize it separately using GParted afterward.
+sudo resize2fs -M "${partition_prefix}2"

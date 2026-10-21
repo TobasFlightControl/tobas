@@ -8,7 +8,7 @@
 #include <QPushButton>
 
 #include <tobas_qt_tools/widgets/slider_text.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_rqt_tools/sync_service_client.hpp>
 
 #include <tobas_gazebo_msgs/srv/get_wind_params.hpp>
 #include <tobas_gazebo_msgs/srv/set_wind_params.hpp>
@@ -31,8 +31,8 @@ public:
   void clearRosInterfaces();
 
 private:
-  std::optional<ros2::SyncServiceClient<GetSrv>> get_sc_;
-  std::optional<ros2::SyncServiceClient<SetSrv>> set_sc_;
+  std::optional<rqt::SyncServiceClientWrapper<GetSrv>> get_sc_;
+  std::optional<rqt::SyncServiceClientWrapper<SetSrv>> set_sc_;
 
   QPushButton* reset_button_;
 

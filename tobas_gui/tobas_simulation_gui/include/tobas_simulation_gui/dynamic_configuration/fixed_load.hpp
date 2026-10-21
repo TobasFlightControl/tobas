@@ -8,7 +8,7 @@
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_qt_tools/widgets/vector3d_edit_vertical.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_rqt_tools/sync_service_client.hpp>
 
 #include <tobas_gazebo_msgs/srv/attach_fixed_load.hpp>
 #include <tobas_gazebo_msgs/srv/detach_fixed_load.hpp>
@@ -31,8 +31,8 @@ public:
   void clearRosInterfaces();
 
 private:
-  std::optional<ros2::SyncServiceClient<AttachSrv>> attach_sc_;
-  std::optional<ros2::SyncServiceClient<DetachSrv>> detach_sc_;
+  std::optional<rqt::SyncServiceClientWrapper<AttachSrv>> attach_sc_;
+  std::optional<rqt::SyncServiceClientWrapper<DetachSrv>> detach_sc_;
 
   qt::ToggleButton* attach_detach_btn_;
 

@@ -45,14 +45,16 @@ private:
 
   qt::WaitSpinnerWidget spinner_;
 
-  tobas_msgs::msg::RosbagState::ConstSharedPtr rosbag_state_;
+  bool rosbag_state_received_ = false;
 
+  void updateStartStopButtonAvailability();
   void clearRosbagStateViewerWidgets();
 
 private Q_SLOTS:
+  void onLogNameChanged();
   void onStartRequested();
   void onStopRequested();
 
-  void rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& _rosbag_state);
+  void rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& _msg);
 };
 }  // namespace tobas::gui::log

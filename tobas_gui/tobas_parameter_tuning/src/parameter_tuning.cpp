@@ -13,6 +13,7 @@
 #include <tobas_constants/node.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_std_tools/check.hpp>
 
 namespace tobas::gui::param
@@ -127,11 +128,21 @@ void ParameterTuningWidget::onLoadButtonClicked()
 {
   qDebug() << "ParameterTuningWidget::onLoadButtonClicked";
 
+  // Load the parameters for each block.
+  qt::ProgressDialog progress("Load Dynamic Parameters", blocks_.size(), this);
+  progress.setCancelButton(nullptr);
+  progress.show();
   for (const auto& block : blocks_) {
-    if (!block->load()) {
+    progress.setLabelText("Loading the dynamic parameters of '" + block->getLabelText() + "'.");
+    if (const auto result = block->load(); !result) {
+      progress.close();
+      reset();
+      qt::qErrorBox(this, result.error());
       return;
     }
+    progress.progressStep();
   }
+  progress.close();
 
   // Visualize as soon as loading completes.
   for (const auto& block : blocks_) {
@@ -152,7 +163,8 @@ void ParameterTuningWidget::onSaveButtonClicked()
 
   for (const auto& [block, file_name] : std::views::zip(blocks_, file_names_)) {
     const auto file_path = QDir(config_dir_path).filePath(file_name);
-    if (!block->save(file_path)) {
+    if (const auto result = block->save(file_path); !result) {
+      qt::qErrorBox(this, result.error());
       return;
     }
   }
@@ -172,7 +184,8 @@ void ParameterTuningWidget::onResetButtonClicked()
   }
 
   for (const auto& block : blocks_) {
-    if (!block->setToInitialValues()) {
+    if (const auto result = block->setToInitialValues(); !result) {
+      qt::qErrorBox(this, result.error());
       return;
     }
   }
@@ -189,7 +202,8 @@ void ParameterTuningWidget::onDefaultButtonClicked()
   }
 
   for (const auto& block : blocks_) {
-    if (!block->setToDefaultValues()) {
+    if (const auto result = block->setToDefaultValues(); !result) {
+      qt::qErrorBox(this, result.error());
       return;
     }
   }

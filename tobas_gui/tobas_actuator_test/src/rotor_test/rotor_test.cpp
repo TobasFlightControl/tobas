@@ -281,8 +281,8 @@ void RotorTestWidget::onSaveButtonClicked()
     node[paramName(erotor->channel)] = rotor_widgets_.at(erotor->channel)->getGain();
   }
 
-  if (!yaml::save(proj_paths_.rpmCtrlDynParamsPath().toStdString(), node)) {
-    qt::qErrorBox(this, "Failed to save the RPM control gains to PC.");
+  if (const auto result = yaml::save(proj_paths_.rpmCtrlDynParamsPath().toStdString(), node); !result) {
+    qt::qErrorBox(this, "Failed to save the RPM control gains to PC: " + QString::fromStdString(result.error()));
     return;
   }
 

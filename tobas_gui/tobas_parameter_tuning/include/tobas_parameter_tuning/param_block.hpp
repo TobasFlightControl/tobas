@@ -3,17 +3,19 @@
 
 #pragma once
 
+#include <expected>
 #include <optional>
 
 #include <yaml-cpp/yaml.h>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QString>
 
 #include <tobas_dparam_client/dparam_client.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/slider.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_rqt_tools/sync_service_client.hpp>
 
 #include <tobas_dparam_msgs/srv/get_params.hpp>
 
@@ -61,17 +63,19 @@ public:
   void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
 
-  bool load();
-  bool save(const QString& _path);
+  QString getLabelText() const;
+
+  std::expected<void, QString> load();
+  std::expected<void, QString> save(const QString& _path);
   void clear();
 
-  bool setToInitialValues();
-  bool setToDefaultValues();
+  std::expected<void, QString> setToInitialValues();
+  std::expected<void, QString> setToDefaultValues();
 
 private:
   const std::string node_name_;
 
-  std::optional<ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams>> get_param_sc_;
+  std::optional<rqt::SyncServiceClientWrapper<tobas_dparam_msgs::srv::GetParams>> get_param_sc_;
   std::optional<dparam::DynamicParamClient> dparam_cli_;
 
   std::map<std::string, IntConfig> int_configs_;
@@ -83,7 +87,7 @@ private:
   YAML::Node createCurrentConfig() const;
 
   template <typename Config>
-  bool setValue(const std::string& _name, const Config& _config, int32_t _value);
+  std::expected<void, QString> setValue(const std::string& _name, const Config& _config, int32_t _value);
 
 private Q_SLOTS:
   void onIntDownButtonClicked(const std::string& _name);

@@ -11,8 +11,8 @@
 #include <tobas_qt_tools/widgets/slider_display.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
+#include <tobas_rqt_tools/sync_service_client.hpp>
 
 #include <tobas_command_msgs_adapter/angle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_acc.hpp>
@@ -53,7 +53,7 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> pvay_pub_;
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccPitchYaw> pvapy_pub_;
 
-  std::optional<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>> set_arm_sc_;
+  std::optional<rqt::SyncServiceClientWrapper<tobas_msgs::srv::SetArm>> set_arm_sc_;
 
   bool isRunning() const;
 

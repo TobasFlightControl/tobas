@@ -16,8 +16,7 @@ RemoteProjectBuilder::RemoteProjectBuilder(rclcpp::Node::SharedPtr _node) : ssh_
 std::expected<QString, QString> RemoteProjectBuilder::build(const QString& _remote_proj_path)
 {
   // Paramiko starts non-interactive sessions, so required environment variables must be set for each command.
-  const auto pre_cmd =
-    QString("source /opt/ros/jazzy/setup.bash && source /opt/tobas/local_setup.bash && cd %1").arg(kColconWSPathRoot);
+  const auto pre_cmd = QString("source /opt/tobas/setup.bash && cd %1").arg(kColconWSPathRoot);
 
   // `--symlink-install` does not work with root privileges.
   const auto meta_pkg_name = cmn::ProjectPaths(_remote_proj_path).metaPkgName();

@@ -13,7 +13,7 @@ See [Setup](./SETUP.md) for source checkout, PC build, and FC deployment instruc
 Install dependencies:
 
 ```bash
-$ sudo apt install -y pre-commit black clang-format cmake-format qt6-declarative-dev-tools
+$ sudo apt install -y pre-commit black shfmt clang-format cmake-format qt6-declarative-dev-tools
 ```
 
 To check all:
@@ -46,7 +46,7 @@ Build with `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON` as described in [Setup](./SETUP.
 then run static analysis from the repository root:
 
 ```bash
-$ tobas_dev_tools/scripts/tobas_clang_tidy
+$ tools/tobas_clang_tidy
 ```
 
 ## Code Style

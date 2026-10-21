@@ -1,0 +1,18 @@
+<package format="3">
+
+  <name>tobas_rqt_tools</name>
+  <version>2.17.0</version>
+  <description>ROS 2 utilities for Qt applications, including synchronous service calls that keep the GUI responsive.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>tobas_ros2_tools</depend>
+  <depend>tobas_qt_tools</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+
+</package>

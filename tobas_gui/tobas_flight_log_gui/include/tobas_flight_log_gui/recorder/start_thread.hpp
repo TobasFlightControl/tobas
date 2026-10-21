@@ -26,11 +26,11 @@ public:
 
   void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
   void clearRosInterfaces();
-  void setLogName(const std::string& _log_name);
+  void setLogName(const QString& _log_name);
 
 private:
   std::optional<ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart>> sc_;
 
-  std::string log_name_;
+  QString log_name_;
 };
 }  // namespace tobas::gui::log

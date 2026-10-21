@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -e
+
+# Show usage
+if [ $# -eq 0 ]; then
+  echo "Usage: $(basename "$0") <host>" >&2
+  exit 1
+fi
+
+# Check username
+if [ "$(id -un)" = "pi" ]; then
+  echo "This script cannot be executed on RPi." >&2
+  exit 1
+fi
+
+# Navigate to the repository root
+script_dir=$(dirname "$(realpath "$0")")
+cd "${script_dir}/.."
+
+# Sync
+dest_dir="/home/pi/colcon_ws/src/tobas"
+rsync -rcmv --delete \
+  --rsync-path="mkdir -p ${dest_dir} && rsync" \
+  tobas tobas_core tools \
+  LICENSE LICENSES THIRD_PARTY_NOTICES.txt \
+  --exclude-from .gitignore \
+  --exclude .git/ \
+  --exclude tobas_cui/ \
+  --exclude tobas_description/ \
+  pi@$1:${dest_dir}/

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+script_dir=$(dirname "$(realpath "$0")")
+cd "${script_dir}/.."
+
+find ./ -type f \( -not -path "*/tobas_external/*" \) |
+  grep -E "\.hpp$|\.cpp$" |
+  xargs cat |
+  wc -l

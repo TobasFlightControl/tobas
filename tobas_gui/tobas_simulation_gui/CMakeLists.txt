@@ -22,6 +22,7 @@ set(AMENT_DEPENDENCIES
     tobas_gazebo_tools
     tobas_gazebo_msgs
     tobas_qt_tools
+    tobas_rqt_tools
     tobas_rqt_bridge
     tobas_gui_common
     tobas_uadf

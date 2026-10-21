@@ -17,6 +17,7 @@
 #include <tobas_string_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
+using namespace std::chrono_literals;
 using namespace std::placeholders;
 
 namespace tobas::gui::param
@@ -61,7 +62,12 @@ void ParamBlockWidget::clearRosInterfaces()
   get_param_sc_.reset();
 }
 
-bool ParamBlockWidget::load()
+QString ParamBlockWidget::getLabelText() const
+{
+  return label_->text();
+}
+
+std::expected<void, QString> ParamBlockWidget::load()
 {
   constexpr int kParamNameWidth = 250;
   constexpr int kLineEditWidth = 150;
@@ -69,16 +75,14 @@ bool ParamBlockWidget::load()
   clear();
 
   if (!get_param_sc_) {
-    qt::qErrorBox(this, "ROS interfaces have not been initialized.");
-    return false;
+    return std::unexpected("ROS interfaces have not been initialized.");
   }
 
   // Get dynamic parameters.
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
-  const auto res = get_param_sc_->sendRequestAndWait(req);
+  const auto res = get_param_sc_->sendRequestAndWait(req, 5s);
   if (!res) {
-    qt::qErrorBox(this, "Failed to get dynamic parameters configuration of '" + label_->text() + "'.");
-    return false;
+    return std::unexpected("Failed to get dynamic parameters configuration of '" + getLabelText() + "'.");
   }
   const auto& params = res->params;
 
@@ -204,26 +208,24 @@ bool ParamBlockWidget::load()
       config.slider, &qt::Slider::valueChanged, std::bind(&self::onDoubleSliderValueChanged, this, _1, param.name));
   }
 
-  return true;
+  return {};
 }
 
-bool ParamBlockWidget::save(const QString& _path)
+std::expected<void, QString> ParamBlockWidget::save(const QString& _path)
 {
   const auto config = createCurrentConfig();
 
   // Confirm that the configuration file exists.
   if (!QFileInfo(_path).isFile()) {
-    qt::qErrorBox(this, _path + " does not exist on PC.");
-    return false;
+    return std::unexpected(_path + " does not exist on PC.");
   }
 
   // Save to the PC.
-  if (!yaml::save(_path.toStdString(), config)) {
-    qt::qErrorBox(this, "Failed to save configuration to PC.");
-    return false;
+  if (const auto result = yaml::save(_path.toStdString(), config); !result) {
+    return std::unexpected("Failed to save configuration to PC: " + QString::fromStdString(result.error()));
   }
 
-  return true;
+  return {};
 }
 
 void ParamBlockWidget::clear()
@@ -233,48 +235,38 @@ void ParamBlockWidget::clear()
   double_configs_.clear();
 }
 
-bool ParamBlockWidget::setToInitialValues()
+std::expected<void, QString> ParamBlockWidget::setToInitialValues()
 {
-  if (!dparam_cli_) {
-    qt::qErrorBox(this, "ROS interfaces have not been initialized.");
-    return false;
-  }
-
   for (const auto& [name, config] : int_configs_) {
-    if (!setValue(name, config, config.initial_value)) {
-      return false;
+    if (const auto result = setValue(name, config, config.initial_value); !result) {
+      return std::unexpected(result.error());
     }
   }
 
   for (const auto& [name, config] : double_configs_) {
-    if (!setValue(name, config, config.initial_value)) {
-      return false;
+    if (const auto result = setValue(name, config, config.initial_value); !result) {
+      return std::unexpected(result.error());
     }
   }
 
-  return true;
+  return {};
 }
 
-bool ParamBlockWidget::setToDefaultValues()
+std::expected<void, QString> ParamBlockWidget::setToDefaultValues()
 {
-  if (!dparam_cli_) {
-    qt::qErrorBox(this, "ROS interfaces have not been initialized.");
-    return false;
-  }
-
   for (const auto& [name, config] : int_configs_) {
-    if (!setValue(name, config, config.default_value)) {
-      return false;
+    if (const auto result = setValue(name, config, config.default_value); !result) {
+      return std::unexpected(result.error());
     }
   }
 
   for (const auto& [name, config] : double_configs_) {
-    if (!setValue(name, config, config.default_value)) {
-      return false;
+    if (const auto result = setValue(name, config, config.default_value); !result) {
+      return std::unexpected(result.error());
     }
   }
 
-  return true;
+  return {};
 }
 
 YAML::Node ParamBlockWidget::createCurrentConfig() const
@@ -293,16 +285,19 @@ YAML::Node ParamBlockWidget::createCurrentConfig() const
 }
 
 template <typename Config>
-bool ParamBlockWidget::setValue(const std::string& _name, const Config& _config, int32_t _value)
+std::expected<void, QString> ParamBlockWidget::setValue(const std::string& _name, const Config& _config, int32_t _value)
 {
+  if (!dparam_cli_) {
+    return std::unexpected("ROS interfaces have not been initialized.");
+  }
+
   if (_config.slider->value() == _value) {
-    return true;
+    return {};
   }
 
   if (dparam_cli_->setInt(_name, _value) != dparam::DynamicParamClient::kNoError) {
     qWarning() << dparam_cli_->errorMessage();
-    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + _name.c_str() + "'.");
-    return false;
+    return std::unexpected("Failed to set " + getLabelText() + "'s parameter '" + _name.c_str() + "'.");
   }
 
   const QSignalBlocker block(_config.slider);
@@ -310,7 +305,7 @@ bool ParamBlockWidget::setValue(const std::string& _name, const Config& _config,
   _config.line_edit->setText(QString::number(_config.step * _value) + _config.prefix);
   updateButtonStates(_config);
 
-  return true;
+  return {};
 }
 
 void ParamBlockWidget::onIntDownButtonClicked(const std::string& _name)
@@ -344,7 +339,7 @@ void ParamBlockWidget::onIntSliderValueChanged(long _value, const std::string& _
   updateButtonStates(config);
 
   if (dparam_cli_->setInt(_name, _value) != dparam::DynamicParamClient::kNoError) {
-    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + _name.c_str() + "'.");
+    qt::qErrorBox(this, "Failed to set " + getLabelText() + "'s parameter '" + _name.c_str() + "'.");
   }
 }
 
@@ -393,7 +388,7 @@ void ParamBlockWidget::onDoubleSliderValueChanged(long _value, const std::string
   updateButtonStates(config);
 
   if (dparam_cli_->setDouble(_name, _value) != dparam::DynamicParamClient::kNoError) {
-    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter '" + _name.c_str() + "'.");
+    qt::qErrorBox(this, "Failed to set " + getLabelText() + "'s parameter '" + _name.c_str() + "'.");
   }
 }
 }  // namespace tobas::gui::param

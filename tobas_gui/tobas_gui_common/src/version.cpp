@@ -110,7 +110,8 @@ bool Version::save(const QString& _path) const
   node[kMinorKey] = minor;
   node[kPatchKey] = patch;
 
-  if (!yaml::save(_path.toStdString(), node)) {
+  if (const auto result = yaml::save(_path.toStdString(), node); !result) {
+    qWarning() << result.error().c_str();
     return false;
   }
 

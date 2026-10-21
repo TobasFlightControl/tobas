@@ -18,6 +18,7 @@ set(AMENT_DEPENDENCIES
     tobas_ssh_client
     tobas_dparam_client
     tobas_qt_tools
+    tobas_rqt_tools
     tobas_gui_common
 )
 

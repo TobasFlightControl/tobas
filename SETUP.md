@@ -95,7 +95,7 @@ If you only want to install and use Tobas, start from the
 2. Transfer the latest source code to the FC
 
    ```bash
-   $ .../tobas/tobas_dev_tools/scripts/tobas_sync <host>  # e.g. tobas.local, 192.168.3.7
+   $ .../tobas/tools/tobas_sync <host>  # e.g. tobas.local, 192.168.3.7
    ```
 
 3. Log in to the FC
@@ -117,7 +117,7 @@ If you only want to install and use Tobas, start from the
 
    ```bash
    pi@<hostname> $ source /opt/ros/jazzy/setup.bash
-   pi@<hostname> $ /home/pi/colcon_ws/src/tobas/tobas_dev_tools/scripts/tobas_deploy_upto tobas
+   pi@<hostname> $ /home/pi/colcon_ws/src/tobas/tools/tobas_deploy_upto tobas
    ```
 
    To detach while the build continues, press `Ctrl+b`, then `d`.
