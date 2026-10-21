@@ -39,7 +39,7 @@ $ pre-commit autoupdate
 Install clang-tidy 20:
 
 ```bash
-$ sudo apt install -y clang-tidy-20
+$ sudo apt install -y clang-tidy
 ```
 
 Build with `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON` as described in [Setup](./SETUP.md),
