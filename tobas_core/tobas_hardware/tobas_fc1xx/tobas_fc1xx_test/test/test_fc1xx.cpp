@@ -8,8 +8,8 @@
 #include <tobas_ic_drivers/stmicro/iis2mdc.hpp>
 #include <tobas_ic_drivers/stmicro/ilps22qs.hpp>
 #include <tobas_ic_drivers/stmicro/ism330dlc.hpp>
+#include <tobas_ic_drivers/ublox/gnss_receiver.hpp>
 #include <tobas_ic_drivers/ublox/ubx_transport_spi.hpp>
-#include <tobas_ic_drivers/ublox/zed_f9p.hpp>
 #include <tobas_sbus_driver/sbus.hpp>
 #include <tobas_std_tools/ansi_text_styles.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
@@ -182,7 +182,7 @@ bool testPowerSensor()
 
 bool testGnssReceiver()
 {
-  tobas::ublox::ZEDF9P gnss(std::make_unique<tobas::ublox::UbxTransportSpi>("/dev/spidev1.2"));
+  tobas::ublox::GnssReceiver gnss(std::make_unique<tobas::ublox::UbxTransportSpi>("/dev/spidev1.2"));
 
   if (!gnss.initialize()) {
     std::cerr << "Failed to initialize GNSS driver.\n";
@@ -209,7 +209,7 @@ bool testGnssReceiver()
   }
 
   // Enable messages.
-  if (!gnss.enableSpiMessage(tobas::ublox::ZEDF9P::CLASS_NAV, tobas::ublox::ZEDF9P::NAV_PVT, true)) {
+  if (!gnss.enableSpiMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_PVT, true)) {
     std::cerr << "Failed to enable NAV_PVT message.\n";
     return false;
   }
@@ -222,12 +222,12 @@ bool testGnssReceiver()
       return false;
     }
 
-    if (gnss.latestClass() != tobas::ublox::ZEDF9P::CLASS_NAV) {
+    if (gnss.latestClass() != tobas::ublox::GnssReceiver::CLASS_NAV) {
       continue;
     }
 
     switch (gnss.latestId()) {
-      case tobas::ublox::ZEDF9P::NAV_PVT:
+      case tobas::ublox::GnssReceiver::NAV_PVT:
         return true;
       default:
         continue;

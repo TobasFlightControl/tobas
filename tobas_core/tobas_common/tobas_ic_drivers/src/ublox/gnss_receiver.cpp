@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_ic_drivers/ublox/zed_f9p.hpp"
+#include "tobas_ic_drivers/ublox/gnss_receiver.hpp"
 
 #include <cassert>
 #include <cstring>
@@ -14,17 +14,18 @@ namespace ch = std::chrono;
 
 namespace tobas::ublox
 {
-ZEDF9P::ZEDF9P(std::unique_ptr<UbxTransport> _transport) : transport_(std::move(_transport)), scan_rate_(50us)
+GnssReceiver::GnssReceiver(std::unique_ptr<UbxTransport> _transport)
+  : transport_(std::move(_transport)), scan_rate_(50us)
 {
   assert(transport_);
 }
 
-bool ZEDF9P::initialize()
+bool GnssReceiver::initialize()
 {
   return transport_->initialize();
 }
 
-bool ZEDF9P::update(bool _blocking)
+bool GnssReceiver::update(bool _blocking)
 {
   scanner_.reset();
 
@@ -60,7 +61,7 @@ bool ZEDF9P::update(bool _blocking)
   return true;
 }
 
-bool ZEDF9P::enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable)
+bool GnssReceiver::enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable)
 {
   constexpr char kNotImplemented[] = "Not implemented.\n";
   constexpr char kNotReceivable[] = "Not receivable.\n";
@@ -221,17 +222,17 @@ bool ZEDF9P::enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable)
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::configureDynamicsModel(DynamicsModel _model)
+bool GnssReceiver::configureDynamicsModel(DynamicsModel _model)
 {
   return cfgValSetSingle<uint8_t>(ONE_BYTE, CFG_NAVSPG, 0x21, _model);  // CFG-NAVSPG-DYNMODEL
 }
 
-bool ZEDF9P::configureMeasurementRate(uint16_t _period_ms)
+bool GnssReceiver::configureMeasurementRate(uint16_t _period_ms)
 {
   return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_RATE, 0x01, _period_ms);  // CFG-RATE-MEAS
 }
 
-bool ZEDF9P::enableGps()
+bool GnssReceiver::enableGps()
 {
   // Enable GPS.
   if (!enableGps(true)) {
@@ -261,12 +262,12 @@ bool ZEDF9P::enableGps()
   return false;
 }
 
-bool ZEDF9P::disableGps()
+bool GnssReceiver::disableGps()
 {
   return enableGps(false);
 }
 
-bool ZEDF9P::enableSbas()
+bool GnssReceiver::enableSbas()
 {
   // Enable SBAS.
   if (!enableSbas(true)) {
@@ -283,12 +284,12 @@ bool ZEDF9P::enableSbas()
   return true;
 }
 
-bool ZEDF9P::disableSbas()
+bool GnssReceiver::disableSbas()
 {
   return enableGps(false);
 }
 
-bool ZEDF9P::enableGalileo()
+bool GnssReceiver::enableGalileo()
 {
   // Enable Galileo.
   if (!enableGalileo(true)) {
@@ -318,12 +319,12 @@ bool ZEDF9P::enableGalileo()
   return false;
 }
 
-bool ZEDF9P::disableGalileo()
+bool GnssReceiver::disableGalileo()
 {
   return enableGalileo(false);
 }
 
-bool ZEDF9P::enableBeiDou()
+bool GnssReceiver::enableBeiDou()
 {
   // Enable BeiDou.
   if (!enableBeiDou(true)) {
@@ -353,12 +354,12 @@ bool ZEDF9P::enableBeiDou()
   return false;
 }
 
-bool ZEDF9P::disableBeiDou()
+bool GnssReceiver::disableBeiDou()
 {
   return enableBeiDou(false);
 }
 
-bool ZEDF9P::enableQzss()
+bool GnssReceiver::enableQzss()
 {
   // Enable QZSS.
   if (!enableQzss(true)) {
@@ -388,12 +389,12 @@ bool ZEDF9P::enableQzss()
   return false;
 }
 
-bool ZEDF9P::disableQzss()
+bool GnssReceiver::disableQzss()
 {
   return enableQzss(false);
 }
 
-bool ZEDF9P::enableGlonass()
+bool GnssReceiver::enableGlonass()
 {
   // Enable GLONASS.
   if (!enableGlonass(true)) {
@@ -417,12 +418,12 @@ bool ZEDF9P::enableGlonass()
   return true;
 }
 
-bool ZEDF9P::disableGlonass()
+bool GnssReceiver::disableGlonass()
 {
   return enableGlonass(false);
 }
 
-bool ZEDF9P::enableNavIc()
+bool GnssReceiver::enableNavIc()
 {
   // Enable NavIC.
   if (!enableNavIc(true)) {
@@ -440,43 +441,43 @@ bool ZEDF9P::enableNavIc()
   return false;
 }
 
-bool ZEDF9P::disableNavIc()
+bool GnssReceiver::disableNavIc()
 {
   return enableNavIc(false);
 }
 
-bool ZEDF9P::enableSpiProtocol_UBX(bool _enable_input, bool _enable_output)
+bool GnssReceiver::enableSpiProtocol_UBX(bool _enable_input, bool _enable_output)
 {
   return enableSpiInputProtocol(UBX, _enable_input) && enableSpiOutputProtocol(UBX, _enable_output);
 }
 
-bool ZEDF9P::enableSpiProtocol_NMEA(bool _enable_input, bool _enable_output)
+bool GnssReceiver::enableSpiProtocol_NMEA(bool _enable_input, bool _enable_output)
 {
   return enableSpiInputProtocol(NMEA, _enable_input) && enableSpiOutputProtocol(NMEA, _enable_output);
 }
 
-bool ZEDF9P::enableSpiProtocol_RTCM3X(bool _enable_input, bool _enable_output)
+bool GnssReceiver::enableSpiProtocol_RTCM3X(bool _enable_input, bool _enable_output)
 {
   return enableSpiInputProtocol(RTCM3X, _enable_input) && enableSpiOutputProtocol(RTCM3X, _enable_output);
 }
 
-bool ZEDF9P::enableSpiProtocol_SPARTN(bool _enable_input)
+bool GnssReceiver::enableSpiProtocol_SPARTN(bool _enable_input)
 {
   return enableSpiInputProtocol(SPARTN, _enable_input);
 }
 
-bool ZEDF9P::setAntennaLength(uint8_t _length_m)
+bool GnssReceiver::setAntennaLength(uint8_t _length_m)
 {
   constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] Coaxial cable delay.
   return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_TP, 0x01, _length_m * kRG174CableDelay);  // CFG-TP-ANT_CABLEDELAY
 }
 
-bool ZEDF9P::enableUsb(bool _enable)
+bool GnssReceiver::enableUsb(bool _enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_USB, 0x01, _enable);  // CFG-USB-ENABLED
 }
 
-bool ZEDF9P::sendMessage(UbxClass _cls, uint8_t _id, const void* _msg, uint16_t _size)
+bool GnssReceiver::sendMessage(UbxClass _cls, uint8_t _id, const void* _msg, uint16_t _size)
 {
   // Allocate space for the header, payload, and checksum of this message.
   std::vector<uint8_t> tx_buf(sizeof(UbxHeader) + _size + sizeof(CheckSum));
@@ -497,7 +498,7 @@ bool ZEDF9P::sendMessage(UbxClass _cls, uint8_t _id, const void* _msg, uint16_t 
   return transport_->send(tx_buf.data(), message_length);
 }
 
-bool ZEDF9P::waitForAcknowledge(UbxClass _cls, uint8_t _id)
+bool GnssReceiver::waitForAcknowledge(UbxClass _cls, uint8_t _id)
 {
   payload::ACK_ACK ack;
   payload::ACK_NAK nak;
@@ -555,12 +556,12 @@ bool ZEDF9P::waitForAcknowledge(UbxClass _cls, uint8_t _id)
   return false;
 }
 
-bool ZEDF9P::configure(UbxCfgId _cfg_id, const void* _msg, uint16_t _size)
+bool GnssReceiver::configure(UbxCfgId _cfg_id, const void* _msg, uint16_t _size)
 {
   return sendMessage(CLASS_CFG, _cfg_id, _msg, _size) && waitForAcknowledge(CLASS_CFG, _cfg_id);
 }
 
-bool ZEDF9P::verifyMessage() const
+bool GnssReceiver::verifyMessage() const
 {
   // Sync chars
   if (*scanner_.getSync1() != kUbxSync1 || *scanner_.getSync2() != kUbxSync2) {
@@ -582,82 +583,82 @@ bool ZEDF9P::verifyMessage() const
   return true;
 }
 
-bool ZEDF9P::enableGps(bool _enable)
+bool GnssReceiver::enableGps(bool _enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1F, _enable);  // CFG-SIGNAL-GPS_ENA
 }
 
-bool ZEDF9P::enableGpsL1()
+bool GnssReceiver::enableGpsL1()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x01, true);  // CFG-SIGNAL-GPS_L1CA_ENA
 }
 
-bool ZEDF9P::enableGpsL2()
+bool GnssReceiver::enableGpsL2()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x03, true);  // CFG-SIGNAL-GPS_L2C_ENA
 }
 
-bool ZEDF9P::enableGpsL5()
+bool GnssReceiver::enableGpsL5()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x04, true);  // CFG-SIGNAL-GPS_L5_ENA
 }
 
-bool ZEDF9P::enableSbas(bool _enable)
+bool GnssReceiver::enableSbas(bool _enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x20, _enable);  // CFG-SIGNAL-SBAS_ENA
 }
 
-bool ZEDF9P::enableSbasL1()
+bool GnssReceiver::enableSbasL1()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x05, true);  // CFG-SIGNAL-SBAS_L1CA_ENA
 }
 
-bool ZEDF9P::enableGalileo(bool _enable)
+bool GnssReceiver::enableGalileo(bool _enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x21, _enable);  // CFG-SIGNAL-GAL_ENA
 }
 
-bool ZEDF9P::enableGalileoL1()
+bool GnssReceiver::enableGalileoL1()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x07, true);  // CFG-SIGNAL-GAL_E1_ENA
 }
 
-bool ZEDF9P::enableGalileoL2()
+bool GnssReceiver::enableGalileoL2()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0A, true);  // CFG-SIGNAL-GAL_E5B_ENA
 }
 
-bool ZEDF9P::enableGalileoL5()
+bool GnssReceiver::enableGalileoL5()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x09, true);  // CFG-SIGNAL-GAL_E5A_ENA
 }
 
-bool ZEDF9P::enableBeiDou(bool _enable)
+bool GnssReceiver::enableBeiDou(bool _enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x22, _enable);  // CFG-SIGNAL-BDS_ENA
 }
 
-bool ZEDF9P::enableBeiDouL1()
+bool GnssReceiver::enableBeiDouL1()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0D, true);  // CFG-SIGNAL-BDS_B1_ENA
 }
 
-bool ZEDF9P::enableBeiDouL2()
+bool GnssReceiver::enableBeiDouL2()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0E, true);  // CFG-SIGNAL-BDS_B2_ENA
 }
 
-bool ZEDF9P::enableBeiDouL5()
+bool GnssReceiver::enableBeiDouL5()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x28, true);  // CFG-SIGNAL-BDS_B2A_ENA
 }
 
-bool ZEDF9P::enableQzss(bool _enable)
+bool GnssReceiver::enableQzss(bool _enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x24, _enable);  // CFG-SIGNAL-QZSS_ENA
 }
 
-bool ZEDF9P::enableQzssL1()
+bool GnssReceiver::enableQzssL1()
 {
   // CFG-SIGNAL-QZSS_L1CA_ENA
   if (!cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x12, true)) {
@@ -672,52 +673,52 @@ bool ZEDF9P::enableQzssL1()
   return true;
 }
 
-bool ZEDF9P::enableQzssL2()
+bool GnssReceiver::enableQzssL2()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x15, true);  // CFG-SIGNAL-QZSS_L2C_ENA
 }
 
-bool ZEDF9P::enableQzssL5()
+bool GnssReceiver::enableQzssL5()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x17, true);  // CFG-SIGNAL-QZSS_L5_ENA
 }
 
-bool ZEDF9P::enableGlonass(bool _enable)
+bool GnssReceiver::enableGlonass(bool _enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x25, _enable);  // CFG-SIGNAL-GLO_ENA
 }
 
-bool ZEDF9P::enableGlonassL1()
+bool GnssReceiver::enableGlonassL1()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x18, true);  // CFG-SIGNAL-GLO_L1_ENA
 }
 
-bool ZEDF9P::enableGlonassL2()
+bool GnssReceiver::enableGlonassL2()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1A, true);  // CFG-SIGNAL-GLO_L2_ENA
 }
 
-bool ZEDF9P::enableNavIc(bool _enable)
+bool GnssReceiver::enableNavIc(bool _enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x26, _enable);  // CFG-SIGNAL-NAVIC_ENA
 }
 
-bool ZEDF9P::enableNavIcL5()
+bool GnssReceiver::enableNavIcL5()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1D, true);  // CFG-SIGNAL-NAVIC_L5_ENA
 }
 
-bool ZEDF9P::enableSpiInputProtocol(CfgProtocol _prot, bool _enable)
+bool GnssReceiver::enableSpiInputProtocol(CfgProtocol _prot, bool _enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIINPROT, _prot, _enable);  // CFG-SPIINPROT-XXX
 }
 
-bool ZEDF9P::enableSpiOutputProtocol(CfgProtocol _prot, bool _enable)
+bool GnssReceiver::enableSpiOutputProtocol(CfgProtocol _prot, bool _enable)
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIOUTPROT, _prot, _enable);  // CFG-SPIOUTPROT-XXX
 }
 
-ZEDF9P::CheckSum ZEDF9P::computeChecksum(const uint8_t* _message, size_t _checksum_pos)
+GnssReceiver::CheckSum GnssReceiver::computeChecksum(const uint8_t* _message, size_t _checksum_pos)
 {
   CheckSum ck;
   ck.CK_A = ck.CK_B = 0;
@@ -730,13 +731,13 @@ ZEDF9P::CheckSum ZEDF9P::computeChecksum(const uint8_t* _message, size_t _checks
   return ck;
 }
 
-size_t ZEDF9P::spliceMemory(uint8_t* _dest, const void* _src, size_t _size, size_t _dest_offset)
+size_t GnssReceiver::spliceMemory(uint8_t* _dest, const void* _src, size_t _size, size_t _dest_offset)
 {
   std::memmove(_dest + _dest_offset, _src, _size);
   return _dest_offset + _size;
 }
 
-uint32_t ZEDF9P::configKeyID(CfgSize _size, CfgGroup _group, uint16_t _id)
+uint32_t GnssReceiver::configKeyID(CfgSize _size, CfgGroup _group, uint16_t _id)
 {
   return (_size << 28) | (_group << 16) | (_id & 0x0FFF);
 }
