@@ -180,6 +180,14 @@ bool GnssReceiver::update(bool _blocking, std::chrono::milliseconds _timeout)
   return true;
 }
 
+bool GnssReceiver::enableMessage(UbxClass _cls, uint8_t _id, bool _enable)
+{
+  if (transport_->baudRate()) {
+    return enableUartMessage(_cls, _id, _enable);
+  }
+  return enableSpiMessage(_cls, _id, _enable);
+}
+
 bool GnssReceiver::enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable)
 {
   constexpr char kNotImplemented[] = "Not implemented.";

@@ -209,7 +209,7 @@ bool testGnssReceiver()
   }
 
   // Enable messages.
-  if (!gnss.enableSpiMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_PVT, true)) {
+  if (!gnss.enableMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_PVT, true)) {
     std::cerr << "Failed to enable NAV_PVT message." << '\n';
     return false;
   }

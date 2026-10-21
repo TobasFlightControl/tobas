@@ -107,11 +107,11 @@ bool GnssDriverNode::configure()
   }
 
   // Enable messages.
-  if (!gnss_.enableSpiMessage(ublox::GnssReceiver::CLASS_NAV, ublox::GnssReceiver::NAV_PVT, true)) {
+  if (!gnss_.enableMessage(ublox::GnssReceiver::CLASS_NAV, ublox::GnssReceiver::NAV_PVT, true)) {
     TOBAS_ERROR("Failed to enable NAV_PVT message.");
     return false;
   }
-  if (!gnss_.enableSpiMessage(ublox::GnssReceiver::CLASS_NAV, ublox::GnssReceiver::NAV_COV, true)) {
+  if (!gnss_.enableMessage(ublox::GnssReceiver::CLASS_NAV, ublox::GnssReceiver::NAV_COV, true)) {
     TOBAS_ERROR("Failed to enable NAV_COV message.");
     return false;
   }

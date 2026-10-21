@@ -135,8 +135,7 @@ public:
 
   // ===== Configurations =====
 
-  bool enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable);
-  bool enableUartMessage(UbxClass _cls, uint8_t _id, bool _enable);
+  bool enableMessage(UbxClass _cls, uint8_t _id, bool _enable);
   bool configureDynamicsModel(DynamicsModel _model);
   bool configureMeasurementRate(uint16_t _period_ms);
   bool configureUartBaudRate(uint32_t _baud_rate);
@@ -296,6 +295,9 @@ private:
 
   template <typename T>
   bool cfgValSetSingle(CfgSize _size, CfgGroup _group, uint16_t _id, T _value);
+
+  bool enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable);
+  bool enableUartMessage(UbxClass _cls, uint8_t _id, bool _enable);
 
   bool sendMessage(UbxClass _cls, uint8_t _id, const void* _msg, uint16_t _size);
   bool waitForAcknowledge(UbxClass _cls, uint8_t _id);
