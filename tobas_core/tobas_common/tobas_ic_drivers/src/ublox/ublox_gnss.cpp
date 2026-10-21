@@ -15,7 +15,8 @@ namespace ch = std::chrono;
 
 namespace tobas::ublox
 {
-GnssReceiver::GnssReceiver(std::unique_ptr<UbxTransport> _transport) : transport_(std::move(_transport)), scan_rate_(50us)
+GnssReceiver::GnssReceiver(std::unique_ptr<UbxTransport> _transport)
+  : transport_(std::move(_transport)), scan_rate_(50us)
 {
   assert(transport_);
 }

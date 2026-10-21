@@ -25,8 +25,10 @@ namespace tobas::ublox
  * Supported receiver profiles: ZED-F9P (L1/L2) and ZED-X20P.
  *
  * Interface Description:
- * - [ZED-F9P L1/L2](https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-1.51_InterfaceDescription_UBXDOC-963802114-13124.pdf)
- * - [ZED-X20P](https://content.u-blox.com/sites/default/files/documents/u-blox-X20-HPG-2.02_InterfaceDescription_UBXDOC-304424225-19967.pdf)
+ * - [ZED-F9P
+ * L1/L2](https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-1.51_InterfaceDescription_UBXDOC-963802114-13124.pdf)
+ * -
+ * [ZED-X20P](https://content.u-blox.com/sites/default/files/documents/u-blox-X20-HPG-2.02_InterfaceDescription_UBXDOC-304424225-19967.pdf)
  */
 class GnssReceiver
 {
