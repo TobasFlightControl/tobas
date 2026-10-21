@@ -3,11 +3,18 @@
 
 #include "tobas_bootmedia_config/ssh_authorized_keys/ssh_authorized_keys.hpp"
 
+#include <sys/stat.h>
+#include <unistd.h>
+
+#include <cstring>
+#include <filesystem>
+
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ssh_authkey/export.hpp>
 #include <tobas_ssh_authkey/parse.hpp>
 #include <tobas_ssh_authkey/prettify.hpp>
+#include <tobas_std_tools/error.hpp>
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_string_tools/stream.hpp>
 
@@ -18,6 +25,14 @@ namespace fs = std::filesystem;
 
 namespace tobas::gui::bm
 {
+namespace
+{
+fs::path authorizedKeysPath()
+{
+  return fs::path(kHomePath) / ".ssh/authorized_keys";
+}
+}  // namespace
+
 SshAuthorizedKeysWidget::SshAuthorizedKeysWidget()
 {
   add_button_ = new QPushButton("Add");
@@ -92,6 +107,10 @@ bool SshAuthorizedKeysWidget::onConnected()
     }
   }
 
+  if (!updatePermissions()) {
+    return false;
+  }
+
   // Enable edit buttons.
   add_button_->setEnabled(true);
   remove_button_->setEnabled(true);
@@ -115,6 +134,35 @@ bool SshAuthorizedKeysWidget::addKey(const ssh::ak::Data& _key)
   return true;
 }
 
+bool SshAuthorizedKeysWidget::updatePermissions()
+{
+  // Use the media user's numeric UID/GID rather than the host's user database.
+  struct stat home_stat = {};
+  if (::stat(kHomePath, &home_stat) < 0) {
+    qt::qErrorBox(
+      this, "Failed to read ownership of " + QString(kHomePath) + ":\n" + QString::fromStdString(st::strError()));
+    return false;
+  }
+
+  const auto set_permissions = [this, &home_stat](const fs::path& _path, mode_t _mode)
+  {
+    const auto display_path = QString::fromStdString(_path.string());
+    if (::chown(_path.c_str(), home_stat.st_uid, home_stat.st_gid) < 0) {
+      qt::qErrorBox(this, "Failed to set ownership of " + display_path + ":\n" + QString::fromStdString(st::strError()));
+      return false;
+    }
+    if (::chmod(_path.c_str(), _mode) < 0) {
+      qt::qErrorBox(
+        this, "Failed to set permissions of " + display_path + ":\n" + QString::fromStdString(st::strError()));
+      return false;
+    }
+    return true;
+  };
+
+  const auto file_path = authorizedKeysPath();
+  return set_permissions(file_path.parent_path(), 0700) && set_permissions(file_path, 0600);
+}
+
 bool SshAuthorizedKeysWidget::writeCurrentConfig()
 {
   // Output all keys as text.
@@ -130,18 +178,16 @@ bool SshAuthorizedKeysWidget::writeCurrentConfig()
 
   // Write the configuration.
   const auto file_path = authorizedKeysPath();
-  if (!str::writeText(file_path, content)) {
-    qt::qErrorBox(this, "Failed to write to " + QString::fromStdString(file_path));
+  if (!updatePermissions()) {
+    return false;
+  }
+  if (!str::writeText(file_path.string(), content)) {
+    qt::qErrorBox(this, "Failed to write to " + QString::fromStdString(file_path.string()));
     return false;
   }
 
   qt::qInfoBox(this, "SSH authorized keys are updated successfully.");
   return true;
-}
-
-std::string SshAuthorizedKeysWidget::authorizedKeysPath()
-{
-  return std::string(kHomePath) + "/.ssh/authorized_keys";
 }
 
 void SshAuthorizedKeysWidget::onAddButtonClicked()

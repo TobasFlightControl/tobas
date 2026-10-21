@@ -36,9 +36,8 @@ private:
   qt::ListWidget* list_;
 
   bool addKey(const ssh::ak::Data& _key);
+  bool updatePermissions();
   bool writeCurrentConfig();
-
-  static std::string authorizedKeysPath();
 
 private Q_SLOTS:
   void onAddButtonClicked();
