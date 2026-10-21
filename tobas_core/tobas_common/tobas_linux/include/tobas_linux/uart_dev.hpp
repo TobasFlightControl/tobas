@@ -53,6 +53,7 @@ public:
 
   /** Receive 1 byte. */
   std::optional<uint8_t> receiveByte();
+  /** Receive 1 byte without blocking. Distinguish no data from read errors. */
   std::expected<std::optional<uint8_t>, int> tryReceiveByte();
 
 private:

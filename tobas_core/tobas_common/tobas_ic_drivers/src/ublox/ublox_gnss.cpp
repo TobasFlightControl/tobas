@@ -32,6 +32,7 @@ bool GnssReceiver::initialize()
   constexpr uint32_t kUartBaudRate = 230400;
   auto receiver_profile = detectReceiverProfile();
   const auto baud_rate = transport_->baudRate();
+  // Retry at the target baud rate if the receiver does not respond.
   if (
     !receiver_profile && receiver_profile.error() == "MON-VER response timed out" && baud_rate &&
     *baud_rate != kUartBaudRate) {

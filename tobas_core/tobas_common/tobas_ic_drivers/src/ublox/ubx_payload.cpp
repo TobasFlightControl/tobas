@@ -29,6 +29,7 @@ std::expected<void, std::string> MON_VER::decode(const uint8_t* _p, size_t _leng
 {
   module.clear();
 
+  // MON-VER has a 40-byte fixed part followed by 30-byte extensions.
   constexpr size_t kFixedLength = 40;
   constexpr size_t kExtensionLength = 30;
   if (!_p || _length < kFixedLength || (_length - kFixedLength) % kExtensionLength != 0) {

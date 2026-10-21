@@ -52,6 +52,7 @@ std::optional<uint32_t> UbxTransportUart::baudRate() const noexcept
 
 bool UbxTransportUart::setBaudRate(uint32_t _baud_rate) noexcept
 {
+  // Wait for pending data transmission before changing the baud rate.
   if (!uart_.drainOutput()) {
     return false;
   }
