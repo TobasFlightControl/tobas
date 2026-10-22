@@ -61,8 +61,8 @@ private:
   bool armRotors(bool _arming);
 
 private Q_SLOTS:
-  void onArmRequested();
-  void onDisarmRequested();
+  void onArmButtonClicked();
+  void onDisarmButtonClicked();
 
   void onValueChanged();
 
