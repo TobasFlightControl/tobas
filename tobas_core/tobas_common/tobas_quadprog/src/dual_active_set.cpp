@@ -21,7 +21,7 @@ constexpr double kInfinity = std::numeric_limits<double>::infinity();
 constexpr double kToleranceFactor = 100.0;
 }  // namespace
 
-DualActiveSetSolver::DualActiveSetSolver() : super()
+DualActiveSetSolver::DualActiveSetSolver()
 {
 }
 
@@ -427,8 +427,8 @@ bool DualActiveSetSolver::addConstraint()
     }
 
     const auto xny = ss / (1.0 + cc);
-    const Eigen::VectorXd t1 = J_.col(j - 1);
-    const Eigen::VectorXd t2 = J_.col(j);
+    const auto t1 = J_.col(j - 1).eval();
+    const auto t2 = J_.col(j).eval();
     J_.col(j - 1) = t1 * cc + t2 * ss;
     J_.col(j) = xny * (t1 + J_.col(j - 1)) - t2;
   }
@@ -459,18 +459,15 @@ void DualActiveSetSolver::deleteConstraint(Eigen::Index _l)
   cout << "Delete constraint " << _l << " " << iq_;
 #endif
 
-  Eigen::Index qq = 0;  // Initialize qq just to prevent warnings from smart compilers.
-  [[maybe_unused]] bool found = false;
-
   // Find the index qq for active constraint l to be removed.
+  Eigen::Index qq = -1;
   for (Eigen::Index i = p_; i < iq_; ++i) {
     if (A_(i) == _l) {
       qq = i;
-      found = true;
       break;
     }
   }
-  assert(found);
+  assert(qq >= 0);
 
   // Remove the constraint from the active set and the duals.
   A_.block(qq, 0, iq_ - 1 - qq, 1) = A_.block(qq + 1, 0, iq_ - 1 - qq, 1);
