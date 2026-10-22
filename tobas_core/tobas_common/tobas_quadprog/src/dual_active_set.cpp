@@ -409,8 +409,7 @@ bool DualActiveSetSolver::addConstraint()
     auto cc = d_(j - 1);
     auto ss = d_(j);
     const auto h = distance(cc, ss);
-    if (std::abs(h) < kEps)  // h == 0
-    {
+    if (std::abs(h) < kEps) {
       continue;
     }
 
@@ -494,8 +493,7 @@ void DualActiveSetSolver::deleteConstraint(Eigen::Index _l)
     auto cc = R_(j, j);
     auto ss = R_(j + 1, j);
     const auto h = distance(cc, ss);
-    if (std::abs(h) < kEps)  // h == 0
-    {
+    if (std::abs(h) < kEps) {
       continue;
     }
     cc = cc / h;
