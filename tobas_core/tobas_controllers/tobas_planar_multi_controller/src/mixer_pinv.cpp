@@ -44,7 +44,7 @@ std::expected<Eigen::VectorXd, std::string> PinvMixer::solve(
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
 
-    if (rotor_alive_[rotor->link_name]) {
+    if (isRotorAlive(rotor->link_name)) {
       const auto& B_Pos_B2P = frames.at(rotor->link_name).p;
 
       const auto& elem = tree_.getSegment(rotor->link_name)->second;

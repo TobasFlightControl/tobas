@@ -91,7 +91,7 @@ std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
     const auto& rotor = rotor_it.second;
 
     double max_thrust, min_thrust;
-    if (rotor_alive_[rotor->link_name]) {
+    if (isRotorAlive(rotor->link_name)) {
       max_thrust = drone_.prop->maxThrust(rotor->link_name);
       min_thrust = drone_.prop->minThrust(rotor->link_name);
     }

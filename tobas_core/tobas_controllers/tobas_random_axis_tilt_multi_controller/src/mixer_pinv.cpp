@@ -206,7 +206,7 @@ std::expected<MixerSolution, std::string> QpMixer::solve(
   const auto rate = std::cos(M_PI / kCircleApproximationSides);
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
-    const auto max_thrust = rotor_alive_[rotor->link_name] ? drone_.prop->maxThrust(rotor->link_name) * rate : 0.0;
+    const auto max_thrust = isRotorAlive(rotor->link_name) ? drone_.prop->maxThrust(rotor->link_name) * rate : 0.0;
     qp_.problem.b.segment<kCircleApproximationSides>(idx * kCircleApproximationSides).fill(max_thrust);
   }
 

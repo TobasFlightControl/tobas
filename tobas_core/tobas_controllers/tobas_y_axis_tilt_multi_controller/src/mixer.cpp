@@ -106,7 +106,7 @@ std::expected<MixerSolution, std::string> Mixer::solve(
 
       // Compute the left-hand side of the equations of motion.
       // When the rotor is dead, force the optimal thrust to zero by setting the transfer from thrust to vehicle motion to zero.
-      if (rotor_alive_[rotor->link_name]) {
+      if (isRotorAlive(rotor->link_name)) {
         // Compute the point of thrust application viewed from the grandparent link.
         const auto& par_joint = par_seg.joint();
         const auto gpar_T_cur = par_seg.frame() * cur_seg.frame();
@@ -136,7 +136,7 @@ std::expected<MixerSolution, std::string> Mixer::solve(
       state.alpha = std::atan2(n.x(), n.z());
 
       // Update the left-hand side of the equations of motion.
-      if (rotor_alive_[rotor->link_name]) {
+      if (isRotorAlive(rotor->link_name)) {
         const auto& B_Pos_B2P = frames.at(cur_seg.name()).p;
         const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
         E_.block<3, 1>(0, info.column) = (B_Pos_G2P * n - d_cm * n).data;

@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <expected>
+#include <map>
 #include <string>
 
 #include <tobas_drone_core/drone.hpp>
@@ -28,18 +29,26 @@ protected:
   const Drone& drone_;
   const kdl::Tree& tree_;
 
-  std::map<std::string, bool> rotor_alive_;
+  inline bool isRotorAlive(const std::string& _link_name) const;
 
   static inline double thrustDeadband(double _thrust);
   static inline Eigen::VectorXd thrustDeadband(const Eigen::VectorXd& _thrusts);
 
 private:
   static constexpr double kZeroThrustThresh = 1e-2;  ///< [N]
+
+  std::map<std::string, bool> rotor_alive_;
 };
 
 inline bool MixerI::isInitialized() const
 {
   return rotor_alive_.size() > 0;
+}
+
+inline bool MixerI::isRotorAlive(const std::string& _link_name) const
+{
+  const auto it = rotor_alive_.find(_link_name);
+  return it != rotor_alive_.end() && it->second;
 }
 
 inline double MixerI::thrustDeadband(double _thrust)

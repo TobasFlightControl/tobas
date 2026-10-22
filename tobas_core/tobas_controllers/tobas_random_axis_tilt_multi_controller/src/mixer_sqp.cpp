@@ -64,7 +64,7 @@ std::expected<MixerSolution, std::string> SqpMixer::solve(
 
     // Update ci0.
     const auto nr = drone_.prop->numRotors();
-    if (rotor_alive_[rotor->link_name]) {
+    if (isRotorAlive(rotor->link_name)) {
       if (!rotor->tilt_joint_name.empty()) {
         ci0_(idx) = joint_parser_.lowerLimit(rotor->tilt_joint_name);
         ci0_(nr + idx) = -joint_parser_.upperLimit(rotor->tilt_joint_name);

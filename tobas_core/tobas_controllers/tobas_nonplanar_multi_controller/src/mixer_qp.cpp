@@ -97,7 +97,7 @@ std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
   // Inequality constraints.
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
-    if (rotor_alive_[rotor->link_name]) {
+    if (isRotorAlive(rotor->link_name)) {
       qp_.problem.b(idx) = drone_.prop->maxThrust(rotor->link_name);
       qp_.problem.b(drone_.prop->numRotors() + idx) = -drone_.prop->minThrust(rotor->link_name);
     }
