@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_random_axis_tilt_multi_controller/mixer_pinv.hpp"
+#include "tobas_random_axis_tilt_multi_controller/mixer_qp.hpp"
 
 #include <cassert>
 #include <ranges>
