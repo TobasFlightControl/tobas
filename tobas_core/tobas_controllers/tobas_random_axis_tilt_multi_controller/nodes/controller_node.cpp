@@ -164,8 +164,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& _options)
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, 10, 0, 30);
   addDynamicDoubleParam("horizontal_i_max_accel", &self::horizontalIMaxAccelCb, this, 0.5, 4, 1, 20, " m/s^2");
   addDynamicDoubleParam("vertical_i_max_accel", &self::verticalIMaxAccelCb, this, 0.5, 4, 1, 20, " m/s^2");
-  addDynamicDoubleParam("attitude_max_accel", &self::attitudeMaxAccelCb, this, 1.0, 10, 0, 30, " rad/s^2");
-  addDynamicDoubleParam("heading_max_accel", &self::headingMaxAccelCb, this, 1.0, 10, 0, 30, " rad/s^2");
+  addDynamicDoubleParam("attitude_max_accel", &self::attitudeMaxAccelCb, this, 2.0, 30, 1, 30, " rad/s^2");
+  addDynamicDoubleParam("heading_max_accel", &self::headingMaxAccelCb, this, 1.0, 30, 1, 30, " rad/s^2");
   addDynamicDoubleParam(
     "tilt_axis_singular_declination_lb", &self::tiltAsixSingularDeclinationLBCb, this, 1.0, 10, 0, 45, " deg");
   addDynamicDoubleParam(
@@ -437,6 +437,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     }
 
     // Compute target angular acceleration and apply per-axis limits.
+    // Limiting angular acceleration can help prevent the mixer from outputting extreme tilt angles.
     *tar_dgyro_ = rate_gain_.hadamard(rate_cmd_->rate - cur_gyro_B).clamp(-max_dgyro_, max_dgyro_);
 
     // Fill the feedback message.
