@@ -19,6 +19,24 @@ namespace
 constexpr double kEps = std::numeric_limits<double>::epsilon();
 constexpr double kInfinity = std::numeric_limits<double>::infinity();
 constexpr double kToleranceFactor = 100.0;
+
+/** Euclidean distance between two numbers. */
+double distance(double _a, double _b)
+{
+  const auto a1 = std::abs(_a);
+  const auto b1 = std::abs(_b);
+  if (a1 > b1) {
+    const auto t = b1 / a1;
+    return a1 * std::sqrt(1.0 + math::sqr(t));
+  }
+  else if (b1 > a1) {
+    const auto t = a1 / b1;
+    return b1 * std::sqrt(1.0 + math::sqr(t));
+  }
+  else {
+    return a1 * M_SQRT2;
+  }
+}
 }  // namespace
 
 DualActiveSetSolver::DualActiveSetSolver()
@@ -519,23 +537,6 @@ void DualActiveSetSolver::deleteConstraint(Eigen::Index _l)
     const auto j2 = J_.col(j + 1).eval();
     J_.col(j) = j1 * cc + j2 * ss;
     J_.col(j + 1) = xny * (J_.col(j) + j1) - j2;
-  }
-}
-
-double DualActiveSetSolver::distance(double _a, double _b)
-{
-  const auto a1 = std::abs(_a);
-  const auto b1 = std::abs(_b);
-  if (a1 > b1) {
-    const auto t = b1 / a1;
-    return a1 * std::sqrt(1.0 + math::sqr(t));
-  }
-  else if (b1 > a1) {
-    const auto t = a1 / b1;
-    return b1 * std::sqrt(1.0 + math::sqr(t));
-  }
-  else {
-    return a1 * M_SQRT2;
   }
 }
 }  // namespace tobas::quadprog

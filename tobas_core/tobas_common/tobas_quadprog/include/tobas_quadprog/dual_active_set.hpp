@@ -55,8 +55,5 @@ private:
   void update_r();
   bool addConstraint();
   void deleteConstraint(Eigen::Index _l);
-
-  /** Euclidean distance between two numbers. */
-  static double distance(double _a, double _b);
 };
 }  // namespace tobas::quadprog
