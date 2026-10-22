@@ -33,13 +33,13 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
   const auto scaled = scaleProblem();
 
 #ifdef TRACE_SOLVER
-  cout << "Start to solve QP\n";
-  cout << "P:\n" << scaled.P << '\n';
-  cout << "q:\n" << scaled.q.transpose() << '\n';
-  cout << "G:\n" << scaled.G << '\n';
-  cout << "h:\n" << scaled.h.transpose() << '\n';
-  cout << "A:\n" << scaled.A << '\n';
-  cout << "b:\n" << scaled.b.transpose() << '\n';
+  std::cout << "Start to solve QP\n";
+  std::cout << "P:\n" << scaled.P << '\n';
+  std::cout << "q:\n" << scaled.q.transpose() << '\n';
+  std::cout << "G:\n" << scaled.G << '\n';
+  std::cout << "h:\n" << scaled.h.transpose() << '\n';
+  std::cout << "A:\n" << scaled.A << '\n';
+  std::cout << "b:\n" << scaled.b.transpose() << '\n';
 #endif
 
   // Problem size
@@ -72,14 +72,14 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
   }
 
 #ifdef TRACE_SOLVER
-  cout << "LL^T:\n" << llt.matrixLLT() << '\n';
+  std::cout << "LL^T:\n" << llt.matrixLLT() << '\n';
 #endif
 
   // Compute the inverse of the factorized matrix U^-1, this is the initial value for H.
   J_ = llt.matrixU().solve(Eigen::MatrixXd::Identity(n_, n_));
 
 #ifdef TRACE_SOLVER
-  cout << "J:\n" << J_ << '\n';
+  std::cout << "J:\n" << J_ << '\n';
 #endif
 
   iq_ = 0;
@@ -93,7 +93,7 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
   x_ = -llt.solve(scaled.q);
 
 #ifdef TRACE_SOLVER
-  cout << "Unconstrained solution:\n" << x_.transpose() << '\n';
+  std::cout << "Unconstrained solution:\n" << x_.transpose() << '\n';
 #endif
 
   // Add equality constraints to the active set A.
@@ -104,10 +104,10 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
     update_r();
 
 #ifdef TRACE_SOLVER
-    cout << "R:\n" << R_.topLeftCorner(n_, iq_) << '\n';
-    cout << "z:\n" << z_.transpose() << '\n';
-    cout << "r:\n" << r_.head(iq_).transpose() << '\n';
-    cout << "d:\n" << d_.transpose() << '\n';
+    std::cout << "R:\n" << R_.topLeftCorner(n_, iq_) << '\n';
+    std::cout << "z:\n" << z_.transpose() << '\n';
+    std::cout << "r:\n" << r_.head(iq_).transpose() << '\n';
+    std::cout << "d:\n" << d_.transpose() << '\n';
 #endif
 
     // Compute full step length t2: i.e., the minimum step in primal space
@@ -122,7 +122,7 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
     u_.head(iq_) -= t2 * r_.head(iq_);
 
     // To distinguish between equality constraints and inequality constraints,
-    // The indices of equality constraints are stored as negative values.
+    // the indices of equality constraints are stored as negative values.
     A_(i) = -i - 1;
 
     if (!addConstraint()) {
@@ -140,7 +140,7 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
     switch (state) {
       case kChooseViolatedConstraint: {
 #ifdef TRACE_SOLVER
-        cout << "x:\n" << x_.transpose() << '\n';
+        std::cout << "x:\n" << x_.transpose() << '\n';
 #endif
 
         for (Eigen::Index i = p_; i < iq_; ++i) {
@@ -157,7 +157,7 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
         s_.head(m_) = scaled.b - scaled.A * x_;
 
 #ifdef TRACE_SOLVER
-        cout << "s:\n" << s_.head(m_).transpose() << '\n';
+        std::cout << "s:\n" << s_.head(m_).transpose() << '\n';
 #endif
 
         const auto psi = s_.head(m_).cwiseMin(0.0).sum();  // Sum of all infeasibilities
@@ -193,8 +193,8 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
         A_(iq_) = ip_;
 
 #ifdef TRACE_SOLVER
-        cout << "Trying with constraint " << ip_ << '\n';
-        cout << "np:\n" << np_.transpose() << '\n';
+        std::cout << "Trying with constraint " << ip_ << '\n';
+        std::cout << "np:\n" << np_.transpose() << '\n';
 #endif
 
         state = kDetermineStepDirection;
@@ -208,12 +208,12 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
         update_r();
 
 #ifdef TRACE_SOLVER
-        cout << "Step direction z\n";
-        cout << "z:\n" << z_.transpose() << '\n';
-        cout << "r:\n" << r_.head(iq_ + 1).transpose() << '\n';
-        cout << "u:\n" << u_.head(iq_ + 1).transpose() << '\n';
-        cout << "d:\n" << d_.transpose() << '\n';
-        cout << "A:\n" << A_.head(iq_ + 1).transpose() << '\n';
+        std::cout << "Step direction z\n";
+        std::cout << "z:\n" << z_.transpose() << '\n';
+        std::cout << "r:\n" << r_.head(iq_ + 1).transpose() << '\n';
+        std::cout << "u:\n" << u_.head(iq_ + 1).transpose() << '\n';
+        std::cout << "d:\n" << d_.transpose() << '\n';
+        std::cout << "A:\n" << A_.head(iq_ + 1).transpose() << '\n';
 #endif
 
         // Step 2b: Compute step length
@@ -248,17 +248,17 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
         const auto t = std::min(t1, t2);
 
 #ifdef TRACE_SOLVER
-        cout << "Step sizes: " << t << " (t1 = " << t1 << ", t2 = " << t2 << ") ";
+        std::cout << "Step sizes: " << t << " (t1 = " << t1 << ", t2 = " << t2 << ")";
 #endif
 
         // Step 2c: determine new S-pair and take step:
 
-        // case (i): no step in primal or dual space
+        // Case (i): no step in primal or dual space
         if (t >= kInfinity) {
           return std::unexpected("QPP is infeasible.");
         }
 
-        // case (ii): step in dual space
+        // Case (ii): step in dual space
         if (t2 >= kInfinity) {
           // Set u = u + t * [-r 1] and drop constraint l from the active set A.
           u_.head(iq_) -= t * r_.head(iq_);
@@ -267,17 +267,17 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
           deleteConstraint(l);
 
 #ifdef TRACE_SOLVER
-          cout << " in dual space:\n";
-          cout << "x:\n" << x_.transpose() << '\n';
-          cout << "z:\n" << z_.transpose() << '\n';
-          cout << "A:\n" << A_.head(iq_ + 1).transpose() << '\n';
+          std::cout << " in dual space:\n";
+          std::cout << "x:\n" << x_.transpose() << '\n';
+          std::cout << "z:\n" << z_.transpose() << '\n';
+          std::cout << "A:\n" << A_.head(iq_ + 1).transpose() << '\n';
 #endif
 
           state = kDetermineStepDirection;
           break;
         }
 
-        // case (iii): step in primal and dual space
+        // Case (iii): step in primal and dual space
 
         // Set x = x + t * z.
         x_ += t * z_;
@@ -286,17 +286,17 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
         u_(iq_) += t;
 
 #ifdef TRACE_SOLVER
-        cout << " in both spaces:\n";
-        cout << "x:\n" << x_.transpose() << '\n';
-        cout << "u:\n" << u_.head(iq_ + 1).transpose() << '\n';
-        cout << "r:\n" << r_.head(iq_ + 1).transpose() << '\n';
-        cout << "A:\n" << A_.head(iq_ + 1).transpose() << '\n';
+        std::cout << " in both spaces:\n";
+        std::cout << "x:\n" << x_.transpose() << '\n';
+        std::cout << "u:\n" << u_.head(iq_ + 1).transpose() << '\n';
+        std::cout << "r:\n" << r_.head(iq_ + 1).transpose() << '\n';
+        std::cout << "A:\n" << A_.head(iq_ + 1).transpose() << '\n';
 #endif
 
         if (std::abs(t - t2) < kEps) {
 #ifdef TRACE_SOLVER
-          cout << "Full step has taken " << t << '\n';
-          cout << "x:\n" << x_.transpose() << '\n';
+          std::cout << "Full step has taken " << t << '\n';
+          std::cout << "x:\n" << x_.transpose() << '\n';
 #endif
 
           // Full step has taken.
@@ -306,9 +306,9 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
             deleteConstraint(ip_);
 
 #ifdef TRACE_SOLVER
-            cout << "R:\n" << R_ << '\n';
-            cout << "A:\n" << A_.head(iq_).transpose() << '\n';
-            cout << "iai:\n" << iai_.transpose() << '\n';
+            std::cout << "R:\n" << R_ << '\n';
+            std::cout << "A:\n" << A_.head(iq_).transpose() << '\n';
+            std::cout << "iai:\n" << iai_.transpose() << '\n';
 #endif
 
             for (Eigen::Index i = 0; i < m_; ++i) {
@@ -329,9 +329,9 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
           }
 
 #ifdef TRACE_SOLVER
-          cout << "R:\n" << R_ << '\n';
-          cout << "A:\n" << A_.head(iq_).transpose() << '\n';
-          cout << "iai:\n" << iai_.transpose() << '\n';
+          std::cout << "R:\n" << R_ << '\n';
+          std::cout << "A:\n" << A_.head(iq_).transpose() << '\n';
+          std::cout << "iai:\n" << iai_.transpose() << '\n';
 #endif
 
           state = kChooseViolatedConstraint;
@@ -340,8 +340,8 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
 
         // A partial step has taken.
 #ifdef TRACE_SOLVER
-        cout << "Partial step has taken " << t << '\n';
-        cout << "x:\n" << x_.transpose() << '\n';
+        std::cout << "Partial step has taken " << t << '\n';
+        std::cout << "x:\n" << x_.transpose() << '\n';
 #endif
 
         // Drop constraint l.
@@ -349,15 +349,15 @@ std::expected<Eigen::VectorXd, std::string> DualActiveSetSolver::solve()
         deleteConstraint(l);
 
 #ifdef TRACE_SOLVER
-        cout << "R:\n" << R_ << '\n';
-        cout << "A:\n" << A_.head(iq_).transpose() << '\n';
+        std::cout << "R:\n" << R_ << '\n';
+        std::cout << "A:\n" << A_.head(iq_).transpose() << '\n';
 #endif
 
         // update s(ip) = b - A * x.
         s_(ip_) = scaled.b(ip_) - scaled.A.row(ip_).dot(x_);
 
 #ifdef TRACE_SOLVER
-        cout << "s:\n" << s_.transpose() << '\n';
+        std::cout << "s:\n" << s_.transpose() << '\n';
 #endif
 
         state = kDetermineStepDirection;
@@ -393,7 +393,7 @@ void DualActiveSetSolver::update_r()
 bool DualActiveSetSolver::addConstraint()
 {
 #ifdef TRACE_SOLVER
-  cout << "Add constraint " << iq_ << "/";
+  std::cout << "Add constraint " << iq_ << "/";
 #endif
 
   // We have to find the Givens rotation which will reduce the element d(j) to zero.
@@ -438,10 +438,10 @@ bool DualActiveSetSolver::addConstraint()
   R_.block(0, iq_ - 1, iq_, 1) = d_.head(iq_);
 
 #ifdef TRACE_SOLVER
-  cout << iq_ << '\n';
-  cout << "R:\n" << R_.topLeftCorner(iq_, iq_) << '\n';
-  cout << "J:\n" << J_ << '\n';
-  cout << "d:\n" << d_.head(iq_).transpose() << '\n';
+  std::cout << iq_ << '\n';
+  std::cout << "R:\n" << R_.topLeftCorner(iq_, iq_) << '\n';
+  std::cout << "J:\n" << J_ << '\n';
+  std::cout << "d:\n" << d_.head(iq_).transpose() << '\n';
 #endif
 
   if (std::abs(d_(iq_ - 1)) <= kEps * R_norm_) {
@@ -455,7 +455,7 @@ bool DualActiveSetSolver::addConstraint()
 void DualActiveSetSolver::deleteConstraint(Eigen::Index _l)
 {
 #ifdef TRACE_SOLVER
-  cout << "Delete constraint " << _l << " " << iq_;
+  std::cout << "Delete constraint " << _l << " " << iq_;
 #endif
 
   // Find the index qq for active constraint l to be removed.
@@ -482,7 +482,7 @@ void DualActiveSetSolver::deleteConstraint(Eigen::Index _l)
   --iq_;
 
 #ifdef TRACE_SOLVER
-  cout << "/" << iq_ << '\n';
+  std::cout << "/" << iq_ << '\n';
 #endif
 
   if (iq_ == 0) {
