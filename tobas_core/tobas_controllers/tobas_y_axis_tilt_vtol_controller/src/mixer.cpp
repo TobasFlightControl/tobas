@@ -42,7 +42,7 @@ bool Mixer::updateInternalDataStructures()
   info_.resize(nr);
   state_.resize(nr);
 
-  // resize E_, x_, scale_
+  // resize E_, x_, thrust_scale_, scale_
   size_t col = 0;
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
@@ -57,11 +57,12 @@ bool Mixer::updateInternalDataStructures()
       col += 2;
     }
   }
-  cs_start_idx_ = col;
+  thrusts_size_ = col;
   col += drone_.fixed_wing->numControlSurfaces();
 
   E_.conservativeResize(Eigen::NoChange, col);
   x_.conservativeResize(col);
+  thrust_scale_.conservativeResize(thrusts_size_);
   scale_.conservativeResize(col);
 
   // setup info_
@@ -87,7 +88,7 @@ bool Mixer::updateInternalDataStructures()
     }
   }
 
-  // setup scale_
+  // setup thrust_scale_ (fixed)
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     const auto& info = info_[idx];
@@ -98,15 +99,18 @@ bool Mixer::updateInternalDataStructures()
       size = 1;
     }
     for (size_t i = 0; i < size; i++) {
-      scale_(info.column + i) = drone_.prop->maxThrust(rotor->link_name);
+      thrust_scale_(info.column + i) = drone_.prop->maxThrust(rotor->link_name);
     }
   }
+
+  // setup scale_ (mutable)
+  // skip thrust part, set later
   // setup control surface part
   for (const auto& [idx, pair] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
     const auto& cs = pair.second;
     const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
     const auto max_deflection = joint.upper_limit;
-    scale_(cs_start_idx_ + idx) = max_deflection;
+    scale_(thrusts_size_ + idx) = max_deflection;
   }
 
   // setup max thrusts
@@ -120,6 +124,24 @@ bool Mixer::updateInternalDataStructures()
     }
   }
 
+  // setup max aerodynamics effectiveness
+  max_cs_roll_effectiveness_ = 0.0;
+  max_cs_pitch_effectiveness_ = 0.0;
+  max_cs_yaw_effectiveness_ = 0.0;
+  for (const auto& [_, cs] : drone_.fixed_wing->control_surfaces) {
+    const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
+    const auto max_deflection = joint.upper_limit;
+    if (cs.type == ControlSurfaceType::kAileron) {
+      max_cs_roll_effectiveness_ += std::abs(cs.c_roll_delta * max_deflection);
+    }
+    if (cs.type == ControlSurfaceType::kElevator) {
+      max_cs_pitch_effectiveness_ += std::abs(cs.c_pitch_delta * max_deflection);
+    }
+    if (cs.type == ControlSurfaceType::kRudder) {
+      max_cs_yaw_effectiveness_ += std::abs(cs.c_yaw_delta * max_deflection);
+    }
+  }
+
   // setup fixed wing related information
   if (!calcModesAngularFreq()) {
     return false;
@@ -130,7 +152,7 @@ bool Mixer::updateInternalDataStructures()
 
 double Mixer::calcMaxThrust(const double& thrust_angle) const
 {
-  return max_thrust_multicopter_ * cos(thrust_angle) + max_thrust_fixed_wing_ * sin(thrust_angle);
+  return max_thrust_multicopter_ * std::pow(cos(thrust_angle), 2) + max_thrust_fixed_wing_ * std::pow(sin(thrust_angle), 2);
 }
 
 bool Mixer::solve(
@@ -231,48 +253,73 @@ bool Mixer::solve(
     const kdl::Vector effectiveness_frd = kdl::Vector(cs.c_roll_delta, cs.c_pitch_delta, cs.c_yaw_delta);
     kdl::Vector effectiveness_flu;
     kdl::vectorFrdToFlu(effectiveness_frd, effectiveness_flu);
-    E_(0, cs_start_idx_ + idx) = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
+    E_(0, thrusts_size_ + idx) = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
                  drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.x();  // [Nm / rad]
-    E_(1, cs_start_idx_ + idx) = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
+    E_(1, thrusts_size_ + idx) = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
                  drone_.fixed_wing->vehicle.mac * effectiveness_flu.y();  // [Nm / rad]
-    E_(2, cs_start_idx_ + idx) = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
+    E_(2, thrusts_size_ + idx) = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
                  drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.z();  // [Nm / rad]
-    E_(3, cs_start_idx_ + idx) = 0.0; // [N]
-    E_(4, cs_start_idx_ + idx) = 0.0; // [N]
+    E_(3, thrusts_size_ + idx) = 0.0; // [N]
+    E_(4, thrusts_size_ + idx) = 0.0; // [N]
   }
 
   // Right-hand side of the EoM matrix equality.
+  // 理想的にはE x = fを解けば良いが, このようにするとモーメント入力がサチることがある（一部は空力補償のためのIゲインのせい）
+  // まずE_T x_T = [0, 0, 0, u_x, u_z]を解く thrust_scale_でスケーリング
+  f_.head<3>() = Eigen::Vector3d::Zero();
+  f_(3) = ux;
+  f_(4) = uz;
+  const Eigen::MatrixXd S_T = thrust_scale_.asDiagonal();
+  Eigen::VectorXd x_t_base = S_T * (E_.leftCols(thrusts_size_) * S_T).jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
+  for (const auto& info: info_) {
+    if (!info.is_tilt) {
+      if (x_t_base(info.column) < 0){
+        x_t_base(info.column) = 0.0;
+      }
+    }
+  }
+  // 出せるモーメントを求める
+  const Eigen::Vector3d max_thrust_moment = E_.topLeftCorner(3, thrusts_size_).cwiseAbs() * (kMomentThrustRatio * x_t_base.cwiseAbs());
+  const Eigen::Vector3d max_cs_moment = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
+      Eigen::Vector3d(drone_.fixed_wing->vehicle.wing_span * max_cs_roll_effectiveness_,
+                      drone_.fixed_wing->vehicle.mac * max_cs_pitch_effectiveness_,
+                      drone_.fixed_wing->vehicle.wing_span * max_cs_yaw_effectiveness_);
+  const Eigen::Vector3d max_moment = max_thrust_moment + max_cs_moment;
+  const Eigen::Vector3d max_angular_acc = I_B.data.llt().solve(max_moment);
   // 空力による応答遅れの影響を考慮してPI要素を挟む
   x_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_roll_);
+  x_controller_.setMaxMin(max_angular_acc.x(), -max_angular_acc.x());
   x_controller_.update(tar_dgyro_B.x(), dt);
 
   y_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_s_);
+  y_controller_.setMaxMin(max_angular_acc.y(), -max_angular_acc.y());
   y_controller_.update(tar_dgyro_B.y(), dt);
 
   z_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_dutch_roll_);
+  z_controller_.setMaxMin(max_angular_acc.z(), -max_angular_acc.z());
   z_controller_.update(tar_dgyro_B.z(), dt);
   z2_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_dutch_roll_);
+  z2_controller_.setMaxMin(max_angular_acc.z(), -max_angular_acc.z());
   z2_controller_.update(z_controller_.getValue(), dt);
-
+  // モーメントに関してミキシングする. scale_でスケーリング
   const auto eom_rot_right_B = Eigen::Vector3d(
     I_B.ixx() * x_controller_.getValue(),
     I_B.iyy() * y_controller_.getValue(),
     I_B.izz() * z2_controller_.getValue())
     + cur_gyro_B * (I_B * cur_gyro_B);  // [Nm]
-  f_.head<3>() = eom_rot_right_B.data;
-  f_(3) = ux;
-  f_(4) = uz;
-
-  // Solve `Ex = f`.
-  // E S (S^-1 x) = fを解くことでスケーリング
+  f_.head<3>() = eom_rot_right_B.data - E_.topLeftCorner(3, thrusts_size_) * x_t_base;
+  f_(3) = 0;
+  f_(4) = 0;
+  scale_.head(thrusts_size_) = kMomentThrustRatio * x_t_base;
   const Eigen::MatrixXd S = scale_.asDiagonal();
   x_ = S * (E_ * S).jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
+  x_.head(thrusts_size_) += x_t_base;
   return true;
 }
 
 double Mixer::getDeflection(size_t idx) const
 {
-  return x_(cs_start_idx_ + idx);
+  return x_(thrusts_size_ + idx);
 }
 
 double Mixer::getThrust(size_t idx) const

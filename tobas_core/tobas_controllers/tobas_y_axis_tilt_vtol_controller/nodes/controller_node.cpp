@@ -310,6 +310,10 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   const auto& cur_vel_G = cur_twist_G.vel;
   const auto& cur_gyro_G = cur_twist_G.rot;
   const auto airspeed = cur_vel_G.norm();
+  kdl::Vector cur_vel_G_frd;
+  kdl::vectorFluToFrd(cur_vel_G, cur_vel_G_frd);
+  const auto beta = angleOfSideSlip(cur_vel_G_frd.x(), cur_vel_G_frd.y(), cur_vel_G_frd.z());
+  beta_dot_filter_.update(beta, dt);
 
   // Attitude controller.
   // multicopter like
@@ -373,15 +377,11 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     const kdl::Euler cur_rpy(cur_rot);
     const auto roll_err = algo::wrapPi(tar_rpb.roll - cur_rpy.roll);
     const auto pitch_err = algo::wrapPi(tar_rpb.pitch - cur_rpy.pitch);
-    kdl::Vector cur_vel_G_frd;
-    kdl::vectorFluToFrd(cur_vel_G, cur_vel_G_frd);
-    const auto beta = angleOfSideSlip(cur_vel_G_frd.x(), cur_vel_G_frd.y(), cur_vel_G_frd.z());
-    beta_dot_filter_.update(beta, dt);
     const auto beta_err = algo::wrapPi(tar_rpb.side_slip - beta);
     kdl::Vector ep(roll_err, pitch_err, beta_err);
     // std::cout << "beta : " << beta / M_PI * 180.0 << " [deg]" << std::endl;
     // std::cout << "beta_err : " << beta_err / M_PI * 180.0 << " [deg]" << std::endl;
-    // std::cout << "beta_sp : " << tar_rpb.sideslip / M_PI * 180.0 << " [deg]" << std::endl;
+    // std::cout << "beta_sp : " << tar_rpb.side_slip / M_PI * 180.0 << " [deg]" << std::endl;
 
     // TODO: Accumulate integral error while airborne.
 
@@ -404,7 +404,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     // Compute target angular acceleration.
     // roll = pitch = 0のときbeta = -yaw_frd = yaw_flu
     // TODO: 若干beta_dotが振動気味
-    // std::cout << "tar_drpb_->z() : " << tar_drpb_->z() / M_PI * 180.0 << " [deg/s]" << std::endl;
+    // std::cout << "tar_drpb_->z() : " << tar_dgyro_->z() / M_PI * 180.0 << " [deg/s]" << std::endl;
     // std::cout << "beta_dot_filter_.getValue() : " << beta_dot_filter_.getValue() / M_PI * 180.0 << " [deg/s]" << std::endl;
     *tar_dgyro_ = kdl::Vector(
       atti_rate_gain * (tar_gyro_->x() - cur_gyro_G.x()),

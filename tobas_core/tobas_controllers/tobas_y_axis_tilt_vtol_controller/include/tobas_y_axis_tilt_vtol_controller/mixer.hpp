@@ -17,6 +17,7 @@ class Mixer : public MixerI
 {
   using super = MixerI;
   static constexpr double kCruiseSpeed = 15.0;  // m/s, 固定翼機運動モード計算のための仮のクルーズ時対気速度
+  static constexpr double kMomentThrustRatio = 0.2; // 1軸の制御のためにthrustのこの割合だけ使って良い
 
 public:
   explicit Mixer(const Drone& drone, const kdl::Tree& tree);
@@ -56,12 +57,16 @@ private:
   // Fixed values.
   std::vector<StaticRotorLinkInfo> info_;
   std::vector<DynamicRotorLinkState> state_;
-  size_t cs_start_idx_;
+  size_t thrusts_size_;
+  Eigen::VectorXd thrust_scale_;
   double max_thrust_multicopter_;
   double max_thrust_fixed_wing_;
   double omega_roll_;        // クルーズ時ロールモード角周波数
   double omega_s_;           // クルーズ時短周期モード角周波数
   double omega_dutch_roll_;  // クルーズ時ダッチロールモード角周波数
+  double max_cs_roll_effectiveness_;
+  double max_cs_pitch_effectiveness_;
+  double max_cs_yaw_effectiveness_;
 
   // Mutable values.
   Eigen::Matrix5Xd E_;

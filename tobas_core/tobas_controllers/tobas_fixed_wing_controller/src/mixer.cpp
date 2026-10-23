@@ -38,7 +38,7 @@ bool Mixer::updateInternalDataStructures()
 
   max_roll_effectiveness_ = 0.0;
   max_pitch_effectiveness_ = 0.0;
-  max_roll_effectiveness_ = 0.0;
+  max_yaw_effectiveness_ = 0.0;
   for (const auto& [_, cs] : drone_.fixed_wing->control_surfaces) {
     const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
     const auto max_deflection = joint.upper_limit;
