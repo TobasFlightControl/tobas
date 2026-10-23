@@ -19,7 +19,7 @@ namespace
 {
 constexpr size_t kCircleApproximationSides = 16;
 
-/** Block matrix for approximating an upper bound on the norm of a 2D vector using a regular polygon (memo: 3-58). */
+/** Block matrix for approximating an upper bound on the norm of a 2D vector using a regular polygon. */
 const Eigen::Matrix<double, kCircleApproximationSides, 2>& polygonBlockMatrix()
 {
   static const auto block = []

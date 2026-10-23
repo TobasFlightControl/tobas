@@ -13,7 +13,7 @@
 
 namespace tobas::random_axis_tilt_multicopter
 {
-/** Solve tilt-rotor multicopter mixing by variable transformation (memo: 3-16). */
+/** Solve tilt-rotor multicopter mixing by variable transformation (memo: 3-59). */
 class QpMixer : public MixerI
 {
   using super = MixerI;
