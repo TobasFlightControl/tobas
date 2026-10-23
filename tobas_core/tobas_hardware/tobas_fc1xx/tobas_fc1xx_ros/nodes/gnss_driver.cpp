@@ -75,13 +75,6 @@ bool GnssDriverNode::configure()
     return false;
   }
 
-  // The measurement rate cannot be too short because an overly high frequency fills the FIFO and causes a time shift.
-  constexpr uint16_t kMeasRate = 20;  // [Hz]
-  if (!gnss_.configureMeasurementRate(1000 / kMeasRate)) {
-    TOBAS_ERROR("Failed to configure measurement rate.");
-    return false;
-  }
-
   // Enable GPS + SBAS + QZSS.
   // According to the datasheet, combining multiple main GNSS systems lowers the output frequency
   // while providing only a small accuracy improvement.
@@ -124,19 +117,19 @@ bool GnssDriverNode::configure()
   }
 
   // Enable/Disable protocols.
-  if (!gnss_.enableSpiProtocol_UBX(true, true)) {
+  if (!gnss_.enableProtocol_UBX(true, true)) {
     TOBAS_ERROR("Failed to enable UBX protocol.");
     return false;
   }
-  if (!gnss_.enableSpiProtocol_NMEA(false, false)) {
+  if (!gnss_.enableProtocol_NMEA(false, false)) {
     TOBAS_ERROR("Failed to disable NMEA protocol.");
     return false;
   }
-  if (!gnss_.enableSpiProtocol_RTCM3X(true, false)) {  // Only input is needed for RTK.
+  if (!gnss_.enableProtocol_RTCM3X(true, false)) {  // Only input is needed for RTK.
     TOBAS_ERROR("Failed to disable RTCM3X protocol.");
     return false;
   }
-  if (!gnss_.enableSpiProtocol_SPARTN(false)) {
+  if (!gnss_.enableProtocol_SPARTN(false)) {
     TOBAS_ERROR("Failed to disable SPARTN protocol.");
     return false;
   }

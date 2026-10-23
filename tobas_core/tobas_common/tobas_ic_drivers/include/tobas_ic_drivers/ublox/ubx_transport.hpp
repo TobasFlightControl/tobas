@@ -3,16 +3,28 @@
 
 #pragma once
 
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <expected>
 #include <optional>
+#include <string>
+
+#include "./ubx_scanner.hpp"
+
+#define PACKED __attribute__((__packed__))  // Struct member variables are contiguous in memory.
 
 namespace tobas::ublox
 {
 class UbxTransport
 {
 public:
+  enum class Interface
+  {
+    SPI,
+    UART,
+  };
+
   explicit UbxTransport() = default;
 
   UbxTransport(UbxTransport&& _other) = delete;
@@ -23,15 +35,35 @@ public:
   virtual ~UbxTransport() = default;
 
   virtual bool initialize() noexcept = 0;
-  virtual std::optional<uint32_t> baudRate() const noexcept
+  virtual Interface interface() const noexcept = 0;
+
+  bool sendMessage(uint8_t _cls, uint8_t _id, const void* _msg, uint16_t _size) noexcept;
+  bool receiveMessage(UbxScanner& _scanner, bool _blocking, std::chrono::milliseconds _timeout) noexcept;
+  std::expected<std::string, std::string> pollVersion(std::chrono::milliseconds _timeout);
+
+protected:
+  virtual std::optional<uint8_t> receiveByte() noexcept = 0;
+  virtual bool writeBytes(const uint8_t* _data, size_t _length) noexcept = 0;
+
+private:
+  struct PACKED UbxHeader
   {
-    return std::nullopt;
-  }
-  virtual bool setBaudRate(uint32_t) noexcept
+    uint8_t sync1;
+    uint8_t sync2;
+    uint8_t cls;
+    uint8_t id;
+    uint16_t length;
+  };
+
+  struct PACKED CheckSum
   {
-    return false;
-  }
-  virtual std::expected<std::optional<uint8_t>, int> receiveByte() noexcept = 0;
-  virtual bool send(const uint8_t* _data, size_t _length) noexcept = 0;
+    uint8_t CK_A;
+    uint8_t CK_B;
+  };
+
+  static CheckSum computeChecksum(const uint8_t* _message, size_t _checksum_pos);
+  static size_t spliceMemory(uint8_t* _dest, const void* _src, size_t _size, size_t _dest_offset = 0);
 };
 }  // namespace tobas::ublox
+
+#undef PACKED

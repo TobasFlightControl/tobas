@@ -5,7 +5,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <expected>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -53,11 +52,18 @@ struct ACK_ACK : public Payload
   void print(std::ostream& _os) const override;
 };
 
-struct MON_VER
+struct MON_VER : public Payload
 {
-  std::string module;
+  explicit MON_VER(size_t _payload_length);
 
-  std::expected<void, std::string> decode(const uint8_t* _p, size_t _length);
+  std::string module;
+  std::string error;  ///< Decode error, empty on success.
+
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
+
+private:
+  size_t payload_length_;
 };
 
 struct NAV_CLOCK : public Payload

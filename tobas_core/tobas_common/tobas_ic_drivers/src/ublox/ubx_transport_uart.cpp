@@ -3,66 +3,59 @@
 
 #include "tobas_ic_drivers/ublox/ubx_transport_uart.hpp"
 
+#include <thread>
+
+using namespace std::chrono_literals;
+
 namespace tobas::ublox
 {
-UbxTransportUart::UbxTransportUart(const char* _device, uint32_t _baud_rate) : device_(_device), baud_rate_(_baud_rate)
+UbxTransportUart::UbxTransportUart(const char* _device) : device_(_device)
 {
 }
 
 bool UbxTransportUart::initialize() noexcept
-{
-  if (!uart_.initialize(device_, false)) {
+try {
+  if (
+    !uart_.initialize(device_, false) || !uart_.setBaudRate(38400) || !uart_.setDataBits(8) ||
+    !uart_.setSingleStopBit() || !uart_.disableParity()) {
     return false;
   }
 
-  if (!uart_.setBaudRate(baud_rate_)) {
+  const auto version = pollVersion(1s);
+  if (!version) {
+    return uart_.setBaudRate(230400) && pollVersion(1s).has_value();
+  }
+
+  // CFG-VALSET, version 0, RAM only; CFG-UART1-BAUDRATE (U4) = 230400.
+  // Both the key and value use UBX little-endian byte order.
+  constexpr uint8_t kBaudConfig[] = { 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x52, 0x40, 0x00, 0x84, 0x03, 0x00 };
+  if (!sendMessage(0x06, 0x8A, kBaudConfig, sizeof(kBaudConfig)) || !uart_.drainOutput() || !uart_.setBaudRate(230400)) {
     return false;
   }
 
-  if (!uart_.setDataBits(8)) {
-    return false;
-  }
-
-  if (!uart_.setSingleStopBit()) {
-    return false;
-  }
-
-  if (!uart_.disableParity()) {
-    return false;
-  }
-
-  return true;
+  std::this_thread::sleep_for(100ms);
+  const auto confirmed_version = pollVersion(1s);
+  return confirmed_version && *confirmed_version == *version;
+}
+catch (...) {
+  // Scanner and MON-VER decoding may allocate. Initialization must remain retryable.
+  return false;
 }
 
-std::expected<std::optional<uint8_t>, int> UbxTransportUart::receiveByte() noexcept
-{
-  return uart_.tryReceiveByte();
+std::optional<uint8_t> UbxTransportUart::receiveByte() noexcept
+try {
+  return uart_.receiveByte();
+}
+catch (...) {
+  return std::nullopt;
 }
 
-bool UbxTransportUart::send(const uint8_t* _data, size_t _length) noexcept
-{
-  constexpr auto kSendTimeout = std::chrono::seconds(1);
-  return uart_.sendAll(_data, _length, kSendTimeout);
+bool UbxTransportUart::writeBytes(const uint8_t* _data, size_t _length) noexcept
+try {
+  return uart_.send(_data, _length);
 }
-
-std::optional<uint32_t> UbxTransportUart::baudRate() const noexcept
-{
-  return baud_rate_;
-}
-
-bool UbxTransportUart::setBaudRate(uint32_t _baud_rate) noexcept
-{
-  // Wait for pending data transmission before changing the baud rate.
-  if (!uart_.drainOutput()) {
-    return false;
-  }
-
-  if (!uart_.setBaudRate(_baud_rate)) {
-    return false;
-  }
-
-  baud_rate_ = _baud_rate;
-  return true;
+catch (...) {
+  return false;
 }
 
 }  // namespace tobas::ublox

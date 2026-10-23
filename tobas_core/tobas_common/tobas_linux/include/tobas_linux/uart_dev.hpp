@@ -5,10 +5,8 @@
 
 #include <termios.h>  // <asm/termios.h> does not work.
 
-#include <chrono>
 #include <cstddef>
 #include <cstdint>
-#include <expected>
 #include <optional>
 
 namespace tobas::linux
@@ -32,6 +30,7 @@ public:
 
   bool initialize(const char* _uart_dev, bool _block_mode = false);
 
+  /** Wait for transmitted output using tcdrain(); no strict timeout is guaranteed. */
   bool drainOutput();
 
   bool setBaudRate(uint32_t _baud_rate);
@@ -47,14 +46,12 @@ public:
   /** Set the minimum number of characters that `receive()` waits for. */
   bool setMinimumChars(uint8_t _num);
 
+  /** Transmit all bytes; retry nonblocking writes for up to one second. */
   bool send(const uint8_t* _data, size_t _length);
-  bool sendAll(const uint8_t* _data, size_t _length, std::chrono::milliseconds _timeout);
   bool receive(uint8_t* _data, size_t _length);
 
-  /** Receive 1 byte. */
+  /** Receive 1 byte using the configured blocking mode. No data returns nullopt. */
   std::optional<uint8_t> receiveByte();
-  /** Receive 1 byte without blocking. Distinguish no data from read errors. */
-  std::expected<std::optional<uint8_t>, int> tryReceiveByte();
 
 private:
   bool block_mode_ = false;

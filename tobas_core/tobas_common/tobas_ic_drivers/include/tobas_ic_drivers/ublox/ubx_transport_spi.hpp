@@ -5,7 +5,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <expected>
 #include <optional>
 
 #include <tobas_linux/spi_dev.hpp>
@@ -25,10 +24,15 @@ public:
   UbxTransportSpi& operator=(const UbxTransportSpi& _other) = delete;
 
   bool initialize() noexcept override;
-  std::expected<std::optional<uint8_t>, int> receiveByte() noexcept override;
-  bool send(const uint8_t* _data, size_t _length) noexcept override;
+  Interface interface() const noexcept override
+  {
+    return Interface::SPI;
+  }
 
 private:
+  std::optional<uint8_t> receiveByte() noexcept override;
+  bool writeBytes(const uint8_t* _data, size_t _length) noexcept override;
+
   static constexpr uint32_t kSpiClockFreq = 5'500'000;  ///< Maximum frequency is 5.5MHz.
   static constexpr size_t kSpiBufSize = 256;
 

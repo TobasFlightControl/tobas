@@ -25,29 +25,49 @@ void ACK_ACK::decode(const uint8_t* _p)
   msgID = algo::decodeU8(_p + 1);
 }
 
-std::expected<void, std::string> MON_VER::decode(const uint8_t* _p, size_t _length)
+MON_VER::MON_VER(size_t _payload_length) : payload_length_(_payload_length)
+{
+}
+
+void MON_VER::decode(const uint8_t* _p)
 {
   module.clear();
+  error = "MON-VER MOD information missing";
 
   // MON-VER has a 40-byte fixed part followed by 30-byte extensions.
   constexpr size_t kFixedLength = 40;
   constexpr size_t kExtensionLength = 30;
-  if (!_p || _length < kFixedLength || (_length - kFixedLength) % kExtensionLength != 0) {
-    return std::unexpected("Invalid MON-VER payload length");
+  if (!_p || payload_length_ < kFixedLength || (payload_length_ - kFixedLength) % kExtensionLength != 0) {
+    error = "Invalid MON-VER payload length";
+    return;
   }
 
-  for (size_t offset = kFixedLength; offset < _length; offset += kExtensionLength) {
+  for (size_t offset = kFixedLength; offset < payload_length_; offset += kExtensionLength) {
     const char* extension = reinterpret_cast<const char*>(_p + offset);
     constexpr char kModelPrefix[] = "MOD=";
     constexpr size_t kModelPrefixLength = sizeof(kModelPrefix) - 1;
     if (std::strncmp(extension, kModelPrefix, kModelPrefixLength) == 0) {
       const char* model = extension + kModelPrefixLength;
-      module.assign(model, strnlen(model, kExtensionLength - kModelPrefixLength));
-      return {};
+      const auto length = strnlen(model, kExtensionLength - kModelPrefixLength);
+      if (length == kExtensionLength - kModelPrefixLength) {
+        error = "MON-VER MOD information is not terminated";
+        return;
+      }
+      module.assign(model, length);
+      if (!module.empty()) {
+        error.clear();
+      }
+      return;
     }
   }
+}
 
-  return std::unexpected("MON-VER MOD information missing");
+void MON_VER::print(std::ostream& _os) const
+{
+  _os << "Module: " << module;
+  if (!error.empty()) {
+    _os << " (" << error << ')';
+  }
 }
 
 void NAV_CLOCK::decode(const uint8_t*)

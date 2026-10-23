@@ -8,8 +8,7 @@
 #include <memory>
 #include <optional>
 #include <string>
-
-#include <tobas_time_tools/rate.hpp>
+#include <thread>
 
 #include "./ubx_payload.hpp"
 #include "./ubx_scanner.hpp"
@@ -19,17 +18,7 @@
 
 namespace tobas::ublox
 {
-/**
- * A Linux driver of u-blox GNSS receivers using UBX protocol.
- *
- * Supported receiver profiles: ZED-F9P (L1/L2) and ZED-X20P.
- *
- * Interface Description:
- * - [ZED-F9P
- * L1/L2](https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-1.51_InterfaceDescription_UBXDOC-963802114-13124.pdf)
- * -
- * [ZED-X20P](https://content.u-blox.com/sites/default/files/documents/u-blox-X20-HPG-2.02_InterfaceDescription_UBXDOC-304424225-19967.pdf)
- */
+/** A Linux driver of u-blox GNSS receivers using UBX protocol. */
 class GnssReceiver
 {
 public:
@@ -64,6 +53,21 @@ public:
 
   enum UbxMonId : uint8_t
   {
+    MON_COMMS = 0x36,
+    MON_GNSS = 0x28,
+    MON_HW = 0x09,
+    MON_HW2 = 0x0B,
+    MON_HW3 = 0x37,
+    MON_IO = 0x02,
+    MON_MSGPP = 0x06,
+    MON_PATCH = 0x27,
+    MON_POST = 0x3B,
+    MON_RF = 0x38,
+    MON_RXBUF = 0x07,
+    MON_RXR = 0x21,
+    MON_SPAN = 0x31,
+    MON_SYS = 0x39,
+    MON_TXBUF = 0x08,
     MON_VER = 0x04,
   };
 
@@ -118,7 +122,7 @@ public:
     E_SCOOTER = 12,
   };
 
-  enum ReceiverProfile : uint8_t
+  enum ReceiverProfile
   {
     F9P,
     X20P,
@@ -132,15 +136,13 @@ public:
   GnssReceiver& operator=(const GnssReceiver& _other) = delete;
 
   bool initialize();
-  std::expected<ReceiverProfile, std::string> detectReceiverProfile();
-  bool update(bool _blocking = false, std::chrono::milliseconds _timeout = std::chrono::milliseconds(0));
+  bool update(bool _blocking = false);
 
   // ===== Configurations =====
 
   bool enableMessage(UbxClass _cls, uint8_t _id, bool _enable);
   bool configureDynamicsModel(DynamicsModel _model);
   bool configureMeasurementRate(uint16_t _period_ms);
-  bool configureUartBaudRate(uint32_t _baud_rate);
 
   bool enableGps();
   bool disableGps();
@@ -163,16 +165,11 @@ public:
   bool enableNavIc();
   bool disableNavIc();
 
-  bool enableSpiProtocol_UBX(bool _enable_input, bool _enable_output);
-  bool enableSpiProtocol_NMEA(bool _enable_input, bool _enable_output);
-  bool enableSpiProtocol_RTCM3X(bool _enable_input, bool _enable_output);
-  bool enableSpiProtocol_SPARTN(bool _enable_input);
-  bool enableUartProtocol_UBX(bool _enable_input, bool _enable_output);
-  bool enableUartProtocol_NMEA(bool _enable_input, bool _enable_output);
-  bool enableUartProtocol_RTCM3X(bool _enable_input, bool _enable_output);
-  bool enableUartProtocol_SPARTN(bool _enable_input);
-
-  /** Set the analog transmission delay from the length of the `RG174` cable. */
+  bool enableProtocol_UBX(bool _enable_input, bool _enable_output);
+  bool enableProtocol_NMEA(bool _enable_input, bool _enable_output);
+  bool enableProtocol_RTCM3X(bool _enable_input, bool _enable_output);
+  bool enableProtocol_SPARTN(bool _enable_input);
+  /** Set the analog transmission delay from the length of the `RF174` cable. */
   bool setAntennaLength(uint8_t _length_m);
 
   bool enableUsb(bool _enable);
@@ -226,10 +223,10 @@ private:
     CFG_TMODE = 0x03,         ///< Time Mode Configuration
     CFG_TP = 0x05,            ///< Timepulse Configuration
     CFG_TXREADY = 0xA2,       ///< Tx-Ready Configuration
-    CFG_UART1 = 0x52,         ///< Configuration of the UART1 Interface
+    CFG_URART1 = 0x52,        ///< Configuration of the UART1 Interface
     CFG_UART1INPROT = 0x73,   ///< Input Protocol Configuration of the UART1 Interface
     CFG_UART1OUTPROT = 0x74,  ///< Output Protocol Configuration of the UART1 Interface
-    CFG_UART2 = 0x53,         ///< Configuration of the UART2 Interface
+    CFG_URART2 = 0x53,        ///< Configuration of the UART2 Interface
     CFG_UART2INPROT = 0x75,   ///< Input Protocol Configuration of the UART2 Interface
     CFG_UART2OUTPROT = 0x76,  ///< Output Protocol Configuration of the UART2 Interface
     CFG_USB = 0x65,           ///< Configuration of the USB Interface
@@ -237,28 +234,13 @@ private:
     CFG_USBOUTPROT = 0x78,    ///< Output Protocol Configuration of the USB Interface
   };
 
-  /** SPI/UART Protocol Key ID */
+  /** Protocol Key ID */
   enum CfgProtocol : uint8_t
   {
     UBX = 0x01,
     NMEA = 0x02,
     RTCM3X = 0x04,
     SPARTN = 0x05,
-  };
-
-  struct PACKED UbxHeader
-  {
-    uint8_t sync1;
-    uint8_t sync2;
-    uint8_t cls;
-    uint8_t id;
-    uint16_t length;
-  };
-
-  struct PACKED CheckSum
-  {
-    uint8_t CK_A;
-    uint8_t CK_B;
   };
 
   // ===== Payload structures =====
@@ -292,19 +274,14 @@ private:
 
   const std::unique_ptr<UbxTransport> transport_;
   UbxScanner scanner_;
-  tim::Rate scan_rate_;
   std::optional<ReceiverProfile> receiver_profile_;
 
   template <typename T>
-  bool cfgValSetSingle(CfgSize _size, CfgGroup _group, uint16_t _id, T _value);
+  bool cfgValSetSingle(CfgSize _size, CfgGroup _group, uint8_t _id, T _value);
 
-  bool enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable);
-  bool enableUartMessage(UbxClass _cls, uint8_t _id, bool _enable);
-
-  bool sendMessage(UbxClass _cls, uint8_t _id, const void* _msg, uint16_t _size);
+  std::expected<ReceiverProfile, std::string> detectReceiverProfile();
   bool waitForAcknowledge(UbxClass _cls, uint8_t _id);
   bool configure(UbxCfgId _cfg_id, const void* _msg, uint16_t _size);
-  bool verifyMessage() const;
 
   bool enableGps(bool _enable);
   bool enableGpsL1();
@@ -339,15 +316,8 @@ private:
   bool enableNavIc(bool _enable);
   bool enableNavIcL5();
 
-  bool enableSpiInputProtocol(CfgProtocol _prot, bool _enable);
-  bool enableSpiOutputProtocol(CfgProtocol _prot, bool _enable);
-  bool enableUartInputProtocol(CfgProtocol _prot, bool _enable);
-  bool enableUartOutputProtocol(CfgProtocol _prot, bool _enable);
-
-  /** 5.4 UBX Checksum */
-  static CheckSum computeChecksum(const uint8_t* _message, size_t _checksum_pos);
-
-  static size_t spliceMemory(uint8_t* _dest, const void* _src, size_t _size, size_t _dest_offset = 0);
+  bool enableInputProtocol(CfgProtocol _prot, bool _enable);
+  bool enableOutputProtocol(CfgProtocol _prot, bool _enable);
 
   /** Configuration Key ID | 6.2 Configuration Items */
   static uint32_t configKeyID(CfgSize _size, CfgGroup _group, uint16_t _id);
@@ -369,12 +339,19 @@ inline const uint8_t* GnssReceiver::payload() const
 }
 
 template <typename T>
-bool GnssReceiver::cfgValSetSingle(CfgSize _size, CfgGroup _group, uint16_t _id, T _value)
+bool GnssReceiver::cfgValSetSingle(CfgSize _size, CfgGroup _group, uint8_t _id, T _value)
 {
   CfgValSet<T, 1> cfg;
   cfg.data[0].key = configKeyID(_size, _group, _id);
   cfg.data[0].value = _value;
-  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+  if (!configure(CFG_VALSET, &cfg, sizeof(cfg))) {
+    return false;
+  }
+  // CFG-SIGNAL can reset the GNSS subsystem; wait after its ACK before another command.
+  if (_group == CFG_SIGNAL) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  }
+  return true;
 }
 }  // namespace tobas::ublox
 

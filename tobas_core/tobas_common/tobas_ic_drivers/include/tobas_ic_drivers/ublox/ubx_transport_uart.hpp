@@ -5,7 +5,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <expected>
 #include <optional>
 
 #include <tobas_linux/uart_dev.hpp>
@@ -17,7 +16,7 @@ namespace tobas::ublox
 class UbxTransportUart final : public UbxTransport
 {
 public:
-  explicit UbxTransportUart(const char* _device, uint32_t _baud_rate = 38400);
+  explicit UbxTransportUart(const char* _device);
 
   UbxTransportUart(UbxTransportUart&& _other) = delete;
   UbxTransportUart& operator=(UbxTransportUart&& _other) = delete;
@@ -25,16 +24,17 @@ public:
   UbxTransportUart& operator=(const UbxTransportUart& _other) = delete;
 
   bool initialize() noexcept override;
-  std::expected<std::optional<uint8_t>, int> receiveByte() noexcept override;
-  bool send(const uint8_t* _data, size_t _length) noexcept override;
-  std::optional<uint32_t> baudRate() const noexcept override;
-  bool setBaudRate(uint32_t _baud_rate) noexcept override;
+  Interface interface() const noexcept override
+  {
+    return Interface::UART;
+  }
 
 private:
+  std::optional<uint8_t> receiveByte() noexcept override;
+  bool writeBytes(const uint8_t* _data, size_t _length) noexcept override;
+
   const char* device_;
-  uint32_t baud_rate_;
 
   linux::UARTdev uart_;
-  uint8_t data_;
 };
 }  // namespace tobas::ublox

@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <thread>
 
 #include <tobas_ic_drivers/stmicro/iis2mdc.hpp>
 #include <tobas_ic_drivers/stmicro/ilps22qs.hpp>
@@ -183,16 +184,16 @@ bool testGnssReceiver()
 
   // Enable messages.
   if (!gnss.enableMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_PVT, true)) {
-    std::cerr << "Failed to enable NAV_PVT message." << '\n';
+    std::cerr << "Failed to enable NAV_PVT message.\n";
     return false;
   }
 
   const auto start_time = ch::steady_clock::now();
 
   while (ch::steady_clock::now() - start_time < 3s) {
-    if (!gnss.update(true)) {
-      std::cerr << "Failed to receive a GNSS message.\n";
-      return false;
+    if (!gnss.update()) {
+      std::this_thread::sleep_for(1ms);
+      continue;
     }
 
     if (gnss.latestClass() != tobas::ublox::GnssReceiver::CLASS_NAV) {

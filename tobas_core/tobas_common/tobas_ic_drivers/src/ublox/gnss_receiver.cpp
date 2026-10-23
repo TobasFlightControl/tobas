@@ -10,13 +10,14 @@
 #include <utility>
 #include <vector>
 
+#include <tobas_time_tools/rate.hpp>
+
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
 namespace tobas::ublox
 {
-GnssReceiver::GnssReceiver(std::unique_ptr<UbxTransport> _transport)
-  : transport_(std::move(_transport)), scan_rate_(50us)
+GnssReceiver::GnssReceiver(std::unique_ptr<UbxTransport> _transport) : transport_(std::move(_transport))
 {
   assert(transport_);
 }
@@ -29,37 +30,10 @@ bool GnssReceiver::initialize()
     return false;
   }
 
-  constexpr uint32_t kUartBaudRate = 230400;
-  auto receiver_profile = detectReceiverProfile();
-  const auto baud_rate = transport_->baudRate();
-  // Retry at the target baud rate if the receiver does not respond.
-  if (
-    !receiver_profile && receiver_profile.error() == "MON-VER response timed out" && baud_rate &&
-    *baud_rate != kUartBaudRate) {
-    if (!transport_->setBaudRate(kUartBaudRate)) {
-      return false;
-    }
-    receiver_profile = detectReceiverProfile();
-  }
+  const auto receiver_profile = detectReceiverProfile();
   if (!receiver_profile) {
     std::cerr << receiver_profile.error() << '\n';
     return false;
-  }
-
-  if (baud_rate && transport_->baudRate() != kUartBaudRate) {
-    if (!configureUartBaudRate(kUartBaudRate) || !transport_->setBaudRate(kUartBaudRate)) {
-      return false;
-    }
-
-    const auto confirmed_profile = detectReceiverProfile();
-    if (!confirmed_profile) {
-      std::cerr << confirmed_profile.error() << '\n';
-      return false;
-    }
-    if (*confirmed_profile != *receiver_profile) {
-      std::cerr << "GNSS receiver profile changed after baud rate configuration.\n";
-      return false;
-    }
   }
 
   if (*receiver_profile == F9P) {
@@ -73,271 +47,182 @@ bool GnssReceiver::initialize()
     }
   }
 
+  if (!configureMeasurementRate(*receiver_profile == F9P ? 50 : 40)) {
+    return false;
+  }
   receiver_profile_ = *receiver_profile;
   return true;
 }
 
 std::expected<GnssReceiver::ReceiverProfile, std::string> GnssReceiver::detectReceiverProfile()
 {
-  if (!sendMessage(CLASS_MON, MON_VER, nullptr, 0)) {
-    return std::unexpected("Failed to send MON-VER request");
+  const auto module = transport_->pollVersion(1s);
+  if (!module) {
+    return std::unexpected(module.error());
   }
-
-  constexpr auto kWaitForGnssMonVerResponse = 1s;
-  const auto deadline = ch::steady_clock::now() + kWaitForGnssMonVerResponse;
-
-  while (ch::steady_clock::now() < deadline) {
-    const auto remaining = ch::ceil<ch::milliseconds>(deadline - ch::steady_clock::now());
-    if (remaining <= 0ms) {
-      return std::unexpected("MON-VER response timed out");
-    }
-
-    if (!update(true, remaining)) {
-      if (ch::steady_clock::now() >= deadline) {
-        return std::unexpected("MON-VER response timed out");
-      }
-      return std::unexpected("Failed to receive MON-VER response");
-    }
-
-    if (latestClass() != CLASS_MON || latestId() != MON_VER) {
-      continue;
-    }
-
-    const auto* length = scanner_.getLength();
-    const uint16_t payload_length = static_cast<uint16_t>(length[0]) | (static_cast<uint16_t>(length[1]) << 8);
-
-    payload::MON_VER mon_ver;
-    const auto result = mon_ver.decode(payload(), payload_length);
-    if (!result) {
-      return std::unexpected(result.error());
-    }
-
-    if (mon_ver.module == "ZED-F9P") {
-      return F9P;
-    }
-    if (mon_ver.module == "ZED-X20P") {
-      return X20P;
-    }
-    return std::unexpected("Unsupported GNSS module: " + mon_ver.module);
+  if (*module == "ZED-F9P") {
+    return F9P;
   }
-
-  return std::unexpected("MON-VER response timed out");
+  if (*module == "ZED-X20P") {
+    return X20P;
+  }
+  return std::unexpected("Unsupported GNSS module: " + *module);
 }
 
-bool GnssReceiver::update(bool _blocking, std::chrono::milliseconds _timeout)
+bool GnssReceiver::update(bool _blocking)
 {
-  if (scanner_.state() == UbxScanner::kDone) {
-    scanner_.reset();
-  }
-
-  const bool use_timeout = _timeout.count() > 0;
-  const auto deadline = ch::steady_clock::now() + _timeout;
-
-  if (!_blocking && scanner_.state() == UbxScanner::kSync1) {
-    // Check the start byte.
-    const auto first_byte = transport_->receiveByte();
-    if (!first_byte) {
-      scanner_.reset();
-      return false;
-    }
-    if (!*first_byte) {
-      return false;
-    }
-    scanner_.update(**first_byte);
-
-    // Return if no data has arrived.
-    if (scanner_.state() == UbxScanner::kSync1) {
-      return false;
-    }
-  }
-
-  // Scan one message.
-  scan_rate_.start();
-  while (scanner_.state() != UbxScanner::kDone) {
-    if (use_timeout && ch::steady_clock::now() >= deadline) {
-      scanner_.reset();
-      return false;
-    }
-
-    const auto data = transport_->receiveByte();
-    if (!data) {
-      scanner_.reset();
-      return false;
-    }
-    if (!*data) {
-      if (!_blocking) {
-        return false;
-      }
-      std::this_thread::sleep_for(1ms);
-      continue;
-    }
-    scanner_.update(**data);
-    scan_rate_.sleep();
-  }
-
-  if (!verifyMessage()) {
-    return false;
-  }
-
-  return true;
+  return transport_->receiveMessage(scanner_, _blocking, _blocking ? 1s : 1ms);
 }
 
 bool GnssReceiver::enableMessage(UbxClass _cls, uint8_t _id, bool _enable)
 {
-  if (transport_->baudRate()) {
-    return enableUartMessage(_cls, _id, _enable);
-  }
-  return enableSpiMessage(_cls, _id, _enable);
-}
-
-bool GnssReceiver::enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable)
-{
-  constexpr char kNotImplemented[] = "Not implemented.";
-  constexpr char kNotReceivable[] = "Not receivable.";
+  constexpr char kNotImplemented[] = "Not implemented.\n";
+  constexpr char kNotReceivable[] = "Not receivable.\n";
 
   CfgValSet<uint8_t, 1> cfg;
+  uint16_t item_id = 0;
 
   switch (_cls) {
     case CLASS_ACK: {
-      std::cerr << kNotReceivable << '\n';
+      std::cerr << kNotReceivable;
       return false;
     }
     case CLASS_CFG: {
-      std::cerr << kNotReceivable << '\n';
+      std::cerr << kNotReceivable;
       return false;
     }
     case CLASS_INF: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_LOG: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_MGA: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_MON: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_NAV: {
       switch (_id) {
         case NAV_CLOCK:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x069);  // CFG-MSGOUT-UBX_NAV_CLOCK_SPI
+          item_id = 0x069;  // CFG-MSGOUT-UBX_NAV_CLOCK_SPI
           break;
         case NAV_COV:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x087);  // CFG-MSGOUT-UBX_NAV_COV_SPI
+          item_id = 0x087;  // CFG-MSGOUT-UBX_NAV_COV_SPI
           break;
         case NAV_DOP:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x03C);  // CFG-MSGOUT-UBX_NAV_DOP_SPI
+          item_id = 0x03C;  // CFG-MSGOUT-UBX_NAV_DOP_SPI
           break;
         case NAV_EOE:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x163);  // CFG-MSGOUT-UBX_NAV_EOE_SPI
+          item_id = 0x163;  // CFG-MSGOUT-UBX_NAV_EOE_SPI
           break;
         case NAV_GEOFENCE:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x0A5);  // CFG-MSGOUT-UBX_NAV_GEOFENCE_SPI
+          item_id = 0x0A5;  // CFG-MSGOUT-UBX_NAV_GEOFENCE_SPI
           break;
         case NAV_HPPOSECEF:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x032);  // CFG-MSGOUT-UBX_NAV_HPPOSECEF_SPI
+          item_id = 0x032;  // CFG-MSGOUT-UBX_NAV_HPPOSECEF_SPI
           break;
         case NAV_HPPOSLLH:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x037);  // CFG-MSGOUT-UBX_NAV_HPPOSLLH_SPI
+          item_id = 0x037;  // CFG-MSGOUT-UBX_NAV_HPPOSLLH_SPI
           break;
         case NAV_ODO:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x082);  // CFG-MSGOUT-UBX_NAV_ODO_SPI
+          item_id = 0x082;  // CFG-MSGOUT-UBX_NAV_ODO_SPI
           break;
         case NAV_ORB:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x014);  // CFG-MSGOUT-UBX_NAV_ORB_SPI
+          item_id = 0x014;  // CFG-MSGOUT-UBX_NAV_ORB_SPI
           break;
         case NAV_PL:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x419);  // CFG-MSGOUT-UBX_NAV_PL_SPI
+          item_id = 0x419;  // CFG-MSGOUT-UBX_NAV_PL_SPI
           break;
         case NAV_POSECEF:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x028);  // CFG-MSGOUT-UBX_NAV_POSECEF_SPI
+          item_id = 0x028;  // CFG-MSGOUT-UBX_NAV_POSECEF_SPI
           break;
         case NAV_POSLLH:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x02D);  // CFG-MSGOUT-UBX_NAV_POSLLH_SPI
+          item_id = 0x02D;  // CFG-MSGOUT-UBX_NAV_POSLLH_SPI
           break;
         case NAV_PVT:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x00A);  // CFG-MSGOUT-UBX_NAV_PVT_SPI
+          item_id = 0x00A;  // CFG-MSGOUT-UBX_NAV_PVT_SPI
           break;
         case NAV_RELPOSNED:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x091);  // CFG-MSGOUT-UBX_NAV_RELPOSNED_SPI
+          item_id = 0x091;  // CFG-MSGOUT-UBX_NAV_RELPOSNED_SPI
           break;
         case NAV_RESETODO:
           std::cerr << kNotReceivable;
           return false;
         case NAV_SAT:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x019);  // CFG-MSGOUT-UBX_NAV_SAT_SPI
+          item_id = 0x019;  // CFG-MSGOUT-UBX_NAV_SAT_SPI
           break;
         case NAV_SBAS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x06E);  // CFG-MSGOUT-UBX_NAV_SBAS_SPI
+          item_id = 0x06E;  // CFG-MSGOUT-UBX_NAV_SBAS_SPI
           break;
         case NAV_SIG:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x349);  // CFG-MSGOUT-UBX_NAV_SIG_SPI
+          item_id = 0x349;  // CFG-MSGOUT-UBX_NAV_SIG_SPI
           break;
         case NAV_SLAS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x33A);  // CFG-MSGOUT-UBX_NAV_SLAS_SPI
+          item_id = 0x33A;  // CFG-MSGOUT-UBX_NAV_SLAS_SPI
           break;
         case NAV_STATUS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x01E);  // CFG-MSGOUT-UBX_NAV_STATUS_SPI
+          item_id = 0x01E;  // CFG-MSGOUT-UBX_NAV_STATUS_SPI
           break;
         case NAV_SVIN:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x08C);  // CFG-MSGOUT-UBX_NAV_SVIN_SPI
+          item_id = 0x08C;  // CFG-MSGOUT-UBX_NAV_SVIN_SPI
           break;
         case NAV_TIMEBDS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x055);  // CFG-MSGOUT-UBX_NAV_TIMEBDS_SPI
+          item_id = 0x055;  // CFG-MSGOUT-UBX_NAV_TIMEBDS_SPI
           break;
         case NAV_TIMEGAL:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x05A);  // CFG-MSGOUT-UBX_NAV_TIMEGAL_SPI
+          item_id = 0x05A;  // CFG-MSGOUT-UBX_NAV_TIMEGAL_SPI
           break;
         case NAV_TIMEGLO:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x050);  // CFG-MSGOUT-UBX_NAV_TIMEGLO_SPI
+          item_id = 0x050;  // CFG-MSGOUT-UBX_NAV_TIMEGLO_SPI
           break;
         case NAV_TIMEGPS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x04B);  // CFG-MSGOUT-UBX_NAV_TIMEGPS_SPI
+          item_id = 0x04B;  // CFG-MSGOUT-UBX_NAV_TIMEGPS_SPI
           break;
         case NAV_TIMELS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x064);  // CFG-MSGOUT-UBX_NAV_TIMELS_SPI
+          item_id = 0x064;  // CFG-MSGOUT-UBX_NAV_TIMELS_SPI
           break;
         case NAV_TIMEQZSS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x38A);  // CFG-MSGOUT-UBX_NAV_TIMEQZSS_SPI
+          item_id = 0x38A;  // CFG-MSGOUT-UBX_NAV_TIMEQZSS_SPI
           break;
         case NAV_TIMEUTC:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x05F);  // CFG-MSGOUT-UBX_NAV_TIMEUTC_SPI
+          item_id = 0x05F;  // CFG-MSGOUT-UBX_NAV_TIMEUTC_SPI
           break;
         case NAV_VELECEF:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x041);  // CFG-MSGOUT-UBX_NAV_VELECEF_SPI
+          item_id = 0x041;  // CFG-MSGOUT-UBX_NAV_VELECEF_SPI
           break;
         case NAV_VELNED:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x046);  // CFG-MSGOUT-UBX_NAV_VELNED_SPI
+          item_id = 0x046;  // CFG-MSGOUT-UBX_NAV_VELNED_SPI
           break;
         default:
-          std::cerr << kNotImplemented << '\n';  // TODO
+          std::cerr << kNotImplemented;  // TODO
           return false;
       }
       break;
     }
     case CLASS_NAV2: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_RXM: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_SEC: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_TIM: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     case CLASS_UPD: {
-      std::cerr << kNotImplemented << '\n';  // TODO
+      std::cerr << kNotImplemented;  // TODO
       return false;
     }
     default: {
@@ -346,6 +231,21 @@ bool GnssReceiver::enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable)
     }
   }
 
+  switch (transport_->interface()) {
+    case UbxTransport::Interface::SPI:
+      break;
+    case UbxTransport::Interface::UART: {
+      // For these NAV messages, UART1 item IDs are three below the SPI item IDs.
+      constexpr uint16_t kUart1ItemOffset = 3;
+      item_id -= kUart1ItemOffset;
+      break;
+    }
+    default:
+      std::cerr << kNotImplemented;
+      return false;
+  }
+
+  cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, item_id);
   cfg.data[0].value = _enable ? 1 : 0;  // Maximum rate if enabled.
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
@@ -365,213 +265,44 @@ bool GnssReceiver::configureMeasurementRate(uint16_t _period_ms)
   return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_RATE, 0x02, 1);  // CFG-RATE-NAV
 }
 
-bool GnssReceiver::configureUartBaudRate(uint32_t _baud_rate)
-{
-  CfgValSet<uint32_t, 1> cfg;
-  cfg.data[0].key = configKeyID(FOUR_BYTES, CFG_UART1, 0x01);
-  cfg.data[0].value = _baud_rate;
-  return sendMessage(CLASS_CFG, CFG_VALSET, &cfg, sizeof(cfg));
-}
-
-bool GnssReceiver::enableUartMessage(UbxClass _cls, uint8_t _id, bool _enable)
-{
-  constexpr char kNotImplemented[] = "Not implemented.";
-  constexpr char kNotReceivable[] = "Not receivable.";
-
-  CfgValSet<uint8_t, 1> cfg;
-
-  switch (_cls) {
-    case CLASS_ACK: {
-      std::cerr << kNotReceivable << '\n';
-      return false;
-    }
-    case CLASS_CFG: {
-      std::cerr << kNotReceivable << '\n';
-      return false;
-    }
-    case CLASS_INF: {
-      std::cerr << kNotImplemented << '\n';  // TODO
-      return false;
-    }
-    case CLASS_LOG: {
-      std::cerr << kNotImplemented << '\n';  // TODO
-      return false;
-    }
-    case CLASS_MGA: {
-      std::cerr << kNotImplemented << '\n';  // TODO
-      return false;
-    }
-    case CLASS_MON: {
-      std::cerr << kNotImplemented << '\n';  // TODO
-      return false;
-    }
-    case CLASS_NAV: {
-      switch (_id) {
-        case NAV_CLOCK:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x066);  // CFG-MSGOUT-UBX_NAV_CLOCK_UART
-          break;
-        case NAV_COV:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x084);  // CFG-MSGOUT-UBX_NAV_COV_UART
-          break;
-        case NAV_DOP:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x039);  // CFG-MSGOUT-UBX_NAV_DOP_UART
-          break;
-        case NAV_EOE:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x160);  // CFG-MSGOUT-UBX_NAV_EOE_UART
-          break;
-        case NAV_GEOFENCE:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x0A2);  // CFG-MSGOUT-UBX_NAV_GEOFENCE_UART
-          break;
-        case NAV_HPPOSECEF:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x02F);  // CFG-MSGOUT-UBX_NAV_HPPOSECEF_UART
-          break;
-        case NAV_HPPOSLLH:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x034);  // CFG-MSGOUT-UBX_NAV_HPPOSLLH_UART
-          break;
-        case NAV_ODO:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x07F);  // CFG-MSGOUT-UBX_NAV_ODO_UART
-          break;
-        case NAV_ORB:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x011);  // CFG-MSGOUT-UBX_NAV_ORB_UART
-          break;
-        case NAV_PL:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x416);  // CFG-MSGOUT-UBX_NAV_PL_UART
-          break;
-        case NAV_POSECEF:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x025);  // CFG-MSGOUT-UBX_NAV_POSECEF_UART
-          break;
-        case NAV_POSLLH:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x02A);  // CFG-MSGOUT-UBX_NAV_POSLLH_UART
-          break;
-        case NAV_PVT:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x007);  // CFG-MSGOUT-UBX_NAV_PVT_UART
-          break;
-        case NAV_RELPOSNED:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x08E);  // CFG-MSGOUT-UBX_NAV_RELPOSNED_UART
-          break;
-        case NAV_RESETODO:
-          std::cerr << kNotReceivable << '\n';
-          return false;
-        case NAV_SAT:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x016);  // CFG-MSGOUT-UBX_NAV_SAT_UART
-          break;
-        case NAV_SBAS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x06B);  // CFG-MSGOUT-UBX_NAV_SBAS_UART
-          break;
-        case NAV_SIG:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x346);  // CFG-MSGOUT-UBX_NAV_SIG_UART
-          break;
-        case NAV_SLAS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x337);  // CFG-MSGOUT-UBX_NAV_SLAS_UART
-          break;
-        case NAV_STATUS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x01B);  // CFG-MSGOUT-UBX_NAV_STATUS_UART
-          break;
-        case NAV_SVIN:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x089);  // CFG-MSGOUT-UBX_NAV_SVIN_UART
-          break;
-        case NAV_TIMEBDS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x052);  // CFG-MSGOUT-UBX_NAV_TIMEBDS_UART
-          break;
-        case NAV_TIMEGAL:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x057);  // CFG-MSGOUT-UBX_NAV_TIMEGAL_UART
-          break;
-        case NAV_TIMEGLO:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x04D);  // CFG-MSGOUT-UBX_NAV_TIMEGLO_UART
-          break;
-        case NAV_TIMEGPS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x048);  // CFG-MSGOUT-UBX_NAV_TIMEGPS_UART
-          break;
-        case NAV_TIMELS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x061);  // CFG-MSGOUT-UBX_NAV_TIMELS_UART
-          break;
-        case NAV_TIMEQZSS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x387);  // CFG-MSGOUT-UBX_NAV_TIMEQZSS_UART
-          break;
-        case NAV_TIMEUTC:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x05C);  // CFG-MSGOUT-UBX_NAV_TIMEUTC_UART
-          break;
-        case NAV_VELECEF:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x03E);  // CFG-MSGOUT-UBX_NAV_VELECEF_UART
-          break;
-        case NAV_VELNED:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x043);  // CFG-MSGOUT-UBX_NAV_VELNED_UART
-          break;
-        default:
-          std::cerr << kNotImplemented << '\n';  // TODO
-          return false;
-      }
-      break;
-    }
-    case CLASS_NAV2: {
-      std::cerr << kNotImplemented << '\n';  // TODO
-      return false;
-    }
-    case CLASS_RXM: {
-      std::cerr << kNotImplemented << '\n';  // TODO
-      return false;
-    }
-    case CLASS_SEC: {
-      std::cerr << kNotImplemented << '\n';  // TODO
-      return false;
-    }
-    case CLASS_TIM: {
-      std::cerr << kNotImplemented << '\n';  // TODO
-      return false;
-    }
-    case CLASS_UPD: {
-      std::cerr << kNotImplemented << '\n';  // TODO
-      return false;
-    }
-    default: {
-      std::cerr << "Invalid UBX class type: " << std::hex << _cls << '\n';
-      return false;
-    }
-  }
-
-  cfg.data[0].value = _enable ? 1 : 0;  // Maximum rate if enabled.
-
-  return configure(CFG_VALSET, &cfg, sizeof(cfg));
-}
-
 bool GnssReceiver::enableGps()
 {
   // Enable GPS.
   if (!enableGps(true)) {
-    std::cerr << "Failed to enable GPS." << '\n';
+    std::cerr << "Failed to enable GPS.\n";
     return false;
   }
 
   // Enable L1 band.
   if (!enableGpsL1()) {
-    std::cerr << "Failed to enable GPS L1." << '\n';
+    std::cerr << "Failed to enable GPS L1.\n";
     return false;
   }
 
   // Enable L2 band for ZED-F9P.
   if (receiver_profile_ == F9P) {
     if (!enableGpsL2()) {
-      std::cerr << "Failed to enable GPS L2." << '\n';
+      std::cerr << "Failed to enable GPS L2.\n";
       return false;
     }
 
-    std::cout << "GPS L1/L2 is enabled." << '\n';
+    std::cout << "GPS L1/L2 is enabled.\n";
     return true;
   }
 
   // Enable L2 and L5 bands for ZED-X20P.
   if (receiver_profile_ == X20P) {
     if (!enableGpsL2()) {
-      std::cerr << "Failed to enable GPS L2." << '\n';
+      std::cerr << "Failed to enable GPS L2.\n";
       return false;
     }
 
     if (!enableGpsL5()) {
-      std::cerr << "Failed to enable GPS L5." << '\n';
+      std::cerr << "Failed to enable GPS L5.\n";
       return false;
     }
 
-    std::cout << "GPS L1/L2/L5 is enabled." << '\n';
+    std::cout << "GPS L1/L2/L5 is enabled.\n";
     return true;
   }
 
@@ -587,13 +318,13 @@ bool GnssReceiver::enableSbas()
 {
   // Enable SBAS.
   if (!enableSbas(true)) {
-    std::cerr << "Failed to enable SBAS." << '\n';
+    std::cerr << "Failed to enable SBAS.\n";
     return false;
   }
 
   // Enable L1 band.
   if (!enableSbasL1()) {
-    std::cerr << "Failed to enable SBAS L1." << '\n';
+    std::cerr << "Failed to enable SBAS L1.\n";
     return false;
   }
 
@@ -602,47 +333,47 @@ bool GnssReceiver::enableSbas()
 
 bool GnssReceiver::disableSbas()
 {
-  return enableSbas(false);
+  return enableGps(false);
 }
 
 bool GnssReceiver::enableGalileo()
 {
   // Enable Galileo.
   if (!enableGalileo(true)) {
-    std::cerr << "Failed to enable Galileo." << '\n';
+    std::cerr << "Failed to enable Galileo.\n";
     return false;
   }
 
   // Enable E1 band.
   if (!enableGalileoE1()) {
-    std::cerr << "Failed to enable Galileo E1." << '\n';
+    std::cerr << "Failed to enable Galileo E1.\n";
     return false;
   }
 
   // Enable E5b band for ZED-F9P.
   if (receiver_profile_ == F9P) {
     if (!enableGalileoE5b()) {
-      std::cerr << "Failed to enable Galileo E5b." << '\n';
+      std::cerr << "Failed to enable Galileo E5b.\n";
       return false;
     }
 
-    std::cout << "Galileo E1/E5b is enabled." << '\n';
+    std::cout << "Galileo E1/E5b is enabled.\n";
     return true;
   }
 
   // Enable E5a and E6 bands for ZED-X20P.
   if (receiver_profile_ == X20P) {
     if (!enableGalileoE5a()) {
-      std::cerr << "Failed to enable Galileo E5a." << '\n';
+      std::cerr << "Failed to enable Galileo E5a.\n";
       return false;
     }
 
     if (!enableGalileoE6()) {
-      std::cerr << "Failed to enable Galileo E6." << '\n';
+      std::cerr << "Failed to enable Galileo E6.\n";
       return false;
     }
 
-    std::cout << "Galileo E1/E5a/E6 is enabled." << '\n';
+    std::cout << "Galileo E1/E5a/E6 is enabled.\n";
     return true;
   }
 
@@ -658,45 +389,45 @@ bool GnssReceiver::enableBeiDou()
 {
   // Enable BeiDou.
   if (!enableBeiDou(true)) {
-    std::cerr << "Failed to enable BeiDou." << '\n';
+    std::cerr << "Failed to enable BeiDou.\n";
     return false;
   }
 
   // Enable B1I band.
   if (!enableBeiDouB1I()) {
-    std::cerr << "Failed to enable BeiDou B1I." << '\n';
+    std::cerr << "Failed to enable BeiDou B1I.\n";
     return false;
   }
 
   // Enable B2I bands for ZED-F9P.
   if (receiver_profile_ == F9P) {
     if (!enableBeiDouB2I()) {
-      std::cerr << "Failed to enable BeiDou B2I." << '\n';
+      std::cerr << "Failed to enable BeiDou B2I.\n";
       return false;
     }
 
-    std::cout << "BeiDou B1I/B2I is enabled." << '\n';
+    std::cout << "BeiDou B1I/B2I is enabled.\n";
     return true;
   }
 
   // Enable B1C, B2a and B3I bands for ZED-X20P.
   if (receiver_profile_ == X20P) {
     if (!enableBeiDouB1C()) {
-      std::cerr << "Failed to enable BeiDou B1C." << '\n';
+      std::cerr << "Failed to enable BeiDou B1C.\n";
       return false;
     }
 
     if (!enableBeiDouB2a()) {
-      std::cerr << "Failed to enable BeiDou B2a." << '\n';
+      std::cerr << "Failed to enable BeiDou B2a.\n";
       return false;
     }
 
     if (!enableBeiDouB3I()) {
-      std::cerr << "Failed to enable BeiDou B3I." << '\n';
+      std::cerr << "Failed to enable BeiDou B3I.\n";
       return false;
     }
 
-    std::cout << "BeiDou B1I/B1C/B2a/B3I is enabled." << '\n';
+    std::cout << "BeiDou B1I/B1C/B2a/B3I is enabled.\n";
     return true;
   }
 
@@ -712,39 +443,39 @@ bool GnssReceiver::enableQzss()
 {
   // Enable QZSS.
   if (!enableQzss(true)) {
-    std::cerr << "Failed to enable QZSS." << '\n';
+    std::cerr << "Failed to enable QZSS.\n";
     return false;
   }
 
   // Enable L1 band.
   if (!enableQzssL1()) {
-    std::cerr << "Failed to enable QZSS L1." << '\n';
+    std::cerr << "Failed to enable QZSS L1.\n";
     return false;
   }
 
   // Enable L2 band for ZED-F9P.
   if (receiver_profile_ == F9P) {
     if (!enableQzssL2()) {
-      std::cerr << "Failed to enable QZSS L2." << '\n';
+      std::cerr << "Failed to enable QZSS L2.\n";
       return false;
     }
 
-    std::cout << "QZSS L1/L2 is enabled." << '\n';
+    std::cout << "QZSS L1/L2 is enabled.\n";
     return true;
   }
   // Enable L2 and L5 band for ZED-X20P.
   if (receiver_profile_ == X20P) {
     if (!enableQzssL2()) {
-      std::cerr << "Failed to enable QZSS L2." << '\n';
+      std::cerr << "Failed to enable QZSS L2.\n";
       return false;
     }
 
     if (!enableQzssL5()) {
-      std::cerr << "Failed to enable QZSS L5." << '\n';
+      std::cerr << "Failed to enable QZSS L5.\n";
       return false;
     }
 
-    std::cout << "QZSS L1/L2/L5 is enabled." << '\n';
+    std::cout << "QZSS L1/L2/L5 is enabled.\n";
     return true;
   }
 
@@ -760,23 +491,23 @@ bool GnssReceiver::enableGlonass()
 {
   // Enable GLONASS.
   if (!enableGlonass(true)) {
-    std::cerr << "Failed to enable GLONASS." << '\n';
+    std::cerr << "Failed to enable GLONASS.\n";
     return false;
   }
 
   // Enable L1 band.
   if (!enableGlonassL1()) {
-    std::cerr << "Failed to enable GLONASS L1." << '\n';
+    std::cerr << "Failed to enable GLONASS L1.\n";
     return false;
   }
 
   // Try to enable L2 band.
   if (enableGlonassL2()) {
-    std::cout << "GLONASS L1/L2 is enabled." << '\n';
+    std::cout << "GLONASS L1/L2 is enabled.\n";
     return true;
   }
 
-  std::cout << "GLONASS L1 is enabled." << '\n';
+  std::cout << "GLONASS L1 is enabled.\n";
   return true;
 }
 
@@ -789,17 +520,17 @@ bool GnssReceiver::enableNavIc()
 {
   // Enable NavIC.
   if (!enableNavIc(true)) {
-    std::cerr << "Failed to enable NavIC." << '\n';
+    std::cerr << "Failed to enable NavIC.\n";
     return false;
   }
 
   // Enable L5 band.
   if (!enableNavIcL5()) {
-    std::cerr << "Failed to enable NavIC L5." << '\n';
+    std::cerr << "Failed to enable NavIC L5.\n";
     return false;
   }
 
-  std::cout << "NavIC L5 is enabled." << '\n';
+  std::cout << "NavIC L5 is enabled.\n";
   return true;
 }
 
@@ -808,45 +539,26 @@ bool GnssReceiver::disableNavIc()
   return enableNavIc(false);
 }
 
-bool GnssReceiver::enableSpiProtocol_UBX(bool _enable_input, bool _enable_output)
+bool GnssReceiver::enableProtocol_UBX(bool _enable_input, bool _enable_output)
 {
-  return enableSpiInputProtocol(UBX, _enable_input) && enableSpiOutputProtocol(UBX, _enable_output);
+  return enableInputProtocol(UBX, _enable_input) && enableOutputProtocol(UBX, _enable_output);
 }
 
-bool GnssReceiver::enableSpiProtocol_NMEA(bool _enable_input, bool _enable_output)
+bool GnssReceiver::enableProtocol_NMEA(bool _enable_input, bool _enable_output)
 {
-  return enableSpiInputProtocol(NMEA, _enable_input) && enableSpiOutputProtocol(NMEA, _enable_output);
+  return enableInputProtocol(NMEA, _enable_input) && enableOutputProtocol(NMEA, _enable_output);
 }
 
-bool GnssReceiver::enableSpiProtocol_RTCM3X(bool _enable_input, bool _enable_output)
+bool GnssReceiver::enableProtocol_RTCM3X(bool _enable_input, bool _enable_output)
 {
-  return enableSpiInputProtocol(RTCM3X, _enable_input) && enableSpiOutputProtocol(RTCM3X, _enable_output);
+  return enableInputProtocol(RTCM3X, _enable_input) && enableOutputProtocol(RTCM3X, _enable_output);
 }
 
-bool GnssReceiver::enableSpiProtocol_SPARTN(bool _enable_input)
+bool GnssReceiver::enableProtocol_SPARTN(bool _enable_input)
 {
-  return enableSpiInputProtocol(SPARTN, _enable_input);
+  return enableInputProtocol(SPARTN, _enable_input);
 }
 
-bool GnssReceiver::enableUartProtocol_UBX(bool _enable_input, bool _enable_output)
-{
-  return enableUartInputProtocol(UBX, _enable_input) && enableUartOutputProtocol(UBX, _enable_output);
-}
-
-bool GnssReceiver::enableUartProtocol_NMEA(bool _enable_input, bool _enable_output)
-{
-  return enableUartInputProtocol(NMEA, _enable_input) && enableUartOutputProtocol(NMEA, _enable_output);
-}
-
-bool GnssReceiver::enableUartProtocol_RTCM3X(bool _enable_input, bool _enable_output)
-{
-  return enableUartInputProtocol(RTCM3X, _enable_input) && enableUartOutputProtocol(RTCM3X, _enable_output);
-}
-
-bool GnssReceiver::enableUartProtocol_SPARTN(bool _enable_input)
-{
-  return enableUartInputProtocol(SPARTN, _enable_input);
-}
 bool GnssReceiver::setAntennaLength(uint8_t _length_m)
 {
   constexpr uint8_t kRG174CableDelay = 5;  // [ns/m] Coaxial cable delay.
@@ -858,8 +570,8 @@ bool GnssReceiver::enableUsb(bool _enable)
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_USB, 0x01, _enable);  // CFG-USB-ENABLED
 }
 
-bool GnssReceiver::sendMessage(UbxClass _cls, uint8_t _id, const void* _msg, uint16_t _size)
-{
+bool UbxTransport::sendMessage(uint8_t _cls, uint8_t _id, const void* _msg, uint16_t _size) noexcept
+try {
   // Allocate space for the header, payload, and checksum of this message.
   std::vector<uint8_t> tx_buf(sizeof(UbxHeader) + _size + sizeof(CheckSum));
 
@@ -879,93 +591,143 @@ bool GnssReceiver::sendMessage(UbxClass _cls, uint8_t _id, const void* _msg, uin
   const auto ck = computeChecksum(tx_buf.data(), checksum_pos);
   const auto message_length = spliceMemory(tx_buf.data(), &ck, sizeof(CheckSum), checksum_pos);
 
-  return transport_->send(tx_buf.data(), message_length);
+  return writeBytes(tx_buf.data(), message_length);
+}
+
+catch (...) {
+  return false;
+}
+
+bool UbxTransport::receiveMessage(UbxScanner& _scanner, bool _blocking, ch::milliseconds _timeout) noexcept
+try {
+  if (_scanner.state() == UbxScanner::kDone) {
+    _scanner.reset();
+  }
+  const auto deadline = ch::steady_clock::now() + _timeout;
+  tim::Rate scan_rate(50us);
+  while (ch::steady_clock::now() < deadline) {
+    const auto byte = receiveByte();
+    if (!byte) {
+      if (!_blocking) {
+        return false;
+      }
+      std::this_thread::sleep_for(1ms);
+      continue;
+    }
+    _scanner.update(*byte);
+    if (interface() == Interface::SPI) {
+      scan_rate.sleep();
+    }
+    if (_scanner.state() == UbxScanner::kDone) {
+      const auto checksum = computeChecksum(_scanner.getSync1(), _scanner.messageLength() - kUbxChecksumLength);
+      if (checksum.CK_A == *_scanner.getChecksumA() && checksum.CK_B == *_scanner.getChecksumB()) {
+        return true;
+      }
+      _scanner.reset();
+    }
+  }
+  // Retain partial frames for the next receive call.
+  return false;
+}
+
+catch (...) {
+  _scanner.reset();
+  return false;
+}
+
+UbxTransport::CheckSum UbxTransport::computeChecksum(const uint8_t* _message, size_t _checksum_pos)
+{
+  CheckSum ck;
+  ck.CK_A = ck.CK_B = 0;
+
+  for (size_t i = kUbxSyncLength; i < _checksum_pos; ++i) {
+    ck.CK_A += _message[i];
+    ck.CK_B += ck.CK_A;
+  }
+
+  return ck;
+}
+
+size_t UbxTransport::spliceMemory(uint8_t* _dest, const void* _src, size_t _size, size_t _dest_offset)
+{
+  std::memmove(_dest + _dest_offset, _src, _size);
+  return _dest_offset + _size;
+}
+
+std::expected<std::string, std::string> UbxTransport::pollVersion(ch::milliseconds _timeout)
+{
+  UbxScanner scanner;
+  // Discard already queued frames and partial bytes before polling at a new speed.
+  const auto flush_deadline = ch::steady_clock::now() + 20ms;
+  while (ch::steady_clock::now() < flush_deadline) {
+    if (!receiveByte()) {
+      break;
+    }
+  }
+  if (!sendMessage(0x0A, 0x04, nullptr, 0)) {
+    return std::unexpected("Failed to send MON-VER request");
+  }
+  const auto deadline = ch::steady_clock::now() + _timeout;
+  while (ch::steady_clock::now() < deadline) {
+    const auto remaining = ch::ceil<ch::milliseconds>(deadline - ch::steady_clock::now());
+    if (!receiveMessage(scanner, true, remaining)) {
+      break;
+    }
+    if (*scanner.getClass() != 0x0A || *scanner.getId() != 0x04) {
+      continue;
+    }
+    const auto* length = scanner.getLength();
+    payload::MON_VER version(length[0] | (uint16_t{ length[1] } << 8));
+    version.decode(scanner.getPayload());
+    if (!version.error.empty()) {
+      return std::unexpected(version.error);
+    }
+    return version.module;
+  }
+  return std::unexpected("MON-VER response timed out");
 }
 
 bool GnssReceiver::waitForAcknowledge(UbxClass _cls, uint8_t _id)
 {
-  payload::ACK_ACK ack;
-  payload::ACK_NAK nak;
-
-  const auto cls_str = std::to_string(static_cast<int>(_cls));
-  const auto id_str = std::to_string(static_cast<int>(_id));
-
-  constexpr auto kWaitForGnssAck = 1s;
-  const auto deadline = ch::steady_clock::now() + kWaitForGnssAck;
-
+  const auto deadline = ch::steady_clock::now() + 1s;
   while (ch::steady_clock::now() < deadline) {
-    const auto remaining = ch::duration_cast<ch::milliseconds>(deadline - ch::steady_clock::now());
-    if (remaining <= 0ms || !update(true, remaining)) {
-      return false;
+    const auto remaining = ch::ceil<ch::milliseconds>(deadline - ch::steady_clock::now());
+    if (!transport_->receiveMessage(scanner_, true, remaining)) {
+      break;
     }
-
-    if (latestClass() != CLASS_ACK) {
+    if (latestClass() != CLASS_ACK || (latestId() != ACK_ACK && latestId() != ACK_NAK)) {
       continue;
     }
-
-    switch (latestId()) {
-      case ACK_ACK:
-        ack.decode(payload());
-
-        if (ack.clsID == _cls && ack.msgID == _id) {
-          return true;
-        }
-        else {
-          std::cerr << "An acknowledment message for an unspecified message is received." << '\n';
-          return false;
-        }
-
-        break;
-
-      case ACK_NAK:
-        nak.decode(payload());
-
-        if (nak.clsID == _cls && nak.msgID == _id) {
-          std::cerr << "Configuration was rejected: (class, id) = (" << cls_str << ", " << id_str << ")" << '\n';
-          return false;
-        }
-        else {
-          std::cerr << "A non-acknowledment message for an unspecified message is received." << '\n';
-          return false;
-        }
-
-        break;
-
-      default:
-        std::cerr << "Unexpected ACK ID: " << static_cast<int>(latestId()) << '\n';
-        break;
+    const auto* length = scanner_.getLength();
+    if (length[0] != 2 || length[1] != 0) {
+      continue;
     }
+    if (payload()[0] != _cls || payload()[1] != _id) {
+      continue;
+    }
+    if (latestId() == ACK_NAK) {
+      std::cerr << "Configuration was rejected: (class, id) = (" << static_cast<int>(_cls) << ", "
+                << static_cast<int>(_id) << ")\n";
+      return false;
+    }
+    return true;
   }
-
-  std::cerr << "Acknowledment message not received: (class, id) = (" << cls_str << ", " << id_str << ")" << '\n';
+  std::cerr << "Acknowledgment message not received: (class, id) = (" << static_cast<int>(_cls) << ", "
+            << static_cast<int>(_id) << ")\n";
   return false;
 }
 
 bool GnssReceiver::configure(UbxCfgId _cfg_id, const void* _msg, uint16_t _size)
 {
-  return sendMessage(CLASS_CFG, _cfg_id, _msg, _size) && waitForAcknowledge(CLASS_CFG, _cfg_id);
-}
-
-bool GnssReceiver::verifyMessage() const
-{
-  // Sync chars
-  if (*scanner_.getSync1() != kUbxSync1 || *scanner_.getSync2() != kUbxSync2) {
-    std::cerr << "The current message is not UBX format." << '\n';
-    return false;
+  const auto deadline = ch::steady_clock::now() + 100ms;
+  while (ch::steady_clock::now() < deadline) {
+    const auto remaining = ch::ceil<ch::milliseconds>(deadline - ch::steady_clock::now());
+    if (!transport_->receiveMessage(scanner_, false, remaining)) {
+      break;
+    }
   }
-
-  // Checksum
-  uint8_t CK_A = 0, CK_B = 0;
-  for (auto x = scanner_.getClass(); x < scanner_.getChecksumA(); ++x) {
-    CK_A += *x;
-    CK_B += CK_A;
-  }
-  if (CK_A != *scanner_.getChecksumA() || CK_B != *scanner_.getChecksumB()) {
-    std::cerr << "Checksum failed." << '\n';
-    return false;
-  }
-
-  return true;
+  scanner_.reset();
+  return transport_->sendMessage(CLASS_CFG, _cfg_id, _msg, _size) && waitForAcknowledge(CLASS_CFG, _cfg_id);
 }
 
 bool GnssReceiver::enableGps(bool _enable)
@@ -1108,43 +870,22 @@ bool GnssReceiver::enableNavIcL5()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1D, true);  // CFG-SIGNAL-NAVIC_L5_ENA
 }
 
-bool GnssReceiver::enableSpiInputProtocol(CfgProtocol _prot, bool _enable)
+bool GnssReceiver::enableInputProtocol(CfgProtocol _prot, bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIINPROT, _prot, _enable);  // CFG-SPIINPROT-XXX
+  return cfgValSetSingle<uint8_t>(
+    ONE_BIT,
+    transport_->interface() == UbxTransport::Interface::SPI ? CFG_SPIINPROT : CFG_UART1INPROT,
+    _prot,
+    _enable);  // Input protocol on the connected interface.
 }
 
-bool GnssReceiver::enableSpiOutputProtocol(CfgProtocol _prot, bool _enable)
+bool GnssReceiver::enableOutputProtocol(CfgProtocol _prot, bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIOUTPROT, _prot, _enable);  // CFG-SPIOUTPROT-XXX
-}
-
-bool GnssReceiver::enableUartInputProtocol(CfgProtocol _prot, bool _enable)
-{
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_UART1INPROT, _prot, _enable);  // CFG-UART1INPROT-XXX
-}
-
-bool GnssReceiver::enableUartOutputProtocol(CfgProtocol _prot, bool _enable)
-{
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_UART1OUTPROT, _prot, _enable);  // CFG-UART1OUTPROT-XXX
-}
-
-GnssReceiver::CheckSum GnssReceiver::computeChecksum(const uint8_t* _message, size_t _checksum_pos)
-{
-  CheckSum ck;
-  ck.CK_A = ck.CK_B = 0;
-
-  for (size_t i = kUbxSyncLength; i < _checksum_pos; ++i) {
-    ck.CK_A += _message[i];
-    ck.CK_B += ck.CK_A;
-  }
-
-  return ck;
-}
-
-size_t GnssReceiver::spliceMemory(uint8_t* _dest, const void* _src, size_t _size, size_t _dest_offset)
-{
-  std::memmove(_dest + _dest_offset, _src, _size);
-  return _dest_offset + _size;
+  return cfgValSetSingle<uint8_t>(
+    ONE_BIT,
+    transport_->interface() == UbxTransport::Interface::SPI ? CFG_SPIOUTPROT : CFG_UART1OUTPROT,
+    _prot,
+    _enable);  // Output protocol on the connected interface.
 }
 
 uint32_t GnssReceiver::configKeyID(CfgSize _size, CfgGroup _group, uint16_t _id)
