@@ -6,6 +6,7 @@
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
+#include <tobas_quadprog/dual_active_set.hpp>
 #include <tobas_tools/mixer_i.hpp>
 
 #include "./mixer_solution.hpp"
@@ -13,12 +14,12 @@
 namespace tobas::random_axis_tilt_multicopter
 {
 /** Solve tilt-rotor multicopter mixing by variable transformation (memo: 3-16). */
-class PinvMixer : public MixerI
+class QpMixer : public MixerI
 {
   using super = MixerI;
 
 public:
-  explicit PinvMixer(const Drone& _drone, const kdl::Tree& _tree);
+  explicit QpMixer(const Drone& _drone, const kdl::Tree& _tree);
 
   void updateInternalDataStructures() override;
 
@@ -31,12 +32,19 @@ public:
     const kdl::Vector& _ext_force_w = kdl::Vector::Zero(),
     const kdl::Vector& _ext_torque_b = kdl::Vector::Zero());
 
+  void setLinearWeight(double _p);
+  void setAngularWeight(double _p);
+  void setThrustWeight(double _p);
+
   void setTiltAxisSingularDeclinationLB(double _lb_rad);
   void setTiltAxisSingularDeclinationUB(double _ub_rad);
 
 private:
   struct Config
   {
+    double linear_weight = 1.0;
+    double angular_weight = 1.0;
+    double thrust_weight = 1e-9;
     double singular_declination_lb = 0.0;  ///< [rad]
     double singular_declination_ub = 0.0;  ///< [rad]
   } cfg_;
@@ -57,7 +65,10 @@ private:
   };
   std::vector<DynamicRotorLinkState> state_;
 
-  Eigen::Matrix6Xd E_;
-  Eigen::Vector6d f_;
+  quadprog::DualActiveSetSolver qp_;  ///< QP solver.
+  Eigen::Diagonal6d Q_;               ///< EoM weights.
+  Eigen::DiagonalXd R_;               ///< Thrust weights.
+  Eigen::Matrix6Xd E_;                ///< Left-hand side of the EoM matrix equality.
+  Eigen::Vector6d f_;                 ///< Right-hand side of the EoM matrix equality.
 };
 }  // namespace tobas::random_axis_tilt_multicopter

@@ -41,10 +41,10 @@ std::expected<Eigen::VectorXd, std::string> PinvMixer::solve(
   const auto I_B = inertia.getRotationalInertiaCoG();
 
   // Left-hand side of the EoM matrix equality.
-  for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
-    const auto& rotor = pair.second;
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
 
-    if (rotor_alive_[rotor->link_name]) {
+    if (isRotorAlive(rotor->link_name)) {
       const auto& B_Pos_B2P = frames.at(rotor->link_name).p;
 
       const auto& elem = tree_.getSegment(rotor->link_name)->second;

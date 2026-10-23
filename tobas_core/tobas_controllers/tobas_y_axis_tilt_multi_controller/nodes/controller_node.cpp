@@ -176,10 +176,10 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& _options)
   addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 20);
   addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 0.1, 10, 1, 20);
   addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 0.1, 10, 1, 20);
-  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.01, 10, 1, 30);
-  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.01, 10, 1, 30);
-  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, 10, 1, 30);
-  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, 10, 1, 30);
+  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.01, 10, 0, 30);
+  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.01, 10, 0, 30);
+  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, 10, 0, 30);
+  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, 10, 0, 30);
   addDynamicDoubleParam("horizontal_i_max_accel", &self::horizontalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
   addDynamicDoubleParam("vertical_i_max_accel", &self::verticalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
   addDynamicDoubleParam("throttle_gain_threshold", &self::throttleGainThresholdCb, this, 1.0, 70, 0, 100, " %");

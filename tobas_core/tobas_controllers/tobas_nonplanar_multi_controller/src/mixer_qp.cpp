@@ -85,8 +85,8 @@ std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
   // Weights for thrust.
   const auto thrust_scale = mass * st::kGravity / drone_.prop->numRotors();  // [N]
   const auto thrust_weight_base = cfg_.thrust_weight / math::sqr(thrust_scale);
-  for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
-    const auto& rotor = pair.second;
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
     R_.diagonal()(idx) = thrust_weight_base * rotor->effortWeight();
   }
 
@@ -97,7 +97,7 @@ std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
   // Inequality constraints.
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
-    if (rotor_alive_[rotor->link_name]) {
+    if (isRotorAlive(rotor->link_name)) {
       qp_.problem.b(idx) = drone_.prop->maxThrust(rotor->link_name);
       qp_.problem.b(drone_.prop->numRotors() + idx) = -drone_.prop->minThrust(rotor->link_name);
     }

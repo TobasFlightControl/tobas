@@ -32,7 +32,7 @@
 #include <tobas_msgs_adapter/odometry_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
-#include "tobas_random_axis_tilt_multi_controller/mixer_pinv.hpp"
+#include "tobas_random_axis_tilt_multi_controller/mixer_qp.hpp"
 
 namespace tobas::random_axis_tilt_multicopter
 {
@@ -57,10 +57,11 @@ private:
   // Controllers
   PositionPID pos_pid_;
   AngleAxisPI rot_pi_;
-  PinvMixer mixer_;
+  QpMixer mixer_;
   double atti_wn_, head_wn_;      ///< [rad/s]
   double atti_zeta_, head_zeta_;  ///< [-]
   kdl::Vector rate_gain_;
+  kdl::Vector max_dgyro_;  ///< Per-axis angular acceleration limits [rad/s^2].
 
   // Mutable variables
   bool js_received_ = false;
@@ -117,9 +118,11 @@ private:
   void attitudeNaturalFreqCb(double _p);
   void attitudeDampingRatioCb(double _p);
   void attitudeIGainCb(double _p);
+  void attitudeMaxAccelCb(double _p);
   void headingNaturalFreqCb(double _p);
   void headingDampingRatioCb(double _p);
   void headingIGainCb(double _p);
+  void headingMaxAccelCb(double _p);
   void tiltAsixSingularDeclinationLBCb(double _lb_deg);
   void tiltAsixSingularDeclinationUBCb(double _ub_deg);
 
@@ -155,12 +158,14 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& _options)
   addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 20);
   addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 0.1, 10, 1, 20);
   addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 0.1, 10, 1, 20);
-  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.01, 10, 1, 30);
-  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.01, 10, 1, 30);
-  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, 10, 1, 30);
-  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, 10, 1, 30);
+  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.01, 10, 0, 30);
+  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.01, 10, 0, 30);
+  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, 10, 0, 30);
+  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, 10, 0, 30);
   addDynamicDoubleParam("horizontal_i_max_accel", &self::horizontalIMaxAccelCb, this, 0.5, 4, 1, 20, " m/s^2");
   addDynamicDoubleParam("vertical_i_max_accel", &self::verticalIMaxAccelCb, this, 0.5, 4, 1, 20, " m/s^2");
+  addDynamicDoubleParam("attitude_max_accel", &self::attitudeMaxAccelCb, this, 2.0, 30, 1, 30, " rad/s^2");
+  addDynamicDoubleParam("heading_max_accel", &self::headingMaxAccelCb, this, 1.0, 30, 1, 30, " rad/s^2");
   addDynamicDoubleParam(
     "tilt_axis_singular_declination_lb", &self::tiltAsixSingularDeclinationLBCb, this, 1.0, 10, 0, 45, " deg");
   addDynamicDoubleParam(
@@ -301,6 +306,12 @@ void ControllerNode::attitudeIGainCb(double _p)
   rot_pi_.setIntegralGain(1, _p);
 }
 
+void ControllerNode::attitudeMaxAccelCb(double _p)
+{
+  max_dgyro_.x(_p);
+  max_dgyro_.y(_p);
+}
+
 void ControllerNode::headingNaturalFreqCb(double _p)
 {
   head_wn_ = _p;
@@ -316,6 +327,11 @@ void ControllerNode::headingDampingRatioCb(double _p)
 void ControllerNode::headingIGainCb(double _p)
 {
   rot_pi_.setIntegralGain(2, _p);
+}
+
+void ControllerNode::headingMaxAccelCb(double _p)
+{
+  max_dgyro_.z(_p);
 }
 
 void ControllerNode::tiltAsixSingularDeclinationLBCb(double _lb_deg)
@@ -420,8 +436,9 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       tar_dgyro_.emplace();
     }
 
-    // Compute target angular acceleration.
-    *tar_dgyro_ = rate_gain_.hadamard(rate_cmd_->rate - cur_gyro_B);
+    // Compute target angular acceleration and apply per-axis limits.
+    // Limiting angular acceleration can help prevent the mixer from outputting extreme tilt angles.
+    *tar_dgyro_ = rate_gain_.hadamard(rate_cmd_->rate - cur_gyro_B).clamp(-max_dgyro_, max_dgyro_);
 
     // Fill the feedback message.
     setpoint->odom.twist.rot = rate_cmd_->rate;

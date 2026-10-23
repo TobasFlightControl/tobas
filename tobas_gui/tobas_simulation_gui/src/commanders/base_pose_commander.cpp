@@ -32,8 +32,8 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(const rqt::RosQtBridge& _bridge
   arming_button_ = new qt::ToggleButton("Arm", "Disarm");
   arming_button_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
   header_cols->addWidget(arming_button_);
-  connect(arming_button_, &qt::ToggleButton::checked, this, &self::onArmRequested);
-  connect(arming_button_, &qt::ToggleButton::unchecked, this, &self::onDisarmRequested);
+  connect(arming_button_, &qt::ToggleButton::checked, this, &self::onArmButtonClicked);
+  connect(arming_button_, &qt::ToggleButton::unchecked, this, &self::onDisarmButtonClicked);
 
   constexpr std::array kLabelsXYZ = { "X", "Y", "Z" };
   for (size_t i = 0; i < 3; ++i) {
@@ -196,29 +196,24 @@ bool BasePoseCommanderWidget::armRotors(bool _arming)
   return true;
 }
 
-void BasePoseCommanderWidget::onArmRequested()
+void BasePoseCommanderWidget::onArmButtonClicked()
 {
-  if (!arming_) {
-    qt::qWarnBox(this, "Arming status has not been received yet.");
-    return;
-  }
-  if (!odom_) {
-    qt::qWarnBox(this, "Odometry has not been received yet.");
-    return;
-  }
-  if (!rcin_) {
-    qt::qWarnBox(this, "RC input has not been received yet.");
+  if (!arming_ || !odom_ || !rcin_) {
+    qt::qWarnBox(this, "Topics have not been received yet.");
+    arming_button_->setChecked(false);
     return;
   }
 
   if (rcin_->enable) {
     qt::qWarnBox(this, "GUI teleoperation cannot be started because manual control is enabled.");
+    arming_button_->setChecked(false);
     return;
   }
 
-  // Arm.
+  // Arm rotors if not yet.
   if (!arming_->data) {
     if (!armRotors(true)) {
+      arming_button_->setChecked(false);
       return;
     }
   }
@@ -247,15 +242,11 @@ void BasePoseCommanderWidget::onArmRequested()
   qt::qInfoBox(this, "GUI teleoperation is ready.");
 }
 
-void BasePoseCommanderWidget::onDisarmRequested()
+void BasePoseCommanderWidget::onDisarmButtonClicked()
 {
-  if (!arming_) {
-    qt::qWarnBox(this, "Arming status has not been received yet.");
-    return;
-  }
-
   if (arming_->data) {
     if (!armRotors(false)) {
+      arming_button_->setChecked(true);
       return;
     }
   }

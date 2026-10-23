@@ -49,8 +49,8 @@ std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
   const auto I_B = inertia.getRotationalInertiaCoG();
 
   // Left-hand side of the EoM matrix equality.
-  for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
-    const auto& rotor = pair.second;
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
 
     const auto& B_Pos_B2P = frames.at(rotor->link_name).p;
 
@@ -74,8 +74,8 @@ std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
   // Weights for thrust.
   const auto thrust_scale = mass * st::kGravity / drone_.prop->numRotors();  // [N]
   const auto thrust_weight_base = cfg_.thrust_weight / math::sqr(thrust_scale);
-  for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
-    const auto& rotor = pair.second;
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
     R_.diagonal()(idx) = thrust_weight_base * rotor->effortWeight();
   }
 
@@ -87,11 +87,11 @@ std::expected<Eigen::VectorXd, std::string> QpMixer::solve(
   // Compute the total thrust range at the same time.
   double max_thrust_sum = 0.0;
   double min_thrust_sum = 0.0;
-  for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
-    const auto& rotor = pair.second;
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
 
     double max_thrust, min_thrust;
-    if (rotor_alive_[rotor->link_name]) {
+    if (isRotorAlive(rotor->link_name)) {
       max_thrust = drone_.prop->maxThrust(rotor->link_name);
       min_thrust = drone_.prop->minThrust(rotor->link_name);
     }
