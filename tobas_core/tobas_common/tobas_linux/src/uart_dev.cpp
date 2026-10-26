@@ -144,6 +144,11 @@ bool UARTdev::setBaudRate(uint32_t _baud_rate)
   }
 }
 
+bool UARTdev::drainOutput()
+{
+  return tcdrain(uart_fd_) == 0;
+}
+
 bool UARTdev::setDataBits(uint8_t _data_bits)
 {
   tcflag_t flag;

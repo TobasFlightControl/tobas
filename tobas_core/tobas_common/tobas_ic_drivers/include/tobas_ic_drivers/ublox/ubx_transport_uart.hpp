@@ -16,7 +16,7 @@ namespace tobas::ublox
 class UbxTransportUart final : public UbxTransport
 {
 public:
-  explicit UbxTransportUart(const char* _device, uint32_t _baud_rate);
+  explicit UbxTransportUart(const char* _device);
 
   UbxTransportUart(UbxTransportUart&& _other) = delete;
   UbxTransportUart& operator=(UbxTransportUart&& _other) = delete;
@@ -29,7 +29,6 @@ public:
 
 private:
   const char* device_;
-  const uint32_t baud_rate_;
 
   linux::UARTdev uart_;
   uint8_t data_;

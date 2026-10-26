@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <iostream>
+#include <string_view>
 
 #include <tobas_ic_drivers/ublox/gnss_receiver.hpp>
 #include <tobas_ic_drivers/ublox/ubx_transport_spi.hpp>
@@ -14,15 +15,24 @@ int main(int _argc, char** _argv)
   unique_ptr<tobas::ublox::UbxTransport> transport;
 
   switch (_argc) {
-    case 2:
-      transport = make_unique<tobas::ublox::UbxTransportSpi>(_argv[1]);
+    case 2: {
+      const string_view device(_argv[1]);
+
+      if (device.starts_with("/dev/spidev")) {
+        transport = make_unique<tobas::ublox::UbxTransportSpi>(_argv[1]);
+      }
+      else if (device.starts_with("/dev/tty")) {
+        transport = make_unique<tobas::ublox::UbxTransportUart>(_argv[1]);
+      }
+      else {
+        cerr << "Unsupported device: " << device << '\n';
+        return EXIT_FAILURE;
+      }
       break;
-    case 3:
-      transport = make_unique<tobas::ublox::UbxTransportUart>(_argv[1], stoi(_argv[2]));
-      break;
+    }
     default:
       cerr << "Usage 1: " << _argv[0] << " <SPI Device>\n";
-      cerr << "Usage 2: " << _argv[0] << " <UART Device> <Baud Rate>\n";
+      cerr << "Usage 2: " << _argv[0] << " <UART Device>\n";
       return EXIT_FAILURE;
   }
 
