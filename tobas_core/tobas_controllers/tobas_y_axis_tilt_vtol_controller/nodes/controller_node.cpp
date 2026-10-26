@@ -76,7 +76,7 @@ private:
     double pitch;      // [rad]
     double side_slip;  // [rad]
   };
-  std::unique_ptr<kdl::Rotation> tar_rot_ = nullptr;
+  std::unique_ptr<kdl::Euler> tar_angle_ = nullptr;
   std::unique_ptr<RollPitchSideSlip> tar_roll_pitch_sideslip_ = nullptr;
   std::unique_ptr<kdl::Vector> tar_gyro_ = nullptr;
   std::unique_ptr<kdl::Vector> tar_dgyro_ = nullptr;
@@ -112,6 +112,7 @@ private:
 
   bool initialize();
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& priority);
+  static kdl::Vector computeEulerError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy);
 
   // Parameter callbacks
   bool attitudeNaturalFreqCb(const double& p);
@@ -197,6 +198,15 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& 
   return true;
 }
 
+kdl::Vector ControllerNode::computeEulerError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy)
+{
+  // Note that a straight line connecting two Euler angles is not the shortest distance in rotation.
+  const auto roll_err = algo::wrapPi(tar_rpy.roll - cur_rpy.roll);
+  const auto pitch_err = algo::wrapPi(tar_rpy.pitch - cur_rpy.pitch);
+  const auto yaw_err = algo::wrapPi(tar_rpy.yaw - cur_rpy.yaw);
+  return { roll_err, pitch_err, yaw_err };
+}
+
 bool ControllerNode::attitudeNaturalFreqCb(const double& p)
 {
   rot_ctrl_.atti_wn = p;
@@ -273,7 +283,7 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
   arming_ = arming;
 
   if (!arming->data) {
-    tar_rot_.reset();
+    tar_angle_.reset();
     tar_roll_pitch_sideslip_.reset();
     tar_gyro_.reset();
     tar_dgyro_.reset();
@@ -309,7 +319,6 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   const auto cur_twist_G = B_T_G.inverse() * odom_flu->odom.odom.twist;
   const auto& cur_vel_G = cur_twist_G.vel;
   const auto& cur_gyro_G = cur_twist_G.rot;
-  const auto airspeed = cur_vel_G.norm();
   kdl::Vector cur_vel_G_frd;
   kdl::vectorFluToFrd(cur_vel_G, cur_vel_G_frd);
   const auto beta = angleOfSideSlip(cur_vel_G_frd.x(), cur_vel_G_frd.y(), cur_vel_G_frd.z());
@@ -317,7 +326,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
   // Attitude controller.
   // multicopter like
-  if (tar_rot_) {
+  if (tar_angle_) {
     if (!tar_gyro_) {
       tar_gyro_ = std::make_unique<kdl::Vector>();
     }
@@ -329,8 +338,9 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     const auto head_angle_gain = head_wn / rot_ctrl_.head_zeta / 2;
     const kdl::Vector angle_gain(atti_angle_gain, atti_angle_gain, head_angle_gain);
 
-    // Compute rotation error.
-    const auto ep = (cur_rot.inverse() * *tar_rot_).getRot();
+    // Compute rotation error. yaw角の大きなズレを考慮外にするためEuler角による引き算を行う
+    const kdl::Euler cur_rpy(cur_rot);
+    const auto ep = computeEulerError(cur_rpy, *tar_angle_);
 
     // TODO: Accumulate integral error while airborne.
 
@@ -338,7 +348,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     *tar_gyro_ = angle_gain.hadamard(ep);
 
     // Fill the feedback message.
-    setpoint->odom.frame.M = *tar_rot_;
+    setpoint->odom.frame.M = tar_angle_->toRotation();
 
     // Angular velocity controller
     if (!tar_dgyro_) {
@@ -374,14 +384,12 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     auto tar_rpb = *tar_roll_pitch_sideslip_;
 
     // yaw角の大きなズレの影響を考慮外にするためにEuler角による引き算を行う
+    // TODO: betaに関して制御能力が足りず偏差が残りがち
     const kdl::Euler cur_rpy(cur_rot);
     const auto roll_err = algo::wrapPi(tar_rpb.roll - cur_rpy.roll);
     const auto pitch_err = algo::wrapPi(tar_rpb.pitch - cur_rpy.pitch);
     const auto beta_err = algo::wrapPi(tar_rpb.side_slip - beta);
     kdl::Vector ep(roll_err, pitch_err, beta_err);
-    // std::cout << "beta : " << beta / M_PI * 180.0 << " [deg]" << std::endl;
-    // std::cout << "beta_err : " << beta_err / M_PI * 180.0 << " [deg]" << std::endl;
-    // std::cout << "beta_sp : " << tar_rpb.side_slip / M_PI * 180.0 << " [deg]" << std::endl;
 
     // TODO: Accumulate integral error while airborne.
 
@@ -403,9 +411,6 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
     // Compute target angular acceleration.
     // roll = pitch = 0のときbeta = -yaw_frd = yaw_flu
-    // TODO: 若干beta_dotが振動気味
-    // std::cout << "tar_drpb_->z() : " << tar_dgyro_->z() / M_PI * 180.0 << " [deg/s]" << std::endl;
-    // std::cout << "beta_dot_filter_.getValue() : " << beta_dot_filter_.getValue() / M_PI * 180.0 << " [deg/s]" << std::endl;
     *tar_dgyro_ = kdl::Vector(
       atti_rate_gain * (tar_gyro_->x() - cur_gyro_G.x()),
       atti_rate_gain * (tar_gyro_->y() - cur_gyro_G.y()),
@@ -419,7 +424,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     // Mixer.
     {
       const auto rho = st::pressureToDensity(air_pressure_->pressure);
-      if (!mixer_.solve(dt, rho, airspeed, js_converter_.getPosition(), cur_gyro_G, *tar_dgyro_, ux_, uz_)) {
+      if (!mixer_.solve(dt, rho, js_converter_.getPosition(), cur_gyro_G, cur_vel_G, *tar_dgyro_, ux_, uz_)) {
         TOBAS_FATAL("Failed to solve the mixing equation.");
         return;
       }
@@ -490,12 +495,12 @@ void ControllerNode::multicopterManualCmdCb(const tobas_command_msgs::AngleThrot
   tar_roll_pitch_sideslip_.reset();
 
   // Create the command.
-  if (!tar_rot_) {
-    tar_rot_ = std::make_unique<kdl::Rotation>();
+  if (!tar_angle_) {
+    tar_angle_ = std::make_unique<kdl::Euler>();
   }
 
   // Update the command.
-  *tar_rot_ = cmd->angle.toRotation();
+  *tar_angle_ = cmd->angle;
   const auto tar_thrust = mixer_.calcMaxThrust(cmd->thrust_angle) * std::clamp(cmd->throttle, kMinThrot, kMaxThrot);
   ux_ = tar_thrust * std::sin(cmd->thrust_angle);
   uz_ = tar_thrust * std::cos(cmd->thrust_angle);
@@ -520,7 +525,7 @@ void ControllerNode::fixedWingManualCmdCb(const tobas_command_msgs::msg::RollPit
   // TODO: Stop the outer control loop.
 
   // Stop the same level multicopter like control
-  tar_rot_.reset();
+  tar_angle_.reset();
 
   // Create the command.
   if (!tar_roll_pitch_sideslip_) {

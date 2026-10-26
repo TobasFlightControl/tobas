@@ -232,21 +232,25 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
       ". The accuracy of the physics simulation may be compromised.");
   }
 
+  // clip alpha and beta to reproduce the effects of stall
+  const auto alpha_stall = vehicle_params_.alpha_limit.clamp(alpha);
+  const auto beta_stall = vehicle_params_.alpha_limit.clamp(beta);
+
   // On the first update, only initialize variables and return.
   if (!is_initialized_) {
-    prev_alpha_ = alpha;
+    prev_alpha_ = alpha_stall;
     is_initialized_ = true;
     return;
   }
 
   // Update time and angle-of-attack rate.
   const auto dt = ch::duration<double>(info.dt).count();
-  const auto alpha_rate = (alpha - prev_alpha_) / dt;  // [rad/s]
-  prev_alpha_ = alpha;
+  const auto alpha_rate = (alpha_stall - prev_alpha_) / dt;  // [rad/s]
+  prev_alpha_ = alpha_stall;
 
   // Dimensionless aerodynamic coefficients.
-  const auto force_coefs = nonDimentionalAeroCoefs_Force(ecm, alpha, beta, V);
-  const auto moment_coefs = nonDimentionalAeroCoefs_Moment(ecm, alpha, beta, alpha_rate, V);
+  const auto force_coefs = nonDimentionalAeroCoefs_Force(ecm, alpha_stall, beta_stall, V);
+  const auto moment_coefs = nonDimentionalAeroCoefs_Moment(ecm, alpha_stall, beta_stall, alpha_rate, V);
 
   // Precompute constant parts.
   const auto altitude = alt_0_ + P_W_B.Z();

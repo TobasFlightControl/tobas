@@ -17,7 +17,9 @@ class Mixer : public MixerI
 {
   using super = MixerI;
   static constexpr double kCruiseSpeed = 15.0;  // m/s, 固定翼機運動モード計算のための仮のクルーズ時対気速度
+  static constexpr double kForwardSpeedThresholdForAero = 1.0; // m/s, この前進速度以上で空力を考慮して制御, 仮に横方向に高速で動いていてもこの速度以上の前進速度がなければ空力補償しない
   static constexpr double kMomentThrustRatio = 0.2; // 1軸の制御のためにthrustのこの割合だけ使って良い
+  static constexpr double kMomentTiltAngle = 10.0 / 180.0 * M_PI; // rad, 1軸の制御のためにtilt角をこの程度は変更してよい
 
 public:
   explicit Mixer(const Drone& drone, const kdl::Tree& tree);
@@ -28,9 +30,9 @@ public:
   bool solve(
     const double& dt,
     const double& rho,
-    const double& airspeed,
     const kdl::JntArray& cur_q,
     const kdl::Vector& cur_gyro_B,
+    const kdl::Vector& cur_vel_G,
     const kdl::Vector& tar_dgyro_B,
     const double& ux,
     const double& uz);
