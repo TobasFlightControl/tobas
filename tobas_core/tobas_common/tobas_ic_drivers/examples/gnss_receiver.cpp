@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <string_view>
+#include <utility>
 
 #include <tobas_ic_drivers/ublox/gnss_receiver.hpp>
 #include <tobas_ic_drivers/ublox/ubx_transport_spi.hpp>
@@ -12,28 +15,25 @@ using namespace std;
 
 int main(int _argc, char** _argv)
 {
+  if (_argc != 3) {
+    const auto filename = _argv[0];
+    cerr << "Usage: " << filename << " <Interface> <Device>\n";
+    return EXIT_FAILURE;
+  }
+
   unique_ptr<tobas::ublox::UbxTransport> transport;
 
-  switch (_argc) {
-    case 2: {
-      const string_view device(_argv[1]);
-
-      if (device.starts_with("/dev/spidev")) {
-        transport = make_unique<tobas::ublox::UbxTransportSpi>(_argv[1]);
-      }
-      else if (device.starts_with("/dev/tty")) {
-        transport = make_unique<tobas::ublox::UbxTransportUart>(_argv[1]);
-      }
-      else {
-        cerr << "Unsupported device: " << device << '\n';
-        return EXIT_FAILURE;
-      }
-      break;
-    }
-    default:
-      cerr << "Usage 1: " << _argv[0] << " <SPI Device>\n";
-      cerr << "Usage 2: " << _argv[0] << " <UART Device>\n";
-      return EXIT_FAILURE;
+  const string_view interface(_argv[1]);
+  const auto device = _argv[2];
+  if (interface == "spi") {
+    transport = make_unique<tobas::ublox::UbxTransportSpi>(device);
+  }
+  else if (interface == "uart") {
+    transport = make_unique<tobas::ublox::UbxTransportUart>(device);
+  }
+  else {
+    cerr << "Unsupported interface: " << interface << " (expected 'spi' or 'uart')\n";
+    return EXIT_FAILURE;
   }
 
   tobas::ublox::GnssReceiver gnss(move(transport));
