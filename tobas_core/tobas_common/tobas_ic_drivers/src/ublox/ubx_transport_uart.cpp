@@ -9,6 +9,7 @@
 #include "tobas_ic_drivers/ublox/ubx_transport_uart.hpp"
 
 using namespace std::chrono_literals;
+using Clock = std::chrono::steady_clock;
 
 namespace tobas::ublox
 {
@@ -51,7 +52,7 @@ bool UbxTransportUart::configureBaudRate() noexcept
   }
 
   // Allow UART reads to time out during baudrate detection.
-  if (!uart_.setMinimumChars(0) || !uart_.setTimeout(1)) {
+  if (!uart_.setTimeout(1) || !uart_.setMinimumChars(0)) {
     return false;
   }
 
@@ -66,7 +67,7 @@ bool UbxTransportUart::configureBaudRate() noexcept
     constexpr std::array<uint8_t, 20> kSet230400 = { 0xB5, 0x62, 0x06, 0x8A, 0x0C, 0x00, 0x00, 0x01, 0x00, 0x00,
                                                      0x01, 0x00, 0x52, 0x40, 0x00, 0x84, 0x03, 0x00, 0xB7, 0xEF };
 
-    // setBaudRate() waits until pending transmission is complete.
+    // `setBaudRate()` waits until pending transmission is complete.
     if (!uart_.send(kSet230400.data(), kSet230400.size()) || !uart_.setBaudRate(kTargetBaudRate)) {
       return false;
     }
@@ -89,17 +90,15 @@ bool UbxTransportUart::checkBaudRate(uint32_t _baud_rate) noexcept
   // Poll the UART1 baudrate using UBX-CFG-VALGET.
   constexpr std::array<uint8_t, 16> kQuery = { 0xB5, 0x62, 0x06, 0x8B, 0x08, 0x00, 0x00, 0x00,
                                                0x00, 0x00, 0x01, 0x00, 0x52, 0x40, 0x2C, 0x79 };
-
   constexpr std::array<uint8_t, 20> kReply230400 = { 0xB5, 0x62, 0x06, 0x8B, 0x0C, 0x00, 0x01, 0x00, 0x00, 0x00,
                                                      0x01, 0x00, 0x52, 0x40, 0x00, 0x84, 0x03, 0x00, 0xB8, 0xFF };
-
   constexpr std::array<uint8_t, 20> kReply38400 = { 0xB5, 0x62, 0x06, 0x8B, 0x0C, 0x00, 0x01, 0x00, 0x00, 0x00,
                                                     0x01, 0x00, 0x52, 0x40, 0x00, 0x96, 0x00, 0x00, 0xC7, 0x2F };
 
   // ACK for CFG-VALGET.
   constexpr std::array<uint8_t, 10> kAck = { 0xB5, 0x62, 0x05, 0x01, 0x02, 0x00, 0x06, 0x8B, 0x99, 0xC2 };
 
-  const auto& expected = _baud_rate == kTargetBaudRate ? kReply230400 : kReply38400;
+  const auto& expected = (_baud_rate == kTargetBaudRate) ? kReply230400 : kReply38400;
 
   if (!uart_.send(kQuery.data(), kQuery.size())) {
     return false;
@@ -113,9 +112,9 @@ bool UbxTransportUart::checkBaudRate(uint32_t _baud_rate) noexcept
   bool ack_received = false;
 
   // Stop waiting after one second.
-  const auto deadline = std::chrono::steady_clock::now() + 1s;
+  const auto deadline = Clock::now() + 1s;
 
-  while (std::chrono::steady_clock::now() < deadline) {
+  while (Clock::now() < deadline) {
     const auto byte = uart_.receiveByte();
 
     // Continue checking when a UART read times out.
