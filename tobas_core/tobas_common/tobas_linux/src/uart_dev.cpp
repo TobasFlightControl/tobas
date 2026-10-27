@@ -136,6 +136,12 @@ bool UARTdev::initialize(const char* _uart_dev, bool _block_mode)
 
 bool UARTdev::setBaudRate(uint32_t _baud_rate)
 {
+  // Wait for pending transmission before changing the baudrate.
+  if (tcdrain(uart_fd_) != 0) {
+    std::cerr << "Failed to drain UART output: " << st::strError() << '\n';
+    return false;
+  }
+
   if (isStandardBaudRate(_baud_rate)) {
     return setStandardBaudRate(_baud_rate);
   }
