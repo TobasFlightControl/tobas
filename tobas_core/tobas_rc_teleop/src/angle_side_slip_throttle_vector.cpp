@@ -69,7 +69,7 @@ void AngleSideSlipThrottleVectorController::reset(
   tar_yaw_ = yaw;
 }
 
-void AngleSideSlipThrottleVectorController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, bool)
+void AngleSideSlipThrottleVectorController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool)
 {
   // Update timestamp.
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
@@ -92,6 +92,11 @@ void AngleSideSlipThrottleVectorController::update(const tobas_msgs::RCInput& rc
 
   // Pitch & Thrust Angle
   if (thrust_angle < kModeChangeThrustAngle) {
+    if (last_control_type_ == ControlType::FIXED_WING) {
+      const auto [cur_roll, cur_pitch, cur_yaw] = odom.frame.M.getRPY();
+      tar_yaw_ = cur_yaw;
+    }
+    last_control_type_ = ControlType::MULTICOPTER;
     // Yaw
     const auto yawrate = expoRemapDead(rcin.yaw, yaw_expo_, -max_yaw_rate_, max_yaw_rate_);
     tar_yaw_ += yawrate * dt;
@@ -106,6 +111,7 @@ void AngleSideSlipThrottleVectorController::update(const tobas_msgs::RCInput& rc
     cmd->thrust_angle = thrust_angle;
     multicopter_cmd_pub_->publish(std::move(cmd));
   } else {
+    last_control_type_ = ControlType::FIXED_WING;
     auto cmd = std::make_unique<tobas_command_msgs::msg::RollPitchSideSlipThrottleVector>();
     cmd->header = rcin.header;
     cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;

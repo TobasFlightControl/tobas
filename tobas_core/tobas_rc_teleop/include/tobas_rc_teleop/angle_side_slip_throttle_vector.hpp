@@ -36,9 +36,14 @@ public:
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
+  enum ControlType {
+    MULTICOPTER,
+    FIXED_WING,
+  };
   rclcpp::Time t_last_rcin_;
   traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_, thrust_angle_filt_;
   double tar_yaw_;
+  ControlType last_control_type_ = ControlType::MULTICOPTER;
 
   // ROS parameters.
   double max_roll_;          // [rad]
