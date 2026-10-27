@@ -31,7 +31,6 @@ public:
   bool initialize(const char* _uart_dev, bool _block_mode = false);
 
   bool setBaudRate(uint32_t _baud_rate);
-  bool drainOutput();
   bool setDataBits(uint8_t _data_bits);
   bool setSingleStopBit();
   bool setDoubleStopBit();

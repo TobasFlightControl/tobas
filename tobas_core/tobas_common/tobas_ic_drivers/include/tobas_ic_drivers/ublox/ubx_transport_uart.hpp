@@ -28,6 +28,9 @@ public:
   bool send(const uint8_t* _data, size_t _length) noexcept override;
 
 private:
+  bool configureBaudRate() noexcept;
+  bool checkBaudRate(uint32_t _baud_rate) noexcept;
+
   const char* device_;
 
   linux::UARTdev uart_;
