@@ -25,7 +25,7 @@ export MAKEFLAGS="-j1"
 
 # Build and install the specified package and its dependencies.
 sudo bash -c '
-source /opt/ros/jazzy/setup.bash && \
+source /opt/ros/lyrical/setup.bash && \
 colcon build \
   --merge-install \
   --parallel-workers 1 \
@@ -34,8 +34,8 @@ colcon build \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_C_FLAGS="-mcpu=native" \
     -DCMAKE_CXX_FLAGS="-mcpu=native" \
-  --packages-up-to $1 \
-'
+  --packages-up-to "$1" \
+' -- "$1"
 
 # Restart the systemd service.
 sudo systemctl restart tobas_real.target
