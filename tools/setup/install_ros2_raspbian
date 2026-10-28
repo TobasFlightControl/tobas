@@ -81,11 +81,32 @@ rosdep install -iy \
 # Install MAVROS GeographicLib datasets after its system dependencies.
 sudo ./src/mavros/mavros/scripts/install_geographiclib_datasets.sh
 
+# Zenoh's Rust dependencies can require a newer compiler than Debian provides.
+# Ref. https://github.com/eclipse-zenoh/zenoh-c#how-to-build-it
+# Ref. https://rust-lang.org/tools/install/
+export CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}"
+export RUSTUP_HOME="${RUSTUP_HOME:-$HOME/.rustup}"
+export PATH="$CARGO_HOME/bin:$PATH"
+if ! command -v rustup >/dev/null 2>&1; then
+  curl --proto '=https' --tlsv1.2 -fsSL https://sh.rustup.rs |
+    sh -s -- -y --profile minimal --default-toolchain none --no-modify-path
+fi
+rustup toolchain install stable --profile minimal
+# Override vendor rust-toolchain.toml files as well as the system compiler.
+export RUSTUP_TOOLCHAIN=stable
+rustc --version
+cargo --version
+
 # Build and install.
 cd ~/colcon_ws_install/
 # ROS_PYTHON_VERSION is required by MAVLink.
+# Pass the Rust environment explicitly because sudo resets PATH and HOME.
 sudo \
   env \
+  PATH="$PATH" \
+  CARGO_HOME="$CARGO_HOME" \
+  RUSTUP_HOME="$RUSTUP_HOME" \
+  RUSTUP_TOOLCHAIN="$RUSTUP_TOOLCHAIN" \
   ROS_PYTHON_VERSION=3 \
   colcon build \
   --merge-install \
