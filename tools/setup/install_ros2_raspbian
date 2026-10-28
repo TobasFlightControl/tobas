@@ -53,15 +53,24 @@ vcs import --input https://raw.githubusercontent.com/ros2/ros2/lyrical/ros2.repo
 rosinstall_generator --rosdistro lyrical --format repos mavlink >mavlink.repos
 vcs import src <mavlink.repos
 
+# geodesy 1.0.6 uses ament_target_dependencies, which was removed in Lyrical.
+# Import the fixed release before resolving dependencies so stale rosdistro metadata cannot select the incompatible version.
+vcs import src <<'EOF'
+repositories:
+  geographic_info:
+    type: git
+    url: https://github.com/ros-geographic-info/geographic_info.git
+    version: 1.0.7
+EOF
+
 # Get additional packages and their ROS dependencies at Lyrical release tags.
-# Exclude packages already imported from ros2.repos and mavlink.repos.
+# Exclude packages already imported above.
 rosinstall_generator --rosdistro lyrical --format repos --upstream --deps \
   xacro \
   dynamixel_sdk \
   ffmpeg_encoder_decoder \
   ffmpeg_image_transport_msgs \
   vision_opencv \
-  geographic_info \
   diagnostics \
   mavros \
   --exclude-path src >additional.repos
