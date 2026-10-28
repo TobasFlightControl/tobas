@@ -4,11 +4,11 @@
 
 ---
 
-### Installing ROS 2 Jazzy
+### Installing ROS 2 Lyrical
 
-Follow the <a href=https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html target="_blank">official ROS 2 Jazzy instructions</a>
+Follow the <a href=https://docs.ros.org/en/lyrical/Installation/Ubuntu-Install-Debs.html target="_blank">official ROS 2 Lyrical instructions</a>
 to install ROS 2 from deb packages.
-This documentation uses `ros-jazzy-desktop`.
+This documentation uses `ros-lyrical-desktop`.
 
 ### Installing Tobas
 
@@ -16,7 +16,7 @@ Install Tobas from the ROS 2 apt repository.
 
 ```bash
 $ sudo apt update
-$ sudo apt install -y ros-jazzy-tobas
+$ sudo apt install -y ros-lyrical-tobas
 ```
 
 ## Flashing the Flight Controller Image

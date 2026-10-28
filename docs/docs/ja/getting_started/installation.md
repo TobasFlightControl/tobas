@@ -4,11 +4,11 @@
 
 ---
 
-### ROS 2 Jazzy のインストール
+### ROS 2 Lyrical のインストール
 
-<a href=https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html target="_blank">ROS 2 Jazzy の公式手順</a>
+<a href=https://docs.ros.org/en/lyrical/Installation/Ubuntu-Install-Debs.html target="_blank">ROS 2 Lyrical の公式手順</a>
 に従って ROS 2 を deb パッケージからインストールしてください．
-このドキュメントでは`ros-jazzy-desktop`を使用します．
+このドキュメントでは`ros-lyrical-desktop`を使用します．
 
 ### Tobas のインストール
 
@@ -16,7 +16,7 @@ ROS 2 の apt リポジトリから Tobas をインストールします．
 
 ```bash
 $ sudo apt update
-$ sudo apt install -y ros-jazzy-tobas
+$ sudo apt install -y ros-lyrical-tobas
 ```
 
 ## フライトコントローラのイメージ書き込み

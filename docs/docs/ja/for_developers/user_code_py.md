@@ -2,7 +2,7 @@
 
 ここでは，ユーザが Python と ROS 2 の基礎を習得していることを前提にしています．
 ROS 2 の学習には
-<a href=https://docs.ros.org/en/jazzy/Tutorials.html target="_blank">Tutorials | ROS 2 Documentation</a>
+<a href=https://docs.ros.org/en/lyrical/Tutorials.html target="_blank">Tutorials | ROS 2 Documentation</a>
 をご参照ください．
 
 Setup Assistant で作成した Tobas プロジェクト (例: tobas_f450.TBS) に含まれる ROS パッケージのうち，

@@ -40,7 +40,7 @@ IP forwarding と Proxy ARP によって外部 PC から FC 側サブネット�
 - 外部 PC とコンパニオン PC が直接通信可能な同じ LAN に属していること
 - コンパニオン PC が NetworkManager でネットワークを管理していること
 - コンパニオン PC と FC がイーサネットで接続されていること
-- 外部 PC に ROS 2 Jazzy と Cyclone DDS がインストールされていること
+- 外部 PC に ROS 2 Lyrical と Cyclone DDS がインストールされていること
 
 ## 使用するインターフェースを確認する
 
@@ -218,7 +218,7 @@ $ ssh pi@host1.local
 そのため，外部 PC で`ROS_STATIC_PEERS`に FC のホスト名を指定し，Cyclone DDS がユニキャストで FC を検出できるようにします．
 
 ```bash
-$ source /opt/ros/jazzy/setup.bash
+$ source /opt/ros/lyrical/setup.bash
 $ export ROS_DOMAIN_ID=20
 $ export ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST
 $ export ROS_STATIC_PEERS=host1.local

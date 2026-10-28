@@ -2,7 +2,7 @@
 
 This section assumes that you have a basic understanding of Python and ROS 2.
 To learn ROS 2, refer to
-<a href=https://docs.ros.org/en/jazzy/Tutorials.html target="_blank">Tutorials | ROS 2 Documentation</a>.
+<a href=https://docs.ros.org/en/lyrical/Tutorials.html target="_blank">Tutorials | ROS 2 Documentation</a>.
 
 Among the ROS packages included in a Tobas project created with Setup Assistant (e.g., tobas_f450.TBS),
 the user Python package (e.g., tobas_f450_user_py) can be edited freely by the user.
