@@ -1,0 +1,27 @@
+<package format="3">
+
+	<name>tobas_fc3xx_ros</name>
+	<version>2.17.0</version>
+	<description>ROS 2 sensor and actuator driver nodes for FC3xx flight controllers.</description>
+	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+	<license>GPL-3.0-or-later</license>
+
+	<buildtool_depend>ament_cmake</buildtool_depend>
+
+	<depend>tobas_ic_drivers</depend>
+	<depend>tobas_mcu_driver</depend>
+	<depend>tobas_tools</depend>
+	<depend>tobas_node</depend>
+	<depend>tobas_msgs_adapter</depend>
+	<depend>tobas_drone_msgs_adapter</depend>
+	<depend>tobas_real_common</depend>
+	<depend>tobas_hardware_common</depend>
+
+	<exec_depend>launch</exec_depend>
+	<exec_depend>launch_ros</exec_depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

@@ -1,0 +1,313 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
+#include <cmath>
+#include <expected>
+#include <memory>
+#include <string>
+
+#include <tobas_constants/time.hpp>
+#include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
+#include <tobas_hardware_common/constants.hpp>
+#include <tobas_mcu_driver/tobas_t2/dshot.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_tools/control_latency_publisher.hpp>
+
+#include <tobas_drone_msgs_adapter/drone.hpp>
+#include <tobas_msgs/msg/rotor_speed_array.hpp>
+#include <tobas_msgs/msg/rotor_state_array.hpp>
+#include <tobas_msgs/srv/set_rpm_control_gains.hpp>
+
+using namespace std::chrono_literals;
+
+namespace tobas::fc3xx
+{
+class DShotDriverNode : public BaseNode
+{
+  using self = DShotDriverNode;
+  using super = BaseNode;
+
+  using SetGains = tobas_msgs::srv::SetRpmControlGains;
+
+public:
+  explicit DShotDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
+
+private:
+  t2::DShot dshot_;
+
+  bool is_commanded_ = false;
+  ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
+
+  ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> rotor_states_pub_;
+  ControlLatencyPublisher latency_pub_;
+
+  ros2::SubscriberPtr<Drone> drone_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
+
+  ros2::ServiceServerPtr<SetGains> set_gains_ss_;
+
+  ros2::TimerPtr initialize_timer_, auto_stop_timer_;
+
+  void initialize();
+  bool configure();
+
+  void sleep();
+  std::expected<void, std::string> transfer();
+  std::expected<void, std::string> transferAndSleep();
+
+  void publishCurrentRotorStates();
+  void publishErrorRotorStates();
+
+  void droneCb(const Drone::ConstSharedPtr& _drone);
+  void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& _tar_speeds);
+
+  void setGainsCb(const SetGains::Request::ConstSharedPtr& _req, const SetGains::Response::SharedPtr& _res);
+
+  void autoStopTimerCb();
+};
+
+DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& _options)
+  : super("fc3xx_dshot_driver", nodeOptions_Default(_options)), latency_pub_(this)
+{
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
+  set_gains_ss_ = createService<SetGains>(service::kSetRpmControlGains, &self::setGainsCb, this);
+}
+
+void DShotDriverNode::initialize()
+{
+  if (!dshot_.initialize("/dev/spidev1.0")) {
+    TOBAS_ERROR("Failed to initialize DShot driver. Retrying...");
+    return;
+  }
+
+  sleep();
+
+  if (!configure()) {
+    TOBAS_ERROR("Failed to configure the rotor speed control MCU. Retrying...");
+    return;
+  }
+
+  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(topic::kRotorStates);
+  tar_speeds_sub_ = createSubscriber(topic::kRotorSpeedsCmd, &self::targetSpeedsCb, this);
+
+  initialize_timer_->cancel();
+  auto_stop_timer_ = createWallTimer(kCommandAutoResetTimeout, &self::autoStopTimerCb, this);
+
+  TOBAS_INFO("Rotor speed controller has been initialized.");
+}
+
+bool DShotDriverNode::configure()
+{
+  // Set Kv values.
+  for (const auto& [link_name, _] : eprop_->rotors) {
+    const auto erotor = eprop_->getRotor(link_name);
+    dshot_.setKv(erotor->channel, erotor->kv);
+  }
+  if (const auto result = transferAndSleep(); !result) {
+    TOBAS_ERROR("Failed to set Kv values: ", result.error());
+    return false;
+  }
+
+  // Set internal resistances.
+  for (const auto& [link_name, _] : eprop_->rotors) {
+    const auto erotor = eprop_->getRotor(link_name);
+    dshot_.setInternalResistance(erotor->channel, erotor->internal_resistance);
+  }
+  if (const auto result = transferAndSleep(); !result) {
+    TOBAS_ERROR("Failed to set internal resistances: ", result.error());
+    return false;
+  }
+
+  // Set propeller diameters.
+  for (const auto& [link_name, _] : eprop_->rotors) {
+    const auto erotor = eprop_->getRotor(link_name);
+    dshot_.setPropellerDiameter(erotor->channel, erotor->propeller_diameter);
+  }
+  if (const auto result = transferAndSleep(); !result) {
+    TOBAS_ERROR("Failed to set propeller diameters: ", result.error());
+    return false;
+  }
+
+  // Set moment constants.
+  for (const auto& [link_name, _] : eprop_->rotors) {
+    const auto erotor = eprop_->getRotor(link_name);
+    const auto moment_const = erotor->motor_const * erotor->moment_const / std::pow(erotor->propeller_diameter, 5);
+    dshot_.setMomentConstant(erotor->channel, moment_const);
+  }
+  if (const auto result = transferAndSleep(); !result) {
+    TOBAS_ERROR("Failed to set moment constants: ", result.error());
+    return false;
+  }
+
+  // Set the number of poles.
+  for (const auto& [link_name, _] : eprop_->rotors) {
+    const auto erotor = eprop_->getRotor(link_name);
+    dshot_.setNumPoles(erotor->channel, erotor->num_poles);
+  }
+  if (const auto result = transferAndSleep(); !result) {
+    TOBAS_ERROR("Failed to set the number of poles: ", result.error());
+    return false;
+  }
+
+  return true;
+}
+
+void DShotDriverNode::sleep()
+{
+  rclcpp::sleep_for(1ms);
+}
+
+std::expected<void, std::string> DShotDriverNode::transfer()
+{
+  if (const auto result = dshot_.transfer(); !result) {
+    return result;
+  }
+  return {};
+}
+
+std::expected<void, std::string> DShotDriverNode::transferAndSleep()
+{
+  const auto res = transfer();
+  sleep();
+  return res;
+}
+
+void DShotDriverNode::publishCurrentRotorStates()
+{
+  auto rotor_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
+  rotor_states->header.stamp = now();
+
+  for (const auto& [_, rotor] : eprop_->rotors) {
+    const auto erotor = std::static_pointer_cast<ElectricRotorConfig>(rotor);
+    rotor_states->states.emplace_back();
+    rotor_states->states.back().link_name = rotor->link_name;
+    if (dshot_.getValidity(erotor->channel)) {
+      const auto speed = dshot_.getSpeed(erotor->channel);
+      rotor_states->states.back().speed = speed;
+      rotor_states->states.back().thrust = erotor->thrustFromSpeed(speed);
+      rotor_states->states.back().status = tobas_msgs::msg::RotorState::NO_ERROR;
+    }
+    else {
+      rotor_states->states.back().speed = NAN;
+      rotor_states->states.back().thrust = NAN;
+      rotor_states->states.back().status = tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE;
+    }
+  }
+
+  rotor_states_pub_->publish(std::move(rotor_states));
+}
+
+void DShotDriverNode::publishErrorRotorStates()
+{
+  auto rotor_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
+  rotor_states->header.stamp = now();
+
+  for (const auto& [_, rotor] : eprop_->rotors) {
+    const auto erotor = std::static_pointer_cast<ElectricRotorConfig>(rotor);
+    rotor_states->states.emplace_back();
+    rotor_states->states.back().link_name = rotor->link_name;
+    rotor_states->states.back().speed = NAN;
+    rotor_states->states.back().thrust = NAN;
+    rotor_states->states.back().status = tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE;
+  }
+
+  rotor_states_pub_->publish(std::move(rotor_states));
+}
+
+void DShotDriverNode::droneCb(const Drone::ConstSharedPtr& _drone)
+{
+  if (eprop_) {
+    TOBAS_WARN("DShot driver cannot be re-initialized.");
+    return;
+  }
+
+  if (!_drone->prop) {
+    return;
+  }
+  if (_drone->prop->type() != PropulsionSystem::kElectric) {
+    return;
+  }
+
+  eprop_ = std::static_pointer_cast<ElectricPropulsionSystemConfig>(_drone->prop);
+
+  initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initialize, this);
+}
+
+void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& _tar_speeds)
+{
+  // Set target speeds of each channel.
+  for (const auto& elem : _tar_speeds->speeds) {
+    const auto erotor = eprop_->getRotor(elem.link_name);
+    if (!erotor) {
+      TOBAS_ERROR("Rotor '" + elem.link_name + "' does not exist.");
+      continue;
+    }
+    dshot_.setTargetSpeed(erotor->channel, elem.speed);
+  }
+
+  // Send the commands and publish the rotor states.
+  // NOTE: Even in the event of a communication error, the motor status must always be published.
+  if (const auto result = transfer(); result) {
+    publishCurrentRotorStates();
+  }
+  else {
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to command target speeds: ", result.error());
+    publishErrorRotorStates();
+  }
+
+  // Publish the control latency.
+  latency_pub_.publish(_tar_speeds->header.stamp);
+
+  // Reset the timeout timer.
+  auto_stop_timer_->reset();
+
+  // Now the rotors are commanded.
+  is_commanded_ = true;
+}
+
+void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& _req, const SetGains::Response::SharedPtr& _res)
+{
+  for (const auto& gain : _req->gains) {
+    if (gain.channel >= t2::DShot::kChannelSize) {
+      _res->success = false;
+      _res->message = "Channel '" + std::to_string(gain.channel) + "' is out of range.";
+      return;
+    }
+    dshot_.setRpmControlGain(gain.channel, gain.gain);
+  }
+
+  if (const auto result = transfer(); !result) {
+    _res->success = false;
+    _res->message = result.error();
+    return;
+  }
+
+  _res->success = true;
+  _res->message.clear();
+}
+
+void DShotDriverNode::autoStopTimerCb()
+{
+  for (size_t ch = 0; ch < t2::DShot::kChannelSize; ++ch) {
+    dshot_.setThrottle(ch, dshot::DSHOT_CMD_MOTOR_STOP);
+  }
+
+  if (const auto result = transfer(); result) {
+    publishCurrentRotorStates();
+  }
+  else {
+    TOBAS_ERROR("Failed to brake the rotors: ", result.error());
+    publishErrorRotorStates();
+  }
+
+  if (is_commanded_) {
+    is_commanded_ = false;
+    TOBAS_INFO(
+      "All rotors are automatically stopped because ",
+      kCommandAutoResetTimeout,
+      " have elapsed since the last command.");
+  }
+}
+}  // namespace tobas::fc3xx
+
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc3xx::DShotDriverNode)

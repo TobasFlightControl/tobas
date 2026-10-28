@@ -1,0 +1,86 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
+#include <tobas_hardware_common/constants.hpp>
+#include <tobas_ic_drivers/stmicro/iis2mdc.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_real_common/ros_interface.hpp>
+
+#include <tobas_msgs_adapter/magnetic_field.hpp>
+
+using namespace std::chrono_literals;
+
+namespace tobas::fc3xx
+{
+class MagDriverNode : public BaseNode
+{
+  using self = MagDriverNode;
+  using super = BaseNode;
+
+public:
+  explicit MagDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
+
+private:
+  stm::IIS2MDC mag_;
+  double mx_, my_, mz_;
+
+  ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
+  ros2::TimerPtr initialize_timer_, main_timer_;
+
+  bool initialize();
+
+  void initializeTimerCb();
+  void mainTimerCb();
+};
+
+MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& _options)
+  : super("fc3xx_mag_driver", nodeOptions_Default(_options))
+{
+  if (!initialize()) {
+    initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
+  }
+}
+
+bool MagDriverNode::initialize()
+{
+  if (!mag_.initialize("/dev/i2c-1")) {
+    TOBAS_ERROR("Failed to initialize Magnetometer. Retrying...");
+    return false;
+  }
+
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(real::topic::kMagneticField);
+
+  constexpr auto kSamplingPeriod = 10ms;
+  main_timer_ = createWallTimer(kSamplingPeriod, &self::mainTimerCb, this);
+
+  return true;
+}
+
+void MagDriverNode::initializeTimerCb()
+{
+  if (initialize()) {
+    initialize_timer_->cancel();
+  }
+}
+
+void MagDriverNode::mainTimerCb()
+{
+  // Read sensor.
+  if (!mag_.readMag(mx_, my_, mz_)) {
+    TOBAS_FATAL("Failed to read magnetometer.");
+    return;
+  }
+
+  // Create a message.
+  auto msg = std::make_unique<tobas_msgs::MagneticField>();
+  msg->header.stamp = now();
+  msg->mag.x(my_);
+  msg->mag.y(-mx_);
+  msg->mag.z(-mz_);
+
+  // Publish the message.
+  mag_pub_->publish(std::move(msg));
+}
+}  // namespace tobas::fc3xx
+
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc3xx::MagDriverNode)

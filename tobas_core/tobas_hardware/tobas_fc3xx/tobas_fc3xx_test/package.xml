@@ -1,0 +1,19 @@
+<package format="3">
+
+	<name>tobas_fc3xx_test</name>
+	<version>2.17.0</version>
+	<description>Hardware and integration tests for FC3xx flight controllers.</description>
+	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+	<license>GPL-3.0-or-later</license>
+
+	<buildtool_depend>ament_cmake</buildtool_depend>
+
+	<depend>tobas_ic_drivers</depend>
+	<depend>tobas_mcu_driver</depend>
+	<depend>tobas_sbus_driver</depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

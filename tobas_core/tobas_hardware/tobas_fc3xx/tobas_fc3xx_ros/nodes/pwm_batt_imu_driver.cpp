@@ -1,0 +1,210 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
+#include <chrono>
+#include <expected>
+#include <string>
+#include <thread>
+
+#include <tobas_constants/imu.hpp>
+#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/time.hpp>
+#include <tobas_hardware_common/constants.hpp>
+#include <tobas_mcu_driver/tobas_t2/pwm_batt_imu.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_real_common/ros_interface.hpp>
+#include <tobas_time_tools/util.hpp>
+#include <tobas_tools/imu_sampling_time_publisher.hpp>
+
+#include <tobas_msgs/msg/battery.hpp>
+#include <tobas_msgs/msg/pwm_array.hpp>
+#include <tobas_msgs/srv/configure_imu_low_pass_filter.hpp>
+#include <tobas_msgs/srv/configure_imu_rpm_filter.hpp>
+#include <tobas_msgs_adapter/imu.hpp>
+
+using namespace std::chrono_literals;
+
+namespace tobas::fc3xx
+{
+class PwmBattImuDriverNode : public BaseNode
+{
+  using self = PwmBattImuDriverNode;
+  using super = BaseNode;
+
+  using clock = std::chrono::steady_clock;
+
+public:
+  explicit PwmBattImuDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
+
+private:
+  t2::PwmBattImu driver_;
+  uint16_t pwm_periods_[t2::PwmBattImu::kPwmChannels] = {};
+  clock::time_point last_comm_time_;
+
+  ros2::PublisherPtr<tobas_msgs::msg::Battery> batt_pub_;
+  ros2::PublisherPtr<tobas_msgs::Imu> imu_raw_pub_;
+  ros2::PublisherPtr<tobas_msgs::Imu> imu_filt_pub_;
+  ImuSamplingTimePublisher sampling_time_pub_;
+
+  ros2::SubscriberPtr<tobas_msgs::msg::PwmArray> pwms_sub_;
+
+  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuLowPassFilter> config_lowpass_filter_ss_;
+  ros2::ServiceServerPtr<tobas_msgs::srv::ConfigureImuRpmFilter> config_rpm_filter_ss_;
+
+  ros2::TimerPtr initialize_timer_, main_timer_;
+
+  bool initialize();
+  std::expected<void, std::string> transfer();
+
+  void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& _pwms);
+
+  void configureImuLowPassFilterCb(
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& _req,
+    const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& _res);
+  void configureImuRpmFilter(
+    const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& _req,
+    const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& _res);
+
+  void initializeTimerCb();
+  void mainTimerCb();
+};
+
+PwmBattImuDriverNode::PwmBattImuDriverNode(const rclcpp::NodeOptions& _options)
+  : super("fc3xx_pwm_batt_imu_driver", nodeOptions_Default(_options)), sampling_time_pub_(this)
+{
+  if (!initialize()) {
+    initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
+  }
+}
+
+bool PwmBattImuDriverNode::initialize()
+{
+  if (!driver_.initialize("/dev/spidev1.1")) {
+    TOBAS_ERROR("Failed to initialize the driver. Retrying...");
+    return false;
+  }
+
+  last_comm_time_ = clock::now();
+
+  batt_pub_ = createPublisher<tobas_msgs::msg::Battery>(topic::kBattery);
+  imu_raw_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuRaw);
+  imu_filt_pub_ = createPublisher<tobas_msgs::Imu>(real::topic::kImuFilt);
+
+  pwms_sub_ = createSubscriber(topic::kPwmCmd, &self::pwmsCb, this);
+
+  config_lowpass_filter_ss_ = createService<tobas_msgs::srv::ConfigureImuLowPassFilter>(
+    service::kConfigureImuLowPassFilter, &self::configureImuLowPassFilterCb, this);
+  config_rpm_filter_ss_ = createService<tobas_msgs::srv::ConfigureImuRpmFilter>(
+    service::kConfigureImuRpmFilter, &self::configureImuRpmFilter, this);
+
+  main_timer_ = createWallTimer(tim::periodFromFrequency<kImuSamplingRate>(), &self::mainTimerCb, this);
+
+  return true;
+}
+
+std::expected<void, std::string> PwmBattImuDriverNode::transfer()
+{
+  constexpr auto kMinCommunicationInterval = 200us;  // Communication errors occur at 100 us.
+  std::this_thread::sleep_until(last_comm_time_ + kMinCommunicationInterval);
+  const auto res = driver_.transfer();
+  last_comm_time_ = clock::now();
+  return res;
+}
+
+void PwmBattImuDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& _pwms)
+{
+  for (const auto& elem : _pwms->pwms) {
+    if (elem.channel >= t2::PwmBattImu::kPwmChannels) {
+      TOBAS_ERROR("PWM channel ", elem.channel, " is out of range.");
+      continue;
+    }
+    pwm_periods_[elem.channel] = elem.period;
+  }
+
+  driver_.setPwmPeriod(pwm_periods_);
+}
+
+void PwmBattImuDriverNode::configureImuLowPassFilterCb(
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Request::ConstSharedPtr& _req,
+  const tobas_msgs::srv::ConfigureImuLowPassFilter::Response::SharedPtr& _res)
+{
+  driver_.configureLowPassFilter(_req->accel_cutoff, _req->gyro_cutoff, _req->dgyro_cutoff);
+
+  if (const auto result = transfer(); !result) {
+    _res->success = false;
+    _res->message = "Failed to communicate with the MCU: " + result.error();
+    return;
+  }
+
+  _res->success = true;
+  _res->message.clear();
+}
+
+void PwmBattImuDriverNode::configureImuRpmFilter(
+  const tobas_msgs::srv::ConfigureImuRpmFilter::Request::ConstSharedPtr& _req,
+  const tobas_msgs::srv::ConfigureImuRpmFilter::Response::SharedPtr& _res)
+{
+  driver_.configureRpmFilter(_req->quality_factor, _req->min_center_freq, _req->fade_range, _req->lpf_cutoff);
+
+  if (const auto result = transfer(); !result) {
+    _res->success = false;
+    _res->message = "Failed to communicate with the MCU: " + result.error();
+    return;
+  }
+
+  _res->success = true;
+  _res->message.clear();
+}
+
+void PwmBattImuDriverNode::initializeTimerCb()
+{
+  if (initialize()) {
+    initialize_timer_->cancel();
+  }
+}
+
+void PwmBattImuDriverNode::mainTimerCb()
+{
+  // Get the current time.
+  const auto cur_time = now();
+
+  // Communicate with the MCU.
+  if (const auto result = transfer(); !result) {
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to communicate with the MCU: ", result.error());
+    return;
+  }
+
+  // Publish the battery state.
+  auto batt_msg = std::make_unique<tobas_msgs::msg::Battery>();
+  batt_msg->header.stamp = cur_time;
+  driver_.getBattVoltage(batt_msg->voltage);
+  driver_.getBattCurrent(batt_msg->current);
+  if (batt_msg->voltage > 0.0) {
+    batt_pub_->publish(std::move(batt_msg));
+  }
+  else {
+    TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Battery state is unavailable.");
+  }
+
+  // Publish the raw IMU.
+  auto imu_raw_msg = std::make_unique<tobas_msgs::Imu>();
+  imu_raw_msg->header.stamp = cur_time;
+  driver_.getRawAccel(imu_raw_msg->accel.x(), imu_raw_msg->accel.y(), imu_raw_msg->accel.z());
+  driver_.getRawGyro(imu_raw_msg->gyro.x(), imu_raw_msg->gyro.y(), imu_raw_msg->gyro.z());
+  driver_.getRawDGyro(imu_raw_msg->dgyro.x(), imu_raw_msg->dgyro.y(), imu_raw_msg->dgyro.z());
+  imu_raw_pub_->publish(std::move(imu_raw_msg));
+
+  // Publish the filtered IMU.
+  auto imu_filt_msg = std::make_unique<tobas_msgs::Imu>();
+  imu_filt_msg->header.stamp = cur_time;
+  driver_.getFilteredAccel(imu_filt_msg->accel.x(), imu_filt_msg->accel.y(), imu_filt_msg->accel.z());
+  driver_.getFilteredGyro(imu_filt_msg->gyro.x(), imu_filt_msg->gyro.y(), imu_filt_msg->gyro.z());
+  driver_.getFilteredDGyro(imu_filt_msg->dgyro.x(), imu_filt_msg->dgyro.y(), imu_filt_msg->dgyro.z());
+  imu_filt_pub_->publish(std::move(imu_filt_msg));
+
+  // Publish the sampling time.
+  sampling_time_pub_.publish(cur_time);
+}
+}  // namespace tobas::fc3xx
+
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::fc3xx::PwmBattImuDriverNode)
