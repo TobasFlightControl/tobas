@@ -272,6 +272,9 @@ bool UARTdev::receive(uint8_t* _data, size_t _length)
     std::cerr << "UART RX failed: " << st::strError() << '\n';
     return false;
   }
+  if (res == 0 && options_.c_cc[VMIN] == 0 && options_.c_cc[VTIME] > 0) {
+    return false;  // An expected read timeout is not a communication error.
+  }
   if (res != static_cast<ssize_t>(_length)) {
     std::cerr << "Tried to receive " << _length << " bytes, but " << res << " bytes were received.\n";
     return false;

@@ -2,12 +2,17 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <cmath>
+#include <condition_variable>
 #include <iostream>
+#include <mutex>
+#include <stop_token>
+#include <string_view>
+#include <thread>
 
 #include <tobas_ic_drivers/stmicro/iis2mdc.hpp>
 #include <tobas_ic_drivers/stmicro/ilps22qs.hpp>
 #include <tobas_ic_drivers/ublox/gnss_receiver.hpp>
-#include <tobas_ic_drivers/ublox/ubx_transport_spi.hpp>
+#include <tobas_ic_drivers/ublox/ubx_transport_uart.hpp>
 #include <tobas_mcu_driver/tobas_t2/pwm_batt_imu.hpp>
 #include <tobas_sbus_driver/sbus.hpp>
 #include <tobas_std_tools/ansi_text_styles.hpp>
@@ -155,7 +160,7 @@ bool testBarometer()
 
 bool testGnssReceiver()
 {
-  tobas::ublox::GnssReceiver gnss(std::make_unique<tobas::ublox::UbxTransportSpi>("/dev/spidev1.0"));
+  tobas::ublox::GnssReceiver gnss(std::make_unique<tobas::ublox::UbxTransportUart>("/dev/ttyAMA1"));
 
   if (!gnss.initialize()) {
     std::cerr << "Failed to initialize GNSS driver.\n";
@@ -187,28 +192,40 @@ bool testGnssReceiver()
     return false;
   }
 
-  const auto start_time = ch::steady_clock::now();
+  std::mutex mutex;
+  std::condition_variable received_cv;
+  bool received = false;
 
-  while (ch::steady_clock::now() - start_time < 3s) {
-    if (!gnss.update(true)) {
-      std::cerr << "Failed to receive a GNSS message.\n";
-      return false;
-    }
+  std::jthread read_thread(
+    [&](std::stop_token _stop_token)
+    {
+      while (!_stop_token.stop_requested()) {
+        if (!gnss.update(true, _stop_token)) {
+          continue;
+        }
+        if (
+          gnss.latestClass() == tobas::ublox::GnssReceiver::CLASS_NAV &&
+          gnss.latestId() == tobas::ublox::GnssReceiver::NAV_PVT) {
+          {
+            std::lock_guard lock(mutex);
+            received = true;
+          }
+          received_cv.notify_one();
+          return;
+        }
+      }
+    });
 
-    if (gnss.latestClass() != tobas::ublox::GnssReceiver::CLASS_NAV) {
-      continue;
-    }
+  std::unique_lock lock(mutex);
+  const bool result = received_cv.wait_for(lock, 3s, [&] { return received; });
+  lock.unlock();
+  read_thread.request_stop();
+  read_thread.join();
 
-    switch (gnss.latestId()) {
-      case tobas::ublox::GnssReceiver::NAV_PVT:
-        return true;
-      default:
-        continue;
-    }
+  if (!result) {
+    std::cerr << "Timeout before receiving the first GPS message.\n";
   }
-
-  std::cerr << "Timeout before receiving the first GPS message.\n";
-  return false;
+  return result;
 }
 
 bool testSbus()
@@ -236,8 +253,16 @@ bool testSbus()
   return false;
 }
 
-int main()
+int main(int _argc, char** _argv)
 {
+  if (_argc == 2 && std::string_view(_argv[1]) == "--gnss-only") {
+    return testGnssReceiver() ? EXIT_SUCCESS : EXIT_FAILURE;
+  }
+  if (_argc != 1) {
+    std::cerr << "Usage: " << _argv[0] << " [--gnss-only]\n";
+    return EXIT_FAILURE;
+  }
+
   // PM & IMU
   std::cout << "Testing PM & IMU...\n";
   if (!testBattImu()) {

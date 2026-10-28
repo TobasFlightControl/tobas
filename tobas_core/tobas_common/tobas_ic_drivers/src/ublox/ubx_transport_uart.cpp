@@ -81,8 +81,8 @@ bool UbxTransportUart::configureBaudRate() noexcept
     }
   }
 
-  // Restore blocking reception for normal operation.
-  return uart_.setTimeout(0) && uart_.setMinimumChars(1);
+  // Bound reads so a stopped GNSS worker can leave the receive loop.
+  return uart_.setTimeout(1) && uart_.setMinimumChars(0);
 }
 
 bool UbxTransportUart::checkBaudRate(uint32_t _baud_rate) noexcept

@@ -1,10 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <condition_variable>
+#include <mutex>
+#include <stop_token>
+#include <thread>
+
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_hardware_common/constants.hpp>
 #include <tobas_ic_drivers/ublox/gnss_receiver.hpp>
-#include <tobas_ic_drivers/ublox/ubx_transport_spi.hpp>
+#include <tobas_ic_drivers/ublox/ubx_transport_uart.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs_adapter/gnss.hpp>
@@ -15,7 +20,6 @@ namespace tobas::fc3xx
 {
 class GnssDriverNode : public BaseNode
 {
-  using self = GnssDriverNode;
   using super = BaseNode;
 
 public:
@@ -30,58 +34,50 @@ private:
   std::map<ublox::GnssReceiver::UbxNavId, bool> is_received_;
 
   ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
-  ros2::TimerPtr initialize_timer_, main_timer_;
+  std::jthread read_thread_;
 
-  bool initialize();
-  bool configure();
+  bool initialize(std::stop_token _stop_token);
+  bool configure(std::stop_token _stop_token);
   void warnUnnecessaryUBXMessage();
 
-  void initializeTimerCb();
-  void mainTimerCb();
+  void readThreadFunc(std::stop_token _stop_token);
+  void handleMessage();
 };
 
 GnssDriverNode::GnssDriverNode(const rclcpp::NodeOptions& _options)
   : super("fc3xx_gnss_driver", nodeOptions_Default(_options))
-  , gnss_(std::make_unique<ublox::UbxTransportSpi>("/dev/spidev1.0"))
+  , gnss_(std::make_unique<ublox::UbxTransportUart>("/dev/ttyAMA1"))
 {
-  if (!initialize()) {
-    initialize_timer_ = createWallTimer(hardware::kRetryInitializationInterval, &self::initializeTimerCb, this);
-  }
+  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
+  read_thread_ = std::jthread([this](std::stop_token _stop_token) { readThreadFunc(_stop_token); });
 }
 
-bool GnssDriverNode::initialize()
+bool GnssDriverNode::initialize(std::stop_token _stop_token)
 {
   if (!gnss_.initialize()) {
-    TOBAS_ERROR("Failed to initialize GNSS driver. Retrying...");
     return false;
   }
 
-  if (!configure()) {
-    TOBAS_ERROR("Failed to configure GNSS receiver. Retrying...");
+  if (!configure(_stop_token)) {
     return false;
   }
 
   is_received_[ublox::GnssReceiver::NAV_PVT] = false;
   is_received_[ublox::GnssReceiver::NAV_COV] = false;
 
-  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
-
-  constexpr auto kMainTimerPeriod = 1ms;
-  main_timer_ = createWallTimer(kMainTimerPeriod, &self::mainTimerCb, this);
-
   return true;
 }
 
-bool GnssDriverNode::configure()
+bool GnssDriverNode::configure(std::stop_token _stop_token)
 {
-  if (!gnss_.configureDynamicsModel(ublox::GnssReceiver::AIRBORNE_2G)) {
+  if (_stop_token.stop_requested() || !gnss_.configureDynamicsModel(ublox::GnssReceiver::AIRBORNE_2G)) {
     TOBAS_ERROR("Failed to configure dynamics model.");
     return false;
   }
 
   // The measurement rate cannot be too short because an overly high frequency fills the FIFO and causes a time shift.
   constexpr uint16_t kMeasRate = 20;  // [Hz]
-  if (!gnss_.configureMeasurementRate(1000 / kMeasRate)) {
+  if (_stop_token.stop_requested() || !gnss_.configureMeasurementRate(1000 / kMeasRate)) {
     TOBAS_ERROR("Failed to configure measurement rate.");
     return false;
   }
@@ -89,69 +85,72 @@ bool GnssDriverNode::configure()
   // Enable GPS + SBAS + QZSS.
   // According to the datasheet, combining multiple main GNSS systems lowers the output frequency
   // while providing only a small accuracy improvement.
-  if (!gnss_.enableGps()) {
+  if (_stop_token.stop_requested() || !gnss_.enableGps()) {
     TOBAS_ERROR("Failed to enable GPS.");
     return false;
   }
-  if (!gnss_.enableSbas()) {
+  if (_stop_token.stop_requested() || !gnss_.enableSbas()) {
     TOBAS_ERROR("Failed to enable SBAS.");
     return false;
   }
-  if (!gnss_.disableGalileo()) {
+  if (_stop_token.stop_requested() || !gnss_.disableGalileo()) {
     TOBAS_ERROR("Failed to disable Galileo.");
     return false;
   }
-  if (!gnss_.disableBeiDou()) {
+  if (_stop_token.stop_requested() || !gnss_.disableBeiDou()) {
     TOBAS_ERROR("Failed to disable BeiDou.");
     return false;
   }
-  if (!gnss_.enableQzss()) {
+  if (_stop_token.stop_requested() || !gnss_.enableQzss()) {
     TOBAS_ERROR("Failed to enable QZSS.");
     return false;
   }
-  if (!gnss_.disableGlonass()) {
+  if (_stop_token.stop_requested() || !gnss_.disableGlonass()) {
     TOBAS_ERROR("Failed to disable GLONASS.");
     return false;
   }
 
   // Enable messages.
-  if (!gnss_.enableSpiMessage(ublox::GnssReceiver::CLASS_NAV, ublox::GnssReceiver::NAV_PVT, true)) {
+  if (
+    _stop_token.stop_requested() ||
+    !gnss_.enableMessage(ublox::GnssReceiver::CLASS_NAV, ublox::GnssReceiver::NAV_PVT, true)) {
     TOBAS_ERROR("Failed to enable NAV_PVT message.");
     return false;
   }
-  if (!gnss_.enableSpiMessage(ublox::GnssReceiver::CLASS_NAV, ublox::GnssReceiver::NAV_COV, true)) {
+  if (
+    _stop_token.stop_requested() ||
+    !gnss_.enableMessage(ublox::GnssReceiver::CLASS_NAV, ublox::GnssReceiver::NAV_COV, true)) {
     TOBAS_ERROR("Failed to enable NAV_COV message.");
     return false;
   }
 
   // Set the coaxial cable length.
   // TODO: Make this configurable from the GUI.
-  if (!gnss_.setAntennaLength(1)) {
+  if (_stop_token.stop_requested() || !gnss_.setAntennaLength(1)) {
     TOBAS_ERROR("Failed to set the antenna length.");
     return false;
   }
 
   // Enable/Disable protocols.
-  if (!gnss_.enableSpiProtocol_UBX(true, true)) {
+  if (_stop_token.stop_requested() || !gnss_.enableProtocol_UBX(true, true)) {
     TOBAS_ERROR("Failed to enable UBX protocol.");
     return false;
   }
-  if (!gnss_.enableSpiProtocol_NMEA(false, false)) {
+  if (_stop_token.stop_requested() || !gnss_.enableProtocol_NMEA(false, false)) {
     TOBAS_ERROR("Failed to disable NMEA protocol.");
     return false;
   }
-  if (!gnss_.enableSpiProtocol_RTCM3X(true, false)) {  // Only input is needed for RTK.
+  if (_stop_token.stop_requested() || !gnss_.enableProtocol_RTCM3X(true, false)) {  // Only input is needed for RTK.
     TOBAS_ERROR("Failed to disable RTCM3X protocol.");
     return false;
   }
-  if (!gnss_.enableSpiProtocol_SPARTN(false)) {
+  if (_stop_token.stop_requested() || !gnss_.enableProtocol_SPARTN(false)) {
     TOBAS_ERROR("Failed to disable SPARTN protocol.");
     return false;
   }
 
   // Disable unnecessary interfaces.
-  // I2C and UART should already be disabled because D_SEL is off.
-  if (!gnss_.enableUsb(false)) {
+  if (_stop_token.stop_requested() || !gnss_.enableUsb(false)) {
     TOBAS_ERROR("Failed to disable USB interface.");
     return false;
   }
@@ -166,19 +165,31 @@ void GnssDriverNode::warnUnnecessaryUBXMessage()
   TOBAS_WARN("Unnecessary UBX message is received: (Class, ID) = (", (int)cls, ", ", (int)id, ")");
 }
 
-void GnssDriverNode::initializeTimerCb()
+void GnssDriverNode::readThreadFunc(std::stop_token _stop_token)
 {
-  if (initialize()) {
-    initialize_timer_->cancel();
+  while (!_stop_token.stop_requested()) {
+    if (initialize(_stop_token)) {
+      break;
+    }
+    if (_stop_token.stop_requested()) {
+      return;
+    }
+    TOBAS_ERROR("Failed to initialize or configure GNSS receiver. Retrying...");
+    std::mutex mutex;
+    std::condition_variable_any cv;
+    std::unique_lock lock(mutex);
+    cv.wait_for(lock, _stop_token, hardware::kRetryInitializationInterval, [] { return false; });
+  }
+
+  while (!_stop_token.stop_requested()) {
+    if (gnss_.update(true, _stop_token)) {
+      handleMessage();
+    }
   }
 }
 
-void GnssDriverNode::mainTimerCb()
+void GnssDriverNode::handleMessage()
 {
-  if (!gnss_.update()) {
-    return;
-  }
-
   if (gnss_.latestClass() != ublox::GnssReceiver::CLASS_NAV) {
     warnUnnecessaryUBXMessage();
     return;

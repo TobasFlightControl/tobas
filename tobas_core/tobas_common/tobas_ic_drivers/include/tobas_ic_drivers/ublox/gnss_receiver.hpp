@@ -4,6 +4,7 @@
 #pragma once
 
 #include <memory>
+#include <stop_token>
 
 #include <tobas_time_tools/rate.hpp>
 
@@ -115,7 +116,7 @@ public:
   GnssReceiver& operator=(const GnssReceiver& _other) = delete;
 
   bool initialize();
-  bool update(bool _blocking = false);
+  bool update(bool _blocking = false, std::stop_token _stop_token = {});
 
   // ===== Configurations =====
 

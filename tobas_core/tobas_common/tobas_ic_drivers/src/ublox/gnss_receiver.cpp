@@ -25,8 +25,13 @@ bool GnssReceiver::initialize()
   return transport_->initialize();
 }
 
-bool GnssReceiver::update(bool _blocking)
+bool GnssReceiver::update(bool _blocking, std::stop_token _stop_token)
 {
+  if (_stop_token.stop_requested()) {
+    return false;
+  }
+  constexpr auto kMessageTimeout = 1s;
+  const auto deadline = ch::steady_clock::now() + kMessageTimeout;
   scanner_.reset();
 
   if (!_blocking) {
@@ -45,16 +50,19 @@ bool GnssReceiver::update(bool _blocking)
 
   // Scan one message.
   scan_rate_.start();
-  while (scanner_.state() != UbxScanner::kDone) {
+  while (scanner_.state() != UbxScanner::kDone && !_stop_token.stop_requested() && ch::steady_clock::now() < deadline) {
     const auto data = transport_->receiveByte();
     if (!data) {
+      if (_blocking) {
+        continue;  // Keep the current frame across UART read timeouts.
+      }
       return false;
     }
     scanner_.update(*data);
     scan_rate_.sleep();
   }
 
-  if (!verifyMessage()) {
+  if (scanner_.state() != UbxScanner::kDone || !verifyMessage()) {
     return false;
   }
 
