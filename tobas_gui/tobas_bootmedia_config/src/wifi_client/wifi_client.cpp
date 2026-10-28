@@ -3,8 +3,6 @@
 
 #include "tobas_bootmedia_config/wifi_client/wifi_client.hpp"
 
-#include <utility>
-
 #include <QDebug>
 #include <QEvent>
 #include <QString>
@@ -90,16 +88,16 @@ bool WifiClientWidget::onConnected()
   // Load the configuration file, using defaults if it cannot be read.
   const auto text = str::readText(configPath());
   if (!text) {
-    qWarning() << QString::fromStdString(text.error()) << "Using default configuration.";
+    qWarning() << text.error().c_str() << "Using default configuration.";
   }
 
-  // Parse the configuration file.
+  // Parse the configuration file, using defaults if parsing fails.
   const auto wpa_data = wpa::parseFromText(text.value_or(""));
   if (!wpa_data) {
-    qt::qErrorBox(this, "Failed to parse network configuration:\n" + QString::fromStdString(wpa_data.error()));
-    return false;
+    qWarning() << "Failed to parse network configuration:" << wpa_data.error().c_str()
+               << "Using default configuration.";
   }
-  wpa_data_ = std::move(*wpa_data);
+  wpa_data_ = wpa_data.value_or(wpa::Data{});
 
   // Reflect the current configuration in the table.
   table_->removeAll();
