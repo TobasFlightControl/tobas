@@ -37,6 +37,7 @@ sudo colcon clean workspace -y
 sudo rm -rf ./src/*
 
 # Clear Wi-Fi settings
+sudo rm /etc/netplan/*
 sudo rm /etc/wpa_supplicant/wpa_supplicant-*
 sudo rm /etc/hostapd/hostapd.conf*
 
