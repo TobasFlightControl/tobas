@@ -111,11 +111,11 @@ bool GnssDriverNode::configure()
   }
 
   // Enable messages.
-  if (!gnss_.enableSpiMessage(ublox::GnssReceiver::CLASS_NAV, ublox::GnssReceiver::NAV_PVT, true)) {
+  if (!gnss_.enableMessage(ublox::GnssReceiver::CLASS_NAV, ublox::GnssReceiver::NAV_PVT, true)) {
     TOBAS_ERROR("Failed to enable NAV_PVT message.");
     return false;
   }
-  if (!gnss_.enableSpiMessage(ublox::GnssReceiver::CLASS_NAV, ublox::GnssReceiver::NAV_COV, true)) {
+  if (!gnss_.enableMessage(ublox::GnssReceiver::CLASS_NAV, ublox::GnssReceiver::NAV_COV, true)) {
     TOBAS_ERROR("Failed to enable NAV_COV message.");
     return false;
   }
@@ -128,19 +128,19 @@ bool GnssDriverNode::configure()
   }
 
   // Enable/Disable protocols.
-  if (!gnss_.enableSpiProtocol_UBX(true, true)) {
+  if (!gnss_.enableProtocol_UBX(true, true)) {
     TOBAS_ERROR("Failed to enable UBX protocol.");
     return false;
   }
-  if (!gnss_.enableSpiProtocol_NMEA(false, false)) {
+  if (!gnss_.enableProtocol_NMEA(false, false)) {
     TOBAS_ERROR("Failed to disable NMEA protocol.");
     return false;
   }
-  if (!gnss_.enableSpiProtocol_RTCM3X(true, false)) {  // Only input is needed for RTK.
+  if (!gnss_.enableProtocol_RTCM3X(true, false)) {  // Only input is needed for RTK.
     TOBAS_ERROR("Failed to disable RTCM3X protocol.");
     return false;
   }
-  if (!gnss_.enableSpiProtocol_SPARTN(false)) {
+  if (!gnss_.enableProtocol_SPARTN(false)) {
     TOBAS_ERROR("Failed to disable SPARTN protocol.");
     return false;
   }

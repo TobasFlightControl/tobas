@@ -88,35 +88,35 @@ int main(int _argc, char** _argv)
 
   // Enable messages.
   cout << "Enabling messages.\n";
-  if (!gnss.enableSpiMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_COV, true)) {
+  if (!gnss.enableMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_COV, true)) {
     cerr << "Failed to enable NAV_COV message.\n";
     return EXIT_FAILURE;
   }
-  if (!gnss.enableSpiMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_HPPOSLLH, true)) {
+  if (!gnss.enableMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_HPPOSLLH, true)) {
     cerr << "Failed to enable NAV_HPPOSLLH message.\n";
     return EXIT_FAILURE;
   }
-  if (!gnss.enableSpiMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_POSLLH, true)) {
+  if (!gnss.enableMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_POSLLH, true)) {
     cerr << "Failed to enable NAV_POSLLH message.\n";
     return EXIT_FAILURE;
   }
-  if (!gnss.enableSpiMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_PVT, true)) {
+  if (!gnss.enableMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_PVT, true)) {
     cerr << "Failed to enable NAV_PVT message.\n";
     return EXIT_FAILURE;
   }
-  if (!gnss.enableSpiMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_SAT, true)) {
+  if (!gnss.enableMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_SAT, true)) {
     cerr << "Failed to enable NAV_SAT message.\n";
     return EXIT_FAILURE;
   }
-  if (!gnss.enableSpiMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_STATUS, true)) {
+  if (!gnss.enableMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_STATUS, true)) {
     cerr << "Failed to enable NAV_STATUS message.\n";
     return EXIT_FAILURE;
   }
-  if (!gnss.enableSpiMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_TIMEGPS, true)) {
+  if (!gnss.enableMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_TIMEGPS, true)) {
     cerr << "Failed to enable NAV_TIMEGPS message.\n";
     return EXIT_FAILURE;
   }
-  if (!gnss.enableSpiMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_VELNED, true)) {
+  if (!gnss.enableMessage(tobas::ublox::GnssReceiver::CLASS_NAV, tobas::ublox::GnssReceiver::NAV_VELNED, true)) {
     cerr << "Failed to enable NAV_VELNED message.\n";
     return EXIT_FAILURE;
   }

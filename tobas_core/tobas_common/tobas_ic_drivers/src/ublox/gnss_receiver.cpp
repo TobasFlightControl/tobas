@@ -61,7 +61,7 @@ bool GnssReceiver::update(bool _blocking)
   return true;
 }
 
-bool GnssReceiver::enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable)
+bool GnssReceiver::enableMessage(UbxClass _cls, uint8_t _id, bool _enable)
 {
   constexpr char kNotImplemented[] = "Not implemented.\n";
   constexpr char kNotReceivable[] = "Not receivable.\n";
@@ -93,102 +93,126 @@ bool GnssReceiver::enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable)
       std::cerr << kNotImplemented;  // TODO
       return false;
     }
+
     case CLASS_NAV: {
+      struct MsgOutIds
+      {
+        uint16_t spi;
+        uint16_t uart1;
+      };
+
+      MsgOutIds msgout_ids{};
+
       switch (_id) {
         case NAV_CLOCK:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x069);  // CFG-MSGOUT-UBX_NAV_CLOCK_SPI
+          msgout_ids = { 0x069, 0x066 };  // CFG-MSGOUT-UBX_NAV_CLOCK: SPI, UART1
           break;
         case NAV_COV:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x087);  // CFG-MSGOUT-UBX_NAV_COV_SPI
+          msgout_ids = { 0x087, 0x084 };  // CFG-MSGOUT-UBX_NAV_COV: SPI, UART1
           break;
         case NAV_DOP:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x03C);  // CFG-MSGOUT-UBX_NAV_DOP_SPI
+          msgout_ids = { 0x03C, 0x039 };  // CFG-MSGOUT-UBX_NAV_DOP: SPI, UART1
           break;
         case NAV_EOE:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x163);  // CFG-MSGOUT-UBX_NAV_EOE_SPI
+          msgout_ids = { 0x163, 0x160 };  // CFG-MSGOUT-UBX_NAV_EOE: SPI, UART1
           break;
         case NAV_GEOFENCE:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x0A5);  // CFG-MSGOUT-UBX_NAV_GEOFENCE_SPI
+          msgout_ids = { 0x0A5, 0x0A2 };  // CFG-MSGOUT-UBX_NAV_GEOFENCE: SPI, UART1
           break;
         case NAV_HPPOSECEF:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x032);  // CFG-MSGOUT-UBX_NAV_HPPOSECEF_SPI
+          msgout_ids = { 0x032, 0x02F };  // CFG-MSGOUT-UBX_NAV_HPPOSECEF: SPI, UART1
           break;
         case NAV_HPPOSLLH:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x037);  // CFG-MSGOUT-UBX_NAV_HPPOSLLH_SPI
+          msgout_ids = { 0x037, 0x034 };  // CFG-MSGOUT-UBX_NAV_HPPOSLLH: SPI, UART1
           break;
         case NAV_ODO:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x082);  // CFG-MSGOUT-UBX_NAV_ODO_SPI
+          msgout_ids = { 0x082, 0x07F };  // CFG-MSGOUT-UBX_NAV_ODO: SPI, UART1
           break;
         case NAV_ORB:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x014);  // CFG-MSGOUT-UBX_NAV_ORB_SPI
+          msgout_ids = { 0x014, 0x011 };  // CFG-MSGOUT-UBX_NAV_ORB: SPI, UART1
           break;
         case NAV_PL:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x419);  // CFG-MSGOUT-UBX_NAV_PL_SPI
+          msgout_ids = { 0x419, 0x416 };  // CFG-MSGOUT-UBX_NAV_PL: SPI, UART1
           break;
         case NAV_POSECEF:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x028);  // CFG-MSGOUT-UBX_NAV_POSECEF_SPI
+          msgout_ids = { 0x028, 0x025 };  // CFG-MSGOUT-UBX_NAV_POSECEF: SPI, UART1
           break;
         case NAV_POSLLH:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x02D);  // CFG-MSGOUT-UBX_NAV_POSLLH_SPI
+          msgout_ids = { 0x02D, 0x02A };  // CFG-MSGOUT-UBX_NAV_POSLLH: SPI, UART1
           break;
         case NAV_PVT:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x00A);  // CFG-MSGOUT-UBX_NAV_PVT_SPI
+          msgout_ids = { 0x00A, 0x007 };  // CFG-MSGOUT-UBX_NAV_PVT: SPI, UART1
           break;
         case NAV_RELPOSNED:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x091);  // CFG-MSGOUT-UBX_NAV_RELPOSNED_SPI
+          msgout_ids = { 0x091, 0x08E };  // CFG-MSGOUT-UBX_NAV_RELPOSNED: SPI, UART1
           break;
         case NAV_RESETODO:
           std::cerr << kNotReceivable;
           return false;
         case NAV_SAT:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x019);  // CFG-MSGOUT-UBX_NAV_SAT_SPI
+          msgout_ids = { 0x019, 0x016 };  // CFG-MSGOUT-UBX_NAV_SAT: SPI, UART1
           break;
         case NAV_SBAS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x06E);  // CFG-MSGOUT-UBX_NAV_SBAS_SPI
+          msgout_ids = { 0x06E, 0x06B };  // CFG-MSGOUT-UBX_NAV_SBAS: SPI, UART1
           break;
         case NAV_SIG:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x349);  // CFG-MSGOUT-UBX_NAV_SIG_SPI
+          msgout_ids = { 0x349, 0x346 };  // CFG-MSGOUT-UBX_NAV_SIG: SPI, UART1
           break;
         case NAV_SLAS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x33A);  // CFG-MSGOUT-UBX_NAV_SLAS_SPI
+          msgout_ids = { 0x33A, 0x337 };  // CFG-MSGOUT-UBX_NAV_SLAS: SPI, UART1
           break;
         case NAV_STATUS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x01E);  // CFG-MSGOUT-UBX_NAV_STATUS_SPI
+          msgout_ids = { 0x01E, 0x01B };  // CFG-MSGOUT-UBX_NAV_STATUS: SPI, UART1
           break;
         case NAV_SVIN:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x08C);  // CFG-MSGOUT-UBX_NAV_SVIN_SPI
+          msgout_ids = { 0x08C, 0x089 };  // CFG-MSGOUT-UBX_NAV_SVIN: SPI, UART1
           break;
         case NAV_TIMEBDS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x055);  // CFG-MSGOUT-UBX_NAV_TIMEBDS_SPI
+          msgout_ids = { 0x055, 0x052 };  // CFG-MSGOUT-UBX_NAV_TIMEBDS: SPI, UART1
           break;
         case NAV_TIMEGAL:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x05A);  // CFG-MSGOUT-UBX_NAV_TIMEGAL_SPI
+          msgout_ids = { 0x05A, 0x057 };  // CFG-MSGOUT-UBX_NAV_TIMEGAL: SPI, UART1
           break;
         case NAV_TIMEGLO:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x050);  // CFG-MSGOUT-UBX_NAV_TIMEGLO_SPI
+          msgout_ids = { 0x050, 0x04D };  // CFG-MSGOUT-UBX_NAV_TIMEGLO: SPI, UART1
           break;
         case NAV_TIMEGPS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x04B);  // CFG-MSGOUT-UBX_NAV_TIMEGPS_SPI
+          msgout_ids = { 0x04B, 0x048 };  // CFG-MSGOUT-UBX_NAV_TIMEGPS: SPI, UART1
           break;
         case NAV_TIMELS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x064);  // CFG-MSGOUT-UBX_NAV_TIMELS_SPI
+          msgout_ids = { 0x064, 0x061 };  // CFG-MSGOUT-UBX_NAV_TIMELS: SPI, UART1
           break;
         case NAV_TIMEQZSS:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x38A);  // CFG-MSGOUT-UBX_NAV_TIMEQZSS_SPI
+          msgout_ids = { 0x38A, 0x387 };  // CFG-MSGOUT-UBX_NAV_TIMEQZSS: SPI, UART1
           break;
         case NAV_TIMEUTC:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x05F);  // CFG-MSGOUT-UBX_NAV_TIMEUTC_SPI
+          msgout_ids = { 0x05F, 0x05C };  // CFG-MSGOUT-UBX_NAV_TIMEUTC: SPI, UART1
           break;
         case NAV_VELECEF:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x041);  // CFG-MSGOUT-UBX_NAV_VELECEF_SPI
+          msgout_ids = { 0x041, 0x03E };  // CFG-MSGOUT-UBX_NAV_VELECEF: SPI, UART1
           break;
         case NAV_VELNED:
-          cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x046);  // CFG-MSGOUT-UBX_NAV_VELNED_SPI
+          msgout_ids = { 0x046, 0x043 };  // CFG-MSGOUT-UBX_NAV_VELNED: SPI, UART1
           break;
         default:
           std::cerr << kNotImplemented;  // TODO
           return false;
       }
+
+      uint16_t item_id;
+
+      switch (transport_->interface()) {
+        case UbxTransport::Interface::SPI:
+          item_id = msgout_ids.spi;
+          break;
+        case UbxTransport::Interface::UART:
+          item_id = msgout_ids.uart1;
+          break;
+        default:
+          return false;
+      }
+
+      cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, item_id);
       break;
     }
     case CLASS_NAV2: {
@@ -446,24 +470,24 @@ bool GnssReceiver::disableNavIc()
   return enableNavIc(false);
 }
 
-bool GnssReceiver::enableSpiProtocol_UBX(bool _enable_input, bool _enable_output)
+bool GnssReceiver::enableProtocol_UBX(bool _enable_input, bool _enable_output)
 {
-  return enableSpiInputProtocol(UBX, _enable_input) && enableSpiOutputProtocol(UBX, _enable_output);
+  return enableInputProtocol(UBX, _enable_input) && enableOutputProtocol(UBX, _enable_output);
 }
 
-bool GnssReceiver::enableSpiProtocol_NMEA(bool _enable_input, bool _enable_output)
+bool GnssReceiver::enableProtocol_NMEA(bool _enable_input, bool _enable_output)
 {
-  return enableSpiInputProtocol(NMEA, _enable_input) && enableSpiOutputProtocol(NMEA, _enable_output);
+  return enableInputProtocol(NMEA, _enable_input) && enableOutputProtocol(NMEA, _enable_output);
 }
 
-bool GnssReceiver::enableSpiProtocol_RTCM3X(bool _enable_input, bool _enable_output)
+bool GnssReceiver::enableProtocol_RTCM3X(bool _enable_input, bool _enable_output)
 {
-  return enableSpiInputProtocol(RTCM3X, _enable_input) && enableSpiOutputProtocol(RTCM3X, _enable_output);
+  return enableInputProtocol(RTCM3X, _enable_input) && enableOutputProtocol(RTCM3X, _enable_output);
 }
 
-bool GnssReceiver::enableSpiProtocol_SPARTN(bool _enable_input)
+bool GnssReceiver::enableProtocol_SPARTN(bool _enable_input)
 {
-  return enableSpiInputProtocol(SPARTN, _enable_input);
+  return enableInputProtocol(SPARTN, _enable_input);
 }
 
 bool GnssReceiver::setAntennaLength(uint8_t _length_m)
@@ -708,14 +732,40 @@ bool GnssReceiver::enableNavIcL5()
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1D, true);  // CFG-SIGNAL-NAVIC_L5_ENA
 }
 
-bool GnssReceiver::enableSpiInputProtocol(CfgProtocol _prot, bool _enable)
+bool GnssReceiver::enableInputProtocol(CfgProtocol _prot, bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIINPROT, _prot, _enable);  // CFG-SPIINPROT-XXX
+  CfgGroup group;
+
+  switch (transport_->interface()) {
+    case UbxTransport::Interface::SPI:
+      group = CFG_SPIINPROT;
+      break;
+    case UbxTransport::Interface::UART:
+      group = CFG_UART1INPROT;
+      break;
+    default:
+      return false;
+  }
+
+  return cfgValSetSingle<uint8_t>(ONE_BIT, group, _prot, _enable);
 }
 
-bool GnssReceiver::enableSpiOutputProtocol(CfgProtocol _prot, bool _enable)
+bool GnssReceiver::enableOutputProtocol(CfgProtocol _prot, bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SPIOUTPROT, _prot, _enable);  // CFG-SPIOUTPROT-XXX
+  CfgGroup group;
+
+  switch (transport_->interface()) {
+    case UbxTransport::Interface::SPI:
+      group = CFG_SPIOUTPROT;
+      break;
+    case UbxTransport::Interface::UART:
+      group = CFG_UART1OUTPROT;
+      break;
+    default:
+      return false;
+  }
+
+  return cfgValSetSingle<uint8_t>(ONE_BIT, group, _prot, _enable);
 }
 
 GnssReceiver::CheckSum GnssReceiver::computeChecksum(const uint8_t* _message, size_t _checksum_pos)

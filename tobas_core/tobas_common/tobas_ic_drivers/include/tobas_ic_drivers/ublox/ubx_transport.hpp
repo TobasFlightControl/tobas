@@ -12,6 +12,12 @@ namespace tobas::ublox
 class UbxTransport
 {
 public:
+  enum class Interface
+  {
+    SPI,
+    UART,
+  };
+
   explicit UbxTransport() = default;
 
   UbxTransport(UbxTransport&& _other) = delete;
@@ -24,5 +30,6 @@ public:
   virtual bool initialize() noexcept = 0;
   virtual std::optional<uint8_t> receiveByte() noexcept = 0;
   virtual bool send(const uint8_t* _data, size_t _length) noexcept = 0;
+  virtual Interface interface() const noexcept = 0;
 };
 }  // namespace tobas::ublox

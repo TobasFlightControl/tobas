@@ -156,4 +156,9 @@ bool UbxTransportUart::send(const uint8_t* _data, size_t _length) noexcept
 {
   return uart_.send(_data, _length);
 }
+
+UbxTransport::Interface UbxTransportUart::interface() const noexcept
+{
+  return Interface::UART;
+}
 }  // namespace tobas::ublox
