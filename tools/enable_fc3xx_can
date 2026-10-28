@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Run on an FC3xx Raspberry Pi. FC1xx uses SPI0 CS0 for its IMU.
+if [[ ${EUID} -ne 0 ]]; then
+  echo "Run this script as root on an FC3xx Raspberry Pi." >&2
+  exit 1
+fi
+
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+overlay_name=tobas-fc3xx-can
+overlay_source="${script_dir}/overlays/${overlay_name}-overlay.dts"
+boot_dir=/boot/firmware
+config_file="${boot_dir}/config.txt"
+overlay_file="${boot_dir}/overlays/${overlay_name}.dtbo"
+
+if ! command -v dtc >/dev/null 2>&1; then
+  echo "dtc is required (install device-tree-compiler)." >&2
+  exit 1
+fi
+
+if [[ ! -f ${config_file} ]]; then
+  echo "Missing ${config_file}." >&2
+  exit 1
+fi
+
+if ! grep -Fxq 'dtoverlay=spi0-2cs' "${config_file}"; then
+  echo "Missing dtoverlay=spi0-2cs in ${config_file}." >&2
+  exit 1
+fi
+
+if ! grep -Fxq '[pi5]' "${config_file}"; then
+  echo "Missing [pi5] section in ${config_file}." >&2
+  exit 1
+fi
+
+temporary_overlay=$(mktemp)
+trap 'rm -f "${temporary_overlay}"' EXIT
+dtc -@ -I dts -O dtb -o "${temporary_overlay}" "${overlay_source}"
+install -m 0644 "${temporary_overlay}" "${overlay_file}"
+
+if ! grep -Fxq "dtoverlay=${overlay_name}" "${config_file}"; then
+  # Repeat the filter so later config sections cannot change the target board.
+  printf '\n[pi5]\n# FC3xx MCP25625 on SPI0 CS0\ndtoverlay=%s\n' "${overlay_name}" >>"${config_file}"
+fi
+
+echo "Installed ${overlay_file} and enabled it in ${config_file}. Reboot to create can0."

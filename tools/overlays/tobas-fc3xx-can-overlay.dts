@@ -1,0 +1,56 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+// FC3xx MCP25625: SPI0 CS0, GPIO22 INT (active low), 20 MHz oscillator.
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "brcm,bcm2835";
+
+	fragment@0 {
+		target = <&spidev0>;
+		__overlay__ {
+			status = "disabled";
+		};
+	};
+
+	fragment@1 {
+		target = <&gpio>;
+		__overlay__ {
+			fc3xx_can_int_pins: fc3xx-can-int-pins {
+				brcm,pins = <22>;
+				brcm,function = <0>; // GPIO input
+			};
+		};
+	};
+
+	fragment@2 {
+		target-path = "/clocks";
+		__overlay__ {
+			fc3xx_can_osc: fc3xx-can-osc {
+				compatible = "fixed-clock";
+				#clock-cells = <0>;
+				clock-frequency = <20000000>;
+			};
+		};
+	};
+
+	fragment@3 {
+		target = <&spi0>;
+		__overlay__ {
+			status = "okay";
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			can@0 {
+				compatible = "microchip,mcp25625";
+				reg = <0>;
+				spi-max-frequency = <10000000>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&fc3xx_can_int_pins>;
+				interrupt-parent = <&gpio>;
+				interrupts = <22 8>; // IRQ_TYPE_LEVEL_LOW
+				clocks = <&fc3xx_can_osc>;
+			};
+		};
+	};
+};
