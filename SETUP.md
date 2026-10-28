@@ -4,37 +4,35 @@ This guide is for developers building Tobas from source on a PC or deploying a s
 If you only want to install and use Tobas, start from the
 [Tobas User Guide](https://tobasflightcontrol.github.io/tobas/latest/).
 
-## PC (Ubuntu 24.04 LTS)
+## PC (Ubuntu 26.04 LTS)
 
-1. [Install ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)
+1. [Install ROS 2 Lyrical](https://docs.ros.org/en/lyrical/Get-Started/Installation/Ubuntu-Install-Debs.html)
 
    ```bash
-   # Set locale
-   $ sudo apt update
-   $ sudo apt install -y locales
+   # Set your locale.
+   $ sudo apt update && sudo apt install -y locales
    $ sudo locale-gen en_US en_US.UTF-8
    $ sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
    $ export LANG=en_US.UTF-8
 
-   # Enable required repositories
+   # Ensure that the Ubuntu Universe repository is enabled.
    $ sudo apt install -y software-properties-common
-   $ yes "" | sudo add-apt-repository universe
-   $ sudo apt update
-   $ sudo apt install -y curl
+   $ sudo add-apt-repository -y universe
+
+   # Install the ros-apt-source packages.
+   $ sudo apt update && sudo apt install -y curl
    $ export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F'"' '{print $4}')
    $ curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME}})_all.deb"
    $ sudo dpkg -i /tmp/ros2-apt-source.deb
-   $ sudo apt update
 
-   # Install development tools (optional)
-   $ sudo apt install -y ros-dev-tools
-   $ sudo apt install -y python3-colcon-common-extensions
-   $ sudo apt install -y python3-colcon-clean
+   # Optional: Install development tools.
+   $ sudo apt update && sudo apt install -y ros-dev-tools
 
-   # Install ROS 2
-   $ sudo apt install -y ros-jazzy-desktop
+   # Install ROS.
+   $ sudo apt update && sudo apt upgrade -y
+   $ sudo apt install -y ros-lyrical-desktop
 
-   # Initialize rosdep
+   # Initialize rosdep.
    $ sudo rosdep init
    ```
 
@@ -45,10 +43,10 @@ If you only want to install and use Tobas, start from the
    $ cd ~/colcon_ws
    ```
 
-3. Set up your system automatically each time a new shell is opened
+3. Set up your environment automatically each time a new shell is opened
 
    ```bash
-   $ echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
+   $ echo "source /opt/ros/lyrical/setup.bash" >> ~/.bashrc
    $ echo "source ~/colcon_ws/install/local_setup.bash" >> ~/.bashrc
    $ exec bash
    ```
@@ -57,14 +55,14 @@ If you only want to install and use Tobas, start from the
 
    ```bash
    $ cd ~/colcon_ws/src
-   $ git clone git@github.com:TobasFlightControl/tobas.git -b jazzy
+   $ git clone git@github.com:TobasFlightControl/tobas.git -b lyrical
    ```
 
 5. Install dependencies
 
    ```bash
-   $ rosdep update
-   $ rosdep install -iry --from-paths ~/colcon_ws/src/tobas
+   $ rosdep update --rosdistro lyrical
+   $ rosdep install -iry --from-paths ~/colcon_ws/src/tobas --rosdistro lyrical
    ```
 
 6. Build
@@ -116,7 +114,7 @@ If you only want to install and use Tobas, start from the
    Inside the tmux session, run:
 
    ```bash
-   pi@<hostname> $ source /opt/ros/jazzy/setup.bash
+   pi@<hostname> $ source /opt/ros/lyrical/setup.bash
    pi@<hostname> $ /home/pi/colcon_ws/src/tobas/tools/tobas_deploy_upto tobas
    ```
 
