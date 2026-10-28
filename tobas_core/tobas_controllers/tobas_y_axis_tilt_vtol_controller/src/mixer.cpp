@@ -152,7 +152,11 @@ bool Mixer::updateInternalDataStructures()
 
 double Mixer::calcMaxThrust(const double& thrust_angle) const
 {
-  return max_thrust_multicopter_ * std::pow(cos(thrust_angle), 2) + max_thrust_fixed_wing_ * std::pow(sin(thrust_angle), 2);
+  const auto sin_chi_0 = std::sin(thrust_angle);
+  const auto cos_chi_0 = std::cos(thrust_angle);
+  const auto cos_chi_squared = std::pow(max_thrust_fixed_wing_ * cos_chi_0, 2) / (std::pow(max_thrust_fixed_wing_ * cos_chi_0, 2) + std::pow(max_thrust_multicopter_ * sin_chi_0, 2));
+  const auto sin_chi_squared = std::pow(max_thrust_multicopter_ * sin_chi_0, 2) / (std::pow(max_thrust_fixed_wing_ * cos_chi_0, 2) + std::pow(max_thrust_multicopter_ * sin_chi_0, 2));
+  return std::sqrt(std::pow(max_thrust_multicopter_, 2) * cos_chi_squared + std::pow(max_thrust_fixed_wing_, 2) * sin_chi_squared);
 }
 
 bool Mixer::solve(

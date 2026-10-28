@@ -10,6 +10,7 @@
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_dsp/incomplete_differentiation.hpp>
 #include <tobas_eigen_tools/core.hpp>
+#include <tobas_eigen_tools/kinematics.hpp>
 #include <tobas_kdl/conversion/coordinates.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_kdl/jntarray.hpp>
@@ -345,8 +346,11 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
     // TODO: Accumulate integral error while airborne.
 
-    // Compute target angular velocity.
-    *tar_gyro_ = angle_gain.hadamard(ep);
+    // Compute target Euler angle rates.
+    const auto tar_drpy = angle_gain.hadamard(ep);
+
+    // Convert Euler angle rates to gyro values.
+    *tar_gyro_ = eigen::angvelFromEulerrateLocal(tar_drpy.data, cur_rpy.roll, cur_rpy.pitch);
 
     // Fill the feedback message.
     setpoint->odom.frame.M = tar_angle_->toRotation();
@@ -395,7 +399,10 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     // TODO: Accumulate integral error while airborne.
 
     // Compute target Euler angle rates.
-    *tar_gyro_ = angle_gain.hadamard(ep);
+    const auto tar_drpy = angle_gain.hadamard(ep);
+
+    // Convert Euler angle rates to gyro values.
+    *tar_gyro_ = eigen::angvelFromEulerrateLocal(tar_drpy.data, cur_rpy.roll, cur_rpy.pitch);
 
     // Fill the feedback message.
     setpoint->odom.frame.M =
