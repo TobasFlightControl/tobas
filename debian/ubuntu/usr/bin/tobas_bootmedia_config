@@ -2,4 +2,4 @@
 
 sudo env \
   XDG_CONFIG_HOME="$HOME/.config" \
-  bash -c 'source /opt/ros/jazzy/setup.bash && ros2 run tobas_bootmedia_config TobasBootmediaConfig'
+  bash -c 'source /opt/ros/lyrical/setup.bash && ros2 run tobas_bootmedia_config TobasBootmediaConfig'

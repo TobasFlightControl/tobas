@@ -15,7 +15,7 @@
 
 ### Example Branch Names
 
-- `jazzy`
+- `rolling`
 - `feature/nonlinear-mpc`
 - `release/v2.5`
 - `hotfix/mag-drivers`

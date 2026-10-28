@@ -21,8 +21,8 @@ so unconventional aircraft can be simulated, configured, and flown through the s
 
 ## Supported Platform
 
-- Ubuntu 24.04 LTS
-- ROS 2 Jazzy
+- Ubuntu 26.04 LTS
+- ROS 2 Lyrical
 - Debian Trixie for flight-controller images
 
 ## Repository Layout
