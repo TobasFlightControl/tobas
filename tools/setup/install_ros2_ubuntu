@@ -35,9 +35,7 @@ sudo apt upgrade -y
 sudo apt install -y \
   ros-dev-tools \
   python3-colcon-common-extensions \
-  python3-colcon-clean \
-  ros-lyrical-plotjuggler-ros \
-  "ros-lyrical-rqt*"
+  python3-colcon-clean
 
 # Install ROS 2.
 sudo apt install -y ros-lyrical-desktop-full
