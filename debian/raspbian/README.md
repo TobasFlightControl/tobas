@@ -32,6 +32,10 @@ From a PC on the same network, connect using the hostname configured in Imager:
 $ ssh pi@<hostname>.local
 ```
 
+### Set locale
+
+https://zenn.dev/thorie/articles/548emb-install-ros2-offical-ver-on-raspberry-pi-os
+
 ### Apply Tobas settings over SSH
 
 Complete the first boot before placing the Tobas files on the device: the overlay includes
