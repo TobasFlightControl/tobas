@@ -39,7 +39,8 @@ int main()
 
   tobas::wpa::Exporter exporter;
   const auto text = exporter.exportText(*data);
-  if (!tobas::str::writeText(output_path, text)) {
+  if (const auto result = tobas::str::writeText(output_path, text); !result) {
+    std::cerr << result.error() << '\n';
     return EXIT_FAILURE;
   }
 

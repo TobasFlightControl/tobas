@@ -67,13 +67,13 @@ void HostnameWidget::reset()
 
 bool HostnameWidget::onConnected()
 {
-  std::string file_content;
-  if (!str::readText(hostnameFilePath(), file_content)) {
-    qt::qErrorBox(this, "Failed to read the current hostname.");
+  const auto file_content = str::readText(hostnameFilePath());
+  if (!file_content) {
+    qt::qErrorBox(this, "Failed to read the current hostname:\n" + QString::fromStdString(file_content.error()));
     return false;
   }
 
-  const auto hostname = QString::fromStdString(file_content).trimmed();  // Remove the trailing newline.
+  const auto hostname = QString::fromStdString(*file_content).trimmed();  // Remove the trailing newline.
   hostname_->setText(hostname);
 
   return true;
@@ -89,8 +89,9 @@ bool HostnameWidget::writeHostnameFile(const QString& _hostname)
   const auto path = hostnameFilePath();
   const auto content = (_hostname + '\n').toStdString();
 
-  if (!str::writeText(path, content)) {
-    qt::qErrorBox(this, "Failed to write hostname to " + QString::fromStdString(path) + ".");
+  const auto result = str::writeText(path, content);
+  if (!result) {
+    qt::qErrorBox(this, QString::fromStdString(result.error()));
     return false;
   }
 
@@ -114,7 +115,7 @@ bool HostnameWidget::writeHostsFile(const QString& _hostname)
     env.write(temp, tpl_data, out_path);
   }
   catch (const std::exception& e) {
-    qt::qErrorBox(this, "Failed to write hostname to " + QString::fromStdString(out_path) + ": " + e.what());
+    qt::qErrorBox(this, "Failed to write hostname to " + QString::fromStdString(out_path) + ":\n" + e.what());
     return false;
   }
 

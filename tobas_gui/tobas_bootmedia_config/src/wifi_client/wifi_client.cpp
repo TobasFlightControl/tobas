@@ -88,15 +88,15 @@ void WifiClientWidget::reset()
 bool WifiClientWidget::onConnected()
 {
   // Load the configuration file, using defaults if it cannot be read.
-  std::string text;
-  if (!str::readText(configPath(), text)) {
-    qWarning() << "Failed to read network configuration file. Using default configuration.";
+  const auto text = str::readText(configPath());
+  if (!text) {
+    qWarning() << QString::fromStdString(text.error()) << "Using default configuration.";
   }
 
   // Parse the configuration file.
-  const auto wpa_data = wpa::parseFromText(text);
+  const auto wpa_data = wpa::parseFromText(text.value_or(""));
   if (!wpa_data) {
-    qt::qErrorBox(this, "Failed to parse network configuration.\n" + QString::fromStdString(wpa_data.error()));
+    qt::qErrorBox(this, "Failed to parse network configuration:\n" + QString::fromStdString(wpa_data.error()));
     return false;
   }
   wpa_data_ = std::move(*wpa_data);
@@ -231,8 +231,9 @@ bool WifiClientWidget::writeCurrentConfig()
   // Write the configuration.
   const auto path = configPath();
   const auto text = wpa_exporter_.exportText(wpa_data_);
-  if (!str::writeText(path, text)) {
-    qt::qErrorBox(this, "Failed to write to " + QString::fromStdString(path));
+  const auto result = str::writeText(path, text);
+  if (!result) {
+    qt::qErrorBox(this, QString::fromStdString(result.error()));
     return false;
   }
 

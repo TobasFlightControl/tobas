@@ -106,11 +106,11 @@ std::expected<Model, std::string> Parser::parseFromText(const std::string& _uadf
 
 std::expected<Model, std::string> Parser::parseFromPath(const std::string& _uadf_path)
 {
-  std::string uadf_text;
-  if (!str::readText(_uadf_path, uadf_text)) {
-    return std::unexpected("Failed to open file: " + _uadf_path);
+  const auto uadf_text = str::readText(_uadf_path);
+  if (!uadf_text) {
+    return std::unexpected(uadf_text.error());
   }
 
-  return parseFromText(uadf_text);
+  return parseFromText(*uadf_text);
 }
 }  // namespace tobas::uadf

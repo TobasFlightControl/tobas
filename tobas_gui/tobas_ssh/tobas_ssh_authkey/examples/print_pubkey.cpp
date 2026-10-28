@@ -18,12 +18,13 @@ int main(int _argc, char** _argv)
 
   const auto path = _argv[1];
 
-  std::string raw_text;
-  if (!tobas::str::readText(path, raw_text)) {
+  const auto raw_text = tobas::str::readText(path);
+  if (!raw_text) {
+    std::cerr << raw_text.error() << '\n';
     return EXIT_FAILURE;
   }
 
-  const auto original_line = tobas::str::trim(raw_text);
+  const auto original_line = tobas::str::trim(*raw_text);
 
   const auto data = tobas::ssh::ak::parseLine(original_line);
   if (!data) {

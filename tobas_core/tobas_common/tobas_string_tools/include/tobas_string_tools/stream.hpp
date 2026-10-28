@@ -3,11 +3,12 @@
 
 #pragma once
 
+#include <expected>
 #include <string>
 
 namespace tobas::str
 {
-bool readText(const std::string& _path, std::string& _text);
+std::expected<std::string, std::string> readText(const std::string& _path);
 
-bool writeText(const std::string& _path, const std::string& _text);
+std::expected<void, std::string> writeText(const std::string& _path, const std::string& _text);
 }  // namespace tobas::str

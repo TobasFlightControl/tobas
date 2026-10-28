@@ -181,8 +181,8 @@ bool SshAuthorizedKeysWidget::writeCurrentConfig()
   if (!updatePermissions()) {
     return false;
   }
-  if (!str::writeText(file_path.string(), content)) {
-    qt::qErrorBox(this, "Failed to write to " + QString::fromStdString(file_path.string()));
+  if (const auto result = str::writeText(file_path.string(), content); !result) {
+    qt::qErrorBox(this, QString::fromStdString(result.error()));
     return false;
   }
 
