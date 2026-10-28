@@ -1,9 +1,10 @@
 Third-party notices
 ===================
 
-Tobas contains modified code from the projects below. Original notices are
-retained in the affected sources and reproduced here for binary distributions.
-Tobas modifications use the license stated in each file.
+Tobas contains modified code and vendored source from the projects below.
+Original notices are retained in the affected sources and reproduced here for
+binary distributions. Tobas modifications use the license stated in each file,
+and unmodified vendored copies retain their upstream license.
 License notices for these modified Tobas copies were restored on 2026-10-14.
 
 The reference revisions identify sources used to restore the notices, rather
@@ -242,8 +243,22 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
+inja 3.5.0
+----------
+Source: https://github.com/pantor/inja/releases/tag/v3.5.0
+Source commit: 7d1b4600b68595085a949743331c2e5673f511ea
+Copyright (c) 2018-2025 Lars Berscheid
+License: MIT; see tobas_external/tobas_inja_vendor/vendor/inja/LICENSE.
+
 Qwt 6.3.0
 ----------
 Source: https://sourceforge.net/projects/qwt/files/qwt/6.3.0/qwt-6.3.0.tar.bz2
 Copyright (C) 1997 Josef Wilgen; Copyright (C) 2002 Uwe Rathmann
 License: Qwt License 1.0; see tobas_external/tobas_qwt_vendor/vendor/COPYING.
+
+rapidcsv 8.99
+-------------
+Source: https://github.com/d99kris/rapidcsv/releases/tag/v8.99
+Source commit: 68f57cc6c83d5e0992904398822453489d8dfac1
+Copyright (c) 2017 Kristofer Berggren
+License: BSD-3-Clause; see tobas_external/tobas_rapidcsv_vendor/vendor/rapidcsv/LICENSE.
