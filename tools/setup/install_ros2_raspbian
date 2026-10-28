@@ -20,7 +20,7 @@ if [ "$(locale charmap)" != "UTF-8" ]; then
   exit 1
 fi
 
-# Enable required repositories
+# Enable required repositories.
 sudo apt update
 sudo apt install -y ca-certificates curl python3
 ros_apt_source_version=$(curl -fsSL https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest |
@@ -32,7 +32,7 @@ sudo dpkg -i /tmp/ros2-apt-source.deb
 sudo apt update
 sudo apt upgrade -y
 
-# Install development tools
+# Install development tools.
 sudo apt install -y \
   ros-dev-tools \
   python3-colcon-common-extensions \
@@ -41,10 +41,10 @@ sudo apt install -y \
   python3-rosinstall-generator \
   python3-osrf-pycommon
 
-# Delete all old source files to update everything to the latest version
+# Delete all old source files to update everything to the latest version.
 sudo rm -rf ~/colcon_ws_install/src/
 
-# Get ROS 2 source code
+# Get ROS 2 source code.
 mkdir -p ~/colcon_ws_install/src
 cd ~/colcon_ws_install
 vcs import --input https://raw.githubusercontent.com/ros2/ros2/lyrical/ros2.repos ./src
@@ -67,7 +67,7 @@ rosinstall_generator --rosdistro lyrical --format repos --upstream --deps \
   --exclude-path src >additional.repos
 vcs import src <additional.repos
 
-# Install dependencies
+# Install dependencies.
 if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then
   sudo rosdep init
 fi
@@ -81,7 +81,7 @@ rosdep install -iy \
 # Install MAVROS GeographicLib datasets after its system dependencies.
 sudo ./src/mavros/mavros/scripts/install_geographiclib_datasets.sh
 
-# Build and install
+# Build and install.
 cd ~/colcon_ws_install/
 # ROS_PYTHON_VERSION is required by MAVLink.
 sudo \
@@ -97,6 +97,6 @@ sudo \
   -DCMAKE_CXX_FLAGS="-mcpu=native" \
   -DTRACETOOLS_DISABLED=ON
 
-# Verify installation is successful
+# Verify installation is successful.
 source /opt/ros/lyrical/setup.bash
 echo -e "\033[32mROS 2 Lyrical has been installed successfully.\033[0m"
