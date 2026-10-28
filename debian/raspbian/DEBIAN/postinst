@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Enable IP configuration at boot before removing the previous network manager.
+# Do not start networkd here while NetworkManager may still own the interfaces.
+sudo systemctl enable systemd-networkd.service
+
+# Remove unnecessary packages
+sudo apt purge -y netplan.io network-manager
+
 # Disable unnecessary services
 # See: `$ systemd-analyze blame`
 sudo systemctl disable exim4.service
@@ -23,12 +30,13 @@ sudo systemctl enable tobas_fc_advertise.service
 # https://www.mikan-tech.net/entry/raspi-wifi-ap-sta
 sudo systemctl unmask hostapd.service
 sudo systemctl enable hostapd.service
+sudo systemctl enable dnsmasq.service
+sudo systemctl enable systemd-resolved.service
 
 # Setting up a routed wireless access point
 # https://www.mikan-tech.net/entry/raspi-ap-sta-router
 sudo iptables -t nat -A POSTROUTING -s 192.168.249.0/24 ! -d 192.168.249.0/24 -j MASQUERADE
 sudo netfilter-persistent save
 
-# Use WPA Supplicant instead of NetworkManager
-sudo systemctl disable NetworkManager.service
+# Use WPA Supplicant for Wi-Fi client connections
 sudo systemctl enable wpa_supplicant-nl80211@wlan0.service

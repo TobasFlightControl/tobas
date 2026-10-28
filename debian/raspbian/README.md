@@ -49,7 +49,37 @@ Complete the first boot before placing the Tobas files on the device: the overla
 4. Follow [postinst](DEBIAN/postinst), then apply the additional settings below through the SSH session.
 5. Reboot with `sudo reboot`, wait for Wi-Fi to reconnect, and log in again with `ssh pi@<hostname>.local`.
 
+The FC advertisement service starts even if `/etc/tobas/config/project.env` is absent.
+When the file is present, it supplies the drone name and ID; otherwise, these TXT record values are empty.
+
 ## Additional Settings
+
+### Configure DNS for the access point
+
+On the Raspberry Pi, edit `/etc/default/dnsmasq`:
+
+```bash
+$ sudo emacs -nw /etc/default/dnsmasq
+```
+
+Uncomment the following settings, or add them if they are absent, and keep the other settings unchanged:
+
+```bash
+IGNORE_RESOLVCONF=yes
+DNSMASQ_EXCEPT="lo"
+```
+
+`IGNORE_RESOLVCONF=yes` lets dnsmasq use the upstream DNS configuration
+specified in `/etc/dnsmasq.d/ap0.conf` without resolvconf overriding it.
+`DNSMASQ_EXCEPT="lo"` prevents dnsmasq from registering itself as the system resolver on the loopback interface,
+avoiding the `Link lo is loopback device` error with systemd-resolved.
+
+Save the file, restart dnsmasq, and check its status:
+
+```bash
+$ sudo systemctl restart dnsmasq
+$ systemctl status dnsmasq --no-pager
+```
 
 ### Enable I2C and UART from raspi-config
 
@@ -98,6 +128,21 @@ Run the installer:
 ```bash
 $ ~/colcon_ws/src/tobas/tools/setup/install_ros2_raspbian
 ```
+
+## Check startup status
+
+After rebooting, run the following commands on the Raspberry Pi:
+
+```bash
+$ systemctl --failed --no-pager
+$ systemctl is-system-running
+$ journalctl -b -p err --no-pager
+```
+
+- `systemctl --failed` should list no failed units.
+- `systemctl is-system-running` should report `running`; `degraded` means that one or more units have failed.
+- `journalctl -b -p err` shows errors and more severe messages from the current boot.
+  Review any entries even if no units have failed.
 
 ## Notes
 
