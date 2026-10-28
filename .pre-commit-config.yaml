@@ -1,5 +1,8 @@
 # cf. [moveit2/.pre-commit-config.yaml](https://github.com/moveit/moveit2/blob/main/.pre-commit-config.yaml)
 
+# Preserve the bundled upstream Qwt sources byte for byte.
+exclude: ^tobas_external/tobas_qwt_vendor/vendor/
+
 repos:
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks

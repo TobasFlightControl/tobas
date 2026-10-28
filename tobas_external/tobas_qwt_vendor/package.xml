@@ -1,0 +1,18 @@
+<package format="3">
+
+  <name>tobas_qwt_vendor</name>
+  <version>2.17.0</version>
+  <description>Qwt 6.3.0 built with Qt 6 for Tobas plotting widgets.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>Qwt-1.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>qt6-base-dev</depend>
+  <depend>qt6-svg-dev</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+
+</package>

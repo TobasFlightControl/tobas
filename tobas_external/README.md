@@ -2,7 +2,8 @@
 
 This directory contains ROS packages that expose third-party libraries to the Tobas workspace.
 A dependency should use an operating-system or ROS binary package when one is available for every supported platform.
-A small, header-only dependency without a suitable binary package is stored in a self-contained vendor package instead.
+A dependency without a suitable binary package is stored in a self-contained vendor package instead.
+Qwt is built from source because the system package uses Qt 5.
 
 ## Why Git submodules are not used
 
@@ -24,6 +25,7 @@ Each vendor package documents its upstream provenance and update
 procedure:
 
 - [`tobas_inja_vendor`](./tobas_inja_vendor/README.md)
+- [`tobas_qwt_vendor`](./tobas_qwt_vendor/README.md)
 - [`tobas_rapidcsv_vendor`](./tobas_rapidcsv_vendor/README.md)
 
 Do not replace these packages with `FetchContent`, `ExternalProject`, or configure-time downloads.
