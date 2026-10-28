@@ -34,4 +34,9 @@ bool UbxTransportSpi::send(const uint8_t* _data, size_t _length) noexcept
   std::memcpy(tx_buf_, _data, _length);
   return spi_.transfer(_length);
 }
+
+UbxTransport::Interface UbxTransportSpi::interface() const noexcept
+{
+  return Interface::SPI;
+}
 }  // namespace tobas::ublox

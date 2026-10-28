@@ -26,6 +26,7 @@ public:
   bool initialize() noexcept override;
   std::optional<uint8_t> receiveByte() noexcept override;
   bool send(const uint8_t* _data, size_t _length) noexcept override;
+  Interface interface() const noexcept override;
 
 private:
   bool configureBaudRate() noexcept;

@@ -119,7 +119,7 @@ public:
 
   // ===== Configurations =====
 
-  bool enableSpiMessage(UbxClass _cls, uint8_t _id, bool _enable);
+  bool enableMessage(UbxClass _cls, uint8_t _id, bool _enable);
   bool configureDynamicsModel(DynamicsModel _model);
   bool configureMeasurementRate(uint16_t _period_ms);
 
@@ -144,10 +144,10 @@ public:
   bool enableNavIc();
   bool disableNavIc();
 
-  bool enableSpiProtocol_UBX(bool _enable_input, bool _enable_output);
-  bool enableSpiProtocol_NMEA(bool _enable_input, bool _enable_output);
-  bool enableSpiProtocol_RTCM3X(bool _enable_input, bool _enable_output);
-  bool enableSpiProtocol_SPARTN(bool _enable_input);
+  bool enableProtocol_UBX(bool _enable_input, bool _enable_output);
+  bool enableProtocol_NMEA(bool _enable_input, bool _enable_output);
+  bool enableProtocol_RTCM3X(bool _enable_input, bool _enable_output);
+  bool enableProtocol_SPARTN(bool _enable_input);
 
   /** Set the analog transmission delay from the length of the `RF174` cable. */
   bool setAntennaLength(uint8_t _length_m);
@@ -214,7 +214,7 @@ private:
     CFG_USBOUTPROT = 0x78,    ///< Output Protocol Configuration of the USB Interface
   };
 
-  /** SPI Protocol Key ID */
+  /** Protocol Key ID */
   enum CfgProtocol : uint8_t
   {
     UBX = 0x01,
@@ -309,8 +309,8 @@ private:
   bool enableNavIc(bool _enable);
   bool enableNavIcL5();
 
-  bool enableSpiInputProtocol(CfgProtocol _prot, bool _enable);
-  bool enableSpiOutputProtocol(CfgProtocol _prot, bool _enable);
+  bool enableInputProtocol(CfgProtocol _prot, bool _enable);
+  bool enableOutputProtocol(CfgProtocol _prot, bool _enable);
 
   /** 5.4 UBX Checksum */
   static CheckSum computeChecksum(const uint8_t* _message, size_t _checksum_pos);
