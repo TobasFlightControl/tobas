@@ -5,6 +5,7 @@
 
 #include <utility>
 
+#include <QDebug>
 #include <QEvent>
 #include <QString>
 
@@ -86,11 +87,10 @@ void WifiClientWidget::reset()
 
 bool WifiClientWidget::onConnected()
 {
-  // Load the configuration file.
+  // Load the configuration file, using defaults if it cannot be read.
   std::string text;
   if (!str::readText(configPath(), text)) {
-    qt::qErrorBox(this, "Failed to read network configuration file.");
-    return false;
+    qWarning() << "Failed to read network configuration file. Using default configuration.";
   }
 
   // Parse the configuration file.
