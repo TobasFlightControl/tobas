@@ -1,12 +1,14 @@
 #!/bin/bash
 
-# cf. https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html
+# Install ROS 2 Lyrical on Ubuntu 26.04 (Resolute).
+# Ref. https://github.com/ros2/ros2_documentation/blob/lyrical/source/Get-Started/Installation/Ubuntu-Install-Debs.rst
 
-set -e
+set -eo pipefail
 
-# Check username
-if [ "$(id -un)" = "pi" ]; then
-  echo "This script cannot be executed on RPi." >&2
+# Lyrical binary packages target Ubuntu Resolute.
+source /etc/os-release
+if [[ "$ID" != "ubuntu" || "$VERSION_CODENAME" != "resolute" ]]; then
+  echo "ROS 2 Lyrical binary packages require Ubuntu 26.04 (Resolute)." >&2
   exit 1
 fi
 
@@ -16,33 +18,35 @@ sudo apt install -y locales
 sudo locale-gen en_US en_US.UTF-8
 sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 
 # Enable required repositories
-sudo apt install -y software-properties-common
-yes "" | sudo add-apt-repository universe
-sudo apt update
-sudo apt install -y curl
-export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F'"' '{print $4}')
-curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME}})_all.deb"
+sudo apt install -y software-properties-common ca-certificates curl python3
+sudo add-apt-repository -y universe
+ros_apt_source_version=$(curl -fsSL https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest |
+  python3 -c 'import json, sys; print(json.load(sys.stdin)["tag_name"])')
+curl -fsSL -o /tmp/ros2-apt-source.deb \
+  "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ros_apt_source_version}/ros2-apt-source_${ros_apt_source_version}.${VERSION_CODENAME}_all.deb"
 sudo dpkg -i /tmp/ros2-apt-source.deb
 sudo apt update
+sudo apt upgrade -y
 
 # Install development tools (optional)
-sudo apt install -y ros-dev-tools
-sudo apt install -y python3-colcon-common-extensions
-sudo apt install -y python3-colcon-clean
-sudo apt install -y ros-jazzy-plotjuggler-ros
-sudo apt install -y ros-jazzy-rqt*
+sudo apt install -y \
+  ros-dev-tools \
+  python3-colcon-common-extensions \
+  python3-colcon-clean \
+  ros-lyrical-plotjuggler-ros \
+  "ros-lyrical-rqt*"
 
 # Install ROS 2
-sudo apt install -y ros-jazzy-desktop-full
-
-# Install additional RMW implementations (optional)
-# TODO: https://docs.ros.org/en/jazzy/How-To-Guides/Working-with-multiple-RMW-implementations.html
+sudo apt install -y ros-lyrical-desktop-full
 
 # Initialize rosdep
-sudo rosdep init | true
+if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then
+  sudo rosdep init
+fi
 
 # Setup environment
-source /opt/ros/jazzy/setup.bash
-echo -e "\033[32mROS 2 Jazzy has been installed successfully.\033[0m"
+source /opt/ros/lyrical/setup.bash
+echo -e "\033[32mROS 2 Lyrical has been installed successfully.\033[0m"

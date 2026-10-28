@@ -1,31 +1,45 @@
 #!/bin/bash
 
-# cf. https://zenn.dev/thorie/articles/548emb-install-ros2-offical-ver-on-raspberry-pi-os
-# Remember to generate lacales before executing this script.
+# Build ROS 2 Lyrical on Raspberry Pi OS Trixie (Debian 13).
+# Ref. https://github.com/ros2/ros2_documentation/blob/lyrical/source/Get-Started/Installation/Alternatives/Ubuntu-Development-Setup.rst
 
-set -e
+set -eo pipefail
 
-# Check username
-if [ "$(id -un)" != "pi" ]; then
-  echo "This script can only be executed on RPi." >&2
+# Lyrical targets Debian Trixie; Bookworm has an older Python version.
+source /etc/os-release
+if [[ "$ID" != "debian" && "$ID" != "raspbian" ]] || [[ "$VERSION_CODENAME" != "trixie" ]]; then
+  echo "ROS 2 Lyrical requires Raspberry Pi OS Trixie (Debian 13)." >&2
+  exit 1
+fi
+
+# Set the locale for this script and child processes using Debian's built-in C.UTF-8.
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
+if [ "$(locale charmap)" != "UTF-8" ]; then
+  echo "The C.UTF-8 locale is not available." >&2
   exit 1
 fi
 
 # Enable required repositories
 sudo apt update
-sudo apt install -y curl
-sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list >/dev/null
+sudo apt install -y ca-certificates curl python3
+ros_apt_source_version=$(curl -fsSL https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest |
+  python3 -c 'import json, sys; print(json.load(sys.stdin)["tag_name"])')
+curl -fsSL -o /tmp/ros2-apt-source.deb \
+  "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ros_apt_source_version}/ros2-apt-source_${ros_apt_source_version}.${VERSION_CODENAME}_all.deb"
+sudo rm -f /etc/apt/sources.list.d/ros2.list # Replace the repository entry written by older versions of this script.
+sudo dpkg -i /tmp/ros2-apt-source.deb
 sudo apt update
 sudo apt upgrade -y
 
 # Install development tools
-sudo apt install -y ros-dev-tools
-sudo apt install -y python3-colcon-common-extensions
-sudo apt install -y python3-colcon-clean
-sudo apt install -y python3-rosdep2
-sudo apt install -y python3-rosdistro-modules
-sudo apt install -y python3-rospkg-modules
+sudo apt install -y \
+  ros-dev-tools \
+  python3-colcon-common-extensions \
+  python3-colcon-clean \
+  python3-vcstool \
+  python3-rosinstall-generator \
+  python3-osrf-pycommon
 
 # Delete all old source files to update everything to the latest version
 sudo rm -rf ~/colcon_ws_install/src/
@@ -33,44 +47,50 @@ sudo rm -rf ~/colcon_ws_install/src/
 # Get ROS 2 source code
 mkdir -p ~/colcon_ws_install/src
 cd ~/colcon_ws_install
-vcs import --input https://raw.githubusercontent.com/ros2/ros2/jazzy/ros2.repos ./src
+vcs import --input https://raw.githubusercontent.com/ros2/ros2/lyrical/ros2.repos ./src
 
-# Get additional ROS 2 source code (optional)
-cd ~/colcon_ws_install/src
-git clone https://github.com/ros/xacro.git -b ros2
-git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git -b ros2
-git clone https://github.com/ros-misc-utilities/ffmpeg_encoder_decoder.git -b 3.0.1
-git clone https://github.com/ros-misc-utilities/ffmpeg_image_transport_msgs.git -b 1.0.2
-git clone https://github.com/ros-perception/vision_opencv.git -b 4.1.0
-git clone https://github.com/ros-geographic-info/geographic_info.git -b ros2 # Required by MAVROS
-git clone https://github.com/ros/diagnostics.git -b ros2-jazzy               # Required by MAVROS
+# Get MAVLink's generated headers from its Lyrical release repository.
+rosinstall_generator --rosdistro lyrical --format repos mavlink >mavlink.repos
+vcs import src <mavlink.repos
+
+# Get additional packages and their ROS dependencies at Lyrical release tags.
+# Exclude packages already imported from ros2.repos and mavlink.repos.
+rosinstall_generator --rosdistro lyrical --format repos --upstream --deps \
+  xacro \
+  dynamixel_sdk \
+  ffmpeg_encoder_decoder \
+  ffmpeg_image_transport_msgs \
+  vision_opencv \
+  geographic_info \
+  diagnostics \
+  mavros \
+  --exclude-path src >additional.repos
+vcs import src <additional.repos
 
 # Install dependencies
-sudo apt upgrade -y
-sudo rosdep init | true
-rosdep update # Fails if "python3-rosdep" is installed. Remove it.
+if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then
+  sudo rosdep init
+fi
+rosdep update --rosdistro lyrical
 rosdep install -iy \
   --from-paths ~/colcon_ws_install/src \
-  --skip-keys "rti-connext-dds-6.0.1 libboost-python python3-qt5-bindings python3-future"
+  --rosdistro lyrical \
+  --os=debian:trixie \
+  --skip-keys "fastcdr rti-connext-dds-7.7.0 urdfdom_headers"
 
-# Install MAVROS (optional): https://github.com/mavlink/mavros/blob/ros2/mavros/README.md#installation
-sudo apt install -y python3-vcstool python3-rosinstall-generator python3-osrf-pycommon
-cd ~/colcon_ws_install
-rosinstall_generator --rosdistro jazzy --format repos mavlink | tee /tmp/mavlink.repos
-rosinstall_generator --rosdistro jazzy --format repos --upstream mavros | tee -a /tmp/mavros.repos
-vcs import src </tmp/mavlink.repos
-vcs import src </tmp/mavros.repos
+# Install MAVROS GeographicLib datasets after its system dependencies.
 sudo ./src/mavros/mavros/scripts/install_geographiclib_datasets.sh
 
 # Build and install
 cd ~/colcon_ws_install/
+# ROS_PYTHON_VERSION is required by MAVLink.
 sudo \
   env \
-  ROS_PYTHON_VERSION=3 \  # Required by MAVLink
-colcon build \
+  ROS_PYTHON_VERSION=3 \
+  colcon build \
   --merge-install \
-  --parallel-workers $(nproc) \
-  --install-base /opt/ros/jazzy \
+  --parallel-workers "$(nproc)" \
+  --install-base /opt/ros/lyrical \
   --cmake-args \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_C_FLAGS="-mcpu=native" \
@@ -78,5 +98,5 @@ colcon build \
   -DTRACETOOLS_DISABLED=ON
 
 # Verify installation is successful
-source /opt/ros/jazzy/setup.bash
-echo -e "\033[32mROS 2 Jazzy has been installed successfully.\033[0m"
+source /opt/ros/lyrical/setup.bash
+echo -e "\033[32mROS 2 Lyrical has been installed successfully.\033[0m"
