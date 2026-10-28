@@ -101,15 +101,9 @@ void LoginPasswordWidget::onTextChanged()
     return;
   }
 
-  // Check the byte length.
-  constexpr int kMinPswdBytes = 8;
+  // Check the maximum byte length.
   constexpr int kMaxPswdBytes = 128;
   const int bytes = pswd1.toUtf8().size();
-  if (bytes < kMinPswdBytes) {
-    warn_text_->setText("Use at least " + QString::number(kMinPswdBytes) + " characters.");
-    write_button_->setEnabled(false);
-    return;
-  }
   if (bytes > kMaxPswdBytes) {
     warn_text_->setText("Password is too long (max " + QString::number(kMaxPswdBytes) + " bytes).");
     write_button_->setEnabled(false);
