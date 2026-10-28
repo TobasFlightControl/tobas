@@ -34,8 +34,8 @@ public:
     const kdl::Vector& cur_gyro_B,
     const kdl::Vector& cur_vel_G,
     const kdl::Vector& tar_dgyro_B,
-    const double& ux,
-    const double& uz);
+    const double& thrust,
+    const double& thrust_angle);
 
   double getThrust(size_t idx) const;
   double getTiltAngle(size_t idx) const;
@@ -54,6 +54,7 @@ private:
   struct DynamicRotorLinkState
   {
     double alpha;  // Tilt angle offsets viewed from the body frame [rad].
+    double default_tilt_angle; // モーメント入力を考えないときのチルト角 [rad]
   };
 
   // Fixed values.
@@ -81,6 +82,7 @@ private:
   ctrl::PIVelocityForm z2_controller_;
 
   bool calcModesAngularFreq();
+  double calcUnConstrainedTiltAngle(const double& tx, const double& tz, const StaticRotorLinkInfo& info, const DynamicRotorLinkState& state) const;
 };
 }  // namespace y_axis_tilt_vtol
 }  // namespace tobas

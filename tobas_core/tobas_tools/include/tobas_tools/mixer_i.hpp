@@ -32,6 +32,7 @@ protected:
 
   /* Set tiny thrust values below the threshold to zero. */
   inline double thrustDeadband(double thrust) const;
+  inline bool isWithinThrustDeadband(double thrust) const;
 
 private:
   bool is_initialized_ = false;
@@ -45,5 +46,10 @@ inline bool MixerI::isInitialized() const
 inline double MixerI::thrustDeadband(double thrust) const
 {
   return std::abs(thrust) > kZeroThrustThresh ? thrust : 0.0;
+}
+
+inline bool MixerI::isWithinThrustDeadband(double thrust) const
+{
+  return std::abs(thrust) < kZeroThrustThresh;
 }
 }  // namespace tobas

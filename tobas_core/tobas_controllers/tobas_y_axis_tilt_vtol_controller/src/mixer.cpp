@@ -162,8 +162,8 @@ bool Mixer::solve(
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& cur_vel_G,
   const kdl::Vector& tar_dgyro_B,
-  const double& ux,
-  const double& uz)
+  const double& thrust,
+  const double& thrust_angle)
 {
   // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
@@ -266,13 +266,24 @@ bool Mixer::solve(
 
   // Right-hand side of the EoM matrix equality.
   // 理想的にはE x = fを解けば良いが, このようにすると固定されたモータの推力>0の拘束違反や急速なティルト角の変更が行われる
-  // まずE_T x_T = [0, 0, 0, u_x, u_z]を解く thrust_scale_でスケーリング
+  // まずE_T x_T = [0, 0, 0, sin(thrust_angle), cos(thrust_angle)]を解く thrust_scale_でスケーリング
   f_.head<3>() = Eigen::Vector3d::Zero();
-  f_(3) = ux;
-  f_(4) = uz;
+  f_(3) = std::sin(thrust_angle);
+  f_(4) = std::cos(thrust_angle);
   const Eigen::MatrixXd S_T = thrust_scale_.asDiagonal();
-  Eigen::VectorXd x_t_base = S_T * (E_.leftCols(thrusts_size_) * S_T).jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
-  for (const auto& info: info_) {
+  const Eigen::VectorXd x_t_base_unit = S_T * (E_.leftCols(thrusts_size_) * S_T).jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
+  for (const auto& [idx, info] : std::views::enumerate(info_)) {
+    // ティルト可能なモータに対してモーメント入力を考えない際のティルト角を計算しておく, thrust = 0になったときに使用
+    if (info.is_tilt) {
+      auto& state = state_.at(idx);
+      const auto tx = x_t_base_unit(info.column);
+      const auto tz = x_t_base_unit(info.column + 1);
+      state.default_tilt_angle = calcUnConstrainedTiltAngle(tx, tz, info, state);
+    }
+  }
+  Eigen::VectorXd x_t_base = thrust * x_t_base_unit;
+  for (const auto& [idx, info] : std::views::enumerate(info_)) {
+    // 固定モータに対して推力>0の拘束を満たすようにする
     if (!info.is_tilt) {
       if (x_t_base(info.column) < 0){
         x_t_base(info.column) = 0.0;
@@ -360,7 +371,11 @@ double Mixer::getTiltAngle(size_t idx) const
   if (info.is_tilt) {
     const auto tx = x_(info.column);
     const auto tz = x_(info.column + 1);
-    return info.sign * (std::atan2(tx, tz) - state.alpha); // TODO: tx, tzがどちらも0に近かった場合にどうするか
+    if (isWithinThrustDeadband(tx) && isWithinThrustDeadband(tz)){
+      return state.default_tilt_angle;
+    } else {
+      return calcUnConstrainedTiltAngle(tx, tz, info, state);
+    }
   }
   else {
     std::cerr << "Rotor " << idx << " is not a tilt rotor." << std::endl;
@@ -412,5 +427,11 @@ bool Mixer::calcModesAngularFreq()
   omega_dutch_roll_ = std::sqrt(N_beta);
   return true;
 }
+
+double Mixer::calcUnConstrainedTiltAngle(const double& tx, const double& tz, const StaticRotorLinkInfo& info, const DynamicRotorLinkState& state) const
+{
+  return info.sign * (std::atan2(tx, tz) - state.alpha);
+}
+
 }  // namespace y_axis_tilt_vtol
 }  // namespace tobas

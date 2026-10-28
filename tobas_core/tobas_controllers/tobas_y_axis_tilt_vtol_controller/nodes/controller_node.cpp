@@ -80,7 +80,8 @@ private:
   std::unique_ptr<RollPitchSideSlip> tar_roll_pitch_sideslip_ = nullptr;
   std::unique_ptr<kdl::Vector> tar_gyro_ = nullptr;
   std::unique_ptr<kdl::Vector> tar_dgyro_ = nullptr;
-  double ux_ = 0.0, uz_ = 0.0;  // Target thrust in the body coordinate system.
+  double thrust_ = 0.0; // Target thrust [N]
+  double thrust_angle_ = 0.0; // Target thrust angle [rad]
 
   // Controller
   Mixer mixer_;
@@ -424,7 +425,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     // Mixer.
     {
       const auto rho = st::pressureToDensity(air_pressure_->pressure);
-      if (!mixer_.solve(dt, rho, js_converter_.getPosition(), cur_gyro_G, cur_vel_G, *tar_dgyro_, ux_, uz_)) {
+      if (!mixer_.solve(dt, rho, js_converter_.getPosition(), cur_gyro_G, cur_vel_G, *tar_dgyro_, thrust_, thrust_angle_)) {
         TOBAS_FATAL("Failed to solve the mixing equation.");
         return;
       }
@@ -502,8 +503,8 @@ void ControllerNode::multicopterManualCmdCb(const tobas_command_msgs::AngleThrot
   // Update the command.
   *tar_angle_ = cmd->angle;
   const auto tar_thrust = mixer_.calcMaxThrust(cmd->thrust_angle) * std::clamp(cmd->throttle, kMinThrot, kMaxThrot);
-  ux_ = tar_thrust * std::sin(cmd->thrust_angle);
-  uz_ = tar_thrust * std::cos(cmd->thrust_angle);
+  thrust_ = tar_thrust;
+  thrust_angle_ = cmd->thrust_angle;
 }
 
 void ControllerNode::fixedWingManualCmdCb(const tobas_command_msgs::msg::RollPitchSideSlipThrottleVector::ConstSharedPtr& cmd)
@@ -537,8 +538,8 @@ void ControllerNode::fixedWingManualCmdCb(const tobas_command_msgs::msg::RollPit
   tar_roll_pitch_sideslip_->pitch = cmd->pitch;
   tar_roll_pitch_sideslip_->side_slip = cmd->side_slip;
   const auto tar_thrust = mixer_.calcMaxThrust(cmd->thrust_angle) * std::clamp(cmd->throttle, kMinThrot, kMaxThrot);
-  ux_ = tar_thrust * std::sin(cmd->thrust_angle);
-  uz_ = tar_thrust * std::cos(cmd->thrust_angle);
+  thrust_ = tar_thrust;
+  thrust_angle_ = cmd->thrust_angle;
 }
 
 void ControllerNode::checkTopicsTimerCb()
