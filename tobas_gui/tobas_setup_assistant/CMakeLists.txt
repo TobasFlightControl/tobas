@@ -44,8 +44,27 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME} magic_enum::magic_enum)
+target_link_libraries(
+  ${PROJECT_NAME}
+  magic_enum::magic_enum
+  sensor_msgs::sensor_msgs
+  visualization_msgs::visualization_msgs
+  tobas_inja_vendor::inja
+  tobas_rapidcsv_vendor::rapidcsv
+  tobas_string_tools::tobas_string_tools
+  tobas_xml_tools::tobas_xml_tools
+  tobas_git::tobas_git
+  tobas_kdl_parser::tobas_kdl_parser
+  tobas_path_tools::tobas_path_tools
+  tobas_ros2_tools::tobas_ros2_tools
+  tobas_urdf::tobas_urdf
+  tobas_drone_msgs_adapter::tobas_drone_msgs_adapter
+  tobas_visualization_msgs::tobas_visualization_msgs
+  tobas_uadf::tobas_uadf
+  tobas_qt_tools::tobas_qt_tools
+  tobas_rviz_wrapper::tobas_rviz_wrapper
+  tobas_gui_common::tobas_gui_common
+)
 
 add_executable(main nodes/main.cpp)
 target_link_libraries(main ${PROJECT_NAME})

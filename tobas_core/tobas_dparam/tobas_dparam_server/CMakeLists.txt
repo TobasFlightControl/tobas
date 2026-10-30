@@ -21,7 +21,9 @@ endforeach()
 include_directories(include)
 
 add_executable(dparam_server nodes/dparam_server.cpp)
-ament_target_dependencies(dparam_server ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  dparam_server tobas_node::tobas_node tobas_dparam_common::tobas_dparam_common tobas_dparam_msgs::tobas_dparam_msgs
+)
 
 install(TARGETS dparam_server DESTINATION lib/${PROJECT_NAME})
 

@@ -32,6 +32,9 @@ foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SIMPLEINI REQUIRED IMPORTED_TARGET simpleini)
+
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
@@ -39,8 +42,23 @@ include_directories(include ${CRYPT_INCLUDE_DIRS})
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME} simpleini magic_enum::magic_enum)
+target_link_libraries(
+  ${PROJECT_NAME}
+  PkgConfig::SIMPLEINI
+  magic_enum::magic_enum
+  ament_index_cpp::ament_index_cpp
+  tobas_inja_vendor::inja
+  tobas_std_tools::tobas_std_tools
+  tobas_path_tools::tobas_path_tools
+  tobas_linux::tobas_linux
+  tobas_constants::tobas_constants
+  tobas_crypt::tobas_crypt
+  tobas_ssh_authkey::tobas_ssh_authkey
+  tobas_udev::tobas_udev
+  tobas_wpa_supplicant::tobas_wpa_supplicant
+  tobas_qt_tools::tobas_qt_tools
+  tobas_gui_common::tobas_gui_common
+)
 
 add_executable(main nodes/main.cpp)
 target_link_libraries(main ${PROJECT_NAME})

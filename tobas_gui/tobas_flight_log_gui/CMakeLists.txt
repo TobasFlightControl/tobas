@@ -13,7 +13,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(AMENT_DEPENDENCIES
     OpenMP
-    QuaZip-Qt5
+    QuaZip-Qt6
     tobas_string_tools
     tobas_kdl
     tobas_kdl_msgs
@@ -38,8 +38,21 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME} OpenMP::OpenMP_CXX QuaZip::QuaZip)
+target_link_libraries(
+  ${PROJECT_NAME}
+  OpenMP::OpenMP_CXX
+  QuaZip::QuaZip
+  tobas_string_tools::tobas_string_tools
+  tobas_kdl::tobas_kdl
+  tobas_kdl_msgs::tobas_kdl_msgs
+  tobas_ros2_tools::tobas_ros2_tools
+  tobas_msgs::tobas_msgs
+  tobas_debug_msgs::tobas_debug_msgs
+  tobas_qt_tools::tobas_qt_tools
+  tobas_rqt_bridge::tobas_rqt_bridge
+  tobas_qwt_wrapper::tobas_qwt_wrapper
+  tobas_gui_common::tobas_gui_common
+)
 
 install(
   TARGETS ${PROJECT_NAME}

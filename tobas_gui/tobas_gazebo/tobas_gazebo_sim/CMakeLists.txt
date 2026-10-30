@@ -7,7 +7,7 @@ find_package(gz_sim_vendor REQUIRED)
 # Derive the vendor package's install prefix from its CMake configuration directory so the Gazebo resource environment
 # hook does not depend on a fixed ROS installation path.
 get_filename_component(GZ_SIM_VENDOR_PREFIX "${gz_sim_vendor_DIR}/../../.." ABSOLUTE)
-message(STATUS "GZ_SIM_VENDOR_PREFIX: ${GZ_SIM_VENDOR_PREFIX}")
+set(GZ_SIM_RESOURCE_DIR "${GZ_SIM_VENDOR_PREFIX}/opt/gz_sim_vendor/share/gz/gz-sim")
 
 install(DIRECTORY launch models worlds DESTINATION share/${PROJECT_NAME})
 ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env_hooks/${PROJECT_NAME}.dsv.in")

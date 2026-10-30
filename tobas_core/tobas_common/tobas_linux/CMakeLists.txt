@@ -15,7 +15,6 @@ set(AMENT_DEPENDENCIES tobas_std_tools)
 
 find_package(ament_cmake REQUIRED)
 find_package(cxxopts REQUIRED)
-
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()
@@ -25,7 +24,7 @@ include_directories(include)
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CRYPT_INCLUDE_DIRS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(${PROJECT_NAME} tobas_std_tools::tobas_std_tools)
 
 file(GLOB_RECURSE EXEC_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/*.cpp)
 set(TARGETS_TO_INSTALL "")

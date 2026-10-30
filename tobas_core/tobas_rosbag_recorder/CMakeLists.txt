@@ -30,7 +30,18 @@ endforeach()
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME}
+  rosbag2_cpp::rosbag2_cpp
+  std_srvs::std_srvs
+  tobas_path_tools::tobas_path_tools
+  tobas_linux::tobas_linux
+  tobas_node::tobas_node
+  tobas_msgs_adapter::tobas_msgs_adapter
+  tobas_command_msgs_adapter::tobas_command_msgs_adapter
+  tobas_drone_msgs_adapter::tobas_drone_msgs_adapter
+  tobas_debug_msgs_adapter::tobas_debug_msgs_adapter
+)
 target_link_options(${PROJECT_NAME} PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(${PROJECT_NAME} PLUGIN "tobas::RosbagRecorderNode" EXECUTABLE rosbag_recorder)
 

@@ -22,7 +22,9 @@ include_directories(include)
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${NODE_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME} tobas_node::tobas_node tobas_constants::tobas_constants tobas_msgs_adapter::tobas_msgs_adapter
+)
 target_link_options(${PROJECT_NAME} PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(
   ${PROJECT_NAME} PLUGIN "tobas::ImuFilterConfigServer" EXECUTABLE imu_filter_config_server

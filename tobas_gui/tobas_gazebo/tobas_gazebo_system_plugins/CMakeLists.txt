@@ -11,31 +11,24 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(AMENT_DEPENDENCIES
-    std_srvs
-    sensor_msgs
-    tobas_dsp
-    tobas_geographic
-    tobas_nlp
-    tobas_node
-    tobas_tools
-    tobas_wind_model
-    tobas_msgs_adapter
-    tobas_gazebo_common
-    tobas_gazebo_conversions
-    tobas_gazebo_tools
-    tobas_gazebo_msgs
-)
-
 find_package(ament_cmake REQUIRED)
 find_package(gz_sim_vendor REQUIRED)
 find_package(gz-sim REQUIRED)
 find_package(gz_plugin_vendor REQUIRED)
 find_package(gz-plugin REQUIRED)
-
-foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
-  find_package(${dependency} REQUIRED)
-endforeach()
+find_package(sensor_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
+find_package(tobas_dsp REQUIRED)
+find_package(tobas_geographic REQUIRED)
+find_package(tobas_nlp REQUIRED)
+find_package(tobas_node REQUIRED)
+find_package(tobas_tools REQUIRED)
+find_package(tobas_wind_model REQUIRED)
+find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_gazebo_common REQUIRED)
+find_package(tobas_gazebo_conversions REQUIRED)
+find_package(tobas_gazebo_tools REQUIRED)
+find_package(tobas_gazebo_msgs REQUIRED)
 
 include_directories(include)
 
@@ -43,8 +36,24 @@ include_directories(include)
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${OpenCV_INCLUDE_DIRS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME} gz-sim::gz-sim gz-plugin::register)
+target_link_libraries(
+  ${PROJECT_NAME}
+  gz-sim::gz-sim
+  gz-plugin::register
+  sensor_msgs::sensor_msgs
+  std_srvs::std_srvs
+  tobas_dsp::tobas_dsp
+  tobas_geographic::tobas_geographic
+  tobas_nlp::tobas_nlp
+  tobas_node::tobas_node
+  tobas_tools::tobas_tools
+  tobas_wind_model::tobas_wind_model
+  tobas_msgs_adapter::tobas_msgs_adapter
+  tobas_gazebo_common::tobas_gazebo_common
+  tobas_gazebo_conversions::tobas_gazebo_conversions
+  tobas_gazebo_tools::tobas_gazebo_tools
+  tobas_gazebo_msgs::tobas_gazebo_msgs
+)
 
 # Build each plugin.
 file(GLOB_RECURSE PLUGIN_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*.cpp)

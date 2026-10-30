@@ -9,7 +9,11 @@ foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
 endforeach()
 
 add_library(${PROJECT_NAME} INTERFACE)
-ament_target_dependencies(${PROJECT_NAME} INTERFACE ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME}
+  INTERFACE tobas_drone_core::tobas_drone_core tobas_drone_msgs::tobas_drone_msgs
+            tobas_std_msgs_adapter::tobas_std_msgs_adapter tobas_kdl_msgs_adapter::tobas_kdl_msgs_adapter
+)
 
 install(
   TARGETS ${PROJECT_NAME}

@@ -24,7 +24,15 @@ include_directories(include)
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
-ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME}_node
+  tobas_node::tobas_node
+  tobas_tools::tobas_tools
+  tobas_drone_msgs_adapter::tobas_drone_msgs_adapter
+  tobas_msgs_adapter::tobas_msgs_adapter
+  tobas_gazebo_common::tobas_gazebo_common
+  tobas_gazebo_msgs::tobas_gazebo_msgs
+)
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::gazebo::CpuHandlerNode" EXECUTABLE cpu_handler)
 rclcpp_components_register_node(

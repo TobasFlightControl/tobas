@@ -13,8 +13,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(AMENT_DEPENDENCIES
     magic_enum
-    Qt5QuickWidgets
-    Qt5Positioning
+    Qt6QuickWidgets
+    Qt6Positioning
     tobas_path_tools
     tobas_ros2_tools
     tobas_constants
@@ -40,8 +40,23 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME} magic_enum::magic_enum)
+target_link_libraries(
+  ${PROJECT_NAME}
+  magic_enum::magic_enum
+  Qt6::QuickWidgets
+  Qt6::Positioning
+  tobas_path_tools::tobas_path_tools
+  tobas_ros2_tools::tobas_ros2_tools
+  tobas_constants::tobas_constants
+  tobas_drone_core::tobas_drone_core
+  tobas_geographic::tobas_geographic
+  tobas_msgs_adapter::tobas_msgs_adapter
+  tobas_mission_msgs_adapter::tobas_mission_msgs_adapter
+  tobas_qt_tools::tobas_qt_tools
+  tobas_rqt_bridge::tobas_rqt_bridge
+  tobas_trajectory_generation::tobas_trajectory_generation
+  tobas_gui_common::tobas_gui_common
+)
 
 install(
   TARGETS ${PROJECT_NAME}

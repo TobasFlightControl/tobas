@@ -9,7 +9,7 @@ foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
 endforeach()
 
 add_library(${PROJECT_NAME} INTERFACE)
-ament_target_dependencies(${PROJECT_NAME} INTERFACE ${AMENT_DEPENDENCIES})
+target_link_libraries(${PROJECT_NAME} INTERFACE Eigen3::Eigen tobas_eigen_msgs::tobas_eigen_msgs)
 
 install(
   TARGETS ${PROJECT_NAME}

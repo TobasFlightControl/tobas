@@ -37,7 +37,20 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME}
+  tobas_ros2_tools::tobas_ros2_tools
+  tobas_cyclonedds_config::tobas_cyclonedds_config
+  tobas_drone_msgs_adapter::tobas_drone_msgs_adapter
+  tobas_kdl_msgs_adapter::tobas_kdl_msgs_adapter
+  tobas_sensor_calibration::tobas_sensor_calibration
+  tobas_actuator_test::tobas_actuator_test
+  tobas_control_system::tobas_control_system
+  tobas_parameter_tuning::tobas_parameter_tuning
+  tobas_flight_log_gui::tobas_flight_log_gui
+  tobas_fc_console::tobas_fc_console
+  tobas_simulation_gui::tobas_simulation_gui
+)
 
 # Match the executable name, desktop file name, and application name without spaces so the icon is displayed correctly
 # in the desktop application.
