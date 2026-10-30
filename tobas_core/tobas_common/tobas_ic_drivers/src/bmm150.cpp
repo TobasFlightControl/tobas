@@ -115,7 +115,7 @@ bool BMM150::enterSuspendMode()
 
 bool BMM150::suspendToSleepMode()
 {
-  if (!i2c_.writeByte(CFG_REG_A, 0x01), true) {
+  if (!i2c_.writeByte(CFG_REG_A, 0x01, true)) {
     std::cerr << "Failed to write power control reg.\n";
     return false;
   }
@@ -143,7 +143,7 @@ bool BMM150::checkWhoAmI()
 
 bool BMM150::execSelfTest()
 {
-  if (!i2c_.writeByte(CFG_REG_B, ADV_SELF_TEST_NORMAL | ODR_10HZ | OP_SLEEP | SELF_TEST), true) {
+  if (!i2c_.writeByte(CFG_REG_B, ADV_SELF_TEST_NORMAL | ODR_10HZ | OP_SLEEP | SELF_TEST, true)) {
     std::cerr << "Failed to write to CFG_REG_B.\n";
     return false;
   }
@@ -155,17 +155,17 @@ bool BMM150::execSelfTest()
 
 bool BMM150::configure()
 {
-  if (!i2c_.writeByte(CFG_REG_B, ADV_SELF_TEST_NORMAL | ODR_30HZ | OP_NORMAL), true) {
+  if (!i2c_.writeByte(CFG_REG_B, ADV_SELF_TEST_NORMAL | ODR_30HZ | OP_NORMAL, true)) {
     std::cerr << "Failed to write to CFG_REG_B.\n";
     return false;
   }
 
-  if (!i2c_.writeByte(CFG_REG_E, REPXY), true) {
+  if (!i2c_.writeByte(CFG_REG_E, REPXY, true)) {
     std::cerr << "Failed to write to CFG_REG_E.\n";
     return false;
   }
 
-  if (!i2c_.writeByte(CFG_REG_F, REPZ), true) {
+  if (!i2c_.writeByte(CFG_REG_F, REPZ, true)) {
     std::cerr << "Failed to write to CFG_REG_F.\n";
     return false;
   }
