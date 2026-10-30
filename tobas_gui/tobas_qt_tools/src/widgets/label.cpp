@@ -22,7 +22,8 @@ QString toCssColor(Qt::GlobalColor _c)
 }
 }  // namespace
 
-Label::Label(const QString& _text, int _point_size, int _weight, bool _italic, QWidget* _parent) : super(_text, _parent)
+Label::Label(const QString& _text, int _point_size, QFont::Weight _weight, bool _italic, QWidget* _parent)
+  : super(_text, _parent)
 {
   setFont(DefaultFont(_point_size, _weight, _italic));
 }

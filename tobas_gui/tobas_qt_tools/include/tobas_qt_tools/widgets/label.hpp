@@ -20,7 +20,7 @@ public:
   explicit Label(
     const QString& _text = "",
     int _point_size = -1,
-    int _weight = -1,
+    QFont::Weight _weight = QFont::Weight::Normal,
     bool _italic = false,
     QWidget* _parent = nullptr);
 
