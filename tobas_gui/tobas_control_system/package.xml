@@ -9,8 +9,8 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>magic_enum</depend>
-  <depend>qtdeclarative5-dev</depend>
-  <depend>qtpositioning5-dev</depend>
+  <depend>qt6-declarative-dev</depend>
+  <depend>qt6-positioning-dev</depend>
 
   <depend>tobas_path_tools</depend>
   <depend>tobas_ros2_tools</depend>
@@ -24,10 +24,13 @@
   <depend>tobas_trajectory_generation</depend>
   <depend>tobas_gui_common</depend>
 
-  <exec_depend>qml-module-qtlocation</exec_depend>
-  <exec_depend>qml-module-qtpositioning</exec_depend>
-  <exec_depend>qml-module-qtquick-extras</exec_depend>
-  <exec_depend>qml-module-qtquick-controls</exec_depend>
+  <exec_depend>qml6-module-qtlocation</exec_depend>
+  <exec_depend>qml6-module-qtpositioning</exec_depend>
+  <exec_depend>qml6-module-qtquick</exec_depend>
+  <exec_depend>qml6-module-qtquick-controls</exec_depend>
+  <exec_depend>qml6-module-qtquick-window</exec_depend>
+  <exec_depend>qml6-module-qtqml-workerscript</exec_depend>
+  <exec_depend>qt6-location-plugins</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

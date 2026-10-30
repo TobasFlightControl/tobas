@@ -8,8 +8,8 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>qtbase5-dev</depend>
-  <depend>libqwt-qt5-dev</depend>
+  <depend>qt6-base-dev</depend>
+  <depend>tobas_qwt_vendor</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

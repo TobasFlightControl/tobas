@@ -8,7 +8,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>libqwt-qt5-dev</depend>
+  <depend>tobas_qwt_vendor</depend>
 
   <depend>tobas_drone_core</depend>
   <depend>tobas_dparam_client</depend>

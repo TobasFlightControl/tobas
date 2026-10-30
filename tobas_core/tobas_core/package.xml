@@ -8,7 +8,6 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<exec_depend>tobas_camera</exec_depend>
 	<exec_depend>tobas_command_msgs</exec_depend>
 	<exec_depend>tobas_command_msgs_adapter</exec_depend>
 	<exec_depend>tobas_common</exec_depend>
