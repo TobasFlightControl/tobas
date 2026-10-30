@@ -3,11 +3,13 @@
 
 #pragma once
 
+#include <memory>
+
 #include <tinyxml2.h>
 
 #include "./model.hpp"
 
 namespace tobas::uadf
 {
-tinyxml2::XMLDocument* exportUADF(const Model& _model);
+std::unique_ptr<tinyxml2::XMLDocument> exportUADF(const Model& _model);
 }  // namespace tobas::uadf

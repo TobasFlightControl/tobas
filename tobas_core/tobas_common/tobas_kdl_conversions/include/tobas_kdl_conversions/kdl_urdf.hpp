@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <urdf/model.h>
+#include <urdf/model.hpp>
 
 #include <tobas_kdl/frame.hpp>
 #include <tobas_kdl/joint.hpp>

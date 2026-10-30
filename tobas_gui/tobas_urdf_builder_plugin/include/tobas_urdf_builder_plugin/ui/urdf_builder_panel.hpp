@@ -5,11 +5,11 @@
 
 #include <optional>
 
-#include <urdf/model.h>
 #include <QSettings>
 #include <QTimer>
 #include <QTreeWidgetItem>
 #include <rviz_common/panel.hpp>
+#include <urdf/model.hpp>
 
 #include "../ogre_helpers/ogre_controller.hpp"
 #include "../view_model/urdf_view_model.hpp"

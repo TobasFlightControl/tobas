@@ -7,7 +7,7 @@
 
 #include <QDebug>
 #include <QFileInfo>
-#include <ament_index_cpp/get_package_share_directory.hpp>
+#include <ament_index_cpp/get_package_share_path.hpp>
 
 #include <tobas_constants/path.hpp>
 #include <tobas_gui_common/colcon.hpp>
@@ -154,7 +154,7 @@ bool SetupAssistantWidget::updateInternalDataStructures()
 
   // Update RSP parameter.
   const auto urdf_doc = urdf::exportUrdf(*uadf_.urdf);
-  const auto urdf_text = xml::xmlDocumentToString(urdf_doc);
+  const auto urdf_text = xml::xmlDocumentToString(urdf_doc.get());
   if (rsp_client_.setParam("robot_description", urdf_text) != ros2::SyncParamClient::kNoError) {
     qWarning() << rsp_client_.errorMessage();
     qt::qErrorBox(this, "Failed to update the robot state publisher.");
@@ -177,8 +177,8 @@ bool SetupAssistantWidget::updateInternalDataStructures()
 void SetupAssistantWidget::onNewButtonClicked()
 {
   // Get the previously opened path.
-  const auto default_pkg_share = ament_index_cpp::get_package_share_directory("tobas_description");
-  const auto default_dir = QDir(QString::fromStdString(default_pkg_share)).filePath("urdf");
+  const auto default_pkg_share = ament_index_cpp::get_package_share_path("tobas_description");
+  const auto default_dir = QDir(QString::fromStdString(default_pkg_share.string())).filePath("urdf");
   const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey_New, default_dir).toString();
 
   // Get the UADF path.

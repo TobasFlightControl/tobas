@@ -41,6 +41,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <optional>
 
 #include <rclcpp/node.hpp>
@@ -74,7 +75,7 @@ public:
   explicit RobotStateDisplay();
 
   void load(const rviz_common::Config& _config) override;
-  void update(float _wall_dt, float _ros_dt) override;
+  void update(std::chrono::nanoseconds _wall_dt, std::chrono::nanoseconds _ros_dt) override;
   void reset() override;
 
 protected:

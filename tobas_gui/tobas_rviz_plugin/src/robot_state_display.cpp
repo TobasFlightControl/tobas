@@ -132,7 +132,7 @@ void RobotStateDisplay::load(const rviz_common::Config& _config)
   super::load(_config);
 }
 
-void RobotStateDisplay::update(float _wall_dt, float _ros_dt)
+void RobotStateDisplay::update(std::chrono::nanoseconds _wall_dt, std::chrono::nanoseconds _ros_dt)
 {
   super::update(_wall_dt, _ros_dt);
   calculateOffsetPosition();

@@ -3,7 +3,7 @@
 
 #include "tobas_urdf_builder/util.hpp"
 
-#include <ament_index_cpp/get_package_share_directory.hpp>
+#include <ament_index_cpp/get_package_share_path.hpp>
 
 namespace fs = std::filesystem;
 
@@ -11,6 +11,6 @@ namespace tobas::gui::ub
 {
 fs::path getPkgShareDir()
 {
-  return ament_index_cpp::get_package_share_directory("tobas_urdf_builder");
+  return ament_index_cpp::get_package_share_path("tobas_urdf_builder");
 }
 }  // namespace tobas::gui::ub

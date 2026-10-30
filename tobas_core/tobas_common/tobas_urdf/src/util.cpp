@@ -3,7 +3,7 @@
 
 #include "tobas_urdf/util.hpp"
 
-#include <ament_index_cpp/get_package_share_directory.hpp>
+#include <ament_index_cpp/get_package_share_path.hpp>
 
 #include <tobas_string_tools/core.hpp>
 
@@ -19,7 +19,7 @@ std::expected<fs::path, std::string> resolveUri(const std::string& _uri)
   if (_uri.starts_with(kPackagePrefix)) {
     const auto pkg_name = str::split(str::lstrip(_uri, kPackagePrefix), '/').front();
     const auto rest_of_path = str::lstrip(_uri, std::string(kPackagePrefix) + pkg_name + '/');
-    const fs::path pkg_path(ament_index_cpp::get_package_share_directory(pkg_name));
+    const auto pkg_path = ament_index_cpp::get_package_share_path(pkg_name);
     return pkg_path / rest_of_path;
   }
   else if (_uri.starts_with(kAbsPathPrefix)) {

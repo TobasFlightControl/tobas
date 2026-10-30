@@ -9,7 +9,7 @@
 #include <QLabel>
 #include <QPlainTextEdit>
 #include <QProcess>
-#include <QTextDecoder>
+#include <QStringDecoder>
 #include <QTimer>
 #include <QWidget>
 
@@ -56,7 +56,8 @@ private:
   QTimer status_timer_;
   QString status_text_;
   int status_animation_step_ = 0;
-  std::unique_ptr<QTextDecoder> decoder_;
+  QStringDecoder stdout_decoder_{ QStringDecoder::Utf8 };
+  QStringDecoder stderr_decoder_{ QStringDecoder::Utf8 };
 
   QComboBox* service_;
   qt::ToggleButton* start_stop_btn_;

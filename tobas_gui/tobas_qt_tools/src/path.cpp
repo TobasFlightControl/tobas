@@ -7,14 +7,14 @@
 #include <QDir>
 #include <QSaveFile>
 #include <QTextStream>
-#include <ament_index_cpp/get_package_share_directory.hpp>
+#include <ament_index_cpp/get_package_share_path.hpp>
 
 namespace tobas::qt
 {
 QString getResourcePath()
 {
-  const auto pkg_path = ament_index_cpp::get_package_share_directory("tobas_qt_tools");
-  return QDir(QString::fromStdString(pkg_path)).filePath("resources");
+  const auto pkg_path = ament_index_cpp::get_package_share_path("tobas_qt_tools");
+  return QDir(QString::fromStdString(pkg_path.string())).filePath("resources");
 }
 
 QString getBaseName(const QString& _path)
@@ -69,7 +69,7 @@ std::expected<QString, QString> writeTimestampedFile(
   }
 
   QTextStream os(&file);
-  os.setCodec("UTF-8");
+  os.setEncoding(QStringConverter::Utf8);
   os << _content;
 
   if (!file.commit()) {

@@ -4,7 +4,7 @@
 #include "tobas_simulation_gui/simulation_settings/world/standard_world.hpp"
 
 #include <QHBoxLayout>
-#include <ament_index_cpp/get_package_share_directory.hpp>
+#include <ament_index_cpp/get_package_share_path.hpp>
 
 namespace fs = std::filesystem;
 
@@ -39,7 +39,7 @@ fs::path WorldWidget_Standard::worldPath() const
 
 fs::path WorldWidget_Standard::worldDirectoryPath()
 {
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory("tobas_gazebo_sim"));
+  const auto pkg_path = ament_index_cpp::get_package_share_path("tobas_gazebo_sim");
   return pkg_path / "worlds";
 }
 }  // namespace tobas::gui::sim

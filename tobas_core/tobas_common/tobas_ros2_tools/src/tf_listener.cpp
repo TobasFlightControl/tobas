@@ -6,7 +6,7 @@
 namespace tobas::ros2
 {
 TransformListener::TransformListener(rclcpp::Node::SharedPtr _node)
-  : tf_buffer_(_node->get_clock()), tf_listener_(tf_buffer_, _node)
+  : tf_buffer_(_node->get_clock()), tf_listener_(tf_buffer_, tf2_ros::TransformListener::RequiredInterfaces(*_node))
 {
 }
 

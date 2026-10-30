@@ -84,7 +84,7 @@ void RvizWidget::updateInternalDataStructures()
 
   // Update the URDF.
   const auto urdf_doc = urdf::exportUrdf(*uadf_.urdf);
-  const auto urdf_text = xml::xmlDocumentToString(urdf_doc);
+  const auto urdf_text = xml::xmlDocumentToString(urdf_doc.get());
   rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, urdf_text));
 
   // Reload the robot model.

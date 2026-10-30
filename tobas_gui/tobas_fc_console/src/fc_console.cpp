@@ -81,7 +81,6 @@ FcConsoleWidget::FcConsoleWidget(QWidget* _parent) : QWidget(_parent)
 
   flush_timer_.setInterval(50);
   status_timer_.setInterval(500);
-  decoder_.reset(QTextCodec::codecForName("UTF-8")->makeDecoder());
 
   setStatus(kStopped);
 }
@@ -129,6 +128,8 @@ void FcConsoleWidget::start()
   }
 
   clear();
+  stdout_decoder_.resetState();
+  stderr_decoder_.resetState();
 
   // A single journalctl invocation reads history and follows it without a handover gap.
   const auto command = "journalctl -b --no-pager -o short-monotonic -n all -f " + service_->currentData().toString();
@@ -272,12 +273,12 @@ void FcConsoleWidget::readStandardOutput()
   if (!chunk.isEmpty() && status_ == kWaiting) {
     setStatus(kReceiving);
   }
-  queueOutput(decoder_->toUnicode(chunk));
+  queueOutput(stdout_decoder_(chunk));
 }
 
 void FcConsoleWidget::readStandardError()
 {
-  queueOutput(decoder_->toUnicode(process_.readAllStandardError()));
+  queueOutput(stderr_decoder_(process_.readAllStandardError()));
 }
 
 void FcConsoleWidget::readOutput()

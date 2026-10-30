@@ -3,8 +3,11 @@
 
 #include "tobas_flight_log_gui/log_viewer/plots/utilities/qwt_plot.hpp"
 
+#include <QPen>
+
 #include <qwt/qwt_plot_legenditem.h>
 #include <qwt/qwt_scale_draw.h>
+#include <qwt/qwt_text.h>
 
 namespace tobas::gui::log
 {
@@ -67,8 +70,8 @@ QwtPlot2::QwtPlot2(QWidget* _parent) : super(_parent)
   // Place the legend inside.
   const auto legend_item = new QwtPlotLegendItem();
   legend_item->attach(this);
-  legend_item->setAlignment(Qt::AlignTop | Qt::AlignRight);  // Place it at the upper right.
-  legend_item->setMaxColumns(1);                             // Arrange in one column.
+  legend_item->setAlignmentInCanvas(Qt::AlignTop | Qt::AlignRight);  // Place it at the upper right.
+  legend_item->setMaxColumns(1);                                     // Arrange in one column.
   legend_item->setBackgroundMode(QwtPlotLegendItem::LegendBackground);
   legend_item->setBorderPen(QPen(Qt::black, 1));  // Black border.
 }

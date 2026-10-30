@@ -3,7 +3,7 @@
 
 #include "tobas_geographic/geography.hpp"
 
-#include <ament_index_cpp/get_package_share_directory.hpp>
+#include <ament_index_cpp/get_package_share_path.hpp>
 
 #include <tobas_std_tools/console.hpp>
 
@@ -18,7 +18,7 @@ constexpr double kCentralScale = 0.9999;                  // [-]
 
 Geography::Geography(const std::string& _name)
   : plane_projection_(kGrs80SemiMajorAxis, kGrs80Flattening, kCentralScale)
-  , magnetic_model_(_name, ament_index_cpp::get_package_share_directory("tobas_geographic") + "/data/magnetic")
+  , magnetic_model_(_name, (ament_index_cpp::get_package_share_path("tobas_geographic") / "data/magnetic").string())
 {
 }
 

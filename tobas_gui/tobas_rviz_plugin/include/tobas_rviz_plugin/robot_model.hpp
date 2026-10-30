@@ -47,7 +47,7 @@
 #include <string>
 #include <vector>
 
-#include <urdf/model.h>
+#include <urdf/model.hpp>
 
 #include "./joint_model/joint_model.hpp"
 #include "./link_model.hpp"

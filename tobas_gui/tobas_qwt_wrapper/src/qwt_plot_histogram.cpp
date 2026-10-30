@@ -3,7 +3,7 @@
 
 #include "tobas_qwt_wrapper/qwt_plot_histogram.hpp"
 
-#include <qwt/qwt_plot_histogram.h>  // <= C++17
+#include <qwt/qwt_plot_histogram.h>
 
 namespace tobas::qwt
 {
