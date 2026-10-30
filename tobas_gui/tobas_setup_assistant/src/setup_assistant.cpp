@@ -453,7 +453,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   // Get the previously opened path.
   const auto default_dir = qt::expandUser(kColconWSPathHome) + "/src";
   TOBAS_CHECK(QDir().mkpath(default_dir));
-  const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey_Load, default_dir).toString();
+  const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey_Save, default_dir).toString();
 
   // Get the project path.
   const auto dflt_proj_name = "tobas_" + QString::fromStdString(uadf_.urdf->getName());
