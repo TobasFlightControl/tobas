@@ -2,7 +2,7 @@
 
 BasedOnStyle: Google
 ColumnLimit: 120
-CommentPragmas: '^ (IWYU pragma:|Source:)'
+CommentPragmas: "^ (IWYU pragma:|Source:)"
 MaxEmptyLinesToKeep: 1
 SortIncludes: CaseSensitive # false -> CaseSensitive
 IncludeBlocks: Preserve # Added
@@ -94,4 +94,4 @@ FixNamespaceComments: true # Add or fix comments on closing braces for namespace
 ShortNamespaceLines: 0 # Add closing namespace comments when the namespace contains at least one line.
 InsertBraces: true # Always insert braces.
 AllowAllArgumentsOnNextLine: true # If arguments do not fit on one line, allow them to continue together on the next line.
-# RemoveEmptyLinesInUnwrappedLines: true # clang-format 20+
+RemoveEmptyLinesInUnwrappedLines: true

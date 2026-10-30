@@ -58,7 +58,7 @@ public:
   V dd;  ///< 2nd derivative
 
   // = Constructors
-  inline explicit Rall2d() : t(), d(), dd(){};
+  inline explicit Rall2d() : t(), d(), dd() {};
 
   inline explicit Rall2d(typename TI<T>::Arg _c)
   {

@@ -48,16 +48,17 @@ ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& _uadf) : super(0
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  setHorizontalHeaderLabels({
-    kLinkNameLabel,
-    kJointNameLabel,
-    kLiftCoefLabel,
-    kDragCoefLabel,
-    kSideCoefLabel,
-    kRollCoefLabel,
-    kPitchCoefLabel,
-    kYawCoefLabel,
-  });
+  setHorizontalHeaderLabels(
+    {
+      kLinkNameLabel,
+      kJointNameLabel,
+      kLiftCoefLabel,
+      kDragCoefLabel,
+      kSideCoefLabel,
+      kRollCoefLabel,
+      kPitchCoefLabel,
+      kYawCoefLabel,
+    });
   setColumnsWidth(120);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);

@@ -1002,10 +1002,11 @@ void GroundControlStationWidget::onSimulationStarted()
   qDebug() << "GroundControlStationWidget::onSimulationStarted";
 
   // Set the simulation target.
-  updateFlightControllerList({ { "Simulation Model",
-                                 "127.0.0.1",
-                                 QString::fromStdString(project_.drone.name),
-                                 makeIdText(sim::SimulationWidget::kDroneId) } });
+  updateFlightControllerList(
+    { { "Simulation Model",
+        "127.0.0.1",
+        QString::fromStdString(project_.drone.name),
+        makeIdText(sim::SimulationWidget::kDroneId) } });
   fc_selector_->setCurrentIndex(1);
 
   // Reset the entire widget.

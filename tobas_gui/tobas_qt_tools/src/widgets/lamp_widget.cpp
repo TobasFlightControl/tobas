@@ -31,18 +31,19 @@ void LampWidget::setColor(const RGBColor& _color)
 
 void LampWidget::draw()
 {
-  const auto qss = QStringLiteral("QLabel {"
-                                  "border: 2px solid lightgray;"
-                                  "border-radius: %1px;"
-                                  "background-color:"
-                                  "QLinearGradient("
-                                  "y1: 0, y2: 1,"
-                                  "stop: 0 WHITE,"
-                                  "stop: 0.2 #%2%3%4,"
-                                  "stop: 0.8 #%5%6%7,"
-                                  "stop: 1 #%8%9%10"
-                                  ");"
-                                  "}");
+  const auto qss = QStringLiteral(
+    "QLabel {"
+    "border: 2px solid lightgray;"
+    "border-radius: %1px;"
+    "background-color:"
+    "QLinearGradient("
+    "y1: 0, y2: 1,"
+    "stop: 0 WHITE,"
+    "stop: 0.2 #%2%3%4,"
+    "stop: 0.8 #%5%6%7,"
+    "stop: 1 #%8%9%10"
+    ");"
+    "}");
 
   const auto radius = sizeHint().height() / 2;
   const auto grad = c_.mean(RGBColor::White());

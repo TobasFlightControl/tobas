@@ -314,12 +314,13 @@ void ExtraJointsWidget::addLink(const std::string& _link_name)
 
   // Command Interface
   const auto cmd_iface = new qt::ComboBox();
-  cmd_iface->addItems({
-    kCmdIfaceLabel_Position,
-    kCmdIfaceLabel_Velocity,
-    kCmdIfaceLabel_Effort,
-    kCmdIfaceLabel_None,
-  });
+  cmd_iface->addItems(
+    {
+      kCmdIfaceLabel_Position,
+      kCmdIfaceLabel_Velocity,
+      kCmdIfaceLabel_Effort,
+      kCmdIfaceLabel_None,
+    });
 
   // Home Position
   const auto home_pos = new qt::SpinBox();
