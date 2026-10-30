@@ -66,7 +66,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
   1. A blank line
   1. Tobas library headers
   1. A blank line
-  1. [ROS 2 common interface](https://github.com/ros2/common_interfaces/tree/jazzy) headers
+  1. [ROS 2 common interface](https://github.com/ros2/common_interfaces/tree/lyrical) headers
   1. A blank line
   1. ROS 2 external interface headers
   1. A blank line
