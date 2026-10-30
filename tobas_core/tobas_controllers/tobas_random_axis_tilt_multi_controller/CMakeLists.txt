@@ -11,9 +11,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Disable warnings about tensor contraction.
-add_compile_options(-Wno-array-bounds)
-
 set(AMENT_DEPENDENCIES
     tobas_nlp
     tobas_node
