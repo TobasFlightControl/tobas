@@ -47,12 +47,12 @@ RcCommand YAxisTiltVtolWidget::acrobatModeCommand() const
 
 RcCommand YAxisTiltVtolWidget::stabilizeModeCommand() const
 {
-  return RcCommand::kAngleSideSlipThrottleVector; // TODO
+  return RcCommand::kPosVelAccPitchYawRollSideSlipMode;
 }
 
 RcCommand YAxisTiltVtolWidget::loiterModeCommand() const
 {
-  return RcCommand::kAngleSideSlipThrottleVector;  // TODO
+  return RcCommand::kPosVelAccPitchYawRollSideSlipMode;  // TODO
 }
 
 YAML::Node YAxisTiltVtolWidget::staticParams() const

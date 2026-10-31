@@ -37,6 +37,7 @@ class CustomFrameWidget : public BaseControllerWidget
   static constexpr char kAileElevRudThrottleLabel[] = "Aileron + Elevator + Rudder + Throttle";
   static constexpr char kRollPitchSideSlipThrottleLabel[] = "Roll + Pitch + SideSlip + Throttle";
   static constexpr char kAngleSideSlipThrottleVectorLabel[] = "Euler Angle + SideSlip + Throttle + Thrust Direction";
+  static constexpr char kPosVelAccPitchYawRollSideSlipModeLabel[] = "Position + Velocity + Accel + Pitch + Yaw or Roll + SideSlip + Mode";
 
 public:
   explicit CustomFrameWidget();
@@ -74,6 +75,7 @@ private:
     { kAileElevRudThrottleLabel, RcCommand::kAileElevRudThrottle },
     { kRollPitchSideSlipThrottleLabel, RcCommand::kRollPitchSideSlipThrottle },
     { kAngleSideSlipThrottleVectorLabel, RcCommand::kAngleSideSlipThrottleVector },
+    { kPosVelAccPitchYawRollSideSlipModeLabel, RcCommand::kPosVelAccPitchYawRollSideSlipMode },
   };
 
   qt::ComboBox* acrobat_mode_;

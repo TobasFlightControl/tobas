@@ -19,6 +19,7 @@
 #define AILE_ELEV_RUD_THROTTLE_TEXT "aile_elev_rud_throttle"
 #define ROLL_PITCH_SIDE_SLIP_THROTTLE_TEXT "roll_pitch_side_slip_throttle"
 #define ANGLE_SIDE_SLIP_THROTTLE_VECTOR_TEXT "angle_side_slip_throttle_vector"
+#define POS_VEL_ACC_PITCH_YAW_ROLL_SIDE_SLIP_MODE_TEXT "pos_vel_acc_pitch_yaw_roll_side_slip_mode"
 
 using namespace std;
 
@@ -55,6 +56,8 @@ string textFromEnum(RcCommand cmd)
       return ROLL_PITCH_SIDE_SLIP_THROTTLE_TEXT;
     case RcCommand::kAngleSideSlipThrottleVector:
       return ANGLE_SIDE_SLIP_THROTTLE_VECTOR_TEXT;
+    case RcCommand::kPosVelAccPitchYawRollSideSlipMode:
+      return POS_VEL_ACC_PITCH_YAW_ROLL_SIDE_SLIP_MODE_TEXT;
     default:
       throw;
   }
@@ -116,6 +119,10 @@ bool enumFromText(const string& text, RcCommand& dst)
   }
   else if (text == ANGLE_SIDE_SLIP_THROTTLE_VECTOR_TEXT) {
     dst = RcCommand::kAngleSideSlipThrottleVector;
+    return true;
+  }
+  else if (text == POS_VEL_ACC_PITCH_YAW_ROLL_SIDE_SLIP_MODE_TEXT) {
+    dst = RcCommand::kPosVelAccPitchYawRollSideSlipMode;
     return true;
   }
   else {
