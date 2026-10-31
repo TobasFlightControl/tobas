@@ -14,7 +14,7 @@ concurrency:
 jobs:
   pre-commit:
     name: pre-commit
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     steps:
       - name: Check out repository
@@ -32,7 +32,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.cache/pre-commit
-          key: pre-commit-ubuntu-24.04-${{ runner.arch }}-${{ hashFiles('.pre-commit-config.yaml', '.github/workflows/pre-commit.yml') }}
+          key: pre-commit-ubuntu-26.04-${{ runner.arch }}-${{ hashFiles('.pre-commit-config.yaml', '.github/workflows/pre-commit.yml') }}
 
       - name: Run checks
         run: pre-commit run -a
