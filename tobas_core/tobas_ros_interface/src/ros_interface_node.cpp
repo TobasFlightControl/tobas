@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <rclcpp/executors/multi_threaded_executor.hpp>
+#include <rclcpp/executors/events_cbg_executor/events_cbg_executor.hpp>
 
 #include "./ros_interface.hpp"
 
@@ -28,7 +28,7 @@ int main(int _argc, char* _argv[])
 
   RCLCPP_INFO_STREAM(node->get_logger(), "The number of threads has been set to " << num_threads << ".");
 
-  rclcpp::executors::MultiThreadedExecutor exec(rclcpp::ExecutorOptions(), num_threads);
+  rclcpp::executors::EventsCBGExecutor exec(rclcpp::ExecutorOptions(), num_threads);
   exec.add_node(node);
 
   exec.spin();

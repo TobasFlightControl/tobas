@@ -3,9 +3,6 @@ from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 
-# Template parameters
-DRONE_NAME = "{{ drone_name }}"
-
 # Arguments
 LOG_LEVEL = "log_level"
 OUTPUT = "output"
@@ -25,9 +22,6 @@ def generate_launch_description():
     output = LaunchConfiguration(OUTPUT)
     id = LaunchConfiguration(ID)
 
-    namespace = PathJoinSubstitution([DRONE_NAME, id])
-    ros_args = ["--log-level", log_level, "--disable-rosout-logs", "--disable-external-lib-logs"]
-
     # Launch component containers
     for i in range(1, 4):
         ld.add_action(
@@ -35,8 +29,10 @@ def generate_launch_description():
                 package="rclcpp_components",
                 executable="component_container",
                 name=f"component_manager_{i}",
-                namespace=namespace,
-                ros_arguments=ros_args,
+                namespace=PathJoinSubstitution(["{{ drone_name }}", id]),
+                ros_arguments=["--log-level", log_level, "--disable-rosout-logs", "--disable-external-lib-logs"],
+                arguments=["--executor-type", "events-cbg"],
+                parameters=[{"thread_num": 1}],
                 output=output,
             )
         )

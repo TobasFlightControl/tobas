@@ -6,13 +6,11 @@
 #include <ranges>
 #include <thread>
 
-#include <rclcpp/experimental/executors/events_executor/events_executor.hpp>
+#include <rclcpp/executors/events_cbg_executor/events_cbg_executor.hpp>
 
 #include <tobas_linux/realtime.hpp>
 
 #include "tobas_components_rt/component_manager.hpp"
-#include "tobas_components_rt/multi_threaded_executor.hpp"
-#include "tobas_components_rt/timer_coalescing_events_queue.hpp"
 
 using namespace std::chrono_literals;
 
@@ -23,7 +21,7 @@ namespace
 struct ComponentManager
 {
   ThreadSafeComponentManager::SharedPtr node;
-  rclcpp::Executor::SharedPtr exec;
+  rclcpp::executors::EventsCBGExecutor::SharedPtr exec;
   std::thread thread;
 };
 
@@ -73,15 +71,7 @@ void MultiComponentManagers::spin()
   node_options.append_parameter_override("start_type_description_service", false);
 
   for (auto&& [i, manager, cfg] : std::views::zip(std::views::iota(0), managers, configs_)) {
-    if (cfg.num_threads == 1) {
-      auto queue = std::make_unique<TimerCoalescingEventsQueue>();
-      manager.exec = std::make_shared<rclcpp::experimental::executors::EventsExecutor>(
-        rclcpp::ExecutorOptions(), std::move(queue), false);
-    }
-    else {
-      manager.exec = std::make_shared<MultiThreadedExecutorRT>(cfg.policy, cfg.priority, cfg.affinity, cfg.num_threads);
-    }
-
+    manager.exec = std::make_shared<rclcpp::executors::EventsCBGExecutor>(rclcpp::ExecutorOptions(), cfg.num_threads);
     manager.node = std::make_shared<ThreadSafeComponentManager>(manager.exec, nodeName(i), node_options);
     manager.exec->add_node(manager.node);
 
@@ -89,7 +79,7 @@ void MultiComponentManagers::spin()
     const auto priority = cfg.priority;
     const auto affinity = cfg.affinity;
 
-    // Configure the worker before spin() creates any executor-internal threads.
+    // Executor workers inherit the spin thread's scheduling policy and CPU affinity.
     manager.thread = std::thread(
       [&manager, policy, priority, affinity, logger]()
       {

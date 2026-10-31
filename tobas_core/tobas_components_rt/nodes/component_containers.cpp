@@ -35,7 +35,7 @@ int main(int _argc, char* _argv[])
     // Dedicate one CPU to each component manager.
     managers.setCpuAffinity(i, 1 << (i + 1));
 
-    // `MultiThreadedExecutor` is CPU intensive, so assign only one thread to each CPU for better performance.
+    // Use one EventsCBGExecutor worker for each dedicated CPU.
     managers.setNumThreads(i, 1);
   }
 

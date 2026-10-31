@@ -9,7 +9,7 @@
 #include <vector>
 
 #include <gz/common/Console.hh>
-#include <rclcpp/executors/single_threaded_executor.hpp>
+#include <rclcpp/executors/events_cbg_executor/events_cbg_executor.hpp>
 #include <rclcpp/node.hpp>
 #include <sdf/sdf.hh>
 
@@ -159,7 +159,7 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::msg::Message> message_pub_;
 
-  std::optional<rclcpp::executors::SingleThreadedExecutor> executor_;
+  std::optional<rclcpp::executors::EventsCBGExecutor> executor_;
   std::thread spin_thread_;
 
   void gazeboLog(uint8_t _level, const std::string& _text) const;
