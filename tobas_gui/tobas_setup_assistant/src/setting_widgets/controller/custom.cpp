@@ -70,12 +70,10 @@ CustomFrameWidget::CustomFrameWidget()
   form->addRow(kStabilizeLabel, stabilize_mode_);
   form->addRow(kLoiterLabel, loiter_mode_);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(new qt::Label("RC Command", cmn::kLabelPSize, QFont::Bold));
   rows->addLayout(form);
   rows->addStretch();
-
-  setLayout(rows);
 }
 
 void CustomFrameWidget::setToDefaults()

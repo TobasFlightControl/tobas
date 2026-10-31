@@ -9,8 +9,7 @@ namespace tobas::qt
 {
 Vector3dEditVertical::Vector3dEditVertical(const QStringList& _labels, QWidget* _parent) : super(_parent)
 {
-  const auto form = new QFormLayout();
-  setLayout(form);
+  const auto form = new QFormLayout(this);
 
   constexpr std::array kDefaultLabels = { "X", "Y", "Z" };
   for (size_t i = 0; i < spin_boxes_.size(); ++i) {

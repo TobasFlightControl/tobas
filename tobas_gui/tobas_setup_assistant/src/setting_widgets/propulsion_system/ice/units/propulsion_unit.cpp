@@ -10,8 +10,7 @@ namespace tobas::gui::sa::propulsion::ice
 {
 PropulsionUnitWidget::PropulsionUnitWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   const auto button_cols = new QHBoxLayout();
   rows->addLayout(button_cols);

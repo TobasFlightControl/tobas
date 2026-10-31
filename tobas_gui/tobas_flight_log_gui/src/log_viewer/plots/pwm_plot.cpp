@@ -18,8 +18,7 @@ constexpr int kPwmChannels = 8;
 
 PwmPlotWidget::PwmPlotWidget()
 {
-  const auto grid = new QGridLayout();
-  setLayout(grid);
+  const auto grid = new QGridLayout(this);
 
   for (int i = 0; i < kPwmChannels; ++i) {
     const auto plot = new QwtPlot2();

@@ -48,10 +48,9 @@ ControlSystemWidget::ControlSystemWidget(const rqt::RosQtBridge& _bridge, const 
   cols1->addLayout(rows1, 2);
   cols1->addWidget(qt::makeGroup("Mission Planner", mission_planner_), 3);
 
-  const auto rows0 = new QVBoxLayout();
+  const auto rows0 = new QVBoxLayout(this);
   rows0->addWidget(arm_state_banner_, 0);
   rows0->addLayout(cols1, 1);
-  setLayout(rows0);
 }
 
 void ControlSystemWidget::reset()

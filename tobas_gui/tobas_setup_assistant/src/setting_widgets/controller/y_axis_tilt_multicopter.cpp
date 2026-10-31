@@ -11,8 +11,7 @@ namespace tobas::gui::sa::ctrl
 {
 YAxisTiltMulticopterWidget::YAxisTiltMulticopterWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   do_dist_comp_trans_ = new QCheckBox("Do Disturbance Compensation (Translation)");
   rows->addWidget(do_dist_comp_trans_);

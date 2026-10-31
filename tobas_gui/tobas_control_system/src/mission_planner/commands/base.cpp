@@ -18,8 +18,7 @@ namespace tobas::gui::ctrl
 {
 BaseCommandWidget::BaseCommandWidget()
 {
-  const auto root_rows = new QVBoxLayout();
-  setLayout(root_rows);
+  const auto root_rows = new QVBoxLayout(this);
 
   const auto header_cols = new QHBoxLayout();
   root_rows->addLayout(header_cols);
@@ -37,8 +36,9 @@ BaseCommandWidget::BaseCommandWidget()
   const auto scroll_area = new qt::ScrollArea();
   root_rows->addWidget(scroll_area);
 
-  const auto field_rows = new QVBoxLayout();
-  scroll_area->setLayout(field_rows);
+  const auto content = new QWidget();
+  const auto field_rows = new QVBoxLayout(content);
+  scroll_area->setWidget(content);
 
   form_ = new qt::FormLayout();
   field_rows->addLayout(form_);

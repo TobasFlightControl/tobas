@@ -52,8 +52,7 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   const auto obsv_fb = addData<tobas_debug_msgs::msg::ObserverFeedback>(topic::kObsvFeedback);
   const auto mr_ctrl_fb = addData<tobas_debug_msgs::msg::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
 
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   const auto grid = new QGridLayout();
   rows->addLayout(grid);

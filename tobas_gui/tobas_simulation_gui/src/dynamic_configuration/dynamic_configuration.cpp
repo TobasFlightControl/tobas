@@ -13,8 +13,7 @@ namespace tobas::gui::sim
 {
 DynamicConfigWidget::DynamicConfigWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   const auto title = new qt::Label("Dynamic Configurations", cmn::kTitlePSize, QFont::Bold);
   qt::addWidgetCenter(title, rows);

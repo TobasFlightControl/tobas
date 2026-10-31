@@ -28,11 +28,9 @@ SbusWidget::SbusWidget() : dir_(kDirPath)
   const auto form = new QFormLayout();
   form->addRow("Device", device_names_);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(new qt::Label("S.BUS", cmn::kLabelPSize, QFont::Bold));
   rows->addLayout(form);
-
-  setLayout(rows);
 
   // Connection
   connect(&scan_timer_, &QTimer::timeout, this, &self::onScanTimerTimeout);

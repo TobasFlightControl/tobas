@@ -9,8 +9,7 @@ namespace tobas::gui::log
 {
 JointPositionPlotWidget::JointPositionPlotWidget()
 {
-  grid_ = new qt::GridLayout();
-  setLayout(grid_);
+  grid_ = new qt::GridLayout(this);
 }
 
 void JointPositionPlotWidget::clear()

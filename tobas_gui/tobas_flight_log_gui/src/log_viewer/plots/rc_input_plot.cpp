@@ -20,8 +20,7 @@ RcInputPlotWidget::RcInputPlotWidget()
   , enable_curve_("Enable")
   , kill_curve_("Kill")
 {
-  const auto grid = new QGridLayout();
-  setLayout(grid);
+  const auto grid = new QGridLayout(this);
 
   roll_plot_ = new QwtPlot2();
   roll_plot_->setAxisNoLabel(QwtPlot::xBottom);

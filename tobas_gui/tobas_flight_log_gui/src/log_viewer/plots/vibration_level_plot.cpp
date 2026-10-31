@@ -12,8 +12,7 @@ namespace tobas::gui::log
 VibrationLevelPlotWidget::VibrationLevelPlotWidget()
   : curves_{ "Vibration Level X [m/s²]", "Vibration Level Y [m/s²]", "Vibration Level Z [m/s²]" }
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     plots_[i] = new QwtPlot2();

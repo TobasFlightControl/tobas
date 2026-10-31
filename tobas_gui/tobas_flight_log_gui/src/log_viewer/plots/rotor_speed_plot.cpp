@@ -16,8 +16,7 @@ namespace tobas::gui::log
 {
 RotorSpeedPlotWidget::RotorSpeedPlotWidget()
 {
-  grid_ = new qt::GridLayout();
-  setLayout(grid_);
+  grid_ = new qt::GridLayout(this);
 }
 
 void RotorSpeedPlotWidget::clear()

@@ -22,11 +22,9 @@ AddSshKeyDialog::AddSshKeyDialog(QWidget* _parent) : super(_parent)
   enableOkButton(false);
 
   // Layout
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(key_);
   rows->addWidget(btn_box_);
-
-  setLayout(rows);
 
   // Connection
   connect(key_, &QPlainTextEdit::textChanged, this, &self::onTextChanged);

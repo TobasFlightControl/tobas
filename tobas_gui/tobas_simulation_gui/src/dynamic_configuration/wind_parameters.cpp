@@ -44,11 +44,9 @@ WindParamsWidget::WindParamsWidget()
   form->addVAlignedRow("Gust Duration [s]", gust_duration_);
   form->addVAlignedRow("Gust Interval [s]", gust_interval_);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addLayout(header_cols);
   rows->addLayout(form);
-
-  setLayout(rows);
 
   // Connection
   connect(reset_button_, &QPushButton::clicked, this, &self::onResetButtonClicked);

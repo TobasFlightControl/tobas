@@ -80,14 +80,12 @@ CompleteMagCalibWidget::CompleteMagCalibWidget(const rqt::RosQtBridge& _bridge) 
     face_cols->addWidget(face_circle);
   }
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(instruction);
   rows->addLayout(button_cols);
   rows->addWidget(progress_bar_);
   rows->addLayout(face_cols, 1);
   rows->addWidget(rviz_manager_.widget(), 4);
-
-  setLayout(rows);
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);

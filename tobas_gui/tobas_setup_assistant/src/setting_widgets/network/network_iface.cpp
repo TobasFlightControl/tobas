@@ -44,13 +44,11 @@ NetworkIfaceWidget::NetworkIfaceWidget()
   other_row->addWidget(other_btn);
   other_row->addWidget(other_nic_name_);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(wired_btn);
   rows->addWidget(wireless_btn);
   rows->addWidget(ap_btn);
   rows->addLayout(other_row);
-
-  setLayout(rows);
 
   // Connection
   connect(other_btn, &QRadioButton::toggled, this, &self::onOtherButtonToggled);

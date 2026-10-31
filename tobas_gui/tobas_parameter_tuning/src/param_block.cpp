@@ -37,8 +37,7 @@ void updateButtonStates(const Config& _config)
 
 ParamBlockWidget::ParamBlockWidget(const std::string& _node_name, const QString& _label) : node_name_(_node_name)
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   label_ = new QLabel(_label);
   label_->setFont(qt::DefaultFont(12, QFont::Bold));

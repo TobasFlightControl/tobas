@@ -46,11 +46,10 @@ void addSpacing(QHBoxLayout* _cols, int _width, QSizePolicy::Policy _h_policy)
 QGroupBox* makeGroup(const QString& _title, QWidget* _widget, int _margin)
 {
   const auto group = new QGroupBox(_title);
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(group);
   rows->setContentsMargins(_margin, _margin, _margin, _margin);
   rows->setSpacing(0);
   rows->addWidget(_widget);
-  group->setLayout(rows);
   return group;
 }
 
@@ -62,8 +61,7 @@ QVBoxLayout* createFixedWidthQVBoxLayout(int _width, QBoxLayout* _parent)
   widget->setFixedWidth(_width);
   _parent->addWidget(widget);
 
-  const auto layout = new QVBoxLayout();
-  widget->setLayout(layout);
+  const auto layout = new QVBoxLayout(widget);
 
   return layout;
 }
@@ -76,8 +74,7 @@ QHBoxLayout* createFixedHeightQHBoxLayout(int _height, QBoxLayout* _parent)
   widget->setFixedHeight(_height);
   _parent->addWidget(widget);
 
-  const auto layout = new QHBoxLayout();
-  widget->setLayout(layout);
+  const auto layout = new QHBoxLayout(widget);
 
   return layout;
 }
@@ -103,8 +100,9 @@ QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* _parent)
   const auto scroll_area = new ScrollArea();
   _parent->addWidget(scroll_area);
 
-  const auto rows = new QVBoxLayout();
-  scroll_area->setLayout(rows);
+  const auto content = new QWidget();
+  const auto rows = new QVBoxLayout(content);
+  scroll_area->setWidget(content);
 
   return rows;
 }

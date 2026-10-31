@@ -9,8 +9,7 @@ namespace tobas::gui::sa::ctrl
 {
 FixedWingWidget::FixedWingWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   rows->addStretch();
 }

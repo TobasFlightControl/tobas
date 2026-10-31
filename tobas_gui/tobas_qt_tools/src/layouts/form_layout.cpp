@@ -11,11 +11,9 @@ namespace tobas::qt
 {
 void FormLayout::addVAlignedRow(QWidget* _label, QWidget* _field)
 {
-  const auto label_layout = new QHBoxLayout();
-  label_layout->addWidget(_label, 0, Qt::AlignLeft | Qt::AlignVCenter);
-
   const auto label_widget = new QWidget();
-  label_widget->setLayout(label_layout);
+  const auto label_layout = new QHBoxLayout(label_widget);
+  label_layout->addWidget(_label, 0, Qt::AlignLeft | Qt::AlignVCenter);
 
   addRow(label_widget, _field);
 }

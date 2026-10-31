@@ -9,8 +9,7 @@ namespace tobas::gui::sa::propulsion::ice
 {
 EngineResponseWidget::EngineResponseWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   time_const_up_ = new ParamGetterWidget_SpinBox("Time Constant Up", "");  // TODO
   time_const_up_->setMinimum(0);

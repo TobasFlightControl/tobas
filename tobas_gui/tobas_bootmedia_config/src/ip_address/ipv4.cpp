@@ -10,8 +10,7 @@ namespace tobas::gui::bm
 {
 IPv4Widget::IPv4Widget(const QString& _name) : name_(_name)
 {
-  const auto form = new qt::FormLayout();
-  setLayout(form);
+  const auto form = new qt::FormLayout(this);
 
   method_ = new qt::ComboBox();
   method_->addItem("Automatic");

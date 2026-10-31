@@ -19,8 +19,7 @@ StopAtWaypointWidget::StopAtWaypointWidget()
   combobox_->addItem(kPassThroughLabel);
   combobox_->addItem(kStopAtWaypointLabel);
 
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
   cols->addWidget(combobox_);
 
   connect(combobox_, qOverload<int>(&QComboBox::currentIndexChanged), this, &BaseFieldWidget::updated);

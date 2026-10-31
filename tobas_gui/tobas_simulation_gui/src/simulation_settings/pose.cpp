@@ -15,8 +15,7 @@ namespace tobas::gui::sim
 {
 PoseWidget::PoseWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   rows->addWidget(new qt::Label("Initial Pose", cmn::kLabelPSize, QFont::Bold));
 

@@ -11,8 +11,7 @@ namespace tobas::gui::log
 {
 EnginePlotWidget::EnginePlotWidget() : throttle_curve_("Throttle [%]")
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   throttle_plot_ = new QwtPlot2();
   throttle_plot_->setAxisNoLabel(QwtPlot::xBottom);

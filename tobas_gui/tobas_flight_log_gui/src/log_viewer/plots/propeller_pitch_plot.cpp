@@ -12,8 +12,7 @@ namespace tobas::gui::log
 {
 PropellerPitchPlotWidget::PropellerPitchPlotWidget()
 {
-  grid_ = new qt::GridLayout();
-  setLayout(grid_);
+  grid_ = new qt::GridLayout(this);
 }
 
 void PropellerPitchPlotWidget::clear()

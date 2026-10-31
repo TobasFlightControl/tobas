@@ -11,8 +11,7 @@ namespace tobas::gui::log
 {
 AirPressurePlotWidget::AirPressurePlotWidget() : curve_("Pressure [hPa]")
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   plot_ = new QwtPlot2();
   plot_->setAxisNoLabel(QwtPlot::xBottom);

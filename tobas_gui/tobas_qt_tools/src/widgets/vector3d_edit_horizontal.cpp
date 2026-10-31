@@ -9,8 +9,7 @@ namespace tobas::qt
 {
 Vector3dEditHorizontal::Vector3dEditHorizontal(QWidget* _parent) : super(_parent)
 {
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
 
   x_ = new LabeledDoubleSpinBox("X");
   cols->addWidget(x_);

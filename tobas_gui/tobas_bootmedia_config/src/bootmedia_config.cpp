@@ -41,11 +41,9 @@ BootmediaConfigWidget::BootmediaConfigWidget()
   header_cols->addStretch(1);
   header_cols->addWidget(media_manager_);
 
-  const auto root_rows = new QVBoxLayout();
+  const auto root_rows = new QVBoxLayout(this);
   root_rows->addLayout(header_cols);
   root_rows->addWidget(tabs_);
-
-  setLayout(root_rows);
 
   // Connection
   connect(media_manager_, &MediaManagerWidget::connected, this, &self::onMediaConnected);

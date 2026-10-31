@@ -17,8 +17,7 @@ TakeoffMaxSpeedWidget::TakeoffMaxSpeedWidget()
   spin_box_->setValue(1.5);
   spin_box_->setSuffix(" m/s");
 
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
   cols->addWidget(spin_box_);
 
   connect(spin_box_, qOverload<double>(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);

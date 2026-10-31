@@ -32,8 +32,7 @@ MainWidget::MainWidget(const QString& _title, const QString& _icon_path, QWidget
     setWindowIcon(QIcon(_icon_path));
   }
 
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   rows->addWidget(_widget);
 

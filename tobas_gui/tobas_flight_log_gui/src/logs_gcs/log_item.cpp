@@ -24,11 +24,10 @@ FlightLogItemWidgetGCS::FlightLogItemWidgetGCS(const QString& _log_name)
   delete_button_->setFixedWidth(kButtonWidth);
 
   // Layout
-  const auto cols = new QHBoxLayout();
+  const auto cols = new QHBoxLayout(this);
   cols->addWidget(log_name_);
   cols->addWidget(export_button_);
   cols->addWidget(delete_button_);
-  setLayout(cols);
 
   // Connection
   connect(export_button_, &QPushButton::clicked, this, &self::onExportButtonClicked);

@@ -12,8 +12,7 @@ namespace tobas::gui::sim
 {
 WorldWidget_Standard::WorldWidget_Standard()
 {
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
 
   combo_box_ = new qt::ComboBox();
   combo_box_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);

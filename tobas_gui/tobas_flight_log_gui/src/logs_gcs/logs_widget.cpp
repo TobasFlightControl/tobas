@@ -48,11 +48,9 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS() : spinner_(Qt::WindowModal, this)
   cols->addWidget(read_button_);
   cols->addWidget(clean_button_);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addLayout(cols);
   rows->addWidget(log_list_);
-
-  setLayout(rows);
 
   // Connection
   connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);

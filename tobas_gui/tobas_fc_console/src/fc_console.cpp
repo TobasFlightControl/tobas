@@ -56,10 +56,9 @@ FcConsoleWidget::FcConsoleWidget(QWidget* _parent) : QWidget(_parent)
   controls->addWidget(clear_btn);
   controls->addWidget(save_btn);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addLayout(controls);
   rows->addWidget(output_);
-  setLayout(rows);
 
   connect(start_stop_btn_, &qt::ToggleButton::checked, this, &self::onStartButtonClicked);
   connect(start_stop_btn_, &qt::ToggleButton::unchecked, this, &self::onStopButtonClicked);

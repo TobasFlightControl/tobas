@@ -17,8 +17,7 @@ TakeoffMaxJerkWidget::TakeoffMaxJerkWidget()
   spin_box_->setValue(4.0);
   spin_box_->setSuffix(" m/s³");
 
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
   cols->addWidget(spin_box_);
 
   connect(spin_box_, qOverload<double>(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);

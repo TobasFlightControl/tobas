@@ -67,11 +67,9 @@ SuspendedLoadWidget::SuspendedLoadWidget()
   form->addVAlignedRow("Cable Young Modulus", cable_young_);
   form->addVAlignedRow("Cable Cross-Sectional Area", cable_csa_);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addLayout(header_cols);
   rows->addLayout(form);
-
-  setLayout(rows);
 
   // Connection
   connect(attach_detach_btn_, &qt::ToggleButton::checked, this, &self::onAttachButtonClicked);

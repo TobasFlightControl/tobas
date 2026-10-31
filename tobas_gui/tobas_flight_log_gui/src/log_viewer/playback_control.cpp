@@ -27,12 +27,11 @@ PlaybackControlWidget::PlaybackControlWidget()
   remaining_time_ = new QLabel();
 
   // Layout
-  const auto cols = new QHBoxLayout();
+  const auto cols = new QHBoxLayout(this);
   cols->addWidget(play_button_);
   cols->addWidget(current_time_);
   cols->addWidget(slider_);
   cols->addWidget(remaining_time_);
-  setLayout(cols);
 
   // Connection
   connect(play_button_, &QPushButton::toggled, this, &self::onPlayButtonToggled);

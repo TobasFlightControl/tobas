@@ -10,8 +10,7 @@ namespace tobas::gui::sa::propulsion::electric
 {
 BatteryWidget_Other::BatteryWidget_Other()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   nominal_voltage_ = new ParamGetterWidget_DoubleSpinBox("Nominal Voltage", "Nominal voltage of the battery.");
   nominal_voltage_->setDecimals(1);

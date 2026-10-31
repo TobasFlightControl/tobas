@@ -24,11 +24,12 @@ JointStatePublisherWidget::JointStatePublisherWidget(
   const kdl::Tree& _tree)
   : node_(_node), uadf_(_uadf), tree_(_tree), rnd_gen_(rnd_dev_())
 {
-  slider_rows_ = new QVBoxLayout();
+  const auto content = new QWidget();
+  slider_rows_ = new QVBoxLayout(content);
 
   const auto scroll_area = new qt::ScrollArea();
   scroll_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-  scroll_area->setLayout(slider_rows_);
+  scroll_area->setWidget(content);
 
   zero_button_ = new QPushButton("Zero");
   center_button_ = new QPushButton("Center");
@@ -47,11 +48,9 @@ JointStatePublisherWidget::JointStatePublisherWidget(
   button_cols->addWidget(center_button_);
   button_cols->addWidget(random_button_);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(scroll_area);
   rows->addLayout(button_cols);
-
-  setLayout(rows);
 
   // Connection
   connect(zero_button_, &QPushButton::clicked, this, &self::onZeroButtonClicked);

@@ -14,8 +14,7 @@ namespace tobas::gui::sa
 {
 IntGetter::IntGetter(const QString& _name)
 {
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
 
   const auto label = new QLabel(_name + ":");
   label->setFont(qt::DefaultFont(cmn::kBodyPSize));

@@ -182,11 +182,9 @@ GroundControlStationWidget::GroundControlStationWidget(int _argc, char** _argv) 
   header_cols->addWidget(restart_btn_);
   header_cols->addWidget(shutdown_btn_);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addLayout(header_cols);
   rows->addWidget(app_sw_);
-
-  setLayout(rows);
 
   // Connection
   connect(app_btn_group_, &QButtonGroup::idClicked, app_sw_, &QStackedWidget::setCurrentIndex);

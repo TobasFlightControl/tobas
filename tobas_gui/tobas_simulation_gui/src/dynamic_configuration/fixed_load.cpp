@@ -62,11 +62,9 @@ FixedLoadWidget::FixedLoadWidget()
   form->addVAlignedRow("Load Size", load_size_);
   form->addVAlignedRow("Load Mass", load_mass_);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addLayout(header_cols);
   rows->addLayout(form);
-
-  setLayout(rows);
 
   // Connection
   connect(attach_detach_btn_, &qt::ToggleButton::checked, this, &self::onAttachButtonClicked);

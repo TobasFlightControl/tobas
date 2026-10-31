@@ -14,8 +14,7 @@ namespace tobas::gui::sim
 {
 CustomWorldWidget::CustomWorldWidget()
 {
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
 
   file_text_ = new QLineEdit();
   file_text_->setReadOnly(true);

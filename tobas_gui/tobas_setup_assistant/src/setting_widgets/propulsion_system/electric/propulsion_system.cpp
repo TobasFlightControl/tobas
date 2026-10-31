@@ -32,11 +32,9 @@ PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& _uadf)
   qt::addWidgetCenter(new qt::Label("Propulsion Units", cmn::kTitlePSize, QFont::Bold), units_rows);
   units_rows->addWidget(units);
 
-  const auto cols = new QHBoxLayout();
+  const auto cols = new QHBoxLayout(this);
   cols->addLayout(battery_rows, 1);
   cols->addLayout(units_rows, 1);
-
-  setLayout(cols);
 }
 
 const char* PropulsionSystemWidget::name() const

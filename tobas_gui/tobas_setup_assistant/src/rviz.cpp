@@ -57,8 +57,7 @@ RvizWidget::RvizWidget(const uadf::Model& _uadf, const kdl::Tree& _tree)
   inertia_box->setChecked(kDefaultInertiaEnabled);
 
   // Layout.
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
   const auto cols = new QHBoxLayout();
   rows->addWidget(rviz_manager_.widget());
   rows->addLayout(cols);

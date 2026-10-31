@@ -13,8 +13,7 @@ namespace tobas::gui::at
 JointCommandsPublisherWidget::JointCommandsPublisherWidget(const kdl::Tree& _tree, const Drone& _drone)
   : tree_(_tree), drone_(_drone), joint_parser_(_tree)
 {
-  rows_ = new QVBoxLayout();
-  setLayout(rows_);
+  rows_ = new QVBoxLayout(this);
 
   connect(&publish_timer_, &QTimer::timeout, this, &self::publishCurrentValues);
 }

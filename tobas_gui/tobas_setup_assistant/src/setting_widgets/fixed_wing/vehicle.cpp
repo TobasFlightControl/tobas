@@ -14,8 +14,7 @@ namespace tobas::gui::sa::fw
 {
 VehicleParametersWidget::VehicleParametersWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   wing_surface_ = new ParamGetterWidget_DoubleSpinBox("Wing Surface", "");
   wing_surface_->setDecimals(3);

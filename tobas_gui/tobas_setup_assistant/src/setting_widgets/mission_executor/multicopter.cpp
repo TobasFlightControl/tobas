@@ -147,7 +147,7 @@ MulticopterWidget::MulticopterWidget()
   const auto rtl_form = new qt::FormLayout();
   rtl_form->addVAlignedRow("Minimum Altitude (wrt. Launch Point)", rtl_min_alt_);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(new qt::Label("Waypoint", cmn::kLabelPSize, QFont::Bold));
   rows->addLayout(wp_form);
   rows->addWidget(new qt::Label("Takeoff", cmn::kLabelPSize, QFont::Bold));
@@ -156,8 +156,6 @@ MulticopterWidget::MulticopterWidget()
   rows->addLayout(land_form);
   rows->addWidget(new qt::Label("Return-to-Launch", cmn::kLabelPSize, QFont::Bold));
   rows->addLayout(rtl_form);
-
-  setLayout(rows);
 }
 
 void MulticopterWidget::setToDefaults()

@@ -19,8 +19,7 @@ namespace tobas::gui::sim
 {
 WorldWidget::WorldWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   const auto label = new qt::Label("World", cmn::kLabelPSize, QFont::Bold);
   rows->addWidget(label);

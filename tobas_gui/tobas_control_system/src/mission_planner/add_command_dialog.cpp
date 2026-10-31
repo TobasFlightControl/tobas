@@ -29,11 +29,9 @@ AddCommandDialog::AddCommandDialog(QWidget* _parent) : super(_parent)
   cols->addWidget(cancel_button);
   cols->addWidget(ok_button);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(command_list_);
   rows->addLayout(cols);
-
-  setLayout(rows);
 
   // Connection
   connect(command_list_, &QListWidget::itemDoubleClicked, this, &self::onItemDoubleClicked);

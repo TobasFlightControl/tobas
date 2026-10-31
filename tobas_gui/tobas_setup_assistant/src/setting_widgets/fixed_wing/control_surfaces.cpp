@@ -6,7 +6,6 @@
 #include <QDebug>
 #include <QHeaderView>
 #include <QLabel>
-#include <QVBoxLayout>
 
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
@@ -45,9 +44,6 @@ constexpr char kYawCoefLabel[] = "Yaw Coef";
 
 ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& _uadf) : super(0, kNumCols), uadf_(_uadf)
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
-
   setHorizontalHeaderLabels(
     {
       kLinkNameLabel,

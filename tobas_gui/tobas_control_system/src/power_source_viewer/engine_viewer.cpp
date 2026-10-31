@@ -24,11 +24,10 @@ EngineViewerWidget::EngineViewerWidget(const rqt::RosQtBridge& _bridge, const Dr
   oil_temp_->setFixedHeight(kBarHeight);
 
   // Layout
-  const auto form = new qt::FormLayout();
+  const auto form = new qt::FormLayout(this);
   constexpr int kLabelPSize = 12;
   form->addVAlignedRow(new qt::Label("Fuel QTY", kLabelPSize), fuel_quantity_);
   form->addVAlignedRow(new qt::Label("Oil Temp", kLabelPSize), oil_temp_);
-  setLayout(form);
 
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::engineStateReceived, this, &self::engineStateCb, Qt::QueuedConnection);
