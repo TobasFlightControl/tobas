@@ -3,121 +3,105 @@
 
 #include "tobas_control_system/rotors_viewer/speedmeter.hpp"
 
-#include <QtQml/QQmlContext>
-#include <QtQuick/QQuickItem>
+#include <cmath>
 
-#include <tobas_std_tools/check.hpp>
+#include <QVBoxLayout>
 
-#include "tobas_control_system/util.hpp"
+#include <tobas_qt_tools/color.hpp>
 
 namespace tobas::gui::ctrl
 {
 SpeedmeterWidget::SpeedmeterWidget()
 {
-  // Set the size policy and resize mode; otherwise the widget collapses.
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-  setResizeMode(QQuickWidget::SizeRootObjectToView);
 
-  // Load QML.
-  const auto qml_path = getPkgShareDir() / "qml/SpeedMeter.qml";
-  setSource(QUrl::fromLocalFile(QString::fromStdString(qml_path)));
+  top_text_ = new QLabel();
+  top_text_->setAlignment(Qt::AlignCenter);
+
+  gauge_ = new QwtThermo();
+  gauge_->setOrientation(Qt::Vertical);
+  gauge_->setScale(0.0, 100.0);
+  gauge_->setPipeWidth(50);
+  gauge_->setFillBrush(qt::color::cyan500());
+
+  bottom_text_ = new qt::FramedLabel();
+
+  const auto rows = new QVBoxLayout();
+  rows->addWidget(top_text_, 0);
+  rows->addWidget(gauge_, 1);
+  rows->addWidget(bottom_text_, 0);
+  setLayout(rows);
+
+  setAutoFillBackground(true);
+  setBackgroundColor("transparent");
 }
 
 QString SpeedmeterWidget::getBackgroundColor() const
 {
-  return getRectangleObject()->property("color").value<QString>();
+  return palette().color(QPalette::Window).name(QColor::HexArgb);
 }
 
 double SpeedmeterWidget::getMaximumValue() const
 {
-  return getGaugeObject()->property("maximumValue").value<double>();
+  return gauge_->upperBound();
 }
 
 double SpeedmeterWidget::getMinimumValue() const
 {
-  return getGaugeObject()->property("minimumValue").value<double>();
-}
-
-double SpeedmeterWidget::getStepSize() const
-{
-  return getGaugeObject()->property("stepSize").value<double>();
+  return gauge_->lowerBound();
 }
 
 double SpeedmeterWidget::getValue() const
 {
-  return getGaugeObject()->property("value").value<double>();
+  return value_;
 }
 
 QString SpeedmeterWidget::getTopText() const
 {
-  return getTopTextObject()->property("text").value<QString>();
+  return top_text_->text();
 }
 
 QString SpeedmeterWidget::getBottomText() const
 {
-  return getBottomTextObject()->property("text").value<QString>();
+  return bottom_text_->text();
 }
 
 void SpeedmeterWidget::setBackgroundColor(const QString& _text)
 {
-  QMetaObject::invokeMethod(rootObject(), "setBackgroundColor", Q_ARG(QString, _text));
+  auto background_palette = palette();
+  background_palette.setColor(QPalette::Window, QColor(_text));
+  setPalette(background_palette);
 }
 
 void SpeedmeterWidget::setMaximumValue(double _value)
 {
-  QMetaObject::invokeMethod(rootObject(), "setMaximumValue", Q_ARG(double, _value));
+  gauge_->setUpperBound(_value);
 }
 
 void SpeedmeterWidget::setMinimumValue(double _value)
 {
-  QMetaObject::invokeMethod(rootObject(), "setMinimumValue", Q_ARG(double, _value));
-}
-
-void SpeedmeterWidget::setStepSize(double _value)
-{
-  QMetaObject::invokeMethod(rootObject(), "setStepSize", Q_ARG(double, _value));
+  gauge_->setLowerBound(_value);
+  updateGaugeValue();
 }
 
 void SpeedmeterWidget::setValue(double _value)
 {
-  QMetaObject::invokeMethod(rootObject(), "setValue", Q_ARG(double, _value));
+  value_ = _value;
+  updateGaugeValue();
 }
 
 void SpeedmeterWidget::setTopText(const QString& _text)
 {
-  QMetaObject::invokeMethod(rootObject(), "setTopText", Q_ARG(QString, _text));
+  top_text_->setText(_text);
 }
 
 void SpeedmeterWidget::setBottomText(const QString& _text)
 {
-  QMetaObject::invokeMethod(rootObject(), "setBottomText", Q_ARG(QString, _text));
+  bottom_text_->setText(_text);
 }
 
-QObject* SpeedmeterWidget::getRectangleObject() const
+void SpeedmeterWidget::updateGaugeValue()
 {
-  const auto rectangle = rootObject();
-  TOBAS_CHECK(rectangle);
-  return rectangle;
-}
-
-QObject* SpeedmeterWidget::getGaugeObject() const
-{
-  const auto gauge = rootObject()->findChild<QObject*>("gauge");
-  TOBAS_CHECK(gauge);
-  return gauge;
-}
-
-QObject* SpeedmeterWidget::getTopTextObject() const
-{
-  const auto top_text = rootObject()->findChild<QObject*>("topText");
-  TOBAS_CHECK(top_text);
-  return top_text;
-}
-
-QObject* SpeedmeterWidget::getBottomTextObject() const
-{
-  const auto bottom_text = rootObject()->findChild<QObject*>("bottomText");
-  TOBAS_CHECK(bottom_text);
-  return bottom_text;
+  gauge_->setValue(value_);
 }
 }  // namespace tobas::gui::ctrl

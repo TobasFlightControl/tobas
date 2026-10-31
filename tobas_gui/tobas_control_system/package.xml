@@ -11,6 +11,7 @@
   <depend>magic_enum</depend>
   <depend>qt6-declarative-dev</depend>
   <depend>qt6-positioning-dev</depend>
+  <depend>tobas_qwt_vendor</depend>
 
   <depend>tobas_path_tools</depend>
   <depend>tobas_ros2_tools</depend>

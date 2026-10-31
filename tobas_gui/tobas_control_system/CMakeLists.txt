@@ -15,6 +15,7 @@ set(AMENT_DEPENDENCIES
     magic_enum
     Qt6QuickWidgets
     Qt6Positioning
+    tobas_qwt_vendor
     tobas_path_tools
     tobas_ros2_tools
     tobas_constants
@@ -45,6 +46,7 @@ target_link_libraries(
   magic_enum::magic_enum
   Qt6::QuickWidgets
   Qt6::Positioning
+  tobas_qwt_vendor::qwt
   tobas_path_tools::tobas_path_tools
   tobas_ros2_tools::tobas_ros2_tools
   tobas_constants::tobas_constants
