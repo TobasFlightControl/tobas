@@ -24,7 +24,6 @@ Vendoring is limited to the files needed to build Tobas.
 Each vendor package documents its upstream provenance and update
 procedure:
 
-- [`tobas_inja_vendor`](./tobas_inja_vendor/README.md)
 - [`tobas_qwt_vendor`](./tobas_qwt_vendor/README.md)
 - [`tobas_rapidcsv_vendor`](./tobas_rapidcsv_vendor/README.md)
 

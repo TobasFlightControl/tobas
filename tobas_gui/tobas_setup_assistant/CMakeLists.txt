@@ -15,7 +15,6 @@ set(AMENT_DEPENDENCIES
     magic_enum
     sensor_msgs
     visualization_msgs
-    tobas_inja_vendor
     tobas_rapidcsv_vendor
     tobas_string_tools
     tobas_xml_tools
@@ -37,6 +36,9 @@ foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(INJA REQUIRED IMPORTED_TARGET inja)
+
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
@@ -46,10 +48,10 @@ file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} s
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 target_link_libraries(
   ${PROJECT_NAME}
+  PkgConfig::INJA
   magic_enum::magic_enum
   sensor_msgs::sensor_msgs
   visualization_msgs::visualization_msgs
-  tobas_inja_vendor::inja
   tobas_rapidcsv_vendor::rapidcsv
   tobas_string_tools::tobas_string_tools
   tobas_xml_tools::tobas_xml_tools

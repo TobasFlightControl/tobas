@@ -14,7 +14,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(AMENT_DEPENDENCIES
     magic_enum
     ament_index_cpp
-    tobas_inja_vendor
     tobas_std_tools
     tobas_path_tools
     tobas_linux
@@ -33,6 +32,7 @@ foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
 endforeach()
 
 find_package(PkgConfig REQUIRED)
+pkg_check_modules(INJA REQUIRED IMPORTED_TARGET inja)
 pkg_check_modules(SIMPLEINI REQUIRED IMPORTED_TARGET simpleini)
 
 add_definitions(-DQT_NO_KEYWORDS)
@@ -44,10 +44,10 @@ file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} s
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 target_link_libraries(
   ${PROJECT_NAME}
+  PkgConfig::INJA
   PkgConfig::SIMPLEINI
   magic_enum::magic_enum
   ament_index_cpp::ament_index_cpp
-  tobas_inja_vendor::inja
   tobas_std_tools::tobas_std_tools
   tobas_path_tools::tobas_path_tools
   tobas_linux::tobas_linux
