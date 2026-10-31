@@ -20,6 +20,10 @@ namespace tobas::gui::ub::utils
       const auto sphere = ::urdf::dynamic_pointer_cast<::urdf::Sphere>(_geometry);
       return std::make_shared<::urdf::Sphere>(*sphere);
     }
+    case ::urdf::Geometry::CAPSULE: {
+      const auto capsule = ::urdf::dynamic_pointer_cast<::urdf::Capsule>(_geometry);
+      return std::make_shared<::urdf::Capsule>(*capsule);
+    }
     case ::urdf::Geometry::MESH: {
       const auto mesh = ::urdf::dynamic_pointer_cast<::urdf::Mesh>(_geometry);
       return std::make_shared<::urdf::Mesh>(*mesh);

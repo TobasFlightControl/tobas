@@ -746,6 +746,9 @@ void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& _visual)
       geometry_vm->radius(ui_->VisualGeometryCylinderRadiusSpinBox->value());
       geometry_vm->length(ui_->VisualGeometryCylinderLengthSpinBox->value());
       break;
+    case GeometryType::CAPSULE:  // TODO
+      qWarning() << "Capsule geometry is not supported.";
+      break;
     case GeometryType::MESH:
       geometry_vm->filePath(ui_->VisualGeometryMeshPathLineEdit->text());
       const auto scale = ui_->VisualGeometryMeshScaleSpinBox->value();
@@ -790,6 +793,9 @@ void UpdateLinkDialog::readFromUI(const view_model::CollisionViewModelPtr& _coll
     case GeometryType::CYLINDER:
       geometry_vm->radius(ui_->CollisionGeometryCylinderRadiusSpinBox->value());
       geometry_vm->length(ui_->CollisionGeometryCylinderLengthSpinBox->value());
+      break;
+    case GeometryType::CAPSULE:  // TODO
+      qWarning() << "Capsule geometry is not supported.";
       break;
     case GeometryType::MESH:
       geometry_vm->filePath(ui_->CollisionGeometryMeshPathLineEdit->text());
