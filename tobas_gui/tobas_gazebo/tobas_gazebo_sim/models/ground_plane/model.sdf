@@ -52,7 +52,7 @@
 
         <material>
           <script>
-            <!-- Since `gz_sim_vendor/share/gz/gz-sim8` is added to the path by dsv, this can be imported by relative path. -->
+            <!-- Since `gz_sim_vendor/share/gz/gz-sim` is added to the path by dsv, this can be imported by relative path. -->
             <uri>media/gazebo.material</uri>
             <name>Gazebo/Gray</name>
           </script>
