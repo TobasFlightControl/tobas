@@ -29,8 +29,7 @@ SpeedmeterWidget::SpeedmeterWidget()
   bottom_text_ = new qt::FramedLabel();
 
   const auto rows = new QVBoxLayout(this);
-  const auto margins = rows->contentsMargins();
-  rows->setContentsMargins(margins.left(), 0, margins.right(), margins.bottom());
+  rows->setContentsMargins(0, 0, 0, 0);
   rows->setSpacing(2);
   rows->addWidget(top_text_, 0);
   rows->addWidget(gauge_, 1);
