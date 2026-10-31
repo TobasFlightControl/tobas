@@ -15,17 +15,17 @@ namespace tobas
 {
 namespace rc
 {
-class PosVelAccPitchYawRollYawSideSlipModeController : public BaseController
+class PosVelAccPitchYawRollSideSlipModeController : public BaseController
 {
   static constexpr double kTiltStartAngle = 0.0;                // [rad]
   static constexpr double kTiltFinishAngle = 0.5 * M_PI;        // [rad]
   static constexpr double kBackwardTransitionFinishSpeed = 2.0; // [m/s]
 
-  using self = PosVelAccPitchYawRollYawSideSlipModeController;
+  using self = PosVelAccPitchYawRollSideSlipModeController;
   using super = BaseController;
 
 public:
-  explicit PosVelAccPitchYawRollYawSideSlipModeController();
+  explicit PosVelAccPitchYawRollSideSlipModeController();
 
   bool requireHorizontalPosition() override;
   bool requireVerticalPosition() override;
@@ -66,6 +66,8 @@ private:
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccPitchYaw> multicopter_cmd_pub_;
   ros2::PublisherPtr<tobas_command_msgs::msg::VelRollSideSlipMode> fixed_wing_cmd_pub_;
 
+  void resetFixedWingControllers(const tobas_msgs::Odometry& setpoint, bool landed);
+  void resetMulticopterControllers(const tobas_msgs::Odometry& setpoint, bool landed);
   bool maxHorizontalVelocityCb(const double& p);
   bool maxHorizontalJerkCb(const double& p);
   bool maxVerticalVelocityCb(const double& p);
@@ -74,6 +76,7 @@ private:
   bool maxRollRateCb(const double& p);
   bool maxYawRateCb(const double& p);
   bool maxSideSlipCb(const double& p);
+  bool maxPositionErrorDown(const double& p);
   bool horizontalVelocityExpoCb(const double& p);
   bool verticalVelocityExpoCb(const double& p);
   bool rollExpoCb(const double& p);

@@ -206,7 +206,7 @@ void RCTeleopNode::initializeControllers()
         controllers_[mode] = std::make_unique<AngleSideSlipThrottleVectorController>();
         break;
       case RcCommand::kPosVelAccPitchYawRollSideSlipMode:
-        controllers_[mode] = std::make_unique<PosVelAccPitchYawRollYawSideSlipModeController>();
+        controllers_[mode] = std::make_unique<PosVelAccPitchYawRollSideSlipModeController>();
         break;
       default:
         TOBAS_EXIT("Invalid flight mode: ", (int)mode);

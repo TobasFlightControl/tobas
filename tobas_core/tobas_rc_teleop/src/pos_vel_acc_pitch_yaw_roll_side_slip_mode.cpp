@@ -11,31 +11,31 @@ namespace tobas
 {
 namespace rc
 {
-PosVelAccPitchYawRollYawSideSlipModeController::PosVelAccPitchYawRollYawSideSlipModeController()
+PosVelAccPitchYawRollSideSlipModeController::PosVelAccPitchYawRollSideSlipModeController()
 {
 }
 
-bool PosVelAccPitchYawRollYawSideSlipModeController::requireHorizontalPosition()
-{
-  return true;
-}
-
-bool PosVelAccPitchYawRollYawSideSlipModeController::requireVerticalPosition()
+bool PosVelAccPitchYawRollSideSlipModeController::requireHorizontalPosition()
 {
   return true;
 }
 
-bool PosVelAccPitchYawRollYawSideSlipModeController::requireAttitude()
+bool PosVelAccPitchYawRollSideSlipModeController::requireVerticalPosition()
 {
   return true;
 }
 
-bool PosVelAccPitchYawRollYawSideSlipModeController::requireHeading()
+bool PosVelAccPitchYawRollSideSlipModeController::requireAttitude()
 {
   return true;
 }
 
-void PosVelAccPitchYawRollYawSideSlipModeController::initialize(BaseNode* node, FlightMode mode)
+bool PosVelAccPitchYawRollSideSlipModeController::requireHeading()
+{
+  return true;
+}
+
+void PosVelAccPitchYawRollSideSlipModeController::initialize(BaseNode* node, FlightMode mode)
 {
   node->addDynamicDoubleParam(
     addMode("max_horizontal_velocity", mode), &self::maxHorizontalVelocityCb, this, 0.5, 12, 0, 20, " m/s");
@@ -50,6 +50,8 @@ void PosVelAccPitchYawRollYawSideSlipModeController::initialize(BaseNode* node, 
   node->addDynamicDoubleParam(addMode("max_yaw_rate", mode), &self::maxYawRateCb, this, 15.0, 6, 1, 12, " dps");
   node->addDynamicDoubleParam(addMode("max_side_slip", mode), &self::maxSideSlipCb, this, 1.0, 6, 1, 12, " deg");
   node->addDynamicDoubleParam(
+    addMode("max_position_error_down", mode), &self::maxPositionErrorDown, this, 0.5, 4, 0, 20, " m");
+  node->addDynamicDoubleParam(
     addMode("horizontal_velocity_expo", mode), &self::horizontalVelocityExpoCb, this, 5.0, -6, -20, 20);
   node->addDynamicDoubleParam(
     addMode("vertical_velocity_expo", mode), &self::verticalVelocityExpoCb, this, 5.0, 0, -20, 20);
@@ -60,25 +62,24 @@ void PosVelAccPitchYawRollYawSideSlipModeController::initialize(BaseNode* node, 
   fixed_wing_cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::VelRollSideSlipMode>(topic::kVelRollSideSlipModeCmd);
 }
 
-void PosVelAccPitchYawRollYawSideSlipModeController::reset(
+void PosVelAccPitchYawRollSideSlipModeController::reset(
   const builtin_interfaces::msg::Time& stamp,
   const tobas_msgs::Odometry& setpoint,
-  bool)
+  bool landed)
 {
   t_last_rcin_ = stamp;
 
-  const auto [roll, pitch, yaw] = setpoint.frame.M.getRPY();
-
-  const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.0);
-  const auto tar_vel_G = R_G_B * setpoint.twist.vel;
-  vx_filt_.resetCurrentTrajectoryPoint(tar_vel_G.x(), 0.0);
-  vy_filt_.resetCurrentTrajectoryPoint(tar_vel_G.y(), 0.0);
-  vz_filt_.resetCurrentTrajectoryPoint(tar_vel_G.z(), 0.0);
-
-  tar_yaw_ = setpoint.frame.M.getYaw();
+  // TODO : 逆遷移中にmanual modeからこのモードに入れたときに正しくモードを判断する
+  if (setpoint.twist.vel.norm() < kBackwardTransitionFinishSpeed) {
+    mode_ = ControlMode::MULTICOPTER;
+    resetMulticopterControllers(setpoint, landed);
+  } else {
+    mode_ = ControlMode::FORWARD_TRANSITION;
+    resetFixedWingControllers(setpoint, landed);
+  }
 }
 
-void PosVelAccPitchYawRollYawSideSlipModeController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed)
+void PosVelAccPitchYawRollSideSlipModeController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed)
 {
   // Update timestamp.
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
@@ -90,6 +91,7 @@ void PosVelAccPitchYawRollYawSideSlipModeController::update(const tobas_msgs::RC
   case ControlMode::MULTICOPTER: {
     if (rcin.sub_mode) {
       mode_ = ControlMode::FORWARD_TRANSITION;
+      resetFixedWingControllers(odom, landed);
       break;
     }
     break;
@@ -104,10 +106,12 @@ void PosVelAccPitchYawRollYawSideSlipModeController::update(const tobas_msgs::RC
   case ControlMode::BACKWARD_TRANSITION: {
     if (odom.twist.vel.norm() < kBackwardTransitionFinishSpeed) {
       mode_ = ControlMode::MULTICOPTER;
+      resetMulticopterControllers(odom, landed);
       break;
     }
     if (rcin.sub_mode) {
       mode_ = ControlMode::FORWARD_TRANSITION;
+      resetFixedWingControllers(odom, landed);
       break;
     }
     break;
@@ -212,7 +216,33 @@ void PosVelAccPitchYawRollYawSideSlipModeController::update(const tobas_msgs::RC
   }
 }
 
-bool PosVelAccPitchYawRollYawSideSlipModeController::maxHorizontalVelocityCb(const double& p)
+void PosVelAccPitchYawRollSideSlipModeController::resetFixedWingControllers(const tobas_msgs::Odometry& setpoint, bool)
+{
+  const auto [roll, pitch, yaw] = setpoint.frame.M.getRPY();
+  roll_filt_.resetCurrentTrajectoryPoint(roll);
+}
+
+void PosVelAccPitchYawRollSideSlipModeController::resetMulticopterControllers(const tobas_msgs::Odometry& setpoint, bool landed)
+{
+  const auto [roll, pitch, yaw] = setpoint.frame.M.getRPY();
+
+  const auto R_G_B = kdl::Rotation::RPY(roll, pitch, 0.0);
+  const auto tar_vel_G = R_G_B * setpoint.twist.vel;
+  vx_filt_.resetCurrentTrajectoryPoint(tar_vel_G.x(), 0.0);
+  vy_filt_.resetCurrentTrajectoryPoint(tar_vel_G.y(), 0.0);
+  vz_filt_.resetCurrentTrajectoryPoint(tar_vel_G.z(), 0.0);
+
+  tar_pos_W_ = setpoint.frame.p;
+
+  if (landed) {
+    vz_filt_.resetCurrentTrajectoryPoint(-max_ver_vel_, 0.0);
+    tar_pos_W_.z() -= max_ep_down_;
+  }
+
+  tar_yaw_ = setpoint.frame.M.getYaw();
+}
+
+bool PosVelAccPitchYawRollSideSlipModeController::maxHorizontalVelocityCb(const double& p)
 {
   max_hor_vel_ = p;
   vx_filt_.setMaxVelocity(p);
@@ -220,69 +250,75 @@ bool PosVelAccPitchYawRollYawSideSlipModeController::maxHorizontalVelocityCb(con
   return true;
 }
 
-bool PosVelAccPitchYawRollYawSideSlipModeController::maxHorizontalJerkCb(const double& p)
+bool PosVelAccPitchYawRollSideSlipModeController::maxHorizontalJerkCb(const double& p)
 {
   vx_filt_.setMaxJerk(p);
   vy_filt_.setMaxJerk(p);
   return true;
 }
 
-bool PosVelAccPitchYawRollYawSideSlipModeController::maxVerticalVelocityCb(const double& p)
+bool PosVelAccPitchYawRollSideSlipModeController::maxVerticalVelocityCb(const double& p)
 {
   max_ver_vel_ = p;
   vz_filt_.setMaxVelocity(p);
   return true;
 }
 
-bool PosVelAccPitchYawRollYawSideSlipModeController::maxVerticalJerkCb(const double& p)
+bool PosVelAccPitchYawRollSideSlipModeController::maxVerticalJerkCb(const double& p)
 {
   vz_filt_.setMaxJerk(p);
   return true;
 }
 
-bool PosVelAccPitchYawRollYawSideSlipModeController::maxRollCb(const double& p)
+bool PosVelAccPitchYawRollSideSlipModeController::maxRollCb(const double& p)
 {
   max_roll_ = st::deg2rad(p);
   return true;
 }
 
-bool PosVelAccPitchYawRollYawSideSlipModeController::maxRollRateCb(const double& p)
+bool PosVelAccPitchYawRollSideSlipModeController::maxRollRateCb(const double& p)
 {
   roll_filt_.setMaxVelocity(st::deg2rad(p));
   return true;
 }
 
-bool PosVelAccPitchYawRollYawSideSlipModeController::maxYawRateCb(const double& p)
+bool PosVelAccPitchYawRollSideSlipModeController::maxYawRateCb(const double& p)
 {
   max_yaw_rate_ = st::deg2rad(p);
   return true;
 }
 
-bool PosVelAccPitchYawRollYawSideSlipModeController::maxSideSlipCb(const double& p)
+bool PosVelAccPitchYawRollSideSlipModeController::maxSideSlipCb(const double& p)
 {
   max_side_slip_ = st::deg2rad(p);
   return true;
 }
 
-bool PosVelAccPitchYawRollYawSideSlipModeController::horizontalVelocityExpoCb(const double& p)
+bool PosVelAccPitchYawRollSideSlipModeController::maxPositionErrorDown(const double& p)
+{
+  max_ep_down_ = p;
+  return true;
+}
+
+bool PosVelAccPitchYawRollSideSlipModeController::horizontalVelocityExpoCb(const double& p)
 {
   hor_vel_expo_ = p / kExpoScale;
   return true;
 }
 
-bool PosVelAccPitchYawRollYawSideSlipModeController::verticalVelocityExpoCb(const double& p)
+bool PosVelAccPitchYawRollSideSlipModeController::verticalVelocityExpoCb(const double& p)
 {
   ver_vel_expo_ = p / kExpoScale;
   return true;
 }
 
-bool PosVelAccPitchYawRollYawSideSlipModeController::rollExpoCb(const double& p)
+bool PosVelAccPitchYawRollSideSlipModeController::rollExpoCb(const double& p)
 {
   roll_expo_ = p / kExpoScale;
   return true;
 }
 
-bool PosVelAccPitchYawRollYawSideSlipModeController::yawExpoCb(const double& p)
+bool PosVelAccPitchYawRollSideSlipModeController::yawExpoCb(const double& p)
 {
   yaw_expo_ = p / kExpoScale;
   return true;
