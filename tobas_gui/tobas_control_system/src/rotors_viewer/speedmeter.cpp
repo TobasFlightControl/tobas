@@ -5,6 +5,7 @@
 
 #include <cmath>
 
+#include <QResizeEvent>
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/color.hpp>
@@ -17,6 +18,7 @@ SpeedmeterWidget::SpeedmeterWidget()
 
   top_text_ = new QLabel();
   top_text_->setAlignment(Qt::AlignCenter);
+  top_text_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
   gauge_ = new QwtThermo();
   gauge_->setOrientation(Qt::Vertical);
@@ -26,11 +28,13 @@ SpeedmeterWidget::SpeedmeterWidget()
 
   bottom_text_ = new qt::FramedLabel();
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
+  const auto margins = rows->contentsMargins();
+  rows->setContentsMargins(margins.left(), 0, margins.right(), margins.bottom());
+  rows->setSpacing(2);
   rows->addWidget(top_text_, 0);
   rows->addWidget(gauge_, 1);
   rows->addWidget(bottom_text_, 0);
-  setLayout(rows);
 
   setAutoFillBackground(true);
   setBackgroundColor("transparent");
@@ -98,6 +102,15 @@ void SpeedmeterWidget::setTopText(const QString& _text)
 void SpeedmeterWidget::setBottomText(const QString& _text)
 {
   bottom_text_->setText(_text);
+}
+
+void SpeedmeterWidget::resizeEvent(QResizeEvent* _event)
+{
+  QWidget::resizeEvent(_event);
+
+  // Reserve the available height for the gauge when the meter is compact.
+  constexpr int kMinHeightForBottomText = 180;
+  bottom_text_->setVisible(_event->size().height() >= kMinHeightForBottomText);
 }
 
 void SpeedmeterWidget::updateGaugeValue()

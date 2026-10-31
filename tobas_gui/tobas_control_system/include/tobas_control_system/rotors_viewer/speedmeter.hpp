@@ -31,6 +31,9 @@ public:
   void setTopText(const QString& _text);
   void setBottomText(const QString& _text);
 
+protected:
+  void resizeEvent(QResizeEvent* _event) override;
+
 private:
   QLabel* top_text_;
   QwtThermo* gauge_;
