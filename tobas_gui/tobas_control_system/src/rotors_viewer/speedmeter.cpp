@@ -95,7 +95,7 @@ void SpeedmeterWidget::setBottomText(const QString& _text)
 
 QObject* SpeedmeterWidget::getRectangleObject() const
 {
-  const auto rectangle = rootObject()->findChild<QObject*>("rectangle");
+  const auto rectangle = rootObject();
   TOBAS_CHECK(rectangle);
   return rectangle;
 }
