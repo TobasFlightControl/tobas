@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtLocation
 import QtPositioning
@@ -40,8 +42,8 @@ Rectangle {
   }
 
   function onSetZoomLevel(zoom_level) {
-    requested_zoom = clamp(zoom_level, map.minimumZoomLevel, Constants.maximumZoomLevel);
-    updateZoom();
+    requested_zoom = rectangle.clamp(zoom_level, map.minimumZoomLevel, Constants.maximumZoomLevel);
+    rectangle.updateZoom();
   }
 
   function updateZoom() {
@@ -72,12 +74,12 @@ Rectangle {
 
     PluginParameter {
       name: "osm.mapping.cache.directory"
-      value: SystemInfo.homeDirectory + "/.cache/tobas/tiles/online/"
+      value: SystemInfo.homeDirectory + "/.cache/tobas/tiles/online/" // qmllint disable unqualified
     }
 
     PluginParameter {
       name: "osm.mapping.offline.directory"
-      value: SystemInfo.homeDirectory + "/.cache/tobas/tiles/offline/"
+      value: SystemInfo.homeDirectory + "/.cache/tobas/tiles/offline/" // qmllint disable unqualified
     }
 
     PluginParameter {
@@ -116,8 +118,8 @@ Rectangle {
     zoomLevel: 3
 
     Component.onCompleted: {
-      requested_zoom = zoomLevel;
-      updateZoom();
+      rectangle.requested_zoom = map.zoomLevel;
+      rectangle.updateZoom();
     }
     onSupportedMapTypesChanged: {
       if (supportedMapTypes.length > 0) {
@@ -155,9 +157,10 @@ Rectangle {
       }
       onScaleChanged: delta => {
         // Convert the incremental scale factor to a zoom-level change (2x means +1), then clamp the requested zoom.
-        requested_zoom = clamp(requested_zoom + Math.log2(delta), map.minimumZoomLevel, Constants.maximumZoomLevel);
+        const next_zoom = rectangle.requested_zoom + Math.log2(delta);
+        rectangle.requested_zoom = rectangle.clamp(next_zoom, map.minimumZoomLevel, Constants.maximumZoomLevel);
         // Update the map zoom and apply visual scaling beyond the map's maximum zoom level.
-        updateZoom();
+        rectangle.updateZoom();
         // Keep the saved geographic coordinate under the current finger midpoint while zooming.
         map.alignCoordinateToPoint(anchorCoordinate, centroid.position);
       }
@@ -177,9 +180,10 @@ Rectangle {
         // Compute the zoom value change.
         const delta_zoom = (delta_y / 120.0) * 0.5;
         // Update the target zoom value.
-        requested_zoom = clamp(requested_zoom + delta_zoom, map.minimumZoomLevel, Constants.maximumZoomLevel);
+        const next_zoom = rectangle.requested_zoom + delta_zoom;
+        rectangle.requested_zoom = rectangle.clamp(next_zoom, map.minimumZoomLevel, Constants.maximumZoomLevel);
         // Update zoom and scale.
-        updateZoom();
+        rectangle.updateZoom();
         // Align the original geographic coordinate to the new cursor position.
         map.alignCoordinateToPoint(anchor, p);
         // Accept the wheel event.
@@ -199,9 +203,9 @@ Rectangle {
       sourceItem: Image {
         id: arrowImage
 
-        height: 32 / mapObjectScale()
+        height: 32 / rectangle.mapObjectScale()
         source: "./arrow.png" // Relative path to the icon image.
-        width: 32 / mapObjectScale()
+        width: 32 / rectangle.mapObjectScale()
 
         transform: Rotation {
           id: arrowRotation
@@ -222,35 +226,37 @@ Rectangle {
 
     // WaypointModel
     MapItemView {
-      model: WaypointModel
+      model: WaypointModel // qmllint disable unqualified
       z: 3 // Priority when overlapping other objects.
 
       // `Rectangle` cannot be set as a delegate, so use `MapQuickItem`.
       delegate: MapQuickItem {
         id: waypoint
 
+        required property var model
+
         anchorPoint.x: circle.width / 2
         anchorPoint.y: circle.height / 2
-        coordinate: model.coordinate
+        coordinate: waypoint.model.coordinate
 
         sourceItem: Rectangle {
           id: circle
 
           border.color: "black"
           border.pixelAligned: false // Allow fractional border widths.
-          border.width: 2 / mapObjectScale()
-          color: model.marker_color
-          height: 32 / mapObjectScale()
-          radius: 16 / mapObjectScale() // Setting the radius to half the square side length makes a circle from a square.
-          width: 32 / mapObjectScale()
+          border.width: 2 / rectangle.mapObjectScale()
+          color: waypoint.model.marker_color
+          height: 32 / rectangle.mapObjectScale()
+          radius: 16 / rectangle.mapObjectScale() // Setting the radius to half the square side length makes a circle from a square.
+          width: 32 / rectangle.mapObjectScale()
           x: 0
           y: 0
 
           // Show the number at the center of the circle.
           Text {
             color: "black"
-            font.pixelSize: 16 / mapObjectScale() // Alignment breaks during overzoom unless this is 2 or larger.
-            text: model.index
+            font.pixelSize: 16 / rectangle.mapObjectScale() // Alignment breaks during overzoom unless this is 2 or larger.
+            text: waypoint.model.index
             x: (circle.width - width) / 2
             y: (circle.height - height) / 2
           }
@@ -281,7 +287,7 @@ Rectangle {
               circle.y = 0;
 
               // Notify that the waypoint coordinate has changed.
-              waypointMoved(model.index, new_coord.latitude, new_coord.longitude);
+              rectangle.waypointMoved(waypoint.model.index, new_coord.latitude, new_coord.longitude);
             }
           }
         }
@@ -289,34 +295,42 @@ Rectangle {
     }
 
     MapItemView {
-      model: WaypointModel // Multiple `MapItemView` instances can be defined for one model.
+      model: WaypointModel // qmllint disable unqualified
       z: 2
 
       delegate: MapCircle {
+        id: acceptanceCircle
+
+        required property var model
+
         border.color: "yellow"
-        border.width: 2 / mapObjectScale()
-        center: model.coordinate
+        border.width: 2 / rectangle.mapObjectScale()
+        center: acceptanceCircle.model.coordinate
         color: "transparent"
-        radius: model.acceptance_radius // [m]
+        radius: acceptanceCircle.model.acceptance_radius // [m]
       }
     }
 
     // LineModel
     MapItemView {
-      model: LineModel
+      model: LineModel // qmllint disable unqualified
       z: 1
 
       delegate: MapPolyline {
+        id: missionLine
+
+        required property var model
+
         line.color: "green"
-        line.width: 3 / mapObjectScale()
+        line.width: 3 / rectangle.mapObjectScale()
         path: [
           {
-            "latitude": model.latitude_1,
-            "longitude": model.longitude_1
+            "latitude": missionLine.model.latitude_1,
+            "longitude": missionLine.model.longitude_1
           },
           {
-            "latitude": model.latitude_2,
-            "longitude": model.longitude_2
+            "latitude": missionLine.model.latitude_2,
+            "longitude": missionLine.model.longitude_2
           },
         ]
       }
