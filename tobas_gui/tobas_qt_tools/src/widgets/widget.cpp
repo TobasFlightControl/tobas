@@ -47,6 +47,7 @@ void Widget::setBackgroundColor(QPalette::ColorRole _cr)
   setAutoFillBackground(true);
   auto pal = palette();
   pal.setColor(QPalette::Window, pal.color(_cr));
+  setPalette(pal);
 }
 
 void Widget::drawText(QPainter& _painter, const QString& _text, const QPoint& _center, const QFont& _font)
