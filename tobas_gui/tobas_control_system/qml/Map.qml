@@ -41,7 +41,7 @@ Rectangle {
   }
 
   function onSetZoomLevel(zoom_level) {
-    requested_zoom = root.clamp(zoom_level, map.minimumZoomLevel, Constants.maximumZoomLevel);
+    requested_zoom = clamp(zoom_level, map.minimumZoomLevel, Constants.maximumZoomLevel);
 
     const base_z = Math.min(requested_zoom, map.maximumZoomLevel);
     const extra = Math.max(0, requested_zoom - base_z); // Amount over the limit.
@@ -115,7 +115,7 @@ Rectangle {
     zoomLevel: 3
 
     Component.onCompleted: {
-      root.onSetZoomLevel(map.zoomLevel);
+      root.onSetZoomLevel(zoomLevel);
     }
     onSupportedMapTypesChanged: {
       if (supportedMapTypes.length > 0) {
@@ -138,8 +138,6 @@ Rectangle {
     }
 
     PinchHandler {
-      id: pinch
-
       property var anchorCoordinate
 
       grabPermissions: PointerHandler.TakeOverForbidden
@@ -227,7 +225,7 @@ Rectangle {
 
         anchorPoint.x: circle.width / 2
         anchorPoint.y: circle.height / 2
-        coordinate: waypoint.model.coordinate
+        coordinate: model.coordinate
 
         sourceItem: Rectangle {
           id: circle
@@ -289,15 +287,13 @@ Rectangle {
       z: 2
 
       delegate: MapCircle {
-        id: acceptanceCircle
-
         required property var model
 
         border.color: "yellow"
         border.width: 2 / root.mapObjectScale()
-        center: acceptanceCircle.model.coordinate
+        center: model.coordinate
         color: "transparent"
-        radius: acceptanceCircle.model.acceptance_radius // [m]
+        radius: model.acceptance_radius // [m]
       }
     }
 
@@ -307,20 +303,18 @@ Rectangle {
       z: 1
 
       delegate: MapPolyline {
-        id: missionLine
-
         required property var model
 
         line.color: "green"
         line.width: 3 / root.mapObjectScale()
         path: [
           {
-            "latitude": missionLine.model.latitude_1,
-            "longitude": missionLine.model.longitude_1
+            "latitude": model.latitude_1,
+            "longitude": model.longitude_1
           },
           {
-            "latitude": missionLine.model.latitude_2,
-            "longitude": missionLine.model.longitude_2
+            "latitude": model.latitude_2,
+            "longitude": model.longitude_2
           },
         ]
       }
