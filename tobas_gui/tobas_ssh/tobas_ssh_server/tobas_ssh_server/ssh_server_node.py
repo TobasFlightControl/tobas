@@ -15,7 +15,7 @@ from tobas_ssh_msgs.action import *
 
 from .ssh_client import SSHClientWrapper
 from .scp_progress import RecursiveScpProgress
-from .util import get_local_tree_size
+from .util import get_local_tree_size, shell_command
 
 
 class SSHServerNode(Node):
@@ -95,10 +95,6 @@ class SSHServerNode(Node):
             return res
 
         if req.superuser:
-            if req.command.count("'") > 0:
-                res.success = False
-                res.error_output = "Command with superuser privilege cannot contain single quotation marks."
-                return res
             if req.background:
                 self._cli.exec_command_bg_super(req.command)
                 res.success = True
@@ -212,7 +208,7 @@ class SSHServerNode(Node):
 
         # Create parent directories.
         if goal.parents:
-            mkdir_command = f"mkdir -p {goal.remote_dir}"
+            mkdir_command = shell_command(t"mkdir -p -- {goal.remote_dir}")
             if goal.superuser:
                 success, _, error_output = self._cli.exec_command_super(mkdir_command)
             else:
