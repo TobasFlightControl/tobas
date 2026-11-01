@@ -1,6 +1,7 @@
 import os.path as osp
 from glob import glob
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 pkg_name = "tobas_tile_proxy"
 

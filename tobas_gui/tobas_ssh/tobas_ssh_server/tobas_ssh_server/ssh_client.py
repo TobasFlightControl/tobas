@@ -3,10 +3,10 @@
 
 import os
 import os.path as osp
-import socket
-import stat
 import posixpath
 import shlex
+import socket
+import stat
 from collections.abc import Callable, Sequence
 
 import paramiko

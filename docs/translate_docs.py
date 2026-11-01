@@ -12,8 +12,8 @@ import subprocess
 import sys
 import tempfile
 import time
-from pathlib import Path
 from collections.abc import Sequence
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

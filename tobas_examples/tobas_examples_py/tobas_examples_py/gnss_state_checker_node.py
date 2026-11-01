@@ -3,10 +3,8 @@
 
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
-
-from tobas_msgs.msg import Message
-from tobas_msgs.msg import Gnss
+from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
+from tobas_msgs.msg import Gnss, Message
 
 
 class GnssStateCheckerNode(Node):

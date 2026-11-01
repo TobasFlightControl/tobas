@@ -1,7 +1,8 @@
 import os
 from glob import glob
 from typing import List
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 
 def package_files(directory: str, data_files: List[str]) -> List[str]:

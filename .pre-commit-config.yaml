@@ -54,6 +54,12 @@ repos:
 
   - repo: local
     hooks:
+      - id: isort
+        name: isort
+        entry: isort
+        language: system
+        files: \.(py|tplpy)$
+        exclude: ^tobas_external/
       - id: black
         name: black
         entry: black
