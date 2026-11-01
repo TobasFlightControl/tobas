@@ -354,7 +354,7 @@ void GroundControlStationWidget::setConnectionState(bool _connected)
 
 bool GroundControlStationWidget::waitForHeartbeat() const
 {
-  constexpr int kHeartbeatTimeout = 10000;  // [ms]
+  constexpr auto kHeartbeatTimeout = 10s;
   return static_cast<bool>(rqt::waitForMessage<&rqt::RosQtBridge::remoteHeartbeatReceived>(bridge_, kHeartbeatTimeout));
 }
 
