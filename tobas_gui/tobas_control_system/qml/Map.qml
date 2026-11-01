@@ -7,7 +7,7 @@ import "./map_constants.js" as Constants
 
 // Qt Location: https://doc.qt.io/qt-6/qtlocation-index.html
 Rectangle {
-  id: rectangle
+  id: root
 
   property real requested_zoom: 0.0 // Zoom requested by the user; exceeding the limit is allowed.
 
@@ -41,7 +41,7 @@ Rectangle {
   }
 
   function onSetZoomLevel(zoom_level) {
-    requested_zoom = rectangle.clamp(zoom_level, map.minimumZoomLevel, Constants.maximumZoomLevel);
+    requested_zoom = root.clamp(zoom_level, map.minimumZoomLevel, Constants.maximumZoomLevel);
 
     const base_z = Math.min(requested_zoom, map.maximumZoomLevel);
     const extra = Math.max(0, requested_zoom - base_z); // Amount over the limit.
@@ -115,7 +115,7 @@ Rectangle {
     zoomLevel: 3
 
     Component.onCompleted: {
-      rectangle.onSetZoomLevel(map.zoomLevel);
+      root.onSetZoomLevel(map.zoomLevel);
     }
     onSupportedMapTypesChanged: {
       if (supportedMapTypes.length > 0) {
@@ -153,7 +153,7 @@ Rectangle {
       }
       onScaleChanged: delta => {
         // Convert the incremental scale factor to a zoom-level change (2x means +1).
-        rectangle.onSetZoomLevel(rectangle.requested_zoom + Math.log2(delta));
+        root.onSetZoomLevel(root.requested_zoom + Math.log2(delta));
         // Keep the saved geographic coordinate under the current finger midpoint while zooming.
         map.alignCoordinateToPoint(anchorCoordinate, centroid.position);
       }
@@ -173,7 +173,7 @@ Rectangle {
         // Compute the zoom value change.
         const delta_zoom = (delta_y / 120.0) * 0.5;
         // Update the zoom level.
-        rectangle.onSetZoomLevel(rectangle.requested_zoom + delta_zoom);
+        root.onSetZoomLevel(root.requested_zoom + delta_zoom);
         // Align the original geographic coordinate to the new cursor position.
         map.alignCoordinateToPoint(anchor, p);
         // Accept the wheel event.
@@ -193,9 +193,9 @@ Rectangle {
       sourceItem: Image {
         id: arrowImage
 
-        height: 32 / rectangle.mapObjectScale()
+        height: 32 / root.mapObjectScale()
         source: "./arrow.png" // Relative path to the icon image.
-        width: 32 / rectangle.mapObjectScale()
+        width: 32 / root.mapObjectScale()
 
         transform: Rotation {
           id: arrowRotation
@@ -234,18 +234,18 @@ Rectangle {
 
           border.color: "black"
           border.pixelAligned: false // Allow fractional border widths.
-          border.width: 2 / rectangle.mapObjectScale()
+          border.width: 2 / root.mapObjectScale()
           color: waypoint.model.marker_color
-          height: 32 / rectangle.mapObjectScale()
-          radius: 16 / rectangle.mapObjectScale() // Setting the radius to half the square side length makes a circle from a square.
-          width: 32 / rectangle.mapObjectScale()
+          height: 32 / root.mapObjectScale()
+          radius: 16 / root.mapObjectScale() // Setting the radius to half the square side length makes a circle from a square.
+          width: 32 / root.mapObjectScale()
           x: 0
           y: 0
 
           // Show the number at the center of the circle.
           Text {
             color: "black"
-            font.pixelSize: 16 / rectangle.mapObjectScale() // Alignment breaks during overzoom unless this is 2 or larger.
+            font.pixelSize: 16 / root.mapObjectScale() // Alignment breaks during overzoom unless this is 2 or larger.
             text: waypoint.model.index
             x: (circle.width - width) / 2
             y: (circle.height - height) / 2
@@ -277,7 +277,7 @@ Rectangle {
               circle.y = 0;
 
               // Notify that the waypoint coordinate has changed.
-              rectangle.waypointMoved(waypoint.model.index, new_coord.latitude, new_coord.longitude);
+              root.waypointMoved(waypoint.model.index, new_coord.latitude, new_coord.longitude);
             }
           }
         }
@@ -294,7 +294,7 @@ Rectangle {
         required property var model
 
         border.color: "yellow"
-        border.width: 2 / rectangle.mapObjectScale()
+        border.width: 2 / root.mapObjectScale()
         center: acceptanceCircle.model.coordinate
         color: "transparent"
         radius: acceptanceCircle.model.acceptance_radius // [m]
@@ -312,7 +312,7 @@ Rectangle {
         required property var model
 
         line.color: "green"
-        line.width: 3 / rectangle.mapObjectScale()
+        line.width: 3 / root.mapObjectScale()
         path: [
           {
             "latitude": missionLine.model.latitude_1,
