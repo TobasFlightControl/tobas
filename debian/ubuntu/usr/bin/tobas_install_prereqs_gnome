@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Expand variables in the child bash process.
+# shellcheck disable=SC2016
 env \
   DISPLAY="$DISPLAY" \
   XAUTHORITY="$XAUTHORITY" \
