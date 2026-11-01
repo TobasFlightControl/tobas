@@ -5,7 +5,6 @@ import os
 import os.path as osp
 import posixpath
 import shlex
-import socket
 import stat
 from collections.abc import Callable, Sequence
 
@@ -35,6 +34,7 @@ class SSHClientWrapper:
         self._cli = paramiko.SSHClient()
 
         # Handle cases where the server public key is not included in the client known_hosts.
+        missing_host_policy: paramiko.MissingHostKeyPolicy
         if reject_missing_host:
             missing_host_policy = paramiko.RejectPolicy()
         else:
@@ -81,7 +81,7 @@ class SSHClientWrapper:
         except paramiko.SSHException as e:
             self._cli.close()
             raise RuntimeError(f"Failed to establish an SSH connection: {e}") from e
-        except socket.error as e:
+        except OSError as e:
             self._cli.close()
             raise RuntimeError(f"Failed to connect to {self._user}@{self._host}: {e}") from e
         except Exception as e:
@@ -275,22 +275,24 @@ class SSHClientWrapper:
     def get_remote_tree_size(self, remote_path: str) -> int:
         """Get the total size [bytes] of regular files on the remote side."""
         with self._cli.open_sftp() as sftp:
-            attr = sftp.stat(remote_path)
+            return self._get_remote_tree_size(sftp, remote_path)
 
-            if stat.S_ISREG(attr.st_mode):
-                return int(attr.st_size)
+    def _get_remote_tree_size(self, sftp: paramiko.SFTPClient, remote_path: str) -> int:
+        attr = sftp.stat(remote_path)
 
-            if not stat.S_ISDIR(attr.st_mode):
-                return 0
+        if stat.S_ISREG(attr.st_mode):
+            return int(attr.st_size)
 
-            total = 0
+        if not stat.S_ISDIR(attr.st_mode):
+            return 0
 
-            for child in sftp.listdir_attr(remote_path):
-                child_path = posixpath.join(remote_path, child.filename)
-                if stat.S_ISDIR(child.st_mode):
-                    total += self.get_remote_tree_size(sftp, child_path)
-                elif stat.S_ISREG(child.st_mode):
-                    total += int(child.st_size)
+        total = 0
+        for child in sftp.listdir_attr(remote_path):
+            child_path = posixpath.join(remote_path, child.filename)
+            if stat.S_ISDIR(child.st_mode):
+                total += self._get_remote_tree_size(sftp, child_path)
+            elif stat.S_ISREG(child.st_mode):
+                total += int(child.st_size)
 
         return total
 

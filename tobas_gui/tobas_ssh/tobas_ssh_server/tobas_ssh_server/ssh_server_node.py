@@ -177,7 +177,12 @@ class SSHServerNode(Node):
             goal_handle.abort()
             return result
 
-        total_size = self._cli.get_remote_tree_size(goal.remote_path)
+        try:
+            total_size = self._cli.get_remote_tree_size(goal.remote_path)
+        except Exception as e:
+            result.error_message = f"Failed to get remote tree size: {e}"
+            goal_handle.abort()
+            return result
 
         def callback(transferred: int) -> None:
             feedback = ScpGet.Feedback()
