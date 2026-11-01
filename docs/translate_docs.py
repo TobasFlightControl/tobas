@@ -361,8 +361,7 @@ def run_git(args: Sequence[str], cwd: Path) -> str:
         ["git", *args],
         cwd=cwd,
         check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         text=True,
     )
     return result.stdout
@@ -451,7 +450,7 @@ def validate_block_alignment(base_blocks: Sequence[str], dst_blocks: Sequence[st
             f"({len(base_blocks)} != {len(dst_blocks)})."
         )
 
-    for index, (base_block, dst_block) in enumerate(zip(base_blocks, dst_blocks), start=1):
+    for index, (base_block, dst_block) in enumerate(zip(base_blocks, dst_blocks, strict=True), start=1):
         if masked_markdown_structure(base_block) != masked_markdown_structure(dst_block):
             raise ValueError(f"Markdown structure differs in aligned block {index}.")
 
