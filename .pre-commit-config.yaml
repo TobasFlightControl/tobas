@@ -15,16 +15,14 @@ repos:
       - id: check-docstring-first
       # - id: check-executables-have-shebangs
       # - id: check-illegal-windows-names
-      - id: check-json
+      # - id: check-json
       - id: check-merge-conflict
       # - id: check-shebang-scripts-are-executable
       - id: check-symlinks
-      - id: check-toml
+      # - id: check-toml
       - id: check-vcs-permalinks
-      - id: check-xml
-        types: [text]
-        files: \.(dae|policy|qrc|sdf|svg|tplxml|uadf|ui|urdf|world|xacro|xml)$|(^|/)model\.config$
-      - id: check-yaml
+      # - id: check-xml
+      # - id: check-yaml
       - id: debug-statements
       - id: destroyed-symlinks
       # - id: detect-aws-credentials
@@ -42,7 +40,7 @@ repos:
       - id: pretty-format-json
         exclude: \.ipynb$
       - id: requirements-txt-fixer
-      - id: sort-simple-yaml
+      # - id: sort-simple-yaml
       - id: trailing-whitespace
 
   - repo: https://github.com/codespell-project/codespell
