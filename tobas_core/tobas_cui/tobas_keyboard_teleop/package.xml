@@ -1,22 +1,20 @@
 <package format="3">
+  <name>tobas_keyboard_teleop</name>
+  <version>2.17.0</version>
+  <description>Keyboard teleoperation node that publishes position and yaw commands.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_keyboard_teleop</name>
-	<version>2.17.0</version>
-	<description>Keyboard teleoperation node that publishes position and yaw commands.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>tobas_keyboard</depend>
+  <depend>tobas_node</depend>
+  <depend>tobas_msgs_adapter</depend>
+  <depend>tobas_command_msgs_adapter</depend>
+  <depend>tobas_mission_items</depend>
+  <depend>tobas_mission_msgs</depend>
 
-	<depend>tobas_keyboard</depend>
-	<depend>tobas_node</depend>
-	<depend>tobas_msgs_adapter</depend>
-	<depend>tobas_command_msgs_adapter</depend>
-	<depend>tobas_mission_items</depend>
-	<depend>tobas_mission_msgs</depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

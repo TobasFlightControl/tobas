@@ -1,23 +1,21 @@
 <package format="3">
+  <name>tobas_dynamixel_handler</name>
+  <version>2.17.0</version>
+  <description>ROS 2 nodes for commanding, monitoring, and bridging Dynamixel motors.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_dynamixel_handler</name>
-	<version>2.17.0</version>
-	<description>ROS 2 nodes for commanding, monitoring, and bridging Dynamixel motors.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>std_srvs</depend>
+  <depend>dynamixel_sdk</depend>
 
-	<depend>std_srvs</depend>
-	<depend>dynamixel_sdk</depend>
+  <depend>tobas_node</depend>
+  <depend>tobas_msgs_adapter</depend>
+  <depend>tobas_dynamixel_msgs</depend>
+  <depend>tobas_dynamixel_ros_interface</depend>
 
-	<depend>tobas_node</depend>
-	<depend>tobas_msgs_adapter</depend>
-	<depend>tobas_dynamixel_msgs</depend>
-	<depend>tobas_dynamixel_ros_interface</depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

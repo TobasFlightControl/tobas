@@ -1,5 +1,4 @@
 <package format="3">
-
   <name>tobas_rviz_plugin</name>
   <version>2.17.0</version>
   <description>RViz display plugins for visualizing Tobas vehicles, models, trajectories, and sensor data.</description>
@@ -16,7 +15,6 @@
 
   <export>
     <build_type>ament_cmake</build_type>
-    <rviz plugin="${prefix}/rviz_plugin_description.xml"/>
+    <rviz plugin="${prefix}/rviz_plugin_description.xml" />
   </export>
-
 </package>

@@ -1,5 +1,4 @@
 <package format="3">
-
   <name>tobas_rviz_wrapper</name>
   <version>2.17.0</version>
   <description>Reusable Qt wrapper for embedding and configuring RViz in Tobas applications.</description>
@@ -13,5 +12,4 @@
   <export>
     <build_type>ament_cmake</build_type>
   </export>
-
 </package>

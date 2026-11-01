@@ -1,24 +1,22 @@
 <package format="3">
+  <name>tobas_gazebo</name>
+  <version>2.17.0</version>
+  <description>Aggregation package for Tobas Gazebo simulation integration.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_gazebo</name>
-	<version>2.17.0</version>
-	<description>Aggregation package for Tobas Gazebo simulation integration.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>tobas_gazebo_common</exec_depend>
+  <exec_depend>tobas_gazebo_conversions</exec_depend>
+  <exec_depend>tobas_gazebo_gui_plugins</exec_depend>
+  <exec_depend>tobas_gazebo_msgs</exec_depend>
+  <exec_depend>tobas_gazebo_ros</exec_depend>
+  <exec_depend>tobas_gazebo_sim</exec_depend>
+  <exec_depend>tobas_gazebo_system_plugins</exec_depend>
+  <exec_depend>tobas_gazebo_tools</exec_depend>
 
-	<exec_depend>tobas_gazebo_common</exec_depend>
-	<exec_depend>tobas_gazebo_conversions</exec_depend>
-	<exec_depend>tobas_gazebo_gui_plugins</exec_depend>
-	<exec_depend>tobas_gazebo_msgs</exec_depend>
-	<exec_depend>tobas_gazebo_ros</exec_depend>
-	<exec_depend>tobas_gazebo_sim</exec_depend>
-	<exec_depend>tobas_gazebo_system_plugins</exec_depend>
-	<exec_depend>tobas_gazebo_tools</exec_depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

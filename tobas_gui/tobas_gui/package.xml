@@ -1,47 +1,45 @@
 <package format="3">
+  <name>tobas_gui</name>
+  <version>2.17.0</version>
+  <description>Aggregation package for Tobas desktop, ground-control, visualization, and simulation tools.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_gui</name>
-	<version>2.17.0</version>
-	<description>Aggregation package for Tobas desktop, ground-control, visualization, and simulation tools.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>tobas_actuator_test</exec_depend>
+  <exec_depend>tobas_bootmedia_config</exec_depend>
+  <exec_depend>tobas_colcon_cpp</exec_depend>
+  <exec_depend>tobas_control_system</exec_depend>
+  <exec_depend>tobas_crypt</exec_depend>
+  <exec_depend>tobas_cyclonedds_config</exec_depend>
+  <exec_depend>tobas_fc_console</exec_depend>
+  <exec_depend>tobas_flight_log_gui</exec_depend>
+  <exec_depend>tobas_gamepad</exec_depend>
+  <exec_depend>tobas_gazebo</exec_depend>
+  <exec_depend>tobas_gcs</exec_depend>
+  <exec_depend>tobas_git</exec_depend>
+  <exec_depend>tobas_gui_common</exec_depend>
+  <exec_depend>tobas_parameter_tuning</exec_depend>
+  <exec_depend>tobas_qt_tools</exec_depend>
+  <exec_depend>tobas_qwt_wrapper</exec_depend>
+  <exec_depend>tobas_rqt_bridge</exec_depend>
+  <exec_depend>tobas_rqt_tools</exec_depend>
+  <exec_depend>tobas_rviz_plugin</exec_depend>
+  <exec_depend>tobas_rviz_wrapper</exec_depend>
+  <exec_depend>tobas_sensor_calibration</exec_depend>
+  <exec_depend>tobas_setup_assistant</exec_depend>
+  <exec_depend>tobas_simulation_gui</exec_depend>
+  <exec_depend>tobas_ssh</exec_depend>
+  <exec_depend>tobas_tile_proxy</exec_depend>
+  <exec_depend>tobas_uadf</exec_depend>
+  <exec_depend>tobas_udev</exec_depend>
+  <exec_depend>tobas_urdf_builder</exec_depend>
+  <exec_depend>tobas_urdf_builder_plugin</exec_depend>
+  <exec_depend>tobas_visualization_msgs</exec_depend>
+  <exec_depend>tobas_wpa_supplicant</exec_depend>
 
-	<exec_depend>tobas_actuator_test</exec_depend>
-	<exec_depend>tobas_bootmedia_config</exec_depend>
-	<exec_depend>tobas_colcon_cpp</exec_depend>
-	<exec_depend>tobas_control_system</exec_depend>
-	<exec_depend>tobas_crypt</exec_depend>
-	<exec_depend>tobas_cyclonedds_config</exec_depend>
-	<exec_depend>tobas_fc_console</exec_depend>
-	<exec_depend>tobas_flight_log_gui</exec_depend>
-	<exec_depend>tobas_gamepad</exec_depend>
-	<exec_depend>tobas_gazebo</exec_depend>
-	<exec_depend>tobas_gcs</exec_depend>
-	<exec_depend>tobas_git</exec_depend>
-	<exec_depend>tobas_gui_common</exec_depend>
-	<exec_depend>tobas_parameter_tuning</exec_depend>
-	<exec_depend>tobas_qt_tools</exec_depend>
-	<exec_depend>tobas_qwt_wrapper</exec_depend>
-	<exec_depend>tobas_rqt_bridge</exec_depend>
-	<exec_depend>tobas_rqt_tools</exec_depend>
-	<exec_depend>tobas_rviz_plugin</exec_depend>
-	<exec_depend>tobas_rviz_wrapper</exec_depend>
-	<exec_depend>tobas_sensor_calibration</exec_depend>
-	<exec_depend>tobas_setup_assistant</exec_depend>
-	<exec_depend>tobas_simulation_gui</exec_depend>
-	<exec_depend>tobas_ssh</exec_depend>
-	<exec_depend>tobas_tile_proxy</exec_depend>
-	<exec_depend>tobas_uadf</exec_depend>
-	<exec_depend>tobas_udev</exec_depend>
-	<exec_depend>tobas_urdf_builder</exec_depend>
-	<exec_depend>tobas_urdf_builder_plugin</exec_depend>
-	<exec_depend>tobas_visualization_msgs</exec_depend>
-	<exec_depend>tobas_wpa_supplicant</exec_depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

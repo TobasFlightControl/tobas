@@ -1,5 +1,4 @@
 <package format="3">
-
   <name>tobas_setup_assistant</name>
   <version>2.17.0</version>
   <description>Qt setup assistant for configuring Tobas projects, vehicles, and runtime environments.</description>
@@ -41,5 +40,4 @@
   <export>
     <build_type>ament_cmake</build_type>
   </export>
-
 </package>

@@ -1,15 +1,13 @@
 <package format="3">
+  <name>tobas_dynamixel_ros_interface</name>
+  <version>2.17.0</version>
+  <description>C++ ROS 2 interface helpers for Dynamixel command and state topics.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_dynamixel_ros_interface</name>
-	<version>2.17.0</version>
-	<description>C++ ROS 2 interface helpers for Dynamixel command and state topics.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

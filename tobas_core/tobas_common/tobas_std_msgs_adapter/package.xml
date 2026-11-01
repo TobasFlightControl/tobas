@@ -1,20 +1,18 @@
 <package format="3">
+  <name>tobas_std_msgs_adapter</name>
+  <version>2.17.0</version>
+  <description>ROS 2 type adapters for extended standard scalar and pair messages.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_std_msgs_adapter</name>
-	<version>2.17.0</version>
-	<description>ROS 2 type adapters for extended standard scalar and pair messages.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclcpp</depend>
 
-	<depend>rclcpp</depend>
+  <depend>tobas_std_tools</depend>
+  <depend>tobas_std_msgs</depend>
 
-	<depend>tobas_std_tools</depend>
-	<depend>tobas_std_msgs</depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

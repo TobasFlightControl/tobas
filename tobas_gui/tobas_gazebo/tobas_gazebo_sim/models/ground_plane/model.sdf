@@ -1,12 +1,9 @@
 <sdf version="1.10">
   <model name="ground_plane">
-
     <static>true</static>
 
     <link name="link">
-
       <collision name="collision">
-
         <!-- Limiting the maximum number of contact points improves computation speed but reduces accuracy. -->
         <!-- <max_contacts>4</max_contacts> -->
 
@@ -38,11 +35,9 @@
             </ode>
           </contact>
         </surface>
-
       </collision>
 
       <visual name="visual">
-
         <geometry>
           <plane>
             <normal>0 0 1</normal>
@@ -57,10 +52,7 @@
             <name>Gazebo/Gray</name>
           </script>
         </material>
-
       </visual>
-
     </link>
-
   </model>
 </sdf>

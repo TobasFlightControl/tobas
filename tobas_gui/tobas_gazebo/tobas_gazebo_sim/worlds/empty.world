@@ -1,15 +1,14 @@
 <sdf version="1.10">
   <world name="empty">
-
     <physics type="ignored">
       <max_step_size>0.001</max_step_size>
       <real_time_factor>1.0</real_time_factor>
     </physics>
 
-    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
-    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
-    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
-    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics" />
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands" />
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster" />
+    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact" />
     <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
       <render_engine>ogre2</render_engine>
     </plugin>
@@ -93,9 +92,12 @@
 
     <spherical_coordinates>
       <surface_model>EARTH_WGS84</surface_model>
-      <latitude_deg>35.658099</latitude_deg>      <!-- Japanese geodetic datum origin: 35 deg 39 min 29 sec north latitude -->
-      <longitude_deg>139.741354</longitude_deg>      <!-- Japanese geodetic datum origin: 139 deg 44 min 28.8759 sec east longitude -->
-      <elevation>24.39</elevation>      <!-- Japanese leveling origin: https://www.gsi.go.jp/sokuchikijun/suijun-base.html -->
+      <latitude_deg>35.658099</latitude_deg>
+      <!-- Japanese geodetic datum origin: 35 deg 39 min 29 sec north latitude -->
+      <longitude_deg>139.741354</longitude_deg>
+      <!-- Japanese geodetic datum origin: 139 deg 44 min 28.8759 sec east longitude -->
+      <elevation>24.39</elevation>
+      <!-- Japanese leveling origin: https://www.gsi.go.jp/sokuchikijun/suijun-base.html -->
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
 
@@ -106,6 +108,5 @@
     <include>
       <uri>models/ground_plane</uri>
     </include>
-
   </world>
 </sdf>

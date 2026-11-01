@@ -1,5 +1,4 @@
 <package format="3">
-
   <name>tobas_control_system</name>
   <version>2.17.0</version>
   <description>Qt control dashboard for monitoring vehicles and planning and executing missions.</description>
@@ -36,5 +35,4 @@
   <export>
     <build_type>ament_cmake</build_type>
   </export>
-
 </package>

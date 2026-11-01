@@ -1,5 +1,4 @@
 <package format="3">
-
   <name>tobas_bootmedia_config</name>
   <version>2.17.0</version>
   <description>Qt application for configuring Tobas boot media, networking, login, and SSH access.</description>
@@ -29,5 +28,4 @@
   <export>
     <build_type>ament_cmake</build_type>
   </export>
-
 </package>

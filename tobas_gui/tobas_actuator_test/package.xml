@@ -1,5 +1,4 @@
 <package format="3">
-
   <name>tobas_actuator_test</name>
   <version>2.17.0</version>
   <description>Qt application for testing actuators and visualizing actuator commands.</description>
@@ -20,5 +19,4 @@
   <export>
     <build_type>ament_cmake</build_type>
   </export>
-
 </package>

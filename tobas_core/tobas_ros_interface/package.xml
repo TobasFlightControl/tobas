@@ -1,26 +1,26 @@
 <package format="3">
+  <name>tobas_ros_interface</name>
+  <version>2.17.0</version>
+  <description>
+    ROS 2 boundary node that routes Tobas logic topics, services, and actions to external interfaces.
+  </description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_ros_interface</name>
-	<version>2.17.0</version>
-	<description>ROS 2 boundary node that routes Tobas logic topics, services, and actions to external interfaces.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>std_srvs</depend>
 
-	<depend>std_srvs</depend>
+  <depend>tobas_node</depend>
+  <depend>tobas_tools</depend>
+  <depend>tobas_kdl_msgs</depend>
+  <depend>tobas_msgs</depend>
+  <depend>tobas_drone_msgs</depend>
+  <depend>tobas_real_common</depend>
+  <depend>tobas_real_msgs</depend>
+  <depend>tobas_mission_msgs</depend>
 
-	<depend>tobas_node</depend>
-	<depend>tobas_tools</depend>
-	<depend>tobas_kdl_msgs</depend>
-	<depend>tobas_msgs</depend>
-	<depend>tobas_drone_msgs</depend>
-	<depend>tobas_real_common</depend>
-	<depend>tobas_real_msgs</depend>
-	<depend>tobas_mission_msgs</depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

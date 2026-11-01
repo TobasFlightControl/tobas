@@ -1,22 +1,20 @@
 <package format="3">
+  <name>tobas_gazebo_gui_plugins</name>
+  <version>2.17.0</version>
+  <description>Gazebo GUI plugins for Tobas simulation control and visualization.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_gazebo_gui_plugins</name>
-	<version>2.17.0</version>
-	<description>Gazebo GUI plugins for Tobas simulation control and visualization.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>gz_sim_vendor</depend>
+  <depend>gz_plugin_vendor</depend>
 
-	<depend>gz_sim_vendor</depend>
-	<depend>gz_plugin_vendor</depend>
+  <depend>tobas_gazebo_common</depend>
+  <depend>tobas_gazebo_conversions</depend>
+  <depend>tobas_gazebo_tools</depend>
 
-	<depend>tobas_gazebo_common</depend>
-	<depend>tobas_gazebo_conversions</depend>
-	<depend>tobas_gazebo_tools</depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

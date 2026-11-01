@@ -1,22 +1,20 @@
 <package format="3">
-
-	<name>tobas_debug_tools</name>
-	<version>2.17.0</version>
-	<description>
-		Package containing simple nodes for debugging.
+  <name>tobas_debug_tools</name>
+  <version>2.17.0</version>
+  <description>
+    Package containing simple nodes for debugging.
 		Topics published by nodes in this package are used only for verification.
-	</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  </description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>tobas_dsp</depend>
-	<depend>tobas_node</depend>
-	<depend>tobas_msgs_adapter</depend>
+  <depend>tobas_dsp</depend>
+  <depend>tobas_node</depend>
+  <depend>tobas_msgs_adapter</depend>
 
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

@@ -1,5 +1,4 @@
 <package format="3">
-
   <name>tobas_qt_tools</name>
   <version>2.17.0</version>
   <description>Reusable Qt widgets, models, dialogs, validators, and application utilities.</description>
@@ -18,5 +17,4 @@
   <export>
     <build_type>ament_cmake</build_type>
   </export>
-
 </package>
