@@ -250,6 +250,12 @@ class SSHClientWrapper:
 
     def sftp_write_super(self, remote_path: str, text: str) -> None:
         """Write to a file requiring root privileges."""
+        # Create the parent directory before uploading the temporary file.
+        remote_pardir = posixpath.dirname(remote_path) or "."
+        success, _, error_output = self.exec_command_super(shell_command(t"mkdir -p -- {remote_pardir}"))
+        if not success:
+            raise RuntimeError(f"Failed to create remote directory {remote_pardir}: {error_output}")
+
         # Path of the temporary file.
         tmp_path = osp.join("/tmp", osp.basename(remote_path))
 
