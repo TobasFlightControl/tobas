@@ -23,7 +23,7 @@ repos:
       - id: check-vcs-permalinks
       - id: check-xml
         types: [text]
-        files: \.(xml|xacro|urdf|svg|world|dae|uadf|tplxml|qrc|ui|sdf|policy)$
+        files: \.(dae|policy|qrc|sdf|svg|tplxml|uadf|ui|urdf|world|xacro|xml)$|(^|/)model\.config$
       - id: check-yaml
       - id: debug-statements
       - id: destroyed-symlinks
@@ -112,16 +112,35 @@ repos:
         entry: /usr/lib/qt6/bin/qmllint --max-warnings 0
         language: system
         files: \.qml$
+      - id: prettier-yaml
+        name: prettier-yaml
+        entry: prettier --write
+        language: node
+        language_version: lts
+        additional_dependencies:
+          - prettier
+        types: [text]
+        files: \.(mission|rviz|tbsdrn|yaml|yml)$|(^|/)\.(clang-format|clang-tidy|cmake-format)$
+      - id: prettier-xml
+        name: prettier-xml
+        entry: prettier --write
+        language: node
+        language_version: lts
+        additional_dependencies:
+          - prettier
+          - "@prettier/plugin-xml"
+        types: [text]
+        files: \.(dae|policy|qrc|sdf|svg|tplxml|uadf|ui|urdf|world|xacro|xml)$|(^|/)model\.config$
       - id: prettier-markdown
         name: prettier-markdown
         # Add spaces between Japanese text/punctuation and alphanumerics.
         entry: sh -c 'textlint --fix --config config/textlintrc.json "$@" && prettier --write "$@"' --
         language: node
-        language_version: 22.17.1
+        language_version: lts
         additional_dependencies:
-          - "prettier@3.6.2"
-          - "textlint@15.8.0"
-          - "textlint-rule-ja-space-between-half-and-full-width@3.0.3"
+          - prettier
+          - textlint
+          - textlint-rule-ja-space-between-half-and-full-width
         files: \.md$
       - id: normalize-japanese-punctuation
         name: normalize Japanese punctuation

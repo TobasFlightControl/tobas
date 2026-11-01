@@ -6,5 +6,6 @@ build/
 log/
 __pycache__/
 .venv/
+node_modules/
 docs/site/
 debian/ubuntu/opt/
