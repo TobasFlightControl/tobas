@@ -10,7 +10,7 @@ def generate_launch_description():
         Node(
             package="rclcpp_components",
             executable="component_container",
-            name=f"component_manager",
+            name="component_manager",
             output="screen",
         )
     )

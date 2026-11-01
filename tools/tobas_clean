@@ -32,7 +32,7 @@ sudo rm /etc/tobas/config/*
 sudo rm -rf /etc/tobas/rosbag/*
 
 # Clean user workspace
-cd /etc/tobas/colcon_ws/
+cd /etc/tobas/colcon_ws/ || exit
 sudo colcon clean workspace -y
 sudo rm -rf ./src/*
 

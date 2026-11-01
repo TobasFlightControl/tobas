@@ -8,8 +8,8 @@ from rclpy.node import Node
 from rclpy.parameter import Parameter
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 from std_msgs.msg import String
-from tobas_ssh_msgs.action import *
-from tobas_ssh_msgs.srv import *
+from tobas_ssh_msgs.action import ScpGet, ScpPut
+from tobas_ssh_msgs.srv import Connect, Execute, List, SetEndpoint, SftpRead, SftpWrite
 
 from .scp_progress import RecursiveScpProgress
 from .ssh_client import SSHClientWrapper

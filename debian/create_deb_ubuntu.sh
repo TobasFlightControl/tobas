@@ -3,14 +3,14 @@
 set -e
 
 # Set paths.
-pardir=$(realpath $(dirname "$0"))
+pardir=$(realpath "$(dirname "$0")")
 ubuntu_workspace=${pardir}/ubuntu
 tmp_build_dir=${ROS2_WORKSPACE}/tmp # Temporal build directory
 install_base=${ubuntu_workspace}/opt/ros/lyrical
 build_base=${tmp_build_dir}/build
 
 # Navigate to the colcon workspace.
-cd ${ROS2_WORKSPACE}
+cd "${ROS2_WORKSPACE}"
 
 # Set log path.
 export COLCON_LOG_PATH=${tmp_build_dir}/log
@@ -19,9 +19,9 @@ export COLCON_LOG_PATH=${tmp_build_dir}/log
 colcon build \
   --merge-install \
   --packages-up-to tobas \
-  --parallel-workers $(nproc) \
-  --install-base ${install_base} \
-  --build-base ${build_base} \
+  --parallel-workers "$(nproc)" \
+  --install-base "${install_base}" \
+  --build-base "${build_base}" \
   --cmake-args -DCMAKE_BUILD_TYPE=Release
 
 # Remove colcon-generated prefix-level files and directories that are not package installation destinations.
@@ -34,7 +34,7 @@ find "${install_base}" -mindepth 1 -maxdepth 1 \
   -exec rm -rf -- {} +
 
 # Create deb package.
-fakeroot dpkg-deb --build ${ubuntu_workspace} ${pardir}
+fakeroot dpkg-deb --build "${ubuntu_workspace}" "${pardir}"
 
 # Remove generated objects.
-rm -rf ${tmp_build_dir} ${ubuntu_workspace}/opt/ros/lyrical
+rm -rf "${tmp_build_dir}" "${ubuntu_workspace}"/opt/ros/lyrical

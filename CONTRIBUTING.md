@@ -13,7 +13,7 @@ See [Setup](./SETUP.md) for source checkout, PC build, and FC deployment instruc
 Install dependencies:
 
 ```bash
-$ sudo apt install -y pre-commit isort black shfmt clang-format cmake-format qt6-declarative-dev-tools
+$ sudo apt install -y pre-commit isort black shfmt shellcheck clang-format cmake-format qt6-declarative-dev-tools qml6-module-qtqml qml6-module-qtquick qml6-module-qtlocation qml6-module-qtpositioning
 ```
 
 To check all:
@@ -36,7 +36,7 @@ $ pre-commit autoupdate
 
 ## Clang-Tidy
 
-Install clang-tidy 20:
+Install clang-tidy:
 
 ```bash
 $ sudo apt install -y clang-tidy

@@ -28,4 +28,4 @@ rsync -rcmv --delete \
   --exclude .git/ \
   --exclude tobas_cui/ \
   --exclude tobas_description/ \
-  pi@$1:${dest_dir}/
+  pi@"$1":${dest_dir}/

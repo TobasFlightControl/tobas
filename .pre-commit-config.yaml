@@ -22,6 +22,8 @@ repos:
       - id: check-toml
       - id: check-vcs-permalinks
       - id: check-xml
+        types: [text]
+        files: \.(xml|xacro|urdf|svg|world|dae|uadf|tplxml|qrc|ui|sdf|policy)$
       - id: check-yaml
       - id: debug-statements
       - id: destroyed-symlinks
@@ -73,6 +75,13 @@ repos:
         args: ["-w"]
         types: [shell]
         exclude: ^tobas_external/
+      - id: shellcheck
+        name: shellcheck
+        entry: shellcheck
+        language: system
+        args: ["--rcfile=config/shellcheckrc"]
+        types: [shell]
+        exclude: ^tobas_external/
       - id: clang-format
         name: clang-format
         entry: clang-format
@@ -97,6 +106,11 @@ repos:
         entry: /usr/lib/qt6/bin/qmlformat
         language: system
         args: ["-i"]
+        files: \.qml$
+      - id: qmllint
+        name: qmllint
+        entry: /usr/lib/qt6/bin/qmllint --max-warnings 0
+        language: system
         files: \.qml$
       - id: prettier-markdown
         name: prettier-markdown
