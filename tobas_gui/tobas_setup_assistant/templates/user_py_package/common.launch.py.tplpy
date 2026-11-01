@@ -1,7 +1,7 @@
 # Do not delete or rename this file because it is executed in {{ config_pkg_name }}/common_interface.launch.py.
 
 from launch import LaunchDescription
-# from launch_ros.actions import Node
+from launch_ros.actions import Node
 
 
 def generate_launch_description():

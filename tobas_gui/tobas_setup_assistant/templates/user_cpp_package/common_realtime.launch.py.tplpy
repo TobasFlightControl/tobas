@@ -1,9 +1,9 @@
 # Do not delete or rename this file because it is executed in {{ config_pkg_name }}/common_realtime.launch.py.
 
 from launch import LaunchDescription
-# from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-# from launch_ros.actions import LoadComposableNodes
-# from launch_ros.descriptions import ComposableNode
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch_ros.actions import LoadComposableNodes
+from launch_ros.descriptions import ComposableNode
 
 
 def generate_launch_description():
