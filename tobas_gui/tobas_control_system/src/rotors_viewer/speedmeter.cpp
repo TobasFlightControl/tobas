@@ -5,6 +5,7 @@
 
 #include <cmath>
 
+#include <QEvent>
 #include <QResizeEvent>
 #include <QVBoxLayout>
 
@@ -14,29 +15,39 @@ namespace tobas::gui::ctrl
 {
 SpeedmeterWidget::SpeedmeterWidget()
 {
-  setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+  setAutoFillBackground(true);
+  setBackgroundColor("transparent");
 
   top_text_ = new QLabel();
   top_text_->setAlignment(Qt::AlignCenter);
-  top_text_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
+  bottom_text_ = new qt::FramedLabel();
+  bottom_text_->setAlignment(Qt::AlignCenter);
 
   gauge_ = new QwtThermo();
   gauge_->setOrientation(Qt::Vertical);
   gauge_->setScale(0.0, 100.0);
   gauge_->setPipeWidth(50);
   gauge_->setFillBrush(qt::color::cyan500());
+  gauge_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+  gauge_->installEventFilter(this);
 
-  bottom_text_ = new qt::FramedLabel();
+  scale_spacer_ = new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Minimum);
+  gauge_row_ = new QHBoxLayout();
+  gauge_row_->setContentsMargins(0, 0, 0, 0);
+  gauge_row_->setSpacing(0);
+  gauge_row_->addStretch();
+  gauge_row_->addWidget(gauge_);
+  gauge_row_->addItem(scale_spacer_);
+  gauge_row_->addStretch();
+  updateGaugeAlignment();
 
   const auto rows = new QVBoxLayout(this);
   rows->setContentsMargins(0, 0, 0, 0);
   rows->setSpacing(2);
   rows->addWidget(top_text_, 0);
-  rows->addWidget(gauge_, 1);
+  rows->addLayout(gauge_row_, 1);
   rows->addWidget(bottom_text_, 0);
-
-  setAutoFillBackground(true);
-  setBackgroundColor("transparent");
 }
 
 QString SpeedmeterWidget::getBackgroundColor() const
@@ -79,11 +90,13 @@ void SpeedmeterWidget::setBackgroundColor(const QString& _text)
 void SpeedmeterWidget::setMaximumValue(double _value)
 {
   gauge_->setUpperBound(_value);
+  updateGaugeAlignment();
 }
 
 void SpeedmeterWidget::setMinimumValue(double _value)
 {
   gauge_->setLowerBound(_value);
+  updateGaugeAlignment();
   updateGaugeValue();
 }
 
@@ -103,6 +116,14 @@ void SpeedmeterWidget::setBottomText(const QString& _text)
   bottom_text_->setText(_text);
 }
 
+bool SpeedmeterWidget::eventFilter(QObject* _watched, QEvent* _event)
+{
+  if (_watched == gauge_ && (_event->type() == QEvent::FontChange || _event->type() == QEvent::StyleChange)) {
+    updateGaugeAlignment();
+  }
+  return QWidget::eventFilter(_watched, _event);
+}
+
 void SpeedmeterWidget::resizeEvent(QResizeEvent* _event)
 {
   QWidget::resizeEvent(_event);
@@ -110,6 +131,14 @@ void SpeedmeterWidget::resizeEvent(QResizeEvent* _event)
   // Reserve the available height for the gauge when the meter is compact.
   constexpr int kMinHeightForBottomText = 180;
   bottom_text_->setVisible(_event->size().height() >= kMinHeightForBottomText);
+}
+
+void SpeedmeterWidget::updateGaugeAlignment()
+{
+  // Balance the scale on the left so the bar shares the labels' horizontal center.
+  const auto scale_width = gauge_->minimumSizeHint().width() - gauge_->pipeWidth() - 2 * gauge_->borderWidth();
+  scale_spacer_->changeSize(scale_width, 0, QSizePolicy::Fixed, QSizePolicy::Minimum);
+  gauge_row_->invalidate();
 }
 
 void SpeedmeterWidget::updateGaugeValue()

@@ -4,6 +4,7 @@
 #pragma once
 
 #include <qwt/qwt_thermo.h>
+#include <QHBoxLayout>
 #include <QLabel>
 
 #include <tobas_qt_tools/widgets/framed_label.hpp>
@@ -32,16 +33,20 @@ public:
   void setBottomText(const QString& _text);
 
 protected:
+  bool eventFilter(QObject* _watched, QEvent* _event) override;
   void resizeEvent(QResizeEvent* _event) override;
 
 private:
   QLabel* top_text_;
-  QwtThermo* gauge_;
   qt::FramedLabel* bottom_text_;
+  QwtThermo* gauge_;
+  QHBoxLayout* gauge_row_;
+  QSpacerItem* scale_spacer_;
 
   double step_size_ = 1.0;
   double value_ = 0.0;
 
+  void updateGaugeAlignment();
   void updateGaugeValue();
 };
 }  // namespace tobas::gui::ctrl
