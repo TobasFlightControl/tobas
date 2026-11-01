@@ -7,13 +7,13 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>tobas_geographic</depend>
-  <depend>tobas_trajectory_generation</depend>
-  <depend>tobas_node</depend>
-  <depend>tobas_msgs_adapter</depend>
   <depend>tobas_command_msgs_adapter</depend>
+  <depend>tobas_geographic</depend>
   <depend>tobas_mission_items</depend>
   <depend>tobas_mission_msgs</depend>
+  <depend>tobas_msgs_adapter</depend>
+  <depend>tobas_node</depend>
+  <depend>tobas_trajectory_generation</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

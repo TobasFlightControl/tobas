@@ -9,12 +9,12 @@
 
   <depend>tobas_qwt_vendor</depend>
 
-  <depend>tobas_drone_core</depend>
   <depend>tobas_dparam_client</depend>
-  <depend>tobas_qt_tools</depend>
-  <depend>tobas_rqt_tools</depend>
-  <depend>tobas_rqt_bridge</depend>
+  <depend>tobas_drone_core</depend>
   <depend>tobas_gui_common</depend>
+  <depend>tobas_qt_tools</depend>
+  <depend>tobas_rqt_bridge</depend>
+  <depend>tobas_rqt_tools</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

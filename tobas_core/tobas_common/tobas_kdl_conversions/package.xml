@@ -7,8 +7,8 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>urdf</depend>
   <depend>geometry_msgs</depend>
+  <depend>urdf</depend>
 
   <depend>tobas_kdl</depend>
 

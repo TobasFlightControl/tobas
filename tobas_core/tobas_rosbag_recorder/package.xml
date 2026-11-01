@@ -10,13 +10,13 @@
   <depend>rosbag2_cpp</depend>
   <depend>std_srvs</depend>
 
-  <depend>tobas_path_tools</depend>
-  <depend>tobas_linux</depend>
-  <depend>tobas_node</depend>
-  <depend>tobas_msgs_adapter</depend>
   <depend>tobas_command_msgs_adapter</depend>
-  <depend>tobas_drone_msgs_adapter</depend>
   <depend>tobas_debug_msgs_adapter</depend>
+  <depend>tobas_drone_msgs_adapter</depend>
+  <depend>tobas_linux</depend>
+  <depend>tobas_msgs_adapter</depend>
+  <depend>tobas_node</depend>
+  <depend>tobas_path_tools</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+"""
+Sort package.xml dependency blocks without rewriting XML formatting.
+
+Blank lines, standalone comments, and changes of dependency tag separate blocks.
+Only direct children of <package> are sorted; inline comments move with the entry.
+"""
+
+import re
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+from xml.parsers import expat
+
+DEPENDENCY_TAGS = {
+    "build_depend",
+    "build_export_depend",
+    "buildtool_depend",
+    "buildtool_export_depend",
+    "depend",
+    "doc_depend",
+    "exec_depend",
+    "group_depend",
+    "test_depend",
+}
+LINE_SUFFIX = re.compile(rb"[ \t]*(?:<!--[^\r\n]*?-->[ \t]*)*(?:\r?\n)?")
+
+
+@dataclass
+class Dependency:
+    start: int
+    end: int
+    tag: str
+    name: str
+
+
+def sort_dependencies(source: bytes) -> bytes:
+    """Return XML with each contiguous block of the same dependency tag sorted."""
+    parser = expat.ParserCreate()
+    stack = []
+    dependencies = []
+    start = None
+    name_parts = []
+
+    def start_element(tag, attributes):
+        nonlocal start
+        if stack == ["package"] and tag in DEPENDENCY_TAGS:
+            start = parser.CurrentByteIndex
+            name_parts.clear()
+        elif start is not None:
+            # Nested markup is not a dependency name.
+            start = None
+        stack.append(tag)
+
+    def character_data(text):
+        if start is not None:
+            name_parts.append(text)
+
+    def end_element(tag):
+        nonlocal start
+        if start is not None and len(stack) == 2:
+            closing = parser.CurrentByteIndex
+            name = "".join(name_parts).strip()
+            if source[closing : closing + 2] == b"</" and name:
+                tag_end = source.index(b">", closing) + 1
+                line_start = source.rfind(b"\n", 0, start) + 1
+                newline = source.find(b"\n", tag_end)
+                line_end = len(source) if newline == -1 else newline + 1
+                if not source[line_start:start].strip() and LINE_SUFFIX.fullmatch(source[tag_end:line_end]):
+                    dependencies.append(Dependency(line_start, line_end, tag, name))
+            start = None
+        stack.pop()
+
+    parser.StartElementHandler = start_element
+    parser.CharacterDataHandler = character_data
+    parser.EndElementHandler = end_element
+    parser.Parse(source, True)
+
+    blocks = []
+    for dependency in dependencies:
+        if blocks and dependency.start == blocks[-1][-1].end and dependency.tag == blocks[-1][-1].tag:
+            blocks[-1].append(dependency)
+        else:
+            blocks.append([dependency])
+
+    result = []
+    cursor = 0
+    for block in blocks:
+        result.append(source[cursor : block[0].start])
+        for dependency in sorted(block, key=lambda item: item.name):
+            result.append(source[dependency.start : dependency.end])
+        cursor = block[-1].end
+    result.append(source[cursor:])
+    return b"".join(result)
+
+
+def main(filenames: list[str]) -> int:
+    failed = False
+    for filename in filenames:
+        path = Path(filename)
+        try:
+            source = path.read_bytes()
+            sorted_source = sort_dependencies(source)
+            if sorted_source != source:
+                path.write_bytes(sorted_source)
+                print(f"Sorted package dependencies: {path}")
+                failed = True
+        except (OSError, expat.ExpatError) as error:
+            print(f"{path}: {error}", file=sys.stderr)
+            failed = True
+    return int(failed)
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

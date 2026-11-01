@@ -12,24 +12,24 @@
   <depend>qt6-positioning-dev</depend>
   <depend>tobas_qwt_vendor</depend>
 
-  <depend>tobas_path_tools</depend>
-  <depend>tobas_ros2_tools</depend>
   <depend>tobas_constants</depend>
   <depend>tobas_drone_core</depend>
   <depend>tobas_geographic</depend>
-  <depend>tobas_msgs_adapter</depend>
+  <depend>tobas_gui_common</depend>
   <depend>tobas_mission_msgs_adapter</depend>
+  <depend>tobas_msgs_adapter</depend>
+  <depend>tobas_path_tools</depend>
   <depend>tobas_qt_tools</depend>
+  <depend>tobas_ros2_tools</depend>
   <depend>tobas_rqt_bridge</depend>
   <depend>tobas_trajectory_generation</depend>
-  <depend>tobas_gui_common</depend>
 
   <exec_depend>qml6-module-qtlocation</exec_depend>
   <exec_depend>qml6-module-qtpositioning</exec_depend>
+  <exec_depend>qml6-module-qtqml-workerscript</exec_depend>
   <exec_depend>qml6-module-qtquick</exec_depend>
   <exec_depend>qml6-module-qtquick-controls</exec_depend>
   <exec_depend>qml6-module-qtquick-window</exec_depend>
-  <exec_depend>qml6-module-qtqml-workerscript</exec_depend>
   <exec_depend>qt6-location-plugins</exec_depend>
 
   <export>

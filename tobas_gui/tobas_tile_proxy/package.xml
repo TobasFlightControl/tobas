@@ -6,8 +6,8 @@
   <license>GPL-3.0-or-later</license>
 
   <exec_depend>python3-fastapi</exec_depend>
-  <exec_depend>python3-uvicorn</exec_depend>
   <exec_depend>python3-httpx</exec_depend>
+  <exec_depend>python3-uvicorn</exec_depend>
 
   <test_depend>python3-pytest</test_depend>
 

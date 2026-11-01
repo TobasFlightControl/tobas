@@ -9,11 +9,11 @@
 
   <depend>rclcpp_components</depend>
 
-  <depend>tobas_std_tools</depend>
-  <depend>tobas_ros2_tools</depend>
-  <depend>tobas_msgs</depend>
-  <depend>tobas_dparam_msgs</depend>
   <depend>tobas_constants</depend>
+  <depend>tobas_dparam_msgs</depend>
+  <depend>tobas_msgs</depend>
+  <depend>tobas_ros2_tools</depend>
+  <depend>tobas_std_tools</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

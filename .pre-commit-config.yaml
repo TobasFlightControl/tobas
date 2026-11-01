@@ -112,6 +112,11 @@ repos:
         entry: /usr/lib/qt6/bin/qmllint --max-warnings 0
         language: system
         files: \.qml$
+      - id: sort-package-dependencies
+        name: sort package.xml dependency blocks
+        entry: python3 tools/sort_package_dependencies
+        language: system
+        files: (^|/)package\.xml$
       - id: prettier-yaml
         name: prettier-yaml
         entry: prettier --write
