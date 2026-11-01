@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Apply standard sudoers permissions to the pi user's passwordless sudo rule.
+sudo chmod 440 /etc/sudoers.d/010_pi-nopasswd
+
 # Enable IP configuration at boot before removing the previous network manager.
 # Do not start networkd here while NetworkManager may still own the interfaces.
 sudo systemctl enable systemd-networkd.service
