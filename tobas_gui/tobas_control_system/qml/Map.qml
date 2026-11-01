@@ -9,8 +9,7 @@ import "./map_constants.js" as Constants
 Rectangle {
   id: rectangle
 
-  property real requested_zoom: 0 // Zoom requested by the user; exceeding the limit is allowed.
-  property real visual_scale: 1.0 // Visual scale for overzoom.
+  property real requested_zoom: 0.0 // Zoom requested by the user; exceeding the limit is allowed.
 
   // Signal for function calls.
   signal setArrowPosition(double latitude, double longitude)
@@ -43,14 +42,12 @@ Rectangle {
 
   function onSetZoomLevel(zoom_level) {
     requested_zoom = rectangle.clamp(zoom_level, map.minimumZoomLevel, Constants.maximumZoomLevel);
-    rectangle.updateZoom();
-  }
 
-  function updateZoom() {
-    var base_z = Math.min(requested_zoom, map.maximumZoomLevel);
+    const base_z = Math.min(requested_zoom, map.maximumZoomLevel);
+    const extra = Math.max(0, requested_zoom - base_z); // Amount over the limit.
+    const visual_scale = Math.pow(2, extra);
+
     map.zoomLevel = base_z;
-    var extra = Math.max(0, requested_zoom - base_z); // Amount over the limit.
-    visual_scale = Math.pow(2, extra);
     map.scale = visual_scale;
   }
 
@@ -118,8 +115,7 @@ Rectangle {
     zoomLevel: 3
 
     Component.onCompleted: {
-      rectangle.requested_zoom = map.zoomLevel;
-      rectangle.updateZoom();
+      rectangle.onSetZoomLevel(map.zoomLevel);
     }
     onSupportedMapTypesChanged: {
       if (supportedMapTypes.length > 0) {
@@ -156,11 +152,8 @@ Rectangle {
         }
       }
       onScaleChanged: delta => {
-        // Convert the incremental scale factor to a zoom-level change (2x means +1), then clamp the requested zoom.
-        const next_zoom = rectangle.requested_zoom + Math.log2(delta);
-        rectangle.requested_zoom = rectangle.clamp(next_zoom, map.minimumZoomLevel, Constants.maximumZoomLevel);
-        // Update the map zoom and apply visual scaling beyond the map's maximum zoom level.
-        rectangle.updateZoom();
+        // Convert the incremental scale factor to a zoom-level change (2x means +1).
+        rectangle.onSetZoomLevel(rectangle.requested_zoom + Math.log2(delta));
         // Keep the saved geographic coordinate under the current finger midpoint while zooming.
         map.alignCoordinateToPoint(anchorCoordinate, centroid.position);
       }
@@ -179,11 +172,8 @@ Rectangle {
         const delta_y = e.angleDelta.y !== 0 ? e.angleDelta.y : e.pixelDelta.y;
         // Compute the zoom value change.
         const delta_zoom = (delta_y / 120.0) * 0.5;
-        // Update the target zoom value.
-        const next_zoom = rectangle.requested_zoom + delta_zoom;
-        rectangle.requested_zoom = rectangle.clamp(next_zoom, map.minimumZoomLevel, Constants.maximumZoomLevel);
-        // Update zoom and scale.
-        rectangle.updateZoom();
+        // Update the zoom level.
+        rectangle.onSetZoomLevel(rectangle.requested_zoom + delta_zoom);
         // Align the original geographic coordinate to the new cursor position.
         map.alignCoordinateToPoint(anchor, p);
         // Accept the wheel event.
