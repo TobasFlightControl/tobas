@@ -28,9 +28,9 @@ RosbagRecorderNode::RosbagRecorderNode(const rclcpp::NodeOptions& _options)
   // Resister subscribers.
   // Establish topic connections before recording starts because even local topic communication can introduce latency.
   // Template-heavy methods are split for separate compilation to reduce build-time memory usage.
+  registerModelSubscribers();
   registerStateSubscribers();
   registerSensorSubscribers();
-  registerStateSubscribers();
   registerCommandSubscribers();
   registerDebugSubscribers();
 
