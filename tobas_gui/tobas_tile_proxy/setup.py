@@ -16,7 +16,7 @@ for node_file in glob(f"{pkg_name}/*_node.py"):
 
 setup(
     name=pkg_name,
-    version="2.17.0",
+    version="2.18.0",
     packages=find_packages(),
     data_files=data_files,
     install_requires=["setuptools"],
