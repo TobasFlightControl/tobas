@@ -6,5 +6,5 @@ export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 # The Tobas Bash setup must only be sourced by Bash login shells.
 if [ -n "${BASH_VERSION:-}" ]; then
-  source /opt/tobas/setup.bash
+  . /opt/tobas/setup.bash
 fi
