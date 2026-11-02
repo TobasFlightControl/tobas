@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <tobas_kdl_msgs_adapter/accel_stamped.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/latency.hpp>
@@ -26,6 +27,7 @@ void RosbagRecorderNode::registerStateSubscribers()
   addStandardMsgSub<tobas_msgs::msg::Arming>(topic::kArming);
   addStandardMsgSub<tobas_msgs::msg::VehicleHealth>(topic::kVehicleHealth);
   addTypeAdaptedMsgSub<tobas_msgs::VibrationLevel>(vibe_, topic::kVibrationLevel);
+  addTypeAdaptedMsgSub<tobas_kdl_msgs::AccelStamped>(additional_accel_, topic::kAdditionalAccel);
   addTypeAdaptedMsgSub<tobas_kdl_msgs::WrenchStamped>(dist_force_, topic::kDisturbanceForce);
 }
 }  // namespace tobas

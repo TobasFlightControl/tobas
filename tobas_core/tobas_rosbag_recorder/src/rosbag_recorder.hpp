@@ -14,6 +14,7 @@
 #include <tobas_debug_msgs/msg/multicopter_controller_feedback.hpp>
 #include <tobas_debug_msgs/msg/observer_feedback.hpp>
 #include <tobas_drone_msgs/msg/drone.hpp>
+#include <tobas_kdl_msgs/msg/accel_stamped.hpp>
 #include <tobas_kdl_msgs/msg/tree.hpp>
 #include <tobas_kdl_msgs/msg/wrench_stamped.hpp>
 #include <tobas_msgs/msg/gnss.hpp>
@@ -63,6 +64,7 @@ private:
   tobas_msgs::msg::OdometryStamped odom_;
   tobas_msgs::msg::OdometryWithCovarianceStamped odom_cov_;
   tobas_msgs::msg::VibrationLevel vibe_;
+  tobas_kdl_msgs::msg::AccelStamped additional_accel_;
   tobas_kdl_msgs::msg::WrenchStamped dist_force_;
   tobas_debug_msgs::msg::ObserverFeedback obsv_fb_;
   tobas_debug_msgs::msg::MulticopterControllerFeedback mr_ctrl_fb_;
