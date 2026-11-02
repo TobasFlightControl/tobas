@@ -1,14 +1,15 @@
-import QtQuick 2.15
-import QtLocation 5.15
-import QtPositioning 5.15
+pragma ComponentBehavior: Bound
+
+import QtQuick
+import QtLocation
+import QtPositioning
 import "./map_constants.js" as Constants
 
-// Qt Location: https://doc.qt.io/archives/qt-5.15/qtlocation-index.html
+// Qt Location: https://doc.qt.io/qt-6/qtlocation-index.html
 Rectangle {
-  id: rectangle
+  id: root
 
-  property real requested_zoom: 0 // Zoom requested by the user; exceeding the limit is allowed.
-  property real visual_scale: 1.0 // Visual scale for overzoom.
+  property real requested_zoom: 0.0 // Zoom requested by the user; exceeding the limit is allowed.
 
   // Signal for function calls.
   signal setArrowPosition(double latitude, double longitude)
@@ -22,27 +23,31 @@ Rectangle {
   function clamp(v, lb, ub) {
     return Math.min(ub, Math.max(lb, v));
   }
+
   function mapObjectScale() {
     return Math.min(map.scale, Constants.maxMapObjectScale);
   }
+
   function onSetArrowPosition(latitude, longitude) {
     arrow.coordinate = QtPositioning.coordinate(latitude, longitude);
   }
+
   function onSetArrowRotation(angle) {
     arrowRotation.angle = angle; // Reference the unique ID directly.
   }
+
   function onSetMapCenter(latitude, longitude) {
     map.center = QtPositioning.coordinate(latitude, longitude);
   }
+
   function onSetZoomLevel(zoom_level) {
     requested_zoom = clamp(zoom_level, map.minimumZoomLevel, Constants.maximumZoomLevel);
-    updateZoom();
-  }
-  function updateZoom() {
-    var base_z = Math.min(requested_zoom, map.maximumZoomLevel);
+
+    const base_z = Math.min(requested_zoom, map.maximumZoomLevel);
+    const extra = Math.max(0, requested_zoom - base_z); // Amount over the limit.
+    const visual_scale = Math.pow(2, extra);
+
     map.zoomLevel = base_z;
-    var extra = Math.max(0, requested_zoom - base_z); // Amount over the limit.
-    visual_scale = Math.pow(2, extra);
     map.scale = visual_scale;
   }
 
@@ -53,27 +58,32 @@ Rectangle {
     setArrowRotation.connect(onSetArrowRotation);
   }
 
-  // Qt Location Open Street Map Plugin: https://doc.qt.io/archives/qt-5.15/location-plugin-osm.html
+  // Qt Location Open Street Map Plugin: https://doc.qt.io/qt-6/location-plugin-osm.html
   Plugin {
     id: mapPlugin
+
     name: "osm" // itemsoverlay, mapbox, here, esri, osm
 
     PluginParameter {
       name: "osm.mapping.custom.host"
       value: "http://127.0.0.1:8080/tiles/" // Specify the local server.
     }
+
     PluginParameter {
       name: "osm.mapping.cache.directory"
-      value: SystemInfo.homeDirectory + "/.cache/tobas/tiles/online/"
+      value: SystemInfo.homeDirectory + "/.cache/tobas/tiles/online/" // qmllint disable unqualified
     }
+
     PluginParameter {
       name: "osm.mapping.offline.directory"
-      value: SystemInfo.homeDirectory + "/.cache/tobas/tiles/offline/"
+      value: SystemInfo.homeDirectory + "/.cache/tobas/tiles/offline/" // qmllint disable unqualified
     }
+
     PluginParameter {
       name: "osm.mapping.cache.disk.cost_strategy"
       value: "bytesize"
     }
+
     PluginParameter {
       name: "osm.mapping.cache.disk.size"
       value: 1 << 30 // 1GiB
@@ -92,9 +102,10 @@ Rectangle {
     }
   }
 
-  // Map QML Type: https://doc.qt.io/qt-5/qml-qtlocation-map.html
+  // Map QML Type: https://doc.qt.io/qt-6/qml-qtlocation-map.html
   Map {
     id: map
+
     anchors.fill: parent
     center: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
     copyrightsVisible: false
@@ -104,12 +115,12 @@ Rectangle {
     zoomLevel: 3
 
     Component.onCompleted: {
-      requested_zoom = zoomLevel;
-      updateZoom();
+      root.onSetZoomLevel(zoomLevel);
     }
     onSupportedMapTypesChanged: {
       if (supportedMapTypes.length > 0) {
-        const custom_map_type = supportedMapTypes[supportedMapTypes.length - 1]; // The custom tile server is always the last supported map type.
+        // The custom tile server is always the last supported map type.
+        const custom_map_type = supportedMapTypes[supportedMapTypes.length - 1];
         if (activeMapType !== custom_map_type) {
           activeMapType = custom_map_type;
           console.debug("Active map type set:", activeMapType.name);
@@ -117,17 +128,53 @@ Rectangle {
       }
     }
 
-    // Zoom while adjusting scale on wheel events.
+    DragHandler {
+      target: null
+
+      onTranslationChanged: delta => {
+        // Pan opposite to the drag delta so the map content follows the pointer, compensating for visual scaling.
+        map.pan(-delta.x / map.scale, -delta.y / map.scale);
+      }
+    }
+
+    PinchHandler {
+      property var anchorCoordinate
+
+      grabPermissions: PointerHandler.TakeOverForbidden
+      target: null
+
+      onActiveChanged: {
+        if (active) {
+          // Save the geographic coordinate under the finger midpoint when the pinch starts.
+          anchorCoordinate = map.toCoordinate(centroid.position);
+        }
+      }
+      onScaleChanged: delta => {
+        // Convert the incremental scale factor to a zoom-level change (2x means +1).
+        root.onSetZoomLevel(root.requested_zoom + Math.log2(delta));
+        // Keep the saved geographic coordinate under the current finger midpoint while zooming.
+        map.alignCoordinateToPoint(anchorCoordinate, centroid.position);
+      }
+    }
+
     WheelHandler {
+      acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
       target: null
 
       onWheel: e => {
-        const p = point.position; // Cursor position in 2D coordinates.
-        const anchor = map.toCoordinate(p); // Cursor position in geographic coordinates.
-        const dz = (e.angleDelta.y / 120.0) * 0.5; // Zoom value change.
-        requested_zoom = clamp(requested_zoom + dz, map.minimumZoomLevel, Constants.maximumZoomLevel); // Update the target zoom value.
-        updateZoom(); // Update zoom and scale.
-        map.alignCoordinateToPoint(anchor, p); // Align the original geographic coordinate to the new cursor position.
+        // Get the cursor position in 2D coordinates.
+        const p = point.position;
+        // Compute the cursor position in geographic coordinates.
+        const anchor = map.toCoordinate(p);
+        // Touchpad scrolling may provide pixel deltas without wheel angle deltas.
+        const delta_y = e.angleDelta.y !== 0 ? e.angleDelta.y : e.pixelDelta.y;
+        // Compute the zoom value change.
+        const delta_zoom = (delta_y / 120.0) * 0.5;
+        // Update the zoom level.
+        root.onSetZoomLevel(root.requested_zoom + delta_zoom);
+        // Align the original geographic coordinate to the new cursor position.
+        map.alignCoordinateToPoint(anchor, p);
+        // Accept the wheel event.
         e.accepted = true;
       }
     }
@@ -135,6 +182,7 @@ Rectangle {
     // Arrow
     MapQuickItem {
       id: arrow
+
       anchorPoint.x: arrowImage.width / 2
       anchorPoint.y: arrowImage.height / 2
       coordinate: QtPositioning.coordinate(0, 0)
@@ -142,12 +190,14 @@ Rectangle {
 
       sourceItem: Image {
         id: arrowImage
-        height: 32 / mapObjectScale()
+
+        height: 32 / root.mapObjectScale()
         source: "./arrow.png" // Relative path to the icon image.
-        width: 32 / mapObjectScale()
+        width: 32 / root.mapObjectScale()
 
         transform: Rotation {
           id: arrowRotation
+
           angle: 0 // Clock-wise [degree]
           objectName: "arrowRotation"
           origin.x: arrowImage.width / 2
@@ -164,33 +214,37 @@ Rectangle {
 
     // WaypointModel
     MapItemView {
-      model: WaypointModel
+      model: WaypointModel // qmllint disable unqualified
       z: 3 // Priority when overlapping other objects.
 
       // `Rectangle` cannot be set as a delegate, so use `MapQuickItem`.
       delegate: MapQuickItem {
         id: waypoint
+
+        required property var model
+
         anchorPoint.x: circle.width / 2
         anchorPoint.y: circle.height / 2
         coordinate: model.coordinate
 
         sourceItem: Rectangle {
           id: circle
+
           border.color: "black"
           border.pixelAligned: false // Allow fractional border widths.
-          border.width: 2 / mapObjectScale()
-          color: model.marker_color
-          height: 32 / mapObjectScale()
-          radius: 16 / mapObjectScale() // Setting the radius to half the square side length makes a circle from a square.
-          width: 32 / mapObjectScale()
+          border.width: 2 / root.mapObjectScale()
+          color: waypoint.model.marker_color
+          height: 32 / root.mapObjectScale()
+          radius: 16 / root.mapObjectScale() // Setting the radius to half the square side length makes a circle from a square.
+          width: 32 / root.mapObjectScale()
           x: 0
           y: 0
 
           // Show the number at the center of the circle.
           Text {
             color: "black"
-            font.pixelSize: 16 / mapObjectScale() // Alignment breaks during overzoom unless this is 2 or larger.
-            text: model.index
+            font.pixelSize: 16 / root.mapObjectScale() // Alignment breaks during overzoom unless this is 2 or larger.
+            text: waypoint.model.index
             x: (circle.width - width) / 2
             y: (circle.height - height) / 2
           }
@@ -221,19 +275,22 @@ Rectangle {
               circle.y = 0;
 
               // Notify that the waypoint coordinate has changed.
-              waypointMoved(model.index, new_coord.latitude, new_coord.longitude);
+              root.waypointMoved(waypoint.model.index, new_coord.latitude, new_coord.longitude);
             }
           }
         }
       }
     }
+
     MapItemView {
-      model: WaypointModel // Multiple `MapItemView` instances can be defined for one model.
+      model: WaypointModel // qmllint disable unqualified
       z: 2
 
       delegate: MapCircle {
+        required property var model
+
         border.color: "yellow"
-        border.width: 2 / mapObjectScale()
+        border.width: 2 / root.mapObjectScale()
         center: model.coordinate
         color: "transparent"
         radius: model.acceptance_radius // [m]
@@ -242,19 +299,24 @@ Rectangle {
 
     // LineModel
     MapItemView {
-      model: LineModel
+      model: LineModel // qmllint disable unqualified
       z: 1
 
       delegate: MapPolyline {
+        required property var model
+
         line.color: "green"
-        line.width: 3 / mapObjectScale()
-        path: [{
+        line.width: 3 / root.mapObjectScale()
+        path: [
+          {
             "latitude": model.latitude_1,
             "longitude": model.longitude_1
-          }, {
+          },
+          {
             "latitude": model.latitude_2,
             "longitude": model.longitude_2
-          },]
+          },
+        ]
       }
     }
   }

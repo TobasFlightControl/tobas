@@ -182,11 +182,9 @@ GroundControlStationWidget::GroundControlStationWidget(int _argc, char** _argv) 
   header_cols->addWidget(restart_btn_);
   header_cols->addWidget(shutdown_btn_);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addLayout(header_cols);
   rows->addWidget(app_sw_);
-
-  setLayout(rows);
 
   // Connection
   connect(app_btn_group_, &QButtonGroup::idClicked, app_sw_, &QStackedWidget::setCurrentIndex);
@@ -310,7 +308,8 @@ std::expected<void, QString> GroundControlStationWidget::connectToVehicle(const 
   const auto ros_node = ros_node_manager_->node();
   const auto ns = path::join('/', _drone.toStdString(), _id.toStdString());
 
-  const auto vehicle = loadVehicleConfiguration(ros_node, ns);
+  const auto kWaitForVehicleConfiguration = 30s;
+  const auto vehicle = loadVehicleConfiguration(ros_node, ns, kWaitForVehicleConfiguration);
   if (!vehicle) {
     return std::unexpected(vehicle.error());
   }
@@ -356,7 +355,7 @@ void GroundControlStationWidget::setConnectionState(bool _connected)
 
 bool GroundControlStationWidget::waitForHeartbeat() const
 {
-  constexpr int kHeartbeatTimeout = 10000;  // [ms]
+  constexpr auto kHeartbeatTimeout = 10s;
   return static_cast<bool>(rqt::waitForMessage<&rqt::RosQtBridge::remoteHeartbeatReceived>(bridge_, kHeartbeatTimeout));
 }
 
@@ -1002,10 +1001,11 @@ void GroundControlStationWidget::onSimulationStarted()
   qDebug() << "GroundControlStationWidget::onSimulationStarted";
 
   // Set the simulation target.
-  updateFlightControllerList({ { "Simulation Model",
-                                 "127.0.0.1",
-                                 QString::fromStdString(project_.drone.name),
-                                 makeIdText(sim::SimulationWidget::kDroneId) } });
+  updateFlightControllerList(
+    { { "Simulation Model",
+        "127.0.0.1",
+        QString::fromStdString(project_.drone.name),
+        makeIdText(sim::SimulationWidget::kDroneId) } });
   fc_selector_->setCurrentIndex(1);
 
   // Reset the entire widget.

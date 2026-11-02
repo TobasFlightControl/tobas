@@ -9,8 +9,7 @@ namespace tobas::gui::sa::propulsion::electric
 {
 ESCWidget::ESCWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   max_cont_current_ = new ParamGetterWidget_SpinBox(
     "Maximum Continuous Current",

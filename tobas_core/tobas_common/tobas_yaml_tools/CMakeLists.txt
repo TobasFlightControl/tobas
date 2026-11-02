@@ -22,8 +22,7 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME} ${YAML_CPP_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} yaml-cpp::yaml-cpp tobas_math::tobas_math tobas_std_tools::tobas_std_tools)
 
 install(
   TARGETS ${PROJECT_NAME}

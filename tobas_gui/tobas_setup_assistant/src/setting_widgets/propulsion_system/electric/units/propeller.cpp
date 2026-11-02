@@ -14,8 +14,7 @@ namespace tobas::gui::sa::propulsion::electric
 {
 PropellerWidget::PropellerWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   num_blades_ = new ParamGetterWidget_SpinBox("Number of Blades", "");
   num_blades_->setMinimum(2);

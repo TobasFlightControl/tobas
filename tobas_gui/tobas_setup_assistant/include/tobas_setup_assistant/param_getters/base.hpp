@@ -38,8 +38,7 @@ protected:
 template <typename T>
 ParamGetterWidget<T>::ParamGetterWidget(const QString& _param_name, const QString& _description_text)
 {
-  rows_ = new QVBoxLayout();
-  setLayout(rows_);
+  rows_ = new QVBoxLayout(this);
 
   label_ = new QLabel(_param_name);
   label_->setFont(qt::DefaultFont(cmn::kLabelPSize, QFont::Bold));

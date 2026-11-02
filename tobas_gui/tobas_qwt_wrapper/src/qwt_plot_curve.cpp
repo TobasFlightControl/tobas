@@ -3,7 +3,7 @@
 
 #include "tobas_qwt_wrapper/qwt_plot_curve.hpp"
 
-#include <qwt/qwt_plot_curve.h>  // <= C++17
+#include <qwt/qwt_plot_curve.h>
 
 namespace tobas::qwt
 {

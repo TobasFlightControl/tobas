@@ -45,12 +45,10 @@ JointCommanderWidget::JointCommanderWidget(const kdl::Tree& _tree, const Drone& 
   button_cols->addWidget(center_button_);
   button_cols->addWidget(random_button_);
 
-  const auto root_rows = new QVBoxLayout();
+  const auto root_rows = new QVBoxLayout(this);
   root_rows->addLayout(header_cols);
   root_rows->addLayout(cmd_rows_);
   root_rows->addLayout(button_cols);
-
-  setLayout(root_rows);
 
   // Connection
   connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartRequested);

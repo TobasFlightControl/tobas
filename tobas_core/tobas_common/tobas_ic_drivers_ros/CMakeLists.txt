@@ -22,7 +22,10 @@ include_directories(include)
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
-ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME}_node rclcpp::rclcpp rclcpp_components::component geometry_msgs::geometry_msgs
+  tobas_ic_drivers::tobas_ic_drivers
+)
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::Bmm150PublisherNode" EXECUTABLE bmm150_publisher)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::Bmm350PublisherNode" EXECUTABLE bmm350_publisher)

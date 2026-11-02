@@ -40,7 +40,7 @@ These instructions assume the following:
 - The external PC and companion PC are on the same LAN and can communicate directly
 - The companion PC uses NetworkManager to manage its network
 - The companion PC and FC are connected via Ethernet
-- ROS 2 Jazzy and Cyclone DDS are installed on the external PC
+- ROS 2 Lyrical and Cyclone DDS are installed on the external PC
 
 ## Identify the interfaces to use
 
@@ -219,7 +219,7 @@ On routed networks, the default multicast-based ROS 2 discovery traffic does not
 Therefore, set the FC's hostname in `ROS_STATIC_PEERS` on the external PC so that Cyclone DDS can discover the FC via unicast.
 
 ```bash
-$ source /opt/ros/jazzy/setup.bash
+$ source /opt/ros/lyrical/setup.bash
 $ export ROS_DOMAIN_ID=20
 $ export ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST
 $ export ROS_STATIC_PEERS=host1.local

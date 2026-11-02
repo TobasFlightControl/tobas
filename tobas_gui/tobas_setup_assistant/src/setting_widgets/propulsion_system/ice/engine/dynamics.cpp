@@ -23,9 +23,8 @@ EngineDynamicsWidget::EngineDynamicsWidget()
   data_->table()->setColumnsWidth(kDataTableColWidth);
 
   // Layout
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(data_);
-  setLayout(rows);
 }
 
 void EngineDynamicsWidget::setToDefaults()

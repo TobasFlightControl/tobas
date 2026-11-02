@@ -3,7 +3,7 @@
 
 #include "tobas_control_system/util.hpp"
 
-#include <ament_index_cpp/get_package_share_directory.hpp>
+#include <ament_index_cpp/get_package_share_path.hpp>
 
 namespace fs = std::filesystem;
 
@@ -11,6 +11,6 @@ namespace tobas::gui::ctrl
 {
 fs::path getPkgShareDir()
 {
-  return ament_index_cpp::get_package_share_directory("tobas_control_system");
+  return ament_index_cpp::get_package_share_path("tobas_control_system");
 }
 }  // namespace tobas::gui::ctrl

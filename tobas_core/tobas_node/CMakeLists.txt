@@ -22,7 +22,15 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME}
+  rclcpp_components::component
+  tobas_std_tools::tobas_std_tools
+  tobas_ros2_tools::tobas_ros2_tools
+  tobas_msgs::tobas_msgs
+  tobas_dparam_msgs::tobas_dparam_msgs
+  tobas_constants::tobas_constants
+)
 
 install(
   TARGETS ${PROJECT_NAME}

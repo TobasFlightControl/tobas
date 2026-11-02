@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch_ros.actions import Node, LoadComposableNodes
+from launch_ros.actions import LoadComposableNodes, Node
 from launch_ros.descriptions import ComposableNode
 
 
@@ -10,7 +10,7 @@ def generate_launch_description():
         Node(
             package="rclcpp_components",
             executable="component_container",
-            name=f"component_manager",
+            name="component_manager",
             output="screen",
         )
     )

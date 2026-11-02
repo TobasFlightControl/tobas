@@ -51,14 +51,12 @@ RotorWidget::RotorWidget()
   const auto gain_form = new QFormLayout();
   gain_form->addRow("Gain", gain_box_);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(text_, 0);
   rows->addLayout(rpm_cols, 1);
   rows->addLayout(rpm_form, 0);
   qt::addWidgetCenter(gain_slider_, rows, 1);
   rows->addLayout(gain_form, 0);
-
-  setLayout(rows);
 
   // Connection
   connect(tar_rpm_slider_, &QwtSlider::valueChanged, this, &self::onTargetRPMChanged);

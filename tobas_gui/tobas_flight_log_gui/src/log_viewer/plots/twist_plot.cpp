@@ -17,8 +17,7 @@ TwistPlotWidget::TwistPlotWidget()
                  "Target Linear Velocity Z [m/s]",    "Target Angular Velocity X [rad/s]",
                  "Target Angular Velocity Y [rad/s]", "Target Angular Velocity Z [rad/s]" }
 {
-  const auto grid = new QGridLayout();
-  setLayout(grid);
+  const auto grid = new QGridLayout(this);
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     plots_[i] = new QwtPlot2();

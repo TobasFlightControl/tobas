@@ -2,11 +2,31 @@
 # Copyright (C) 2026 Tobas, Inc.
 
 import os
+from collections.abc import Sequence
 from pathlib import Path
-from typing import List
+from shlex import quote
+from string.templatelib import Interpolation, Template
 
 
-def is_under(path: str, base: str, *, follow_symlinks: bool = True) -> bool:
+def shell_command(template: Template) -> str:
+    """
+    Render a shell command, quoting each interpolation as one complete argument.
+    Keep shell syntax in the literal parts and interpolate only whole arguments.
+    """
+    if not isinstance(template, Template):
+        raise TypeError("Expected a t-string template.")
+    parts = []
+    for part in template:
+        if isinstance(part, Interpolation):
+            if part.conversion is not None or part.format_spec:
+                raise ValueError("Shell arguments must not use conversions or format specifications.")
+            parts.append(quote(str(part.value)))
+        else:
+            parts.append(part)
+    return "".join(parts)
+
+
+def is_under(path: str | Path, base: str | Path, *, follow_symlinks: bool = True) -> bool:
     """
     Determine whether `path` exists under `base`, meaning it points to a file or directory below it.
     If `follow_symlinks=True`, check using the real path after resolving symbolic links.
@@ -29,14 +49,14 @@ def is_under(path: str, base: str, *, follow_symlinks: bool = True) -> bool:
         return False
 
 
-def is_under_any(path: str, bases: List[str], *, follow_symlinks: bool = True) -> bool:
+def is_under_any(path: str | Path, bases: Sequence[str], *, follow_symlinks: bool = True) -> bool:
     for base in bases:
         if is_under(path, base, follow_symlinks=follow_symlinks):
             return True
     return False
 
 
-def get_local_tree_size(_path: str, _exclude_dirs: List[str] = []) -> int:
+def get_local_tree_size(_path: str, _exclude_dirs: Sequence[str] = ()) -> int:
     path = Path(_path)
 
     if path.is_file():
@@ -47,13 +67,13 @@ def get_local_tree_size(_path: str, _exclude_dirs: List[str] = []) -> int:
 
     total_size = 0
 
-    for root, _, filenames in os.walk(path):
+    for root, directories, filenames in os.walk(path):
         if is_under_any(root, _exclude_dirs):
+            directories.clear()
             continue
         for filename in filenames:
-            path = Path(root) / filename
             try:
-                total_size += path.stat(follow_symlinks=False).st_size
+                total_size += (Path(root) / filename).stat(follow_symlinks=False).st_size
             except OSError:
                 pass
 

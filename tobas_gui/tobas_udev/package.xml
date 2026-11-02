@@ -1,18 +1,16 @@
 <package format="3">
+  <name>tobas_udev</name>
+  <version>2.17.0</version>
+  <description>C++ utilities for enumerating and monitoring Linux udev devices.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_udev</name>
-	<version>2.17.0</version>
-	<description>C++ utilities for enumerating and monitoring Linux udev devices.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>pkg-config</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
-	<buildtool_depend>pkg-config</buildtool_depend>
+  <depend>libudev-dev</depend>
 
-	<depend>libudev-dev</depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

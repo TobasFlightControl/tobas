@@ -1,20 +1,23 @@
 <!-- https://github.com/PX4/PX4-gazebo-models/blob/main/worlds/forest.sdf -->
-
 <sdf version="1.10">
   <world name="forest">
-
     <physics type="ignored">
       <max_step_size>0.001</max_step_size>
       <real_time_factor>1.0</real_time_factor>
     </physics>
 
-    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
-    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
-    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
-    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics" />
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands" />
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster" />
+    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact" />
     <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
-        <render_engine>ogre2</render_engine>
+      <render_engine>ogre2</render_engine>
     </plugin>
+
+    <!-- Load only the GUI plugins defined in this world. -->
+    <gz:policies>
+      <include_gui_default_plugins>false</include_gui_default_plugins>
+    </gz:policies>
 
     <gui fullscreen="0">
       <!-- 3D View (Essential) -->
@@ -34,6 +37,17 @@
 
       <!-- Scene Manager (Essential) -->
       <plugin filename="GzSceneManager" name="Scene Manager">
+        <gz-gui>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+
+      <!-- Camera navigation (no visible panel) -->
+      <plugin filename="InteractiveViewControl" name="Interactive view control">
         <gz-gui>
           <property key="resizable" type="bool">false</property>
           <property key="width" type="double">5</property>
@@ -81,7 +95,7 @@
       <surface_model>EARTH_WGS84</surface_model>
       <world_frame_orientation>ENU</world_frame_orientation>
       <latitude_deg>47.397971057728974</latitude_deg>
-      <longitude_deg> 8.546163739800146</longitude_deg>
+      <longitude_deg>8.546163739800146</longitude_deg>
       <elevation>0</elevation>
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
@@ -298,6 +312,5 @@
       <name>Pine Tree_19_19</name>
       <pose>-3.1997 32.8927 0 0 -0 0</pose>
     </include>
-
   </world>
 </sdf>

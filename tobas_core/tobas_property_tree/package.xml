@@ -1,17 +1,15 @@
 <package format="3">
+  <name>tobas_property_tree</name>
+  <version>2.17.0</version>
+  <description>Hierarchical property storage and lookup library.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_property_tree</name>
-	<version>2.17.0</version>
-	<description>Hierarchical property storage and lookup library.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>libboost-dev</depend>
 
-	<depend>libboost-dev</depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

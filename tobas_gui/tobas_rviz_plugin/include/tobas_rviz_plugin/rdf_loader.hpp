@@ -41,8 +41,8 @@
 
 #pragma once
 
-#include <urdf/model.h>
 #include <rclcpp/node.hpp>
+#include <urdf/model.hpp>
 
 #include "./synchronized_string_parameter.hpp"
 

@@ -13,8 +13,7 @@ MRControllerFeedbackPlotWidget::MRControllerFeedbackPlotWidget()
   : ei_curves_{ "X Integral Error [m*s]",      "Y Integral Error [m*s]",       "Z Integral Error [m*s]",
                 "Roll Integral Error [rad*s]", "Pitch Integral Error [rad*s]", "Yaw Integral Error [rad*s]" }
 {
-  const auto grid = new QGridLayout();
-  setLayout(grid);
+  const auto grid = new QGridLayout(this);
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     ei_plots_[i] = new QwtPlot2();

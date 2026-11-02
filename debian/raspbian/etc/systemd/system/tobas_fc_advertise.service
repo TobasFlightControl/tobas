@@ -5,7 +5,10 @@ After=avahi-daemon.service
 
 [Service]
 Type=simple
-EnvironmentFile=/etc/tobas/config/project.env
+# Advertise the FC before project setup, with empty drone and ID TXT values.
+Environment=TOBAS_DRONE= TOBAS_ID=
+# Load project values when available; the leading '-' allows the file to be absent.
+EnvironmentFile=-/etc/tobas/config/project.env
 ExecStart=/usr/bin/avahi-publish-service --no-fail %H _tobas-fc._tcp 22 drone=${TOBAS_DRONE} id=${TOBAS_ID}
 Restart=no
 

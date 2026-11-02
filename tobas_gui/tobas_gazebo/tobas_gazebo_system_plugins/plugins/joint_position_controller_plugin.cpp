@@ -94,6 +94,11 @@ void GazeboJointPositionControllerPlugin::Configure(
 
 void GazeboJointPositionControllerPlugin::PreUpdate(const gz::sim::UpdateInfo&, gz::sim::EntityComponentManager& _ecm)
 {
+  // Physics populates the joint position after the first simulation update.
+  if (jnt_pos_->Data().empty()) {
+    return;
+  }
+
   const auto& cur_pos = jnt_pos_->Data().at(0);
   const auto tar_vel = (tar_pos_ - cur_pos) / time_const_;
   joint_.SetVelocity(_ecm, { tar_vel });  // This generates torque on the joint.

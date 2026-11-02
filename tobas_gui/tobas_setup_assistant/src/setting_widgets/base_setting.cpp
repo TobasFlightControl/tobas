@@ -26,12 +26,10 @@ BaseSettingWidget::BaseSettingWidget()
 
   content_rows_ = new QVBoxLayout();
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addLayout(header_rows_);
   rows->addSpacing(30);
   rows->addLayout(content_rows_);
-
-  setLayout(rows);
 
   QTimer::singleShot(0, this, &self::initialize);
 }

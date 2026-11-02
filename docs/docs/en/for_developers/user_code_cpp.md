@@ -2,7 +2,7 @@
 
 This section assumes that you have a basic understanding of C++ and ROS 2.
 To learn ROS 2, see
-<a href=https://docs.ros.org/en/jazzy/Tutorials.html target="_blank">Tutorials | ROS 2 Documentation</a>
+<a href=https://docs.ros.org/en/lyrical/Tutorials.html target="_blank">Tutorials | ROS 2 Documentation</a>
 .
 
 Among the ROS packages in a Tobas project created with Setup Assistant (e.g., tobas_f450.TBS),
@@ -99,7 +99,14 @@ endforeach()
 include_directories(include)
 
 add_library(${PROJECT_NAME} SHARED nodes/user_node.cpp)
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME}
+  rclcpp::rclcpp
+  rclcpp_components::component
+  tobas_constants::tobas_constants
+  tobas_node::tobas_node
+  tobas_msgs_adapter::tobas_msgs_adapter
+)
 target_link_options(${PROJECT_NAME} PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(${PROJECT_NAME} PLUGIN "UserNode" EXECUTABLE user_node)
 

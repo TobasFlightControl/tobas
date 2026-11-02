@@ -18,8 +18,7 @@ ImuFftPlotWidget::ImuFftPlotWidget()
   , filt_curves_{ "Filtered Accel X [m/s²]", "Filtered Accel Y [m/s²]", "Filtered Accel Z [m/s²]",
                   "Filtered Gyro X [rad/s]", "Filtered Gyro Y [rad/s]", "Filtered Gyro Z [rad/s]" }
 {
-  const auto grid = new QGridLayout();
-  setLayout(grid);
+  const auto grid = new QGridLayout(this);
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     // The imaginary part is unnecessary because the data is one-dimensional.

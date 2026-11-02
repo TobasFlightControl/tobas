@@ -9,7 +9,9 @@ foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
 endforeach()
 
 add_library(${PROJECT_NAME} INTERFACE)
-ament_target_dependencies(${PROJECT_NAME} INTERFACE ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME} INTERFACE tobas_mission_items::tobas_mission_items tobas_mission_msgs::tobas_mission_msgs
+)
 
 install(
   TARGETS ${PROJECT_NAME}

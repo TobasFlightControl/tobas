@@ -30,7 +30,16 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME}
+  tobas_geographic::tobas_geographic
+  tobas_trajectory_generation::tobas_trajectory_generation
+  tobas_node::tobas_node
+  tobas_msgs_adapter::tobas_msgs_adapter
+  tobas_command_msgs_adapter::tobas_command_msgs_adapter
+  tobas_mission_items::tobas_mission_items
+  tobas_mission_msgs::tobas_mission_msgs
+)
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})

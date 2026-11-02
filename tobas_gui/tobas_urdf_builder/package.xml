@@ -1,5 +1,4 @@
 <package format="3">
-
   <name>tobas_urdf_builder</name>
   <version>2.17.0</version>
   <description>Qt application for interactively building and editing URDF robot models.</description>
@@ -8,9 +7,9 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>tobas_gui_common</depend>
   <depend>tobas_qt_tools</depend>
   <depend>tobas_rviz_wrapper</depend>
-  <depend>tobas_gui_common</depend>
 
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
@@ -20,5 +19,4 @@
   <export>
     <build_type>ament_cmake</build_type>
   </export>
-
 </package>

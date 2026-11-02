@@ -10,8 +10,7 @@ namespace tobas::gui::sa::propulsion::electric
 {
 PropulsionUnitWidget::PropulsionUnitWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   copy_to_all_btn_ = new QPushButton("Copy To All");
   copy_to_all_btn_->setFixedSize(125, 50);

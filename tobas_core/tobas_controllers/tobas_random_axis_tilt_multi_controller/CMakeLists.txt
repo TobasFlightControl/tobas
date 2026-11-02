@@ -11,9 +11,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Disable warnings about tensor contraction.
-add_compile_options(-Wno-array-bounds)
-
 set(AMENT_DEPENDENCIES
     tobas_nlp
     tobas_node
@@ -33,7 +30,16 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME}
+  tobas_nlp::tobas_nlp
+  tobas_node::tobas_node
+  tobas_pose_pid::tobas_pose_pid
+  tobas_tools::tobas_tools
+  tobas_nonplanar_multi_controller::tobas_nonplanar_multi_controller
+  tobas_drone_msgs_adapter::tobas_drone_msgs_adapter
+  tobas_debug_msgs_adapter::tobas_debug_msgs_adapter
+)
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})

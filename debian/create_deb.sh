@@ -2,6 +2,6 @@
 
 set -e
 
-pardir=$(realpath $(dirname "$0"))
-bash ${pardir}/create_deb_ubuntu.sh
-bash ${pardir}/create_deb_fc1xx.sh
+pardir=$(realpath "$(dirname "$0")")
+bash "${pardir}"/create_deb_ubuntu.sh
+bash "${pardir}"/create_deb_fc1xx.sh

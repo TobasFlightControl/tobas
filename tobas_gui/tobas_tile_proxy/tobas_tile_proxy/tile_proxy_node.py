@@ -5,8 +5,6 @@
 Web server that provides an external tile server in the QML OSM plugin format (.../{z}/{x}/{y}.png).
 """
 
-from __future__ import annotations
-
 from argparse import ArgumentParser
 
 import httpx

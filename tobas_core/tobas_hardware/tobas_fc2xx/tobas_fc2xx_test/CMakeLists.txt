@@ -25,7 +25,9 @@ set(TARGETS_TO_INSTALL "")
 foreach(file_path IN LISTS TEST_TARGETS)
   get_filename_component(NAME ${file_path} NAME_WE)
   add_executable(${NAME} ${file_path})
-  ament_target_dependencies(${NAME} ${AMENT_DEPENDENCIES})
+  target_link_libraries(
+    ${NAME} tobas_ic_drivers::tobas_ic_drivers tobas_mcu_driver::tobas_mcu_driver tobas_sbus_driver::tobas_sbus_driver
+  )
   list(APPEND TARGETS_TO_INSTALL ${NAME})
 endforeach()
 

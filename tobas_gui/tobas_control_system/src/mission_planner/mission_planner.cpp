@@ -101,12 +101,10 @@ MissionPlannerWidget::MissionPlannerWidget(const rqt::RosQtBridge& _bridge) : sp
   mission_cols->addWidget(qt::makeGroup("Commands", command_list_), 1);
   mission_cols->addWidget(qt::makeGroup("Command Details", commands_), 3);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(map_, 2);
   rows->addLayout(button_cols, 0);
   rows->addLayout(mission_cols, 1);
-
-  setLayout(rows);
 
   // Connection
   connect(map_, &MapWidget::waypointMoved, this, &self::onWaypointMoved);

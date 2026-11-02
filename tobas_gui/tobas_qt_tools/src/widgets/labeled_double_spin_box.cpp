@@ -10,8 +10,7 @@ namespace tobas::qt
 {
 LabeledDoubleSpinBox::LabeledDoubleSpinBox(const QString& _label_text)
 {
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
 
   const auto label = new QLabel(_label_text + ":");
   cols->addWidget(label);

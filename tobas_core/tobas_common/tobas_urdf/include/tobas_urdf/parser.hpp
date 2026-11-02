@@ -6,7 +6,7 @@
 #include <expected>
 #include <string>
 
-#include <urdf_world/types.h>
+#include <urdf_model/types.h>
 
 #include <tobas_ros2_tools/console_bridge/output_handler_text.hpp>
 

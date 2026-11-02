@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Tobas, Inc.
 
 import time
-from typing import Callable
+from collections.abc import Callable
 
 
 class RecursiveScpProgress:

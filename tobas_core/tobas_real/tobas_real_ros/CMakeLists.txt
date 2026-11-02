@@ -35,8 +35,21 @@ include_directories(include)
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
-ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME}_node magic_enum::magic_enum)
+target_link_libraries(
+  ${PROJECT_NAME}_node
+  magic_enum::magic_enum
+  sensor_msgs::sensor_msgs
+  tobas_string_tools::tobas_string_tools
+  tobas_dsp::tobas_dsp
+  tobas_linux::tobas_linux
+  tobas_property_tree::tobas_property_tree
+  tobas_node::tobas_node
+  tobas_tools::tobas_tools
+  tobas_msgs_adapter::tobas_msgs_adapter
+  tobas_drone_msgs_adapter::tobas_drone_msgs_adapter
+  tobas_real_common::tobas_real_common
+  tobas_real_msgs::tobas_real_msgs
+)
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::real::ImuHandlerNode" EXECUTABLE imu_handler)
 rclcpp_components_register_node(

@@ -1,0 +1,2 @@
+# https://www.shellcheck.net/wiki/SC1091
+disable=SC1091

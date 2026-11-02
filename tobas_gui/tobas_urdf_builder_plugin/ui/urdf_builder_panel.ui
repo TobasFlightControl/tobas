@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <ui version="4.0">
   <class>URDFBuilderPanelUI</class>
   <widget class="QWidget" name="URDFBuilderPanelUI">
@@ -84,7 +84,7 @@
                     </widget>
                   </item>
                   <item>
-                    <widget class="QLineEdit" name="RobotName"/>
+                    <widget class="QLineEdit" name="RobotName" />
                   </item>
                 </layout>
               </item>
@@ -194,6 +194,6 @@
       </property>
     </action>
   </widget>
-  <resources/>
-  <connections/>
+  <resources />
+  <connections />
 </ui>

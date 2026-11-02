@@ -40,7 +40,23 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME}
+  tobas_eigen_conversions::tobas_eigen_conversions
+  tobas_kdl_parser::tobas_kdl_parser
+  tobas_ros2_tools::tobas_ros2_tools
+  tobas_drone_core::tobas_drone_core
+  tobas_msgs_adapter::tobas_msgs_adapter
+  tobas_command_msgs_adapter::tobas_command_msgs_adapter
+  tobas_gazebo_common::tobas_gazebo_common
+  tobas_gazebo_tools::tobas_gazebo_tools
+  tobas_gazebo_msgs::tobas_gazebo_msgs
+  tobas_qt_tools::tobas_qt_tools
+  tobas_rqt_tools::tobas_rqt_tools
+  tobas_rqt_bridge::tobas_rqt_bridge
+  tobas_gui_common::tobas_gui_common
+  tobas_uadf::tobas_uadf
+)
 
 install(
   TARGETS ${PROJECT_NAME}

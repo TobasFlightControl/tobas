@@ -1,5 +1,4 @@
 <package format="3">
-
   <name>tobas_qt_tools</name>
   <version>2.17.0</version>
   <description>Reusable Qt widgets, models, dialogs, validators, and application utilities.</description>
@@ -8,9 +7,9 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>eigen</depend>
-  <depend>qtbase5-dev</depend>
   <depend>ament_index_cpp</depend>
+  <depend>eigen</depend>
+  <depend>qt6-base-dev</depend>
 
   <depend>tobas_math</depend>
   <depend>tobas_std_tools</depend>
@@ -18,5 +17,4 @@
   <export>
     <build_type>ament_cmake</build_type>
   </export>
-
 </package>

@@ -12,8 +12,7 @@ namespace tobas::gui::log
 CpuPlotWidget::CpuPlotWidget()
   : freq_curve_("Frequency [GHz]"), temp_curve_("Temperature [degC]"), load_curve_("Load [%]")
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   freq_plot_ = new QwtPlot2();
   freq_plot_->setAxisNoLabel(QwtPlot::xBottom);

@@ -1,5 +1,8 @@
 # cf. [moveit2/.pre-commit-config.yaml](https://github.com/moveit/moveit2/blob/main/.pre-commit-config.yaml)
 
+# Preserve the bundled upstream Qwt sources byte for byte.
+exclude: ^tobas_external/tobas_qwt_vendor/vendor/
+
 repos:
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -12,14 +15,14 @@ repos:
       - id: check-docstring-first
       # - id: check-executables-have-shebangs
       # - id: check-illegal-windows-names
-      - id: check-json
+      # - id: check-json
       - id: check-merge-conflict
       # - id: check-shebang-scripts-are-executable
       - id: check-symlinks
-      - id: check-toml
+      # - id: check-toml
       - id: check-vcs-permalinks
-      - id: check-xml
-      - id: check-yaml
+      # - id: check-xml
+      # - id: check-yaml
       - id: debug-statements
       - id: destroyed-symlinks
       # - id: detect-aws-credentials
@@ -37,11 +40,11 @@ repos:
       - id: pretty-format-json
         exclude: \.ipynb$
       - id: requirements-txt-fixer
-      - id: sort-simple-yaml
+      # - id: sort-simple-yaml
       - id: trailing-whitespace
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.2
+    rev: v2.4.3
     hooks:
       - id: codespell
         args:
@@ -51,6 +54,12 @@ repos:
 
   - repo: local
     hooks:
+      - id: isort
+        name: isort
+        entry: isort
+        language: system
+        files: \.(py|tplpy)$
+        exclude: ^tobas_external/
       - id: black
         name: black
         entry: black
@@ -62,6 +71,13 @@ repos:
         entry: shfmt
         language: system
         args: ["-w"]
+        types: [shell]
+        exclude: ^tobas_external/
+      - id: shellcheck
+        name: shellcheck
+        entry: shellcheck
+        language: system
+        args: ["--rcfile=config/shellcheckrc"]
         types: [shell]
         exclude: ^tobas_external/
       - id: clang-format
@@ -89,16 +105,45 @@ repos:
         language: system
         args: ["-i"]
         files: \.qml$
+      - id: qmllint
+        name: qmllint
+        entry: /usr/lib/qt6/bin/qmllint --max-warnings 0
+        language: system
+        files: \.qml$
+      - id: sort-package-dependencies
+        name: sort package.xml dependency blocks
+        entry: python3 tools/sort_package_dependencies
+        language: system
+        files: (^|/)package\.xml$
+      - id: prettier-yaml
+        name: prettier-yaml
+        entry: prettier --write
+        language: node
+        language_version: lts
+        additional_dependencies:
+          - prettier
+        types: [text]
+        files: \.(mission|rviz|tbsdrn|yaml|yml)$|(^|/)\.(clang-format|clang-tidy|cmake-format)$
+      - id: prettier-xml
+        name: prettier-xml
+        entry: prettier --write
+        language: node
+        language_version: lts
+        additional_dependencies:
+          - prettier
+          - "@prettier/plugin-xml"
+        types: [text]
+        files: \.(dae|policy|qrc|sdf|svg|tplxml|uadf|ui|urdf|world|xacro|xml)$|(^|/)model\.config$
       - id: prettier-markdown
         name: prettier-markdown
         # Add spaces between Japanese text/punctuation and alphanumerics.
         entry: sh -c 'textlint --fix --config config/textlintrc.json "$@" && prettier --write "$@"' --
         language: node
-        language_version: 22.17.1
+        language_version: lts
         additional_dependencies:
-          - "prettier@3.6.2"
-          - "textlint@15.8.0"
-          - "textlint-rule-ja-space-between-half-and-full-width@3.0.3"
+          - prettier
+          - textlint
+          - textlint-rule-ja-space-between-half-and-full-width
         files: \.md$
       - id: normalize-japanese-punctuation
         name: normalize Japanese punctuation

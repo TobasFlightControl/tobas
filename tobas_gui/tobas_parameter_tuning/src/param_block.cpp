@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QHBoxLayout>
+#include <QIcon>
 #include <QStyle>
 #include <QVBoxLayout>
 
@@ -37,8 +38,7 @@ void updateButtonStates(const Config& _config)
 
 ParamBlockWidget::ParamBlockWidget(const std::string& _node_name, const QString& _label) : node_name_(_node_name)
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   label_ = new QLabel(_label);
   label_->setFont(qt::DefaultFont(12, QFont::Bold));
@@ -95,7 +95,7 @@ std::expected<void, QString> ParamBlockWidget::load()
   const auto down_icon = style()->standardIcon(QStyle::SP_ArrowDown);
   const auto up_icon = style()->standardIcon(QStyle::SP_ArrowUp);
   const auto reset_icon = style()->standardIcon(QStyle::SP_BrowserReload);
-  const auto home_icon = QIcon::fromTheme("go-home");
+  const auto home_icon = QIcon::fromTheme("go-home-symbolic");
 
   for (const auto& param : params.ints) {
     const auto param_name_label = new QLabel(QString::fromStdString(param.name));

@@ -26,11 +26,9 @@ FlightLogWidget::FlightLogWidget(const rqt::RosQtBridge& _bridge)
   ctrl_rows->addSpacing(30);
   ctrl_rows->addLayout(log_cols);
 
-  const auto root_cols = new QHBoxLayout();
+  const auto root_cols = new QHBoxLayout(this);
   root_cols->addLayout(ctrl_rows, 1);
   root_cols->addWidget(log_viewer_, 2);
-
-  setLayout(root_cols);
 
   // Connection
   connect(recorder_, &FlightLogRecorderWidget::recordFinished, this, &self::onRecordFinished);

@@ -29,10 +29,9 @@ BatteryWidget::BatteryWidget()
     type_->addItem(battery->name());
   }
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(type_);
   rows->addWidget(batteries_);
-  setLayout(rows);
 
   connect(type_, qOverload<int>(&qt::ComboBox::currentIndexChanged), batteries_, &qt::StackedWidget::setCurrentIndex);
 }

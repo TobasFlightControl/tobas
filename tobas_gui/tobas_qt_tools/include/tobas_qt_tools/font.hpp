@@ -11,6 +11,6 @@ namespace tobas::qt
 class DefaultFont : public QFont
 {
 public:
-  explicit DefaultFont(int _point_size = -1, int _weight = -1, bool _italic = false);
+  explicit DefaultFont(int _point_size = -1, QFont::Weight _weight = QFont::Weight::Normal, bool _italic = false);
 };
 }  // namespace tobas::qt

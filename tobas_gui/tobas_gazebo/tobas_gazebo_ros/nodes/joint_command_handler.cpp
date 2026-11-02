@@ -46,7 +46,8 @@ private:
 JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& _options)
   : super("gazebo_joint_command_handler", nodeOptions_Default(_options))
 {
-  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this);
+  // Receive the retained configuration even if the drone server published before this node started.
+  drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
 }
 
 void JointCommandHandlerNode::publishJointCommand(const std::string& _jnt_name, double _command)

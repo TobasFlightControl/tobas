@@ -19,8 +19,7 @@ namespace tobas::gui::sim
 {
 BasePoseCommanderWidget::BasePoseCommanderWidget(const rqt::RosQtBridge& _bridge)
 {
-  const auto root_rows = new QVBoxLayout();
-  setLayout(root_rows);
+  const auto root_rows = new QVBoxLayout(this);
 
   const auto header_cols = new QHBoxLayout();
   root_rows->addLayout(header_cols);

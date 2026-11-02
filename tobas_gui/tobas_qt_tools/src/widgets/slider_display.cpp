@@ -35,11 +35,9 @@ IntSliderDisplay::IntSliderDisplay(QWidget* _parent) : super(_parent)
   cols->addWidget(text_);
   cols->addWidget(value_);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addLayout(cols);
   rows->addWidget(slider_);
-
-  setLayout(rows);
 
   // Connection
   connect(slider_, &Slider::valueChanged, this, &self::onSliderValueChanged);
@@ -141,11 +139,9 @@ DoubleSliderDisplay::DoubleSliderDisplay(QWidget* _parent) : super(_parent)
   cols->addWidget(text_);
   cols->addWidget(value_);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addLayout(cols);
   rows->addWidget(slider_);
-
-  setLayout(rows);
 
   // Connection
   connect(slider_, &DoubleSlider::valueChanged, this, &self::onSliderValueChanged);

@@ -42,11 +42,10 @@ RCInputViewerWidget::RCInputViewerWidget(const rqt::RosQtBridge& _bridge)
   status_rows->addStretch();
   status_rows->addLayout(mode_rows);
 
-  const auto cols = new QHBoxLayout();
+  const auto cols = new QHBoxLayout(this);
   cols->addWidget(yaw_pitch_, 1);
   cols->addWidget(roll_throttle_, 1);
   cols->addLayout(status_rows);
-  setLayout(cols);
 
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);

@@ -11,7 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(AMENT_DEPENDENCIES Eigen3 Qt5Core Qt5Widgets ament_index_cpp tobas_math tobas_std_tools)
+set(AMENT_DEPENDENCIES Eigen3 Qt6Core Qt6Widgets ament_index_cpp tobas_math tobas_std_tools)
 
 find_package(ament_cmake REQUIRED)
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
@@ -26,7 +26,15 @@ include_directories(include)
 # Headers must be added to the target for AUTOMOC.
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME}
+  Eigen3::Eigen
+  Qt6::Core
+  Qt6::Widgets
+  ament_index_cpp::ament_index_cpp
+  tobas_math::tobas_math
+  tobas_std_tools::tobas_std_tools
+)
 
 install(
   TARGETS ${PROJECT_NAME}

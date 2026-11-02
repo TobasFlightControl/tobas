@@ -13,8 +13,7 @@ namespace tobas::gui::log
 {
 BatteryPlotWidget::BatteryPlotWidget() : voltage_curve_("Voltage [V]"), current_curve_("Current [A]")
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   voltage_plot_ = new QwtPlot2();
   voltage_plot_->setAxisNoLabel(QwtPlot::xBottom);

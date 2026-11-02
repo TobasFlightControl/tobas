@@ -1,13 +1,11 @@
 <package format="3">
+  <name>{{ user_py_pkg_name }}</name>
+  <version>0.0.0</version>
+  <description>Tobas user Python package for {{ drone_name }}</description>
+  <maintainer email="{{ author_email }}">{{ author_name }}</maintainer>
+  <license>BSD-3-Clause</license>
 
-	<name>{{ user_py_pkg_name }}</name>
-	<version>0.0.0</version>
-	<description>Tobas user Python package for {{ drone_name }}</description>
-	<maintainer email="{{ author_email }}">{{ author_name }}</maintainer>
-	<license>BSD-3-Clause</license>
-
-	<export>
-		<build_type>ament_python</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
 </package>

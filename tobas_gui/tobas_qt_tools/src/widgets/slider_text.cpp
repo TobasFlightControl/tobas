@@ -17,8 +17,7 @@ constexpr int kValueWidth = 100;
 
 IntSliderTextWidget::IntSliderTextWidget(int _minimum, int _maximum, QWidget* _parent) : super(_parent)
 {
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
 
   cols->addWidget(new QLabel(QString::number(_minimum)));
 
@@ -77,8 +76,7 @@ void IntSliderTextWidget::setLineEditText(int _value)
 DoubleSliderTextWidget::DoubleSliderTextWidget(double _minimum, double _maximum, int _decimals, QWidget* _parent)
   : super(_parent), decimals_(_decimals)
 {
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
 
   cols->addWidget(new QLabel(QString::number(_minimum, 'f', _decimals)));
 

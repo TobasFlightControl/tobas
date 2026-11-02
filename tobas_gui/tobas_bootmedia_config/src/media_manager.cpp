@@ -30,8 +30,7 @@ MediaManagerWidget::MediaManagerWidget()
   connect_btn_->setEnabled(false);
 
   // Layout
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
   cols->addWidget(media_name_);
   cols->addWidget(connect_btn_);
 

@@ -11,8 +11,7 @@ namespace tobas::gui::log
 {
 RotorLinkPlotWidget::RotorLinkPlotWidget()
 {
-  grid_ = new qt::GridLayout();
-  setLayout(grid_);
+  grid_ = new qt::GridLayout(this);
 }
 
 void RotorLinkPlotWidget::clear()

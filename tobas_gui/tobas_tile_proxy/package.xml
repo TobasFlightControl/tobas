@@ -1,19 +1,17 @@
 <package format="3">
+  <name>tobas_tile_proxy</name>
+  <version>2.17.0</version>
+  <description>HTTP map-tile proxy server for the Qt Location OpenStreetMap plugin.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_tile_proxy</name>
-	<version>2.17.0</version>
-	<description>HTTP map-tile proxy server for the Qt Location OpenStreetMap plugin.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <exec_depend>python3-fastapi</exec_depend>
+  <exec_depend>python3-httpx</exec_depend>
+  <exec_depend>python3-uvicorn</exec_depend>
 
-	<exec_depend>python3-fastapi</exec_depend>
-	<exec_depend>python3-uvicorn</exec_depend>
-	<exec_depend>python3-httpx</exec_depend>
+  <test_depend>python3-pytest</test_depend>
 
-	<test_depend>python3-pytest</test_depend>
-
-	<export>
-		<build_type>ament_python</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
 </package>

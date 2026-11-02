@@ -11,8 +11,7 @@ namespace tobas::gui::log
 {
 AdditionalAccelPlotWidget::AdditionalAccelPlotWidget() : curves_{ "Accel X [m/s²]", "Accel Y [m/s²]", "Accel Z [m/s²]" }
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     plots_[i] = new QwtPlot2();

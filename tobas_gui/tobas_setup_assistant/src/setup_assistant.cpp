@@ -7,7 +7,7 @@
 
 #include <QDebug>
 #include <QFileInfo>
-#include <ament_index_cpp/get_package_share_directory.hpp>
+#include <ament_index_cpp/get_package_share_path.hpp>
 
 #include <tobas_constants/path.hpp>
 #include <tobas_gui_common/colcon.hpp>
@@ -82,12 +82,10 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr _node)
   viewer_cols->addWidget(rviz_, 2);
   viewer_cols->addWidget(jsp_, 1);
 
-  const auto root_rows = new QVBoxLayout();
+  const auto root_rows = new QVBoxLayout(this);
   root_rows->addLayout(pkg_cols, 0);
   root_rows->addLayout(viewer_cols, 2);
   root_rows->addWidget(settings_, 5);
-
-  setLayout(root_rows);
 
   // Connection
   connect(new_btn_, &QPushButton::clicked, this, &self::onNewButtonClicked);
@@ -154,7 +152,7 @@ bool SetupAssistantWidget::updateInternalDataStructures()
 
   // Update RSP parameter.
   const auto urdf_doc = urdf::exportUrdf(*uadf_.urdf);
-  const auto urdf_text = xml::xmlDocumentToString(urdf_doc);
+  const auto urdf_text = xml::xmlDocumentToString(urdf_doc.get());
   if (rsp_client_.setParam("robot_description", urdf_text) != ros2::SyncParamClient::kNoError) {
     qWarning() << rsp_client_.errorMessage();
     qt::qErrorBox(this, "Failed to update the robot state publisher.");
@@ -177,8 +175,8 @@ bool SetupAssistantWidget::updateInternalDataStructures()
 void SetupAssistantWidget::onNewButtonClicked()
 {
   // Get the previously opened path.
-  const auto default_pkg_share = ament_index_cpp::get_package_share_directory("tobas_description");
-  const auto default_dir = QDir(QString::fromStdString(default_pkg_share)).filePath("urdf");
+  const auto default_pkg_share = ament_index_cpp::get_package_share_path("tobas_description");
+  const auto default_dir = QDir(QString::fromStdString(default_pkg_share.string())).filePath("urdf");
   const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey_New, default_dir).toString();
 
   // Get the UADF path.
@@ -453,7 +451,7 @@ void SetupAssistantWidget::onSaveAsButtonClicked()
   // Get the previously opened path.
   const auto default_dir = qt::expandUser(kColconWSPathHome) + "/src";
   TOBAS_CHECK(QDir().mkpath(default_dir));
-  const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey_Load, default_dir).toString();
+  const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey_Save, default_dir).toString();
 
   // Get the project path.
   const auto dflt_proj_name = "tobas_" + QString::fromStdString(uadf_.urdf->getName());

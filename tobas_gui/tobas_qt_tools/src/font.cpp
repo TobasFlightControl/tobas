@@ -5,7 +5,7 @@
 
 namespace tobas::qt
 {
-DefaultFont::DefaultFont(int _point_size, int _weight, bool _italic)
+DefaultFont::DefaultFont(int _point_size, QFont::Weight _weight, bool _italic)
 {
   if (_point_size > 0) {
     setPointSize(_point_size);

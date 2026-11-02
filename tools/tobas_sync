@@ -2,23 +2,24 @@
 
 set -e
 
-# Show usage
+# Show usage.
 if [ $# -eq 0 ]; then
   echo "Usage: $(basename "$0") <host>" >&2
   exit 1
 fi
 
-# Check username
-if [ "$(id -un)" = "pi" ]; then
-  echo "This script cannot be executed on RPi." >&2
+# Check OS.
+source /etc/os-release
+if [[ "$ID" != "ubuntu" ]]; then
+  echo "This script requires Ubuntu." >&2
   exit 1
 fi
 
-# Navigate to the repository root
+# Navigate to the repository root.
 script_dir=$(dirname "$(realpath "$0")")
 cd "${script_dir}/.."
 
-# Sync
+# Sync packages..
 dest_dir="/home/pi/colcon_ws/src/tobas"
 rsync -rcmv --delete \
   --rsync-path="mkdir -p ${dest_dir} && rsync" \
@@ -28,4 +29,4 @@ rsync -rcmv --delete \
   --exclude .git/ \
   --exclude tobas_cui/ \
   --exclude tobas_description/ \
-  pi@$1:${dest_dir}/
+  pi@"$1":${dest_dir}/

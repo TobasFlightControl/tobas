@@ -22,7 +22,11 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME} tobas_math::tobas_math tobas_std_tools::tobas_std_tools tobas_eigen_tools::tobas_eigen_tools
+  tobas_quadprog::tobas_quadprog
+)
+target_link_options(${PROJECT_NAME} PRIVATE -Wl,--no-undefined)
 
 file(GLOB_RECURSE EXEC_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/*.cpp)
 set(TARGETS_TO_INSTALL "")

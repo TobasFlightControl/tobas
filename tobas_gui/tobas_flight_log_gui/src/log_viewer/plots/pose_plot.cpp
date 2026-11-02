@@ -37,8 +37,7 @@ PosePlotWidget::PosePlotWidget()
   , tar_curves_{ "Target X [m]",      "Target Y [m]",       "Target Z [m]",
                  "Target Roll [deg]", "Target Pitch [deg]", "Target Yaw [deg]" }
 {
-  const auto grid = new QGridLayout();
-  setLayout(grid);
+  const auto grid = new QGridLayout(this);
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     plots_[i] = new QwtPlot2();

@@ -57,8 +57,7 @@ RvizWidget::RvizWidget(const uadf::Model& _uadf, const kdl::Tree& _tree)
   inertia_box->setChecked(kDefaultInertiaEnabled);
 
   // Layout.
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
   const auto cols = new QHBoxLayout();
   rows->addWidget(rviz_manager_.widget());
   rows->addLayout(cols);
@@ -84,7 +83,7 @@ void RvizWidget::updateInternalDataStructures()
 
   // Update the URDF.
   const auto urdf_doc = urdf::exportUrdf(*uadf_.urdf);
-  const auto urdf_text = xml::xmlDocumentToString(urdf_doc);
+  const auto urdf_text = xml::xmlDocumentToString(urdf_doc.get());
   rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, urdf_text));
 
   // Reload the robot model.

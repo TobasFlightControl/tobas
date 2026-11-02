@@ -17,8 +17,7 @@ GnssPlotWidget::GnssPlotWidget()
   , north_speed_curve_("North Speed [m/s]")
   , up_speed_curve_("Up Speed [m/s]")
 {
-  const auto grid = new QGridLayout();
-  setLayout(grid);
+  const auto grid = new QGridLayout(this);
 
   latitude_plot_ = new QwtPlot2();
   latitude_plot_->setAxisNoLabel(QwtPlot::xBottom);

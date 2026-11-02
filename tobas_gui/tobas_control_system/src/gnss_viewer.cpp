@@ -20,11 +20,10 @@ GnssViewerWidget::GnssViewerWidget(const rqt::RosQtBridge& _bridge)
   nsats_->setMinimumWidth(kLabelMinWidth);
 
   // Layout
-  const auto form = new qt::FormLayout();
+  const auto form = new qt::FormLayout(this);
   constexpr int kLabelPSize = 12;
   form->addVAlignedRow(new qt::Label("Status", kLabelPSize), status_);
   form->addVAlignedRow(new qt::Label("NSats", kLabelPSize), nsats_);
-  setLayout(form);
 
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);

@@ -19,18 +19,14 @@ LQID::LQID(Eigen::Index _state_size, Eigen::Index _input_size, Eigen::Index _int
   , current_state(_state_size)
   , target_state(_state_size)
   , max_integrated_error(_integrate_size)
-  ,
-
-  x_size_(_state_size)
+  , x_size_(_state_size)
   , u_size_(_input_size)
   , r_size_(_integrate_size)
   , x_tilde_size_(_state_size + _input_size + _integrate_size)
   , x_idx_(0)
   , u_idx_(x_idx_ + x_size_)
   , eps_idx_(u_idx_ + u_size_)
-  ,
-
-  last_u_(u_size_)
+  , last_u_(u_size_)
   , eps_(r_size_)
   , x_tilde_(x_tilde_size_)
   , s_tilde_(x_tilde_size_)

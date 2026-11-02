@@ -11,8 +11,7 @@ namespace tobas::gui::sa::ctrl
 {
 PlanarMulticopterWidget::PlanarMulticopterWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   use_additional_acceleration_ = new QCheckBox("Use Additional Acceleration");
   rows->addWidget(use_additional_acceleration_);

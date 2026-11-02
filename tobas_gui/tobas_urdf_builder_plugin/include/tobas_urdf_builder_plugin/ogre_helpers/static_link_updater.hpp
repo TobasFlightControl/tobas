@@ -3,13 +3,13 @@
 
 #pragma once
 
-// Include OGRE from `/opt/ros/jazzy/opt/rviz_ogre_vendor/include/OGRE`, not `/usr/include/OGRE`.
+// Include OGRE from `/opt/ros/${ROS_DISTRO}/opt/rviz_ogre_vendor/include/OGRE`, not `/usr/include/OGRE`.
 // If the path includes `OGRE/`, the former is used; otherwise, the latter is used.
 #include <OgreMatrix4.h>
 #include <OgreQuaternion.h>
 #include <OgreVector.h>
-#include <urdf/model.h>
 #include <rviz_default_plugins/robot/link_updater.hpp>
+#include <urdf/model.hpp>
 
 namespace tobas::gui::ub::ogre
 {

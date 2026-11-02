@@ -1,48 +1,52 @@
-# Base: [moveit2/.clang-format](https://github.com/moveit/moveit2/blob/main/.clang-format)
+# Clang-Format Style Options: https://releases.llvm.org/21.1.2/tools/clang/docs/ClangFormatStyleOptions.html
 
 BasedOnStyle: Google
 ColumnLimit: 120
-CommentPragmas: '^ (IWYU pragma:|Source:)'
+CommentPragmas: "^ (IWYU pragma:|Source:)"
 MaxEmptyLinesToKeep: 1
-SortIncludes: CaseSensitive # false -> CaseSensitive
-IncludeBlocks: Preserve # Added
+SortIncludes:
+  Enabled: true
+  IgnoreCase: false
+IncludeBlocks: Preserve
 
-Standard: c++20 # Auto -> c++20
+Standard: c++20
 IndentWidth: 2
 TabWidth: 2
 UseTab: Never
 AccessModifierOffset: -2
 ConstructorInitializerIndentWidth: 2
 NamespaceIndentation: None
-ContinuationIndentWidth: 2 # 4 -> 2
+ContinuationIndentWidth: 2
 IndentCaseLabels: true
 IndentFunctionDeclarationAfterType: false
 
-AlignEscapedNewlinesLeft: false
-AlignTrailingComments: true
+AlignEscapedNewlines: Right
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 0
 
 AllowAllParametersOfDeclarationOnNextLine: false
 ExperimentalAutoDetectBinPacking: false
 ObjCSpaceBeforeProtocolList: true
 Cpp11BracedListStyle: false
 
-AllowShortBlocksOnASingleLine: true
-AllowShortIfStatementsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Always
+AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: None
 AllowShortCaseLabelsOnASingleLine: false
 
-AlwaysBreakTemplateDeclarations: true
+BreakTemplateDeclarations: Yes
 AlwaysBreakBeforeMultilineStrings: false
-BreakBeforeBinaryOperators: false
+BreakBeforeBinaryOperators: None
 BreakBeforeTernaryOperators: false
-BreakConstructorInitializersBeforeComma: true
+BreakConstructorInitializers: BeforeComma
 
-BinPackArguments: false # Added
-BinPackParameters: false # true -> false
-ConstructorInitializerAllOnOneLineOrOnePerLine: true
-DerivePointerBinding: false
-PointerBindsToType: true
+BinPackArguments: false
+BinPackParameters: OnePerLine
+PackConstructorInitializers: NextLine
+DerivePointerAlignment: false
+PointerAlignment: Left
 
 PenaltyExcessCharacter: 50
 PenaltyBreakBeforeFirstCallParameter: 30
@@ -52,12 +56,10 @@ PenaltyBreakString: 100
 PenaltyReturnTypeOnItsOwnLine: 50
 
 SpacesBeforeTrailingComments: 2
-SpacesInParentheses: false
-SpacesInAngles: false
-SpaceInEmptyParentheses: false
-SpacesInCStyleCastParentheses: false
+SpacesInParens: Never
+SpacesInAngles: Never
 SpaceAfterCStyleCast: false
-SpaceAfterControlStatementKeyword: true
+SpaceBeforeParens: ControlStatements
 SpaceBeforeAssignmentOperators: true
 
 # Configure each individual brace in BraceWrapping
@@ -69,29 +71,30 @@ QualifierOrder: ["static", "inline", "constexpr", "const", "volatile", "type"]
 
 # Control of individual brace wrapping cases
 BraceWrapping:
-  AfterCaseLabel: false # true -> false
+  AfterCaseLabel: false
   AfterClass: true
-  AfterControlStatement: false # true -> false
+  AfterControlStatement: Never
   AfterEnum: true
   AfterFunction: true
   AfterNamespace: true
-  AfterObjCDeclaration: true # Added
+  AfterObjCDeclaration: true
   AfterStruct: true
   AfterUnion: true
   BeforeCatch: true
   BeforeElse: true
-  BeforeLambdaBody: "true" # Added
-  BeforeWhile: false # Added
+  BeforeLambdaBody: true
+  BeforeWhile: false
   IndentBraces: false
-  SplitEmptyFunction: true # Added
-  SplitEmptyRecord: true # Added
-  SplitEmptyNamespace: true # Added
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
 
-# ===== Added =====
-AlignAfterOpenBracket: AlwaysBreak # If arguments do not fit on one line, indent every argument one level.
-AlignOperands: true # Vertically align operators in long expressions.
-FixNamespaceComments: true # Add or fix comments on closing braces for namespaces.
-ShortNamespaceLines: 0 # Add closing namespace comments when the namespace contains at least one line.
-InsertBraces: true # Always insert braces.
-AllowAllArgumentsOnNextLine: true # If arguments do not fit on one line, allow them to continue together on the next line.
-# RemoveEmptyLinesInUnwrappedLines: true # clang-format 20+
+# Others
+AlignAfterOpenBracket: AlwaysBreak
+AlignOperands: Align
+FixNamespaceComments: true
+ShortNamespaceLines: 0
+InsertBraces: true
+AllowAllArgumentsOnNextLine: true
+RemoveEmptyLinesInUnwrappedLines: true
+EnumTrailingComma: Insert

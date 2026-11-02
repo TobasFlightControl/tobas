@@ -20,8 +20,7 @@ namespace tobas::gui::sa::fw
 {
 AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   const auto cols = new QHBoxLayout();
   rows->addLayout(cols);

@@ -8,10 +8,11 @@ namespace tobas::eigen
 SplineFunction::SplineFunction(const Eigen::VectorXd& _x_vec, const Eigen::VectorXd& _y_vec, size_t _degree)
   : x_min_(_x_vec.minCoeff())
   , x_max_(_x_vec.maxCoeff())
-  , spline_(Eigen::SplineFitting<Eigen::Spline<double, 1>>::Interpolate(
-      _y_vec.transpose(),
-      std::min<int>(_x_vec.rows() - 1, _degree),
-      scaledValues(_x_vec)))
+  , spline_(
+      Eigen::SplineFitting<Eigen::Spline<double, 1>>::Interpolate(
+        _y_vec.transpose(),
+        std::min<int>(_x_vec.rows() - 1, _degree),
+        scaledValues(_x_vec)))
 {
   assert(_x_vec.size() >= 2);
   assert(_y_vec.size() >= 2);

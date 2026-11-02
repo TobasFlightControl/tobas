@@ -30,7 +30,18 @@ endforeach()
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_executable(ros_interface ${NODE_TARGETS})
-ament_target_dependencies(ros_interface ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ros_interface
+  std_srvs::std_srvs
+  tobas_node::tobas_node
+  tobas_tools::tobas_tools
+  tobas_kdl_msgs::tobas_kdl_msgs
+  tobas_msgs::tobas_msgs
+  tobas_drone_msgs::tobas_drone_msgs
+  tobas_real_common::tobas_real_common
+  tobas_real_msgs::tobas_real_msgs
+  tobas_mission_msgs::tobas_mission_msgs
+)
 
 install(TARGETS ros_interface DESTINATION lib/${PROJECT_NAME})
 

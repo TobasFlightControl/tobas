@@ -11,7 +11,7 @@ gcc_library_dir=$(dirname "${gcc_library}")
 
 colcon build \
   --symlink-install \
-  --parallel-workers $(nproc) \
+  --parallel-workers "$(nproc)" \
   --cmake-clean-first \
   --packages-up-to tobas \
   --cmake-args \

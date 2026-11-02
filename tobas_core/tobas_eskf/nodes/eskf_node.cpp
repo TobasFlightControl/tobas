@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <tf2_ros/transform_broadcaster.h>
+#include <tf2_ros/transform_broadcaster.hpp>
 
 #include <tobas_algorithm/core.hpp>
 #include <tobas_algorithm/kahan.hpp>
@@ -190,7 +190,8 @@ private:
 };
 
 ErrorStateKalmanFilterNode::ErrorStateKalmanFilterNode(const rclcpp::NodeOptions& _options)
-  : super(node::kObserver, nodeOptions_DParam(_options)), tf_br_(this)
+  : super(node::kObserver, nodeOptions_DParam(_options))
+  , tf_br_(tf2_ros::TransformBroadcaster::RequiredInterfaces(*this))
 {
   getStaticRosParams();
   setupTransformMessage();

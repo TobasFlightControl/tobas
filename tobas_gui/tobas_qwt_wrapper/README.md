@@ -1,7 +1,3 @@
 # tobas_qwt_wrapper
 
-Wrapper that prevents dependencies using C++20 or later from including `"qwt/qwt_series_store.h"`.
-
-## TODO
-
-Remove this package once Qt6 becomes available, that is, once Rviz supports Qt6.
+Reusable plotting helpers backed by Qwt 6.3.0 and Qt 6 from `tobas_qwt_vendor`.

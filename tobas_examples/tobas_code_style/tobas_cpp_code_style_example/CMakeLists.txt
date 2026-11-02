@@ -12,7 +12,15 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME}
+  rclcpp::rclcpp
+  rclcpp_components::component
+  std_msgs::std_msgs
+  mavros_msgs::mavros_msgs
+  tobas_math::tobas_math
+  tobas_msgs_adapter::tobas_msgs_adapter
+)
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})

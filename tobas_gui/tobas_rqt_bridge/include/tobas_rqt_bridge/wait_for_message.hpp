@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <chrono>
+
 #include <QEventLoop>
 #include <QObject>
 #include <QTimer>
@@ -28,7 +30,7 @@ struct SignalTraits<void (Class::*)(const Arg&)>
 }  // namespace detail
 
 template <auto SignalType>
-auto waitForMessage(const RosQtBridge& _bridge, int _timeout_ms)
+auto waitForMessage(const RosQtBridge& _bridge, std::chrono::milliseconds _timeout)
 {
   /** Derive the message pointer type from the signal so callers only need to specify the signal itself. */
   using MsgPtr = typename detail::SignalTraits<decltype(SignalType)>::Argument;
@@ -51,7 +53,7 @@ auto waitForMessage(const RosQtBridge& _bridge, int _timeout_ms)
     Qt::QueuedConnection);
   QObject::connect(&timeout_timer, &QTimer::timeout, &event_loop, &QEventLoop::quit);
 
-  timeout_timer.start(_timeout_ms);
+  timeout_timer.start(_timeout);
   event_loop.exec(QEventLoop::AllEvents | QEventLoop::ExcludeUserInputEvents);
 
   QObject::disconnect(connection);

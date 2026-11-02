@@ -31,16 +31,16 @@ AsyncNodeManager::~AsyncNodeManager()
 
 void AsyncNodeManager::shutdown()
 {
+  if (context_ && context_->is_valid()) {
+    context_->shutdown("");
+  }
+
   if (executor_ && executor_->is_spinning()) {
     executor_->cancel();
   }
 
   if (executor_thread_ && executor_thread_->joinable()) {
     executor_thread_->join();
-  }
-
-  if (context_ && context_->is_valid()) {
-    context_->shutdown("");
   }
 
   node_.reset();
@@ -59,7 +59,7 @@ void AsyncNodeManager::initialize(rclcpp::Context::SharedPtr _context, const std
 
   rclcpp::ExecutorOptions executor_options;
   executor_options.context = context_;
-  executor_.emplace(executor_options);
+  executor_.emplace(executor_options, 1);
   executor_->add_node(node_);
   executor_thread_.emplace([this]() { executor_->spin(); });
 }

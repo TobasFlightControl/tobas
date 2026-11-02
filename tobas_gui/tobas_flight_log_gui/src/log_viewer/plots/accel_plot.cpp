@@ -16,8 +16,7 @@ AccelPlotWidget::AccelPlotWidget()
   , tar_curves_{ "Target Linear Accel X [m/s²]",    "Target Linear Accel Y [m/s²]",    "Target Linear Accel Z [m/s²]",
                  "Target Angular Accel X [rad/s²]", "Target Angular Accel Y [rad/s²]", "Target Angular Accel Z [rad/s²]" }
 {
-  const auto grid = new QGridLayout();
-  setLayout(grid);
+  const auto grid = new QGridLayout(this);
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     plots_[i] = new QwtPlot2();

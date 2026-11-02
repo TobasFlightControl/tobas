@@ -36,9 +36,8 @@ ConsoleWidget::ConsoleWidget(const rqt::RosQtBridge& _bridge)
   const auto ver_header = table_->verticalHeader();
   ver_header->setVisible(false);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(table_);
-  setLayout(rows);
 
   connect(&_bridge, &rqt::RosQtBridge::messageReceived, this, &self::messageCb, Qt::QueuedConnection);
 }

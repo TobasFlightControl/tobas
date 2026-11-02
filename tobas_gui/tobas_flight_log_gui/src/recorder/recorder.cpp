@@ -55,12 +55,10 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& _bridge
   state_form->addVAlignedRow(new qt::Label("File Size", kPSize2), file_size_);
   state_form->addVAlignedRow(new qt::Label("Message Count", kPSize2), message_count_);
 
-  const auto root_rows = new QVBoxLayout();
+  const auto root_rows = new QVBoxLayout(this);
   root_rows->addLayout(name_cols);
   root_rows->addLayout(ctrl_cols);
   root_rows->addLayout(state_form);
-
-  setLayout(root_rows);
 
   // Connection
   connect(log_name_, &QLineEdit::textChanged, this, &self::onLogNameChanged);

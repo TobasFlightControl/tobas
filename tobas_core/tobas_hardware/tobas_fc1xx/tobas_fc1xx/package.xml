@@ -1,19 +1,17 @@
 <package format="3">
+  <name>tobas_fc1xx</name>
+  <version>2.17.0</version>
+  <description>Aggregation package for Tobas FC1xx flight-controller hardware support.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_fc1xx</name>
-	<version>2.17.0</version>
-	<description>Aggregation package for Tobas FC1xx flight-controller hardware support.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>tobas_fc1xx_core</exec_depend>
+  <exec_depend>tobas_fc1xx_ros</exec_depend>
+  <exec_depend>tobas_fc1xx_test</exec_depend>
 
-	<exec_depend>tobas_fc1xx_core</exec_depend>
-	<exec_depend>tobas_fc1xx_ros</exec_depend>
-	<exec_depend>tobas_fc1xx_test</exec_depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

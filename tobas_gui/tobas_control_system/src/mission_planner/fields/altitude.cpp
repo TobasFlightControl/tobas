@@ -14,8 +14,7 @@ AltitudeWidget::AltitudeWidget()
   spin_box_->setValue(5.0);
   spin_box_->setSuffix(" m");
 
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
   cols->addWidget(spin_box_);
 
   connect(spin_box_, qOverload<double>(&QDoubleSpinBox::valueChanged), this, &BaseFieldWidget::updated);

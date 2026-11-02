@@ -3,16 +3,16 @@
 
 #include "tobas_ros2_tools/path.hpp"
 
-#include <rcpputils/filesystem_helper.hpp>
+#include <filesystem>
 
-namespace rfs = rcpputils::fs;
+namespace fs = std::filesystem;
 
 namespace tobas::ros2
 {
 int createTemporalFile(std::string& _path)
 {
   // Get the system temporary directory.
-  const auto tmp_dir = rfs::temp_directory_path();
+  const auto tmp_dir = fs::temp_directory_path();
 
   // Create the template string. The last six characters must be X.
   _path = (tmp_dir / "tobas_temporal_file_XXXXXX").string();

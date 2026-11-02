@@ -1,23 +1,21 @@
 <package format="3">
+  <name>tobas_node</name>
+  <version>2.17.0</version>
+  <description>Base ROS 2 node class with common Tobas configuration and runtime behavior.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_node</name>
-	<version>2.17.0</version>
-	<description>Base ROS 2 node class with common Tobas configuration and runtime behavior.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclcpp_components</depend>
 
-	<depend>rclcpp_components</depend>
+  <depend>tobas_constants</depend>
+  <depend>tobas_dparam_msgs</depend>
+  <depend>tobas_msgs</depend>
+  <depend>tobas_ros2_tools</depend>
+  <depend>tobas_std_tools</depend>
 
-	<depend>tobas_std_tools</depend>
-	<depend>tobas_ros2_tools</depend>
-	<depend>tobas_msgs</depend>
-	<depend>tobas_dparam_msgs</depend>
-	<depend>tobas_constants</depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

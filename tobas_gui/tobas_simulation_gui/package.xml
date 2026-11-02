@@ -1,5 +1,4 @@
 <package format="3">
-
   <name>tobas_simulation_gui</name>
   <version>2.17.0</version>
   <description>Qt application for configuring, launching, and monitoring Tobas simulations.</description>
@@ -8,23 +7,22 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>tobas_eigen_conversions</depend>
-  <depend>tobas_kdl_parser</depend>
-  <depend>tobas_ros2_tools</depend>
-  <depend>tobas_drone_core</depend>
-  <depend>tobas_msgs_adapter</depend>
   <depend>tobas_command_msgs_adapter</depend>
+  <depend>tobas_drone_core</depend>
+  <depend>tobas_eigen_conversions</depend>
   <depend>tobas_gazebo_common</depend>
-  <depend>tobas_gazebo_tools</depend>
   <depend>tobas_gazebo_msgs</depend>
-  <depend>tobas_qt_tools</depend>
-  <depend>tobas_rqt_tools</depend>
-  <depend>tobas_rqt_bridge</depend>
+  <depend>tobas_gazebo_tools</depend>
   <depend>tobas_gui_common</depend>
+  <depend>tobas_kdl_parser</depend>
+  <depend>tobas_msgs_adapter</depend>
+  <depend>tobas_qt_tools</depend>
+  <depend>tobas_ros2_tools</depend>
+  <depend>tobas_rqt_bridge</depend>
+  <depend>tobas_rqt_tools</depend>
   <depend>tobas_uadf</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
   </export>
-
 </package>

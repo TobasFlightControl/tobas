@@ -31,10 +31,9 @@ RemoteConnectionWidget::RemoteConnectionWidget(const rqt::RosQtBridge& _bridge) 
   setEmpty();
 
   // Layout
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   qt::addWidgetCenter(icon_, rows);
   qt::addWidgetCenter(label_, rows);
-  setLayout(rows);
 
   // Connection
   connect(&timeout_timer_, &QTimer::timeout, this, &self::onTimeout);

@@ -18,8 +18,7 @@ MaxHeadingAccelWidget::MaxHeadingAccelWidget()
   spin_box_->setValue(120);  // 20 deg/s^2 -> 120 deg/s^2
   spin_box_->setSuffix(" deg/s²");
 
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
   cols->addWidget(spin_box_);
 
   connect(spin_box_, qOverload<int>(&QSpinBox::valueChanged), this, &BaseFieldWidget::updated);

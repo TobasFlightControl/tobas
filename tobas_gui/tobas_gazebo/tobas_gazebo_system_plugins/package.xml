@@ -1,32 +1,30 @@
 <package format="3">
+  <name>tobas_gazebo_system_plugins</name>
+  <version>2.17.0</version>
+  <description>Gazebo system and sensor plugins for simulating Tobas vehicles and hardware.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_gazebo_system_plugins</name>
-	<version>2.17.0</version>
-	<description>Gazebo system and sensor plugins for simulating Tobas vehicles and hardware.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>gz_plugin_vendor</depend>
+  <depend>gz_sim_vendor</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_srvs</depend>
 
-	<depend>gz_sim_vendor</depend>
-	<depend>gz_plugin_vendor</depend>
-	<depend>std_srvs</depend>
-	<depend>sensor_msgs</depend>
+  <depend>tobas_dsp</depend>
+  <depend>tobas_gazebo_common</depend>
+  <depend>tobas_gazebo_conversions</depend>
+  <depend>tobas_gazebo_msgs</depend>
+  <depend>tobas_gazebo_tools</depend>
+  <depend>tobas_geographic</depend>
+  <depend>tobas_msgs_adapter</depend>
+  <depend>tobas_nlp</depend>
+  <depend>tobas_node</depend>
+  <depend>tobas_tools</depend>
+  <depend>tobas_wind_model</depend>
 
-	<depend>tobas_dsp</depend>
-	<depend>tobas_geographic</depend>
-	<depend>tobas_nlp</depend>
-	<depend>tobas_node</depend>
-	<depend>tobas_tools</depend>
-	<depend>tobas_wind_model</depend>
-	<depend>tobas_msgs_adapter</depend>
-	<depend>tobas_gazebo_common</depend>
-	<depend>tobas_gazebo_conversions</depend>
-	<depend>tobas_gazebo_tools</depend>
-	<depend>tobas_gazebo_msgs</depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

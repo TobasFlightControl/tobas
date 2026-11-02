@@ -47,8 +47,7 @@ ParameterTuningWidget::ParameterTuningWidget()
   reset();
 
   // Layout
-  const auto root_rows = new QVBoxLayout();
-  setLayout(root_rows);
+  const auto root_rows = new QVBoxLayout(this);
 
   const auto button_cols = new QHBoxLayout();
   root_rows->addLayout(button_cols);

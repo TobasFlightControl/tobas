@@ -1,19 +1,17 @@
 <package format="3">
+  <name>tobas_dparam_server</name>
+  <version>2.17.0</version>
+  <description>ROS 2 server node for storing and updating dynamic parameters.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_dparam_server</name>
-	<version>2.17.0</version>
-	<description>ROS 2 server node for storing and updating dynamic parameters.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>tobas_dparam_common</depend>
+  <depend>tobas_dparam_msgs</depend>
+  <depend>tobas_node</depend>
 
-	<depend>tobas_node</depend>
-	<depend>tobas_dparam_common</depend>
-	<depend>tobas_dparam_msgs</depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

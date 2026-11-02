@@ -7,7 +7,7 @@
 #include <thread>
 
 #include <rclcpp/context.hpp>
-#include <rclcpp/executors/single_threaded_executor.hpp>
+#include <rclcpp/executors/events_cbg_executor/events_cbg_executor.hpp>
 #include <rclcpp/node.hpp>
 
 namespace tobas::ros2
@@ -28,7 +28,7 @@ public:
 private:
   rclcpp::Node::SharedPtr node_;
   rclcpp::Context::SharedPtr context_;
-  std::optional<rclcpp::executors::SingleThreadedExecutor> executor_;
+  std::optional<rclcpp::executors::EventsCBGExecutor> executor_;
   std::optional<std::thread> executor_thread_;
 
   void initialize(rclcpp::Context::SharedPtr _context, const std::string& _node_name);

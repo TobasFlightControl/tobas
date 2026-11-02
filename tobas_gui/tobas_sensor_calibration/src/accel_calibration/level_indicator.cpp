@@ -149,19 +149,23 @@ void LevelIndicatorWidget::paintEvent(QPaintEvent*)
   const auto radius = std::max(0.0, std::min(width(), height()) / 2.0 - kOuterMargin);
   const QRectF level_rect(center.x() - radius, center.y() - radius, 2.0 * radius, 2.0 * radius);
 
+  // Set the line color
+  auto line_color = palette().color(QPalette::Text);
+  line_color.setAlpha(128);
+
   // Draw the level background and outline.
-  painter.setPen(QPen(palette().color(QPalette::Mid), kOutlineWidth));
+  painter.setPen(QPen(line_color, kOutlineWidth));
   painter.setBrush(palette().color(QPalette::Base));
   painter.drawEllipse(level_rect);
 
   // Draw the crosshair and concentric tilt guides.
-  painter.setPen(QPen(palette().color(QPalette::Mid), kGuideWidth, Qt::DashLine));
+  painter.setPen(QPen(line_color, kGuideWidth, Qt::DashLine));
   painter.drawLine(QPointF(center.x() - radius, center.y()), QPointF(center.x() + radius, center.y()));
   painter.drawLine(QPointF(center.x(), center.y() - radius), QPointF(center.x(), center.y() + radius));
   painter.drawEllipse(center, radius / 2.0, radius / 2.0);
 
   const auto target_radius = radius * kTargetRadiusRatio;
-  painter.setPen(QPen(palette().color(QPalette::Mid), kOutlineWidth));
+  painter.setPen(QPen(line_color, kOutlineWidth));
   painter.drawEllipse(center, target_radius, target_radius);
 
   // Draw orientation labels for the FLU body frame.

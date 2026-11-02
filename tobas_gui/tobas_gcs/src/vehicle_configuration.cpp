@@ -20,7 +20,7 @@
 namespace tobas::gui::gcs
 {
 std::expected<VehicleConfiguration, QString>
-loadVehicleConfiguration(const rclcpp::Node::SharedPtr& _node, const std::string& _ns, int _timeout_ms)
+loadVehicleConfiguration(const rclcpp::Node::SharedPtr& _node, const std::string& _ns, std::chrono::milliseconds _timeout)
 {
   struct ReceivedModels
   {
@@ -66,7 +66,7 @@ loadVehicleConfiguration(const rclcpp::Node::SharedPtr& _node, const std::string
     });
   QObject::connect(&timeout, &QTimer::timeout, &loop, &QEventLoop::quit);
   poll.start(10);
-  timeout.start(_timeout_ms);
+  timeout.start(_timeout);
   loop.exec(QEventLoop::AllEvents | QEventLoop::ExcludeUserInputEvents);
 
   const std::lock_guard lock(received->mutex);

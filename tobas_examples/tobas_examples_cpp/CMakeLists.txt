@@ -24,7 +24,15 @@ include_directories(include)
 
 file(GLOB_RECURSE COMPONENT_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} components/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${COMPONENT_TARGETS})
-ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME}_node
+  tobas_node::tobas_node
+  tobas_constants::tobas_constants
+  tobas_msgs_adapter::tobas_msgs_adapter
+  tobas_command_msgs::tobas_command_msgs
+  tobas_mission_items::tobas_mission_items
+  tobas_mission_msgs::tobas_mission_msgs
+)
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "GnssStateCheckerNode" EXECUTABLE gnss_state_checker)
 
@@ -33,7 +41,15 @@ set(TARGETS_TO_INSTALL "")
 foreach(file_path IN LISTS NODE_TARGETS)
   get_filename_component(NAME ${file_path} NAME_WE)
   add_executable(${NAME} ${file_path})
-  ament_target_dependencies(${NAME} ${AMENT_DEPENDENCIES})
+  target_link_libraries(
+    ${NAME}
+    tobas_node::tobas_node
+    tobas_constants::tobas_constants
+    tobas_msgs_adapter::tobas_msgs_adapter
+    tobas_command_msgs::tobas_command_msgs
+    tobas_mission_items::tobas_mission_items
+    tobas_mission_msgs::tobas_mission_msgs
+  )
   list(APPEND TARGETS_TO_INSTALL ${NAME})
 endforeach()
 

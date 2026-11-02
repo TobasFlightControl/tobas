@@ -15,11 +15,9 @@ DebugWidget::DebugWidget()
   user_debug_ = new QCheckBox("User Debug");
 
   // Layout
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(new qt::Label("Debug", cmn::kLabelPSize, QFont::Bold));
   rows->addWidget(user_debug_);
-
-  setLayout(rows);
 }
 
 bool DebugWidget::userDebug() const

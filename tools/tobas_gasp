@@ -32,7 +32,7 @@ else
 fi
 
 # Push: use the upstream branch if configured, otherwise set -u on the first remote.
-if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then
+if git rev-parse --abbrev-ref --symbolic-full-name '@{u}' >/dev/null 2>&1; then
   git push
 else
   remote="$(git remote | head -n1 || true)"

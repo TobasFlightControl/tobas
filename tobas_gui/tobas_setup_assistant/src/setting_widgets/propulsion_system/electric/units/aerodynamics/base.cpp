@@ -12,8 +12,7 @@ namespace tobas::gui::sa::propulsion::electric
 {
 AerodynamicsWidget_Base::AerodynamicsWidget_Base()
 {
-  rows_ = new QVBoxLayout();
-  setLayout(rows_);
+  rows_ = new QVBoxLayout(this);
 
   description_ = new qt::DescriptionWidget("", cmn::kBodyPSize);
   rows_->addWidget(description_);

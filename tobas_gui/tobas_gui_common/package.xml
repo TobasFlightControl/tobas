@@ -1,26 +1,26 @@
 <package format="3">
+  <name>tobas_gui_common</name>
+  <version>2.17.0</version>
+  <description>
+    Shared project, networking, SSH, build, and user-interface utilities for Tobas GUI applications.
+  </description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_gui_common</name>
-	<version>2.17.0</version>
-	<description>Shared project, networking, SSH, build, and user-interface utilities for Tobas GUI applications.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>qt6-base-dev</depend>
 
-	<depend>qtbase5-dev</depend>
+  <depend>tobas_colcon_cpp</depend>
+  <depend>tobas_constants</depend>
+  <depend>tobas_linux</depend>
+  <depend>tobas_qt_tools</depend>
+  <depend>tobas_ssh_client</depend>
+  <depend>tobas_std_tools</depend>
+  <depend>tobas_version</depend>
+  <depend>tobas_yaml_tools</depend>
 
-	<depend>tobas_std_tools</depend>
-	<depend>tobas_yaml_tools</depend>
-	<depend>tobas_linux</depend>
-	<depend>tobas_constants</depend>
-	<depend>tobas_version</depend>
-	<depend>tobas_ssh_client</depend>
-	<depend>tobas_colcon_cpp</depend>
-	<depend>tobas_qt_tools</depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

@@ -23,10 +23,9 @@ StatusWidget::StatusWidget(const QString& _text)
 
   reset();
 
-  const auto cols = new QHBoxLayout();
+  const auto cols = new QHBoxLayout(this);
   cols->addWidget(status_);
   cols->addWidget(label_);
-  setLayout(cols);
 }
 
 void StatusWidget::reset()

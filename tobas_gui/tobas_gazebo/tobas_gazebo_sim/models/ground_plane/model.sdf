@@ -1,12 +1,9 @@
 <sdf version="1.10">
   <model name="ground_plane">
-
     <static>true</static>
 
     <link name="link">
-
       <collision name="collision">
-
         <!-- Limiting the maximum number of contact points improves computation speed but reduces accuracy. -->
         <!-- <max_contacts>4</max_contacts> -->
 
@@ -38,11 +35,9 @@
             </ode>
           </contact>
         </surface>
-
       </collision>
 
       <visual name="visual">
-
         <geometry>
           <plane>
             <normal>0 0 1</normal>
@@ -52,15 +47,12 @@
 
         <material>
           <script>
-            <!-- Since `gz_sim_vendor/share/gz/gz-sim8` is added to the path by dsv, this can be imported by relative path. -->
+            <!-- Since `gz_sim_vendor/share/gz/gz-sim` is added to the path by dsv, this can be imported by relative path. -->
             <uri>media/gazebo.material</uri>
             <name>Gazebo/Gray</name>
           </script>
         </material>
-
       </visual>
-
     </link>
-
   </model>
 </sdf>

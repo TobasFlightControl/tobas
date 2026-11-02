@@ -51,8 +51,7 @@ LatencyPlotWidget::LatencyPlotWidget()
   ctrl_latency_hist_data_.attach(ctrl_latency_hist_plot_);
 
   // Layout
-  const auto grid = new QGridLayout();
-  setLayout(grid);
+  const auto grid = new QGridLayout(this);
   grid->addWidget(sampling_time_plot_, 0, 0, 1, 1);
   grid->addWidget(ctrl_latency_plot_, 1, 0, 1, 1);
   grid->addWidget(sampling_time_hist_plot_, 0, 1, 1, 1);

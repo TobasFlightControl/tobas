@@ -1,5 +1,4 @@
 <package format="3">
-
   <name>tobas_bootmedia_config</name>
   <version>2.17.0</version>
   <description>Qt application for configuring Tobas boot media, networking, login, and SSH access.</description>
@@ -8,25 +7,25 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <build_depend>pkg-config</build_depend>
+
+  <depend>ament_index_cpp</depend>
+  <depend>inja-dev</depend>
   <depend>libsimpleini-dev</depend>
   <depend>magic_enum</depend>
-  <depend>ament_index_cpp</depend>
 
-  <depend>tobas_inja_vendor</depend>
-
-  <depend>tobas_std_tools</depend>
-  <depend>tobas_path_tools</depend>
-  <depend>tobas_linux</depend>
   <depend>tobas_constants</depend>
   <depend>tobas_crypt</depend>
+  <depend>tobas_gui_common</depend>
+  <depend>tobas_linux</depend>
+  <depend>tobas_path_tools</depend>
+  <depend>tobas_qt_tools</depend>
   <depend>tobas_ssh_authkey</depend>
+  <depend>tobas_std_tools</depend>
   <depend>tobas_udev</depend>
   <depend>tobas_wpa_supplicant</depend>
-  <depend>tobas_qt_tools</depend>
-  <depend>tobas_gui_common</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
   </export>
-
 </package>

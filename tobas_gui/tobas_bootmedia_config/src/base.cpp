@@ -20,11 +20,9 @@ BaseConfigWidget::BaseConfigWidget()
   title_ = new QLabel();
   title_->setFont(qt::DefaultFont(gui::cmn::kTitlePSize, QFont::Bold));
 
-  rows_ = new QVBoxLayout();
+  rows_ = new QVBoxLayout(this);
   rows_->addWidget(title_, 0, Qt::AlignTop);
   rows_->addSpacing(30);
-
-  setLayout(rows_);
 
   QTimer::singleShot(0, this, &BaseConfigWidget::initialize);
 }

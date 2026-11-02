@@ -59,8 +59,7 @@ ObserverFeedbackPlotWidget::ObserverFeedbackPlotWidget()
   gravity_curve_.attach(gravity_plot_);
 
   // Layout
-  const auto grid = new QGridLayout();
-  setLayout(grid);
+  const auto grid = new QGridLayout(this);
   grid->addWidget(acc_bias_plot_, 0, 0, 1, 1);
   grid->addWidget(gyro_bias_plot_, 0, 1, 1, 1);
   grid->addWidget(mag_hard_bias_plot_, 1, 0, 1, 1);

@@ -7,7 +7,7 @@
 #include <map>
 #include <string>
 
-#include <urdf/model.h>
+#include <urdf/model.hpp>
 
 #include "./control_surface.hpp"
 #include "./thrust.hpp"

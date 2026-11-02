@@ -11,8 +11,7 @@ namespace tobas::gui::log
 {
 MagPlotWidget::MagPlotWidget() : curves_{ "Mag X [-]", "Mag Y [-]", "Mag Z [-]" }
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     plots_[i] = new QwtPlot2();

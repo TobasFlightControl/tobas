@@ -22,11 +22,10 @@ CpuViewerWidget::CpuViewerWidget(const rqt::RosQtBridge& _bridge)
   load_->setFixedHeight(kBarHeight);
 
   // Layout
-  const auto form = new qt::FormLayout();
+  const auto form = new qt::FormLayout(this);
   constexpr int kLabelPSize = 12;
   form->addVAlignedRow(new qt::Label("Temp", kLabelPSize), temp_);
   form->addVAlignedRow(new qt::Label("Load", kLabelPSize), load_);
-  setLayout(form);
 
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::cpuReceived, this, &self::cpuCb, Qt::QueuedConnection);

@@ -40,12 +40,10 @@ SimulationWidget::SimulationWidget(const rqt::RosQtBridge& _bridge) : spinner_(Q
   config_rows->addWidget(sim_settings_);
   qt::addWidgetCenter(start_stop_button_, config_rows);
 
-  const auto cols = new QHBoxLayout();
+  const auto cols = new QHBoxLayout(this);
   cols->addLayout(config_rows, 1);
   cols->addWidget(dynamic_config_, 1);
   cols->addWidget(commanders_, 1);
-
-  setLayout(cols);
 
   // Connection
   connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartRequested);

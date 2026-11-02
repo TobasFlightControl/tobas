@@ -25,7 +25,10 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
 add_library(${PROJECT_NAME}_lib STATIC ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME}_lib ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME}_lib tf2_eigen::tf2_eigen rviz_common::rviz_common rviz_default_plugins::rviz_default_plugins
+  tobas_visualization_msgs::tobas_visualization_msgs
+)
 
 file(GLOB_RECURSE PLUGIN_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} plugins/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${PLUGIN_TARGETS})

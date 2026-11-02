@@ -131,13 +131,13 @@ the aircraft can keep its position and attitude within a limited range even when
 
 The following requirements must be met.
 
-| Requirement        | Required                       | Recommended        | Notes                           |
-| :----------------- | :----------------------------- | ------------------ | ------------------------------- |
-| OS                 | Ubuntu 24.04 LTS (ROS 2 Jazzy) |                    | Native installation recommended |
-| RAM                | 8GB                            | 16GB               |                                 |
-| CPU                | AMD64 (x86-64)                 |                    |                                 |
-| GPU                |                                | NVIDIA GeForce RTX |                                 |
-| Display Resolution | 2K/FHD                         | 4K/UHD             |                                 |
+| Requirement        | Required                         | Recommended        | Notes                           |
+| :----------------- | :------------------------------- | ------------------ | ------------------------------- |
+| OS                 | Ubuntu 26.04 LTS (ROS 2 Lyrical) |                    | Native installation recommended |
+| RAM                | 8GB                              | 16GB               |                                 |
+| CPU                | AMD64 (x86-64)                   |                    |                                 |
+| GPU                |                                  | NVIDIA GeForce RTX |                                 |
+| Display Resolution | 2K/FHD                           | 4K/UHD             |                                 |
 
 <br>
 

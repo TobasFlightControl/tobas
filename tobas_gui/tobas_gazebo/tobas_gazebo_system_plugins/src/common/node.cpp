@@ -49,7 +49,7 @@ void BaseNode::initialize(const std::string& _name, const sdf::ElementConstPtr& 
 
   // The executor constructor creates a guard condition using the ROS context,
   // so defer construction until after `rclcpp::init()` has initialized that context.
-  executor_.emplace();
+  executor_.emplace(rclcpp::ExecutorOptions(), 1);
   executor_->add_node(node_);
   spin_thread_ = std::thread([this]() { executor_->spin(); });
 

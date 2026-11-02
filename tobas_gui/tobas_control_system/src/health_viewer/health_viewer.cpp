@@ -27,7 +27,7 @@ HealthViewerWidget::HealthViewerWidget(const rqt::RosQtBridge& _bridge)
   user_defined_status_ = new StatusWidget("User-Defined Condition");
 
   // Layout
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(rt_compliance_status_);
   rows->addWidget(battery_voltage_status_);
   rows->addWidget(cpu_temp_status_);
@@ -45,7 +45,6 @@ HealthViewerWidget::HealthViewerWidget(const rqt::RosQtBridge& _bridge)
   rows->addWidget(vibration_level_status_);
   rows->addWidget(user_defined_status_);
   rows->addStretch();
-  setLayout(rows);
 
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::vehicleHealthReceived, this, &self::healthCb, Qt::QueuedConnection);

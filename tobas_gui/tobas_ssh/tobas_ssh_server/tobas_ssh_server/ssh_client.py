@@ -3,16 +3,16 @@
 
 import os
 import os.path as osp
-import socket
-import stat
 import posixpath
 import shlex
+import stat
+from collections.abc import Callable, Sequence
+
 import paramiko
 from paramiko.config import SSH_PORT
 from scp import SCPClient
-from typing import Tuple, List, Callable
 
-from .util import is_under_any
+from .util import is_under_any, shell_command
 
 
 class SSHClientWrapper:
@@ -22,8 +22,8 @@ class SSHClientWrapper:
         self,
         host: str,
         port: int = SSH_PORT,
-        user: str = None,
-        passwd: str = None,
+        user: str | None = None,
+        passwd: str | None = None,
         reject_missing_host: bool = False,
     ) -> None:
         self._host = host
@@ -34,6 +34,7 @@ class SSHClientWrapper:
         self._cli = paramiko.SSHClient()
 
         # Handle cases where the server public key is not included in the client known_hosts.
+        missing_host_policy: paramiko.MissingHostKeyPolicy
         if reject_missing_host:
             missing_host_policy = paramiko.RejectPolicy()
         else:
@@ -80,7 +81,7 @@ class SSHClientWrapper:
         except paramiko.SSHException as e:
             self._cli.close()
             raise RuntimeError(f"Failed to establish an SSH connection: {e}") from e
-        except socket.error as e:
+        except OSError as e:
             self._cli.close()
             raise RuntimeError(f"Failed to connect to {self._user}@{self._host}: {e}") from e
         except Exception as e:
@@ -90,7 +91,7 @@ class SSHClientWrapper:
     def close(self) -> None:
         self._cli.close()
 
-    def exec_command(self, command: str) -> Tuple[bool, str, str]:
+    def exec_command(self, command: str) -> tuple[bool, str, str]:
         """
         Execute command.
 
@@ -117,9 +118,8 @@ class SSHClientWrapper:
 
         return success, output, error_output
 
-    def exec_command_super(self, command: str) -> Tuple[bool, str, str]:
+    def exec_command_super(self, command: str) -> tuple[bool, str, str]:
         """Run a sudo command."""
-        assert command.count("'") == 0
         return self.exec_command(self._sudo_command(command))
 
     def exec_command_bg(self, command: str) -> None:
@@ -152,7 +152,7 @@ class SSHClientWrapper:
         self,
         _local_dir: str,
         _remote_dir: str,
-        _exclude_dirs: List[str] = [],
+        _exclude_dirs: Sequence[str] = (),
         _progress: Callable[[str, int, int], None] | None = None,
     ) -> None:
         """
@@ -190,7 +190,7 @@ class SSHClientWrapper:
                     remote_file = osp.join(_remote_dir, local_dir_base, relative_path)
                     remote_pardir = osp.dirname(remote_file)
                     if not self.dir_exists(remote_pardir):
-                        success, _, error_output = self.exec_command(f"mkdir -p {remote_pardir}")
+                        success, _, error_output = self.exec_command(shell_command(t"mkdir -p -- {remote_pardir}"))
                         if not success:
                             raise RuntimeError(f"Failed to create remote directory {remote_pardir}: {error_output}")
 
@@ -200,7 +200,7 @@ class SSHClientWrapper:
         self,
         local_dir: str,
         remote_dir: str,
-        exclude_dirs: List[str] = [],
+        exclude_dirs: Sequence[str] = (),
         progress: Callable[[str, int, int], None] | None = None,
     ) -> None:
         """Copy a local directory under a remote directory requiring root privileges with SCP."""
@@ -209,7 +209,7 @@ class SSHClientWrapper:
 
         # Delete the temporary object if it exists because paramiko does not provide rsync.
         if self.dir_exists(tmp_path):
-            success, _, error_output = self.exec_command(f"rm -r {tmp_path}")
+            success, _, error_output = self.exec_command(shell_command(t"rm -r -- {tmp_path}"))
             if not success:
                 raise RuntimeError(f"{tmp_path} already exists, but failed to remove it: {error_output}")
 
@@ -219,7 +219,8 @@ class SSHClientWrapper:
 
         # Sync the temporary object directly under the remote directory.
         # The remote directory is created automatically if it does not exist.
-        success, _, error_output = self.exec_command_super(f"rsync -rcm --delete {tmp_path} {remote_dir}")
+        command = shell_command(t"rsync -rcm --delete -- {tmp_path} {remote_dir}")
+        success, _, error_output = self.exec_command_super(command)
         if not success:
             raise RuntimeError(f"Failed to move {tmp_path} to {remote_dir}: {error_output}")
 
@@ -234,7 +235,7 @@ class SSHClientWrapper:
     def sftp_read_super(self, remote_path: str) -> str:
         assert not remote_path.endswith("/")
 
-        success, output, error_output = self.exec_command_super(f"cat {remote_path}")
+        success, output, error_output = self.exec_command_super(shell_command(t"cat -- {remote_path}"))
         if not success:
             raise RuntimeError(f"Failed to cat {remote_path}: {error_output}")
 
@@ -249,6 +250,12 @@ class SSHClientWrapper:
 
     def sftp_write_super(self, remote_path: str, text: str) -> None:
         """Write to a file requiring root privileges."""
+        # Create the parent directory before uploading the temporary file.
+        remote_pardir = posixpath.dirname(remote_path) or "."
+        success, _, error_output = self.exec_command_super(shell_command(t"mkdir -p -- {remote_pardir}"))
+        if not success:
+            raise RuntimeError(f"Failed to create remote directory {remote_pardir}: {error_output}")
+
         # Path of the temporary file.
         tmp_path = osp.join("/tmp", osp.basename(remote_path))
 
@@ -256,42 +263,45 @@ class SSHClientWrapper:
         self.sftp_write(tmp_path, text)
 
         # Move the temporary file to the target location.
-        success, _, error_output = self.exec_command_super(f"mv {tmp_path} {remote_path}")
+        success, _, error_output = self.exec_command_super(shell_command(t"mv -- {tmp_path} {remote_path}"))
         if not success:
             raise RuntimeError(f"Failed to move {tmp_path} to {remote_path}: {error_output}")
 
-    def list(self, remote_pardir: str) -> List[str]:
+    def list(self, remote_pardir: str) -> list[str]:
         """`ls` command."""
         with self._cli.open_sftp() as sftp:
             return sftp.listdir(remote_pardir)
 
     def file_exists(self, file_path: str) -> bool:
-        return self.exec_command(f"[ -f {file_path} ]")[0]
+        return self.exec_command(shell_command(t"[ -f {file_path} ]"))[0]
 
     def dir_exists(self, dir_path: str) -> bool:
-        return self.exec_command(f"[ -d {dir_path} ]")[0]
+        return self.exec_command(shell_command(t"[ -d {dir_path} ]"))[0]
 
     def get_remote_tree_size(self, remote_path: str) -> int:
         """Get the total size [bytes] of regular files on the remote side."""
         with self._cli.open_sftp() as sftp:
-            attr = sftp.stat(remote_path)
+            return self._get_remote_tree_size(sftp, remote_path)
 
-            if stat.S_ISREG(attr.st_mode):
-                return int(attr.st_size)
+    def _get_remote_tree_size(self, sftp: paramiko.SFTPClient, remote_path: str) -> int:
+        attr = sftp.stat(remote_path)
 
-            if not stat.S_ISDIR(attr.st_mode):
-                return 0
+        if stat.S_ISREG(attr.st_mode):
+            return int(attr.st_size)
 
-            total = 0
+        if not stat.S_ISDIR(attr.st_mode):
+            return 0
 
-            for child in sftp.listdir_attr(remote_path):
-                child_path = posixpath.join(remote_path, child.filename)
-                if stat.S_ISDIR(child.st_mode):
-                    total += self.get_remote_tree_size(sftp, child_path)
-                elif stat.S_ISREG(child.st_mode):
-                    total += int(child.st_size)
+        total = 0
+        for child in sftp.listdir_attr(remote_path):
+            child_path = posixpath.join(remote_path, child.filename)
+            if stat.S_ISDIR(child.st_mode):
+                total += self._get_remote_tree_size(sftp, child_path)
+            elif stat.S_ISREG(child.st_mode):
+                total += int(child.st_size)
 
         return total
 
     def _sudo_command(self, command: str) -> str:
-        return f"echo {self._passwd} | sudo -S bash -c '{command}'"
+        password = self._passwd or ""
+        return shell_command(t"printf '%s\\n' {password} | sudo -S -- bash -c {command}")

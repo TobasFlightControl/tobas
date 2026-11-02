@@ -231,7 +231,7 @@ private:
   double mag_hard_bias_proc_noise_density_ = 0.0;  ///< [/s/√Hz] Process noise density of magnetometer hard-iron bias.
   double mag_soft_bias_proc_noise_density_ = 0.0;  ///< [/s/√Hz] Process noise density of magnetometer soft-iron bias.
   double baro_alt_bias_proc_noise_density_ = 0.0;  ///< [m/s/√Hz] Process noise density of barometric altitude bias.
-  double grav_proc_noise_density_ = 0.0;  ///< [m/s^3/√Hz] Process noise density of gravitational acceleration.
+  double grav_proc_noise_density_ = 0.0;           ///< [m/s^3/√Hz] Process noise density of gravitational acceleration.
 
   StateVector x_;         ///< State vector of the filter
   DeltaStateMatrix P_;    ///< Covariance of the error state

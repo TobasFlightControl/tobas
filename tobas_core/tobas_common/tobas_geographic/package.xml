@@ -1,21 +1,19 @@
 <package format="3">
+  <name>tobas_geographic</name>
+  <version>2.17.0</version>
+  <description>Geographic coordinate and geomagnetic field calculations backed by GeographicLib.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
 
-	<name>tobas_geographic</name>
-	<version>2.17.0</version>
-	<description>Geographic coordinate and geomagnetic field calculations backed by GeographicLib.</description>
-	<maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
-	<license>GPL-3.0-or-later</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>pkg-config</buildtool_depend>
 
-	<buildtool_depend>ament_cmake</buildtool_depend>
-	<buildtool_depend>pkg-config</buildtool_depend>
+  <depend>ament_index_cpp</depend>
+  <depend>geographiclib</depend>
 
-	<depend>geographiclib</depend>
-	<depend>ament_index_cpp</depend>
+  <depend>tobas_std_tools</depend>
 
-	<depend>tobas_std_tools</depend>
-
-	<export>
-		<build_type>ament_cmake</build_type>
-	</export>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

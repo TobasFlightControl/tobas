@@ -2,20 +2,18 @@
 # Copyright (C) 2026 Tobas, Inc.
 
 import rclpy
-from rclpy.node import Node
-from rclpy.parameter import Parameter
 from rclpy.action import ActionServer
 from rclpy.action.server import ServerGoalHandle
-from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy
-
+from rclpy.node import Node
+from rclpy.parameter import Parameter
+from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 from std_msgs.msg import String
+from tobas_ssh_msgs.action import ScpGet, ScpPut
+from tobas_ssh_msgs.srv import Connect, Execute, List, SetEndpoint, SftpRead, SftpWrite
 
-from tobas_ssh_msgs.srv import *
-from tobas_ssh_msgs.action import *
-
-from .ssh_client import SSHClientWrapper
 from .scp_progress import RecursiveScpProgress
-from .util import get_local_tree_size
+from .ssh_client import SSHClientWrapper
+from .util import get_local_tree_size, shell_command
 
 
 class SSHServerNode(Node):
@@ -95,10 +93,6 @@ class SSHServerNode(Node):
             return res
 
         if req.superuser:
-            if req.command.count("'") > 0:
-                res.success = False
-                res.error_output = "Command with superuser privilege cannot contain single quotation marks."
-                return res
             if req.background:
                 self._cli.exec_command_bg_super(req.command)
                 res.success = True
@@ -183,7 +177,12 @@ class SSHServerNode(Node):
             goal_handle.abort()
             return result
 
-        total_size = self._cli.get_remote_tree_size(goal.remote_path)
+        try:
+            total_size = self._cli.get_remote_tree_size(goal.remote_path)
+        except Exception as e:
+            result.error_message = f"Failed to get remote tree size: {e}"
+            goal_handle.abort()
+            return result
 
         def callback(transferred: int) -> None:
             feedback = ScpGet.Feedback()
@@ -212,7 +211,7 @@ class SSHServerNode(Node):
 
         # Create parent directories.
         if goal.parents:
-            mkdir_command = f"mkdir -p {goal.remote_dir}"
+            mkdir_command = shell_command(t"mkdir -p -- {goal.remote_dir}")
             if goal.superuser:
                 success, _, error_output = self._cli.exec_command_super(mkdir_command)
             else:

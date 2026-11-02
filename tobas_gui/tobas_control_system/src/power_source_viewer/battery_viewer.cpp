@@ -24,11 +24,10 @@ BatteryViewerWidget::BatteryViewerWidget(const rqt::RosQtBridge& _bridge, const 
   current_->setFixedHeight(kBarHeight);
 
   // Layout
-  const auto form = new qt::FormLayout();
+  const auto form = new qt::FormLayout(this);
   constexpr int kLabelPSize = 12;
   form->addVAlignedRow(new qt::Label("Volt", kLabelPSize), voltage_);
   form->addVAlignedRow(new qt::Label("Curr", kLabelPSize), current_);
-  setLayout(form);
 
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::batteryReceived, this, &self::batteryCb, Qt::QueuedConnection);

@@ -32,8 +32,7 @@ MainWidget::MainWidget(const QString& _title, const QString& _icon_path, QWidget
     setWindowIcon(QIcon(_icon_path));
   }
 
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   rows->addWidget(_widget);
 
@@ -78,7 +77,7 @@ void MainWidget::restoreWindowGeometry()
 
 void MainWidget::saveWindowGeometry()
 {
-  if (geometry_saved_ || !hasSettingsIdentity()) {
+  if (!hasSettingsIdentity()) {
     return;
   }
 
@@ -88,6 +87,5 @@ void MainWidget::saveWindowGeometry()
   settings.setValue(kSizeKey, size());
   settings.endGroup();
   settings.sync();
-  geometry_saved_ = true;
 }
 }  // namespace tobas::qt

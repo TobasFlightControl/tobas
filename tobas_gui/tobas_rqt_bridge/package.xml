@@ -1,5 +1,4 @@
 <package format="3">
-
   <name>tobas_rqt_bridge</name>
   <version>2.17.0</version>
   <description>Qt signal bridge for delivering Tobas ROS 2 messages to GUI applications.</description>
@@ -8,16 +7,15 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>qtbase5-dev</depend>
+  <depend>qt6-base-dev</depend>
 
-  <depend>tobas_path_tools</depend>
-  <depend>tobas_ros2_tools</depend>
   <depend>tobas_constants</depend>
-  <depend>tobas_real_common</depend>
   <depend>tobas_msgs_adapter</depend>
+  <depend>tobas_path_tools</depend>
+  <depend>tobas_real_common</depend>
+  <depend>tobas_ros2_tools</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
   </export>
-
 </package>

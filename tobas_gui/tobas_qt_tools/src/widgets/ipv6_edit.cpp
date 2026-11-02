@@ -21,8 +21,7 @@ constexpr char kNormalizeIpv6HextetOnFocusOutProperty[] = "normalizeIpv6HextetOn
 
 IPv6Edit::IPv6Edit(QWidget* _parent) : super(_parent)
 {
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
 
   const QRegularExpression hex4(R"(^[0-9A-Fa-f]{0,4}$)");
   for (int i = kNumFields - 1; i >= 0; --i) {

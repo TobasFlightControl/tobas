@@ -12,8 +12,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswit
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(AMENT_DEPENDENCIES
-    Qt5Core
-    Qt5Widgets
+    Qt6Core
+    Qt6Widgets
     tobas_std_tools
     tobas_yaml_tools
     tobas_linux
@@ -36,7 +36,19 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp include/*.hpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(
+  ${PROJECT_NAME}
+  Qt6::Core
+  Qt6::Widgets
+  tobas_std_tools::tobas_std_tools
+  tobas_yaml_tools::tobas_yaml_tools
+  tobas_linux::tobas_linux
+  tobas_constants::tobas_constants
+  tobas_version::tobas_version
+  tobas_ssh_client::tobas_ssh_client
+  tobas_colcon_cpp::tobas_colcon_cpp
+  tobas_qt_tools::tobas_qt_tools
+)
 
 file(GLOB_RECURSE EXEC_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} examples/*.cpp)
 set(TARGETS_TO_INSTALL "")

@@ -13,8 +13,7 @@ namespace tobas::gui::sim
 {
 CommandersWidget::CommandersWidget(const rqt::RosQtBridge& _bridge, const kdl::Tree& _tree, const Drone& _drone)
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   const auto title = new qt::Label("Commanders", cmn::kTitlePSize, QFont::Bold);
   qt::addWidgetCenter(title, rows);

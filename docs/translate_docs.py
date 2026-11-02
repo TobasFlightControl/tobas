@@ -3,8 +3,6 @@
 Translate all Markdown files under docs/ja/ into English and write them under docs/en/.
 """
 
-from __future__ import annotations
-
 import argparse
 import difflib
 import os
@@ -14,8 +12,9 @@ import subprocess
 import sys
 import tempfile
 import time
+from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Sequence, Tuple
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from openai import OpenAI
@@ -124,7 +123,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def split_front_matter(text: str) -> Tuple[str, str]:
+def split_front_matter(text: str) -> tuple[str, str]:
     """
     Return (front_matter, body).
     front_matter includes the trailing newline after the closing --- if present.
@@ -137,11 +136,11 @@ def split_front_matter(text: str) -> Tuple[str, str]:
     return front_matter, body
 
 
-def mask_segments(text: str) -> Tuple[str, Dict[str, str]]:
+def mask_segments(text: str) -> tuple[str, dict[str, str]]:
     """
     Mask content that must remain byte-for-byte identical after translation.
     """
-    placeholders: Dict[str, str] = {}
+    placeholders: dict[str, str] = {}
     counter = 0
     namespace = f"TOBAS_{secrets.token_hex(8).upper()}"
     while namespace in text:
@@ -175,7 +174,7 @@ def mask_segments(text: str) -> Tuple[str, Dict[str, str]]:
     return text, placeholders
 
 
-def unmask_segments(text: str, placeholders: Dict[str, str]) -> str:
+def unmask_segments(text: str, placeholders: dict[str, str]) -> str:
     for key, value in placeholders.items():
         count = text.count(key)
         if count != 1:
@@ -184,9 +183,9 @@ def unmask_segments(text: str, placeholders: Dict[str, str]) -> str:
     return text
 
 
-def markdown_structure(text: str) -> List[str]:
+def markdown_structure(text: str) -> list[str]:
     """Return the ordered Markdown constructs that translation must preserve."""
-    structure: List[str] = []
+    structure: list[str] = []
     for line in text.splitlines():
         stripped = line.lstrip()
         indent = len(line) - len(stripped)
@@ -216,10 +215,10 @@ def markdown_structure(text: str) -> List[str]:
     return structure
 
 
-def split_oversized_text(text: str, max_chars: int) -> List[str]:
+def split_oversized_text(text: str, max_chars: int) -> list[str]:
     """Split a large Markdown block without cutting protected placeholders."""
     atoms = re.split(f"({PLACEHOLDER_RE.pattern})", text)
-    pieces: List[str] = []
+    pieces: list[str] = []
     current = ""
 
     def append_piece(piece: str) -> None:
@@ -258,7 +257,7 @@ def split_oversized_text(text: str, max_chars: int) -> List[str]:
     return pieces
 
 
-def chunk_text(text: str, max_chars: int) -> List[str]:
+def chunk_text(text: str, max_chars: int) -> list[str]:
     """
     Chunk markdown by paragraph-ish boundaries while preserving separators.
     """
@@ -266,7 +265,7 @@ def chunk_text(text: str, max_chars: int) -> List[str]:
         return [text]
 
     parts = re.split(r"(\n(?=#+\s)|\n{2,})", text)
-    chunks: List[str] = []
+    chunks: list[str] = []
     current = ""
 
     for part in parts:
@@ -345,7 +344,7 @@ def translate_chunk(
             if response_headers:
                 try:
                     retry_after = float(response_headers.get("retry-after"))
-                except (TypeError, ValueError):
+                except TypeError, ValueError:
                     pass
             delay = retry_after if retry_after is not None else sleep_sec * (2 ** (attempt - 1))
             time.sleep(delay)
@@ -362,8 +361,7 @@ def run_git(args: Sequence[str], cwd: Path) -> str:
         ["git", *args],
         cwd=cwd,
         check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         text=True,
     )
     return result.stdout
@@ -386,7 +384,7 @@ def read_file_from_git(path: Path, base_ref: str, git_root: Path) -> str | None:
         return None
 
 
-def changed_markdown_files(root: Path, base_ref: str) -> List[Path]:
+def changed_markdown_files(root: Path, base_ref: str) -> list[Path]:
     git_root = find_git_root(root)
     root_path = to_git_path(root, git_root)
 
@@ -406,13 +404,13 @@ def changed_markdown_files(root: Path, base_ref: str) -> List[Path]:
     return files
 
 
-def split_markdown_blocks(text: str) -> List[str]:
+def split_markdown_blocks(text: str) -> list[str]:
     """
     Split Markdown into paragraph-ish blocks while keeping separators.
     """
     lines = text.splitlines(keepends=True)
-    blocks: List[str] = []
-    current: List[str] = []
+    blocks: list[str] = []
+    current: list[str] = []
     fence: str | None = None
 
     for line in lines:
@@ -440,7 +438,7 @@ def split_markdown_blocks(text: str) -> List[str]:
     return blocks
 
 
-def masked_markdown_structure(text: str) -> List[str]:
+def masked_markdown_structure(text: str) -> list[str]:
     masked, _ = mask_segments(text)
     return markdown_structure(masked)
 
@@ -452,12 +450,12 @@ def validate_block_alignment(base_blocks: Sequence[str], dst_blocks: Sequence[st
             f"({len(base_blocks)} != {len(dst_blocks)})."
         )
 
-    for index, (base_block, dst_block) in enumerate(zip(base_blocks, dst_blocks), start=1):
+    for index, (base_block, dst_block) in enumerate(zip(base_blocks, dst_blocks, strict=True), start=1):
         if masked_markdown_structure(base_block) != masked_markdown_structure(dst_block):
             raise ValueError(f"Markdown structure differs in aligned block {index}.")
 
 
-def markdown_link_destinations(text: str) -> List[str]:
+def markdown_link_destinations(text: str) -> list[str]:
     destinations = [match.group("destination") for match in MARKDOWN_LINK_DEST_RE.finditer(text)]
     destinations.extend(match.group("destination") for match in REFERENCE_LINK_DEST_RE.finditer(text))
     return destinations
@@ -492,7 +490,7 @@ def translate_markdown_diff(
     if src_front_matter != base_front_matter:
         front_matter = src_front_matter
 
-    result_blocks: List[str] = []
+    result_blocks: list[str] = []
     matcher = difflib.SequenceMatcher(a=base_blocks, b=src_blocks, autojunk=False)
 
     for tag, i1, i2, j1, j2 in matcher.get_opcodes():
@@ -541,7 +539,7 @@ def translate_markdown(
     masked_body, placeholders = mask_segments(body)
     chunks = chunk_text(masked_body, chunk_chars)
 
-    translated_chunks: List[str] = []
+    translated_chunks: list[str] = []
     for idx, chunk in enumerate(chunks, start=1):
         print(f"    chunk {idx}/{len(chunks)}")
         previous_translation = translated_chunks[-1] if translated_chunks else context_before
@@ -564,11 +562,11 @@ def translate_markdown(
     return front_matter + translated_body
 
 
-def iter_markdown_files(root: Path) -> List[Path]:
+def iter_markdown_files(root: Path) -> list[Path]:
     return sorted(p for p in root.rglob("*.md") if p.is_file() and p.name != "README.md")
 
 
-def deleted_markdown_files(root: Path, base_ref: str) -> List[Path]:
+def deleted_markdown_files(root: Path, base_ref: str) -> list[Path]:
     git_root = find_git_root(root)
     root_path = to_git_path(root, git_root)
     deleted = run_git(

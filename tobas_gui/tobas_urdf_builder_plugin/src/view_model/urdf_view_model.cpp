@@ -5,7 +5,8 @@
 
 #include <queue>
 
-#include <tobas_std_tools/console.hpp>
+#include <QDebug>
+
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_urdf/exporter.hpp>
 
@@ -89,7 +90,7 @@ bool URDFViewModel::loadRobot(const QString& _file_path)
   newRobot();
 
   if (!urdf_->initFile(_file_path.toStdString())) {
-    PRINT_ERROR("Failed to parse URDF.");
+    qWarning() << "Failed to parse URDF.";
     urdf_.reset();
     return false;
   }
@@ -111,7 +112,7 @@ bool URDFViewModel::saveRobot(const QString& _file_path)
 
   // Save XML.
   if (doc->SaveFile(_file_path.toStdString().c_str()) != tinyxml2::XML_SUCCESS) {
-    PRINT_ERROR("Failed to save URDF: " << doc->ErrorStr());
+    qWarning() << "Failed to save URDF:" << doc->ErrorStr();
     return false;
   }
 

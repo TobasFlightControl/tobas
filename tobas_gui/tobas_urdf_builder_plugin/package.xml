@@ -1,5 +1,4 @@
 <package format="3">
-
   <name>tobas_urdf_builder_plugin</name>
   <version>2.17.0</version>
   <description>RViz panel plugin for interactively building and editing URDF robot models.</description>
@@ -8,18 +7,17 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>qtbase5-dev</depend>
+  <depend>qt6-base-dev</depend>
   <depend>rviz_common</depend>
   <depend>rviz_default_plugins</depend>
   <depend>rviz_rendering</depend>
 
+  <depend>tobas_qt_tools</depend>
   <depend>tobas_std_tools</depend>
   <depend>tobas_urdf</depend>
-  <depend>tobas_qt_tools</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
-    <rviz plugin="${prefix}/plugin_description.xml"/>
+    <rviz plugin="${prefix}/plugin_description.xml" />
   </export>
-
 </package>

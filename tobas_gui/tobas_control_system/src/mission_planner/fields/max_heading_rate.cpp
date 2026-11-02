@@ -18,8 +18,7 @@ MaxHeadingRateWidget::MaxHeadingRateWidget()
   spin_box_->setValue(60);
   spin_box_->setSuffix(" deg/s");
 
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
   cols->addWidget(spin_box_);
 
   connect(spin_box_, qOverload<int>(&QSpinBox::valueChanged), this, &BaseFieldWidget::updated);

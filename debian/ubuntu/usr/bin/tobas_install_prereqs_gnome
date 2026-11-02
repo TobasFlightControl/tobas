@@ -1,9 +1,11 @@
 #!/bin/bash
 
+# Expand variables in the child bash process.
+# shellcheck disable=SC2016
 env \
-  DISPLAY=$DISPLAY \
-  XAUTHORITY=$XAUTHORITY \
-  USER=$(id -nu "$PKEXEC_UID") \
+  DISPLAY="$DISPLAY" \
+  XAUTHORITY="$XAUTHORITY" \
+  USER="$(id -nu "$PKEXEC_UID")" \
   gnome-terminal -- bash -lc '
   /usr/bin/tobas_install_prereqs
   status=$?

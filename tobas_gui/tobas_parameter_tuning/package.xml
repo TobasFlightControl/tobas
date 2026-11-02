@@ -1,5 +1,4 @@
 <package format="3">
-
   <name>tobas_parameter_tuning</name>
   <version>2.17.0</version>
   <description>Qt application for inspecting and tuning Tobas runtime parameters.</description>
@@ -8,17 +7,16 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>tobas_string_tools</depend>
-  <depend>tobas_ros2_tools</depend>
-  <depend>tobas_drone_core</depend>
-  <depend>tobas_ssh_client</depend>
   <depend>tobas_dparam_client</depend>
-  <depend>tobas_qt_tools</depend>
-  <depend>tobas_rqt_tools</depend>
+  <depend>tobas_drone_core</depend>
   <depend>tobas_gui_common</depend>
+  <depend>tobas_qt_tools</depend>
+  <depend>tobas_ros2_tools</depend>
+  <depend>tobas_rqt_tools</depend>
+  <depend>tobas_ssh_client</depend>
+  <depend>tobas_string_tools</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
   </export>
-
 </package>

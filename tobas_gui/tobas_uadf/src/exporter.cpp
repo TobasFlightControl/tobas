@@ -7,10 +7,10 @@
 
 namespace tobas::uadf
 {
-tinyxml2::XMLDocument* exportUADF(const Model& _model)
+std::unique_ptr<tinyxml2::XMLDocument> exportUADF(const Model& _model)
 {
   // Create the base XML.
-  const auto doc = urdf::exportUrdf(*_model.urdf);
+  auto doc = urdf::exportUrdf(*_model.urdf);
 
   // Get the root node.
   const auto robot = doc->RootElement();

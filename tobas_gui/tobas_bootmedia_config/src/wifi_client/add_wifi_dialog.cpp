@@ -46,11 +46,9 @@ AddWifiDialog::AddWifiDialog(QWidget* _parent) : super(_parent)
   form->addRow("Priority", priority_);
   form->addRow("Hidden", hidden_);
 
-  const auto rows = new QVBoxLayout();
+  const auto rows = new QVBoxLayout(this);
   rows->addLayout(form);
   rows->addWidget(btn_box_);
-
-  setLayout(rows);
 
   // Connection
   connect(key_mgmt_, &QComboBox::currentTextChanged, this, &self::onChanged);

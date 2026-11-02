@@ -3,7 +3,7 @@
 
 #include "tobas_urdf_builder_plugin/view_model/geometry_view_model.hpp"
 
-#include <tobas_std_tools/console.hpp>
+#include <QDebug>
 
 static const std::map<GeometryType, QString> kGeometryTypeToNameMap = {
   { ::urdf::Geometry::BOX, "Box" },
@@ -69,6 +69,13 @@ void GeometryViewModel::sync()
       model_.reset(sphere);
       break;
     }
+    case GeometryType::CAPSULE: {
+      auto capsule = new ::urdf::Capsule();
+      capsule->length = length_;
+      capsule->radius = radius_;
+      model_.reset(capsule);
+      break;
+    }
     case GeometryType::MESH: {
       auto mesh = new ::urdf::Mesh();
       mesh->filename = filepath_;
@@ -77,7 +84,7 @@ void GeometryViewModel::sync()
       break;
     }
     default: {
-      PRINT_ERROR("Invalid geometry type: " << type_);
+      qWarning() << "Invalid geometry type:" << type_;
       break;
     }
   }
@@ -191,6 +198,12 @@ void GeometryViewModel::load()
       radius_ = sphere->radius;
       break;
     }
+    case GeometryType::CAPSULE: {
+      auto capsule = ::urdf::dynamic_pointer_cast<::urdf::Capsule>(model_);
+      length_ = capsule->length;
+      radius_ = capsule->radius;
+      break;
+    }
     case GeometryType::MESH: {
       auto mesh = ::urdf::dynamic_pointer_cast<::urdf::Mesh>(model_);
       filepath_ = mesh->filename;
@@ -198,7 +211,7 @@ void GeometryViewModel::load()
       break;
     }
     default: {
-      PRINT_ERROR("Invalid geometry type: " << type_);
+      qWarning() << "Invalid geometry type:" << type_;
       break;
     }
   }
