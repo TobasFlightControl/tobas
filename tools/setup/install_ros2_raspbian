@@ -7,7 +7,7 @@ set -eo pipefail
 
 # Lyrical targets Debian Trixie; Bookworm has an older Python version.
 source /etc/os-release
-if [[ "$ID" != "debian" && "$ID" != "raspbian" ]] || [[ "$VERSION_CODENAME" != "trixie" ]]; then
+if [[ "$ID" != "debian" || "$VERSION_CODENAME" != "trixie" ]]; then
   echo "ROS 2 Lyrical requires Raspberry Pi OS Trixie (Debian 13)." >&2
   exit 1
 fi

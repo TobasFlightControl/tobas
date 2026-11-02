@@ -5,10 +5,10 @@
 
 set -eo pipefail
 
-# Lyrical binary packages target Ubuntu Resolute.
+# Check OS.
 source /etc/os-release
-if [[ "$ID" != "ubuntu" || "$VERSION_CODENAME" != "resolute" ]]; then
-  echo "ROS 2 Lyrical binary packages require Ubuntu 26.04 (Resolute)." >&2
+if [[ "$ID" != "ubuntu" ]]; then
+  echo "This script requires Ubuntu." >&2
   exit 1
 fi
 

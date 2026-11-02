@@ -2,9 +2,10 @@
 
 set -e
 
-# Check username.
-if [ "$(id -un)" != "pi" ]; then
-  echo "This script can only be executed on RPi." >&2
+# Check OS.
+source /etc/os-release
+if [[ "$ID" != "debian" || "$VERSION_CODENAME" != "trixie" ]]; then
+  echo "This script requires Raspberry Pi OS Trixie (Debian 13)." >&2
   exit 1
 fi
 
