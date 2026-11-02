@@ -40,7 +40,6 @@ If you only want to install and use Tobas, start from the
 
    ```bash
    $ mkdir -p ~/colcon_ws/src
-   $ cd ~/colcon_ws
    ```
 
 3. Set up your environment automatically each time a new shell is opened
