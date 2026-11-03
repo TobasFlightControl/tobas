@@ -136,7 +136,7 @@ bool followCirclePath(rclcpp::Node::SharedPtr _node)
   return true;
 }
 
-int main(int _argc, char** _argv)
+int main(int _argc, char* _argv[])
 {
   tobas::ros2::AsyncNodeManager node_manager(_argc, _argv, "command_circle_trajectory");
   const auto node = node_manager.node();

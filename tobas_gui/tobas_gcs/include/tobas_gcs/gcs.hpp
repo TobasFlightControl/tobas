@@ -54,7 +54,7 @@ class GroundControlStationWidget : public QWidget
   using self = GroundControlStationWidget;
 
 public:
-  explicit GroundControlStationWidget(int _argc, char** _argv);
+  explicit GroundControlStationWidget(int _argc, char* _argv[]);
 
 protected:
   bool eventFilter(QObject* _watched, QEvent* _event) override;

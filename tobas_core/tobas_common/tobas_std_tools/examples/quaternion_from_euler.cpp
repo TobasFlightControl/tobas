@@ -8,7 +8,7 @@
 
 using namespace std;
 
-int main(int _argc, char** _argv)
+int main(int _argc, char* _argv[])
 {
   if (_argc != 4) {
     cerr << "Usage: " << _argv[0] << " <Roll> <Pitch> <Yaw> [degree]\n";

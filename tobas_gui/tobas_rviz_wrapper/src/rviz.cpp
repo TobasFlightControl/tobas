@@ -17,7 +17,7 @@
 
 namespace tobas::rviz
 {
-RvizFrameManager::RvizFrameManager(int _argc, char** _argv, const std::string& _node_name)
+RvizFrameManager::RvizFrameManager(int _argc, char* _argv[], const std::string& _node_name)
 {
   // Initialize ROS node in a unique domain ID.
   if (!rclcpp::ok()) {

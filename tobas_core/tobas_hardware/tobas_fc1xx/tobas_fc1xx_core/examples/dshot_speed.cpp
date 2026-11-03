@@ -11,7 +11,7 @@
 
 using namespace std;
 
-int main(int _argc, char** _argv)
+int main(int _argc, char* _argv[])
 {
   // Parse arguments.
   if (_argc != 7) {

@@ -10,7 +10,7 @@
 
 namespace tobas::ros2
 {
-AsyncNodeManager::AsyncNodeManager(int _argc, char** _argv, const std::string& _node_name)
+AsyncNodeManager::AsyncNodeManager(int _argc, char* _argv[], const std::string& _node_name)
 {
   if (!rclcpp::ok()) {
     rclcpp::init(_argc, _argv);

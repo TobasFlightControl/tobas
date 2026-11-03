@@ -16,7 +16,7 @@ namespace tobas::gui::cmn
 class NonRosArgumentParser
 {
 public:
-  explicit NonRosArgumentParser(int _argc, char** _argv);
+  explicit NonRosArgumentParser(int _argc, char* _argv[]);
 
   int& argc();
   char** argv();

@@ -9,7 +9,7 @@
 #include <tobas_string_tools/core.hpp>
 #include <tobas_string_tools/stream.hpp>
 
-int main(int _argc, char** _argv)
+int main(int _argc, char* _argv[])
 {
   if (_argc != 2) {
     std::cerr << "Usage: " << _argv[0] << " <Path>\n";

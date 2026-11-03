@@ -13,7 +13,7 @@
 #include "tobas_gcs/gcs.hpp"
 #include "tobas_gcs/util.hpp"
 
-int main(int _argc, char** _argv)
+int main(int _argc, char* _argv[])
 {
   // Force X11.
   tobas::gui::cmn::NonRosArgumentParser arg_parser(_argc, _argv);

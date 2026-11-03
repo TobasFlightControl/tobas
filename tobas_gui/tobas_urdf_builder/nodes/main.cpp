@@ -13,7 +13,7 @@
 #include "tobas_urdf_builder/urdf_builder.hpp"
 #include "tobas_urdf_builder/util.hpp"
 
-int main(int _argc, char** _argv)
+int main(int _argc, char* _argv[])
 {
   // Force X11.
   tobas::gui::cmn::NonRosArgumentParser arg_parser(_argc, _argv);

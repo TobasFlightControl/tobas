@@ -18,7 +18,7 @@ namespace tobas::rviz
 class RvizFrameManager
 {
 public:
-  explicit RvizFrameManager(int _argc, char** _argv, const std::string& _node_name);
+  explicit RvizFrameManager(int _argc, char* _argv[], const std::string& _node_name);
   explicit RvizFrameManager(const std::string& _node_name);
   ~RvizFrameManager();
 

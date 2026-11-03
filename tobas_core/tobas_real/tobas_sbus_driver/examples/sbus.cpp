@@ -24,7 +24,7 @@ void onPacket(const tobas::SBUS::Packet& _packet)
   cout << '\n';
 }
 
-int main(int _argc, char** _argv)
+int main(int _argc, char* _argv[])
 {
   if (_argc != 2) {
     cerr << "Usage: " << _argv[0] << " <Device>\n";

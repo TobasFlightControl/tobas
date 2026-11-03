@@ -82,7 +82,7 @@ rclcpp::Context::SharedPtr createRosContext(const QString& _static_peer, std::ve
 }
 }  // namespace
 
-GroundControlStationWidget::GroundControlStationWidget(int _argc, char** _argv) : spinner_(Qt::WindowModal, this)
+GroundControlStationWidget::GroundControlStationWidget(int _argc, char* _argv[]) : spinner_(Qt::WindowModal, this)
 {
   for (int i = 0; i < _argc; ++i) {
     ros_args_.emplace_back(_argv[i]);

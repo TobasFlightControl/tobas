@@ -13,7 +13,7 @@
 
 using namespace std;
 
-int main(int _argc, char** _argv)
+int main(int _argc, char* _argv[])
 {
   if (_argc != 3) {
     const auto filename = _argv[0];

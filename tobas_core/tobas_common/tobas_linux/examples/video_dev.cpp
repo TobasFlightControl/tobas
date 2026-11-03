@@ -8,7 +8,7 @@
 
 #include "tobas_linux/video_dev.hpp"
 
-int main(int _argc, char** _argv)
+int main(int _argc, char* _argv[])
 {
   if (_argc != 2) {
     std::cerr << "Usage: " << _argv[0] << " <video Device>\n";

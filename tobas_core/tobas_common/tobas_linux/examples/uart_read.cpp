@@ -18,7 +18,7 @@
 
 using namespace std;
 
-int main(int _argc, char** _argv)
+int main(int _argc, char* _argv[])
 {
   cxxopts::Options options("uart_read", "Simple UART Reader");
   auto opts = options.add_options();

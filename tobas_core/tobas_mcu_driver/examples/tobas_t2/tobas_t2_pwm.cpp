@@ -10,7 +10,7 @@
 
 using namespace std;
 
-int main(int _argc, char** _argv)
+int main(int _argc, char* _argv[])
 {
   if (_argc != 4) {
     cerr << "Usage: " << _argv[0] << " <SPI Device> <Channel> <Period>\n";

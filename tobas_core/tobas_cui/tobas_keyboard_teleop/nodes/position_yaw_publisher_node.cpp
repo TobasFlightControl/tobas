@@ -69,7 +69,7 @@ std::expected<tobas::kdl::Frame, const char*> waitForCurrentPose(rclcpp::Node::S
   return odom.odom.odom.frame;
 }
 
-int main(int _argc, char** _argv)
+int main(int _argc, char* _argv[])
 {
   tobas::ros2::AsyncNodeManager node_manager(_argc, _argv, "keyboard_teleop");
   const auto node = node_manager.node();

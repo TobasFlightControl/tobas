@@ -16,7 +16,7 @@ namespace tobas::ros2
 class AsyncNodeManager
 {
 public:
-  explicit AsyncNodeManager(int _argc, char** _argv, const std::string& _node_name);
+  explicit AsyncNodeManager(int _argc, char* _argv[], const std::string& _node_name);
   explicit AsyncNodeManager(rclcpp::Context::SharedPtr _context, const std::string& _node_name);
   ~AsyncNodeManager();
 

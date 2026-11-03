@@ -13,7 +13,7 @@
 using namespace std::chrono_literals;
 namespace ch = std::chrono;
 
-int main(int _argc, char** _argv)
+int main(int _argc, char* _argv[])
 {
   if ((_argc != 2) && (_argc != 3)) {
     std::cerr << "Usage: " << _argv[0] << " <video Device> --reset(optional)\n";

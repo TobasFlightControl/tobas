@@ -10,7 +10,7 @@
 
 namespace tobas::gui::cmn
 {
-NonRosArgumentParser::NonRosArgumentParser(int _argc, char** _argv)
+NonRosArgumentParser::NonRosArgumentParser(int _argc, char* _argv[])
 {
   args_ = rclcpp::remove_ros_arguments(_argc, _argv);
 }
