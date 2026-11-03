@@ -115,6 +115,9 @@ inja::json ProjectGenerator::createTemplateData() const
 
   tpl_data["drone_name"] = uadf_.urdf->getName();
 
+  // Component Managers
+  tpl_data["num_component_managers"] = 3;
+
   // Controller
   tpl_data["controller_pkg"] = settings_->controller->controllerPackage().toStdString();
   tpl_data["controller_plugin"] = settings_->controller->pluginName().toStdString();
