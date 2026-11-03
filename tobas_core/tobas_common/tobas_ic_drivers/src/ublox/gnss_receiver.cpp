@@ -93,15 +93,12 @@ bool GnssReceiver::enableMessage(UbxClass _cls, uint8_t _id, bool _enable)
       std::cerr << kNotImplemented;  // TODO
       return false;
     }
-
     case CLASS_NAV: {
       struct MsgOutIds
       {
         uint16_t spi;
         uint16_t uart1;
-      };
-
-      MsgOutIds msgout_ids{};
+      } msgout_ids;
 
       switch (_id) {
         case NAV_CLOCK:
