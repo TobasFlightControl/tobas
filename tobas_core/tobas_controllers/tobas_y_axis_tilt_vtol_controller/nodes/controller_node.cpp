@@ -25,7 +25,10 @@
 #include <tobas_tools/tree_joint_state_converter.hpp>
 
 #include <tobas_command_msgs_adapter/angle_throttle_vector.hpp>
+#include <tobas_command_msgs_adapter/accel_pitch_yaw.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc_pitch_yaw.hpp>
 #include <tobas_command_msgs/msg/roll_pitch_side_slip_throttle_vector.hpp>
+#include <tobas_command_msgs/msg/vel_roll_side_slip_mode.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_msgs/msg/arming.hpp>
@@ -36,6 +39,8 @@
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
 #include "tobas_y_axis_tilt_vtol_controller/mixer.hpp"
+#include "tobas_y_axis_tilt_vtol_controller/transition_handler.hpp"
+#include "tobas_y_axis_tilt_vtol_controller/translational_eom.hpp"
 
 namespace tobas
 {
@@ -77,16 +82,28 @@ private:
     double pitch;      // [rad]
     double side_slip;  // [rad]
   };
+  // multicopter commands
+  tobas_command_msgs::PosVelAccPitchYaw::UniquePtr multicopter_pos_cmd_ = nullptr;  // Position-control target value in the WCS.
+  tobas_command_msgs::AccelPitchYaw::UniquePtr multicopter_acc_cmd_ = nullptr;      // Acceleration-control target value in the WCS.
   std::unique_ptr<kdl::Euler> tar_angle_ = nullptr;
+  // fixed wing commands
+  tobas_command_msgs::msg::VelRollSideSlipMode::UniquePtr fixed_wing_vel_cmd_ = nullptr;
   std::unique_ptr<RollPitchSideSlip> tar_roll_pitch_sideslip_ = nullptr;
+  // shared commands
   std::unique_ptr<kdl::Vector> tar_gyro_ = nullptr;
   std::unique_ptr<kdl::Vector> tar_dgyro_ = nullptr;
   double thrust_ = 0.0; // Target thrust [N]
   double thrust_angle_ = 0.0; // Target thrust angle [rad]
 
   // Controller
+  TranslationalEoM trans_eom_;
+  TransitionHandler transition_handler_;
   Mixer mixer_;
-  // double throttle_gain_thresh_;  // [-]
+  struct TranslationControlParameters
+  {
+    double hor_wn, ver_wn;      // [rad/s]
+    double hor_zeta, ver_zeta;  // [-]
+  } trans_ctrl_;
   struct RotationControlParameters
   {
     double atti_wn, head_wn;      // [rad/s]
@@ -107,7 +124,9 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::AngleThrottleVector> multicopter_manual_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::PosVelAccPitchYaw> multicopter_stabilize_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::msg::RollPitchSideSlipThrottleVector> fixed_wing_manual_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::msg::VelRollSideSlipMode> fixed_wing_stabilize_cmd_sub_;
 
   // Timers
   ros2::TimerPtr check_topics_timer_;
@@ -117,6 +136,12 @@ private:
   static kdl::Vector computeEulerError(const kdl::Euler& cur_rpy, const kdl::Euler& tar_rpy);
 
   // Parameter callbacks
+  bool cruiseVelocityCb(const double& p);
+  bool maxTiltVelocityCb(const double& p);
+  bool horizontalNaturalFreqCb(const double& p);
+  bool horizontalDampingRatioCb(const double& p);
+  bool verticalNaturalFreqCb(const double& p);
+  bool verticalDampingRatioCb(const double& p);
   bool attitudeNaturalFreqCb(const double& p);
   bool attitudeDampingRatioCb(const double& p);
   bool headingNaturalFreqCb(const double& p);
@@ -129,20 +154,28 @@ private:
   void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom_flu);
   void multicopterManualCmdCb(const tobas_command_msgs::AngleThrottleVector::ConstSharedPtr& cmd);
+  void multicopterStabilizeCmdCb(const tobas_command_msgs::PosVelAccPitchYaw::ConstSharedPtr& cmd);
   void fixedWingManualCmdCb(const tobas_command_msgs::msg::RollPitchSideSlipThrottleVector::ConstSharedPtr& cmd);
+  void fixedWingStabilizeCmdCb(const tobas_command_msgs::msg::VelRollSideSlipMode::ConstSharedPtr& cmd);
 
   void checkTopicsTimerCb();
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(node::kController, nodeOptions_DParam(options)), mass_holder_(tree_), js_converter_(tree_), mixer_(drone_, tree_)
+  : super(node::kController, nodeOptions_DParam(options)), mass_holder_(tree_), js_converter_(tree_), trans_eom_(drone_, tree_), transition_handler_(trans_eom_), mixer_(drone_, tree_)
 {
   // setup beta_dot filter
   beta_dot_filter_.setCutoffFrequency(kBetaDotCutOffFreq);
 
   // Register dynamics parameters
+  addDynamicDoubleParam("cruise_velocity", &self::cruiseVelocityCb, this, 5, 3, 1, 9, " m/s");
+  addDynamicDoubleParam("max_tilt_velocity", &self::maxTiltVelocityCb, this, 15, 2, 1, 6, " deg/s");
+  addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFreqCb, this, 0.2, 5, 1, 30, " rad/s");
+  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFreqCb, this, 0.2, 10, 1, 30, " rad/s");
   addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFreqCb, this, 1.0, 10, 1, 30, " rad/s");
   addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFreqCb, this, 0.2, 10, 1, 30, " rad/s");
+  addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 0.1, 7, 1, 20);
+  addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 20);
   addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 0.1, 10, 1, 20);
   addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 0.1, 10, 1, 20);
 
@@ -158,7 +191,9 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   air_pressure_sub_ = createSubscriber(topic::kAirPressure, &self::airPressureCb, this);
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
   multicopter_manual_cmd_sub_ = createSubscriber(topic::kAngleThrotVectorCmd, &self::multicopterManualCmdCb, this);
+  multicopter_stabilize_cmd_sub_ = createSubscriber(topic::kPosVelAccPitchYawCmd, &self::multicopterStabilizeCmdCb, this);
   fixed_wing_manual_cmd_sub_ = createSubscriber(topic::kRollPitchSideSlipThrotVectorCmd, &self::fixedWingManualCmdCb, this);
+  fixed_wing_stabilize_cmd_sub_ = createSubscriber(topic::kVelRollSideSlipModeCmd, &self::fixedWingStabilizeCmdCb, this);
 
   // Register timers.
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
@@ -170,6 +205,9 @@ bool ControllerNode::initialize()
     return false;
   }
   if (!js_converter_.updateInternalDataStructures()) {
+    return false;
+  }
+  if (!trans_eom_.updateInternalDataStructures()) {
     return false;
   }
   if (!mixer_.updateInternalDataStructures()) {
@@ -207,6 +245,44 @@ kdl::Vector ControllerNode::computeEulerError(const kdl::Euler& cur_rpy, const k
   const auto pitch_err = algo::wrapPi(tar_rpy.pitch - cur_rpy.pitch);
   const auto yaw_err = algo::wrapPi(tar_rpy.yaw - cur_rpy.yaw);
   return { roll_err, pitch_err, yaw_err };
+}
+
+bool ControllerNode::cruiseVelocityCb(const double& p)
+{
+  transition_handler_.setCruiseVelocity(p);
+  return true;
+}
+
+bool ControllerNode::maxTiltVelocityCb(const double& p)
+{
+  transition_handler_.setMaxTiltVelocity(st::deg2rad(p));
+  return true;
+}
+
+bool ControllerNode::horizontalNaturalFreqCb(const double& p)
+{
+  trans_ctrl_.hor_wn = p;
+  transition_handler_.setHorizontalNaturalFreq(p); // TODO: 別の関数に分ける
+  return true;
+}
+
+bool ControllerNode::horizontalDampingRatioCb(const double& p)
+{
+  trans_ctrl_.hor_zeta = p;
+  return true;
+}
+
+bool ControllerNode::verticalNaturalFreqCb(const double& p)
+{
+  trans_ctrl_.ver_wn = p;
+  transition_handler_.setVerticalNatualFreq(p); // TODO: 別の関数に分ける
+  return true;
+}
+
+bool ControllerNode::verticalDampingRatioCb(const double& p)
+{
+  trans_ctrl_.ver_zeta = p;
+  return true;
 }
 
 bool ControllerNode::attitudeNaturalFreqCb(const double& p)
@@ -285,6 +361,9 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
   arming_ = arming;
 
   if (!arming->data) {
+    multicopter_pos_cmd_.reset();
+    multicopter_acc_cmd_.reset();
+    fixed_wing_vel_cmd_.reset();
     tar_angle_.reset();
     tar_roll_pitch_sideslip_.reset();
     tar_gyro_.reset();
@@ -315,6 +394,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   setpoint->odom.setNaN();
 
   // Aliases.
+  const auto& cur_pos_W = odom_flu->odom.odom.frame.p;
   const auto& cur_rot = odom_flu->odom.odom.frame.M;
   const auto B_T_G =
     kdl::Frame(kdl::Rotation::Identity(), drone_.fixed_wing->vehicle.ref);  // base_link座標系で表したCoG座標系のFrame
@@ -325,6 +405,62 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   kdl::vectorFluToFrd(cur_vel_G, cur_vel_G_frd);
   const auto beta = angleOfSideSlip(cur_vel_G_frd.x(), cur_vel_G_frd.y(), cur_vel_G_frd.z());
   beta_dot_filter_.update(beta, dt);
+
+  // Position controller.
+  // multicopter like
+  if (multicopter_pos_cmd_) {
+    if (!multicopter_acc_cmd_) {
+      multicopter_acc_cmd_ = std::make_unique<tobas_command_msgs::AccelPitchYaw>();
+    }
+
+    // Determine gains.
+    const auto hor_wn = trans_ctrl_.hor_wn;
+    const auto ver_wn = trans_ctrl_.ver_wn;
+    const auto hor_kp = math::sqr(hor_wn);
+    const auto ver_kp = math::sqr(ver_wn);
+    const auto hor_kd = 2 * trans_ctrl_.hor_zeta * hor_wn;
+    const auto ver_kd = 2 * trans_ctrl_.ver_zeta * ver_wn;
+    const kdl::Vector kp(hor_kp, hor_kp, ver_kp);
+    const kdl::Vector kd(hor_kd, hor_kd, ver_kd);
+
+    // Compute error.
+    const auto ep = multicopter_pos_cmd_->pos - cur_pos_W;
+    const auto ed = multicopter_pos_cmd_->vel - cur_rot * cur_vel_G;
+
+    // TODO: Accumulate integral error while airborne.
+
+    // Compute target acceleration.
+    multicopter_acc_cmd_->accel = multicopter_pos_cmd_->acc + kp.hadamard(ep) + kd.hadamard(ed);
+
+    // Pass pitch and yaw through as-is.
+    multicopter_acc_cmd_->pitch = multicopter_pos_cmd_->pitch;
+    multicopter_acc_cmd_->yaw = multicopter_pos_cmd_->yaw;
+
+    // Fill the feedback message.
+    setpoint->odom.frame.p = multicopter_pos_cmd_->pos;
+    setpoint->odom.twist.vel = cur_rot.inverse(multicopter_pos_cmd_->vel);
+
+    // Acceleration controller.
+    if (!tar_angle_) {
+      tar_angle_ = std::make_unique<kdl::Euler>();
+    }
+
+    // Compute thrust and target attitude.
+    if (!trans_eom_.solve(multicopter_acc_cmd_->accel, multicopter_acc_cmd_->pitch, multicopter_acc_cmd_->yaw, thrust_, thrust_angle_, *tar_angle_)) {
+      TOBAS_FATAL("Failed to solve the translational EoM.");
+      return;
+    }
+
+    // Fill the feedback message.
+    setpoint->odom.accel.linear = cur_rot.inverse(multicopter_acc_cmd_->accel);
+  }
+  // fixed wing like
+  if (fixed_wing_vel_cmd_) {
+    if (!tar_roll_pitch_sideslip_) {
+      tar_roll_pitch_sideslip_ = std::make_unique<RollPitchSideSlip>();
+    }
+    transition_handler_.solve(fixed_wing_vel_cmd_, cur_vel_G, cur_rot, tar_roll_pitch_sideslip_->roll, tar_roll_pitch_sideslip_->pitch, tar_roll_pitch_sideslip_->side_slip, thrust_, thrust_angle_);
+  }
 
   // Attitude controller.
   // multicopter like
@@ -481,6 +617,28 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   setpoint_pub_->publish(std::move(setpoint));
 }
 
+void ControllerNode::multicopterStabilizeCmdCb(const tobas_command_msgs::PosVelAccPitchYaw::ConstSharedPtr& cmd)
+{
+  if (!isCommandAccepted(cmd->priority)) {
+    return;
+  }
+
+  // Stop the fixed wing control.
+  fixed_wing_vel_cmd_.reset();
+  tar_roll_pitch_sideslip_.reset();
+
+  // Create the command.
+  if (!multicopter_pos_cmd_) {
+    multicopter_pos_cmd_ = std::make_unique<tobas_command_msgs::PosVelAccPitchYaw>();
+  }
+
+  // Update transition handler
+  transition_handler_.updateCommandType(TransitionHandler::CommandType::MULTICOPTER);
+
+  // Update the command.
+  *multicopter_pos_cmd_ = *cmd;
+}
+
 void ControllerNode::multicopterManualCmdCb(const tobas_command_msgs::AngleThrottleVector::ConstSharedPtr& cmd)
 {
   if (!isCommandAccepted(cmd->priority)) {
@@ -497,9 +655,12 @@ void ControllerNode::multicopterManualCmdCb(const tobas_command_msgs::AngleThrot
     return;
   }
 
-  // TODO: Stop the outer control loop.
+  // Stop the outer control loop.
+  multicopter_pos_cmd_.reset();
+  multicopter_acc_cmd_.reset();
 
-  // Stop the same level fixed_wing like control
+  // Stop the fixed_wing like control
+  fixed_wing_vel_cmd_.reset();
   tar_roll_pitch_sideslip_.reset();
 
   // Create the command.
@@ -507,11 +668,48 @@ void ControllerNode::multicopterManualCmdCb(const tobas_command_msgs::AngleThrot
     tar_angle_ = std::make_unique<kdl::Euler>();
   }
 
+  // Update transition handler
+  transition_handler_.updateCommandType(TransitionHandler::CommandType::MANUAL_MULTICOPTER);
+
   // Update the command.
   *tar_angle_ = cmd->angle;
   const auto tar_thrust = mixer_.calcMaxThrust(cmd->thrust_angle) * std::clamp(cmd->throttle, kMinThrot, kMaxThrot);
   thrust_ = tar_thrust;
   thrust_angle_ = cmd->thrust_angle;
+}
+
+void ControllerNode::fixedWingStabilizeCmdCb(const tobas_command_msgs::msg::VelRollSideSlipMode::ConstSharedPtr& cmd)
+{
+  if (!isCommandAccepted(cmd->priority)) {
+    return;
+  }
+
+  // Stop the multicopter control.
+  multicopter_pos_cmd_.reset();
+  multicopter_acc_cmd_.reset();
+  tar_angle_.reset();
+
+  // Create the command.
+  if (!fixed_wing_vel_cmd_) {
+    fixed_wing_vel_cmd_ = std::make_unique<tobas_command_msgs::msg::VelRollSideSlipMode>();
+  }
+
+  // Update transition handler
+  switch (fixed_wing_vel_cmd_->mode)
+  {
+  case tobas_command_msgs::msg::VelRollSideSlipMode::FORWARD_FLIGHT:
+    transition_handler_.updateCommandType(TransitionHandler::CommandType::FORWARD_FLIGHT);
+    break;
+  case tobas_command_msgs::msg::VelRollSideSlipMode::BACKWARD_TRANSITION:
+    transition_handler_.updateCommandType(TransitionHandler::CommandType::BACKWARD_TRANSITION);
+    break;
+  default:
+    TOBAS_ERROR("Undefined mode is commanded.");
+    break;
+  }
+
+  // Update the command.
+  *fixed_wing_vel_cmd_ = *cmd;
 }
 
 void ControllerNode::fixedWingManualCmdCb(const tobas_command_msgs::msg::RollPitchSideSlipThrottleVector::ConstSharedPtr& cmd)
@@ -530,15 +728,21 @@ void ControllerNode::fixedWingManualCmdCb(const tobas_command_msgs::msg::RollPit
     return;
   }
 
-  // TODO: Stop the outer control loop.
+  // Stop the outer control loop.
+  fixed_wing_vel_cmd_.reset();
 
-  // Stop the same level multicopter like control
+  // Stop the multicopter like control
+  multicopter_pos_cmd_.reset();
+  multicopter_acc_cmd_.reset();
   tar_angle_.reset();
 
   // Create the command.
   if (!tar_roll_pitch_sideslip_) {
     tar_roll_pitch_sideslip_ = std::make_unique<RollPitchSideSlip>();
   }
+
+  // Update transition handler
+  transition_handler_.updateCommandType(TransitionHandler::CommandType::MANUAL_FIXED_WING);
 
   // Update the command.
   tar_roll_pitch_sideslip_->roll = cmd->roll;

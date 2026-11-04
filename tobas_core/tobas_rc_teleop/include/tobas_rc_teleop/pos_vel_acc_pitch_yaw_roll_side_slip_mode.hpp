@@ -39,7 +39,7 @@ public:
 private:
   enum ControlMode {
     MULTICOPTER,
-    FORWARD_TRANSITION,
+    FORWARD_FLIGHT,
     BACKWARD_TRANSITION,
   };
 

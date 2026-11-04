@@ -10,5 +10,5 @@ float64 roll            # Target roll angle [rad]
 float64 side_slip       # Target side slip angle [rad]
 uint8 mode              # mode
 
-uint8 FORWARD_TRANSITION = 0
+uint8 FORWARD_FLIGHT = 0
 uint8 BACKWARD_TRANSITION = 1

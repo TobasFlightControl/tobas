@@ -74,7 +74,7 @@ void PosVelAccPitchYawRollSideSlipModeController::reset(
     mode_ = ControlMode::MULTICOPTER;
     resetMulticopterControllers(setpoint, landed);
   } else {
-    mode_ = ControlMode::FORWARD_TRANSITION;
+    mode_ = ControlMode::FORWARD_FLIGHT;
     resetFixedWingControllers(setpoint, landed);
   }
 }
@@ -90,13 +90,13 @@ void PosVelAccPitchYawRollSideSlipModeController::update(const tobas_msgs::RCInp
   {
   case ControlMode::MULTICOPTER: {
     if (rcin.sub_mode) {
-      mode_ = ControlMode::FORWARD_TRANSITION;
+      mode_ = ControlMode::FORWARD_FLIGHT;
       resetFixedWingControllers(odom, landed);
       break;
     }
     break;
   }
-  case ControlMode::FORWARD_TRANSITION: {
+  case ControlMode::FORWARD_FLIGHT: {
     if (!rcin.sub_mode) {
       mode_ = ControlMode::BACKWARD_TRANSITION;
       break;
@@ -110,7 +110,7 @@ void PosVelAccPitchYawRollSideSlipModeController::update(const tobas_msgs::RCInp
       break;
     }
     if (rcin.sub_mode) {
-      mode_ = ControlMode::FORWARD_TRANSITION;
+      mode_ = ControlMode::FORWARD_FLIGHT;
       resetFixedWingControllers(odom, landed);
       break;
     }
@@ -166,7 +166,7 @@ void PosVelAccPitchYawRollSideSlipModeController::update(const tobas_msgs::RCInp
     multicopter_cmd_pub_->publish(std::move(cmd));
     break;
   }
-  case ControlMode::FORWARD_TRANSITION: {
+  case ControlMode::FORWARD_FLIGHT: {
     // Velocity x, z
     // 固定翼機のような操作感
     vx_filt_.update(expoRemapDead(rcin.throttle, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
@@ -183,7 +183,7 @@ void PosVelAccPitchYawRollSideSlipModeController::update(const tobas_msgs::RCInp
     cmd->vel_z = vz_filt_.getTrajectoryVelocity();
     cmd->roll = roll_filt_.getTrajectoryPosition();
     cmd->side_slip = expoRemapDead(rcin.yaw, yaw_expo_, -max_side_slip_, max_side_slip_);
-    cmd->mode = tobas_command_msgs::msg::VelRollSideSlipMode::FORWARD_TRANSITION;
+    cmd->mode = tobas_command_msgs::msg::VelRollSideSlipMode::FORWARD_FLIGHT;
 
     // publish
     fixed_wing_cmd_pub_->publish(std::move(cmd));
