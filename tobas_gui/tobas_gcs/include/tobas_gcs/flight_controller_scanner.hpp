@@ -45,7 +45,7 @@ private:
 
 private Q_SLOTS:
   void scanOnce();
-  void onFinished(int _exit_code, QProcess::ExitStatus _exit_status);
-  void onErrorOccurred(QProcess::ProcessError _error);
+  void onScanFinished(int _exit_code, QProcess::ExitStatus _exit_status);
+  void onScanFailed(QProcess::ProcessError _error);
 };
 }  // namespace tobas::gui::gcs

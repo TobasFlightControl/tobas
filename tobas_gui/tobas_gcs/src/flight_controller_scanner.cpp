@@ -88,8 +88,10 @@ QVector<DiscoveredFlightController> parseAvahiBrowseResult(const QString& _outpu
     }
 
     const auto txt = parseTxtField(fields.at(9));
-    res.append({ hostname, address, getOptionalValue(txt, "drone"), getOptionalValue(txt, "id") });
+    const auto drone = getOptionalValue(txt, "drone");
+    const auto id = getOptionalValue(txt, "id");
 
+    res.append({ hostname, address, drone, id });
     hostnames.insert(hostname);
     addresses.insert(address);
   }
@@ -105,8 +107,8 @@ FlightControllerScanner::FlightControllerScanner(QObject* _parent) : super(_pare
 
   // These callbacks run on the scanner's thread; the external processes run asynchronously.
   connect(&scan_timer_, &QTimer::timeout, this, &self::scanOnce);
-  connect(&process_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &self::onFinished);
-  connect(&process_, &QProcess::errorOccurred, this, &self::onErrorOccurred);
+  connect(&process_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &self::onScanFinished);
+  connect(&process_, &QProcess::errorOccurred, this, &self::onScanFailed);
 }
 
 void FlightControllerScanner::start()
@@ -131,7 +133,7 @@ void FlightControllerScanner::scanOnce()
   process_.start("avahi-browse", { "--parsable", "--resolve", "--terminate", kServiceType });
 }
 
-void FlightControllerScanner::onFinished(int _exit_code, QProcess::ExitStatus _exit_status)
+void FlightControllerScanner::onScanFinished(int _exit_code, QProcess::ExitStatus _exit_status)
 {
   if (failure_reported_) {
     return;
@@ -193,7 +195,7 @@ void FlightControllerScanner::onFinished(int _exit_code, QProcess::ExitStatus _e
   }
 }
 
-void FlightControllerScanner::onErrorOccurred(QProcess::ProcessError)
+void FlightControllerScanner::onScanFailed(QProcess::ProcessError)
 {
   failure_reported_ = true;
   auto message = process_.errorString();
