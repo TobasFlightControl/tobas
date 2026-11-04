@@ -62,16 +62,18 @@ void TransitionHandler::solve(
       // 現在の前進速度から速度のslopeを作る
       const auto cur_vel_YW = calcVelYW(cur_vel_G, cur_rot);
       forward_transition_traj_.setStartConditions(cur_time, thrust_angle, cur_vel_YW.x());
+      require_initialization_ = false;
     }
     thrust_angle = forward_transition_traj_.calcTargetTiltAngle(cur_time);
-    solveForwardFlight(cmd, cur_vel_G, cur_rot, roll, pitch, side_slip, thrust, thrust_angle);
+    solveForwardFlight(cmd, cur_vel_G, cur_rot, thrust_angle, roll, pitch, side_slip, thrust);
   }
   else if (last_command_type_ == CommandType::BACKWARD_TRANSITION) {
     if (require_initialization_) {
       backward_transition_traj_.setStartConditions(cur_time, thrust_angle);
+      require_initialization_ = false;
     }
     thrust_angle = backward_transition_traj_.calcTargetTiltAngle(cur_time);
-    solveBackwardTransition(cmd, cur_vel_G, cur_rot, roll, pitch, side_slip, thrust, thrust_angle);
+    solveBackwardTransition(cmd, cur_vel_G, cur_rot, thrust_angle, roll, pitch, side_slip, thrust);
   }
   else {
     std::cerr << "Unexpected command type." << std::endl;
@@ -91,11 +93,15 @@ void TransitionHandler::solveForwardFlight(
   // Pass through roll & side slip command
   roll = cmd->roll;
   side_slip = cmd->side_slip;
-  // 並進運動の方程式をx, z軸に関して解く tilt角は拘束
-  // Compute target thrust and pitch.
+  // Compute target acc
+  const auto cur_time = cmd->header.stamp;
+  const auto tar_vel_x = forward_transition_traj_.calcTargetVx(cur_time) + cmd->vel_x;
   const auto cur_vel_YW = calcVelYW(cur_vel_G, cur_rot);
-  const auto tar_acc_x = hor_wn_ * (cmd->vel_x - cur_vel_YW.x());
-  const auto tar_acc_z = ver_wn_ * (cmd->vel_z - cur_vel_YW.z());
+  const auto tar_acc_x = hor_wn_ * (tar_vel_x - cur_vel_YW.x()) + forward_transition_traj_.calcTargetAccx(cur_time);
+  const auto tar_vel_z = cmd->vel_z;
+  const auto tar_acc_z = ver_wn_ * (tar_vel_z - cur_vel_YW.z());
+  // Compute target thrust and pitch.
+  // 並進運動の方程式をx, z軸に関して解く tilt角は拘束
   trans_eom_.solveXZDynamics(
     tar_acc_x,
     tar_acc_z,
@@ -120,10 +126,12 @@ void TransitionHandler::solveBackwardTransition(
   // Pass through roll & side slip command
   roll = cmd->roll;
   side_slip = cmd->side_slip;
-  // 並進運動の方程式をz軸だけに関して解く tilt角は拘束
-  // Compute target thrust and pitch
+  // Compute target acc
   const auto cur_vel_YW = calcVelYW(cur_vel_G, cur_rot);
-  const auto tar_acc_z = ver_wn_ * (cmd->vel_z - cur_vel_YW.z());
+  const auto tar_vel_z = cmd->vel_z;
+  const auto tar_acc_z = ver_wn_ * (tar_vel_z - cur_vel_YW.z());
+  // Compute target thrust and pitch
+  // 並進運動の方程式をz軸だけに関して解く tilt角は拘束
   trans_eom_.solveZDynamics(
     tar_acc_z,
     thrust_angle,

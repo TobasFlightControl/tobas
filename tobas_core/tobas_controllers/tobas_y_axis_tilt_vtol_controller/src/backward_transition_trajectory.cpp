@@ -1,5 +1,7 @@
 #include "tobas_y_axis_tilt_vtol_controller/backward_transition_trajectory.hpp"
 
+#include <tobas_ros2_tools/time.hpp>
+
 namespace tobas
 {
 namespace y_axis_tilt_vtol

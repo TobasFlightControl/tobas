@@ -129,6 +129,10 @@ void PosVelAccPitchYawRollSideSlipModeController::update(const tobas_msgs::RCInp
     vy_filt_.update(-expoRemap(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
     vz_filt_.update(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
 
+      // Yaw
+    const auto yawrate = expoRemapDead(rcin.yaw, yaw_expo_, -max_yaw_rate_, max_yaw_rate_);
+    tar_yaw_ += yawrate * dt;
+
     // Compute the velocity and acceleration wrt. the world frame.
     const kdl::Vector tar_vel_G(
       vx_filt_.getTrajectoryVelocity(), vy_filt_.getTrajectoryVelocity(), vz_filt_.getTrajectoryVelocity());
@@ -170,7 +174,7 @@ void PosVelAccPitchYawRollSideSlipModeController::update(const tobas_msgs::RCInp
     // Velocity x, z
     // 固定翼機のような操作感
     vx_filt_.update(expoRemapDead(rcin.throttle, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
-    vz_filt_.update(expoRemapDead(rcin.pitch, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
+    vz_filt_.update(expoRemapDead(-rcin.pitch, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
 
     // Roll
     roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, roll_expo_, -max_roll_, max_roll_), dt);

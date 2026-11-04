@@ -35,8 +35,8 @@ bool TranslationalEoM::solve(
   const kdl::Vector& tar_acc_W,
   const double& tar_pitch,
   const double& tar_yaw,
-  double& ux_out,
-  double& uz_out,
+  double& thrust_out,
+  double& thrust_angle_out,
   kdl::Euler& angle_out)
 {
   // Compute the target force viewed from the world coordinate system.
@@ -73,8 +73,8 @@ bool TranslationalEoM::solve(
   // Compute the thrust sum viewed from the body coordinate system.
   const auto u = rot_x.inverse(f_L);
   assert(math::isClose(u.y(), 0.0, 1e-3));
-  ux_out = u.x();
-  uz_out = u.z();
+  thrust_out = std::sqrt(math::sqr(u.x()) + math::sqr(u.z()));
+  thrust_angle_out = std::atan2(u.x(), u.z());
 
   // Compute the target attitude after solving the nonlinear equation.
   angle_out = kdl::Euler(kdl::Rotation::RPY(0.0, tar_pitch, tar_yaw) * rot_x);
@@ -141,7 +141,7 @@ bool TranslationalEoM::solveZDynamics(
   double& thrust_out)
 {
   const auto [cur_roll, cur_pitch, cur_yaw] = cur_rot.getRPY();
-  const auto path_angle = - std::atan2(cur_vel_YW.z(), cur_vel_YW.x());
+  const auto path_angle = std::atan2(cur_vel_YW.z(), cur_vel_YW.x());
   const auto mass = mass_holder_.getMass();
   const auto q = dynamicPressure(st::kStandardAirDensity, cur_vel_YW.norm());
   const auto C_L_sp = (mass * (tar_acc_z + st::kGravity)) / (std::cos(cur_roll) * std::cos(path_angle) * q * drone_.fixed_wing->vehicle.wing_surface);
@@ -167,7 +167,7 @@ Eigen::Vector2d TranslationalEoM::forwardDynamics(
   const kdl::Vector& cur_vel_YW)
 {
   // aerodynamic forces
-  const auto path_angle = - std::atan2(cur_vel_YW.z(), cur_vel_YW.x());
+  const auto path_angle = std::atan2(cur_vel_YW.z(), cur_vel_YW.x());
   const auto [cur_roll, cur_pitch, cur_yaw] = cur_rot.getRPY();
   const auto pitch = pitch_thrust(0);
   const auto alpha = - std::atan(std::tan(path_angle + pitch) * std::cos(cur_roll));
@@ -199,7 +199,7 @@ Eigen::Matrix2d TranslationalEoM::dforwardDynamics(
   const kdl::Vector& cur_vel_YW)
 {
   // aerodynamic forces
-  const auto path_angle = - std::atan2(cur_vel_YW.z(), cur_vel_YW.x());
+  const auto path_angle = std::atan2(cur_vel_YW.z(), cur_vel_YW.x());
   const auto [cur_roll, cur_pitch, cur_yaw] = cur_rot.getRPY();
   const auto pitch = pitch_thrust(0);
   const auto alpha = - std::atan(std::tan(path_angle + pitch) * std::cos(cur_roll));

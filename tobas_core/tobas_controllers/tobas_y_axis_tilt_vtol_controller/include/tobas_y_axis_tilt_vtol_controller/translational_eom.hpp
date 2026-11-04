@@ -31,8 +31,8 @@ public:
     const kdl::Vector& tar_acc_W,
     const double& tar_pitch,
     const double& tar_yaw,
-    double& ux_out,
-    double& uz_out,
+    double& thrust_out,
+    double& thrust_angle_out,
     kdl::Euler& angle_out);
 
 

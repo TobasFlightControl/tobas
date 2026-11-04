@@ -1,5 +1,7 @@
 #include "tobas_y_axis_tilt_vtol_controller/forward_transition_trajectory.hpp"
 
+#include <tobas_ros2_tools/time.hpp>
+
 namespace tobas
 {
 namespace y_axis_tilt_vtol
@@ -48,9 +50,14 @@ double ForwardTransitionTrajectory::calcTargetVx(const builtin_interfaces::msg::
   }
 }
 
-double ForwardTransitionTrajectory::calcTargetAccx(const builtin_interfaces::msg::Time&)
+double ForwardTransitionTrajectory::calcTargetAccx(const builtin_interfaces::msg::Time& cur_time)
 {
-  return target_accx_;
+  const auto elapsed_time = (cur_time - start_time_).seconds();
+  if (elapsed_time < duration_) {
+    return target_accx_;
+  } else {
+    return 0.0;
+  }
 }
 } // namespace y_axis_tilt_vtol
 } // namespace tobas
