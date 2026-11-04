@@ -79,7 +79,7 @@ void ExtraJointsWidget::updateInternalDataStructures()
 
     // TODO: Support prismatic joints.
     if (joint.type == kdl::Joint::kTranslation) {
-      qt::qWarnBox(this, "Translational joint is not supported yet.");
+      qWarning() << "Translational joint is not supported yet.";
       continue;
     }
 
