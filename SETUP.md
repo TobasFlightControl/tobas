@@ -113,7 +113,6 @@ If you only want to install and use Tobas, start from the
    Inside the tmux session, run:
 
    ```bash
-   pi@<hostname> $ source /opt/ros/lyrical/setup.bash
    pi@<hostname> $ /home/pi/colcon_ws/src/tobas/tools/tobas_deploy_upto tobas
    ```
 
