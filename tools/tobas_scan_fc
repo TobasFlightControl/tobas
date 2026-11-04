@@ -46,7 +46,18 @@ def main() -> int:
         if not hostname:
             continue
 
-        address = fields[7]
+        resolved = (
+            subprocess.run(
+                ["avahi-resolve-host-name", "-4", hostname],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            )
+            .stdout.strip()
+            .split("\t")
+        )
+        address = resolved[1] if len(resolved) == 2 else ""
         if not address or address in addresses:
             continue
 
