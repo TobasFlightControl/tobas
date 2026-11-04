@@ -1,15 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <optional>
-
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_kdl/tree_jntspace_pid.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_kdl/tree_taskspace_pid.hpp>
-#include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_ros2_tools/tf_listener.hpp>
+#include <tobas_tools/tf_listener.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -45,7 +42,7 @@ private:
   TreeJointStateConverter cur_js_conv_;
   TreeJointStateConverter tar_js_conv_;
 
-  std::optional<ros2::TransformListener> tf_listener_;
+  TransformListener tf_listener_;
   tobas_msgs::msg::JointStateArray home_js_;
 
   tobas_msgs::msg::JointStateArray::ConstSharedPtr tar_js_;
@@ -99,6 +96,7 @@ EffortControllerNode::EffortControllerNode(const rclcpp::NodeOptions& _options)
   , pid_ts_(tree_)
   , cur_js_conv_(tree_)
   , tar_js_conv_(tree_)
+  , tf_listener_(this)
 {
   initialize_timer_ = createTimer(0s, &self::initialize, this);
 }
@@ -111,9 +109,6 @@ void EffortControllerNode::initialize()
     return;
   }
   jnt_names_.insert(jnt_names.begin(), jnt_names.end());
-
-  // `shared_from_this` cannot be called from the constructor.
-  tf_listener_.emplace(shared_from_this());
 
   addDynamicIntParam("joint_stiffness", &self::jointStiffnessCb, this, 5, 5, 1, 20);
   addDynamicIntParam("joint_damping", &self::jointDamping, this, 1, 10, 1, 20);
@@ -193,24 +188,20 @@ bool EffortControllerNode::taskSpaceControl(
   }
 
   // Update task-space target values.
-  kdl::Frame T_Base_Parent;
   kdl::FrameMap tar_p;
   kdl::TwistMap tar_v;
   kdl::AccelMap a_ff;
   kdl::WrenchMap f_ext;
   for (const auto& ls : _tar_ls.states) {
-    const auto transform = tf_listener_->lookupTransform(tree_.getRootName(), _tar_ls.header.frame_id);
-    if (!transform) {
-      TOBAS_ERROR(transform.error());
+    const auto T_Base_Parent = tf_listener_.lookupTransform(tree_.getRootName(), _tar_ls.header.frame_id);
+    if (!T_Base_Parent) {
+      TOBAS_ERROR(T_Base_Parent.error());
       continue;
     }
-
-    // Convert values expressed in the parent frame to values expressed in the base link.
-    kdl::transformMsgToKDL(transform->transform, T_Base_Parent);
-    tar_p[ls.name] = T_Base_Parent * ls.frame;
-    tar_v[ls.name] = T_Base_Parent.M * ls.twist;
-    a_ff[ls.name] = T_Base_Parent.M * ls.accel;
-    f_ext[ls.name] = T_Base_Parent.M * ls.wrench;
+    tar_p[ls.name] = *T_Base_Parent * ls.frame;
+    tar_v[ls.name] = T_Base_Parent->M * ls.twist;
+    a_ff[ls.name] = T_Base_Parent->M * ls.accel;
+    f_ext[ls.name] = T_Base_Parent->M * ls.wrench;
   }
 
   // Calculate joint torques with PID.

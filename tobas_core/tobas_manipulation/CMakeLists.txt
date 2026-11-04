@@ -11,7 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(AMENT_DEPENDENCIES tobas_kdl_conversions tobas_node tobas_tools tobas_msgs_adapter tobas_drone_msgs_adapter)
+set(AMENT_DEPENDENCIES tobas_node tobas_tools tobas_msgs_adapter tobas_drone_msgs_adapter)
 
 find_package(ament_cmake REQUIRED)
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
@@ -23,8 +23,8 @@ include_directories(include)
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 target_link_libraries(
-  ${PROJECT_NAME} tobas_kdl_conversions::tobas_kdl_conversions tobas_node::tobas_node tobas_tools::tobas_tools
-  tobas_msgs_adapter::tobas_msgs_adapter tobas_drone_msgs_adapter::tobas_drone_msgs_adapter
+  ${PROJECT_NAME} tobas_node::tobas_node tobas_tools::tobas_tools tobas_msgs_adapter::tobas_msgs_adapter
+  tobas_drone_msgs_adapter::tobas_drone_msgs_adapter
 )
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)

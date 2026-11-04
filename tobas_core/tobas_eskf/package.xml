@@ -7,6 +7,8 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>tf2_ros</depend>
+
   <depend>tobas_debug_msgs_adapter</depend>
   <depend>tobas_eigen_tools</depend>
   <depend>tobas_geographic</depend>

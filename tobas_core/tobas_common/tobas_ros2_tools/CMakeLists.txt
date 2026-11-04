@@ -11,7 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(AMENT_DEPENDENCIES rclcpp tf2_ros rosbag2_cpp)
+set(AMENT_DEPENDENCIES rclcpp rclcpp_action rosbag2_cpp)
 
 find_package(ament_cmake REQUIRED)
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
@@ -22,7 +22,7 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
-target_link_libraries(${PROJECT_NAME} rclcpp::rclcpp tf2_ros::tf2_ros rosbag2_cpp::rosbag2_cpp)
+target_link_libraries(${PROJECT_NAME} rclcpp::rclcpp rclcpp_action::rclcpp_action rosbag2_cpp::rosbag2_cpp)
 
 install(
   TARGETS ${PROJECT_NAME}

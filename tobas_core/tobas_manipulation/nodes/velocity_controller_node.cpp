@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <optional>
-
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_kdl/tree_taskspace_vel_ctrl.hpp>
-#include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_ros2_tools/tf_listener.hpp>
+#include <tobas_tools/tf_listener.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -43,7 +40,7 @@ private:
   TreeJointStateConverter cur_js_conv_;
   TreeJointStateConverter tar_js_conv_;
 
-  std::optional<ros2::TransformListener> tf_listener_;
+  TransformListener tf_listener_;
   double jnt_time_const_;
   tobas_msgs::msg::JointStateArray home_js_;
 
@@ -94,6 +91,7 @@ VelocityControllerNode::VelocityControllerNode(const rclcpp::NodeOptions& _optio
   , vel_ctrl_(tree_)
   , cur_js_conv_(tree_)
   , tar_js_conv_(tree_)
+  , tf_listener_(this)
 {
   initialize_timer_ = createTimer(0s, &self::initialize, this);
 }
@@ -106,9 +104,6 @@ void VelocityControllerNode::initialize()
     return;
   }
   jnt_names_.insert(jnt_names.begin(), jnt_names.end());
-
-  // `shared_from_this` cannot be called from the constructor.
-  tf_listener_.emplace(shared_from_this());
 
   addDynamicDoubleParam("joint_time_constant", &self::jointTimeConstCb, this, 0.1, 3, 1, 10, " s");
   addDynamicDoubleParam("linear_time_constant", &self::linearTimeConstCb, this, 0.1, 5, 1, 10, " s");
@@ -182,17 +177,14 @@ bool VelocityControllerNode::taskSpaceControl(
     return false;
   }
 
-  kdl::Frame T_Base_Parent;
   kdl::FrameMap tar_p;
   for (const auto& ls : _tar_ls.states) {
-    const auto transform = tf_listener_->lookupTransform(tree_.getRootName(), _tar_ls.header.frame_id);
-    if (!transform) {
-      TOBAS_ERROR(transform.error());
+    const auto T_Base_Parent = tf_listener_.lookupTransform(tree_.getRootName(), _tar_ls.header.frame_id);
+    if (!T_Base_Parent) {
+      TOBAS_ERROR(T_Base_Parent.error());
       continue;
     }
-
-    kdl::transformMsgToKDL(transform->transform, T_Base_Parent);
-    tar_p[ls.name] = T_Base_Parent * ls.frame;  // Base -> Segment tip
+    tar_p[ls.name] = *T_Base_Parent * ls.frame;  // Base -> Segment tip
   }
 
   // Calculate target joint velocities.

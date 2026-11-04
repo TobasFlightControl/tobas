@@ -10,20 +10,31 @@
 #include <tf2_ros/buffer.hpp>
 #include <tf2_ros/transform_listener.hpp>
 
-#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <tobas_kdl/frame.hpp>
 
-namespace tobas::ros2
+namespace tobas
 {
 class TransformListener
 {
 public:
-  explicit TransformListener(rclcpp::Node::SharedPtr _node);
+  template <typename NodeT>
+  explicit TransformListener(NodeT&& _node);
 
-  std::expected<geometry_msgs::msg::TransformStamped, std::string>
+  std::expected<kdl::Frame, std::string>
   lookupTransform(const std::string& _parent, const std::string& _child, const rclcpp::Time& _time = rclcpp::Time(0));
 
 private:
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
+
+  kdl::Frame frame_;
 };
-}  // namespace tobas::ros2
+
+template <typename NodeT>
+TransformListener::TransformListener(NodeT&& _node)
+  : tf_buffer_(_node->get_clock())
+  , tf_listener_(tf_buffer_, tf2_ros::TransformListener::RequiredInterfaces(*_node), false)
+{
+  // Process TF subscriptions with the node's executor.
+}
+}  // namespace tobas

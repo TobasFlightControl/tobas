@@ -1,17 +1,15 @@
 <package format="3">
   <name>tobas_ros2_tools</name>
   <version>2.18.0</version>
-  <description>
-    Reusable ROS 2 utilities for nodes, QoS, timing, actions, services, parameters, TF, and rosbag.
-  </description>
+  <description>Reusable ROS 2 utilities for nodes, QoS, timing, actions, services, parameters, and rosbag.</description>
   <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
   <license>GPL-3.0-or-later</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>rclcpp</depend>
+  <depend>rclcpp_action</depend>
   <depend>rosbag2_cpp</depend>
-  <depend>tf2_ros</depend>
 
   <exec_depend>ros2launch</exec_depend>
 
