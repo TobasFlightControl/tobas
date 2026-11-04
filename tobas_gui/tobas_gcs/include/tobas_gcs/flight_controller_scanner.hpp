@@ -42,15 +42,10 @@ private:
   QTimer scan_timer_;
   bool failure_reported_ = false;
   int pending_resolutions_ = 0;
-  QVector<DiscoveredFlightController> controllers_;
-
-  void completeResolution(QProcess* _resolver, bool _success);
 
 private Q_SLOTS:
   void scanOnce();
   void onFinished(int _exit_code, QProcess::ExitStatus _exit_status);
   void onErrorOccurred(QProcess::ProcessError _error);
-  void onResolverFinished(int _exit_code, QProcess::ExitStatus _exit_status);
-  void onResolverErrorOccurred(QProcess::ProcessError _error);
 };
 }  // namespace tobas::gui::gcs

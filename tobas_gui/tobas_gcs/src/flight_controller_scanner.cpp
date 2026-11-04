@@ -3,9 +3,11 @@
 
 #include "tobas_gcs/flight_controller_scanner.hpp"
 
+#include <algorithm>
+#include <memory>
+
 #include <QMap>
 #include <QSet>
-#include <QVariant>
 
 namespace tobas::gui::gcs
 {
@@ -144,66 +146,50 @@ void FlightControllerScanner::onFinished(int _exit_code, QProcess::ExitStatus _e
     return;
   }
 
-  controllers_ = parseAvahiBrowseResult(QString::fromUtf8(process_.readAllStandardOutput()));
-  if (controllers_.isEmpty()) {
-    Q_EMIT finished(controllers_);
+  const auto controllers = parseAvahiBrowseResult(QString::fromUtf8(process_.readAllStandardOutput()));
+  if (controllers.isEmpty()) {
+    Q_EMIT finished({});
     return;
   }
 
+  // All callbacks share one result list and keep it alive after this function returns.
+  const auto controllers_ipv4 = std::make_shared<QVector<DiscoveredFlightController>>();
   // Initialize the total before starting any process, including ones that may fail to start immediately.
-  const auto controller_count = controllers_.size();
-  pending_resolutions_ = controller_count;
+  pending_resolutions_ = controllers.size();
 
   // avahi-browse cannot constrain the resolved address family. Request each hostname's A record with -4.
-  for (qsizetype index = 0; index < controller_count; ++index) {
+  for (const auto& fc : controllers) {
     auto* resolver = new QProcess(this);
-    // Keep indices stable until every lookup has completed, regardless of completion order.
-    resolver->setProperty("controllerIndex", index);
-    connect(resolver, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &self::onResolverFinished);
-    connect(resolver, &QProcess::errorOccurred, this, &self::onResolverErrorOccurred);
-    resolver->start("avahi-resolve-host-name", { "-4", controllers_.at(index).hostname });
-  }
-}
-
-void FlightControllerScanner::completeResolution(QProcess* _resolver, bool _success)
-{
-  auto& controller = controllers_[_resolver->property("controllerIndex").value<qsizetype>()];
-  controller.address.clear();
-  if (_success) {
-    // The resolver prints "hostname\tIPv4 address". Failed lookups contribute no result.
-    const auto fields = QString::fromUtf8(_resolver->readAllStandardOutput()).trimmed().split('\t');
-    if (fields.size() == 2) {
-      controller.address = fields.at(1);
-    }
-  }
-  _resolver->deleteLater();
-
-  if (--pending_resolutions_ == 0) {
-    // Remove failed lookups and duplicate IPv4 addresses only after all stored indices are no longer needed.
-    QSet<QString> addresses;
-    controllers_.removeIf(
-      [&addresses](const auto& _controller)
-      {
-        if (_controller.address.isEmpty() || addresses.contains(_controller.address)) {
-          return true;
+    const auto complete = [this, resolver, fc, controllers_ipv4](int _code, QProcess::ExitStatus _status)
+    {
+      // The resolver prints "hostname\tIPv4 address". Failed lookups contribute no result.
+      const auto fields = QString::fromUtf8(resolver->readAllStandardOutput()).trimmed().split('\t');
+      if (_code == 0 && _status == QProcess::NormalExit && fields.size() == 2) {
+        const auto& address_ipv4 = fields.at(1);
+        // Keep the final FC list unique by IPv4 address.
+        if (std::ranges::none_of(*controllers_ipv4, [&](const auto& _fc) { return _fc.address == address_ipv4; })) {
+          controllers_ipv4->append({ fc.hostname, address_ipv4, fc.drone, fc.id });
         }
-        addresses.insert(_controller.address);
-        return false;
+      }
+      resolver->deleteLater();
+      // Publish once, after every lookup has finished.
+      if (--pending_resolutions_ == 0) {
+        Q_EMIT finished(*controllers_ipv4);
+      }
+    };
+    connect(resolver, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, complete);
+    connect(
+      resolver,
+      &QProcess::errorOccurred,
+      this,
+      [complete](QProcess::ProcessError _error)
+      {
+        // FailedToStart does not emit finished(). Other errors are handled there to avoid double counting.
+        if (_error == QProcess::FailedToStart) {
+          complete(-1, QProcess::CrashExit);
+        }
       });
-    Q_EMIT finished(controllers_);
-  }
-}
-
-void FlightControllerScanner::onResolverFinished(int _exit_code, QProcess::ExitStatus _exit_status)
-{
-  completeResolution(qobject_cast<QProcess*>(sender()), _exit_code == 0 && _exit_status == QProcess::NormalExit);
-}
-
-void FlightControllerScanner::onResolverErrorOccurred(QProcess::ProcessError _error)
-{
-  // FailedToStart does not emit finished(). Other errors are handled there to avoid double counting.
-  if (_error == QProcess::FailedToStart) {
-    completeResolution(qobject_cast<QProcess*>(sender()), false);
+    resolver->start("avahi-resolve-host-name", { "-4", fc.hostname });
   }
 }
 
