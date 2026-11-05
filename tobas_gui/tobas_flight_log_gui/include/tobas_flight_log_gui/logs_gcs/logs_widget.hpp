@@ -7,7 +7,6 @@
 #include <QSettings>
 
 #include <tobas_qt_tools/widgets/list_widget.hpp>
-#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
 namespace tobas::gui::log
 {
@@ -37,8 +36,6 @@ private:
   QPushButton* clean_button_;
 
   qt::ListWidget* log_list_;
-
-  qt::WaitSpinnerWidget spinner_;
 
   QString currentLogName() const;
   void setCurrentLogName(const QString& _log_name);

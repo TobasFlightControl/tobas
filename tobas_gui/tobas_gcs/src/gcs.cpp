@@ -30,6 +30,7 @@
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_rqt_bridge/wait_for_message.hpp>
 #include <tobas_std_tools/check.hpp>
 
@@ -82,7 +83,7 @@ rclcpp::Context::SharedPtr createRosContext(const QString& _static_peer, std::ve
 }
 }  // namespace
 
-GroundControlStationWidget::GroundControlStationWidget(int _argc, char* _argv[]) : spinner_(Qt::WindowModal, this)
+GroundControlStationWidget::GroundControlStationWidget(int _argc, char* _argv[])
 {
   for (int i = 0; i < _argc; ++i) {
     ros_args_.emplace_back(_argv[i]);
@@ -636,25 +637,26 @@ void GroundControlStationWidget::onConnectButtonClicked()
   const auto fc = currentFlightController();
   const auto target = currentConnectionDescription();
 
-  spinner_.start();
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
 
   initializeRos();
 
   if (const auto result = connectToVehicle(*fc.drone, *fc.id); !result) {
-    spinner_.stop();
+    spinner.stop();
     disconnectFromVehicle();
     qt::qErrorBox(this, result.error());
     return;
   }
 
   if (!waitForHeartbeat()) {
-    spinner_.stop();
+    spinner.stop();
     disconnectFromVehicle();
     qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + target + ".");
     return;
   }
 
-  spinner_.stop();
+  spinner.stop();
 
   qt::qInfoBox(this, "The connection to " + currentConnectionDescription() + " has been established successfully.");
 }
@@ -947,13 +949,14 @@ void GroundControlStationWidget::onRestartButtonClicked()
     return;
   }
 
-  spinner_.start();
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
 
   // Restart the systemd service.
   expectTelemetryLoss();
   const auto res = ssh_client_->execute("systemctl restart tobas_real.target", true);
   if (!res) {
-    spinner_.stop();
+    spinner.stop();
     reset();
     qt::qErrorBox(this, "Failed to restart the flight controller: " + res.error());
     return;
@@ -964,13 +967,13 @@ void GroundControlStationWidget::onRestartButtonClicked()
 
   // Verify the ROS connection.
   if (!waitForHeartbeat()) {
-    spinner_.stop();
+    spinner.stop();
     disconnectFromVehicle();
     qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + target + ".");
     return;
   }
 
-  spinner_.stop();
+  spinner.stop();
 
   qt::qInfoBox(this, "The flight controller has been restarted successfully.");
 }
@@ -987,10 +990,11 @@ void GroundControlStationWidget::onShutdownButtonClicked()
 
   // Shut down the OS.
   expectTelemetryLoss();
-  spinner_.start();
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto res = ssh_client_->execute("poweroff", true, true);
   if (!res) {
-    spinner_.stop();
+    spinner.stop();
     reset();
     qt::qErrorBox(this, "Failed to shutdown the flight controller: " + res.error());
     return;
@@ -999,7 +1003,7 @@ void GroundControlStationWidget::onShutdownButtonClicked()
   // Wait long enough for the FC to shut down reliably.
   qt::spinFor(5s);
 
-  spinner_.stop();
+  spinner.stop();
 
   disconnectFromVehicle();
   qt::qInfoBox(this, "The flight controller has been shut down successfully.");

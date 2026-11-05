@@ -98,8 +98,6 @@ private:
   console::FcConsoleWidget* fc_console_;
   sim::SimulationWidget* simulation_;
 
-  qt::WaitSpinnerWidget spinner_;
-
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   bool telemetry_loss_expected_ = false;
   bool connection_ready_ = false;

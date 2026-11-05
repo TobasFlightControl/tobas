@@ -9,7 +9,6 @@
 #include <tobas_qt_tools/widgets/history_line_edit.hpp>
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
-#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
 #include "./start_thread.hpp"
@@ -42,8 +41,6 @@ private:
 
   RecordStartThread start_thread_;
   RecordStopThread stop_thread_;
-
-  qt::WaitSpinnerWidget spinner_;
 
   bool rosbag_state_received_ = false;
 

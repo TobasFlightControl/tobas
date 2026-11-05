@@ -13,6 +13,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 
@@ -25,7 +26,7 @@ namespace fs = std::filesystem;
 
 namespace tobas::gui::log
 {
-FlightLogsWidgetGCS::FlightLogsWidgetGCS() : spinner_(Qt::WindowModal, this)
+FlightLogsWidgetGCS::FlightLogsWidgetGCS()
 {
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
@@ -250,9 +251,10 @@ void FlightLogsWidgetGCS::onExportButtonClicked(const QString& _log_name)
   }
 
   // Export the flight log.
-  spinner_.start();
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto [success, message] = qt::startThreadAndWait(*thread, &ExportThread::finished);
-  spinner_.stop();
+  spinner.stop();
 
   // Show the result.
   if (success) {

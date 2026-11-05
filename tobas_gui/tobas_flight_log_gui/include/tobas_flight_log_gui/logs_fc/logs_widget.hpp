@@ -7,7 +7,6 @@
 
 #include <tobas_gui_common/ssh_client.hpp>
 #include <tobas_qt_tools/widgets/list_widget.hpp>
-#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
 namespace tobas::gui::log
 {
@@ -38,8 +37,6 @@ private:
 
   QPushButton* read_button_;
   QPushButton* clean_button_;
-
-  qt::WaitSpinnerWidget spinner_;
 
   qt::ListWidget* log_list_;
 

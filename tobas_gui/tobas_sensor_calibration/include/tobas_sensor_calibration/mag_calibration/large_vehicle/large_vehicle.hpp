@@ -5,7 +5,6 @@
 
 #include <QPushButton>
 
-#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
 #include "../base.hpp"
@@ -29,7 +28,6 @@ public:
 private:
   QPushButton* start_button_;
 
-  qt::WaitSpinnerWidget spinner_;
   LargeVehicleMagCalibThread thread_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;

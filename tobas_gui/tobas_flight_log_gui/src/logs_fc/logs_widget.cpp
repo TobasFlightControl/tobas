@@ -14,6 +14,7 @@
 #include <tobas_qt_tools/path.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_std_tools/check.hpp>
 
 #include "tobas_flight_log_gui/constants.hpp"
@@ -21,7 +22,7 @@
 
 namespace tobas::gui::log
 {
-FlightLogsWidgetFC::FlightLogsWidgetFC() : spinner_(Qt::WindowModal, this)
+FlightLogsWidgetFC::FlightLogsWidgetFC()
 {
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
@@ -122,9 +123,10 @@ void FlightLogsWidgetFC::onReadButtonClicked()
 {
   QStringList log_names;
 
-  spinner_.start();
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto res = ssh_client_->list(kRosbagDirRoot, log_names);
-  spinner_.stop();
+  spinner.stop();
 
   if (!res) {
     qt::qErrorBox(this, "Failed to get the flight log names: " + res.error());
@@ -153,9 +155,10 @@ void FlightLogsWidgetFC::onCleanButtonClicked()
     return;
   }
 
-  spinner_.start();
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto res = ssh_client_->execute("rm -rf " + QString(kRosbagDirRoot) + "/*", true);
-  spinner_.stop();
+  spinner.stop();
 
   if (!res) {
     qt::qErrorBox(this, "Failed to remove the flight logs: " + res.error());
@@ -219,9 +222,10 @@ void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& _log_name)
 
   const auto rosbag_path = QDir(kRosbagDirRoot).filePath(_log_name);
 
-  spinner_.start();
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto res = ssh_client_->execute("rm -rf " + rosbag_path, true);
-  spinner_.stop();
+  spinner.stop();
 
   if (!res) {
     qt::qErrorBox(this, "Failed to delete '" + _log_name + "': " + res.error());

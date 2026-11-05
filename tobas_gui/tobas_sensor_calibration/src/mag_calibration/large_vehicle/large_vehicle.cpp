@@ -9,11 +9,11 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
 namespace tobas::gui::sc
 {
-LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const rqt::RosQtBridge& _bridge)
-  : spinner_(Qt::WindowModal, this), thread_(_bridge)
+LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const rqt::RosQtBridge& _bridge) : thread_(_bridge)
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Make sure the GNSS is fixed. This is required to obtain the reference geomagnetic field.\n\n"
@@ -67,9 +67,10 @@ void LargeVehicleMagCalibWidget::onStartButtonClicked()
     return;
   }
 
-  spinner_.start();
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto [success, message] = qt::startThreadAndWait(thread_, &LargeVehicleMagCalibThread::finished);
-  spinner_.stop();
+  spinner.stop();
 
   if (success) {
     qt::qInfoBox(this, "Magnetometer calibration finished successfully. Please restart the flight controller.");

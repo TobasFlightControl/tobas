@@ -17,6 +17,7 @@
 #include <tobas_gui_common/version.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_ros2_tools/package.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_urdf/exporter.hpp>
@@ -40,7 +41,6 @@ constexpr char kLastOpenedDirKey_Save[] = "setup_assistant/last_opened_dir/save"
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr _node)
   : frame_type_detector_(uadf_, tree_)
   , rsp_client_(_node, "robot_state_publisher")
-  , spinner_(Qt::WindowModal, this)
   , rotor_marker_publisher_(_node, uadf_)
 {
   // Package manager
@@ -208,11 +208,12 @@ void SetupAssistantWidget::onNewButtonClicked()
     const auto pkg_name_qt = QString::fromStdString(*pkg_name);
 
     qInfo().nospace() << "UADF is in ROS package " << pkg_name_qt << ". Building it.";
-    spinner_.start();
+    qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+    spinner.start();
     // `--merge-install` is required to add the workspace install directory directly to the path.
     const auto ws_path = qt::expandUser(kColconWSPathHome);
     const auto build_result = cmn::colconBuild(pkg_path->c_str(), ws_path, { .merge_install = true });
-    spinner_.stop();
+    spinner.stop();
 
     if (!build_result) {
       const auto& error_msg = build_result.error();

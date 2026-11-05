@@ -7,12 +7,12 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
 namespace tobas::gui::sc
 {
-AccelCalibrationWidget::AccelCalibrationWidget(const rqt::RosQtBridge& _bridge)
-  : spinner_(Qt::WindowModal, this), thread_(_bridge)
+AccelCalibrationWidget::AccelCalibrationWidget(const rqt::RosQtBridge& _bridge) : thread_(_bridge)
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Place the flight controller on a level surface. The yellow Raw marker is a rough guide before calibration.\n\n"
@@ -79,9 +79,10 @@ void AccelCalibrationWidget::onStartButtonClicked()
     return;
   }
 
-  spinner_.start();
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto [success, message] = qt::startThreadAndWait(thread_, &AccelCalibrationThread::finished);
-  spinner_.stop();
+  spinner.stop();
 
   if (success) {
     qt::qInfoBox(this, message);

@@ -5,7 +5,6 @@
 
 #include <QPushButton>
 
-#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_ros2_tools/register.hpp>
 
 #include "../base.hpp"
@@ -33,7 +32,6 @@ private:
   QPushButton* start_button_;
   LevelIndicatorWidget* level_indicator_;
 
-  qt::WaitSpinnerWidget spinner_;
   AccelCalibrationThread thread_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;

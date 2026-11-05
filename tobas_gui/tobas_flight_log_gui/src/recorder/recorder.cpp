@@ -14,6 +14,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_string_tools/core.hpp>
 
 #include "tobas_flight_log_gui/constants.hpp"
@@ -22,7 +23,7 @@ namespace fs = std::filesystem;
 
 namespace tobas::gui::log
 {
-FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& _bridge) : spinner_(Qt::WindowModal, this)
+FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& _bridge)
 {
   log_name_ = new qt::HistoryLineEdit();
   log_name_->setEnabled(false);
@@ -116,9 +117,10 @@ void FlightLogRecorderWidget::onStartRequested()
 {
   start_thread_.setLogName(log_name_->text());
 
-  spinner_.start();
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto [success, message] = qt::startThreadAndWait(start_thread_, &RecordStartThread::finished);
-  spinner_.stop();
+  spinner.stop();
 
   if (!success) {
     qt::qErrorBox(this, message);
@@ -134,9 +136,10 @@ void FlightLogRecorderWidget::onStartRequested()
 
 void FlightLogRecorderWidget::onStopRequested()
 {
-  spinner_.start();
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto [success, message, log_path] = qt::startThreadAndWait(stop_thread_, &RecordStopThread::finished);
-  spinner_.stop();
+  spinner.stop();
 
   if (!success) {
     qt::qErrorBox(this, message);
