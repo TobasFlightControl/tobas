@@ -3,7 +3,6 @@
 
 #include "tobas_simulation_gui/simulation.hpp"
 
-#include <csignal>
 #include <utility>
 
 #include <QCloseEvent>
@@ -165,7 +164,7 @@ void SimulationWidget::launchSimulation()
     command.append(arg_name + ":=" + arg_value);
   }
 
-  launch_proc_ = new QProcess(this);
+  launch_proc_ = new SimulationProcess(this);
   launch_proc_->setProcessChannelMode(QProcess::ForwardedChannels);  // Forward child process output to the caller.
   connect(launch_proc_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &self::onLaunchProcessFinished);
   connect(launch_proc_, &QProcess::errorOccurred, this, &self::onLaunchProcessErrorOccurred);
@@ -181,14 +180,7 @@ void SimulationWidget::terminateLaunchProcess()
   TOBAS_CHECK(launch_proc_);
   TOBAS_CHECK(launch_proc_->state() != QProcess::NotRunning);
 
-  // Get the process ID.
-  const auto pid = launch_proc_->processId();
-  TOBAS_CHECK(pid > 0);
-
-  // Send SIGINT to the process.
-  // If the parent process is forcibly stopped with `QProcess::terminate`, child processes such as nodes do not exit.
-  qInfo().nospace() << "Sending SIGINT to the the simulation process (" << pid << ").";
-  TOBAS_CHECK(kill(pid, SIGINT) == 0);
+  launch_proc_->requestStop();
 }
 
 void SimulationWidget::terminateSimulation()
@@ -201,10 +193,8 @@ void SimulationWidget::terminateSimulation()
     return;
   }
 
-  terminateLaunchProcess();
-  killGazeboServer();
-
   state_ = kStopping;
+  terminateLaunchProcess();
 }
 
 void SimulationWidget::finalizeLaunchProcess(QProcess* _process, int _code, QProcess::ExitStatus _status)
@@ -232,8 +222,6 @@ void SimulationWidget::finalizeLaunchProcess(QProcess* _process, int _code, QPro
     qt::qInfoBox(this, "The simulation has been terminated successfully.");
   }
   else {
-    killGazeboServer();
-
     const auto out_msg = std_out + "\n\n" + std_err;
     const auto log_path = qt::writeTimestampedFile(out_msg + '\n', qt::expandUser(kGuiLogDir), "", "simulation_crash");
 

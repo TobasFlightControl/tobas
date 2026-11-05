@@ -18,6 +18,7 @@
 
 #include "./commanders/commanders.hpp"
 #include "./dynamic_configuration/dynamic_configuration.hpp"
+#include "./simulation_process.hpp"
 #include "./simulation_settings/simulation_settings.hpp"
 
 namespace tobas::gui::sim
@@ -55,7 +56,7 @@ private:
   kdl::Tree tree_;
   Drone drone_;
 
-  QPointer<QProcess> launch_proc_;
+  QPointer<SimulationProcess> launch_proc_;
   qt::WaitSpinnerWidget spinner_;
 
   qt::ToggleButton* start_stop_button_;

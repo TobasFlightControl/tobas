@@ -5,14 +5,11 @@
 
 #include <gz/msgs/double.pb.h>
 #include <gz/msgs/world_stats.pb.h>
-#include <QDebug>
 #include <QThread>
 
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_tools/transport.hpp>
-#include <tobas_linux/execute_command.hpp>
 #include <tobas_qt_tools/thread.hpp>
-#include <tobas_std_tools/check.hpp>
 
 namespace tobas::gui::sim
 {
@@ -65,13 +62,6 @@ bool waitUntilGazeboRenderingReady()
   return std::get<0>(qt::startThreadAndWait(thread, &WaitUntilGazeboRenderingReadyThread::finished));
 }
 
-void killGazeboServer()
-{
-  // FIXME: The Gazebo server does not exit with only the `kill` command, so it is forcibly terminated.
-  // This method may affect other processes.
-  qInfo() << "Killing all processes containing 'gz sim'.";
-  TOBAS_CHECK(linux::executeCommand("ps aux | grep \"gz sim\" | grep -v grep | awk '{ print \"kill -9\", $2 }' | sh"));
-}
 }  // namespace tobas::gui::sim
 
 #include "gazebo.moc"

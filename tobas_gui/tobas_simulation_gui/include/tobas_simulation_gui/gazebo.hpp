@@ -7,5 +7,4 @@ namespace tobas::gui::sim
 {
 bool waitUntilGazeboServerReady();
 bool waitUntilGazeboRenderingReady();
-void killGazeboServer();
 }  // namespace tobas::gui::sim
