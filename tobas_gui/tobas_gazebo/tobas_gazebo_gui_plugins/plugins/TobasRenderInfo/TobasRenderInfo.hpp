@@ -17,8 +17,6 @@ class TobasRenderInfo : public gz::gui::Plugin
   using super = gz::gui::Plugin;
 
 public:
-  explicit TobasRenderInfo();
-
   void LoadConfig(const tinyxml2::XMLElement* _elem) override;
 
 private:

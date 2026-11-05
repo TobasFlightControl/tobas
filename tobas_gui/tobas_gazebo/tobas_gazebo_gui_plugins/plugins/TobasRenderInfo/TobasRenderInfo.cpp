@@ -17,10 +17,6 @@ namespace ch = std::chrono;
 
 namespace tobas::gazebo
 {
-TobasRenderInfo::TobasRenderInfo()
-{
-}
-
 void TobasRenderInfo::LoadConfig(const tinyxml2::XMLElement*)
 {
   if (title.empty()) {

@@ -15,10 +15,6 @@
 
 namespace tobas::gazebo
 {
-TobasLookAtCamera::TobasLookAtCamera()
-{
-}
-
 void TobasLookAtCamera::LoadConfig(const tinyxml2::XMLElement* _elem)
 {
   if (title.empty()) {
