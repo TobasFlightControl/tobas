@@ -20,6 +20,9 @@ namespace tobas::gazebo
 {
 namespace
 {
+constexpr char kGeometryKey[] = "geometry";
+constexpr char kMaximizedKey[] = "maximized";
+
 QRect fitWindowGeometry(const QRect& _geometry, const QList<QRect>& _screens)
 {
   if (!_geometry.isValid() || _screens.isEmpty()) {
@@ -87,7 +90,7 @@ void TobasWindowGeometry::initialize()
     return;
   }
 
-  const auto saved_geometry = settings_.value("geometry").toRect();
+  const auto saved_geometry = settings_.value(kGeometryKey).toRect();
   if (saved_geometry.isValid()) {
     QList<QRect> screens;
     for (const auto screen : QGuiApplication::screens()) {
@@ -108,7 +111,8 @@ void TobasWindowGeometry::initialize()
   }
 
   normal_geometry_ = window_->geometry();
-  if (settings_.value("maximized", false).toBool()) {
+
+  if (settings_.value(kMaximizedKey, false).toBool()) {
     window_->showMaximized();
   }
 
@@ -130,8 +134,9 @@ void TobasWindowGeometry::save()
     return;
   }
 
-  settings_.setValue("geometry", normal_geometry_);
-  settings_.setValue("maximized", maximized);
+  settings_.setValue(kGeometryKey, normal_geometry_);
+  settings_.setValue(kMaximizedKey, maximized);
+
   // Terminate may stop Gazebo without closing its window, so flush while it is running.
   settings_.sync();
   if (settings_.status() != QSettings::NoError) {
