@@ -118,6 +118,7 @@ void MagnetometerHandlerNode::setParamsCb(
   }
 
   if (!mag_pub_) {
+    TOBAS_INFO("Parameters have been set successfully. Starting magnetic field message publishing.");
     registerPubSub();
   }
 

@@ -315,6 +315,7 @@ void RCInputHandlerNode::setParamsCb(
   }
 
   if (!rcin_pub_) {
+    TOBAS_INFO("Parameters have been set successfully. Starting radio input message publishing.");
     registerPubSub();
   }
 

@@ -226,6 +226,7 @@ void ImuHandlerNode::setParamsCb(
   }
 
   if (!imu_raw_pub_ || !imu_filt_pub_) {
+    TOBAS_INFO("Parameters have been set successfully. Starting IMU message publishing.");
     registerPubSub();
   }
 
