@@ -117,7 +117,7 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& _options)
   std::error_code ec;
   device_name_ = fs::canonical(device_name_, ec);
   if (ec) {
-    TOBAS_ERROR(ec.message());
+    TOBAS_ERROR("Failed to resolve " + device_name_ + ": " + ec.message());
     return;
   }
 
