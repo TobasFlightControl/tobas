@@ -11,6 +11,7 @@
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
@@ -222,7 +223,12 @@ void RotorTestWidget::publishTargetSppeds()
 bool RotorTestWidget::loadCurrentGains()
 {
   const auto req = std::make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
+
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto res = get_params_sc_->sendRequestAndWait(req);
+  spinner.stop();
+
   if (!res) {
     qt::qErrorBox(this, "Failed to get the current RPM control gains.");
     return false;

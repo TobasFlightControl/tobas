@@ -14,6 +14,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_real_common/handler.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
@@ -326,9 +327,14 @@ bool RCInputCalibrationWidget::saveParamsToFc()
     req->gpsw_off[i] = 0;
   }
 
+  qInfo() << "Sending radio calibration results to the flight controller.";
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto res = set_params_sc_->sendRequestAndWait(req);
+  spinner.stop();
+
   if (!res) {
-    qt::qErrorBox(this, "Failed to send calibration results to FC.");
+    qt::qErrorBox(this, "Failed to send calibration results to the flight controller.");
     return false;
   }
 
@@ -342,6 +348,8 @@ bool RCInputCalibrationWidget::saveParamsToFc()
 
 void RCInputCalibrationWidget::onStartButtonClicked()
 {
+  qDebug() << "RCInputCalibrationWidget::onStartButtonClicked";
+
   // Confirm that the vehicle is not armed.
   if (!arming_) {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status has not been received yet.");
@@ -368,12 +376,16 @@ void RCInputCalibrationWidget::onStartButtonClicked()
 
 void RCInputCalibrationWidget::onCancelButtonClicked()
 {
+  qDebug() << "RCInputCalibrationWidget::onCancelButtonClicked";
+
   qt::qInfoBox(this, "Radio calibration was canceled.");
   reset();
 }
 
 void RCInputCalibrationWidget::onFinishButtonClicked()
 {
+  qDebug() << "RCInputCalibrationWidget::onFinishButtonClicked";
+
   // Each S.BUS channel value is at least 1000 and at most 2000,
   // so using 1000 as the threshold prevents the human error of moving a three-position switch through only two positions.
   constexpr int kMinSignalRange = 1000;

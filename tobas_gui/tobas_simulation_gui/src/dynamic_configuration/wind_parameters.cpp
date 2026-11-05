@@ -12,6 +12,7 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
@@ -149,7 +150,11 @@ bool WindParamsWidget::sendGuiParams()
   req->params.gust_duration = getGustDuration();
   req->params.gust_interval = getGustInterval();
 
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto res = set_sc_->sendRequestAndWait(req);
+  spinner.stop();
+
   if (!res) {
     qt::qErrorBox(this, "Failed to call '" + QString(gazebo::kSetWindParamsSrv) + "' service.");
     return false;

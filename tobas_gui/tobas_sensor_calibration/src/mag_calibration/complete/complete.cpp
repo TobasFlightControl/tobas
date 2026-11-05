@@ -19,6 +19,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_real_common/handler.hpp>
 #include <tobas_real_common/ros_interface.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -462,7 +463,11 @@ bool CompleteMagCalibWidget::updateRemoteParameters(const Eigen::Vector3d& _hard
   req->soft_bias = eigen::toStdArray(_soft_bias);
 
   // Update parameters.
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto res = set_params_sc_->sendRequestAndWait(req);
+  spinner.stop();
+
   if (!res) {
     qt::qErrorBox(this, "Failed to send calibration results.");
     return false;

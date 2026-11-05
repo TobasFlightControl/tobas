@@ -11,6 +11,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
 #include "tobas_simulation_gui/commanders/constants.hpp"
@@ -181,7 +182,11 @@ bool BasePoseCommanderWidget::armRotors(bool _arming)
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = _arming;
 
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto res = set_arm_sc_->sendRequestAndWait(req);
+  spinner.stop();
+
   if (!res) {
     qt::qErrorBox(this, "Failed to connect to the rotor controller.");
     return false;

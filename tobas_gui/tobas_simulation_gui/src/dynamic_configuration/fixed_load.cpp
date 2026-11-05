@@ -15,6 +15,7 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
 #include "tobas_simulation_gui/dynamic_configuration/constants.hpp"
@@ -116,7 +117,11 @@ void FixedLoadWidget::onAttachButtonClicked()
 
   req->load_mass = load_mass_->value();
 
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto res = attach_sc_->sendRequestAndWait(req);
+  spinner.stop();
+
   if (!res) {
     qt::qErrorBox(this, "Failed to call '" + QString(gazebo::kAttachFixedLoadSrv) + "' service.");
     attach_detach_btn_->setChecked(false);
@@ -134,7 +139,11 @@ void FixedLoadWidget::onDetachButtonClicked()
 {
   const auto req = std::make_shared<DetachSrv::Request>();
 
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
   const auto res = detach_sc_->sendRequestAndWait(req);
+  spinner.stop();
+
   if (!res) {
     qt::qErrorBox(this, "Failed to call '" + QString(gazebo::kDetachFixedLoadSrv) + "' service.");
     attach_detach_btn_->setChecked(true);
