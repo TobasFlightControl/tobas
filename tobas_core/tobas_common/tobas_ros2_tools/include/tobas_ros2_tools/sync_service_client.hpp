@@ -39,7 +39,7 @@ public:
   template <typename RepT = int64_t, typename RatioT = std::milli>
   typename SrvType::Response::ConstSharedPtr sendRequestAndWait(
     const typename SrvType::Request::SharedPtr& _req,
-    std::chrono::duration<RepT, RatioT> _timeout = std::chrono::duration<RepT, RatioT>(-1));
+    std::chrono::duration<RepT, RatioT> _timeout = std::chrono::seconds(3));
 
   inline bool serviceIsReady() const;
 
