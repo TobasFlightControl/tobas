@@ -514,6 +514,15 @@ void GroundControlStationWidget::setCurrentApplication(QWidget* _widget)
   button->setChecked(true);
 }
 
+void GroundControlStationWidget::openFcConsole()
+{
+  setCurrentApplication(fc_console_);
+
+  if (!fc_console_->isRunning()) {
+    fc_console_->start();
+  }
+}
+
 void GroundControlStationWidget::onEndpointChanged()
 {
   qDebug() << "GroundControlStationWidget::onEndpointChanged";
@@ -881,7 +890,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
     progress.close();
     disconnectFromVehicle();
     qt::qErrorBox(this, result.error() + ' ' + kPleaseCheckConsoleOutputMsg);
-    setCurrentApplication(fc_console_);
+    openFcConsole();
     return;
   }
   progress.progressStep();
@@ -892,7 +901,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
     progress.close();
     disconnectFromVehicle();
     qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + target + ". " + kPleaseCheckConsoleOutputMsg);
-    setCurrentApplication(fc_console_);
+    openFcConsole();
     return;
   }
   progress.progressStep();

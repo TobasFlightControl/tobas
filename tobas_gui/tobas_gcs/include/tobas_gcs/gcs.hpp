@@ -134,6 +134,7 @@ private:
   void clearExpectedTelemetryLoss();
 
   void setCurrentApplication(QWidget* _widget);
+  void openFcConsole();
 
 private Q_SLOTS:
   void onEndpointChanged();
