@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 
+#include <tobas_constants/time.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_linux/execute_command.hpp>
 #include <tobas_node/node.hpp>
@@ -73,7 +74,7 @@ bool CpuHandlerNode::getFrequency()
 {
   const auto result = linux::executeCommand("vcgencmd measure_clock arm");
   if (!result) {
-    TOBAS_ERROR("Failed to get CPU clock frequency: ", result.error());
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to get CPU clock frequency: ", result.error());
     return false;
   }
 
@@ -89,7 +90,7 @@ bool CpuHandlerNode::getTemperature()
   // Open the file.
   std::ifstream temp_file(kTemperatureFilePath);
   if (!temp_file) {
-    TOBAS_ERROR("Failed to open ", kTemperatureFilePath, ".");
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to open ", kTemperatureFilePath, ".");
     return false;
   }
 
@@ -109,13 +110,13 @@ bool CpuHandlerNode::getLoad()
   // Open the file.
   std::ifstream stat_file(kStatisticsFilePath);
   if (!stat_file) {
-    TOBAS_ERROR("Failed to open ", kStatisticsFilePath, ".");
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to open ", kStatisticsFilePath, ".");
     return false;
   }
 
   // Read the first line of the file.
   if (!std::getline(stat_file, cpu_line_)) {
-    TOBAS_ERROR("Failed to read the first line of ", kStatisticsFilePath, ".");
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to read the first line of ", kStatisticsFilePath, ".");
     return false;
   }
 
@@ -128,28 +129,28 @@ bool CpuHandlerNode::getLoad()
 
   // 1. Time spent in user mode
   if (!(iss >> token_)) {
-    TOBAS_ERROR("Failed to read the CPU time spent in user mode.");
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to read the CPU time spent in user mode.");
     return false;
   }
   const auto new_user_time = stoul(token_);
 
   // 2. Time spent in user mode with low priority (nice)
   if (!(iss >> token_)) {
-    TOBAS_ERROR("Failed to read the CPU time spent in user mode with low priority.");
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to read the CPU time spent in user mode with low priority.");
     return false;
   }
   const auto new_nice_time = stoul(token_);
 
   // 3. Time spent in system mode
   if (!(iss >> token_)) {
-    TOBAS_ERROR("Failed to read the CPU time spent in system mode.");
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to read the CPU time spent in system mode.");
     return false;
   }
   const auto new_system_time = stoul(token_);
 
   // 4. Time spent in the idle task
   if (!(iss >> token_)) {
-    TOBAS_ERROR("Failed to read the CPU time spent in the idle task.");
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Failed to read the CPU time spent in the idle task.");
     return false;
   }
   const auto new_idle_time = stoul(token_);
