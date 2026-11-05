@@ -25,6 +25,8 @@ namespace fs = std::filesystem;
 
 namespace tobas::dxl
 {
+namespace
+{
 struct DynamixelConfig
 {
   uint8_t id;
@@ -41,6 +43,24 @@ struct DynamixelConfig
   double vel_limit;                 ///< [rad/s]
   st::Range<double> pos_limit;      ///< [rad]
 };
+
+bool setMinimumLatency(const std::string& device_name)
+{
+  const auto pos = device_name.rfind('/');
+  const auto port = pos == std::string::npos ? device_name : device_name.substr(pos + 1);
+  const auto file_path = "/sys/bus/usb-serial/devices/" + port + "/latency_timer";
+
+  std::ofstream file(file_path);
+  if (!file.is_open()) {
+    return false;
+  }
+
+  file << 1;  // `uint8_t` did not take effect.
+  file.close();
+
+  return true;
+}
+}  // namespace
 
 class DynamixelHandlerNode : public BaseNode
 {
@@ -88,7 +108,6 @@ private:
   bool getStaticRosParams();
   void registerPublishers();
   void registerSubscribers();
-  bool setMinimumLatency();
   bool getMotorConfigs();
   bool enableTorques();
   bool disableTorques();
@@ -115,14 +134,14 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& _options)
 
   // Get the device absolute path.
   std::error_code ec;
-  device_name_ = fs::canonical(device_name_, ec);
+  const auto resolved_device = fs::canonical(device_name_, ec);
   if (ec) {
     TOBAS_ERROR("Failed to resolve " + device_name_ + ": " + ec.message());
     return;
   }
 
   // Initialize Dynamixel SDK.
-  poh_ = dynamixel::PortHandler::getPortHandler(device_name_.c_str());
+  poh_ = dynamixel::PortHandler::getPortHandler(resolved_device.c_str());
   pah_ = dynamixel::PacketHandler::getPacketHandler(protocol_version_);
 
   // Current + Velocity + Position
@@ -138,7 +157,7 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& _options)
 
   // Open serial port.
   if (!poh_->openPort()) {
-    TOBAS_ERROR("Failed to open port '", device_name_, "'");
+    TOBAS_ERROR("Failed to open port '", resolved_device, "'");
     return;
   }
 
@@ -188,7 +207,7 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& _options)
   }
 
   // Reduce latency.
-  if (!setMinimumLatency()) {
+  if (!setMinimumLatency(resolved_device)) {
     TOBAS_ERROR("Failed to set communication latency.");
     return;
   }
@@ -252,24 +271,6 @@ void DynamixelHandlerNode::registerSubscribers()
   positions_sub_ = createSubscriber(topic::kPositionCommand, &self::positionsCmdCb, this);
   velocities_sub_ = createSubscriber(topic::kVelocityCommand, &self::velocitiesCmdCb, this);
   efforts_sub_ = createSubscriber(topic::kEffortCommand, &self::effortsCmdCb, this);
-}
-
-bool DynamixelHandlerNode::setMinimumLatency()
-{
-  const auto pos = device_name_.rfind('/');
-  const auto port = pos == std::string::npos ? device_name_ : device_name_.substr(pos + 1);
-  const auto file_path = "/sys/bus/usb-serial/devices/" + port + "/latency_timer";
-
-  std::ofstream file(file_path);
-  if (!file.is_open()) {
-    return false;
-  }
-
-  file << 1;  // `uint8_t` did not take effect.
-  file.close();
-
-  TOBAS_INFO("Communication latency is updated successfully.");
-  return true;
 }
 
 bool DynamixelHandlerNode::getMotorConfigs()
