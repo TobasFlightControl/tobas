@@ -15,8 +15,8 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
-# Stop the systemd service.
-sudo systemctl stop tobas_real.target
+# Stop the flight controller and its Avahi advertisement.
+sudo systemctl stop tobas_real.target tobas_fc_advertise.service
 
 # Navigate to the colcon workspace.
 cd ~/colcon_ws/
@@ -38,7 +38,7 @@ colcon build \
   --packages-up-to "$1" \
 ' -- "$1"
 
-# Restart the systemd service.
-sudo systemctl restart tobas_real.target
+# Restart the flight controller and its Avahi advertisement.
+sudo systemctl restart tobas_real.target tobas_fc_advertise.service
 
 echo -e "\033[32mDeployment finished successfully.\033[0m"
