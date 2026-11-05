@@ -68,6 +68,17 @@
         </gz-gui>
       </plugin>
 
+      <!-- Window Geometry -->
+      <plugin filename="TobasWindowGeometry" name="Window Geometry">
+        <gz-gui>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+
       <!-- Rendering Information -->
       <plugin filename="TobasRenderInfo" name="Rendering Information">
         <gz-gui>
