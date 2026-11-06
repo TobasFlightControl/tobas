@@ -312,17 +312,10 @@ bool Mixer::solve(
   const Eigen::Vector3d max_moment = max_thrust_moment + max_cs_moment;
   const Eigen::Vector3d max_angular_acc = I_B.data.diagonal().cwiseInverse().cwiseProduct(max_moment);
   // 空力による応答遅れの影響を考慮してPI要素を挟む アンチワインドアップを実施
-  if (cur_vel_G.x() < kForwardSpeedThresholdForAero) { // 横向きに高速で移動しているときに変な挙動をしないようにする
-    x_controller_.setGains(1.0, 0.0);
-    y_controller_.setGains(1.0, 0.0);
-    z_controller_.setGains(1.0, 0.0);
-    z2_controller_.setGains(1.0, 0.0);
-  } else {
-    x_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_roll_);
-    y_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_s_);
-    z_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_dutch_roll_);
-    z2_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_dutch_roll_);
-  }
+  x_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_roll_);
+  y_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_s_);
+  z_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_dutch_roll_);
+  z2_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_dutch_roll_);
 
   x_controller_.setMaxMin(max_angular_acc.x(), -max_angular_acc.x());
   x_controller_.update(tar_dgyro_B.x(), dt);

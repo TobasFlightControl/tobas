@@ -46,7 +46,7 @@ private:
   ControlMode mode_;
   rclcpp::Time t_last_rcin_;
   SecondOrderVelocityFilter vx_filt_, vy_filt_, vz_filt_;
-  traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_;
+  traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_;
   kdl::Vector tar_pos_W_;
   double tar_yaw_;
 
@@ -74,6 +74,7 @@ private:
   bool maxVerticalJerkCb(const double& p);
   bool maxRollCb(const double& p);
   bool maxRollRateCb(const double& p);
+  bool maxPitchRateCb(const double& p);
   bool maxYawRateCb(const double& p);
   bool maxSideSlipCb(const double& p);
   bool maxPositionErrorDown(const double& p);

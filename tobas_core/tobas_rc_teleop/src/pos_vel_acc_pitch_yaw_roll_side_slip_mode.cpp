@@ -47,6 +47,7 @@ void PosVelAccPitchYawRollSideSlipModeController::initialize(BaseNode* node, Fli
     addMode("max_vertical_jerk", mode), &self::maxVerticalJerkCb, this, 5.0, 8, 1, 20, " m/s^3");
   node->addDynamicDoubleParam(addMode("max_roll", mode), &self::maxRollCb, this, 5.0, 9, 1, 16, " deg");
   node->addDynamicDoubleParam(addMode("max_roll_rate", mode), &self::maxRollRateCb, this, 15.0, 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 15.0, 6, 1, 12, " dps");
   node->addDynamicDoubleParam(addMode("max_yaw_rate", mode), &self::maxYawRateCb, this, 15.0, 6, 1, 12, " dps");
   node->addDynamicDoubleParam(addMode("max_side_slip", mode), &self::maxSideSlipCb, this, 1.0, 6, 1, 12, " deg");
   node->addDynamicDoubleParam(
@@ -128,8 +129,9 @@ void PosVelAccPitchYawRollSideSlipModeController::update(const tobas_msgs::RCInp
     vx_filt_.update(expoRemapDead(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
     vy_filt_.update(-expoRemap(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
     vz_filt_.update(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
-
-      // Yaw
+    // Pitch
+    pitch_filt_.setTargetPointAndUpdate(0.0, dt);
+    // Yaw
     const auto yawrate = expoRemapDead(rcin.yaw, yaw_expo_, -max_yaw_rate_, max_yaw_rate_);
     tar_yaw_ += yawrate * dt;
 
@@ -163,7 +165,7 @@ void PosVelAccPitchYawRollSideSlipModeController::update(const tobas_msgs::RCInp
     cmd->pos = tar_pos_W_;
     cmd->vel = tar_vel_W;
     cmd->acc = tar_acc_W;
-    cmd->pitch = 0.0;
+    cmd->pitch = pitch_filt_.getTrajectoryPosition();
     cmd->yaw = tar_yaw_;
 
     // publish
@@ -243,6 +245,7 @@ void PosVelAccPitchYawRollSideSlipModeController::resetMulticopterControllers(co
     tar_pos_W_.z() -= max_ep_down_;
   }
 
+  pitch_filt_.resetCurrentTrajectoryPoint(pitch);
   tar_yaw_ = setpoint.frame.M.getYaw();
 }
 
@@ -283,6 +286,12 @@ bool PosVelAccPitchYawRollSideSlipModeController::maxRollCb(const double& p)
 bool PosVelAccPitchYawRollSideSlipModeController::maxRollRateCb(const double& p)
 {
   roll_filt_.setMaxVelocity(st::deg2rad(p));
+  return true;
+}
+
+bool PosVelAccPitchYawRollSideSlipModeController::maxPitchRateCb(const double& p)
+{
+  pitch_filt_.setMaxVelocity(st::deg2rad(p));
   return true;
 }
 
