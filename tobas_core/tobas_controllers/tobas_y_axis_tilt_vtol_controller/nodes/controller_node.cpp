@@ -38,7 +38,7 @@
 #include <tobas_msgs_adapter/odometry_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
-#include "tobas_y_axis_tilt_vtol_controller/mixer.hpp"
+#include "tobas_y_axis_tilt_vtol_controller/mixer_qp.hpp"
 #include "tobas_y_axis_tilt_vtol_controller/transition_handler.hpp"
 #include "tobas_y_axis_tilt_vtol_controller/translational_eom.hpp"
 
@@ -98,7 +98,7 @@ private:
   // Controller
   TranslationalEoM trans_eom_;
   TransitionHandler transition_handler_;
-  Mixer mixer_;
+  QpMixer mixer_;
   struct TranslationControlParameters
   {
     double hor_wn, ver_wn;      // [rad/s]
@@ -568,7 +568,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     // Mixer.
     {
       const auto rho = st::pressureToDensity(air_pressure_->pressure);
-      if (!mixer_.solve(dt, rho, js_converter_.getPosition(), cur_gyro_G, cur_vel_G, *tar_dgyro_, thrust_, thrust_angle_)) {
+      if (!mixer_.solve(dt, rho, js_converter_.getPosition(), cur_gyro_G, cur_vel_G, *tar_dgyro_, std::max(thrust_, 1.0e-1), thrust_angle_)) {
         TOBAS_FATAL("Failed to solve the mixing equation.");
         return;
       }
