@@ -13,7 +13,7 @@ namespace tobas::ssh
 {
 namespace
 {
-constexpr char kServerNotReadyMsg[] = "The SSH server is not ready.";
+constexpr char kServerNotReadyMsg[] = "The local SSH bridge server is not ready.";
 }  // namespace
 
 SshClient::SshClient(rclcpp::Node::SharedPtr _node)
