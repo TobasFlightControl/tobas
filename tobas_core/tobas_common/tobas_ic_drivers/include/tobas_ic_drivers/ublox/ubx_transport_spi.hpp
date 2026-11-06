@@ -3,10 +3,6 @@
 
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-#include <optional>
-
 #include <tobas_linux/spi_dev.hpp>
 
 #include "./ubx_transport.hpp"
