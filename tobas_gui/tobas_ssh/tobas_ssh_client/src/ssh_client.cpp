@@ -13,7 +13,7 @@ namespace tobas::ssh
 {
 namespace
 {
-constexpr char kServerNotReadyMsg[] = "The local SSH bridge server is not ready.";
+constexpr char kBridgeNotReadyMsg[] = "The local SSH bridge server is not ready.";
 }  // namespace
 
 SshClient::SshClient(rclcpp::Node::SharedPtr _node)
@@ -65,7 +65,7 @@ SshClient::Result SshClient::connect()
 
   const auto res = connect_sc_.sendRequestAndWait(req);
   if (!res) {
-    return std::unexpected(kServerNotReadyMsg);
+    return std::unexpected(kBridgeNotReadyMsg);
   }
 
   if (!res->success) {
@@ -85,7 +85,7 @@ SshClient::execute(const std::string& _command, std::string& _output, bool _supe
 
   const auto res = execute_sc_.sendRequestAndWait(req);
   if (!res) {
-    return std::unexpected(kServerNotReadyMsg);
+    return std::unexpected(kBridgeNotReadyMsg);
   }
 
   if (!res->success) {
@@ -122,7 +122,7 @@ SshClient::Result SshClient::scpGet(
     result = scp_get_ac_.sendGoalAndWait(goal);
   }
   if (!result) {
-    return std::unexpected(kServerNotReadyMsg);
+    return std::unexpected(kBridgeNotReadyMsg);
   }
 
   if (result->code != rclcpp_action::ResultCode::SUCCEEDED) {
@@ -158,7 +158,7 @@ SshClient::Result SshClient::scpPut(
     result = scp_put_ac_.sendGoalAndWait(goal);
   }
   if (!result) {
-    return std::unexpected(kServerNotReadyMsg);
+    return std::unexpected(kBridgeNotReadyMsg);
   }
 
   if (result->code != rclcpp_action::ResultCode::SUCCEEDED) {
@@ -176,7 +176,7 @@ SshClient::Result SshClient::sftpRead(const std::string& _remote_path, std::stri
 
   const auto res = sftp_read_sc_.sendRequestAndWait(req);
   if (!res) {
-    return std::unexpected(kServerNotReadyMsg);
+    return std::unexpected(kBridgeNotReadyMsg);
   }
 
   if (!res->success) {
@@ -196,7 +196,7 @@ SshClient::Result SshClient::sftpWrite(const std::string& _remote_path, const st
 
   const auto res = sftp_write_sc_.sendRequestAndWait(req);
   if (!res) {
-    return std::unexpected(kServerNotReadyMsg);
+    return std::unexpected(kBridgeNotReadyMsg);
   }
 
   if (!res->success) {
@@ -213,7 +213,7 @@ SshClient::Result SshClient::list(const std::string& _pardir, std::vector<std::s
 
   const auto res = list_sc_.sendRequestAndWait(req);
   if (!res) {
-    return std::unexpected(kServerNotReadyMsg);
+    return std::unexpected(kBridgeNotReadyMsg);
   }
 
   if (!res->success) {
