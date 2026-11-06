@@ -4,12 +4,17 @@
 #include "tobas_ic_drivers/ublox/ubx_payload.hpp"
 
 #include <bit>
+#include <cstring>
 #include <ranges>
 
 #include <tobas_algorithm/binary.hpp>
 
 namespace tobas::ublox::payload
 {
+MON_VER::MON_VER(size_t _payload_length) : payload_length_(_payload_length)
+{
+}
+
 /* ===== Decode Methods ===== */
 
 void ACK_NAK::decode(const uint8_t* _p)
@@ -22,6 +27,36 @@ void ACK_ACK::decode(const uint8_t* _p)
 {
   clsID = algo::decodeU8(_p + 0);
   msgID = algo::decodeU8(_p + 1);
+}
+
+void MON_VER::decode(const uint8_t* _p)
+{
+  module.clear();
+
+  // MON-VER has a 40-byte fixed part followed by 30-byte extensions.
+  constexpr size_t kFixedLength = 40;
+  constexpr size_t kExtensionLength = 30;
+  constexpr char kModulePrefix[] = "MOD=";
+  constexpr size_t kModulePrefixLength = sizeof(kModulePrefix) - 1;
+
+  // Search the extensions for the module name.
+  for (size_t offset = kFixedLength; offset + kExtensionLength <= payload_length_; offset += kExtensionLength) {
+    const auto* extension = reinterpret_cast<const char*>(_p + offset);
+
+    if (std::strncmp(extension, kModulePrefix, kModulePrefixLength) != 0) {
+      continue;
+    }
+
+    // Read the module name within the current extension.
+    const auto* name = extension + kModulePrefixLength;
+    const size_t max_length = kExtensionLength - kModulePrefixLength;
+    const size_t length = strnlen(name, max_length);
+
+    if (length < max_length) {
+      module.assign(name, length);
+    }
+    return;
+  }
 }
 
 void NAV_CLOCK::decode(const uint8_t*)
@@ -357,6 +392,11 @@ void ACK_ACK::print(std::ostream& _os) const
 {
   _os << "Class ID of the Acknowledged Message: " << (int)clsID << '\n';
   _os << "Message ID of the Acknowledged Message: " << (int)msgID << '\n';
+}
+
+void MON_VER::print(std::ostream& _os) const
+{
+  _os << "Module name: " << module << '\n';
 }
 
 void NAV_CLOCK::print(std::ostream&) const

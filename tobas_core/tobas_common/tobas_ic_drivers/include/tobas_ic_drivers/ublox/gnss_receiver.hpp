@@ -3,7 +3,9 @@
 
 #pragma once
 
+#include <expected>
 #include <memory>
+#include <string>
 
 #include <tobas_time_tools/rate.hpp>
 
@@ -116,6 +118,7 @@ public:
 
   bool initialize();
   bool update(bool _blocking = false);
+  std::expected<payload::MON_VER, std::string> pollVersion();
 
   // ===== Configurations =====
 
