@@ -63,26 +63,22 @@ bool GnssReceiver::update(bool _blocking)
 
 std::expected<payload::MON_VER, std::string> GnssReceiver::pollVersion()
 {
-  constexpr uint8_t kMonVerId = 0x04;
-  constexpr uint8_t kEmptyPayload = 0;
-
   // Poll MON-VER without a request payload.
-  if (!sendMessage(CLASS_MON, kMonVerId, &kEmptyPayload, 0)) {
-    return std::unexpected(std::string{ "Failed to send MON-VER request." });
+  if (!sendMessage(CLASS_MON, MON_VER, nullptr, 0)) {
+    return std::unexpected("Failed to send MON-VER request.");
   }
 
   while (true) {
     if (!update(true)) {
-      return std::unexpected(std::string{ "Failed to receive MON-VER response." });
+      return std::unexpected("Failed to receive MON-VER response.");
     }
 
     // Ignore unrelated UBX messages.
-    if (latestClass() != CLASS_MON || latestId() != kMonVerId) {
+    if (latestClass() != CLASS_MON || latestId() != MON_VER) {
       continue;
     }
 
-    const size_t length = scanner_.messageLength() - kUbxHeaderLength - kUbxChecksumLength;
-
+    const auto length = scanner_.messageLength() - kUbxHeaderLength - kUbxChecksumLength;
     payload::MON_VER version(length);
     version.decode(payload());
     return version;

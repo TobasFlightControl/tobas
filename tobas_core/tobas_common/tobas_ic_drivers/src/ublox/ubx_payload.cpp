@@ -31,29 +31,26 @@ void ACK_ACK::decode(const uint8_t* _p)
 
 void MON_VER::decode(const uint8_t* _p)
 {
-  module.clear();
-
   // MON-VER has a 40-byte fixed part followed by 30-byte extensions.
   constexpr size_t kFixedLength = 40;
   constexpr size_t kExtensionLength = 30;
-  constexpr char kModulePrefix[] = "MOD=";
-  constexpr size_t kModulePrefixLength = sizeof(kModulePrefix) - 1;
 
   // Search the extensions for the module name.
+  moduleId.clear();
   for (size_t offset = kFixedLength; offset + kExtensionLength <= payload_length_; offset += kExtensionLength) {
+    // Skip extensions that do not start with the module identifier prefix.
     const auto* extension = reinterpret_cast<const char*>(_p + offset);
-
+    constexpr char kModulePrefix[] = "MOD=";
+    constexpr auto kModulePrefixLength = sizeof(kModulePrefix) - 1;
     if (std::strncmp(extension, kModulePrefix, kModulePrefixLength) != 0) {
       continue;
     }
-
     // Read the module name within the current extension.
     const auto* name = extension + kModulePrefixLength;
-    const size_t max_length = kExtensionLength - kModulePrefixLength;
-    const size_t length = strnlen(name, max_length);
-
-    if (length < max_length) {
-      module.assign(name, length);
+    constexpr auto kMaxLength = kExtensionLength - kModulePrefixLength;
+    const auto length = strnlen(name, kMaxLength);
+    if (length < kMaxLength) {
+      moduleId.assign(name, length);
     }
     return;
   }
@@ -396,7 +393,7 @@ void ACK_ACK::print(std::ostream& _os) const
 
 void MON_VER::print(std::ostream& _os) const
 {
-  _os << "Module name: " << module << '\n';
+  _os << "Module identifier: " << moduleId << '\n';
 }
 
 void NAV_CLOCK::print(std::ostream&) const

@@ -58,6 +58,25 @@ public:
     CFG_VALSET = 0x8A,
   };
 
+  enum UbxMonId : uint8_t
+  {
+    MON_COMMS = 0x36,  ///< Communication port information
+    MON_GNSS = 0x28,   ///< Information message major GNSS selection
+    MON_HW = 0x09,     ///< Hardware status
+    MON_HW2 = 0x0B,    ///< Extended hardware status
+    MON_HW3 = 0x37,    ///< I/O pin status
+    MON_IO = 0x02,     ///< I/O system status
+    MON_MSGPP = 0x06,  ///< Message parse and process status
+    MON_PATCH = 0x27,  ///< Installed patches
+    MON_RF = 0x38,     ///< RF information
+    MON_RXBUF = 0x07,  ///< Receiver buffer status
+    MON_RXR = 0x21,    ///< Receiver status information
+    MON_SPAN = 0x31,   ///< Signal characteristics
+    MON_SYS = 0x39,    ///< Current system performance information
+    MON_TXBUF = 0x08,  ///< Transmitter buffer status
+    MON_VER = 0x04,    ///< Receiver and software version
+  };
+
   enum UbxNavId : uint8_t
   {
     NAV_CLOCK = 0x22,      ///< Clock solution
@@ -118,6 +137,8 @@ public:
 
   bool initialize();
   bool update(bool _blocking = false);
+
+  /** Polls the receiver for version information and waits for the response. */
   std::expected<payload::MON_VER, std::string> pollVersion();
 
   // ===== Configurations =====
