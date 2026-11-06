@@ -34,7 +34,7 @@ public:
   ErrorCode setParam(
     const std::string& _param_name,
     const ValueT& _value,
-    std::chrono::duration<RepT, RatioT> _timeout = std::chrono::seconds(3));
+    std::chrono::duration<RepT, RatioT> _timeout = std::chrono::duration<RepT, RatioT>(-1));
 
   inline bool serviceIsReady() const;
 
