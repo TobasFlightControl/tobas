@@ -20,8 +20,10 @@ public:
   template <typename NodeT>
   explicit TransformListener(NodeT&& _node);
 
-  std::expected<kdl::Frame, std::string>
-  lookupTransform(const std::string& _parent, const std::string& _child, const rclcpp::Time& _time = rclcpp::Time(0));
+  std::expected<kdl::Frame, std::string> lookupTransform(
+    const std::string& _parent,
+    const std::string& _child,
+    const rclcpp::Time& _time = rclcpp::Time(0)) noexcept;
 
 private:
   tf2_ros::Buffer tf_buffer_;

@@ -7,8 +7,10 @@
 
 namespace tobas
 {
-std::expected<kdl::Frame, std::string>
-TransformListener::lookupTransform(const std::string& _parent, const std::string& _child, const rclcpp::Time& _time)
+std::expected<kdl::Frame, std::string> TransformListener::lookupTransform(
+  const std::string& _parent,
+  const std::string& _child,
+  const rclcpp::Time& _time) noexcept
 {
   try {
     const auto transform = tf_buffer_.lookupTransform(_parent, _child, _time);
