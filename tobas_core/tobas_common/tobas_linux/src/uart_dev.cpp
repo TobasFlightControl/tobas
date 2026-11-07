@@ -321,26 +321,26 @@ bool UARTdev::setStandardBaudRate(uint32_t _baud_rate)
 {
   const auto& flag = kBaudrateConstants.at(_baud_rate);
 
-  options_.c_cflag &= ~CBAUD;
-  options_.c_cflag |= flag;
-  options_.c_ispeed = flag;
-  options_.c_ospeed = flag;
-
-  return setConfig();
-}
-
-bool UARTdev::setNonStandardBaudRate(uint32_t _baud_rate)
-{
-  options_.c_cflag &= ~CBAUD;
-  options_.c_cflag |= CBAUDEX;
-  options_.c_ispeed = CBAUDEX;
-  options_.c_ospeed = CBAUDEX;
+  if (cfsetspeed(&options_, flag) != 0) {
+    std::cerr << "Failed to set UART baud rate: " << st::strError() << '\n';
+    return false;
+  }
 
   if (!setConfig()) {
     return false;
   }
 
+  return true;
+}
+
+bool UARTdev::setNonStandardBaudRate(uint32_t _baud_rate)
+{
   if (!linux::setNonStandardBaudRate(uart_fd_, _baud_rate)) {
+    return false;
+  }
+
+  // Synchronize `options_` with the serial port settings changed directly by `TCSETS2`.
+  if (!getConfig()) {
     return false;
   }
 
