@@ -62,6 +62,7 @@ private:
   double atti_wn_, head_wn_;      // [rad/s]
   double atti_zeta_, head_zeta_;  // [-]
   kdl::Vector rate_gain_;
+  kdl::Vector max_dgyro_;  // Per-axis angular acceleration limits [rad/s^2].
 
   // Mutable variables
   bool drone_received_ = false;
@@ -120,9 +121,11 @@ private:
   bool attitudeNaturalFreqCb(const double& p);
   bool attitudeDampingRatioCb(const double& p);
   bool attitudeIGainCb(const double& p);
+  bool attitudeMaxAccelCb(const double& p);
   bool headingNaturalFreqCb(const double& p);
   bool headingDampingRatioCb(const double& p);
   bool headingIGainCb(const double& p);
+  bool headingMaxAccelCb(const double& p);
   bool tiltAsixSingularDeclinationLBCb(const double& lb_deg);
   bool tiltAsixSingularDeclinationUBCb(const double& ub_deg);
 
@@ -164,6 +167,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, 10, 1, 30);
   addDynamicDoubleParam("horizontal_i_max_accel", &self::horizontalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
   addDynamicDoubleParam("vertical_i_max_accel", &self::verticalIMaxAccelCb, this, 0.5, 4, 0, 20, " m/s^2");
+  addDynamicDoubleParam("attitude_max_accel", &self::attitudeMaxAccelCb, this, 2.0, 30, 1, 30, " rad/s^2");
+  addDynamicDoubleParam("heading_max_accel", &self::headingMaxAccelCb, this, 1.0, 30, 1, 30, " rad/s^2");
   addDynamicDoubleParam(
     "tilt_axis_singular_declination_lb", &self::tiltAsixSingularDeclinationLBCb, this, 1.0, 10, 0, 45, " deg");
   addDynamicDoubleParam(
@@ -304,6 +309,13 @@ bool ControllerNode::attitudeIGainCb(const double& p)
   return rot_pi_.setIntegralGain(0, p) && rot_pi_.setIntegralGain(1, p);
 }
 
+bool ControllerNode::attitudeMaxAccelCb(const double& p)
+{
+  max_dgyro_.x(p);
+  max_dgyro_.y(p);
+  return true;
+}
+
 bool ControllerNode::headingNaturalFreqCb(const double& p)
 {
   head_wn_ = p;
@@ -319,6 +331,12 @@ bool ControllerNode::headingDampingRatioCb(const double& p)
 bool ControllerNode::headingIGainCb(const double& p)
 {
   return rot_pi_.setIntegralGain(2, p);
+}
+
+bool ControllerNode::headingMaxAccelCb(const double& p)
+{
+  max_dgyro_.z(p);
+  return true;
 }
 
 bool ControllerNode::tiltAsixSingularDeclinationLBCb(const double& lb_deg)
@@ -433,8 +451,9 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       tar_dgyro_ = std::make_unique<kdl::Vector>();
     }
 
-    // Compute target angular acceleration.
-    *tar_dgyro_ = rate_gain_.hadamard(rate_cmd_->rate - cur_gyro_B);
+    // Compute target angular acceleration and apply per-axis limits.
+    // Limiting angular acceleration can help prevent the mixer from outputting extreme tilt angles.
+    *tar_dgyro_ = rate_gain_.hadamard(rate_cmd_->rate - cur_gyro_B).clamp(-max_dgyro_, max_dgyro_);
 
     // Fill the feedback message.
     setpoint->odom.twist.rot = rate_cmd_->rate;
