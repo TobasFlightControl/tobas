@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_random_axis_tilt_multi_controller/mixer_pinv.hpp"
+#include "tobas_random_axis_tilt_multi_controller/mixer_qp.hpp"
 
+#include <cmath>
 #include <ranges>
 
+#include <tobas_constants/scale.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/operators.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
 using namespace std;
@@ -17,12 +20,33 @@ namespace tobas
 {
 namespace random_axis_tilt_multicopter
 {
-PinvMixer::PinvMixer(const Drone& drone, const kdl::Tree& tree)
+namespace
+{
+constexpr size_t kCircleApproximationSides = 16;
+
+/** Block matrix for approximating an upper bound on the norm of a 2D vector using a regular polygon (memo: 3-58). */
+const Eigen::Matrix<double, kCircleApproximationSides, 2>& polygonBlockMatrix()
+{
+  static const auto block = []
+  {
+    Eigen::Matrix<double, kCircleApproximationSides, 2> matrix;
+    for (size_t i = 0; i < kCircleApproximationSides; ++i) {
+      const auto theta = 2.0 * M_PI * i / kCircleApproximationSides;
+      matrix(i, 0) = std::cos(theta);
+      matrix(i, 1) = std::sin(theta);
+    }
+    return matrix;
+  }();
+  return block;
+}
+}  // namespace
+
+QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree)
   : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
 {
 }
 
-bool PinvMixer::updateInternalDataStructures()
+bool QpMixer::updateInternalDataStructures()
 {
   if (!super::updateInternalDataStructures()) {
     return false;
@@ -34,8 +58,6 @@ bool PinvMixer::updateInternalDataStructures()
   const auto nr = drone_.prop->numRotors();
   info_.resize(nr);
   state_.resize(nr);
-  E_.conservativeResize(NoChange, 2 * nr);
-  x_.conservativeResize(2 * nr);
 
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
@@ -63,10 +85,21 @@ bool PinvMixer::updateInternalDataStructures()
     }
   }
 
+  const auto var_size = nr * 2;
+
+  qp_.resize(var_size, 0, nr * kCircleApproximationSides);
+  qp_.setZero();
+  qp_.x_scale.setOnes();
+  qp_.problem.A = eigen::blockDiag(polygonBlockMatrix(), nr);
+
+  R_.resize(var_size);
+  E_.resize(Eigen::NoChange, var_size);
+  x_.resize(var_size);
+
   return true;
 }
 
-bool PinvMixer::solve(
+bool QpMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro_B,
@@ -129,9 +162,8 @@ bool PinvMixer::solve(
       }
     }
 
-    // Compute the left-hand side of the equations of motion.
-    const auto col = 2 * idx;
-    if (rotor_alive_[rotor->link_name] && !state.is_singular) {
+    // Left-hand side of the EoM matrix equality.
+    {
       // Compute the point of thrust application viewed from the grandparent link.
       const auto gpar_T_cur = par_seg.frame() * cur_seg.frame();
       const auto gpar_P_gpar2P =
@@ -147,13 +179,9 @@ bool PinvMixer::solve(
       const Matrix3d C = eigen::skew(B_Pos_G2P.data) - (d * cm) * Diagonal3d(1, 1, 1);
       const auto D = C * B;
 
+      const auto col = 2 * idx;
       E_.block<3, 2>(0, col) = B;
       E_.block<3, 2>(3, col) = D;
-    }
-    else {
-      // When the state is singular or the rotor is dead,
-      // force the optimal thrust to zero by setting the transfer from thrust to expected motion to zero.
-      E_.middleCols<2>(col).setZero();
     }
   }
 
@@ -171,9 +199,39 @@ bool PinvMixer::solve(
   const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
   f_.tail<3>() = eom_rot_right_B.data;
 
-  // Least-squares solution of `Ex = f`; minimize the L2 norm of `x` when redundant degrees of freedom exist.
-  // TODO: Consider constraints on the absolute thrust value; a convex optimization problem may work well.
-  x_ = E_.jacobiSvd(ComputeThinU | ComputeThinV).solve(f_);
+  // Weights for the EoM.
+  const auto linear_scale = mass * kAccelScale;                // [N]
+  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;  // [Nm]
+  Q_.diagonal().head<3>().fill(cfg_.linear_weight / math::sqr(linear_scale));
+  Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));
+
+  // Weights for thrust.
+  const auto thrust_scale = mass * st::kGravity / drone_.prop->numRotors();  // [N]
+  const auto thrust_weight_base = cfg_.thrust_weight / math::sqr(thrust_scale);
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
+    const auto weight = thrust_weight_base * rotor->effortWeight();
+    R_.diagonal().segment<2>(idx * 2).fill(weight);
+  }
+
+  // Objective function.
+  qp_.problem.P = E_.transpose() * Q_ * E_ + R_;
+  qp_.problem.q = -E_.transpose() * Q_ * f_;
+
+  // Inequality constraints.
+  const auto rate = std::cos(M_PI / kCircleApproximationSides);
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
+    const auto max_thrust = rotor_alive_[rotor->link_name] ? drone_.prop->maxThrust(rotor->link_name) * rate : 0.0;
+    qp_.problem.b.segment<kCircleApproximationSides>(idx * kCircleApproximationSides).fill(max_thrust);
+  }
+
+  // Solve the QPP.
+  if (!qp_.solve()) {
+    cerr << "QP failed: " << qp_.errorMessage() << endl;
+    return false;
+  }
+  x_ = qp_.solution();
 
   // Fix to the minimum value because the thrust solution corresponding to the singular state has become zero.
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors)) {
@@ -188,19 +246,52 @@ bool PinvMixer::solve(
   return true;
 }
 
-double PinvMixer::getThrust(size_t idx) const
+double QpMixer::getThrust(size_t idx) const
 {
   return thrustDeadband(x_.segment<2>(2 * idx).norm());
 }
 
-double PinvMixer::getTiltAngle(size_t idx) const
+double QpMixer::getTiltAngle(size_t idx) const
 {
   const auto tx = thrustDeadband(x_(2 * idx));
   const auto ty = thrustDeadband(x_(2 * idx + 1));
   return std::atan2(ty, tx);
 }
 
-bool PinvMixer::setTiltAxisSingularDeclinationLB(double lb_rad)
+bool QpMixer::setLinearWeight(double p)
+{
+  if (p <= 0.0) {
+    cerr << "Linear weight must be positive." << endl;
+    return false;
+  }
+
+  cfg_.linear_weight = p;
+  return true;
+}
+
+bool QpMixer::setAngularWeight(double p)
+{
+  if (p <= 0.0) {
+    cerr << "Angular weight must be positive." << endl;
+    return false;
+  }
+
+  cfg_.angular_weight = p;
+  return true;
+}
+
+bool QpMixer::setThrustWeight(double p)
+{
+  if (p <= 0.0) {
+    cerr << "Thrust weight must be positive." << endl;
+    return false;
+  }
+
+  cfg_.thrust_weight = p;
+  return true;
+}
+
+bool QpMixer::setTiltAxisSingularDeclinationLB(double lb_rad)
 {
   if (lb_rad < 0.0) {
     cerr << "The lower bind of singular tilt axis declination must be non-negative." << endl;
@@ -211,7 +302,7 @@ bool PinvMixer::setTiltAxisSingularDeclinationLB(double lb_rad)
   return true;
 }
 
-bool PinvMixer::setTiltAxisSingularDeclinationUB(double ub_rad)
+bool QpMixer::setTiltAxisSingularDeclinationUB(double ub_rad)
 {
   if (ub_rad < 0.0) {
     cerr << "The upper bind of singular tilt axis declination must be non-negative." << endl;

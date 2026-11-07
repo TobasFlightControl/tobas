@@ -31,7 +31,7 @@
 #include <tobas_msgs_adapter/odometry_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
-#include "tobas_random_axis_tilt_multi_controller/mixer_pinv.hpp"
+#include "tobas_random_axis_tilt_multi_controller/mixer_qp.hpp"
 
 namespace tobas
 {
@@ -58,7 +58,7 @@ private:
   // Controllers
   PositionPID pos_pid_;
   AngleAxisPI rot_pi_;
-  PinvMixer mixer_;
+  QpMixer mixer_;
   double atti_wn_, head_wn_;      // [rad/s]
   double atti_zeta_, head_zeta_;  // [-]
   kdl::Vector rate_gain_;
