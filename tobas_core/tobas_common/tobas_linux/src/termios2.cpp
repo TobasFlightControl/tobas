@@ -25,8 +25,8 @@ bool setNonStandardBaudRate(int _fd, uint32_t _baud_rate)
     return false;
   }
 
-  buf.c_cflag &= ~CBAUD;
-  buf.c_cflag |= CBAUDEX;
+  buf.c_cflag &= ~(CBAUD | CIBAUD);
+  buf.c_cflag |= BOTHER;
   buf.c_ispeed = buf.c_ospeed = _baud_rate;
 
   if (ioctl(_fd, TCSETS2, &buf) != 0) {
