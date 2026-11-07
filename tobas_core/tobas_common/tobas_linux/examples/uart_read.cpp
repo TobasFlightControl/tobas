@@ -129,6 +129,6 @@ int main(int _argc, char* _argv[])
     if (!uart.receive(&data, 1)) {
       continue;
     }
-    cout << setw(2) << setfill('0') << hex << uppercase << (int)data << " ";
+    cout << setw(2) << setfill('0') << hex << uppercase << (int)data << " " << flush;
   }
 }
