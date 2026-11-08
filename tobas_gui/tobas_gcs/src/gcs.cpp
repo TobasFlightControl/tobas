@@ -309,7 +309,7 @@ std::expected<void, QString> GroundControlStationWidget::connectToVehicle(const 
   const auto ros_node = ros_node_manager_->node();
   const auto ns = path::join('/', _drone.toStdString(), _id.toStdString());
 
-  const auto kWaitForVehicleConfiguration = 30s;
+  const auto kWaitForVehicleConfiguration = 10s;
   const auto vehicle = loadVehicleConfiguration(ros_node, ns, kWaitForVehicleConfiguration);
   if (!vehicle) {
     return std::unexpected(vehicle.error());
