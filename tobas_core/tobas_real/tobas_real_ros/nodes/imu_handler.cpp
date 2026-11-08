@@ -59,7 +59,7 @@ private:
 
   ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
-  bool getConfig();
+  bool getCalibrationResults();
   void registerPubSub();
 
   void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& _imu_raw_in);
@@ -83,28 +83,27 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& _options)
 
   set_params_ss_ = createService<SetParams>(handler::imu::kSetParamSrv, &self::setParamsCb, this);
 
-  if (!getConfig()) {
-    TOBAS_WARN("Failed to get configuration. This node will not work until they are set.");
+  if (!getCalibrationResults()) {
+    TOBAS_WARN(
+      "Calibration results not found. "
+      "IMU messages will not be published until accel calibration is complete.");
     return;
   }
 
   registerPubSub();
 }
 
-bool ImuHandlerNode::getConfig()
+bool ImuHandlerNode::getCalibrationResults()
 {
   if (!pt_.get(section_, handler::imu::kOffsetXKey, acc_bias_.x())) {
-    TOBAS_WARN("Failed to get '", handler::imu::kOffsetXKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::imu::kOffsetYKey, acc_bias_.y())) {
-    TOBAS_WARN("Failed to get '", handler::imu::kOffsetXKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::imu::kOffsetZKey, acc_bias_.z())) {
-    TOBAS_WARN("Failed to get '", handler::imu::kOffsetXKey, "'.");
     return false;
   }
 

@@ -54,7 +54,7 @@ private:
 
   ros2::TimerPtr timeout_timer_;
 
-  bool getConfig();
+  bool getCalibrationResults();
   void registerPubSub();
   FlightMode getClosestFlightMode(uint16_t _period);
 
@@ -83,9 +83,11 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& _options)
   // Register service server.
   set_params_ss_ = createService<SetParams>(handler::rcin::kSetParamSrv, &self::setParamsCb, this);
 
-  // Try to get configuration.
-  if (!getConfig()) {
-    TOBAS_WARN("Failed to get configuration. This node will not work until they are set.");
+  // Try to get calibration results.
+  if (!getCalibrationResults()) {
+    TOBAS_WARN(
+      "Calibration results not found. "
+      "RC input messages will not be published until radio calibration is complete.");
     return;
   }
 
@@ -93,90 +95,71 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& _options)
   registerPubSub();
 }
 
-bool RCInputHandlerNode::getConfig()
+bool RCInputHandlerNode::getCalibrationResults()
 {
   if (!pt_.get(section_, handler::rcin::kRollLeftKey, roll_.lower)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kRollLeftKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kRollRightKey, roll_.upper)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kRollRightKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kPitchUpKey, pitch_.upper)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kPitchUpKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kPitchDownKey, pitch_.lower)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kPitchDownKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kYawLeftKey, yaw_.upper)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kYawLeftKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kYawRightKey, yaw_.lower)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kYawRightKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kThrotUpKey, throt_.lower)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kThrotUpKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kThrotDownKey, throt_.upper)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kThrotDownKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kModeAcrobatKey, modes_.at(FlightMode::kAcrobat))) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kModeAcrobatKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kModeStabilizeKey, modes_.at(FlightMode::kStabilize))) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kModeStabilizeKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kModeLoiterKey, modes_.at(FlightMode::kLoiter))) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kModeLoiterKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kSubModeOnKey, sub_mode_on_)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kSubModeOnKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kSubModeOffKey, sub_mode_off_)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kSubModeOffKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kEnableOnKey, enable_on_)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kEnableOnKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kEnableOffKey, enable_off_)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kEnableOffKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kKillOnKey, kill_on_)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kKillOnKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kKillOffKey, kill_off_)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kKillOffKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::rcin::kGpswOnKey, gpsw_on_)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kGpswOnKey, "'.");
     return false;
   }
   if (!pt_.get(section_, handler::rcin::kGpswOffKey, gpsw_off_)) {
-    TOBAS_WARN("Failed to get '", handler::rcin::kGpswOffKey, "'.");
     return false;
   }
 

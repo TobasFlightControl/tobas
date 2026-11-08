@@ -39,7 +39,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::MagneticField> mag_sub_;
   ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
-  bool getConfig();
+  bool getCalibrationResults();
   void registerPubSub();
 
   void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& _mag_in);
@@ -59,25 +59,25 @@ MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& _opt
 
   set_params_ss_ = createService<SetParams>(handler::mag::kSetParamSrv, &self::setParamsCb, this);
 
-  if (!getConfig()) {
-    TOBAS_WARN("Failed to get configuration. This node will not work until they are set.");
+  if (!getCalibrationResults()) {
+    TOBAS_WARN(
+      "Calibration results not found. "
+      "Magnetic field messages will not be published until compass calibration is complete.");
     return;
   }
 
   registerPubSub();
 }
 
-bool MagnetometerHandlerNode::getConfig()
+bool MagnetometerHandlerNode::getCalibrationResults()
 {
   std::array<double, 3> hard_bias;
   std::array<double, 6> soft_bias;
 
   if (!pt_.get(section_, handler::mag::kHardBiasKey, hard_bias)) {
-    TOBAS_WARN("Failed to get '", handler::mag::kHardBiasKey, "' from configuration file.");
     return false;
   }
   if (!pt_.get(section_, handler::mag::kSoftBiasKey, soft_bias)) {
-    TOBAS_WARN("Failed to get '", handler::mag::kSoftBiasKey, "' from configuration file.");
     return false;
   }
 
