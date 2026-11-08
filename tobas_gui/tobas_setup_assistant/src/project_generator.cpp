@@ -4,6 +4,7 @@
 #include "tobas_setup_assistant/project_generator.hpp"
 
 #include <QDir>
+#include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
 
@@ -521,7 +522,12 @@ void ProjectGenerator::generateUserCppPackage(const inja::json& _tpl_data)
   user_cpp_env_->generate(_tpl_data, "real_realtime.launch.py.tplpy", launch_dir, false);
   user_cpp_env_->generate(_tpl_data, "real_interface.launch.py.tplpy", launch_dir, false);
   user_cpp_env_->generate(_tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
-  user_cpp_env_->generate(_tpl_data, "user_node.cpp.tplcpp", nodes_dir, false);
+
+  // Create the example node only if no C++ source files exist under `nodes`.
+  QDirIterator cpp_files(nodes_dir, { "*.cpp" }, QDir::Files | QDir::Hidden, QDirIterator::Subdirectories);
+  if (!cpp_files.hasNext()) {
+    user_cpp_env_->generate(_tpl_data, "user_node.cpp.tplcpp", nodes_dir, false);
+  }
 
   // Other files.
   createEmptyFile(QDir(pkg_path).filePath(kYouCanEditThisPackage));
