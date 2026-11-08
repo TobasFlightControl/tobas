@@ -4,7 +4,7 @@
 #include <chrono>
 #include <optional>
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_constants/throttle.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>

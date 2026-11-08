@@ -6,7 +6,7 @@
 #include <QDebug>
 
 #include <tobas_constants/path.hpp>
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_property_tree/property_tree.hpp>

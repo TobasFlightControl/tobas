@@ -37,7 +37,7 @@
 #include <gz/sim/components/Pose.hh>
 
 #include <tobas_constants/imu.hpp>
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_conversions/gazebo_kdl.hpp>

@@ -3,7 +3,7 @@
 
 #include "tobas_sensor_calibration/mag_calibration/large_vehicle/thread.hpp"
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_geographic/geography.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_real_common/handler.hpp>

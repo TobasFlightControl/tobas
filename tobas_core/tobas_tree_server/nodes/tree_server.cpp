@@ -6,7 +6,7 @@
 #include <string>
 #include <unordered_set>
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_node/node.hpp>
 

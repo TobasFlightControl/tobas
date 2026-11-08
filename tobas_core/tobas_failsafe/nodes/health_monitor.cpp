@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>

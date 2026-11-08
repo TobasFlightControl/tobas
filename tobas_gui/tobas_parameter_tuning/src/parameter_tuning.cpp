@@ -10,7 +10,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <tobas_constants/node.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>

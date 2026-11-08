@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_constants/time.hpp>
 #include <tobas_node/node.hpp>
 

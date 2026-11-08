@@ -10,7 +10,7 @@
 #include <gz/sim/components/JointTransmittedWrench.hh>
 #include <gz/sim/components/JointVelocity.hh>
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_ros2_tools/time.hpp>
 

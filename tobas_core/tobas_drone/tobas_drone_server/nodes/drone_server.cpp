@@ -5,7 +5,7 @@
 #include <memory>
 #include <utility>
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_drone_msgs_adapter/drone.hpp>

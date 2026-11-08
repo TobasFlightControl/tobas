@@ -3,7 +3,7 @@
 
 #include "tobas_tools/imu_sampling_time_publisher.hpp"
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_ros2_tools/qos.hpp>
 
 namespace tobas

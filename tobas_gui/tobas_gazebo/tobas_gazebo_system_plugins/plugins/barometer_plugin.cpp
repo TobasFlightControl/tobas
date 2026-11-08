@@ -7,7 +7,7 @@
 #include <gz/sim/Model.hh>
 #include <gz/sim/components/Pose.hh>
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>

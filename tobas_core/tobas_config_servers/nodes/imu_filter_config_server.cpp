@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <tobas_constants/node.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs/srv/configure_imu_low_pass_filter.hpp>

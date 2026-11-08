@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <tobas_constants/imu.hpp>
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_hardware_common/constants.hpp>

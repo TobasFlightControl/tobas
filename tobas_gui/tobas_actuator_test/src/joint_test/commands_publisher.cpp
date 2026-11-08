@@ -3,7 +3,7 @@
 
 #include "tobas_actuator_test/joint_test/commands_publisher.hpp"
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>

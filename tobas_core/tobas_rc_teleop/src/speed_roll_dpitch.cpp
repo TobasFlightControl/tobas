@@ -5,7 +5,7 @@
 
 #include <cassert>
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_constants/throttle.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 

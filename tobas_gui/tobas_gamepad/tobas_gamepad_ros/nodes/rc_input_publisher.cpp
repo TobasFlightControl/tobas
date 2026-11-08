@@ -3,7 +3,7 @@
 
 #include <tobas_gamepad_core/gamepad_rc_input.hpp>
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_node/node.hpp>
 

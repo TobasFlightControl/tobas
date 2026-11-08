@@ -3,7 +3,7 @@
 
 #include "tobas_tools/util.hpp"
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_path_tools/join.hpp>
 
 namespace tobas

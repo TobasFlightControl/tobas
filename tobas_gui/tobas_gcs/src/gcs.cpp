@@ -20,6 +20,7 @@
 #include <QVariant>
 
 #include <tobas_constants/path.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_cyclonedds_config/cyclonedds_config.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/load_project_dialog.hpp>
@@ -76,7 +77,7 @@ rclcpp::Context::SharedPtr createRosContext(const QString& _static_peer, std::ve
   rclcpp::InitOptions context_options;
   context_options.shutdown_on_signal = false;
   context_options.auto_initialize_logging(false);
-  context_options.set_domain_id(20);
+  context_options.set_domain_id(comm::kDomainId);
 
   const auto context = std::make_shared<rclcpp::Context>();
   context->init(static_cast<int>(ros_argv.size()), ros_argv.data(), context_options);

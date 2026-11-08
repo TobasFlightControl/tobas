@@ -3,7 +3,7 @@
 
 #include "tobas_flight_log_gui/recorder/stop_thread.hpp"
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_path_tools/join.hpp>
 
 namespace tobas::gui::log

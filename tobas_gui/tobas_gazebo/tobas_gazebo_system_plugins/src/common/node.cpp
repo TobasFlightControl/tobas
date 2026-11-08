@@ -3,7 +3,7 @@
 
 #include "tobas_gazebo_system_plugins/common/node.hpp"
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 
 #define tbsdbg gzdbg << "[" << name_ << "] "
 #define tbsmsg gzmsg << "[" << name_ << "] "

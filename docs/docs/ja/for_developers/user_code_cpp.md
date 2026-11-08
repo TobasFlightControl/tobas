@@ -23,7 +23,7 @@ Setup Assistant で作成した Tobas プロジェクト (例: tobas_f450.TBS) �
 `tobas_f450_user_cpp/nodes/user_node.cpp`を以下のように編集してください．
 
 ```cpp
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs_adapter/gnss.hpp>

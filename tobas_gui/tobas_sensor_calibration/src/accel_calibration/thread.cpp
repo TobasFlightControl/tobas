@@ -3,7 +3,7 @@
 
 #include "tobas_sensor_calibration/accel_calibration/thread.hpp"
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_real_common/handler.hpp>
 #include <tobas_std_tools/universal_constants.hpp>

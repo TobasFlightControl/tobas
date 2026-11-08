@@ -23,7 +23,7 @@ As an example, let's create a C++ node that checks the GNSS status and outputs a
 Edit `tobas_f450_user_cpp/nodes/user_node.cpp` as follows.
 
 ```cpp
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs_adapter/gnss.hpp>

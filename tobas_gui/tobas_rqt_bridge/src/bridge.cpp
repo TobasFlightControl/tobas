@@ -3,7 +3,7 @@
 
 #include "tobas_rqt_bridge/bridge.hpp"
 
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_real_common/ros_interface.hpp>
 

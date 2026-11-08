@@ -6,8 +6,7 @@
 #include <memory>
 #include <ranges>
 
-#include <tobas_constants/node.hpp>
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>

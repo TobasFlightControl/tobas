@@ -11,7 +11,7 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/frame.hpp>
-#include <tobas_constants/ros_interface.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_eigen_conversions/eigen_msg.hpp>
 #include <tobas_eigen_tools/hash.hpp>
 #include <tobas_gui_common/constants.hpp>

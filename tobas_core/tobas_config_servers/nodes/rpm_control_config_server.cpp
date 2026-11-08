@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <tobas_constants/hardware.hpp>
-#include <tobas_constants/node.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_std_tools/static_for.hpp>
 

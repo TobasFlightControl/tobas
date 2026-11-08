@@ -109,4 +109,19 @@ namespace param
 {
 static constexpr char kRpmControlGainPrefix[] = "rpm_control_gain/";
 }  // namespace param
+
+namespace node
+{
+static constexpr char kImuFilterConfigServer[] = "imu_filter_config_server";
+static constexpr char kRpmControlConfigServer[] = "rpm_control_config_server";
+static constexpr char kObserver[] = "observer";
+static constexpr char kController[] = "controller";
+static constexpr char kRcTeleop[] = "rc_teleop";
+static constexpr char kMissionExecutor[] = "mission_executor";
+}  // namespace node
+
+namespace comm
+{
+static constexpr int kDomainId = 20;
+}  // namespace comm
 }  // namespace tobas
