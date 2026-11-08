@@ -13,22 +13,22 @@ AccelPitchYawController::AccelPitchYawController()
 {
 }
 
-bool AccelPitchYawController::requireHorizontalPosition()
+bool AccelPitchYawController::requireHorizontalPosition() const
 {
   return false;
 }
 
-bool AccelPitchYawController::requireVerticalPosition()
+bool AccelPitchYawController::requireVerticalPosition() const
 {
   return false;
 }
 
-bool AccelPitchYawController::requireAttitude()
+bool AccelPitchYawController::requireAttitude() const
 {
   return true;
 }
 
-bool AccelPitchYawController::requireHeading()
+bool AccelPitchYawController::requireHeading() const
 {
   return true;
 }

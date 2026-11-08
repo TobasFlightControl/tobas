@@ -17,10 +17,10 @@ class BaseController
 public:
   explicit BaseController();
 
-  virtual bool requireHorizontalPosition() = 0;
-  virtual bool requireVerticalPosition() = 0;
-  virtual bool requireAttitude() = 0;
-  virtual bool requireHeading() = 0;
+  virtual bool requireHorizontalPosition() const = 0;
+  virtual bool requireVerticalPosition() const = 0;
+  virtual bool requireAttitude() const = 0;
+  virtual bool requireHeading() const = 0;
 
   virtual void initialize(BaseNode* _node, FlightMode _mode) = 0;
   virtual void

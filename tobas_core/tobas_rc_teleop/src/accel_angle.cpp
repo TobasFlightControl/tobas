@@ -13,22 +13,22 @@ AccelAngleController::AccelAngleController()
 {
 }
 
-bool AccelAngleController::requireHorizontalPosition()
+bool AccelAngleController::requireHorizontalPosition() const
 {
   return false;
 }
 
-bool AccelAngleController::requireVerticalPosition()
+bool AccelAngleController::requireVerticalPosition() const
 {
   return false;
 }
 
-bool AccelAngleController::requireAttitude()
+bool AccelAngleController::requireAttitude() const
 {
   return true;
 }
 
-bool AccelAngleController::requireHeading()
+bool AccelAngleController::requireHeading() const
 {
   return true;
 }

@@ -13,22 +13,22 @@ PosVelAccPitchYawController::PosVelAccPitchYawController()
 {
 }
 
-bool PosVelAccPitchYawController::requireHorizontalPosition()
+bool PosVelAccPitchYawController::requireHorizontalPosition() const
 {
   return true;
 }
 
-bool PosVelAccPitchYawController::requireVerticalPosition()
+bool PosVelAccPitchYawController::requireVerticalPosition() const
 {
   return true;
 }
 
-bool PosVelAccPitchYawController::requireAttitude()
+bool PosVelAccPitchYawController::requireAttitude() const
 {
   return true;
 }
 
-bool PosVelAccPitchYawController::requireHeading()
+bool PosVelAccPitchYawController::requireHeading() const
 {
   return true;
 }

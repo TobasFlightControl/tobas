@@ -15,22 +15,22 @@ SpeedRollDeltaPitchController::SpeedRollDeltaPitchController()
 {
 }
 
-bool SpeedRollDeltaPitchController::requireHorizontalPosition()
+bool SpeedRollDeltaPitchController::requireHorizontalPosition() const
 {
   return true;
 }
 
-bool SpeedRollDeltaPitchController::requireVerticalPosition()
+bool SpeedRollDeltaPitchController::requireVerticalPosition() const
 {
   return true;
 }
 
-bool SpeedRollDeltaPitchController::requireAttitude()
+bool SpeedRollDeltaPitchController::requireAttitude() const
 {
   return true;
 }
 
-bool SpeedRollDeltaPitchController::requireHeading()
+bool SpeedRollDeltaPitchController::requireHeading() const
 {
   return false;
 }

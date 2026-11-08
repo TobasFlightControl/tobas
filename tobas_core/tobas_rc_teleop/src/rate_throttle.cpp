@@ -13,22 +13,22 @@ RateThrottleController::RateThrottleController()
 {
 }
 
-bool RateThrottleController::requireHorizontalPosition()
+bool RateThrottleController::requireHorizontalPosition() const
 {
   return false;
 }
 
-bool RateThrottleController::requireVerticalPosition()
+bool RateThrottleController::requireVerticalPosition() const
 {
   return false;
 }
 
-bool RateThrottleController::requireAttitude()
+bool RateThrottleController::requireAttitude() const
 {
   return false;
 }
 
-bool RateThrottleController::requireHeading()
+bool RateThrottleController::requireHeading() const
 {
   return false;
 }

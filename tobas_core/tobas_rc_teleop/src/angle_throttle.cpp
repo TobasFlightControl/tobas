@@ -14,22 +14,22 @@ AngleThrottleController::AngleThrottleController()
 {
 }
 
-bool AngleThrottleController::requireHorizontalPosition()
+bool AngleThrottleController::requireHorizontalPosition() const
 {
   return false;
 }
 
-bool AngleThrottleController::requireVerticalPosition()
+bool AngleThrottleController::requireVerticalPosition() const
 {
   return false;
 }
 
-bool AngleThrottleController::requireAttitude()
+bool AngleThrottleController::requireAttitude() const
 {
   return true;
 }
 
-bool AngleThrottleController::requireHeading()
+bool AngleThrottleController::requireHeading() const
 {
   return true;
 }

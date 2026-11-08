@@ -12,22 +12,22 @@ AccelRateController::AccelRateController()
 {
 }
 
-bool AccelRateController::requireHorizontalPosition()
+bool AccelRateController::requireHorizontalPosition() const
 {
   return false;
 }
 
-bool AccelRateController::requireVerticalPosition()
+bool AccelRateController::requireVerticalPosition() const
 {
   return false;
 }
 
-bool AccelRateController::requireAttitude()
+bool AccelRateController::requireAttitude() const
 {
   return true;
 }
 
-bool AccelRateController::requireHeading()
+bool AccelRateController::requireHeading() const
 {
   return false;
 }

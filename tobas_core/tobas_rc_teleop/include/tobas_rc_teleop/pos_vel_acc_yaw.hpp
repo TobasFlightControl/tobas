@@ -17,10 +17,10 @@ class PosVelAccYawController : public BaseController
 public:
   explicit PosVelAccYawController();
 
-  bool requireHorizontalPosition() override;
-  bool requireVerticalPosition() override;
-  bool requireAttitude() override;
-  bool requireHeading() override;
+  bool requireHorizontalPosition() const override;
+  bool requireVerticalPosition() const override;
+  bool requireAttitude() const override;
+  bool requireHeading() const override;
 
   void initialize(BaseNode* _node, FlightMode _mode) override;
   void reset(const builtin_interfaces::msg::Time& _stamp, const tobas_msgs::Odometry& _setpoint, bool _landed) override;

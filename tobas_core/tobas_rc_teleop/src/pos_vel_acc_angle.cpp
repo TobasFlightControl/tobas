@@ -13,22 +13,22 @@ PosVelAccAngleController::PosVelAccAngleController()
 {
 }
 
-bool PosVelAccAngleController::requireHorizontalPosition()
+bool PosVelAccAngleController::requireHorizontalPosition() const
 {
   return true;
 }
 
-bool PosVelAccAngleController::requireVerticalPosition()
+bool PosVelAccAngleController::requireVerticalPosition() const
 {
   return true;
 }
 
-bool PosVelAccAngleController::requireAttitude()
+bool PosVelAccAngleController::requireAttitude() const
 {
   return true;
 }
 
-bool PosVelAccAngleController::requireHeading()
+bool PosVelAccAngleController::requireHeading() const
 {
   return true;
 }
