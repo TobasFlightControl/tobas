@@ -27,7 +27,7 @@ public:
   reset(const builtin_interfaces::msg::Time& _stamp, const tobas_msgs::Odometry& _setpoint, bool _landed) = 0;
   virtual void update(const tobas_msgs::RCInput& _rcin, const tobas_msgs::Odometry& _odom, bool _landed) = 0;
 
-  void setDeadband(double deadband);
+  void setDeadband(double _deadband);
 
 protected:
   static constexpr int kExpoScale = 100;
