@@ -5,24 +5,33 @@
 
 #include <QDebug>
 #include <QMessageBox>
+#include <QString>
 
 namespace tobas::qt
 {
+namespace
+{
+QString replaceNewlinesWithSpaces(QString _text)
+{
+  return _text.replace("\r\n", " ").replace('\r', ' ').replace('\n', ' ');
+}
+}  // namespace
+
 void qInfoBox(QWidget* _parent, const QString& _msg)
 {
-  qInfo().noquote() << _msg;
+  qInfo().noquote() << replaceNewlinesWithSpaces(_msg);
   QMessageBox::information(_parent, "INFO", _msg);
 }
 
 void qWarnBox(QWidget* _parent, const QString& _msg)
 {
-  qWarning().noquote() << _msg;
+  qWarning().noquote() << replaceNewlinesWithSpaces(_msg);
   QMessageBox::warning(_parent, "WARN", _msg);
 }
 
 void qErrorBox(QWidget* _parent, const QString& _msg)
 {
-  qCritical().noquote() << _msg;
+  qCritical().noquote() << replaceNewlinesWithSpaces(_msg);
   QMessageBox::critical(_parent, "ERROR", _msg);
 }
 
