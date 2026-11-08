@@ -97,15 +97,14 @@ const char* RotorTestWidget::title() const
 
 void RotorTestWidget::reset()
 {
-  running_ = false;
-  update_timer_.stop();
-  disconnect(rotor_states_conn_);
-
-  // Reset motor widgets.
   for (const auto& widget : rotor_widgets_) {
     widget->reset();
   }
 
+  disconnect(rotor_states_conn_);
+  update_timer_.stop();
+
+  running_ = false;
   arming_.reset();
 
   updateActionAvailability();
@@ -316,7 +315,6 @@ void RotorTestWidget::onUpdateTimerTimeout()
 
 void RotorTestWidget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& _cur_states)
 {
-  // Queued rotor states may still arrive after the connection is disconnected on Stop.
   if (!running_) {
     return;
   }

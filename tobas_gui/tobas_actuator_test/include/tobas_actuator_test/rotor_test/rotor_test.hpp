@@ -72,7 +72,6 @@ private:
   std::optional<rqt::SyncServiceClientWrapper<tobas_dparam_msgs::srv::GetParams>> get_params_sc_;
 
   QMetaObject::Connection rotor_states_conn_;
-
   QTimer update_timer_;
 
   void updateActionAvailability();
