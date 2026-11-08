@@ -8,9 +8,11 @@
 #include <QCloseEvent>
 #include <QDebug>
 #include <QHBoxLayout>
+#include <QProcessEnvironment>
 #include <QVBoxLayout>
 
 #include <tobas_constants/path.hpp>
+#include <tobas_constants/ros.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/local_project_builder.hpp>
 #include <tobas_qt_tools/cast.hpp>
@@ -165,9 +167,20 @@ void SimulationWidget::launchSimulation()
   }
 
   launch_proc_ = new SimulationProcess(this);
-  launch_proc_->setProcessChannelMode(QProcess::ForwardedChannels);  // Forward child process output to the caller.
+
+  // Use the Tobas communication domain while preserving the inherited environment.
+  auto environment = QProcessEnvironment::systemEnvironment();
+  environment.insert("ROS_DOMAIN_ID", QString::number(comm::kDomainId));
+  launch_proc_->setProcessEnvironment(environment);
+
+  // Forward child process output to the caller.
+  launch_proc_->setProcessChannelMode(QProcess::ForwardedChannels);
+
+  // Handle launch process completion and errors.
   connect(launch_proc_, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &self::onLaunchProcessFinished);
   connect(launch_proc_, &QProcess::errorOccurred, this, &self::onLaunchProcessErrorOccurred);
+
+  // Start the simulation with the configured launch arguments.
   launch_proc_->start("ros2", command);
 
   state_ = kStarting;
