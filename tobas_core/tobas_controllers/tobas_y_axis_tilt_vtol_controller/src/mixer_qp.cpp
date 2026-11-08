@@ -45,6 +45,7 @@ bool QpMixer::updateInternalDataStructures()
   state_.resize(nr);
   const auto nc = drone_.fixed_wing->numControlSurfaces();
   cs_info_.resize(nc);
+  cs_state_.resize(nc);
 
   // resize E_, x_, thrust_scale_, scale_
   size_t col = 0;
@@ -135,13 +136,8 @@ bool QpMixer::updateInternalDataStructures()
     const auto& cs_info = cs_info_[idx];
     const auto& cs = pair.second;
     const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
-    qp_.problem.A(cs_info.inequality_row, cs_info.column) = -1;
-    qp_.problem.A(cs_info.inequality_row + 1, cs_info.column) = 1;
-    qp_.problem.b(cs_info.inequality_row) = - joint.lower_limit;
-    qp_.problem.b(cs_info.inequality_row + 1) = joint.upper_limit;
     qp_.x_scale(cs_info.column) = joint.upper_limit - joint.lower_limit;
   }
-
   return true;
 }
 
@@ -370,6 +366,16 @@ bool QpMixer::solve(
       qp_.problem.b(info.inequality_row + 1) = drone_.prop->maxThrust(rotor->link_name);
     }
   }
+  for (const auto& [idx, pair] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
+    const auto& cs_info = cs_info_[idx];
+    const auto& cs_state = cs_state_[idx];
+    const auto& cs = pair.second;
+    const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
+    qp_.problem.A(cs_info.inequality_row, cs_info.column) = -1;
+    qp_.problem.A(cs_info.inequality_row + 1, cs_info.column) = 1;
+    qp_.problem.b(cs_info.inequality_row) = - std::max(joint.lower_limit, cs_state.last_angle - kMaxCsVelocity * dt);
+    qp_.problem.b(cs_info.inequality_row + 1) = std::min(joint.upper_limit, cs_state.last_angle + kMaxCsVelocity * dt);
+  }
 
   if (!qp_.solve()) {
     std::cerr << "QP failed: " << qp_.errorMessage() << std::endl;
@@ -384,6 +390,10 @@ bool QpMixer::solve(
       const auto tz = qp_.solution()(info.column + 1);
       state.last_thrust_angle = calcTiltAngle(tx, tz, info, state);
     }
+  }
+  for (const auto& [idx, pair] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
+    auto& cs_state = cs_state_[idx];
+    cs_state.last_angle = getDeflection(idx);
   }
 
   return true;

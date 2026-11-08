@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include <tobas_control/pid/pi_velocity_form.hpp>
+// #include <tobas_control/pid/pi_velocity_form.hpp>
+#include <tobas_control/pid/pi.hpp>
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
@@ -26,6 +27,7 @@ class QpMixer : public MixerI
   static constexpr double kMaxTiltVelocity = 90.0 / 180.0 * M_PI; // rad/s
   static constexpr double kMinTiltAngle = - 0.25 * M_PI; // rad
   static constexpr double kMaxTiltAngle = 0.75 * M_PI; // rad
+  static constexpr double kMaxCsVelocity = M_PI; // rad/s
 
 public:
   explicit QpMixer(const Drone& drone, const kdl::Tree& tree);
@@ -76,11 +78,16 @@ private:
     size_t column;
     size_t inequality_row;
   };
+  struct DynamicControlSurfaceState
+  {
+    double last_angle = 0.0;
+  };
 
   // Fixed values.
   std::vector<StaticRotorLinkInfo> info_;
   std::vector<DynamicRotorLinkState> state_;
   std::vector<ControlSurfaceInfo> cs_info_;
+  std::vector<DynamicControlSurfaceState> cs_state_;
   double max_thrust_multicopter_;
   double max_thrust_fixed_wing_;
   double omega_roll_;        // クルーズ時ロールモード角周波数
@@ -93,10 +100,10 @@ private:
   Eigen::DiagonalXd R_;               // Thrust weights.
   Eigen::Matrix5Xd E_;
   Eigen::Vector5d f_;   // [M_x, M_y, Mz, u_x, u_z]
-  ctrl::PIVelocityForm x_controller_;
-  ctrl::PIVelocityForm y_controller_;
-  ctrl::PIVelocityForm z_controller_;
-  ctrl::PIVelocityForm z2_controller_;
+  ctrl::PIController x_controller_;
+  ctrl::PIController y_controller_;
+  ctrl::PIController z_controller_;
+  ctrl::PIController z2_controller_;
 
   bool calcModesAngularFreq();
   double calcTiltAngle(const double& tx, const double& tz, const StaticRotorLinkInfo& info, const DynamicRotorLinkState& state) const;
