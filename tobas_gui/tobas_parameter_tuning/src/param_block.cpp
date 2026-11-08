@@ -357,26 +357,12 @@ void ParamBlockWidget::onDoubleUpButtonClicked(const std::string& _name)
 
 void ParamBlockWidget::onDoubleResetButtonClicked(const std::string& _name)
 {
-  if (!qt::yesOrNo(
-        this,
-        "Are you sure you want to reset parameter '" + QString::fromStdString(_name) + "' to its initial value?",
-        qt::WARN)) {
-    return;
-  }
-
   auto& config = double_configs_.at(_name);
   config.slider->setValue(config.initial_value);
 }
 
 void ParamBlockWidget::onDoubleHomeButtonClicked(const std::string& _name)
 {
-  if (!qt::yesOrNo(
-        this,
-        "Are you sure you want to reset parameter '" + QString::fromStdString(_name) + "' to its default value?",
-        qt::WARN)) {
-    return;
-  }
-
   auto& config = double_configs_.at(_name);
   config.slider->setValue(config.default_value);
 }
