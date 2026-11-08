@@ -15,7 +15,7 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     # Configure the ROS communication.
-    ld.add_action(SetEnvironmentVariable("ROS_DOMAIN_ID", "21"))  # For local communication only
+    ld.add_action(SetEnvironmentVariable("ROS_DOMAIN_ID", "0"))  # For local communication only
     ld.add_action(SetEnvironmentVariable("ROS_AUTOMATIC_DISCOVERY_RANGE", "LOCALHOST"))
     ld.add_action(SetEnvironmentVariable("ROS_STATIC_PEERS", ""))
     ld.add_action(SetEnvironmentVariable("RMW_IMPLEMENTATION", "rmw_cyclonedds_cpp"))
