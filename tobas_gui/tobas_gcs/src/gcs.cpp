@@ -29,7 +29,6 @@
 #include <tobas_qt_tools/event.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>
-#include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
@@ -155,11 +154,6 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr _
   connect_btn_ = new qt::ToggleButton("Connect", "Disconnect");
   write_btn_ = new QPushButton("Write");
 
-  // Power buttons
-  constexpr int kPowerButtonRadius = 40;
-  restart_btn_ = new RestartButton(kPowerButtonRadius);
-  shutdown_btn_ = new ShutdownButton(kPowerButtonRadius);
-
   // Layout
   const auto configuration = new QGridLayout();
   configuration->addWidget(new QLabel("Endpoint"), 0, 0);
@@ -183,9 +177,6 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr _
   header_cols->addStretch();
   header_cols->addWidget(remote_conn_);
   header_cols->addLayout(configuration);
-  qt::addSpacing(header_cols, 30, QSizePolicy::Preferred);  // Collapse this when there is not enough space.
-  header_cols->addWidget(restart_btn_);
-  header_cols->addWidget(shutdown_btn_);
 
   const auto rows = new QVBoxLayout(this);
   rows->addLayout(header_cols);
@@ -200,8 +191,6 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr _
   connect(write_btn_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
   connect(fc_scanner_, &FlightControllerScanner::finished, this, &self::onFlightControllerScanFinished);
   connect(fc_scanner_, &FlightControllerScanner::failed, this, &self::onFlightControllerScanFailed);
-  connect(restart_btn_, &QPushButton::clicked, this, &self::onRestartButtonClicked);
-  connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
   connect(remote_conn_, &RemoteConnectionWidget::disconnected, this, &self::onRemoteConnectionDisconnected);
   connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimulationStarted);
   connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimulationTerminated);
@@ -247,9 +236,6 @@ void GroundControlStationWidget::reset()
   else {
     remote_conn_->stop();
   }
-
-  restart_btn_->setChecked(false);
-  shutdown_btn_->setChecked(false);
 
   sensor_calib_->reset();
   actuator_test_->reset();
@@ -366,8 +352,6 @@ void GroundControlStationWidget::updateWidgetEnabledStates()
   write_id_->setEnabled(!sim_running);
   connect_btn_->setEnabled((connection_ready_ || (host_ready && vehicle_configured)));
   write_btn_->setEnabled(!sim_running && project_loaded && host_ready && write_id_->hasAcceptableInput() && disarmed);
-  restart_btn_->setEnabled(!sim_running && connection_ready_ && disarmed);
-  shutdown_btn_->setEnabled(!sim_running && connection_ready_ && disarmed);
 
   sensor_calib_->setEnabled(!sim_running);
   actuator_test_->setEnabled(!sim_running);
@@ -935,78 +919,6 @@ void GroundControlStationWidget::onFlightControllerScanFailed(const QString& _me
     setFlightControllerPlaceholder("flight controller scan unavailable");
     updateWidgetEnabledStates();
   }
-}
-
-void GroundControlStationWidget::onRestartButtonClicked()
-{
-  qDebug() << "GroundControlStationWidget::onRestartButtonClicked";
-
-  const auto target = currentConnectionDescription();
-
-  // Confirm before restarting.
-  if (!qt::yesOrNo(this, "Are you sure you want to restart " + target + "?", qt::WARN)) {
-    restart_btn_->setChecked(false);
-    return;
-  }
-
-  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
-  spinner.start();
-
-  // Restart the systemd service.
-  expectTelemetryLoss();
-  const auto res = ssh_client_.execute("systemctl restart tobas_real.target", true);
-  if (!res) {
-    spinner.stop();
-    reset();
-    qt::qErrorBox(this, "Failed to restart the flight controller: " + res.error());
-    return;
-  }
-
-  // Reset the entire widget.
-  reset();
-
-  // Verify the ROS connection.
-  if (!waitForHeartbeat()) {
-    spinner.stop();
-    disconnectFromVehicle();
-    qt::qErrorBox(this, "Timed out waiting for a heartbeat from " + target + ".");
-    return;
-  }
-
-  spinner.stop();
-
-  qt::qInfoBox(this, "The flight controller has been restarted successfully.");
-}
-
-void GroundControlStationWidget::onShutdownButtonClicked()
-{
-  qDebug() << "GroundControlStationWidget::onShutdownButtonClicked";
-
-  // Confirm before shutting down.
-  if (!qt::yesOrNo(this, "Are you sure you want to shut down " + currentConnectionDescription() + "?", qt::WARN)) {
-    shutdown_btn_->setChecked(false);
-    return;
-  }
-
-  // Shut down the OS.
-  expectTelemetryLoss();
-  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
-  spinner.start();
-  const auto res = ssh_client_.execute("poweroff", true, true);
-  if (!res) {
-    spinner.stop();
-    reset();
-    qt::qErrorBox(this, "Failed to shutdown the flight controller: " + res.error());
-    return;
-  }
-
-  // Wait long enough for the FC to shut down reliably.
-  qt::spinFor(5s);
-
-  spinner.stop();
-
-  disconnectFromVehicle();
-  qt::qInfoBox(this, "The flight controller has been shut down successfully.");
 }
 
 void GroundControlStationWidget::onSimulationStarted()

@@ -41,8 +41,6 @@
 #include "./flight_controller_scanner.hpp"
 #include "./project_env.hpp"
 #include "./remote_connection.hpp"
-#include "./restart_button.hpp"
-#include "./shutdown_button.hpp"
 #include "./vehicle_configuration.hpp"
 
 namespace tobas::gui::gcs
@@ -84,8 +82,6 @@ private:
   QSpinBox* write_id_;
   qt::ToggleButton* connect_btn_;
   QPushButton* write_btn_;
-  RestartButton* restart_btn_;
-  ShutdownButton* shutdown_btn_;
 
   QButtonGroup* app_btn_group_;
   qt::StackedWidget* app_sw_;
@@ -144,9 +140,6 @@ private Q_SLOTS:
 
   void onFlightControllerScanFinished(const QVector<DiscoveredFlightController>& _flight_controllers);
   void onFlightControllerScanFailed(const QString& _message);
-
-  void onRestartButtonClicked();
-  void onShutdownButtonClicked();
 
   void onSimulationStarted();
   void onSimulationTerminated();
