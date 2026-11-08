@@ -10,15 +10,14 @@ from launch_ros.actions import Node
 LOG_LEVEL = "log_level"
 OUTPUT = "output"
 
-# Constants
-LOCAL_DOMAIN_ID = 21
-
 
 def generate_launch_description():
     ld = LaunchDescription()
 
-    # Configure the ROS domain, discovery range, and middleware.
+    # Configure the ROS communication.
+    ld.add_action(SetEnvironmentVariable("ROS_DOMAIN_ID", "21"))  # For local communication only
     ld.add_action(SetEnvironmentVariable("ROS_AUTOMATIC_DISCOVERY_RANGE", "LOCALHOST"))
+    ld.add_action(SetEnvironmentVariable("ROS_STATIC_PEERS", ""))
     ld.add_action(SetEnvironmentVariable("RMW_IMPLEMENTATION", "rmw_cyclonedds_cpp"))
 
     # Use Vulkan for Qt Quick and widget composition to avoid the black GCS window
@@ -90,7 +89,6 @@ def generate_launch_description():
         namespace=session_ns,
         ros_arguments=ros_args,
         output=output,
-        additional_env={"ROS_DOMAIN_ID": str(LOCAL_DOMAIN_ID), "ROS_STATIC_PEERS": ""},
     )
     ld.add_action(run_ssh_server)
 
@@ -102,7 +100,6 @@ def generate_launch_description():
         ros_arguments=ros_args,
         output=output,
         on_exit=Shutdown(),
-        additional_env={"ROS_DOMAIN_ID": str(LOCAL_DOMAIN_ID), "ROS_STATIC_PEERS": ""},
     )
     ld.add_action(run_gcs)
 
