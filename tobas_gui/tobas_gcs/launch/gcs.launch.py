@@ -10,12 +10,14 @@ from launch_ros.actions import Node
 LOG_LEVEL = "log_level"
 OUTPUT = "output"
 
+# Constants
+LOCAL_DOMAIN_ID = 21
+
 
 def generate_launch_description():
     ld = LaunchDescription()
 
     # Configure the ROS domain, discovery range, and middleware.
-    ld.add_action(SetEnvironmentVariable("ROS_DOMAIN_ID", "20"))
     ld.add_action(SetEnvironmentVariable("ROS_AUTOMATIC_DISCOVERY_RANGE", "LOCALHOST"))
     ld.add_action(SetEnvironmentVariable("RMW_IMPLEMENTATION", "rmw_cyclonedds_cpp"))
 
@@ -71,16 +73,6 @@ def generate_launch_description():
     ]:
         ros_args += ["--log-level", f"{node_name}:=WARN"]
 
-    # Launch SSH server.
-    run_ssh_server = Node(
-        package="tobas_ssh_server",
-        executable="ssh_server_node",
-        namespace=session_ns,
-        ros_arguments=ros_args,
-        output=output,
-    )
-    ld.add_action(run_ssh_server)
-
     # Launch Tile proxy.
     run_tile_server = Node(
         package="tobas_tile_proxy",
@@ -91,6 +83,17 @@ def generate_launch_description():
     )
     ld.add_action(run_tile_server)
 
+    # Launch SSH server.
+    run_ssh_server = Node(
+        package="tobas_ssh_server",
+        executable="ssh_server_node",
+        namespace=session_ns,
+        ros_arguments=ros_args,
+        output=output,
+        additional_env={"ROS_DOMAIN_ID": str(LOCAL_DOMAIN_ID), "ROS_STATIC_PEERS": ""},
+    )
+    ld.add_action(run_ssh_server)
+
     # Launch ground control station.
     run_gcs = Node(
         package="tobas_gcs",
@@ -99,6 +102,7 @@ def generate_launch_description():
         ros_arguments=ros_args,
         output=output,
         on_exit=Shutdown(),
+        additional_env={"ROS_DOMAIN_ID": str(LOCAL_DOMAIN_ID), "ROS_STATIC_PEERS": ""},
     )
     ld.add_action(run_gcs)
 

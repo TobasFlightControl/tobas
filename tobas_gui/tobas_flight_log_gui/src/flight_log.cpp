@@ -9,10 +9,10 @@
 
 namespace tobas::gui::log
 {
-FlightLogWidget::FlightLogWidget(const rqt::RosQtBridge& _bridge)
+FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr _local_node, const rqt::RosQtBridge& _bridge)
 {
   recorder_ = new FlightLogRecorderWidget(_bridge);
-  logs_fc_ = new FlightLogsWidgetFC();
+  logs_fc_ = new FlightLogsWidgetFC(_local_node);
   logs_gcs_ = new FlightLogsWidgetGCS();
   log_viewer_ = new FlightLogViewerWidget();
 
@@ -43,16 +43,14 @@ void FlightLogWidget::reset()
   logs_fc_->reset();
 }
 
-void FlightLogWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
+void FlightLogWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _remote_node, const std::string& _ns)
 {
-  recorder_->initializeRosInterfaces(_node, _ns);
-  logs_fc_->initializeRosInterfaces(_node, _ns);
+  recorder_->initializeRosInterfaces(_remote_node, _ns);
 }
 
 void FlightLogWidget::clearRosInterfaces()
 {
   recorder_->clearRosInterfaces();
-  logs_fc_->clearRosInterfaces();
 }
 
 void FlightLogWidget::onRecordFinished(const QString& _log_name, bool _is_real)

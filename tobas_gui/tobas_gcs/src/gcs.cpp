@@ -13,6 +13,7 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QMouseEvent>
+#include <QScopeGuard>
 #include <QScopedValueRollback>
 #include <QSignalBlocker>
 #include <QVBoxLayout>
@@ -75,6 +76,7 @@ rclcpp::Context::SharedPtr createRosContext(const QString& _static_peer, std::ve
   rclcpp::InitOptions context_options;
   context_options.shutdown_on_signal = false;
   context_options.auto_initialize_logging(false);
+  context_options.set_domain_id(20);
 
   const auto context = std::make_shared<rclcpp::Context>();
   context->init(static_cast<int>(ros_argv.size()), ros_argv.data(), context_options);
@@ -83,7 +85,8 @@ rclcpp::Context::SharedPtr createRosContext(const QString& _static_peer, std::ve
 }
 }  // namespace
 
-GroundControlStationWidget::GroundControlStationWidget(int _argc, char* _argv[])
+GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr _local_node, int _argc, char* _argv[])
+  : ssh_client_(_local_node), remote_proj_builder_(_local_node)
 {
   for (int i = 0; i < _argc; ++i) {
     ros_args_.emplace_back(_argv[i]);
@@ -94,7 +97,7 @@ GroundControlStationWidget::GroundControlStationWidget(int _argc, char* _argv[])
   actuator_test_ = new at::ActuatorTestWidget(bridge_, cur_vehicle_.tree, cur_vehicle_.drone);
   control_system_ = new ctrl::ControlSystemWidget(bridge_, cur_vehicle_.drone);
   param_tuning_ = new param::ParameterTuningWidget();
-  flight_log_ = new log::FlightLogWidget(bridge_);
+  flight_log_ = new log::FlightLogWidget(_local_node, bridge_);
   fc_console_ = new console::FcConsoleWidget();
   simulation_ = new sim::SimulationWidget(bridge_);
 
@@ -268,17 +271,8 @@ void GroundControlStationWidget::initializeRos()
 {
   qDebug() << "GroundControlStationWidget::initializeRos";
 
-  const auto host = currentAddress();
-
-  const auto context = createRosContext(host, ros_args_);
-  ros_node_manager_.emplace(context, "tobas_gcs");
-  const auto ros_node = ros_node_manager_->node();
-
-  ssh_client_.emplace(ros_node);
-  TOBAS_CHECK(ssh_client_->waitForLocalServer());
-  TOBAS_CHECK(ssh_client_->setEndpoint(host, cmn::kUserNameFC));
-
-  remote_proj_builder_.emplace(ros_node);
+  const auto context = createRosContext(currentAddress(), ros_args_);
+  remote_node_manager_.emplace(context, "gcs_remote_interface");
 }
 
 void GroundControlStationWidget::deinitializeRos()
@@ -293,24 +287,21 @@ void GroundControlStationWidget::deinitializeRos()
   flight_log_->clearRosInterfaces();
   simulation_->clearRosInterfaces();
 
-  ssh_client_.reset();
-  remote_proj_builder_.reset();
-
-  if (ros_node_manager_) {
-    ros_node_manager_->shutdown();
+  if (remote_node_manager_) {
+    remote_node_manager_->shutdown();
   }
-  ros_node_manager_.reset();
+  remote_node_manager_.reset();
 }
 
 std::expected<void, QString> GroundControlStationWidget::connectToVehicle(const QString& _drone, const QString& _id)
 {
   qDebug().nospace() << "GroundControlStationWidget::connectToVehicle(" << _drone << ", " << _id << ")";
 
-  const auto ros_node = ros_node_manager_->node();
+  const auto remote_node = remote_node_manager_->node();
   const auto ns = path::join('/', _drone.toStdString(), _id.toStdString());
 
   const auto kWaitForVehicleConfiguration = 10s;
-  const auto vehicle = loadVehicleConfiguration(ros_node, ns, kWaitForVehicleConfiguration);
+  const auto vehicle = loadVehicleConfiguration(remote_node, ns, kWaitForVehicleConfiguration);
   if (!vehicle) {
     return std::unexpected(vehicle.error());
   }
@@ -320,15 +311,15 @@ std::expected<void, QString> GroundControlStationWidget::connectToVehicle(const 
   actuator_test_->updateInternalDataStructures();
   control_system_->updateInternalDataStructures();
 
-  bridge_.initializeRosInterfaces(ros_node, ns);
-  sensor_calib_->initializeRosInterfaces(ros_node, ns);
-  actuator_test_->initializeRosInterfaces(ros_node, ns);
-  control_system_->initializeRosInterfaces(ros_node, ns);
-  param_tuning_->initializeRosInterfaces(ros_node, ns);
-  flight_log_->initializeRosInterfaces(ros_node, ns);
+  bridge_.initializeRosInterfaces(remote_node, ns);
+  sensor_calib_->initializeRosInterfaces(remote_node, ns);
+  actuator_test_->initializeRosInterfaces(remote_node, ns);
+  control_system_->initializeRosInterfaces(remote_node, ns);
+  param_tuning_->initializeRosInterfaces(remote_node, ns);
+  flight_log_->initializeRosInterfaces(remote_node, ns);
 
   if (simulation_->isRunning()) {
-    simulation_->initializeRosInterfaces(ros_node, ns);
+    simulation_->initializeRosInterfaces(remote_node, ns);
   }
 
   setConnectionState(true);
@@ -528,8 +519,17 @@ void GroundControlStationWidget::onEndpointChanged()
 {
   qDebug() << "GroundControlStationWidget::onEndpointChanged";
 
+  const QScopedValueRollback block_discovery(endpoint_operation_in_progress_, true);
+
+  const auto address = currentAddress();
+
   updateWidgetEnabledStates();
-  fc_console_->setEndpoint(currentAddress(), cmn::kUserNameFC);
+  fc_console_->setEndpoint(address, cmn::kUserNameFC);
+
+  if (!address.isEmpty()) {
+    TOBAS_CHECK(ssh_client_.waitForLocalServer());
+    TOBAS_CHECK(ssh_client_.setEndpoint(address, cmn::kUserNameFC));
+  }
 }
 
 void GroundControlStationWidget::onProjectSelectionRequested()
@@ -707,9 +707,8 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // Connect to the flight controller.
   progress.setLabelText("Connecting to the flight controller.");
-  deinitializeRos();
-  initializeRos();
-  if (const auto result = ssh_client_->connect(); !result) {
+  disconnectFromVehicle();
+  if (const auto result = ssh_client_.connect(); !result) {
     progress.close();
     disconnectFromVehicle();
     qt::qErrorBox(this, "No SSH connection: " + result.error());
@@ -720,7 +719,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // Check the FC version.
   progress.setLabelText("Checking the FC version.");
   QString fc_ver_text;
-  if (const auto result = ssh_client_->execute("/opt/tobas/lib/tobas_version/show_version", fc_ver_text); !result) {
+  if (const auto result = ssh_client_.execute("/opt/tobas/lib/tobas_version/show_version", fc_ver_text); !result) {
     progress.close();
     disconnectFromVehicle();
     qt::qErrorBox(this, "Failed to retrieve the FC version: " + result.error());
@@ -747,7 +746,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // Stop the service.
   progress.setLabelText("Stopping the Tobas real service.");
   expectTelemetryLoss();
-  if (const auto result = ssh_client_->execute("systemctl stop tobas_real.target", true); !result) {
+  if (const auto result = ssh_client_.execute("systemctl stop tobas_real.target", true); !result) {
     progress.close();
     clearExpectedTelemetryLoss();
     disconnectFromVehicle();
@@ -759,7 +758,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   // Load environment variables; continue even if they cannot be loaded.
   progress.setLabelText("Getting environment variables.");
   QString project_env_text;
-  if (const auto result = ssh_client_->sftpRead(kProjectEnvPath, project_env_text, true); result) {
+  if (const auto result = ssh_client_.sftpRead(kProjectEnvPath, project_env_text, true); result) {
     project_.env = parseProjectEnv(project_env_text);
   }
   else {
@@ -771,13 +770,13 @@ void GroundControlStationWidget::onWriteButtonClicked()
   if (config_pkg_name != project_.env.config_pkg) {
     // Initialize the workspace.
     progress.setLabelText("Initializing colcon workspace.");
-    if (const auto result = ssh_client_->execute(QString("rm -rf %1").arg(kColconWSPathRoot), true); !result) {
+    if (const auto result = ssh_client_.execute(QString("rm -rf %1").arg(kColconWSPathRoot), true); !result) {
       progress.close();
       disconnectFromVehicle();
       qt::qErrorBox(this, "Failed to remove the old colcon workspace:\n\n" + result.error());
       return;
     }
-    if (const auto result = ssh_client_->execute(QString("mkdir -p %1/src").arg(kColconWSPathRoot), true); !result) {
+    if (const auto result = ssh_client_.execute(QString("mkdir -p %1/src").arg(kColconWSPathRoot), true); !result) {
       progress.close();
       disconnectFromVehicle();
       qt::qErrorBox(this, "Failed to create a new colcon workspace:\n\n" + result.error());
@@ -795,7 +794,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   project_.env.nic = project_.network.interface;
   project_.env.drone = next_drone;
   project_.env.id = next_id;
-  if (const auto result = ssh_client_->sftpWrite(kProjectEnvPath, exportProjectEnv(project_.env), true); !result) {
+  if (const auto result = ssh_client_.sftpWrite(kProjectEnvPath, exportProjectEnv(project_.env), true); !result) {
     progress.close();
     disconnectFromVehicle();
     qt::qErrorBox(this, "Failed to set environment variables:\n\n" + result.error());
@@ -808,7 +807,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   const auto remote_dir = QString(kColconWSPathRoot) + "/src/";
   const auto mesh_path = proj_paths.cfgMeshDirPath();
   const auto git_path = QDir(proj_paths.getProjPath()).filePath(".git");
-  if (const auto result = ssh_client_->scpPut(proj_path, remote_dir, true, { mesh_path, git_path }, true); !result) {
+  if (const auto result = ssh_client_.scpPut(proj_path, remote_dir, true, { mesh_path, git_path }, true); !result) {
     progress.close();
     disconnectFromVehicle();
     qt::qErrorBox(this, "Failed to send Tobas project:\n\n" + result.error());
@@ -818,7 +817,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // Build the project on another thread so the GUI does not stop.
   progress.setLabelText("Building the Tobas project.");
-  if (const auto result = remote_proj_builder_->build(proj_paths.remoteProjPath()); !result) {
+  if (const auto result = remote_proj_builder_.build(proj_paths.remoteProjPath()); !result) {
     const auto error_msg = result.error();
     progress.close();
     disconnectFromVehicle();
@@ -845,8 +844,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   dds_data.interfaces.emplace_back("lo", 1, true);  // Multicast must be enabled to bridge the two NICs.
   dds_data.interfaces.emplace_back(project_.network.interface.toStdString(), 0, true);
   const auto dds_config_if_text = cyclonedds::exportText(dds_data);
-  if (const auto result =
-        ssh_client_->sftpWrite(kCycloneddsConfigPath, QString::fromStdString(dds_config_if_text), true);
+  if (const auto result = ssh_client_.sftpWrite(kCycloneddsConfigPath, QString::fromStdString(dds_config_if_text), true);
       !result) {
     progress.close();
     disconnectFromVehicle();
@@ -857,7 +855,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // Enable the flight control service.
   progress.setLabelText("Enabling the flight controller.");
-  if (const auto result = ssh_client_->execute("systemctl enable tobas_real.target", true); !result) {
+  if (const auto result = ssh_client_.execute("systemctl enable tobas_real.target", true); !result) {
     progress.close();
     disconnectFromVehicle();
     qt::qErrorBox(this, "Failed to enable Tobas real service:\n\n" + result.error());
@@ -867,7 +865,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // Start the flight control service.
   progress.setLabelText("Starting the flight controller.");
-  if (const auto result = ssh_client_->execute("systemctl start tobas_real.target", true); !result) {
+  if (const auto result = ssh_client_.execute("systemctl start tobas_real.target", true); !result) {
     progress.close();
     disconnectFromVehicle();
     qt::qErrorBox(this, "Failed to start Tobas real service:\n\n" + result.error());
@@ -877,7 +875,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // Refresh discovery only after the new project has been built and started successfully.
   progress.setLabelText("Updating the FC advertisement.");
-  if (const auto result = ssh_client_->execute("systemctl restart tobas_fc_advertise.service", true); !result) {
+  if (const auto result = ssh_client_.execute("systemctl restart tobas_fc_advertise.service", true); !result) {
     progress.close();
     disconnectFromVehicle();
     qt::qErrorBox(this, "Failed to update the FC advertisement:\n\n" + result.error());
@@ -888,6 +886,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   // Connect to the vehicle.
   progress.setLabelText("Receiving the vehicle configuration.");
+  initializeRos();
   if (const auto result = connectToVehicle(next_drone, next_id); !result) {
     progress.close();
     disconnectFromVehicle();
@@ -954,7 +953,7 @@ void GroundControlStationWidget::onRestartButtonClicked()
 
   // Restart the systemd service.
   expectTelemetryLoss();
-  const auto res = ssh_client_->execute("systemctl restart tobas_real.target", true);
+  const auto res = ssh_client_.execute("systemctl restart tobas_real.target", true);
   if (!res) {
     spinner.stop();
     reset();
@@ -992,7 +991,7 @@ void GroundControlStationWidget::onShutdownButtonClicked()
   expectTelemetryLoss();
   qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
   spinner.start();
-  const auto res = ssh_client_->execute("poweroff", true, true);
+  const auto res = ssh_client_.execute("poweroff", true, true);
   if (!res) {
     spinner.stop();
     reset();

@@ -54,7 +54,7 @@ class GroundControlStationWidget : public QWidget
   using self = GroundControlStationWidget;
 
 public:
-  explicit GroundControlStationWidget(int _argc, char* _argv[]);
+  explicit GroundControlStationWidget(rclcpp::Node::SharedPtr _local_node, int _argc, char* _argv[]);
 
 protected:
   bool eventFilter(QObject* _watched, QEvent* _event) override;
@@ -104,10 +104,10 @@ private:
   bool endpoint_operation_in_progress_ = false;
 
   std::vector<std::string> ros_args_;
-  std::optional<ros2::AsyncNodeManager> ros_node_manager_;
+  std::optional<ros2::AsyncNodeManager> remote_node_manager_;
 
-  std::optional<cmn::SshClientWrapper> ssh_client_;
-  std::optional<cmn::RemoteProjectBuilder> remote_proj_builder_;
+  cmn::SshClientWrapper ssh_client_;
+  cmn::RemoteProjectBuilder remote_proj_builder_;
 
   void reset();
   void initializeRos();

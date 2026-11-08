@@ -9,6 +9,7 @@
 #include <tobas_gui_common/version.hpp>
 #include <tobas_qt_tools/debug.hpp>
 #include <tobas_qt_tools/widgets/main_widget.hpp>
+#include <tobas_ros2_tools/async_node_manager.hpp>
 
 #include "tobas_gcs/gcs.hpp"
 #include "tobas_gcs/util.hpp"
@@ -25,13 +26,16 @@ int main(int _argc, char* _argv[])
   // Colorize console output.
   qInstallMessageHandler(tobas::qt::colorMessageHandler);
 
+  // Start a ROS node for local communication.
+  tobas::ros2::AsyncNodeManager node_manager(_argc, _argv, "gcs_local_interface");
+
   // Show the GUI.
   QApplication qapp(arg_parser.argc(), arg_parser.argv());
   QApplication::setOrganizationName("tobas");
   QApplication::setApplicationName("gcs");
   const auto title = "Tobas (" + tobas::gui::cmn::Version::Current().toString() + ")";
   const auto icon_path = tobas::gui::gcs::getPkgShareDir() / "resources/icon.png";
-  const auto widget = new tobas::gui::gcs::GroundControlStationWidget(_argc, _argv);
+  const auto widget = new tobas::gui::gcs::GroundControlStationWidget(node_manager.node(), _argc, _argv);
   tobas::qt::MainWidget main(title, QString::fromStdString(icon_path), widget);
   main.show();
 

@@ -17,10 +17,10 @@ class FlightLogWidget : public QWidget
   using self = FlightLogWidget;
 
 public:
-  explicit FlightLogWidget(const rqt::RosQtBridge& _bridge);
+  explicit FlightLogWidget(rclcpp::Node::SharedPtr _local_node, const rqt::RosQtBridge& _bridge);
 
   void reset();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _remote_node, const std::string& _ns);
   void clearRosInterfaces();
 
 private:

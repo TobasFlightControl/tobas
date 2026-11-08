@@ -22,7 +22,7 @@
 
 namespace tobas::gui::log
 {
-FlightLogsWidgetFC::FlightLogsWidgetFC()
+FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr _node) : ssh_client_(_node)
 {
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
@@ -57,20 +57,8 @@ void FlightLogsWidgetFC::reset()
 {
   clearLogs();
 
-  read_button_->setEnabled(ros_initialized_);
+  read_button_->setEnabled(true);
   clean_button_->setEnabled(false);
-}
-
-void FlightLogsWidgetFC::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string&)
-{
-  ssh_client_.emplace(_node);
-  ros_initialized_ = true;
-}
-
-void FlightLogsWidgetFC::clearRosInterfaces()
-{
-  ssh_client_.reset();
-  ros_initialized_ = false;
 }
 
 void FlightLogsWidgetFC::addLog(const QString& _log_name)
@@ -125,7 +113,7 @@ void FlightLogsWidgetFC::onReadButtonClicked()
 
   qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
   spinner.start();
-  const auto res = ssh_client_->list(kRosbagDirRoot, log_names);
+  const auto res = ssh_client_.list(kRosbagDirRoot, log_names);
   spinner.stop();
 
   if (!res) {
@@ -157,7 +145,7 @@ void FlightLogsWidgetFC::onCleanButtonClicked()
 
   qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
   spinner.start();
-  const auto res = ssh_client_->execute("rm -rf " + QString(kRosbagDirRoot) + "/*", true);
+  const auto res = ssh_client_.execute("rm -rf " + QString(kRosbagDirRoot) + "/*", true);
   spinner.stop();
 
   if (!res) {
@@ -203,7 +191,7 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& _log_name)
   };
 
   progress.show();
-  const auto res = ssh_client_->scpGet(remote_rosbag_path, local_pardir, callback);
+  const auto res = ssh_client_.scpGet(remote_rosbag_path, local_pardir, callback);
   progress.close();
 
   if (!res) {
@@ -224,7 +212,7 @@ void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& _log_name)
 
   qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
   spinner.start();
-  const auto res = ssh_client_->execute("rm -rf " + rosbag_path, true);
+  const auto res = ssh_client_.execute("rm -rf " + rosbag_path, true);
   spinner.stop();
 
   if (!res) {
