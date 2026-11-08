@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.31)
 project(tobas_mission_msgs_adapter)
 
 set(AMENT_DEPENDENCIES tobas_mission_items tobas_mission_msgs)

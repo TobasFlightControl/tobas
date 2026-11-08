@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.31)
 project(tobas_std_msgs_adapter)
 
 set(AMENT_DEPENDENCIES rclcpp tobas_std_tools tobas_std_msgs)

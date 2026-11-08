@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.31)
 project(tobas_rqt_tools)
 
 set(AMENT_DEPENDENCIES tobas_ros2_tools tobas_qt_tools)

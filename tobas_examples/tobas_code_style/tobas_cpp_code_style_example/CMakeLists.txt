@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.31)
 project(tobas_cpp_code_style_example)
 
 set(AMENT_DEPENDENCIES rclcpp rclcpp_components std_msgs mavros_msgs tobas_math tobas_msgs_adapter)

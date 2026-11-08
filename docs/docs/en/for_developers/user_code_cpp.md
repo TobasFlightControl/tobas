@@ -70,7 +70,7 @@ Add this node as a build target.
 Add the dependency packages to `tobas_f450_user_cpp/CMakeLists.txt` and uncomment the build instructions.
 
 ```cmake
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.31)
 project(tobas_f450_user_cpp)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)

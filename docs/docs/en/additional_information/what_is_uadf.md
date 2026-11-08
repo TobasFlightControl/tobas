@@ -102,7 +102,7 @@ Since this package has no external package dependencies, it contains only essent
 Configure it to install `meshes`, the directory containing the mesh files, and `urdf`, the directory containing the UADF.
 
 ```cmake
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.31)
 project(tobas_f450_description)
 find_package(ament_cmake REQUIRED)
 install(DIRECTORY meshes urdf DESTINATION share/${PROJECT_NAME})

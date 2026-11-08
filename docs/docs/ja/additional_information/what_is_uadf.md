@@ -102,7 +102,7 @@ tobas_f450_description/
 メッシュファイルを格納するディレクトリである`meshes`と，UADF を格納するディレクトリである`urdf`をインストールするようにします．
 
 ```cmake
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.31)
 project(tobas_f450_description)
 find_package(ament_cmake REQUIRED)
 install(DIRECTORY meshes urdf DESTINATION share/${PROJECT_NAME})

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.31)
 project(tobas_debug_msgs_adapter)
 
 set(AMENT_DEPENDENCIES tobas_debug_msgs tobas_eigen_msgs_adapter tobas_kdl_msgs_adapter)

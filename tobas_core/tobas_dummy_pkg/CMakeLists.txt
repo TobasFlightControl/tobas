@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.31)
 project(tobas_dummy_pkg)
 
 set(AMENT_DEPENDENCIES rclcpp rclcpp_components)

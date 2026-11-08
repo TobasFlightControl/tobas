@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.31)
 project(tobas_drone)
 find_package(ament_cmake REQUIRED)
 ament_package()
