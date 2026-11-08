@@ -25,7 +25,7 @@ from tobas_msgs.msg import Message
 from tobas_msgs.msg import Gnss
 
 
-class GnssStateCheckerNode(Node):
+class UserNode(Node):
     def __init__(self) -> None:
         super().__init__("gnss_state_checker")
 
@@ -49,7 +49,7 @@ class GnssStateCheckerNode(Node):
 
 def main(args=None) -> None:
     rclpy.init(args=args)
-    node = GnssStateCheckerNode()
+    node = UserNode()
     rclpy.spin(node)
 
 
