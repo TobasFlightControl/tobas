@@ -57,8 +57,20 @@ void FlightLogsWidgetFC::reset()
 {
   clearLogs();
 
-  read_button_->setEnabled(true);
+  read_button_->setEnabled(!host_.isEmpty() && !user_.isEmpty());
   clean_button_->setEnabled(false);
+}
+
+void FlightLogsWidgetFC::setEndpoint(const QString& _host, const QString& _user)
+{
+  if (host_ == _host && user_ == _user) {
+    return;
+  }
+
+  host_ = _host;
+  user_ = _user;
+
+  reset();
 }
 
 void FlightLogsWidgetFC::addLog(const QString& _log_name)

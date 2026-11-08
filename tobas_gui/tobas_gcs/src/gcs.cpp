@@ -509,6 +509,7 @@ void GroundControlStationWidget::onEndpointChanged()
   const auto address = currentAddress();
 
   updateWidgetEnabledStates();
+  flight_log_->setEndpoint(address, cmn::kUserNameFC);
   fc_console_->setEndpoint(address, cmn::kUserNameFC);
 
   if (!address.isEmpty()) {

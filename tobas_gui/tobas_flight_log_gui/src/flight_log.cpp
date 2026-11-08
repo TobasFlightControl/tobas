@@ -43,6 +43,11 @@ void FlightLogWidget::reset()
   logs_fc_->reset();
 }
 
+void FlightLogWidget::setEndpoint(const QString& _host, const QString& _user)
+{
+  logs_fc_->setEndpoint(_host, _user);
+}
+
 void FlightLogWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _remote_node, const std::string& _ns)
 {
   recorder_->initializeRosInterfaces(_remote_node, _ns);

@@ -23,6 +23,7 @@ public:
   explicit FlightLogsWidgetFC(rclcpp::Node::SharedPtr _node);
 
   void reset();
+  void setEndpoint(const QString& _host, const QString& _user);
 
   void addLog(const QString& _log_name);
   void removeLog(const QString& _log_name);
@@ -32,6 +33,8 @@ public:
 
 private:
   cmn::SshClientWrapper ssh_client_;
+  QString host_;
+  QString user_;
 
   QPushButton* read_button_;
   QPushButton* clean_button_;

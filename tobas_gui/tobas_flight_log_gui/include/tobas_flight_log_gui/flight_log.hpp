@@ -20,6 +20,7 @@ public:
   explicit FlightLogWidget(rclcpp::Node::SharedPtr _local_node, const rqt::RosQtBridge& _bridge);
 
   void reset();
+  void setEndpoint(const QString& _host, const QString& _user);
   void initializeRosInterfaces(rclcpp::Node::SharedPtr _remote_node, const std::string& _ns);
   void clearRosInterfaces();
 
