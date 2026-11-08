@@ -84,7 +84,7 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& _options)
   set_params_ss_ = createService<SetParams>(handler::imu::kSetParamSrv, &self::setParamsCb, this);
 
   if (!getConfig()) {
-    TOBAS_ERROR("Failed to get configuration. This node will not work until they are set.");
+    TOBAS_WARN("Failed to get configuration. This node will not work until they are set.");
     return;
   }
 
@@ -94,17 +94,17 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& _options)
 bool ImuHandlerNode::getConfig()
 {
   if (!pt_.get(section_, handler::imu::kOffsetXKey, acc_bias_.x())) {
-    TOBAS_ERROR("Failed to get '", handler::imu::kOffsetXKey, "'.");
+    TOBAS_WARN("Failed to get '", handler::imu::kOffsetXKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::imu::kOffsetYKey, acc_bias_.y())) {
-    TOBAS_ERROR("Failed to get '", handler::imu::kOffsetXKey, "'.");
+    TOBAS_WARN("Failed to get '", handler::imu::kOffsetXKey, "'.");
     return false;
   }
 
   if (!pt_.get(section_, handler::imu::kOffsetZKey, acc_bias_.z())) {
-    TOBAS_ERROR("Failed to get '", handler::imu::kOffsetXKey, "'.");
+    TOBAS_WARN("Failed to get '", handler::imu::kOffsetXKey, "'.");
     return false;
   }
 

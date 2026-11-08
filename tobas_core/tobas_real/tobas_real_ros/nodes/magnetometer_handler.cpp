@@ -60,7 +60,7 @@ MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& _opt
   set_params_ss_ = createService<SetParams>(handler::mag::kSetParamSrv, &self::setParamsCb, this);
 
   if (!getConfig()) {
-    TOBAS_ERROR("Failed to get configuration. This node will not work until they are set.");
+    TOBAS_WARN("Failed to get configuration. This node will not work until they are set.");
     return;
   }
 
@@ -73,11 +73,11 @@ bool MagnetometerHandlerNode::getConfig()
   std::array<double, 6> soft_bias;
 
   if (!pt_.get(section_, handler::mag::kHardBiasKey, hard_bias)) {
-    TOBAS_ERROR("Failed to get '", handler::mag::kHardBiasKey, "' from configuration file.");
+    TOBAS_WARN("Failed to get '", handler::mag::kHardBiasKey, "' from configuration file.");
     return false;
   }
   if (!pt_.get(section_, handler::mag::kSoftBiasKey, soft_bias)) {
-    TOBAS_ERROR("Failed to get '", handler::mag::kSoftBiasKey, "' from configuration file.");
+    TOBAS_WARN("Failed to get '", handler::mag::kSoftBiasKey, "' from configuration file.");
     return false;
   }
 
