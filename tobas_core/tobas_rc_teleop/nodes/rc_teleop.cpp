@@ -101,6 +101,7 @@ private:
   void resetCurrentController(const tobas_msgs::RCInput& _rcin);
   bool isFlightModeApplicable(FlightMode _mode);
 
+  void deadbandCb(double _p);
   void armThrottleThresholdCb(double _p);
   void armThrottleHysteresisCb(double _p);
 
@@ -117,8 +118,8 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& _options) : super(node::kR
   TOBAS_ASSERT(mode2str_.size() == magic_enum::enum_count<FlightMode>());
 
   getStaticRosParams();
-  defineDynamicRosParams();
   initializeControllers();
+  defineDynamicRosParams();
 
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
   setpoint_sub_ = createSubscriber(topic::kTrajSetpoint, &self::setpointCb, this);
@@ -146,7 +147,7 @@ void RCTeleopNode::getStaticRosParams()
 
 void RCTeleopNode::defineDynamicRosParams()
 {
-  // Make this configurable because some transmitters cannot detect the arm position if the threshold is too small.
+  addDynamicDoubleParam("common/deadband", &self::deadbandCb, this, 1.0, 2, 0, 10, " %");
   addDynamicDoubleParam("common/arm_throttle_threshold", &self::armThrottleThresholdCb, this, 0.5, 2, 1, 6, " %");
   addDynamicDoubleParam("common/arm_throttle_hysteresis", &self::armThrottleHysteresisCb, this, 0.5, 2, 1, 6, " %");
 }
@@ -347,6 +348,13 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode _mode)
   }
 
   return true;
+}
+
+void RCTeleopNode::deadbandCb(double _p)
+{
+  for (const auto& [_, controller] : controllers_) {
+    controller->setDeadband(_p / 100.0);
+  }
 }
 
 void RCTeleopNode::armThrottleThresholdCb(double _p)

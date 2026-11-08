@@ -27,9 +27,10 @@ public:
   reset(const builtin_interfaces::msg::Time& _stamp, const tobas_msgs::Odometry& _setpoint, bool _landed) = 0;
   virtual void update(const tobas_msgs::RCInput& _rcin, const tobas_msgs::Odometry& _odom, bool _landed) = 0;
 
+  void setDeadband(double deadband);
+
 protected:
   static constexpr int kExpoScale = 100;
-  static constexpr double kDeadband = 0.02;  ///< Adjust so RCInput snaps to zero in the dead zone
 
   /** Return 0 when the value is inside the deadband. */
   inline double deadband(double _x) const;
@@ -51,11 +52,14 @@ protected:
 
   /** Add a flight mode prefix to the text. */
   static std::string addMode(const std::string& _text, FlightMode _mode);
+
+private:
+  double deadband_ = 0.0;
 };
 
 inline double BaseController::deadband(double _x) const
 {
-  return std::abs(_x) < kDeadband ? 0.0 : _x;
+  return std::abs(_x) < deadband_ ? 0.0 : _x;
 }
 
 inline double BaseController::remap(double _x, double _lb, double _ub) const

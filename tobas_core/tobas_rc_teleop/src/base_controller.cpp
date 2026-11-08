@@ -3,6 +3,8 @@
 
 #include "tobas_rc_teleop/base_controller.hpp"
 
+#include <cassert>
+
 #include <tobas_path_tools/join.hpp>
 
 namespace tobas::rc
@@ -10,6 +12,12 @@ namespace tobas::rc
 BaseController::BaseController()
 {
   // Do not access ROS parameters or register publishers and subscriptions here because they may be unnecessary.
+}
+
+void BaseController::setDeadband(double deadband)
+{
+  assert(0.0 <= deadband && deadband <= 1.0);
+  deadband_ = deadband;
 }
 
 std::string BaseController::addMode(const std::string& _text, FlightMode _mode)
