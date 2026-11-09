@@ -5,6 +5,7 @@
 
 #include <expected>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include <tobas_time_tools/rate.hpp>
@@ -17,15 +18,7 @@
 
 namespace tobas::ublox
 {
-/**
- * A Linux driver of u-blox ZED-F9P using UBX protocol.
- *
- * [Product Page](https://www.u-blox.com/en/product/zed-f9p-module)
- *
- * Interface Description:
- * - [L1/L2](https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-1.51_InterfaceDescription_UBXDOC-963802114-13124.pdf)
- * - [L1/L5](https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-L1L5-1.40_InterfaceDescription_UBX-23006991.pdf)
- */
+/** A Linux driver of u-blox GNSS receivers using the UBX protocol. */
 class GnssReceiver
 {
 public:
@@ -146,6 +139,7 @@ public:
   bool enableMessage(UbxClass _cls, uint8_t _id, bool _enable);
   bool configureDynamicsModel(DynamicsModel _model);
   bool configureMeasurementRate(uint16_t _period_ms);
+  bool configureMeasurementRate();
 
   bool enableGps();
   bool disableGps();
@@ -186,6 +180,12 @@ public:
   inline const uint8_t* payload() const;
 
 private:
+  enum class ReceiverModel
+  {
+    F9P,
+    X20P,
+  };
+
   /** Supported storage size identifiers */
   enum CfgSize : uint8_t
   {
@@ -294,6 +294,7 @@ private:
   const std::unique_ptr<UbxTransport> transport_;
   UbxScanner scanner_;
   tim::Rate scan_rate_;
+  std::optional<ReceiverModel> receiver_model_;
 
   template <typename T>
   bool cfgValSetSingle(CfgSize _size, CfgGroup _group, uint8_t _id, T _value);
@@ -312,14 +313,17 @@ private:
   bool enableSbasL1();
 
   bool enableGalileo(bool _enable);
-  bool enableGalileoL1();
-  bool enableGalileoL2();
-  bool enableGalileoL5();
+  bool enableGalileoE1();
+  bool enableGalileoE5b();
+  bool enableGalileoE5a();
+  bool enableGalileoE6();
 
   bool enableBeiDou(bool _enable);
-  bool enableBeiDouL1();
-  bool enableBeiDouL2();
-  bool enableBeiDouL5();
+  bool enableBeiDouB1I();
+  bool enableBeiDouB2I();
+  bool enableBeiDouB2a();
+  bool enableBeiDouB1C();
+  bool enableBeiDouB3I();
 
   bool enableQzss(bool _enable);
   bool enableQzssL1();

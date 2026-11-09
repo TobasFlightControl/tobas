@@ -22,7 +22,30 @@ GnssReceiver::GnssReceiver(std::unique_ptr<UbxTransport> _transport)
 
 bool GnssReceiver::initialize()
 {
-  return transport_->initialize();
+  receiver_model_.reset();
+
+  if (!transport_->initialize()) {
+    return false;
+  }
+
+  const auto version = pollVersion();
+  if (!version) {
+    std::cerr << version.error() << '\n';
+    return false;
+  }
+
+  if (version->moduleId == "ZED-F9P") {
+    receiver_model_ = ReceiverModel::F9P;
+  }
+  else if (version->moduleId == "ZED-X20P") {
+    receiver_model_ = ReceiverModel::X20P;
+  }
+  else {
+    std::cerr << "Unsupported GNSS module: " << version->moduleId << '\n';
+    return false;
+  }
+
+  return true;
 }
 
 bool GnssReceiver::update(bool _blocking)
@@ -277,8 +300,34 @@ bool GnssReceiver::configureMeasurementRate(uint16_t _period_ms)
   return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_RATE, 0x01, _period_ms);  // CFG-RATE-MEAS
 }
 
+bool GnssReceiver::configureMeasurementRate()
+{
+  if (!receiver_model_) {
+    std::cerr << "GNSS receiver is not initialized.\n";
+    return false;
+  }
+
+  constexpr uint16_t kF9pPeriodMs = 50;
+  constexpr uint16_t kX20pPeriodMs = 40;
+
+  switch (*receiver_model_) {
+    case ReceiverModel::F9P:
+      return configureMeasurementRate(kF9pPeriodMs);
+
+    case ReceiverModel::X20P:
+      return configureMeasurementRate(kX20pPeriodMs);
+  }
+
+  return false;
+}
+
 bool GnssReceiver::enableGps()
 {
+  if (!receiver_model_) {
+    std::cerr << "GNSS receiver is not initialized.\n";
+    return false;
+  }
+
   // Enable GPS.
   if (!enableGps(true)) {
     std::cerr << "Failed to enable GPS.\n";
@@ -291,19 +340,33 @@ bool GnssReceiver::enableGps()
     return false;
   }
 
-  // Try to enable L2 band.
-  if (enableGpsL2()) {
-    std::cout << "GPS L1/L2 is enabled.\n";
-    return true;
+  switch (*receiver_model_) {
+    case ReceiverModel::F9P:
+      // Try to enable L2 band.
+      if (enableGpsL2()) {
+        std::cout << "GPS L1/L2 is enabled.\n";
+        return true;
+      }
+
+      // Try to enable L5 band.
+      if (enableGpsL5()) {
+        std::cout << "GPS L1/L5 is enabled.\n";
+        return true;
+      }
+
+      std::cerr << "Failed to enable either GPS L2 or L5 bands.\n";
+      return false;
+
+    case ReceiverModel::X20P:
+      if (!enableGpsL2() || !enableGpsL5()) {
+        std::cerr << "Failed to enable GPS L2/L5.\n";
+        return false;
+      }
+
+      std::cout << "GPS L1/L2/L5 is enabled.\n";
+      return true;
   }
 
-  // Try to enable L5 band.
-  if (enableGpsL5()) {
-    std::cout << "GPS L1/L5 is enabled.\n";
-    return true;
-  }
-
-  std::cerr << "Failed to enable either GPS L2 or L5 bands.\n";
   return false;
 }
 
@@ -336,31 +399,50 @@ bool GnssReceiver::disableSbas()
 
 bool GnssReceiver::enableGalileo()
 {
+  if (!receiver_model_) {
+    std::cerr << "GNSS receiver is not initialized.\n";
+    return false;
+  }
+
   // Enable Galileo.
   if (!enableGalileo(true)) {
     std::cerr << "Failed to enable Galileo.\n";
     return false;
   }
 
-  // Enable L1 band.
-  if (!enableGalileoL1()) {
-    std::cerr << "Failed to enable Galileo L1.\n";
+  // Enable E1 band.
+  if (!enableGalileoE1()) {
+    std::cerr << "Failed to enable Galileo E1.\n";
     return false;
   }
 
-  // Try to enable L2 band.
-  if (enableGalileoL2()) {
-    std::cout << "Galileo L1/L2 is enabled.\n";
-    return true;
+  switch (*receiver_model_) {
+    case ReceiverModel::F9P:
+      // Try to enable E5b band.
+      if (enableGalileoE5b()) {
+        std::cout << "Galileo E1/E5b is enabled.\n";
+        return true;
+      }
+
+      // Try to enable E5a band.
+      if (enableGalileoE5a()) {
+        std::cout << "Galileo E1/E5a is enabled.\n";
+        return true;
+      }
+
+      std::cerr << "Failed to enable either Galileo E5b or E5a bands.\n";
+      return false;
+
+    case ReceiverModel::X20P:
+      if (!enableGalileoE5a() || !enableGalileoE6()) {
+        std::cerr << "Failed to enable Galileo E5a/E6.\n";
+        return false;
+      }
+
+      std::cout << "Galileo E1/E5a/E6 is enabled.\n";
+      return true;
   }
 
-  // Try to enable L5 band.
-  if (enableGalileoL5()) {
-    std::cout << "Galileo L1/L5 is enabled.\n";
-    return true;
-  }
-
-  std::cerr << "Failed to enable either Galileo L2 or L5 bands.\n";
   return false;
 }
 
@@ -371,31 +453,50 @@ bool GnssReceiver::disableGalileo()
 
 bool GnssReceiver::enableBeiDou()
 {
+  if (!receiver_model_) {
+    std::cerr << "GNSS receiver is not initialized.\n";
+    return false;
+  }
+
   // Enable BeiDou.
   if (!enableBeiDou(true)) {
     std::cerr << "Failed to enable BeiDou.\n";
     return false;
   }
 
-  // Enable L1 band.
-  if (!enableBeiDouL1()) {
-    std::cerr << "Failed to enable BeiDou L1.\n";
-    return false;
+  switch (*receiver_model_) {
+    case ReceiverModel::F9P:
+      // Enable B1I band.
+      if (!enableBeiDouB1I()) {
+        std::cerr << "Failed to enable BeiDou B1I.\n";
+        return false;
+      }
+
+      // Try to enable B2I band.
+      if (enableBeiDouB2I()) {
+        std::cout << "BeiDou B1I/B2I is enabled.\n";
+        return true;
+      }
+
+      // Try to enable B2a band.
+      if (enableBeiDouB2a()) {
+        std::cout << "BeiDou B1I/B2a is enabled.\n";
+        return true;
+      }
+
+      std::cerr << "Failed to enable either BeiDou B2I or B2a bands.\n";
+      return false;
+
+    case ReceiverModel::X20P:
+      if (!enableBeiDouB1C() || !enableBeiDouB2a() || !enableBeiDouB3I()) {
+        std::cerr << "Failed to enable BeiDou signals.\n";
+        return false;
+      }
+
+      std::cout << "BeiDou B1C/B2a/B3I is enabled.\n";
+      return true;
   }
 
-  // Try to enable L2 band.
-  if (enableBeiDouL2()) {
-    std::cout << "BeiDou L1/L2 is enabled.\n";
-    return true;
-  }
-
-  // Try to enable L5 band.
-  if (enableBeiDouL5()) {
-    std::cout << "BeiDou L1/L5 is enabled.\n";
-    return true;
-  }
-
-  std::cerr << "Failed to enable either BeiDou L2 or L5 bands.\n";
   return false;
 }
 
@@ -406,6 +507,11 @@ bool GnssReceiver::disableBeiDou()
 
 bool GnssReceiver::enableQzss()
 {
+  if (!receiver_model_) {
+    std::cerr << "GNSS receiver is not initialized.\n";
+    return false;
+  }
+
   // Enable QZSS.
   if (!enableQzss(true)) {
     std::cerr << "Failed to enable QZSS.\n";
@@ -418,19 +524,33 @@ bool GnssReceiver::enableQzss()
     return false;
   }
 
-  // Try to enable L2 band.
-  if (enableQzssL2()) {
-    std::cout << "QZSS L1/L2 is enabled.\n";
-    return true;
+  switch (*receiver_model_) {
+    case ReceiverModel::F9P:
+      // Try to enable L2 band.
+      if (enableQzssL2()) {
+        std::cout << "QZSS L1/L2 is enabled.\n";
+        return true;
+      }
+
+      // Try to enable L5 band.
+      if (enableQzssL5()) {
+        std::cout << "QZSS L1/L5 is enabled.\n";
+        return true;
+      }
+
+      std::cerr << "Failed to enable either QZSS L2 or L5 bands.\n";
+      return false;
+
+    case ReceiverModel::X20P:
+      if (!enableQzssL2() || !enableQzssL5()) {
+        std::cerr << "Failed to enable QZSS L2/L5.\n";
+        return false;
+      }
+
+      std::cout << "QZSS L1/L2/L5 is enabled.\n";
+      return true;
   }
 
-  // Try to enable L5 band.
-  if (enableQzssL5()) {
-    std::cout << "QZSS L1/L5 is enabled.\n";
-    return true;
-  }
-
-  std::cerr << "Failed to enable either QZSS L2 or L5 bands.\n";
   return false;
 }
 
@@ -483,7 +603,7 @@ bool GnssReceiver::enableNavIc()
   }
 
   std::cout << "NavIC L5 is enabled.\n";
-  return false;
+  return true;
 }
 
 bool GnssReceiver::disableNavIc()
@@ -663,19 +783,24 @@ bool GnssReceiver::enableGalileo(bool _enable)
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x21, _enable);  // CFG-SIGNAL-GAL_ENA
 }
 
-bool GnssReceiver::enableGalileoL1()
+bool GnssReceiver::enableGalileoE1()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x07, true);  // CFG-SIGNAL-GAL_E1_ENA
 }
 
-bool GnssReceiver::enableGalileoL2()
+bool GnssReceiver::enableGalileoE5b()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0A, true);  // CFG-SIGNAL-GAL_E5B_ENA
 }
 
-bool GnssReceiver::enableGalileoL5()
+bool GnssReceiver::enableGalileoE5a()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x09, true);  // CFG-SIGNAL-GAL_E5A_ENA
+}
+
+bool GnssReceiver::enableGalileoE6()
+{
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0B, true);  // CFG-SIGNAL-GAL_E6_ENA
 }
 
 bool GnssReceiver::enableBeiDou(bool _enable)
@@ -683,19 +808,29 @@ bool GnssReceiver::enableBeiDou(bool _enable)
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x22, _enable);  // CFG-SIGNAL-BDS_ENA
 }
 
-bool GnssReceiver::enableBeiDouL1()
+bool GnssReceiver::enableBeiDouB1I()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0D, true);  // CFG-SIGNAL-BDS_B1_ENA
 }
 
-bool GnssReceiver::enableBeiDouL2()
+bool GnssReceiver::enableBeiDouB2I()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0E, true);  // CFG-SIGNAL-BDS_B2_ENA
 }
 
-bool GnssReceiver::enableBeiDouL5()
+bool GnssReceiver::enableBeiDouB2a()
 {
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x28, true);  // CFG-SIGNAL-BDS_B2A_ENA
+}
+
+bool GnssReceiver::enableBeiDouB1C()
+{
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x0F, true);  // CFG-SIGNAL-BDS_B1C_ENA
+}
+
+bool GnssReceiver::enableBeiDouB3I()
+{
+  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x10, true);  // CFG-SIGNAL-BDS_B3_ENA
 }
 
 bool GnssReceiver::enableQzss(bool _enable)

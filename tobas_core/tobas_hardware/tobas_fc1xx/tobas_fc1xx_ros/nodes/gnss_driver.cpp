@@ -75,13 +75,6 @@ bool GnssDriverNode::configure()
     return false;
   }
 
-  // The measurement rate cannot be too short because an overly high frequency fills the FIFO and causes a time shift.
-  constexpr uint16_t kMeasRate = 20;  // [Hz]
-  if (!gnss_.configureMeasurementRate(1000 / kMeasRate)) {
-    TOBAS_ERROR("Failed to configure measurement rate.");
-    return false;
-  }
-
   // Enable GPS + SBAS + QZSS.
   // According to the datasheet, combining multiple main GNSS systems lowers the output frequency
   // while providing only a small accuracy improvement.
@@ -149,6 +142,12 @@ bool GnssDriverNode::configure()
   // I2C and UART should already be disabled because D_SEL is off.
   if (!gnss_.enableUsb(false)) {
     TOBAS_ERROR("Failed to disable USB interface.");
+    return false;
+  }
+
+  // The measurement rate cannot be too short because an overly high frequency fills the FIFO and causes a time shift.
+  if (!gnss_.configureMeasurementRate()) {
+    TOBAS_ERROR("Failed to configure measurement rate.");
     return false;
   }
 
