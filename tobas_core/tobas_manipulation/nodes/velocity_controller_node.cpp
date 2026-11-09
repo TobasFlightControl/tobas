@@ -34,6 +34,7 @@ private:
 
   Drone::ConstSharedPtr drone_;
   kdl::Tree tree_;
+  bool tree_received_ = false;
 
   kdl::TreeJointParser jnt_parser_;
   kdl::TreeTaskSpaceVelCtrl vel_ctrl_;
@@ -256,6 +257,7 @@ void VelocityControllerNode::droneCb(const Drone::ConstSharedPtr& _drone)
 void VelocityControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& _tree)
 {
   tree_ = *_tree;
+  tree_received_ = true;
 
   jnt_parser_.updateInternalDataStructures();
   vel_ctrl_.updateInternalDataStructures();
@@ -265,7 +267,7 @@ void VelocityControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& _tree)
 
 void VelocityControllerNode::currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _cur_js)
 {
-  if (tree_.empty()) {
+  if (!tree_received_) {
     return;
   }
   if (home_js_.states.empty()) {

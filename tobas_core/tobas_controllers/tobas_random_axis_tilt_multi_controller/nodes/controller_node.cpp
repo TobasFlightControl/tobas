@@ -47,6 +47,8 @@ public:
 private:
   Drone drone_;
   kdl::Tree tree_;
+  bool drone_received_ = false;
+  bool tree_received_ = false;
 
   TreeJointStateConverter js_converter_;
 
@@ -347,6 +349,7 @@ void ControllerNode::tiltAsixSingularDeclinationUBCb(double _ub_deg)
 void ControllerNode::droneCb(const Drone::ConstSharedPtr& _drone)
 {
   drone_ = *_drone;
+  drone_received_ = true;
 
   if (!js_sub_ && _drone->hasServoJoint()) {
     js_sub_ = createSubscriber(topic::kJointStates, &self::jointStateCb, this);
@@ -355,7 +358,7 @@ void ControllerNode::droneCb(const Drone::ConstSharedPtr& _drone)
     js_sub_.reset();
   }
 
-  if (!tree_.empty()) {
+  if (drone_received_ && tree_received_) {
     updateInternalDataStructures();
   }
 }
@@ -363,8 +366,9 @@ void ControllerNode::droneCb(const Drone::ConstSharedPtr& _drone)
 void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& _tree)
 {
   tree_ = *_tree;
+  tree_received_ = true;
 
-  if (!drone_.empty()) {
+  if (drone_received_ && tree_received_) {
     updateInternalDataStructures();
   }
 }
@@ -618,12 +622,12 @@ void ControllerNode::rateCommandCb(const tobas_command_msgs::Rate::ConstSharedPt
 
 void ControllerNode::checkTopicsTimerCb()
 {
-  if (drone_.empty()) {
+  if (!drone_received_) {
     TOBAS_WARN("Waiting for '", topic::kDrone, "'.");
     return;
   }
 
-  if (tree_.empty()) {
+  if (!tree_received_) {
     TOBAS_WARN("Waiting for '", topic::kKdlTree, "'.");
     return;
   }

@@ -52,6 +52,8 @@ private:
 
   Drone drone_;
   kdl::Tree tree_;
+  bool drone_received_ = false;
+  bool tree_received_ = false;
 
   kdl::TreeMassHolder mass_holder_;
   MicroDisturbanceEoM eom_;
@@ -421,8 +423,9 @@ void ControllerNode::deflectionRateWeightLog10Cb(long _p)
 void ControllerNode::droneCb(const Drone::ConstSharedPtr& _drone)
 {
   drone_ = *_drone;
+  drone_received_ = true;
 
-  if (!tree_.empty()) {
+  if (drone_received_ && tree_received_) {
     initialize();
   }
 }
@@ -430,8 +433,9 @@ void ControllerNode::droneCb(const Drone::ConstSharedPtr& _drone)
 void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& _tree)
 {
   tree_ = *_tree;
+  tree_received_ = true;
 
-  if (!drone_.empty()) {
+  if (drone_received_ && tree_received_) {
     initialize();
   }
 }
@@ -520,12 +524,12 @@ void ControllerNode::commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitc
 
 void ControllerNode::checkTopicsTimerCb()
 {
-  if (drone_.empty()) {
+  if (!drone_received_) {
     TOBAS_WARN("Waiting for '", topic::kDrone, "'.");
     return;
   }
 
-  if (tree_.empty()) {
+  if (!tree_received_) {
     TOBAS_WARN("Waiting for '", topic::kKdlTree, "'.");
     return;
   }

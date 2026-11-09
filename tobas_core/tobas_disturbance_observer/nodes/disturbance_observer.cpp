@@ -28,11 +28,13 @@ public:
 
 private:
   kdl::Tree tree_;
-  Drone::ConstSharedPtr drone_;
+  bool tree_received_ = false;
 
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
   TreeJointStateConverter js_converter_;
+
+  Drone::ConstSharedPtr drone_;
 
   std::map<std::string, double> rotor_thrusts_;
   bool js_received_ = false;
@@ -72,6 +74,7 @@ DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& _opt
 void DisturbanceObserverNode::treeCb(const kdl::Tree::ConstSharedPtr& _tree)
 {
   tree_ = *_tree;
+  tree_received_ = true;
 
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
@@ -86,7 +89,9 @@ void DisturbanceObserverNode::droneCb(const Drone::ConstSharedPtr& _drone)
   js_received_ = false;
 
   if (_drone->hasServoJoint()) {
-    joint_states_sub_ = createSubscriber(topic::kJointStates, &self::jointStatesCb, this);
+    if (!joint_states_sub_) {
+      joint_states_sub_ = createSubscriber(topic::kJointStates, &self::jointStatesCb, this);
+    }
   }
   else {
     joint_states_sub_.reset();
@@ -95,10 +100,6 @@ void DisturbanceObserverNode::droneCb(const Drone::ConstSharedPtr& _drone)
 
 void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& _rotor_states)
 {
-  if (tree_.empty()) {
-    return;
-  }
-
   if (!drone_) {
     return;
   }
@@ -107,7 +108,7 @@ void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArr
     const auto thrust_it = rotor_thrusts_.find(elem.link_name);
     if (thrust_it == rotor_thrusts_.end()) {
       // Add this rotor if the link name is included in the vehicle model.
-      if (!tree_.hasSegment(elem.link_name) || !drone_->prop->rotors.contains(elem.link_name)) {
+      if (!drone_->prop->rotors.contains(elem.link_name)) {
         TOBAS_ERROR("The drone does not have rotor named '", elem.link_name, "'.");
         continue;
       }
@@ -151,7 +152,7 @@ void DisturbanceObserverNode::jointStatesCb(const tobas_msgs::msg::JointStateArr
 
 void DisturbanceObserverNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom)
 {
-  if (tree_.empty()) {
+  if (!tree_received_) {
     return;
   }
 

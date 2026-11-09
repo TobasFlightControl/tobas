@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <cassert>
+#include <cstddef>
 #include <expected>
 #include <memory>
 #include <string>
@@ -77,9 +77,6 @@ public:
   /** Floating-link system with 6 DoF. */
   static Tree FloatingBase(const std::string& _world_name, const std::string& _base_name);
 
-  /** Clear all segments. */
-  void clear();
-
   /** Check validity. */
   std::expected<void, std::string> validate() const;
 
@@ -121,8 +118,6 @@ public:
   inline SegmentMap::const_iterator getSegment(const std::string& _seg_name) const;
   inline SegmentMap::const_iterator getRootSegment() const;
   inline const std::string& getRootName() const;
-
-  inline bool empty() const;
 
   inline bool hasSegment(const std::string& _seg_name) const;
 
@@ -184,13 +179,7 @@ inline SegmentMap::const_iterator Tree::getRootSegment() const
 
 inline const std::string& Tree::getRootName() const
 {
-  assert(root_seg_ != segments_.end());
   return root_seg_->first;
-}
-
-inline bool Tree::empty() const
-{
-  return getNrOfSegments() == 0;
 }
 
 inline bool Tree::hasSegment(const std::string& _seg_name) const

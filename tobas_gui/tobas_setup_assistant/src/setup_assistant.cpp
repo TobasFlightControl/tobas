@@ -96,8 +96,8 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr _node)
 
 void SetupAssistantWidget::reset()
 {
-  uadf_.clear();
-  tree_.clear();
+  uadf_ = uadf::Model();
+  tree_ = kdl::Tree();
   settings_->setToDefaults();
 }
 

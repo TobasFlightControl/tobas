@@ -26,6 +26,7 @@
 
 #include "tobas_kdl/tree.hpp"
 
+#include <cassert>
 #include <iostream>
 
 namespace tobas::kdl
@@ -46,10 +47,9 @@ Tree& Tree::operator=(const Tree& _arg)
     return *this;
   }
 
-  clear();
-  if (_arg.empty()) {
-    return *this;
-  }
+  segments_.clear();
+  root_seg_ = segments_.end();
+  nj_ = 0;
 
   const auto& root_name = _arg.getRootName();
   root_seg_ = segments_.insert(std::make_pair(root_name, TreeElement::Root(root_name))).first;
@@ -143,13 +143,6 @@ Tree Tree::FloatingBase(const std::string& _world_name, const std::string& _base
   }
 
   return tree;
-}
-
-void Tree::clear()
-{
-  segments_.clear();
-  root_seg_ = segments_.end();
-  nj_ = 0;
 }
 
 std::expected<void, std::string> Tree::validate() const

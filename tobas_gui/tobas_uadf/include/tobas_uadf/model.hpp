@@ -26,8 +26,6 @@ public:
 
   explicit Model();
 
-  void clear();
-
   std::expected<void, std::string> validate() const;
 };
 }  // namespace tobas::uadf

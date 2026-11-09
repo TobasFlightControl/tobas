@@ -9,15 +9,6 @@ Model::Model()
 {
 }
 
-void Model::clear()
-{
-  urdf.reset();
-
-  thrusts.clear();
-  control_surfaces.clear();
-  tilts.clear();
-}
-
 std::expected<void, std::string> Model::validate() const
 {
   // The URDF exists.

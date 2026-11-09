@@ -108,10 +108,6 @@ void TreeServerNode::attachCb(const AttachSrv::Request::ConstSharedPtr& _req, co
 {
   _res->success = false;
 
-  if (tree_.empty()) {
-    _res->message = "Robot description has not been initialized.";
-    return;
-  }
   if (_req->load_id.empty()) {
     _res->message = "Load ID must not be empty.";
     return;
@@ -150,10 +146,6 @@ void TreeServerNode::detachCb(const DetachSrv::Request::ConstSharedPtr& _req, co
 {
   _res->success = false;
 
-  if (tree_.empty()) {
-    _res->message = "Robot description has not been initialized.";
-    return;
-  }
   if (!load_ids_.contains(_req->load_id)) {
     _res->message = "Load '" + _req->load_id + "' is not attached.";
     return;

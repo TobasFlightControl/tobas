@@ -35,6 +35,7 @@ private:
 
   Drone::ConstSharedPtr drone_;
   kdl::Tree tree_;
+  bool tree_received_ = false;
 
   kdl::TreeJointParser jnt_parser_;
   kdl::TreeJntSpacePID pid_js_;
@@ -289,6 +290,7 @@ void EffortControllerNode::droneCb(const Drone::ConstSharedPtr& _drone)
 void EffortControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& _tree)
 {
   tree_ = *_tree;
+  tree_received_ = true;
 
   jnt_parser_.updateInternalDataStructures();
   pid_js_.updateInternalDataStructures();
@@ -299,7 +301,7 @@ void EffortControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& _tree)
 
 void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _cur_js)
 {
-  if (tree_.empty()) {
+  if (!tree_received_) {
     return;
   }
   if (home_js_.states.empty()) {

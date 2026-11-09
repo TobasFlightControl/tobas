@@ -56,9 +56,7 @@ LandingDetectorNode::LandingDetectorNode(const rclcpp::NodeOptions& _options)
   force_z_lpf_.setCutoffFrequency(kDistForceLpfCutoff);
 
   landed_pub_ = createPublisher<tobas_msgs::msg::LandedState>(topic::kLanded);
-
   tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
-  dist_force_sub_ = createSubscriber(topic::kDisturbanceForce, &self::disturbanceForceCb, this);
 }
 
 void LandingDetectorNode::publishCurrentLandedState(const builtin_interfaces::msg::Time& _stamp)
@@ -80,17 +78,15 @@ void LandingDetectorNode::changeState(bool _landed, const builtin_interfaces::ms
 void LandingDetectorNode::treeCb(const kdl::Tree::ConstSharedPtr& _tree)
 {
   tree_ = *_tree;
-
   mass_holder_.updateInternalDataStructures();
+
+  if (!dist_force_sub_) {
+    dist_force_sub_ = createSubscriber(topic::kDisturbanceForce, &self::disturbanceForceCb, this);
+  }
 }
 
 void LandingDetectorNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& _dist_force)
 {
-  // Verify that the KDL tree has been received.
-  if (tree_.empty()) {
-    return;
-  }
-
   // Get the latest vertical force wrt. the world frame.
   const auto& force_z = _dist_force->wrench.force.z();
 
