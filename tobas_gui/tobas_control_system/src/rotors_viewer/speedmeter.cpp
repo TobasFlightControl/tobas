@@ -3,16 +3,35 @@
 
 #include "tobas_control_system/rotors_viewer/speedmeter.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 #include <QEvent>
 #include <QResizeEvent>
 #include <QVBoxLayout>
 
+#include <qwt/qwt_scale_draw.h>
+#include <qwt/qwt_text.h>
+
 #include <tobas_qt_tools/color.hpp>
 
 namespace tobas::gui::ctrl
 {
+namespace
+{
+class RpmScaleDraw : public QwtScaleDraw
+{
+public:
+  QwtText label(double _value) const override
+  {
+    if (std::abs(_value) >= 1000.0) {
+      return QwtText(QString::number(_value / 1000.0, 'g', 6) + "k");
+    }
+    return QwtScaleDraw::label(_value);
+  }
+};
+}  // namespace
+
 SpeedmeterWidget::SpeedmeterWidget()
 {
   setAutoFillBackground(true);
@@ -25,6 +44,7 @@ SpeedmeterWidget::SpeedmeterWidget()
   bottom_text_->setAlignment(Qt::AlignCenter);
 
   gauge_ = new QwtThermo();
+  gauge_->setScaleDraw(new RpmScaleDraw());
   gauge_->setOrientation(Qt::Vertical);
   gauge_->setScale(0.0, 100.0);
   gauge_->setPipeWidth(50);
@@ -109,11 +129,13 @@ void SpeedmeterWidget::setValue(double _value)
 void SpeedmeterWidget::setTopText(const QString& _text)
 {
   top_text_->setText(_text);
+  updateGaugeAlignment();
 }
 
 void SpeedmeterWidget::setBottomText(const QString& _text)
 {
   bottom_text_->setText(_text);
+  updateGaugeAlignment();
 }
 
 bool SpeedmeterWidget::eventFilter(QObject* _watched, QEvent* _event)
@@ -131,13 +153,25 @@ void SpeedmeterWidget::resizeEvent(QResizeEvent* _event)
   // Reserve the available height for the gauge when the meter is compact.
   constexpr int kMinHeightForBottomText = 180;
   bottom_text_->setVisible(_event->size().height() >= kMinHeightForBottomText);
+  updateGaugeAlignment();
 }
 
 void SpeedmeterWidget::updateGaugeAlignment()
 {
-  // Balance the scale on the left so the bar shares the labels' horizontal center.
   const auto scale_width = gauge_->minimumSizeHint().width() - gauge_->pipeWidth() - 2 * gauge_->borderWidth();
-  scale_spacer_->changeSize(scale_width, 0, QSizePolicy::Fixed, QSizePolicy::Minimum);
+
+  top_text_->setContentsMargins(0, 0, 0, 0);
+  bottom_text_->setContentsMargins(0, 0, 0, 0);
+  const auto label_width = std::max(
+    top_text_->minimumSizeHint().width(), bottom_text_->isHidden() ? 0 : bottom_text_->minimumSizeHint().width());
+  const auto pipe_width = gauge_->pipeWidth() + 2 * gauge_->borderWidth();
+
+  // Share alignment space between the labels and the gauge to minimize the meter width.
+  const auto spacer_width = std::clamp((label_width - pipe_width + 1) / 2, 0, scale_width);
+  const auto label_offset = scale_width - spacer_width;
+  top_text_->setContentsMargins(label_offset, 0, 0, 0);
+  bottom_text_->setContentsMargins(label_offset, 0, 0, 0);
+  scale_spacer_->changeSize(spacer_width, 0, QSizePolicy::Fixed, QSizePolicy::Minimum);
   gauge_row_->invalidate();
 }
 

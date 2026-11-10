@@ -3,6 +3,8 @@
 
 #include "tobas_control_system/rotors_viewer/rotors_viewer.hpp"
 
+#include <QFrame>
+
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
@@ -16,7 +18,15 @@ constexpr char kDeadBackgroundColor[] = "red";
 
 RotorsViewerWiddget::RotorsViewerWiddget(const rqt::RosQtBridge& _bridge, const Drone& _drone) : drone_(_drone)
 {
-  cols_ = new QHBoxLayout(this);
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+  cols_ = new QHBoxLayout();
+  cols_->setContentsMargins(1, 0, 1, 0);
+  cols_->setSpacing(2);
+  cols_->setSizeConstraint(QLayout::SetMinAndMaxSize);
+  setLayout(cols_);
+  setBackgroundTransparent();
 
   connect(&_bridge, &rqt::RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
   connect(&_bridge, &rqt::RosQtBridge::rotorLivelinessReceived, this, &self::rotorLivelinessCb, Qt::QueuedConnection);
