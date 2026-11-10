@@ -179,6 +179,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr _
   header_cols->addLayout(configuration);
 
   const auto rows = new QVBoxLayout(this);
+  rows->setContentsMargins(0, 0, 0, 0);
   rows->addLayout(header_cols);
   rows->addWidget(app_sw_);
 
