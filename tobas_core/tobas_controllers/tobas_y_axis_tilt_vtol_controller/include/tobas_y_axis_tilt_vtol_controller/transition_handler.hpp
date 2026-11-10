@@ -4,6 +4,7 @@
 
 #include <tobas_kdl/vector.hpp>
 #include <tobas_kdl/rotation.hpp>
+#include <tobas_std_tools/range.hpp>
 
 #include <tobas_command_msgs/msg/vel_roll_side_slip_mode.hpp>
 
@@ -19,6 +20,8 @@ class TransitionHandler
 {
   static constexpr double kUpwardAngle = 0.0; // [rad]
   static constexpr double kForwardAngle = 0.5 * M_PI; // [rad]
+  static constexpr double kSafePitchRate = 10.0 / 180.0 * M_PI; // 仮, [rad/s]
+
 public:
   enum CommandType {
     MANUAL_MULTICOPTER,
@@ -42,7 +45,8 @@ public:
     double& thrust_angle);
 
   void setCruiseVelocity(const double& cruise_velocity); // [m/s]
-  void setMaxTiltVelocity(const double& tilt_velocity); // [rad]
+  void setMinTransitionTime(const double& time); // [s]
+  void setAoARange(const st::Range<double>& alpha_limit); // [rad]
   void setHorizontalNaturalFreq(const double& freq); // [rad/s]
   void setVerticalNatualFreq(const double& freq); // [rad/s]
 

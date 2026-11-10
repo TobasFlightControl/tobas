@@ -137,7 +137,7 @@ private:
 
   // Parameter callbacks
   bool cruiseVelocityCb(const double& p);
-  bool maxTiltVelocityCb(const double& p);
+  bool minTransitionTimeCb(const double& p);
   bool horizontalNaturalFreqCb(const double& p);
   bool horizontalDampingRatioCb(const double& p);
   bool verticalNaturalFreqCb(const double& p);
@@ -169,7 +169,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register dynamics parameters
   addDynamicDoubleParam("cruise_velocity", &self::cruiseVelocityCb, this, 5, 3, 1, 9, " m/s");
-  addDynamicDoubleParam("max_tilt_velocity", &self::maxTiltVelocityCb, this, 15, 2, 1, 6, " deg/s");
+  addDynamicDoubleParam("max_tilt_velocity", &self::minTransitionTimeCb, this, 1, 5, 1, 10, " s");
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFreqCb, this, 0.2, 5, 1, 30, " rad/s");
   addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFreqCb, this, 0.2, 10, 1, 30, " rad/s");
   addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFreqCb, this, 1.0, 10, 1, 30, " rad/s");
@@ -214,6 +214,8 @@ bool ControllerNode::initialize()
     return false;
   }
 
+  transition_handler_.setAoARange(drone_.fixed_wing->vehicle.alpha_limit);
+
   is_initialized_ = true;
   return true;
 }
@@ -253,9 +255,9 @@ bool ControllerNode::cruiseVelocityCb(const double& p)
   return true;
 }
 
-bool ControllerNode::maxTiltVelocityCb(const double& p)
+bool ControllerNode::minTransitionTimeCb(const double& p)
 {
-  transition_handler_.setMaxTiltVelocity(st::deg2rad(p));
+  transition_handler_.setMinTransitionTime(p);
   return true;
 }
 

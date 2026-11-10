@@ -11,6 +11,7 @@ namespace y_axis_tilt_vtol
 TransitionHandler::TransitionHandler(TranslationalEoM& trans_eom)
 : trans_eom_(trans_eom)
 {
+  forward_transition_traj_.setMaxPitchRate(kSafePitchRate);
 }
 
 void TransitionHandler::updateCommandType(
@@ -30,10 +31,16 @@ void TransitionHandler::setCruiseVelocity(const double& cruise_velocity)
   forward_transition_traj_.setCruiseVelocity(cruise_velocity);
 }
 
-void TransitionHandler::setMaxTiltVelocity(const double& max_tilt_velocity)
+void TransitionHandler::setMinTransitionTime(const double& time)
 {
+  const auto max_tilt_velocity = kForwardAngle / time;
   forward_transition_traj_.setMaxTiltVelocity(max_tilt_velocity);
   backward_transition_traj_.setMaxTiltVelocity(max_tilt_velocity);
+}
+
+void TransitionHandler::setAoARange(const st::Range<double>& alpha_limit)
+{
+  forward_transition_traj_.setMinAoA(alpha_limit.lower);
 }
 
 void TransitionHandler::setHorizontalNaturalFreq(const double& freq)
@@ -60,8 +67,9 @@ void TransitionHandler::solve(
   if (last_command_type_ == CommandType::FORWARD_FLIGHT) {
     if (require_initialization_) {
       // 現在の前進速度から速度のslopeを作る
+      const auto [cur_roll, cur_pitch, cur_yaw] = cur_rot.getRPY();
       const auto cur_vel_YW = calcVelYW(cur_vel_G, cur_rot);
-      forward_transition_traj_.setStartConditions(cur_time, thrust_angle, cur_vel_YW.x());
+      forward_transition_traj_.setStartConditions(cur_time, cur_pitch, thrust_angle, cur_vel_YW.x());
       require_initialization_ = false;
     }
     thrust_angle = forward_transition_traj_.calcTargetTiltAngle(cur_time);
