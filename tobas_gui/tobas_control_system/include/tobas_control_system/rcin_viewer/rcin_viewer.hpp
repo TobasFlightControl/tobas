@@ -30,7 +30,6 @@ private:
   StickPanel* yaw_pitch_;
   StickPanel* roll_throttle_;
 
-  QLabel* enable_;
   QLabel* kill_;
   QLabel* sub_mode_;
   QLabel* acrobat_;

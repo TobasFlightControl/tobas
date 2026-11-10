@@ -18,14 +18,13 @@ RCInputViewerWidget::RCInputViewerWidget(const rqt::RosQtBridge& _bridge)
   yaw_pitch_ = new StickPanel("Yaw / Pitch", "Yaw", "Pitch");
   roll_throttle_ = new StickPanel("Roll / Throttle", "Roll", "Throttle");
 
-  enable_ = makeBadge();
   kill_ = makeBadge();
   sub_mode_ = makeBadge();
   acrobat_ = makeBadge();
   stabilize_ = makeBadge();
   loiter_ = makeBadge();
 
-  constexpr int kModeBatchMinWidth = 40;
+  constexpr int kModeBatchMinWidth = 44;
   acrobat_->setMinimumWidth(kModeBatchMinWidth);
   stabilize_->setMinimumWidth(kModeBatchMinWidth);
   loiter_->setMinimumWidth(kModeBatchMinWidth);
@@ -36,23 +35,21 @@ RCInputViewerWidget::RCInputViewerWidget(const rqt::RosQtBridge& _bridge)
   switch_cols->addWidget(sub_mode_, 1);
 
   const auto mode_cols = new QHBoxLayout();
-  mode_cols->setSpacing(1);
+  mode_cols->setSpacing(2);
   mode_cols->addWidget(acrobat_, 1);
   mode_cols->addWidget(stabilize_, 1);
   mode_cols->addWidget(loiter_, 1);
 
   const auto status_rows = new QVBoxLayout();
-  status_rows->setSpacing(1);
-  status_rows->addWidget(enable_, 1);
-  status_rows->addLayout(switch_cols, 1);
-  qt::addWidgetCenter(new QLabel("Flight Mode"), status_rows, 0);
-  status_rows->addLayout(mode_cols, 1);
+  status_rows->setSpacing(2);
+  status_rows->addLayout(switch_cols, 2);
+  status_rows->addLayout(mode_cols, 3);
 
   const auto cols = new QHBoxLayout(this);
   cols->setContentsMargins(1, 0, 1, 0);
-  cols->addWidget(yaw_pitch_, 1);
-  cols->addWidget(roll_throttle_, 1);
-  cols->addLayout(status_rows, 0);
+  cols->addWidget(yaw_pitch_, 3);
+  cols->addWidget(roll_throttle_, 3);
+  cols->addLayout(status_rows, 1);
 
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
@@ -62,7 +59,7 @@ void RCInputViewerWidget::reset()
 {
   yaw_pitch_->reset();
   roll_throttle_->reset();
-  setBadge(enable_, "---", qt::color::gray90());
+
   setBadge(kill_, "Kill: ---", qt::color::gray90());
   setBadge(sub_mode_, "Sub: ---", qt::color::gray90());
   setMode(static_cast<FlightMode>(-1));
@@ -103,14 +100,15 @@ void RCInputViewerWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _
 
   yaw_pitch_->setValues(-_rcin->yaw, _rcin->pitch, true, _rcin->enable);
   roll_throttle_->setValues(_rcin->roll, _rcin->throttle, true, _rcin->enable);
+
   setBadge(
-    enable_, _rcin->enable ? "Enabled" : "Disabled", _rcin->enable ? qt::color::lightBlue() : qt::color::gray90());
-  setBadge(
-    kill_, QString("Kill: ") + (_rcin->kill ? "ON" : "OFF"), _rcin->kill ? qt::color::lightRed() : qt::color::gray90());
+    kill_,
+    QString("Kill: ") + (_rcin->kill ? "ON" : "OFF"),
+    _rcin->enable && _rcin->kill ? qt::color::lightRed() : qt::color::gray90());
   setBadge(
     sub_mode_,
     QString("Sub: ") + (_rcin->sub_mode ? "ON" : "OFF"),
-    _rcin->sub_mode ? qt::color::lightBlue() : qt::color::gray90());
-  setMode(_rcin->mode);
+    _rcin->enable && _rcin->sub_mode ? qt::color::lightBlue() : qt::color::gray90());
+  setMode(_rcin->enable ? _rcin->mode : static_cast<FlightMode>(-1));
 }
 }  // namespace tobas::gui::ctrl::rcin
