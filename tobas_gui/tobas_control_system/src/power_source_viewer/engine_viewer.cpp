@@ -55,7 +55,7 @@ void EngineViewerWidget::updateFuelQuantity(double _fuel_quantity)
   const auto fuel_rate = math::remap(_fuel_quantity, 0.0, kMaxFuelQuantity, 0.0, 100.0);
   fuel_quantity_->setPercentage(fuel_rate);
   fuel_quantity_->setFormat(
-    std::format("{:.2f} L ({:.0f} %)", _fuel_quantity, std::clamp(fuel_rate, 0.0, 100.0)).c_str());
+    std::format("{:.1f} L ({:.0f} %)", _fuel_quantity, std::clamp(fuel_rate, 0.0, 100.0)).c_str());
 
   if (fuel_rate > 20.0) {
     fuel_quantity_->setFillColor(qt::color::green500());

@@ -15,7 +15,7 @@ GnssViewerWidget::GnssViewerWidget(const rqt::RosQtBridge& _bridge)
   status_ = new qt::FramedLabel();
   nsats_ = new qt::FramedLabel();
 
-  constexpr int kLabelMinWidth = 60;
+  constexpr int kLabelMinWidth = 48;
   const auto row_height = qt::ProgressBar().sizeHint().height();
   status_->setMinimumSize(kLabelMinWidth, row_height);
   nsats_->setMinimumSize(kLabelMinWidth, row_height);

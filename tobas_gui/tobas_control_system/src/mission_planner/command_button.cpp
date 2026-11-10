@@ -8,7 +8,6 @@ namespace tobas::gui::ctrl
 CommandButton::CommandButton(const QString& _text) : super(_text)
 {
   setMaximumWidth(100);
-  setMinimumHeight(35);
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 }
 }  // namespace tobas::gui::ctrl

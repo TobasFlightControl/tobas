@@ -42,8 +42,8 @@ RCInputViewerWidget::RCInputViewerWidget(const rqt::RosQtBridge& _bridge)
 
   const auto status_rows = new QVBoxLayout();
   status_rows->setSpacing(2);
-  status_rows->addLayout(switch_cols, 2);
-  status_rows->addLayout(mode_cols, 3);
+  status_rows->addLayout(switch_cols, 5);
+  status_rows->addLayout(mode_cols, 8);
 
   const auto cols = new QHBoxLayout(this);
   cols->setContentsMargins(1, 0, 1, 0);

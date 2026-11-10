@@ -41,12 +41,12 @@ ControlSystemWidget::ControlSystemWidget(const rqt::RosQtBridge& _bridge, const 
   cols2->addWidget(health_viewer_, 0);
 
   const auto rows1 = new QVBoxLayout();
-  rows1->addWidget(pose_viewer_, 2);
-  rows1->addLayout(cols2, 3);
+  rows1->addWidget(pose_viewer_, 5);
+  rows1->addLayout(cols2, 8);
 
   const auto cols1 = new QHBoxLayout();
-  cols1->addLayout(rows1, 2);
-  cols1->addWidget(mission_planner_, 3);
+  cols1->addLayout(rows1, 5);
+  cols1->addWidget(mission_planner_, 8);
 
   const auto rows0 = new QVBoxLayout(this);
   rows0->setContentsMargins(0, 0, 0, 0);
