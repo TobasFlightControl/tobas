@@ -6,7 +6,6 @@
 #include <QDebug>
 #include <QHeaderView>
 #include <QScrollBar>
-#include <QVBoxLayout>
 
 namespace tobas::gui::ctrl
 {
@@ -18,33 +17,24 @@ constexpr int kLevelCol = 2;
 constexpr int kMessageCol = 3;
 }  // namespace
 
-ConsoleWidget::ConsoleWidget(const rqt::RosQtBridge& _bridge)
+ConsoleWidget::ConsoleWidget(const rqt::RosQtBridge& _bridge) : super(0, 4)
 {
-  table_ = new qt::TableWidget(0, 4);
-  table_->setHorizontalHeaderLabels({ "Stamp", "Name", "Level", "Message" });
-  table_->setEditTriggers(QAbstractItemView::NoEditTriggers);  // Disable editing.
-  table_->setSelectionMode(QAbstractItemView::NoSelection);    // Disable selection.
-  table_->setFocusPolicy(Qt::NoFocus);                         // Disable focus.
-  table_->setHeaderSectionsClickable(false);                   // Disable header clicks.
+  setHorizontalHeaderLabels({ "Stamp", "Name", "Level", "Message" });
+  setEditTriggers(QAbstractItemView::NoEditTriggers);  // Disable editing.
+  setSelectionMode(QAbstractItemView::NoSelection);    // Disable selection.
+  setFocusPolicy(Qt::NoFocus);                         // Disable focus.
+  setHeaderSectionsClickable(false);                   // Disable header clicks.
 
-  const auto hor_header = table_->horizontalHeader();
+  const auto hor_header = horizontalHeader();
   hor_header->setSectionResizeMode(kStampCol, QHeaderView::ResizeToContents);
   hor_header->setSectionResizeMode(kNameCol, QHeaderView::ResizeToContents);
   hor_header->setSectionResizeMode(kLevelCol, QHeaderView::ResizeToContents);
   hor_header->setSectionResizeMode(kMessageCol, QHeaderView::Stretch);
 
-  const auto ver_header = table_->verticalHeader();
+  const auto ver_header = verticalHeader();
   ver_header->setVisible(false);
 
-  const auto rows = new QVBoxLayout(this);
-  rows->addWidget(table_);
-
   connect(&_bridge, &rqt::RosQtBridge::messageReceived, this, &self::messageCb, Qt::QueuedConnection);
-}
-
-void ConsoleWidget::reset()
-{
-  table_->removeAll();
 }
 
 void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& _msg)
@@ -52,22 +42,22 @@ void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& _m
   // TODO: Screen messages with buttons.
 
   // Add a row at the top.
-  table_->insertRow(0);
+  insertRow(0);
 
   // If rows overflow, delete the oldest row.
-  const auto num_rows = table_->rowCount();
+  const auto num_rows = rowCount();
   constexpr int kMaxRows = 1000;  // Maximum number of messages to display.
   if (num_rows > kMaxRows) {
-    table_->removeRow(num_rows - 1);
+    removeRow(num_rows - 1);
   }
 
   const auto stamp_text = QString::number(_msg->header.stamp.sec) + "." + QString::number(_msg->header.stamp.nanosec);
   const auto stamp_item = new QTableWidgetItem(stamp_text);
-  table_->setItem(0, kStampCol, stamp_item);
+  setItem(0, kStampCol, stamp_item);
 
   const auto name = QString::fromStdString(_msg->name);
   const auto name_item = new QTableWidgetItem(name);
-  table_->setItem(0, kNameCol, name_item);
+  setItem(0, kNameCol, name_item);
 
   const auto level_item = new QTableWidgetItem();
 
@@ -121,11 +111,11 @@ void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& _m
     }
   }
 
-  table_->setItem(0, kLevelCol, level_item);
-  table_->setItem(0, kMessageCol, message_item);
+  setItem(0, kLevelCol, level_item);
+  setItem(0, kMessageCol, message_item);
 
   // Adjust the scroll position so the display position does not change before and after adding the row.
-  const auto sb = table_->verticalScrollBar();
+  const auto sb = verticalScrollBar();
   const auto old_scroll = sb->value();
   if (old_scroll > 0) {
     sb->setValue(old_scroll + 1);

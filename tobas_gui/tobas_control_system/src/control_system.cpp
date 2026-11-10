@@ -62,7 +62,7 @@ void ControlSystemWidget::reset()
   gnss_viewer_->reset();
   rcin_viewer_->reset();
   rotors_viewer_->reset();
-  console_->reset();
+  console_->removeAll();
   health_viewer_->reset();
   mission_planner_->reset();
 }
