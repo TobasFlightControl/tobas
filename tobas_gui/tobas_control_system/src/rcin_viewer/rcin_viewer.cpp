@@ -18,35 +18,41 @@ RCInputViewerWidget::RCInputViewerWidget(const rqt::RosQtBridge& _bridge)
   yaw_pitch_ = new StickPanel("Yaw / Pitch", "Yaw", "Pitch");
   roll_throttle_ = new StickPanel("Roll / Throttle", "Roll", "Throttle");
 
-  enable_ = makeBadge("---");
-  kill_ = makeBadge("Kill: ---");
-  sub_mode_ = makeBadge("Sub: ---");
-  acrobat_ = makeBadge("Acrobat");
-  stabilize_ = makeBadge("Stabilize");
-  loiter_ = makeBadge("Loiter");
+  enable_ = makeBadge();
+  kill_ = makeBadge();
+  sub_mode_ = makeBadge();
+  acrobat_ = makeBadge();
+  stabilize_ = makeBadge();
+  loiter_ = makeBadge();
+
+  constexpr int kModeBatchMinWidth = 40;
+  acrobat_->setMinimumWidth(kModeBatchMinWidth);
+  stabilize_->setMinimumWidth(kModeBatchMinWidth);
+  loiter_->setMinimumWidth(kModeBatchMinWidth);
 
   // Layout
   const auto switch_cols = new QHBoxLayout();
   switch_cols->addWidget(kill_, 1);
   switch_cols->addWidget(sub_mode_, 1);
 
-  const auto mode_rows = new QVBoxLayout();
-  qt::addWidgetCenter(new QLabel("Flight Mode"), mode_rows);
-  mode_rows->addWidget(acrobat_);
-  mode_rows->addWidget(stabilize_);
-  mode_rows->addWidget(loiter_);
+  const auto mode_cols = new QHBoxLayout();
+  mode_cols->setSpacing(1);
+  mode_cols->addWidget(acrobat_, 1);
+  mode_cols->addWidget(stabilize_, 1);
+  mode_cols->addWidget(loiter_, 1);
 
   const auto status_rows = new QVBoxLayout();
-  status_rows->addWidget(enable_);
-  status_rows->addLayout(switch_cols);
-  status_rows->addStretch();
-  status_rows->addLayout(mode_rows);
+  status_rows->setSpacing(1);
+  status_rows->addWidget(enable_, 1);
+  status_rows->addLayout(switch_cols, 1);
+  qt::addWidgetCenter(new QLabel("Flight Mode"), status_rows, 0);
+  status_rows->addLayout(mode_cols, 1);
 
   const auto cols = new QHBoxLayout(this);
   cols->setContentsMargins(1, 0, 1, 0);
   cols->addWidget(yaw_pitch_, 1);
   cols->addWidget(roll_throttle_, 1);
-  cols->addLayout(status_rows);
+  cols->addLayout(status_rows, 0);
 
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::rcInputReceived, this, &self::rcInputCb, Qt::QueuedConnection);
@@ -62,14 +68,12 @@ void RCInputViewerWidget::reset()
   setMode(static_cast<FlightMode>(-1));
 }
 
-QLabel* RCInputViewerWidget::makeBadge(const QString& _text) const
+QLabel* RCInputViewerWidget::makeBadge() const
 {
-  const auto badge = new QLabel(_text);
+  const auto badge = new QLabel();
   badge->setAlignment(Qt::AlignCenter);
   badge->setAutoFillBackground(true);
   badge->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-  badge->setMinimumHeight(30);
-  badge->setMinimumWidth(70);
   return badge;
 }
 
@@ -85,9 +89,9 @@ void RCInputViewerWidget::setBadge(QLabel* _badge, const QString& _text, const Q
 
 void RCInputViewerWidget::setMode(FlightMode _mode)
 {
-  setBadge(acrobat_, "Acrobat", _mode == FlightMode::kAcrobat ? qt::color::lightBlue() : qt::color::gray90());
-  setBadge(stabilize_, "Stabilize", _mode == FlightMode::kStabilize ? qt::color::lightBlue() : qt::color::gray90());
-  setBadge(loiter_, "Loiter", _mode == FlightMode::kLoiter ? qt::color::lightBlue() : qt::color::gray90());
+  setBadge(acrobat_, "Acro", _mode == FlightMode::kAcrobat ? qt::color::lightBlue() : qt::color::gray90());
+  setBadge(stabilize_, "Stab", _mode == FlightMode::kStabilize ? qt::color::lightBlue() : qt::color::gray90());
+  setBadge(loiter_, "Loit", _mode == FlightMode::kLoiter ? qt::color::lightBlue() : qt::color::gray90());
 }
 
 void RCInputViewerWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin)
