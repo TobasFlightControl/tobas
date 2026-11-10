@@ -102,6 +102,7 @@ MissionPlannerWidget::MissionPlannerWidget(const rqt::RosQtBridge& _bridge) : sp
   mission_cols->addWidget(qt::makeGroup(commands_), 3);
 
   const auto rows = new QVBoxLayout(this);
+  rows->setContentsMargins(0, 0, 0, 0);
   rows->addWidget(map_, 2);
   rows->addLayout(button_cols, 0);
   rows->addLayout(mission_cols, 1);
