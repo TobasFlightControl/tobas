@@ -33,7 +33,7 @@ ControlSystemWidget::ControlSystemWidget(const rqt::RosQtBridge& _bridge, const 
   const auto rows2 = new QVBoxLayout();
   rows2->addLayout(cols3, 0);
   rows2->addWidget(qt::makeGroup(rcin_viewer_), 2);
-  rows2->addWidget(rotors_viewer_, 2);
+  rows2->addWidget(qt::makeGroup(rotors_viewer_), 2);
   rows2->addWidget(console_, 3);
 
   const auto cols2 = new QHBoxLayout();

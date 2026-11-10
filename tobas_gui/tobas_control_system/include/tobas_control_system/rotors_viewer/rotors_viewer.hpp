@@ -4,16 +4,16 @@
 #pragma once
 
 #include <QHBoxLayout>
+#include <QWidget>
 
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 
 #include "./speedmeter.hpp"
 
 namespace tobas::gui::ctrl
 {
-class RotorsViewerWiddget : public qt::ScrollArea
+class RotorsViewerWiddget : public QWidget
 {
   Q_OBJECT
 

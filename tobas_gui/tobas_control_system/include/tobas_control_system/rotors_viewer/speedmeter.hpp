@@ -18,6 +18,8 @@ class SpeedmeterWidget : public QWidget
 public:
   explicit SpeedmeterWidget();
 
+  QSize minimumSizeHint() const override;
+
   QString getBackgroundColor() const;
   double getMaximumValue() const;
   double getMinimumValue() const;
@@ -41,12 +43,14 @@ private:
   qt::FramedLabel* bottom_text_;
   QwtThermo* gauge_;
   QHBoxLayout* gauge_row_;
-  QSpacerItem* scale_spacer_;
+  QString top_text_value_;
+  QString bottom_text_value_;
 
   double step_size_ = 1.0;
   double value_ = 0.0;
 
-  void updateGaugeAlignment();
   void updateGaugeValue();
+  void updateGaugeAlignment();
+  void updateLabels();
 };
 }  // namespace tobas::gui::ctrl
