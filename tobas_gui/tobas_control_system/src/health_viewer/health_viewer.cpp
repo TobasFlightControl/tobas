@@ -9,6 +9,8 @@ namespace tobas::gui::ctrl
 {
 HealthViewerWidget::HealthViewerWidget(const rqt::RosQtBridge& _bridge)
 {
+  setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+
   rt_compliance_status_ = new StatusWidget("Realtime Compliance");
   battery_voltage_status_ = new StatusWidget("Battery Voltage");
   cpu_temp_status_ = new StatusWidget("CPU Temperature");
