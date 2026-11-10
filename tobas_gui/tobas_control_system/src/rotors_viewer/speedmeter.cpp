@@ -20,7 +20,7 @@ namespace tobas::gui::ctrl
 {
 namespace
 {
-constexpr int kMaxPipeWidth = 50;
+constexpr int kMaxPipeWidth = 48;
 constexpr int kMinHeightForBottomText = 180;
 constexpr int kGaugeBorderWidth = 2;
 constexpr int kMinPipeWidthWithScale = 8;
