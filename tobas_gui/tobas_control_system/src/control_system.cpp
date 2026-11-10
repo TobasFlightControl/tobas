@@ -37,8 +37,8 @@ ControlSystemWidget::ControlSystemWidget(const rqt::RosQtBridge& _bridge, const 
   rows2->addWidget(console_, 3);
 
   const auto cols2 = new QHBoxLayout();
-  cols2->addLayout(rows2, 3);
-  cols2->addWidget(health_viewer_, 1);
+  cols2->addLayout(rows2, 1);
+  cols2->addWidget(health_viewer_, 0);
 
   const auto rows1 = new QVBoxLayout();
   rows1->addWidget(pose_viewer_, 2);
