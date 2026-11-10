@@ -43,6 +43,7 @@ RCInputViewerWidget::RCInputViewerWidget(const rqt::RosQtBridge& _bridge)
   status_rows->addLayout(mode_rows);
 
   const auto cols = new QHBoxLayout(this);
+  cols->setContentsMargins(1, 0, 1, 0);
   cols->addWidget(yaw_pitch_, 1);
   cols->addWidget(roll_throttle_, 1);
   cols->addLayout(status_rows);

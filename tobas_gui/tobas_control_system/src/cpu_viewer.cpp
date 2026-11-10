@@ -5,10 +5,10 @@
 
 #include <format>
 
+#include <QFormLayout>
+
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
 
 namespace tobas::gui::ctrl
 {
@@ -17,15 +17,14 @@ CpuViewerWidget::CpuViewerWidget(const rqt::RosQtBridge& _bridge)
   temp_ = new qt::ProgressBar();
   load_ = new qt::ProgressBar();
 
-  constexpr int kBarHeight = 30;
-  temp_->setFixedHeight(kBarHeight);
-  load_->setFixedHeight(kBarHeight);
-
   // Layout
-  const auto form = new qt::FormLayout(this);
-  constexpr int kLabelPSize = 12;
-  form->addVAlignedRow(new qt::Label("Temp", kLabelPSize), temp_);
-  form->addVAlignedRow(new qt::Label("Load", kLabelPSize), load_);
+  const auto form = new QFormLayout(this);
+  form->setContentsMargins(1, 0, 1, 0);
+  form->setHorizontalSpacing(2);
+  form->setVerticalSpacing(1);
+  form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  form->addRow("CPU Temp", temp_);
+  form->addRow("CPU Load", load_);
 
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::cpuReceived, this, &self::cpuCb, Qt::QueuedConnection);

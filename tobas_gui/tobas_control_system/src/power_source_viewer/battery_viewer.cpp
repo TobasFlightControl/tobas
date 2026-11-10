@@ -7,10 +7,10 @@
 #include <format>
 #include <memory>
 
+#include <QFormLayout>
+
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
 
 namespace tobas::gui::ctrl
 {
@@ -19,15 +19,14 @@ BatteryViewerWidget::BatteryViewerWidget(const rqt::RosQtBridge& _bridge, const 
   voltage_ = new qt::ProgressBar();
   current_ = new qt::ProgressBar();
 
-  constexpr int kBarHeight = 30;
-  voltage_->setFixedHeight(kBarHeight);
-  current_->setFixedHeight(kBarHeight);
-
   // Layout
-  const auto form = new qt::FormLayout(this);
-  constexpr int kLabelPSize = 12;
-  form->addVAlignedRow(new qt::Label("Volt", kLabelPSize), voltage_);
-  form->addVAlignedRow(new qt::Label("Curr", kLabelPSize), current_);
+  const auto form = new QFormLayout(this);
+  form->setContentsMargins(1, 0, 1, 0);
+  form->setHorizontalSpacing(2);
+  form->setVerticalSpacing(1);
+  form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  form->addRow("Voltage", voltage_);
+  form->addRow("Current", current_);
 
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::batteryReceived, this, &self::batteryCb, Qt::QueuedConnection);

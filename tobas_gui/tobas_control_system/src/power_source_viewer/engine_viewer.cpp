@@ -10,7 +10,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
 
 namespace tobas::gui::ctrl
 {
@@ -19,15 +18,14 @@ EngineViewerWidget::EngineViewerWidget(const rqt::RosQtBridge& _bridge, const Dr
   fuel_quantity_ = new qt::ProgressBar();
   oil_temp_ = new qt::ProgressBar();
 
-  constexpr int kBarHeight = 30;
-  fuel_quantity_->setFixedHeight(kBarHeight);
-  oil_temp_->setFixedHeight(kBarHeight);
-
   // Layout
   const auto form = new qt::FormLayout(this);
-  constexpr int kLabelPSize = 12;
-  form->addVAlignedRow(new qt::Label("Fuel QTY", kLabelPSize), fuel_quantity_);
-  form->addVAlignedRow(new qt::Label("Oil Temp", kLabelPSize), oil_temp_);
+  form->setContentsMargins(1, 0, 1, 0);
+  form->setHorizontalSpacing(2);
+  form->setVerticalSpacing(1);
+  form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  form->addRow("Fuel QTY", fuel_quantity_);
+  form->addRow("Oil Temp", oil_temp_);
 
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::engineStateReceived, this, &self::engineStateCb, Qt::QueuedConnection);
