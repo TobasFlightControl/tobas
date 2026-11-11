@@ -51,9 +51,10 @@ void ForwardTransitionTrajectory::setStartConditions(const builtin_interfaces::m
     - st::kGravity * max_rate * tilt_finish_time,
     cruise_speed_ - start_vx_ - st::kGravity * (start_pitch_angle + start_tilt_angle) * tilt_finish_time);
   if (std::abs(t1.imag()) <= std::numeric_limits<double>::epsilon()) {
-    if (t1.real() * max_pitch_rate_ < max_pitch_) {
+    const auto t1_candidate = std::min(t1.real(), t2.real());
+    if (t1_candidate * max_pitch_rate_ < max_pitch_) {
       mode_ = AccelerationMode::STOP_BEFORE_PITCH_LIMIT;
-      stop_before_pitch_limit_config_.tc = std::min(t1.real(), t2.real());
+      stop_before_pitch_limit_config_.tc = t1_candidate;
       stop_before_pitch_limit_config_.duration = tilt_finish_time;
       assert(stop_before_pitch_limit_config_.tc <= tilt_finish_time);
       return;
@@ -71,6 +72,7 @@ void ForwardTransitionTrajectory::setStartConditions(const builtin_interfaces::m
         stop_at_pitch_limit_config_.tc1 = tc1;
         stop_at_pitch_limit_config_.tc2 = std::min(tc2_1.real(), tc2_2.real());
         stop_at_pitch_limit_config_.duration = tilt_finish_time;
+        assert(stop_at_pitch_limit_config_.tc1 <= stop_at_pitch_limit_config_.tc2);
         assert(stop_at_pitch_limit_config_.tc2 <= tilt_finish_time);
         return;
       }

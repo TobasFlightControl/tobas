@@ -23,6 +23,7 @@ class QpMixer : public MixerI
   static constexpr size_t kTiltRotorInequalitySize = 4;
   static constexpr size_t kControlSurfaceInequalitySize = 2;
   static constexpr double kCruiseSpeed = 15.0;  // m/s, 固定翼機運動モード計算のための仮のクルーズ時対気速度
+  static constexpr double kTileAngleMargin = 45.0 / 180.0 * M_PI;
   // TODO : 機体ごとに定める
   static constexpr double kMaxTiltVelocity = 90.0 / 180.0 * M_PI; // rad/s
   static constexpr double kMinTiltAngle = - 0.25 * M_PI; // rad
@@ -107,7 +108,7 @@ private:
 
   bool calcModesAngularFreq();
   double calcTiltAngle(const double& tx, const double& tz, const StaticRotorLinkInfo& info, const DynamicRotorLinkState& state) const;
-  st::Range<Eigen::Vector3d> calcMomentRange(const double& dt, const Eigen::Matrix<double, 3, Eigen::Dynamic>& e) const;
+  st::Range<Eigen::Vector3d> calcMomentRange(const double& dt, const Eigen::Matrix<double, 3, Eigen::Dynamic>& e, const Eigen::VectorXd& desiable_unit_thrusts) const;
 };
 }  // namespace y_axis_tilt_vtol
 }  // namespace tobas
