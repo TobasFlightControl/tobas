@@ -137,7 +137,7 @@ DJI F450 のフレームキットを使用しています．
 | RAM                | 8GB                              | 16GB               |                    |
 | CPU                | AMD64 (x86-64)                   |                    |                    |
 | GPU                |                                  | NVIDIA GeForce RTX |                    |
-| ディスプレイ解像度 | 2K/FHD                           | 4K/UHD             |                    |
+| ディスプレイ解像度 | FHD                              | UHD (4K)           |                    |
 
 <br>
 

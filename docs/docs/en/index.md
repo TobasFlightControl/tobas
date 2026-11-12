@@ -137,7 +137,7 @@ The following requirements must be met.
 | RAM                | 8GB                              | 16GB               |                                 |
 | CPU                | AMD64 (x86-64)                   |                    |                                 |
 | GPU                |                                  | NVIDIA GeForce RTX |                                 |
-| Display Resolution | 2K/FHD                           | 4K/UHD             |                                 |
+| Display Resolution | FHD                              | UHD (4K)           |                                 |
 
 <br>
 
