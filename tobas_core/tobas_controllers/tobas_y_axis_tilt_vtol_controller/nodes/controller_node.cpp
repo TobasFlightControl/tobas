@@ -38,6 +38,7 @@
 #include <tobas_msgs_adapter/odometry_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
+#include "tobas_y_axis_tilt_vtol_controller/constants.hpp"
 #include "tobas_y_axis_tilt_vtol_controller/mixer_qp.hpp"
 #include "tobas_y_axis_tilt_vtol_controller/transition_handler.hpp"
 #include "tobas_y_axis_tilt_vtol_controller/translational_eom.hpp"
@@ -405,7 +406,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   const auto& cur_gyro_G = cur_twist_G.rot;
   kdl::Vector cur_vel_G_frd;
   kdl::vectorFluToFrd(cur_vel_G, cur_vel_G_frd);
-  const auto beta = angleOfSideSlip(cur_vel_G_frd.x(), cur_vel_G_frd.y(), cur_vel_G_frd.z());
+  const auto beta = cur_vel_G_frd.x() > kAngleCalcThreshold ? angleOfSideSlip(cur_vel_G_frd.x(), cur_vel_G_frd.y(), cur_vel_G_frd.z()) : 0.0;
   beta_dot_filter_.update(beta, dt);
 
   // Position controller.

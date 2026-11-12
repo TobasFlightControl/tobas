@@ -91,6 +91,7 @@ void PosVelAccPitchYawRollSideSlipModeController::update(const tobas_msgs::RCInp
   {
   case ControlMode::MULTICOPTER: {
     if (rcin.sub_mode) {
+      std::cout << "multicopter -> forward_flight" << std::endl;
       mode_ = ControlMode::FORWARD_FLIGHT;
       resetFixedWingControllers(odom, landed);
       break;
@@ -99,6 +100,7 @@ void PosVelAccPitchYawRollSideSlipModeController::update(const tobas_msgs::RCInp
   }
   case ControlMode::FORWARD_FLIGHT: {
     if (!rcin.sub_mode) {
+      std::cout << "forward_flight -> backward_transition" << std::endl;
       mode_ = ControlMode::BACKWARD_TRANSITION;
       break;
     }
@@ -107,10 +109,12 @@ void PosVelAccPitchYawRollSideSlipModeController::update(const tobas_msgs::RCInp
   case ControlMode::BACKWARD_TRANSITION: {
     if (odom.twist.vel.norm() < kBackwardTransitionFinishSpeed) {
       mode_ = ControlMode::MULTICOPTER;
+      std::cout << "backward transition -> multicopter" << std::endl;
       resetMulticopterControllers(odom, landed);
       break;
     }
     if (rcin.sub_mode) {
+      std::cout << "backward_transition -> forward flight" << std::endl;
       mode_ = ControlMode::FORWARD_FLIGHT;
       resetFixedWingControllers(odom, landed);
       break;
@@ -167,6 +171,7 @@ void PosVelAccPitchYawRollSideSlipModeController::update(const tobas_msgs::RCInp
     cmd->acc = tar_acc_W;
     cmd->pitch = pitch_filt_.getTrajectoryPosition();
     cmd->yaw = tar_yaw_;
+    // std::cout << "pitch_cmd : " << cmd->pitch << std::endl;
 
     // publish
     multicopter_cmd_pub_->publish(std::move(cmd));
@@ -246,6 +251,7 @@ void PosVelAccPitchYawRollSideSlipModeController::resetMulticopterControllers(co
   }
 
   pitch_filt_.resetCurrentTrajectoryPoint(pitch);
+  std::cout << "reset pitch angle : " << pitch << std::endl;
   tar_yaw_ = setpoint.frame.M.getYaw();
 }
 

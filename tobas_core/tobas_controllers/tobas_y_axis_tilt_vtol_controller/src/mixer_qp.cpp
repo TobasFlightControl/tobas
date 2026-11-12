@@ -161,7 +161,6 @@ bool QpMixer::solve(
   const double& thrust_angle)
 {
   assert(thrust >= 0);
-  std::cout << "thrust : " << thrust << ", angle : " << thrust_angle / M_PI * 180.0 << std::endl;
 
   // Compute forward kinematics.
   if (fk_solver_.jntToCart(cur_q) < 0) {
@@ -266,14 +265,9 @@ bool QpMixer::solve(
 
   // Right-hand side of the EoM matrix equality.
   // 出せる最大角速度を求める
-  // calculate desirable thrusts
-  const auto thrusts_size = cs_info_.at(0).column;
-  Eigen::Vector5d f_unit(0, 0, 0, std::sin(thrust_angle), std::cos(thrust_angle));
-  const Eigen::VectorXd desiable_unit_thrusts = E_.leftCols(thrusts_size).jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_unit);
-  static constexpr double kMargin = 0.5;
-  const auto moment_range = calcMomentRange(dt, E_.middleRows<3>(0), desiable_unit_thrusts);
-  const Eigen::Vector3d max_angular_acc = I_B.data.diagonal().cwiseInverse().cwiseProduct(kMargin * moment_range.upper);
-  const Eigen::Vector3d min_angular_acc = I_B.data.diagonal().cwiseInverse().cwiseProduct(kMargin * moment_range.lower);
+  const auto moment_range = calcMomentRange(thrust, thrust_angle, E_);
+  const Eigen::Vector3d max_angular_acc = I_B.data.diagonal().cwiseInverse().cwiseProduct(moment_range.upper);
+  const Eigen::Vector3d min_angular_acc = I_B.data.diagonal().cwiseInverse().cwiseProduct(moment_range.lower);
   // 空力による応答遅れの影響を考慮してPI要素を挟む アンチワインドアップを実施
   x_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_roll_);
   y_controller_.setGains(1.0, airspeed / kCruiseSpeed * omega_s_);
@@ -338,7 +332,6 @@ bool QpMixer::solve(
   qp_.problem.q = -E_.transpose() * Q_ * f_;
 
   // Inequality constraints.
-  const double max_delta_tilt_angle = kMaxTiltVelocity * dt;
   for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = pair.second;
     const auto& info = info_[idx];
@@ -346,11 +339,7 @@ bool QpMixer::solve(
 
     if (info.is_tilt) {
       const auto last_tilt_angle = state.last_thrust_angle;
-      // const auto desiable_tilt_angle = std::atan2(desiable_unit_thrusts(info.column), desiable_unit_thrusts(info.column + 1));
-      // std::cout << "desiable tilt angle : " << desiable_tilt_angle / M_PI * 180.0 << std::endl;
-      // const auto min_tilt_angle = std::max(last_tilt_angle - max_delta_tilt_angle, desiable_tilt_angle - kTileAngleMargin);
-      // const auto max_tilt_angle = std::min(last_tilt_angle + max_delta_tilt_angle, desiable_tilt_angle + kTileAngleMargin);
-      // std::cout << "min : " << min_tilt_angle / M_PI * 180.0 << ", max : " << max_tilt_angle / M_PI * 180.0 << std::endl;
+      const double max_delta_tilt_angle = kMaxTiltVelocity * dt;
       const auto min_tilt_angle = std::max(kMinTiltAngle, last_tilt_angle - max_delta_tilt_angle);
       const auto max_tilt_angle = std::min(kMaxTiltAngle, last_tilt_angle + max_delta_tilt_angle);
       auto row = info.inequality_row;
@@ -494,52 +483,69 @@ double QpMixer::calcTiltAngle(const double& tx, const double& tz, const StaticRo
 }
 
 st::Range<Eigen::Vector3d> QpMixer::calcMomentRange(
-    const double& dt, const Eigen::Matrix<double, 3, Eigen::Dynamic>& e, const Eigen::VectorXd& desiable_unit_thrusts) const
+    const double& desiable_thrust,
+    const double& thrust_angle,
+    const Eigen::Matrix<double, 5, Eigen::Dynamic>& E) const
 {
+  // calculate desirable thrusts
+  const auto thrusts_size = cs_info_.at(0).column;
+  Eigen::Vector5d f_unit(0, 0, 0, std::sin(thrust_angle), std::cos(thrust_angle));
+  const Eigen::VectorXd desiable_unit_thrusts = E.leftCols(thrusts_size).jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_unit);
+
   st::Range<Eigen::Vector3d> moment_range(
       Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero());
 
   for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = pair.second;
     const auto& info = info_[idx];
-    const auto& state = state_[idx];
 
     if (info.is_tilt) {
-      const auto max_thrust = drone_.prop->maxThrust(rotor->link_name);
-      const auto last_tilt_angle = state.last_thrust_angle;
-      const double max_delta_tilt_angle = kMaxTiltVelocity * dt;
+      const auto desiable_thrust_here = desiable_thrust * desiable_unit_thrusts.segment<2>(info.column).norm();
+      const auto min_thrust = std::max(0.0, (1.0 - kMomentThrustRatio) * desiable_thrust_here);
+      const auto max_thrust = std::min((1.0 + kMomentThrustRatio) * desiable_thrust_here, drone_.prop->maxThrust(rotor->link_name));
       const auto desiable_tilt_angle = std::atan2(desiable_unit_thrusts(info.column), desiable_unit_thrusts(info.column + 1));
-      const auto min_tilt_angle = std::max(last_tilt_angle - max_delta_tilt_angle, desiable_tilt_angle - kTileAngleMargin);
-      const auto max_tilt_angle = std::min(last_tilt_angle + max_delta_tilt_angle, desiable_tilt_angle + kTileAngleMargin);
+      const auto min_tilt_angle = desiable_tilt_angle - kTiltAngleMargin;
+      const auto max_tilt_angle = desiable_tilt_angle + kTiltAngleMargin;
 
-      const Eigen::Vector2d vertex_0(0.0, 0.0);
+      const Eigen::Vector2d vertex_0(
+        min_thrust * std::sin(max_tilt_angle),
+        min_thrust * std::cos(max_tilt_angle));
       const Eigen::Vector2d vertex_1(
-          max_thrust * std::sin(max_tilt_angle),
-          max_thrust * std::cos(max_tilt_angle));
+        max_thrust * std::sin(max_tilt_angle),
+        max_thrust * std::cos(max_tilt_angle)
+      );
       const Eigen::Vector2d vertex_2(
-          max_thrust * std::sin(min_tilt_angle),
-          max_thrust * std::cos(min_tilt_angle));
+        max_thrust * std::sin(min_tilt_angle),
+        max_thrust * std::cos(min_tilt_angle)
+      );
+      const Eigen::Vector2d vertex_3(
+        min_thrust * std::sin(min_tilt_angle),
+        min_thrust * std::cos(min_tilt_angle)
+      );
 
       const Eigen::Vector3d candidate_1 =
-          e.block<3, 2>(0, info.column) * vertex_0;
+          E.block<3, 2>(0, info.column) * vertex_0;
       const Eigen::Vector3d candidate_2 =
-          e.block<3, 2>(0, info.column) * vertex_1;
+          E.block<3, 2>(0, info.column) * vertex_1;
       const Eigen::Vector3d candidate_3 =
-          e.block<3, 2>(0, info.column) * vertex_2;
+          E.block<3, 2>(0, info.column) * vertex_2;
+      const Eigen::Vector3d candidate_4 =
+          E.block<3, 2>(0, info.column) * vertex_3;
 
       moment_range.lower +=
-          candidate_1.cwiseMin(candidate_2).cwiseMin(candidate_3);
+          candidate_1.cwiseMin(candidate_2).cwiseMin(candidate_3).cwiseMin(candidate_4);
       moment_range.upper +=
-          candidate_1.cwiseMax(candidate_2).cwiseMax(candidate_3);
+          candidate_1.cwiseMax(candidate_2).cwiseMax(candidate_3).cwiseMax(candidate_4);
 
     } else {
-      const double min_thrust = 0.0;
-      const double max_thrust = drone_.prop->maxThrust(rotor->link_name);
+      const auto desiable_thrust_here = desiable_thrust * desiable_unit_thrusts(info.column);
+      const auto min_thrust = std::max(0.0, (1.0 - kMomentThrustRatio) * desiable_thrust_here);
+      const auto max_thrust = std::min((1.0 + kMomentThrustRatio) * desiable_thrust_here, drone_.prop->maxThrust(rotor->link_name));
 
       const Eigen::Vector3d candidate_1 =
-          e.col(info.column) * min_thrust;
+          E.block<3, 1>(0, info.column) * min_thrust;
       const Eigen::Vector3d candidate_2 =
-          e.col(info.column) * max_thrust;
+          E.block<3, 1>(0, info.column) * max_thrust;
 
       moment_range.lower += candidate_1.cwiseMin(candidate_2);
       moment_range.upper += candidate_1.cwiseMax(candidate_2);
@@ -554,9 +560,9 @@ st::Range<Eigen::Vector3d> QpMixer::calcMomentRange(
         tree_.getSegment(cs.link_name)->second.segment.joint();
 
     const Eigen::Vector3d candidate_1 =
-        e.col(cs_info.column) * joint.lower_limit;
+        E.block<3, 1>(0, cs_info.column) * joint.lower_limit;
     const Eigen::Vector3d candidate_2 =
-        e.col(cs_info.column) * joint.upper_limit;
+        E.block<3, 1>(0, cs_info.column) * joint.upper_limit;
 
     moment_range.lower += candidate_1.cwiseMin(candidate_2);
     moment_range.upper += candidate_1.cwiseMax(candidate_2);

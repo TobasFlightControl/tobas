@@ -10,6 +10,8 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 
+#include "tobas_y_axis_tilt_vtol_controller/constants.hpp"
+
 namespace tobas
 {
 namespace y_axis_tilt_vtol
@@ -141,7 +143,7 @@ bool TranslationalEoM::solveZDynamics(
   double& thrust_out)
 {
   const auto [cur_roll, cur_pitch, cur_yaw] = cur_rot.getRPY();
-  const auto path_angle = std::atan2(cur_vel_YW.z(), cur_vel_YW.x());
+  const auto path_angle = std::atan2(cur_vel_YW.z(), std::max(cur_vel_YW.x(), kAngleCalcThreshold));
   const auto mass = mass_holder_.getMass();
   const auto q = dynamicPressure(st::kStandardAirDensity, cur_vel_YW.norm());
   const auto C_L_sp = (mass * (tar_acc_z + st::kGravity)) / (std::cos(cur_roll) * std::cos(path_angle) * q * drone_.fixed_wing->vehicle.wing_surface);
@@ -167,7 +169,7 @@ Eigen::Vector2d TranslationalEoM::forwardDynamics(
   const kdl::Vector& cur_vel_YW)
 {
   // aerodynamic forces
-  const auto path_angle = std::atan2(cur_vel_YW.z(), cur_vel_YW.x());
+  const auto path_angle = std::atan2(cur_vel_YW.z(), std::max(cur_vel_YW.x(), kAngleCalcThreshold));
   const auto [cur_roll, cur_pitch, cur_yaw] = cur_rot.getRPY();
   const auto pitch = pitch_thrust(0);
   const auto alpha = - std::atan(std::tan(path_angle + pitch) * std::cos(cur_roll));
@@ -199,7 +201,7 @@ Eigen::Matrix2d TranslationalEoM::dforwardDynamics(
   const kdl::Vector& cur_vel_YW)
 {
   // aerodynamic forces
-  const auto path_angle = std::atan2(cur_vel_YW.z(), cur_vel_YW.x());
+  const auto path_angle = std::atan2(cur_vel_YW.z(), std::max(cur_vel_YW.x(), kAngleCalcThreshold));
   const auto [cur_roll, cur_pitch, cur_yaw] = cur_rot.getRPY();
   const auto pitch = pitch_thrust(0);
   const auto alpha = - std::atan(std::tan(path_angle + pitch) * std::cos(cur_roll));
