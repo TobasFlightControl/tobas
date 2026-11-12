@@ -15,7 +15,9 @@ void BackwardTransitionTrajectory::setMaxTiltVelocity(const double& max_tilt_vel
   max_tilt_velocity_ = max_tilt_velocity;
 }
 
-void BackwardTransitionTrajectory::setStartConditions(const builtin_interfaces::msg::Time& start_time, const double& start_tilt_angle)
+void BackwardTransitionTrajectory::setStartConditions(
+  const builtin_interfaces::msg::Time& start_time,
+  const double& start_tilt_angle)
 {
   start_time_ = start_time;
   start_tilt_angle_ = start_tilt_angle;
@@ -28,10 +30,11 @@ double BackwardTransitionTrajectory::calcTargetTiltAngle(const builtin_interface
   const auto elapsed_time = (cur_time - start_time_).seconds();
   if (elapsed_time < duration_) {
     return start_tilt_angle_ - max_tilt_velocity_ * elapsed_time;
-  } else {
+  }
+  else {
     return kUpwardAngle;
   }
 }
 
-} // namespace y_axis_tilt_vtol
-} // namespace tobas
+}  // namespace y_axis_tilt_vtol
+}  // namespace tobas

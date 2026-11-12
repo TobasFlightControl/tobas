@@ -43,13 +43,14 @@ void RollPitchSideSlipThrottleController::initialize(BaseNode* node, FlightMode 
   node->addDynamicDoubleParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 2.0, 7, 1, 14, " deg");
   node->addDynamicDoubleParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 5.0, 6, 1, 12, " dps");
   node->addDynamicDoubleParam(addMode("max_side_slip", mode), &self::maxSideSlipCb, this, 1.0, 6, 1, 12, " deg");
-  node->addDynamicDoubleParam(addMode("max_side_slip_rate", mode), &self::maxSideSlipRateCb, this, 1.0, 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(
+    addMode("max_side_slip_rate", mode), &self::maxSideSlipRateCb, this, 1.0, 6, 1, 12, " dps");
   node->addDynamicDoubleParam(addMode("attitude_expo", mode), &self::attitudeExpoCb, this, 5.0, -6, -20, 20);
   node->addDynamicDoubleParam(addMode("heading_expo", mode), &self::headingExpoCb, this, 5.0, -3, -20, 20);
   node->addDynamicDoubleParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 5.0, 0, 0, 20);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::RollPitchSideSlipThrottle>(
-    topic::kRollPitchSideSlipThrottleCmd);
+  cmd_pub_ =
+    node->createPublisher<tobas_command_msgs::msg::RollPitchSideSlipThrottle>(topic::kRollPitchSideSlipThrottleCmd);
 }
 
 void RollPitchSideSlipThrottleController::reset(
@@ -129,7 +130,7 @@ bool RollPitchSideSlipThrottleController::maxSideSlipCb(const double& p)
 
 bool RollPitchSideSlipThrottleController::maxSideSlipRateCb(const double& p)
 {
-  const auto max_side_slip_rate = st::deg2rad(p); // [rad/s]
+  const auto max_side_slip_rate = st::deg2rad(p);  // [rad/s]
   side_slip_filt_.setMaxVelocity(max_side_slip_rate);
   return true;
 }

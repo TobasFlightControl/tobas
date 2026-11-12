@@ -60,7 +60,8 @@ void PosVelAccPitchYawRollSideSlipModeController::initialize(BaseNode* node, Fli
   node->addDynamicDoubleParam(addMode("yaw_expo", mode), &self::yawExpoCb, this, 5.0, -3, -20, 20);
 
   multicopter_cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(topic::kPosVelAccPitchYawCmd);
-  fixed_wing_cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::VelRollSideSlipMode>(topic::kVelRollSideSlipModeCmd);
+  fixed_wing_cmd_pub_ =
+    node->createPublisher<tobas_command_msgs::msg::VelRollSideSlipMode>(topic::kVelRollSideSlipModeCmd);
 }
 
 void PosVelAccPitchYawRollSideSlipModeController::reset(
@@ -74,156 +75,158 @@ void PosVelAccPitchYawRollSideSlipModeController::reset(
   if (setpoint.twist.vel.norm() < kBackwardTransitionFinishSpeed) {
     mode_ = ControlMode::MULTICOPTER;
     resetMulticopterControllers(setpoint, landed);
-  } else {
+  }
+  else {
     mode_ = ControlMode::FORWARD_FLIGHT;
     resetFixedWingControllers(setpoint, landed);
   }
 }
 
-void PosVelAccPitchYawRollSideSlipModeController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed)
+void PosVelAccPitchYawRollSideSlipModeController::update(
+  const tobas_msgs::RCInput& rcin,
+  const tobas_msgs::Odometry& odom,
+  bool landed)
 {
   // Update timestamp.
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
   // Mode transition
-  switch (mode_)
-  {
-  case ControlMode::MULTICOPTER: {
-    if (rcin.sub_mode) {
-      std::cout << "multicopter -> forward_flight" << std::endl;
-      mode_ = ControlMode::FORWARD_FLIGHT;
-      resetFixedWingControllers(odom, landed);
+  switch (mode_) {
+    case ControlMode::MULTICOPTER: {
+      if (rcin.sub_mode) {
+        std::cout << "multicopter -> forward_flight" << std::endl;
+        mode_ = ControlMode::FORWARD_FLIGHT;
+        resetFixedWingControllers(odom, landed);
+        break;
+      }
       break;
     }
-    break;
-  }
-  case ControlMode::FORWARD_FLIGHT: {
-    if (!rcin.sub_mode) {
-      std::cout << "forward_flight -> backward_transition" << std::endl;
-      mode_ = ControlMode::BACKWARD_TRANSITION;
+    case ControlMode::FORWARD_FLIGHT: {
+      if (!rcin.sub_mode) {
+        std::cout << "forward_flight -> backward_transition" << std::endl;
+        mode_ = ControlMode::BACKWARD_TRANSITION;
+        break;
+      }
       break;
     }
-    break;
-  }
-  case ControlMode::BACKWARD_TRANSITION: {
-    if (odom.twist.vel.norm() < kBackwardTransitionFinishSpeed) {
-      mode_ = ControlMode::MULTICOPTER;
-      std::cout << "backward transition -> multicopter" << std::endl;
-      resetMulticopterControllers(odom, landed);
+    case ControlMode::BACKWARD_TRANSITION: {
+      if (odom.twist.vel.norm() < kBackwardTransitionFinishSpeed) {
+        mode_ = ControlMode::MULTICOPTER;
+        std::cout << "backward transition -> multicopter" << std::endl;
+        resetMulticopterControllers(odom, landed);
+        break;
+      }
+      if (rcin.sub_mode) {
+        std::cout << "backward_transition -> forward flight" << std::endl;
+        mode_ = ControlMode::FORWARD_FLIGHT;
+        resetFixedWingControllers(odom, landed);
+        break;
+      }
       break;
     }
-    if (rcin.sub_mode) {
-      std::cout << "backward_transition -> forward flight" << std::endl;
-      mode_ = ControlMode::FORWARD_FLIGHT;
-      resetFixedWingControllers(odom, landed);
+    default:
       break;
-    }
-    break;
-  }
-  default:
-    break;
   }
 
   // create & publish command
-  switch (mode_)
-  {
-  case ControlMode::MULTICOPTER: {
-    // Velocity x, y, z
-    vx_filt_.update(expoRemapDead(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
-    vy_filt_.update(-expoRemap(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
-    vz_filt_.update(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
-    // Pitch
-    pitch_filt_.setTargetPointAndUpdate(0.0, dt);
-    // Yaw
-    const auto yawrate = expoRemapDead(rcin.yaw, yaw_expo_, -max_yaw_rate_, max_yaw_rate_);
-    tar_yaw_ += yawrate * dt;
+  switch (mode_) {
+    case ControlMode::MULTICOPTER: {
+      // Velocity x, y, z
+      vx_filt_.update(expoRemapDead(rcin.pitch, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
+      vy_filt_.update(-expoRemap(rcin.roll, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
+      vz_filt_.update(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
+      // Pitch
+      pitch_filt_.setTargetPointAndUpdate(0.0, dt);
+      // Yaw
+      const auto yawrate = expoRemapDead(rcin.yaw, yaw_expo_, -max_yaw_rate_, max_yaw_rate_);
+      tar_yaw_ += yawrate * dt;
 
-    // Compute the velocity and acceleration wrt. the world frame.
-    const kdl::Vector tar_vel_G(
-      vx_filt_.getTrajectoryVelocity(), vy_filt_.getTrajectoryVelocity(), vz_filt_.getTrajectoryVelocity());
-    const kdl::Vector tar_acc_G(
-      vx_filt_.getTrajectoryAccel(), vy_filt_.getTrajectoryAccel(), vz_filt_.getTrajectoryAccel());
-    const auto R_W_G = kdl::Rotation::RotZ(tar_yaw_);
-    const auto tar_vel_W = R_W_G * tar_vel_G;
-    const auto tar_acc_W = R_W_G * tar_acc_G;
+      // Compute the velocity and acceleration wrt. the world frame.
+      const kdl::Vector tar_vel_G(
+        vx_filt_.getTrajectoryVelocity(), vy_filt_.getTrajectoryVelocity(), vz_filt_.getTrajectoryVelocity());
+      const kdl::Vector tar_acc_G(
+        vx_filt_.getTrajectoryAccel(), vy_filt_.getTrajectoryAccel(), vz_filt_.getTrajectoryAccel());
+      const auto R_W_G = kdl::Rotation::RotZ(tar_yaw_);
+      const auto tar_vel_W = R_W_G * tar_vel_G;
+      const auto tar_acc_W = R_W_G * tar_acc_G;
 
-    // Integrate the velocity.
-    tar_pos_W_ += tar_vel_W * dt;
+      // Integrate the velocity.
+      tar_pos_W_ += tar_vel_W * dt;
 
-    // Do not perform horizontal position control while landed.
-    const auto& cur_pos_W = odom.frame.p;
-    if (landed) {
-      tar_pos_W_.x() = cur_pos_W.x();
-      tar_pos_W_.y() = cur_pos_W.y();
+      // Do not perform horizontal position control while landed.
+      const auto& cur_pos_W = odom.frame.p;
+      if (landed) {
+        tar_pos_W_.x() = cur_pos_W.x();
+        tar_pos_W_.y() = cur_pos_W.y();
+      }
+
+      // Limit the error to prevent the target altitude from dropping too far while on the ground.
+      const auto& cur_z = cur_pos_W.z();
+      tar_pos_W_.z() = std::max(tar_pos_W_.z(), cur_z - max_ep_down_);
+
+      // create command
+      auto cmd = std::make_unique<tobas_command_msgs::PosVelAccPitchYaw>();
+      cmd->header = rcin.header;
+      cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
+      cmd->pos = tar_pos_W_;
+      cmd->vel = tar_vel_W;
+      cmd->acc = tar_acc_W;
+      cmd->pitch = pitch_filt_.getTrajectoryPosition();
+      cmd->yaw = tar_yaw_;
+      // std::cout << "pitch_cmd : " << cmd->pitch << std::endl;
+
+      // publish
+      multicopter_cmd_pub_->publish(std::move(cmd));
+      break;
     }
+    case ControlMode::FORWARD_FLIGHT: {
+      // Velocity x, z
+      // 固定翼機のような操作感
+      vx_filt_.update(expoRemapDead(rcin.throttle, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
+      vz_filt_.update(expoRemapDead(-rcin.pitch, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
 
-    // Limit the error to prevent the target altitude from dropping too far while on the ground.
-    const auto& cur_z = cur_pos_W.z();
-    tar_pos_W_.z() = std::max(tar_pos_W_.z(), cur_z - max_ep_down_);
+      // Roll
+      roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, roll_expo_, -max_roll_, max_roll_), dt);
 
-    // create command
-    auto cmd = std::make_unique<tobas_command_msgs::PosVelAccPitchYaw>();
-    cmd->header = rcin.header;
-    cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
-    cmd->pos = tar_pos_W_;
-    cmd->vel = tar_vel_W;
-    cmd->acc = tar_acc_W;
-    cmd->pitch = pitch_filt_.getTrajectoryPosition();
-    cmd->yaw = tar_yaw_;
-    // std::cout << "pitch_cmd : " << cmd->pitch << std::endl;
+      // create command
+      auto cmd = std::make_unique<tobas_command_msgs::msg::VelRollSideSlipMode>();
+      cmd->header = rcin.header;
+      cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
+      cmd->vel_x = vx_filt_.getTrajectoryVelocity();
+      cmd->vel_z = vz_filt_.getTrajectoryVelocity();
+      cmd->roll = roll_filt_.getTrajectoryPosition();
+      cmd->side_slip = expoRemapDead(rcin.yaw, yaw_expo_, -max_side_slip_, max_side_slip_);
+      cmd->mode = tobas_command_msgs::msg::VelRollSideSlipMode::FORWARD_FLIGHT;
 
-    // publish
-    multicopter_cmd_pub_->publish(std::move(cmd));
-    break;
-  }
-  case ControlMode::FORWARD_FLIGHT: {
-    // Velocity x, z
-    // 固定翼機のような操作感
-    vx_filt_.update(expoRemapDead(rcin.throttle, hor_vel_expo_, -max_hor_vel_, max_hor_vel_), dt);
-    vz_filt_.update(expoRemapDead(-rcin.pitch, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
+      // publish
+      fixed_wing_cmd_pub_->publish(std::move(cmd));
+      break;
+    }
+    case ControlMode::BACKWARD_TRANSITION: {
+      // multicopterのような操作感
+      vx_filt_.update(0.0, dt);
+      vz_filt_.update(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
 
-    // Roll
-    roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, roll_expo_, -max_roll_, max_roll_), dt);
+      // Roll
+      roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, roll_expo_, -max_roll_, max_roll_), dt);
 
-    // create command
-    auto cmd = std::make_unique<tobas_command_msgs::msg::VelRollSideSlipMode>();
-    cmd->header = rcin.header;
-    cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
-    cmd->vel_x = vx_filt_.getTrajectoryVelocity();
-    cmd->vel_z = vz_filt_.getTrajectoryVelocity();
-    cmd->roll = roll_filt_.getTrajectoryPosition();
-    cmd->side_slip = expoRemapDead(rcin.yaw, yaw_expo_, -max_side_slip_, max_side_slip_);
-    cmd->mode = tobas_command_msgs::msg::VelRollSideSlipMode::FORWARD_FLIGHT;
+      // create command
+      auto cmd = std::make_unique<tobas_command_msgs::msg::VelRollSideSlipMode>();
+      cmd->header = rcin.header;
+      cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
+      cmd->vel_x = 0.0;  // not used
+      cmd->vel_z = vz_filt_.getTrajectoryVelocity();
+      cmd->roll = roll_filt_.getTrajectoryPosition();
+      cmd->side_slip = expoRemapDead(rcin.yaw, yaw_expo_, -max_side_slip_, max_side_slip_);
+      cmd->mode = tobas_command_msgs::msg::VelRollSideSlipMode::BACKWARD_TRANSITION;
 
-    // publish
-    fixed_wing_cmd_pub_->publish(std::move(cmd));
-    break;
-  }
-  case ControlMode::BACKWARD_TRANSITION: {
-    // multicopterのような操作感
-    vx_filt_.update(0.0, dt);
-    vz_filt_.update(expoRemapDead(rcin.throttle, ver_vel_expo_, -max_ver_vel_, max_ver_vel_), dt);
-
-    // Roll
-    roll_filt_.setTargetPointAndUpdate(expoRemapDead(rcin.roll, roll_expo_, -max_roll_, max_roll_), dt);
-
-    // create command
-    auto cmd = std::make_unique<tobas_command_msgs::msg::VelRollSideSlipMode>();
-    cmd->header = rcin.header;
-    cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
-    cmd->vel_x = 0.0; // not used
-    cmd->vel_z = vz_filt_.getTrajectoryVelocity();
-    cmd->roll = roll_filt_.getTrajectoryPosition();
-    cmd->side_slip = expoRemapDead(rcin.yaw, yaw_expo_, -max_side_slip_, max_side_slip_);
-    cmd->mode = tobas_command_msgs::msg::VelRollSideSlipMode::BACKWARD_TRANSITION;
-
-    // publish
-    fixed_wing_cmd_pub_->publish(std::move(cmd));
-    break;
-  }
-  default:
-    break;
+      // publish
+      fixed_wing_cmd_pub_->publish(std::move(cmd));
+      break;
+    }
+    default:
+      break;
   }
 }
 
@@ -233,7 +236,9 @@ void PosVelAccPitchYawRollSideSlipModeController::resetFixedWingControllers(cons
   roll_filt_.resetCurrentTrajectoryPoint(roll);
 }
 
-void PosVelAccPitchYawRollSideSlipModeController::resetMulticopterControllers(const tobas_msgs::Odometry& setpoint, bool landed)
+void PosVelAccPitchYawRollSideSlipModeController::resetMulticopterControllers(
+  const tobas_msgs::Odometry& setpoint,
+  bool landed)
 {
   const auto [roll, pitch, yaw] = setpoint.frame.M.getRPY();
 

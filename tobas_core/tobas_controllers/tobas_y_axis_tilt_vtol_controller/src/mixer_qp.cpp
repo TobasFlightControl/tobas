@@ -15,7 +15,8 @@ namespace tobas
 {
 namespace y_axis_tilt_vtol
 {
-QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree) : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
+QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree)
+  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
 {
 }
 
@@ -127,8 +128,9 @@ bool QpMixer::updateInternalDataStructures()
 
     if (info.is_tilt) {
       qp_.x_scale(info.column) = max_thrust;
-      qp_.x_scale(info.column+1) = max_thrust;
-    } else {
+      qp_.x_scale(info.column + 1) = max_thrust;
+    }
+    else {
       qp_.x_scale(info.column) = max_thrust;
     }
   }
@@ -145,9 +147,14 @@ double QpMixer::calcMaxThrust(const double& thrust_angle) const
 {
   const auto sin_chi_0 = std::sin(thrust_angle);
   const auto cos_chi_0 = std::cos(thrust_angle);
-  const auto cos_chi_squared = std::pow(max_thrust_fixed_wing_ * cos_chi_0, 2) / (std::pow(max_thrust_fixed_wing_ * cos_chi_0, 2) + std::pow(max_thrust_multicopter_ * sin_chi_0, 2));
-  const auto sin_chi_squared = std::pow(max_thrust_multicopter_ * sin_chi_0, 2) / (std::pow(max_thrust_fixed_wing_ * cos_chi_0, 2) + std::pow(max_thrust_multicopter_ * sin_chi_0, 2));
-  return std::sqrt(std::pow(max_thrust_multicopter_, 2) * cos_chi_squared + std::pow(max_thrust_fixed_wing_, 2) * sin_chi_squared);
+  const auto cos_chi_squared =
+    std::pow(max_thrust_fixed_wing_ * cos_chi_0, 2) /
+    (std::pow(max_thrust_fixed_wing_ * cos_chi_0, 2) + std::pow(max_thrust_multicopter_ * sin_chi_0, 2));
+  const auto sin_chi_squared =
+    std::pow(max_thrust_multicopter_ * sin_chi_0, 2) /
+    (std::pow(max_thrust_fixed_wing_ * cos_chi_0, 2) + std::pow(max_thrust_multicopter_ * sin_chi_0, 2));
+  return std::sqrt(
+    std::pow(max_thrust_multicopter_, 2) * cos_chi_squared + std::pow(max_thrust_fixed_wing_, 2) * sin_chi_squared);
 }
 
 bool QpMixer::solve(
@@ -254,13 +261,13 @@ bool QpMixer::solve(
     kdl::Vector effectiveness_flu;
     kdl::vectorFrdToFlu(effectiveness_frd, effectiveness_flu);
     E_(0, cs_info.column) = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
-                 drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.x();  // [Nm / rad]
+                            drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.x();  // [Nm / rad]
     E_(1, cs_info.column) = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
-                 drone_.fixed_wing->vehicle.mac * effectiveness_flu.y();  // [Nm / rad]
+                            drone_.fixed_wing->vehicle.mac * effectiveness_flu.y();  // [Nm / rad]
     E_(2, cs_info.column) = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
-                 drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.z();  // [Nm / rad]
-    E_(3, cs_info.column) = 0.0; // [N]
-    E_(4, cs_info.column) = 0.0; // [N]
+                            drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.z();  // [Nm / rad]
+    E_(3, cs_info.column) = 0.0;                                                           // [N]
+    E_(4, cs_info.column) = 0.0;                                                           // [N]
   }
 
   // Right-hand side of the EoM matrix equality.
@@ -286,10 +293,10 @@ bool QpMixer::solve(
   z2_controller_.update(z_controller_.getValue(), dt);
   // 運動方程式右辺
   const auto eom_rot_right_B = Eigen::Vector3d(
-    I_B.ixx() * x_controller_.getValue(),
-    I_B.iyy() * y_controller_.getValue(),
-    I_B.izz() * z2_controller_.getValue())
-     + cur_gyro_B * (I_B * cur_gyro_B);  // [Nm]
+                                 I_B.ixx() * x_controller_.getValue(),
+                                 I_B.iyy() * y_controller_.getValue(),
+                                 I_B.izz() * z2_controller_.getValue()) +
+                               cur_gyro_B * (I_B * cur_gyro_B);  // [Nm]
   f_.head<3>() = eom_rot_right_B.data;
   f_(3) = thrust * std::sin(thrust_angle);
   f_(4) = thrust * std::cos(thrust_angle);
@@ -310,7 +317,8 @@ bool QpMixer::solve(
     size_t size = 0;
     if (info.is_tilt) {
       size = 2;
-    } else {
+    }
+    else {
       size = 1;
     }
     for (size_t i = 0; i < size; i++) {
@@ -343,22 +351,23 @@ bool QpMixer::solve(
       const auto min_tilt_angle = std::max(kMinTiltAngle, last_tilt_angle - max_delta_tilt_angle);
       const auto max_tilt_angle = std::min(kMaxTiltAngle, last_tilt_angle + max_delta_tilt_angle);
       auto row = info.inequality_row;
-      qp_.problem.A(row, info.column) = - std::cos(min_tilt_angle);
+      qp_.problem.A(row, info.column) = -std::cos(min_tilt_angle);
       qp_.problem.A(row, info.column + 1) = std::sin(min_tilt_angle);
       qp_.problem.b(row) = 0;
       row++;
       qp_.problem.A(row, info.column) = std::cos(max_tilt_angle);
-      qp_.problem.A(row, info.column + 1) = - std::sin(max_tilt_angle);
+      qp_.problem.A(row, info.column + 1) = -std::sin(max_tilt_angle);
       qp_.problem.b(row) = 0;
       row++;
-      qp_.problem.A(row, info.column) = - std::sin(last_tilt_angle);
-      qp_.problem.A(row, info.column + 1) = - std::cos(last_tilt_angle);
-      qp_.problem.b(row) = - drone_.prop->minThrust(rotor->link_name);
+      qp_.problem.A(row, info.column) = -std::sin(last_tilt_angle);
+      qp_.problem.A(row, info.column + 1) = -std::cos(last_tilt_angle);
+      qp_.problem.b(row) = -drone_.prop->minThrust(rotor->link_name);
       row++;
       qp_.problem.A(row, info.column) = std::sin(last_tilt_angle);
       qp_.problem.A(row, info.column + 1) = std::cos(last_tilt_angle);
       qp_.problem.b(row) = drone_.prop->maxThrust(rotor->link_name);
-    } else {
+    }
+    else {
       qp_.problem.A(info.inequality_row, info.column) = -1;
       qp_.problem.A(info.inequality_row + 1, info.column) = 1;
       qp_.problem.b(info.inequality_row) = 0;
@@ -372,7 +381,7 @@ bool QpMixer::solve(
     const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
     qp_.problem.A(cs_info.inequality_row, cs_info.column) = -1;
     qp_.problem.A(cs_info.inequality_row + 1, cs_info.column) = 1;
-    qp_.problem.b(cs_info.inequality_row) = - std::max(joint.lower_limit, cs_state.last_angle - kMaxCsVelocity * dt);
+    qp_.problem.b(cs_info.inequality_row) = -std::max(joint.lower_limit, cs_state.last_angle - kMaxCsVelocity * dt);
     qp_.problem.b(cs_info.inequality_row + 1) = std::min(joint.upper_limit, cs_state.last_angle + kMaxCsVelocity * dt);
   }
 
@@ -477,23 +486,27 @@ bool QpMixer::calcModesAngularFreq()
   return true;
 }
 
-double QpMixer::calcTiltAngle(const double& tx, const double& tz, const StaticRotorLinkInfo& info, const DynamicRotorLinkState& state) const
+double QpMixer::calcTiltAngle(
+  const double& tx,
+  const double& tz,
+  const StaticRotorLinkInfo& info,
+  const DynamicRotorLinkState& state) const
 {
   return info.sign * (std::atan2(tx, tz) - state.alpha);
 }
 
 st::Range<Eigen::Vector3d> QpMixer::calcMomentRange(
-    const double& desiable_thrust,
-    const double& thrust_angle,
-    const Eigen::Matrix<double, 5, Eigen::Dynamic>& E) const
+  const double& desiable_thrust,
+  const double& thrust_angle,
+  const Eigen::Matrix<double, 5, Eigen::Dynamic>& E) const
 {
   // calculate desirable thrusts
   const auto thrusts_size = cs_info_.at(0).column;
   Eigen::Vector5d f_unit(0, 0, 0, std::sin(thrust_angle), std::cos(thrust_angle));
-  const Eigen::VectorXd desiable_unit_thrusts = E.leftCols(thrusts_size).jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_unit);
+  const Eigen::VectorXd desiable_unit_thrusts =
+    E.leftCols(thrusts_size).jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_unit);
 
-  st::Range<Eigen::Vector3d> moment_range(
-      Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero());
+  st::Range<Eigen::Vector3d> moment_range(Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero());
 
   for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = pair.second;
@@ -502,67 +515,47 @@ st::Range<Eigen::Vector3d> QpMixer::calcMomentRange(
     if (info.is_tilt) {
       const auto desiable_thrust_here = desiable_thrust * desiable_unit_thrusts.segment<2>(info.column).norm();
       const auto min_thrust = std::max(0.0, (1.0 - kMomentThrustRatio) * desiable_thrust_here);
-      const auto max_thrust = std::min((1.0 + kMomentThrustRatio) * desiable_thrust_here, drone_.prop->maxThrust(rotor->link_name));
-      const auto desiable_tilt_angle = std::atan2(desiable_unit_thrusts(info.column), desiable_unit_thrusts(info.column + 1));
+      const auto max_thrust =
+        std::min((1.0 + kMomentThrustRatio) * desiable_thrust_here, drone_.prop->maxThrust(rotor->link_name));
+      const auto desiable_tilt_angle =
+        std::atan2(desiable_unit_thrusts(info.column), desiable_unit_thrusts(info.column + 1));
       const auto min_tilt_angle = desiable_tilt_angle - kTiltAngleMargin;
       const auto max_tilt_angle = desiable_tilt_angle + kTiltAngleMargin;
 
-      const Eigen::Vector2d vertex_0(
-        min_thrust * std::sin(max_tilt_angle),
-        min_thrust * std::cos(max_tilt_angle));
-      const Eigen::Vector2d vertex_1(
-        max_thrust * std::sin(max_tilt_angle),
-        max_thrust * std::cos(max_tilt_angle)
-      );
-      const Eigen::Vector2d vertex_2(
-        max_thrust * std::sin(min_tilt_angle),
-        max_thrust * std::cos(min_tilt_angle)
-      );
-      const Eigen::Vector2d vertex_3(
-        min_thrust * std::sin(min_tilt_angle),
-        min_thrust * std::cos(min_tilt_angle)
-      );
+      const Eigen::Vector2d vertex_0(min_thrust * std::sin(max_tilt_angle), min_thrust * std::cos(max_tilt_angle));
+      const Eigen::Vector2d vertex_1(max_thrust * std::sin(max_tilt_angle), max_thrust * std::cos(max_tilt_angle));
+      const Eigen::Vector2d vertex_2(max_thrust * std::sin(min_tilt_angle), max_thrust * std::cos(min_tilt_angle));
+      const Eigen::Vector2d vertex_3(min_thrust * std::sin(min_tilt_angle), min_thrust * std::cos(min_tilt_angle));
 
-      const Eigen::Vector3d candidate_1 =
-          E.block<3, 2>(0, info.column) * vertex_0;
-      const Eigen::Vector3d candidate_2 =
-          E.block<3, 2>(0, info.column) * vertex_1;
-      const Eigen::Vector3d candidate_3 =
-          E.block<3, 2>(0, info.column) * vertex_2;
-      const Eigen::Vector3d candidate_4 =
-          E.block<3, 2>(0, info.column) * vertex_3;
+      const Eigen::Vector3d candidate_1 = E.block<3, 2>(0, info.column) * vertex_0;
+      const Eigen::Vector3d candidate_2 = E.block<3, 2>(0, info.column) * vertex_1;
+      const Eigen::Vector3d candidate_3 = E.block<3, 2>(0, info.column) * vertex_2;
+      const Eigen::Vector3d candidate_4 = E.block<3, 2>(0, info.column) * vertex_3;
 
-      moment_range.lower +=
-          candidate_1.cwiseMin(candidate_2).cwiseMin(candidate_3).cwiseMin(candidate_4);
-      moment_range.upper +=
-          candidate_1.cwiseMax(candidate_2).cwiseMax(candidate_3).cwiseMax(candidate_4);
-
-    } else {
+      moment_range.lower += candidate_1.cwiseMin(candidate_2).cwiseMin(candidate_3).cwiseMin(candidate_4);
+      moment_range.upper += candidate_1.cwiseMax(candidate_2).cwiseMax(candidate_3).cwiseMax(candidate_4);
+    }
+    else {
       const auto desiable_thrust_here = desiable_thrust * desiable_unit_thrusts(info.column);
       const auto min_thrust = std::max(0.0, (1.0 - kMomentThrustRatio) * desiable_thrust_here);
-      const auto max_thrust = std::min((1.0 + kMomentThrustRatio) * desiable_thrust_here, drone_.prop->maxThrust(rotor->link_name));
+      const auto max_thrust =
+        std::min((1.0 + kMomentThrustRatio) * desiable_thrust_here, drone_.prop->maxThrust(rotor->link_name));
 
-      const Eigen::Vector3d candidate_1 =
-          E.block<3, 1>(0, info.column) * min_thrust;
-      const Eigen::Vector3d candidate_2 =
-          E.block<3, 1>(0, info.column) * max_thrust;
+      const Eigen::Vector3d candidate_1 = E.block<3, 1>(0, info.column) * min_thrust;
+      const Eigen::Vector3d candidate_2 = E.block<3, 1>(0, info.column) * max_thrust;
 
       moment_range.lower += candidate_1.cwiseMin(candidate_2);
       moment_range.upper += candidate_1.cwiseMax(candidate_2);
     }
   }
 
-  for (const auto& [idx, pair] :
-       std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
+  for (const auto& [idx, pair] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
     const auto cs = pair.second;
     const auto& cs_info = cs_info_[idx];
-    const auto& joint =
-        tree_.getSegment(cs.link_name)->second.segment.joint();
+    const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
 
-    const Eigen::Vector3d candidate_1 =
-        E.block<3, 1>(0, cs_info.column) * joint.lower_limit;
-    const Eigen::Vector3d candidate_2 =
-        E.block<3, 1>(0, cs_info.column) * joint.upper_limit;
+    const Eigen::Vector3d candidate_1 = E.block<3, 1>(0, cs_info.column) * joint.lower_limit;
+    const Eigen::Vector3d candidate_2 = E.block<3, 1>(0, cs_info.column) * joint.upper_limit;
 
     moment_range.lower += candidate_1.cwiseMin(candidate_2);
     moment_range.upper += candidate_1.cwiseMax(candidate_2);
@@ -570,7 +563,6 @@ st::Range<Eigen::Vector3d> QpMixer::calcMomentRange(
 
   return moment_range;
 }
-
 
 }  // namespace y_axis_tilt_vtol
 }  // namespace tobas

@@ -23,19 +23,21 @@ class QpMixer : public MixerI
   static constexpr size_t kTiltRotorInequalitySize = 4;
   static constexpr size_t kControlSurfaceInequalitySize = 2;
   static constexpr double kCruiseSpeed = 15.0;  // m/s, 固定翼機運動モード計算のための仮のクルーズ時対気速度
-  static constexpr double kMomentThrustRatio = 1.0 / 3.0; // 実行可能最大モーメントを出すために行って良い最大推力変更比率 3軸あるので1軸制御分には1/3
-  static constexpr double kTiltAngleMargin = 30.0 / 180.0 * M_PI; // 実行可能最大モーメントを出すために行って良い最大ティルト角変更
+  static constexpr double kMomentThrustRatio =
+    1.0 / 3.0;  // 実行可能最大モーメントを出すために行って良い最大推力変更比率 3軸あるので1軸制御分には1/3
+  static constexpr double kTiltAngleMargin =
+    30.0 / 180.0 * M_PI;  // 実行可能最大モーメントを出すために行って良い最大ティルト角変更
   // TODO : 機体ごとに定める
-  static constexpr double kMaxTiltVelocity = 90.0 / 180.0 * M_PI; // rad/s
-  static constexpr double kMinTiltAngle = - 0.25 * M_PI; // rad
-  static constexpr double kMaxTiltAngle = 0.75 * M_PI; // rad
-  static constexpr double kMaxCsVelocity = M_PI; // rad/s
+  static constexpr double kMaxTiltVelocity = 90.0 / 180.0 * M_PI;  // rad/s
+  static constexpr double kMinTiltAngle = -0.25 * M_PI;            // rad
+  static constexpr double kMaxTiltAngle = 0.75 * M_PI;             // rad
+  static constexpr double kMaxCsVelocity = M_PI;                   // rad/s
 
 public:
   explicit QpMixer(const Drone& drone, const kdl::Tree& tree);
 
   bool updateInternalDataStructures() override;
-  double calcMaxThrust(const double& thrust_angle) const; // thrust_angle [rad] -> max_thrust [N]
+  double calcMaxThrust(const double& thrust_angle) const;  // thrust_angle [rad] -> max_thrust [N]
 
   bool solve(
     const double& dt,
@@ -97,18 +99,21 @@ private:
   double omega_dutch_roll_;  // クルーズ時ダッチロールモード角周波数
 
   // Mutable values.
-  quadprog::DualActiveSetSolver qp_;  // QP solver. variables : [T_0, T_1x, T_1z, ..., T_n, delta_0, delta_1, ..., delta_N]
-  Eigen::Diagonal5d Q_;               // EoM weights.
-  Eigen::DiagonalXd R_;               // Thrust weights.
+  quadprog::DualActiveSetSolver
+    qp_;                 // QP solver. variables : [T_0, T_1x, T_1z, ..., T_n, delta_0, delta_1, ..., delta_N]
+  Eigen::Diagonal5d Q_;  // EoM weights.
+  Eigen::DiagonalXd R_;  // Thrust weights.
   Eigen::Matrix5Xd E_;
-  Eigen::Vector5d f_;   // [M_x, M_y, Mz, u_x, u_z]
+  Eigen::Vector5d f_;  // [M_x, M_y, Mz, u_x, u_z]
   ctrl::PIController x_controller_;
   ctrl::PIController y_controller_;
   ctrl::PIController z_controller_;
   ctrl::PIController z2_controller_;
 
   bool calcModesAngularFreq();
-  double calcTiltAngle(const double& tx, const double& tz, const StaticRotorLinkInfo& info, const DynamicRotorLinkState& state) const;
+  double
+  calcTiltAngle(const double& tx, const double& tz, const StaticRotorLinkInfo& info, const DynamicRotorLinkState& state)
+    const;
   st::Range<Eigen::Vector3d> calcMomentRange(
     const double& desiable_thrust,
     const double& thrust_angle,

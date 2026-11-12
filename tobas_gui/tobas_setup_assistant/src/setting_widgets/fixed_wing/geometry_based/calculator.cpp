@@ -232,8 +232,10 @@ kdl::Wrench Calculator::calcWingAeroDynamicForce(const WingWidget* wing, const k
     q * wing->surfaceArea() * C_L * kdl::Vector(sin(alpha), 0, -cos(alpha));  // mac座標系(frd)でみたときの力のベクトル
   const kdl::Vector drag = q * wing->surfaceArea() * C_D * kdl::Vector(-cos(alpha), 0, -sin(alpha));
   const auto force = lift + drag;
-  const auto moment =
-    kdl::Vector(q * wing->surfaceArea() * wing->span() * C_l, q * wing->surfaceArea() * wing->c_mac() * wing->c_pitch_0(), q * wing->surfaceArea() * wing->span() * C_n);
+  const auto moment = kdl::Vector(
+    q * wing->surfaceArea() * wing->span() * C_l,
+    q * wing->surfaceArea() * wing->c_mac() * wing->c_pitch_0(),
+    q * wing->surfaceArea() * wing->span() * C_n);
   return kdl::Wrench(force, moment);
 }
 

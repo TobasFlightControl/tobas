@@ -95,7 +95,8 @@ bool Mixer::updateInternalDataStructures()
     size_t size = 0;
     if (info.is_tilt) {
       size = 2;
-    } else {
+    }
+    else {
       size = 1;
     }
     for (size_t i = 0; i < size; i++) {
@@ -154,9 +155,14 @@ double Mixer::calcMaxThrust(const double& thrust_angle) const
 {
   const auto sin_chi_0 = std::sin(thrust_angle);
   const auto cos_chi_0 = std::cos(thrust_angle);
-  const auto cos_chi_squared = std::pow(max_thrust_fixed_wing_ * cos_chi_0, 2) / (std::pow(max_thrust_fixed_wing_ * cos_chi_0, 2) + std::pow(max_thrust_multicopter_ * sin_chi_0, 2));
-  const auto sin_chi_squared = std::pow(max_thrust_multicopter_ * sin_chi_0, 2) / (std::pow(max_thrust_fixed_wing_ * cos_chi_0, 2) + std::pow(max_thrust_multicopter_ * sin_chi_0, 2));
-  return std::sqrt(std::pow(max_thrust_multicopter_, 2) * cos_chi_squared + std::pow(max_thrust_fixed_wing_, 2) * sin_chi_squared);
+  const auto cos_chi_squared =
+    std::pow(max_thrust_fixed_wing_ * cos_chi_0, 2) /
+    (std::pow(max_thrust_fixed_wing_ * cos_chi_0, 2) + std::pow(max_thrust_multicopter_ * sin_chi_0, 2));
+  const auto sin_chi_squared =
+    std::pow(max_thrust_multicopter_ * sin_chi_0, 2) /
+    (std::pow(max_thrust_fixed_wing_ * cos_chi_0, 2) + std::pow(max_thrust_multicopter_ * sin_chi_0, 2));
+  return std::sqrt(
+    std::pow(max_thrust_multicopter_, 2) * cos_chi_squared + std::pow(max_thrust_fixed_wing_, 2) * sin_chi_squared);
 }
 
 bool Mixer::solve(
@@ -259,13 +265,13 @@ bool Mixer::solve(
     kdl::Vector effectiveness_flu;
     kdl::vectorFrdToFlu(effectiveness_frd, effectiveness_flu);
     E_(0, thrusts_size_ + idx) = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
-                 drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.x();  // [Nm / rad]
+                                 drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.x();  // [Nm / rad]
     E_(1, thrusts_size_ + idx) = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
-                 drone_.fixed_wing->vehicle.mac * effectiveness_flu.y();  // [Nm / rad]
+                                 drone_.fixed_wing->vehicle.mac * effectiveness_flu.y();  // [Nm / rad]
     E_(2, thrusts_size_ + idx) = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
-                 drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.z();  // [Nm / rad]
-    E_(3, thrusts_size_ + idx) = 0.0; // [N]
-    E_(4, thrusts_size_ + idx) = 0.0; // [N]
+                                 drone_.fixed_wing->vehicle.wing_span * effectiveness_flu.z();  // [Nm / rad]
+    E_(3, thrusts_size_ + idx) = 0.0;                                                           // [N]
+    E_(4, thrusts_size_ + idx) = 0.0;                                                           // [N]
   }
 
   // Right-hand side of the EoM matrix equality.
@@ -275,7 +281,8 @@ bool Mixer::solve(
   f_(3) = std::sin(thrust_angle);
   f_(4) = std::cos(thrust_angle);
   const Eigen::MatrixXd S_T = thrust_scale_.asDiagonal();
-  const Eigen::VectorXd x_t_base_unit = S_T * (E_.leftCols(thrusts_size_) * S_T).jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
+  const Eigen::VectorXd x_t_base_unit =
+    S_T * (E_.leftCols(thrusts_size_) * S_T).jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
   for (const auto& [idx, info] : std::views::enumerate(info_)) {
     // ティルト可能なモータに対してモーメント入力を考えない際のティルト角を計算しておく, thrust = 0になったときに使用
     if (info.is_tilt) {
@@ -289,14 +296,14 @@ bool Mixer::solve(
   for (const auto& [idx, info] : std::views::enumerate(info_)) {
     // 固定モータに対して推力>0の拘束を満たすようにする
     if (!info.is_tilt) {
-      if (x_t_base(info.column) < 0){
+      if (x_t_base(info.column) < 0) {
         x_t_base(info.column) = 0.0;
       }
     }
   }
   // 出せる最大角速度を求める
   Eigen::VectorXd max_thrust_diff = kMomentThrustRatio * x_t_base.cwiseAbs();
-  for (const auto& info: info_) {
+  for (const auto& info : info_) {
     if (info.is_tilt) {
       const auto x_index = info.column;
       const auto z_index = x_index + 1;
@@ -306,9 +313,10 @@ bool Mixer::solve(
   }
   const Eigen::Vector3d max_thrust_moment = E_.topLeftCorner(3, thrusts_size_).cwiseAbs() * max_thrust_diff;
   const Eigen::Vector3d max_cs_moment = dynamicPressure(rho, airspeed) * drone_.fixed_wing->vehicle.wing_surface *
-      Eigen::Vector3d(drone_.fixed_wing->vehicle.wing_span * max_cs_roll_effectiveness_,
-                      drone_.fixed_wing->vehicle.mac * max_cs_pitch_effectiveness_,
-                      drone_.fixed_wing->vehicle.wing_span * max_cs_yaw_effectiveness_);
+                                        Eigen::Vector3d(
+                                          drone_.fixed_wing->vehicle.wing_span * max_cs_roll_effectiveness_,
+                                          drone_.fixed_wing->vehicle.mac * max_cs_pitch_effectiveness_,
+                                          drone_.fixed_wing->vehicle.wing_span * max_cs_yaw_effectiveness_);
   const Eigen::Vector3d max_moment = max_thrust_moment + max_cs_moment;
   const Eigen::Vector3d max_angular_acc = I_B.data.diagonal().cwiseInverse().cwiseProduct(max_moment);
   // 空力による応答遅れの影響を考慮してPI要素を挟む アンチワインドアップを実施
@@ -329,10 +337,10 @@ bool Mixer::solve(
   z2_controller_.update(z_controller_.getValue(), dt);
   // モーメントに関してミキシングする. scale_でスケーリングして固定されたモータの推力>0の拘束違反を防ぐ
   const auto eom_rot_right_B = Eigen::Vector3d(
-    I_B.ixx() * x_controller_.getValue(),
-    I_B.iyy() * y_controller_.getValue(),
-    I_B.izz() * z2_controller_.getValue())
-     + cur_gyro_B * (I_B * cur_gyro_B);  // [Nm]
+                                 I_B.ixx() * x_controller_.getValue(),
+                                 I_B.iyy() * y_controller_.getValue(),
+                                 I_B.izz() * z2_controller_.getValue()) +
+                               cur_gyro_B * (I_B * cur_gyro_B);  // [Nm]
   f_.head<3>() = eom_rot_right_B.data - E_.topLeftCorner(3, thrusts_size_) * x_t_base;
   f_(3) = 0;
   f_(4) = 0;
@@ -368,9 +376,10 @@ double Mixer::getTiltAngle(size_t idx) const
   if (info.is_tilt) {
     const auto tx = x_(info.column);
     const auto tz = x_(info.column + 1);
-    if (isWithinThrustDeadband(tx) && isWithinThrustDeadband(tz)){
+    if (isWithinThrustDeadband(tx) && isWithinThrustDeadband(tz)) {
       return state.default_tilt_angle;
-    } else {
+    }
+    else {
       return calcUnConstrainedTiltAngle(tx, tz, info, state);
     }
   }
@@ -425,7 +434,11 @@ bool Mixer::calcModesAngularFreq()
   return true;
 }
 
-double Mixer::calcUnConstrainedTiltAngle(const double& tx, const double& tz, const StaticRotorLinkInfo& info, const DynamicRotorLinkState& state) const
+double Mixer::calcUnConstrainedTiltAngle(
+  const double& tx,
+  const double& tz,
+  const StaticRotorLinkInfo& info,
+  const DynamicRotorLinkState& state) const
 {
   return info.sign * (std::atan2(tx, tz) - state.alpha);
 }

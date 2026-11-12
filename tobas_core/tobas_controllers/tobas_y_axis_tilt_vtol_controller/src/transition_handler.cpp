@@ -8,18 +8,15 @@ namespace tobas
 {
 namespace y_axis_tilt_vtol
 {
-TransitionHandler::TransitionHandler(TranslationalEoM& trans_eom)
-: trans_eom_(trans_eom)
+TransitionHandler::TransitionHandler(TranslationalEoM& trans_eom) : trans_eom_(trans_eom)
 {
   forward_transition_traj_.setMaxPitchRate(kSafePitchRate);
 }
 
-void TransitionHandler::updateCommandType(
-  const CommandType& command_type)
+void TransitionHandler::updateCommandType(const CommandType& command_type)
 {
   if (command_type != last_command_type_) {
-    if (command_type == CommandType::FORWARD_FLIGHT
-    || command_type == CommandType::BACKWARD_TRANSITION){
+    if (command_type == CommandType::FORWARD_FLIGHT || command_type == CommandType::BACKWARD_TRANSITION) {
       require_initialization_ = true;
     }
   }
@@ -110,15 +107,7 @@ void TransitionHandler::solveForwardFlight(
   const auto tar_acc_z = ver_wn_ * (tar_vel_z - cur_vel_YW.z());
   // Compute target thrust and pitch.
   // 並進運動の方程式をx, z軸に関して解く tilt角は拘束
-  trans_eom_.solveXZDynamics(
-    tar_acc_x,
-    tar_acc_z,
-    thrust_angle,
-    cur_rot,
-    cur_vel_YW,
-    pitch,
-    thrust
-  );
+  trans_eom_.solveXZDynamics(tar_acc_x, tar_acc_z, thrust_angle, cur_rot, cur_vel_YW, pitch, thrust);
 }
 
 void TransitionHandler::solveBackwardTransition(
@@ -140,14 +129,7 @@ void TransitionHandler::solveBackwardTransition(
   const auto tar_acc_z = ver_wn_ * (tar_vel_z - cur_vel_YW.z());
   // Compute target thrust and pitch
   // 並進運動の方程式をz軸だけに関して解く tilt角は拘束
-  trans_eom_.solveZDynamics(
-    tar_acc_z,
-    thrust_angle,
-    cur_rot,
-    cur_vel_YW,
-    pitch,
-    thrust
-  );
+  trans_eom_.solveZDynamics(tar_acc_z, thrust_angle, cur_rot, cur_vel_YW, pitch, thrust);
 }
 
 kdl::Vector TransitionHandler::calcVelYW(const kdl::Vector& vel_G, const kdl::Rotation& rot)
@@ -157,5 +139,5 @@ kdl::Vector TransitionHandler::calcVelYW(const kdl::Vector& vel_G, const kdl::Ro
   return vel_YW;
 }
 
-} // namespace y_axis_tilt_vtol
-} // namespace tobas
+}  // namespace y_axis_tilt_vtol
+}  // namespace tobas

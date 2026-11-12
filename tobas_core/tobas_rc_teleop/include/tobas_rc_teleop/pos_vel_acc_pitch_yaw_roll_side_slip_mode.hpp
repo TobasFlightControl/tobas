@@ -5,8 +5,8 @@
 
 #include <tobas_trajectory_generation/online/velocity_limited.hpp>
 
-#include <tobas_command_msgs_adapter/pos_vel_acc_pitch_yaw.hpp>
 #include <tobas_command_msgs/msg/vel_roll_side_slip_mode.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc_pitch_yaw.hpp>
 
 #include "./base_controller.hpp"
 #include "./filter/second_order_velocity_filter.hpp"
@@ -17,9 +17,9 @@ namespace rc
 {
 class PosVelAccPitchYawRollSideSlipModeController : public BaseController
 {
-  static constexpr double kTiltStartAngle = 0.0;                // [rad]
-  static constexpr double kTiltFinishAngle = 0.5 * M_PI;        // [rad]
-  static constexpr double kBackwardTransitionFinishSpeed = 2.0; // [m/s]
+  static constexpr double kTiltStartAngle = 0.0;                 // [rad]
+  static constexpr double kTiltFinishAngle = 0.5 * M_PI;         // [rad]
+  static constexpr double kBackwardTransitionFinishSpeed = 2.0;  // [m/s]
 
   using self = PosVelAccPitchYawRollSideSlipModeController;
   using super = BaseController;
@@ -37,7 +37,8 @@ public:
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
-  enum ControlMode {
+  enum ControlMode
+  {
     MULTICOPTER,
     FORWARD_FLIGHT,
     BACKWARD_TRANSITION,
@@ -51,12 +52,12 @@ private:
   double tar_yaw_;
 
   // ROS parameters.
-  double max_hor_vel_;   // [m/s]
-  double max_ver_vel_;   // [m/s]
-  double max_roll_;      // [rad]
-  double max_yaw_rate_;  // [rad/s]
-  double max_side_slip_; // [rad]
-  double max_ep_down_;   // [m]
+  double max_hor_vel_;    // [m/s]
+  double max_ver_vel_;    // [m/s]
+  double max_roll_;       // [rad]
+  double max_yaw_rate_;   // [rad/s]
+  double max_side_slip_;  // [rad]
+  double max_ep_down_;    // [m]
   double hor_vel_expo_;
   double ver_vel_expo_;
   double roll_expo_;

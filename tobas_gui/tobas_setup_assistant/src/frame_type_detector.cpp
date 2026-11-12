@@ -128,8 +128,7 @@ FrameTypeDetectionResult FrameTypeDetector::determineFrameType()
       }
       else {
         msg += "  • which has a tilt axis that is not perpendicular to the propeller rotation axis\n";
-        return { FrameType::kUndefined,
-                 msg + kIsNotSupported };
+        return { FrameType::kUndefined, msg + kIsNotSupported };
       }
     }
   }

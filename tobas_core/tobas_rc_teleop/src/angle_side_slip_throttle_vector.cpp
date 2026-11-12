@@ -52,7 +52,8 @@ void AngleSideSlipThrottleVectorController::initialize(BaseNode* node, FlightMod
   node->addDynamicDoubleParam(addMode("throttle_expo", mode), &self::throttleExpoCb, this, 5.0, 0, 0, 20);
 
   multicopter_cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottleVector>(topic::kAngleThrotVectorCmd);
-  fixed_wing_cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::RollPitchSideSlipThrottleVector>(topic::kRollPitchSideSlipThrotVectorCmd);
+  fixed_wing_cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::RollPitchSideSlipThrottleVector>(
+    topic::kRollPitchSideSlipThrotVectorCmd);
 }
 
 void AngleSideSlipThrottleVectorController::reset(
@@ -110,7 +111,8 @@ void AngleSideSlipThrottleVectorController::update(const tobas_msgs::RCInput& rc
     cmd->throttle = throttle;
     cmd->thrust_angle = thrust_angle;
     multicopter_cmd_pub_->publish(std::move(cmd));
-  } else {
+  }
+  else {
     last_control_type_ = ControlType::FIXED_WING;
     auto cmd = std::make_unique<tobas_command_msgs::msg::RollPitchSideSlipThrottleVector>();
     cmd->header = rcin.header;

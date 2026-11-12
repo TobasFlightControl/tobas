@@ -8,7 +8,7 @@ namespace y_axis_tilt_vtol
 {
 class BackwardTransitionTrajectory
 {
-  static constexpr double kUpwardAngle = 0.0; // [rad]
+  static constexpr double kUpwardAngle = 0.0;  // [rad]
 public:
   explicit BackwardTransitionTrajectory();
   void setMaxTiltVelocity(const double& max_tilt_velocity);
@@ -24,5 +24,5 @@ private:
   // Configs
   double max_tilt_velocity_;
 };
-} // namespace y_axis_tilt_vtol
-} // namespace tobas
+}  // namespace y_axis_tilt_vtol
+}  // namespace tobas

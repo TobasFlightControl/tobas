@@ -16,10 +16,7 @@ Eigen::Vector2d f(const Eigen::Vector2d& x_vec)
 {
   const auto x = x_vec(0);
   const auto y = x_vec(1);
-  return Eigen::Vector2d(
-    tobas::math::sqr(x) + tobas::math::sqr(y) - 4,
-    tobas::math::sqr(x) - y - 1
-  );
+  return Eigen::Vector2d(tobas::math::sqr(x) + tobas::math::sqr(y) - 4, tobas::math::sqr(x) - y - 1);
 }
 
 Eigen::Matrix2d dfdx(const Eigen::Vector2d& x_vec)
@@ -27,8 +24,7 @@ Eigen::Matrix2d dfdx(const Eigen::Vector2d& x_vec)
   const auto x = x_vec(0);
   const auto y = x_vec(1);
   Eigen::Matrix2d J;
-  J << 2.0 * x, 2.0 * y,
-      2.0 * x, -1.0;
+  J << 2.0 * x, 2.0 * y, 2.0 * x, -1.0;
 
   return J;
 }

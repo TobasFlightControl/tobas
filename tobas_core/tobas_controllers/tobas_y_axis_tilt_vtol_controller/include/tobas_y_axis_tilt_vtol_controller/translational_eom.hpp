@@ -4,8 +4,8 @@
 #pragma once
 
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_kdl/tree_mass_holder.hpp>
 #include <tobas_kdl/euler.hpp>
+#include <tobas_kdl/tree_mass_holder.hpp>
 #include <tobas_nlp/newton_2d.hpp>
 
 namespace tobas
@@ -35,7 +35,6 @@ public:
     double& thrust_angle_out,
     kdl::Euler& angle_out);
 
-
   bool solveXZDynamics(
     const double& tar_acc_x,
     const double& tar_acc_z,
@@ -43,8 +42,7 @@ public:
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_vel_YW,
     double& pitch_out,
-    double& thrust_out
-  );
+    double& thrust_out);
 
   bool solveZDynamics(
     const double& tar_acc_z,
@@ -52,8 +50,7 @@ public:
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_vel_YW,
     double& pitch_out,
-    double& thrust_out
-  );
+    double& thrust_out);
 
 private:
   const Drone& drone_;

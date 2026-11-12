@@ -19,7 +19,7 @@ class AngleSideSlipThrottleVectorController : public BaseController
   using self = AngleSideSlipThrottleVectorController;
   using super = BaseController;
 
-  static constexpr double kMinThrustAngle =  0.0 / 180.0 * M_PI;
+  static constexpr double kMinThrustAngle = 0.0 / 180.0 * M_PI;
   static constexpr double kMaxThrustAngle = 90.0 / 180.0 * M_PI;
   static constexpr double kModeChangeThrustAngle = 30.0 / 180.0 * M_PI;
 
@@ -36,7 +36,8 @@ public:
   void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, bool landed) override;
 
 private:
-  enum ControlType {
+  enum ControlType
+  {
     MULTICOPTER,
     FIXED_WING,
   };
@@ -46,10 +47,10 @@ private:
   ControlType last_control_type_ = ControlType::MULTICOPTER;
 
   // ROS parameters.
-  double max_roll_;          // [rad]
-  double max_pitch_;         // [rad]
-  double max_side_slip_;     // [rad]
-  double max_yaw_rate_;      // [rad/s]
+  double max_roll_;       // [rad]
+  double max_pitch_;      // [rad]
+  double max_side_slip_;  // [rad]
+  double max_yaw_rate_;   // [rad/s]
   double roll_expo_;
   double pitch_expo_;
   double yaw_expo_;

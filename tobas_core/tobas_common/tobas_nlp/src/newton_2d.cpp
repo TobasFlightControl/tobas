@@ -19,7 +19,9 @@ NewtonSolver2d::NewtonSolver2d()
 {
 }
 
-void NewtonSolver2d::initialize(std::function<Eigen::Vector2d(const Eigen::Vector2d&)> f, std::function<Eigen::Matrix2d(const Eigen::Vector2d&)> dfdx)
+void NewtonSolver2d::initialize(
+  std::function<Eigen::Vector2d(const Eigen::Vector2d&)> f,
+  std::function<Eigen::Matrix2d(const Eigen::Vector2d&)> dfdx)
 {
   f_ = f;
   dfdx_ = dfdx;

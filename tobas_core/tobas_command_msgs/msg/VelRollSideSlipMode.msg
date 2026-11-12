@@ -5,7 +5,7 @@ std_msgs/Header header
 tobas_command_msgs/Priority priority
 
 float64 vel_x           # Target linear velocity expressed in the yaw-rotated global frame [m/s]
-float64 vel_z           # Taregt linear velocity expressed in the yaw-rotated global frame [m/s]
+float64 vel_z           # Target linear velocity expressed in the yaw-rotated global frame [m/s]
 float64 roll            # Target roll angle [rad]
 float64 side_slip       # Target side slip angle [rad]
 uint8 mode              # mode

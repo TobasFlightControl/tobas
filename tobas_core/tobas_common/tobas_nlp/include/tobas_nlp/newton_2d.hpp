@@ -28,7 +28,9 @@ public:
 
   explicit NewtonSolver2d();
 
-  void initialize(std::function<Eigen::Vector2d(const Eigen::Vector2d&)> f, std::function<Eigen::Matrix2d(const Eigen::Vector2d&)> dfdx);
+  void initialize(
+    std::function<Eigen::Vector2d(const Eigen::Vector2d&)> f,
+    std::function<Eigen::Matrix2d(const Eigen::Vector2d&)> dfdx);
 
   Error solve(Eigen::Vector2d& x);
 
