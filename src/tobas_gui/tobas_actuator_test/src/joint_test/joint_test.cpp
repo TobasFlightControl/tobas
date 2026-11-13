@@ -40,7 +40,6 @@ JointTestWidget::JointTestWidget(const rqt::RosQtBridge& _bridge, const kdl::Tre
   rows_->addWidget(instruction);
   rows_->addLayout(cols);
   rows_->addWidget(commands_publisher_);
-  rows_->addStretch();
 
   // Connection
   connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartButtonClicked);

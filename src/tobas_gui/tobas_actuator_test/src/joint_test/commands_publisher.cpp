@@ -13,7 +13,8 @@ namespace tobas::gui::at
 JointCommandsPublisherWidget::JointCommandsPublisherWidget(const kdl::Tree& _tree, const Drone& _drone)
   : tree_(_tree), drone_(_drone), joint_parser_(_tree)
 {
-  rows_ = new QVBoxLayout(this);
+  rows_ = new QVBoxLayout();
+  setLayout(rows_);
 
   connect(&publish_timer_, &QTimer::timeout, this, &self::publishCurrentValues);
 }
@@ -97,6 +98,8 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
     connect(commander, &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
     commanders_[jnt_name] = commander;
   }
+
+  rows_->addStretch();
 }
 
 void JointCommandsPublisherWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)

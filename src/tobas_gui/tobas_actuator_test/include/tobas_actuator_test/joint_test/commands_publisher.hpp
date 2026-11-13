@@ -11,6 +11,7 @@
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_math/definitions.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
 #include <tobas_ros2_tools/register.hpp>
 
@@ -18,7 +19,7 @@
 
 namespace tobas::gui::at
 {
-class JointCommandsPublisherWidget : public QWidget
+class JointCommandsPublisherWidget : public qt::ScrollArea
 {
   Q_OBJECT
 
