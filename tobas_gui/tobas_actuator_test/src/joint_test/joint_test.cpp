@@ -7,14 +7,13 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
+#include "tobas_actuator_test/constants.hpp"
+
 namespace tobas::gui::at
 {
 JointTestWidget::JointTestWidget(const rqt::RosQtBridge& _bridge, const kdl::Tree& _tree, const Drone& _drone)
   : tree_(_tree), drone_(_drone)
 {
-  constexpr int kButtonWidth = 100;
-  constexpr int kButtonHeight = 40;
-
   const auto instruction = new qt::DescriptionWidget(
     "1. Click 'Start' to start joint test.\n\n"
     "2. For each channel, confirm that the position, velocity, or effort is correctly following the command.\n\n"

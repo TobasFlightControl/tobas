@@ -30,7 +30,7 @@ namespace tobas::gui::sim
 SimulationWidget::SimulationWidget(const rqt::RosQtBridge& _bridge) : spinner_(Qt::WindowModal, this)
 {
   start_stop_button_ = new qt::ToggleButton("Start", "Terminate");
-  start_stop_button_->setFixedSize(100, 40);
+  start_stop_button_->setFixedSize(120, 40);
 
   sim_settings_ = new SimulationSettingsWidget();
   dynamic_config_ = new DynamicConfigWidget();

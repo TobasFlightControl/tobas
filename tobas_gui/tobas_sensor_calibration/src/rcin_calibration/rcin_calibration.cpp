@@ -18,6 +18,8 @@
 #include <tobas_real_common/handler.hpp>
 #include <tobas_ros2_tools/util.hpp>
 
+#include "tobas_sensor_calibration/constants.hpp"
+
 namespace tobas::gui::sc
 {
 RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone)
@@ -26,8 +28,6 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& _brid
   // The basic S.BUS throttle range is 172 to 1811.
   constexpr int kMinPeriod = 0;
   constexpr int kMaxPeriod = 2000;
-  constexpr int kButtonWidth = 100;
-  constexpr int kButtonHeight = 40;
   constexpr int kRangeSideShort = 50;
 
   const auto instruction = new qt::DescriptionWidget(

@@ -7,14 +7,11 @@
 
 #include <tobas_qt_tools/font.hpp>
 
-#include "tobas_flight_log_gui/constants.hpp"
-
 namespace tobas::gui::log
 {
 FlightLogItemWidgetFC::FlightLogItemWidgetFC(const QString& _log_name)
 {
   log_name_ = new QLabel(_log_name);
-  log_name_->setFont(qt::DefaultFont(kPSize3));
 
   download_button_ = new QPushButton("Download");
   delete_button_ = new QPushButton("Delete");

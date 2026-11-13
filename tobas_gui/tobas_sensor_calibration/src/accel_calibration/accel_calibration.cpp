@@ -10,6 +10,8 @@
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_ros2_tools/time.hpp>
 
+#include "tobas_sensor_calibration/constants.hpp"
+
 namespace tobas::gui::sc
 {
 AccelCalibrationWidget::AccelCalibrationWidget(const rqt::RosQtBridge& _bridge) : thread_(_bridge)
@@ -21,7 +23,7 @@ AccelCalibrationWidget::AccelCalibrationWidget(const rqt::RosQtBridge& _bridge) 
     cmn::kBodyPSize);
 
   start_button_ = new QPushButton("Start");
-  start_button_->setFixedSize(100, 40);
+  start_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
   level_indicator_ = new LevelIndicatorWidget();
 

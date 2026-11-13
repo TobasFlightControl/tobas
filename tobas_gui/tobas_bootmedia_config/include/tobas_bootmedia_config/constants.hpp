@@ -5,9 +5,9 @@
 
 namespace tobas::gui::bm
 {
-static constexpr int kCtrlButtonWidth = 100;
+static constexpr int kCtrlButtonWidth = 120;
 static constexpr int kCtrlButtonHeight = 40;
-static constexpr int kFormSpacing = 30;
+static constexpr int kFormSpacing = 32;
 
 static constexpr char kBootPath[] = "/mnt/bootfs";
 static constexpr char kRootPath[] = "/mnt/rootfs";
