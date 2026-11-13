@@ -65,9 +65,9 @@ SpeedmeterWidget::SpeedmeterWidget()
   gauge_row_ = new QHBoxLayout();
   gauge_row_->setContentsMargins(0, 0, 0, 0);
   gauge_row_->setSpacing(0);
-  gauge_row_->addStretch();
+  gauge_row_->addStretch(1);
   gauge_row_->addWidget(gauge_);
-  gauge_row_->addStretch();
+  gauge_row_->addStretch(1);
   updateGaugeAlignment();
 
   const auto rows = new QVBoxLayout(this);

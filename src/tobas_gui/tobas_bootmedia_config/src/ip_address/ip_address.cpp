@@ -27,7 +27,7 @@ IpAddressWidget::IpAddressWidget()
   rows_->addWidget(tabs_);
   rows_->addSpacing(30);
   qt::addWidgetCenter(write_button_, rows_);
-  rows_->addStretch();
+  rows_->addStretch(1);
 
   // Connection
   connect(write_button_, &QPushButton::clicked, this, &self::onWriteButtonClicked);

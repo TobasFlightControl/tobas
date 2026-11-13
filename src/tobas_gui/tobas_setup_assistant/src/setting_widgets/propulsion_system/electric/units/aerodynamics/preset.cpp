@@ -47,7 +47,7 @@ AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* _pro
 
   // Layout
   rows_->addWidget(data_name_);
-  rows_->addStretch();
+  rows_->addStretch(1);
 }
 
 void AerodynamicsWidget_Preset::setToDefaults()

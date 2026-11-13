@@ -33,7 +33,7 @@ JointTestWidget::JointTestWidget(const rqt::RosQtBridge& _bridge, const kdl::Tre
   // Layout
   const auto cols = new QHBoxLayout();
   cols->addWidget(start_stop_button_);
-  cols->addStretch();
+  cols->addStretch(1);
   cols->addWidget(zero_button_);
   cols->addWidget(home_button_);
 

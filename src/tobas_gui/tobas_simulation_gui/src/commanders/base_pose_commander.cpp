@@ -27,7 +27,7 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(const rqt::RosQtBridge& _bridge
 
   const auto title = new qt::Label("Base Pose", cmn::kSubTitlePointSize, QFont::Bold);
   header_cols->addWidget(title);
-  header_cols->addStretch();
+  header_cols->addStretch(1);
 
   arming_button_ = new qt::ToggleButton("Arm", "Disarm");
   arming_button_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);

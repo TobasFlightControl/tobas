@@ -19,7 +19,7 @@ PropulsionUnitWidget::PropulsionUnitWidget()
   copy_to_all_btn_->setFixedSize(125, 50);
   qt::addWidgetCenter(copy_to_all_btn_, rows);
 
-  button_cols->addStretch();
+  button_cols->addStretch(1);
 
   tabs_ = new qt::TabWidget();
   tabs_->enableWheelEvent(false);

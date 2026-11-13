@@ -34,7 +34,7 @@ SimulationSettingsWidget::SimulationSettingsWidget()
   debug_ = new DebugWidget();
   scroll_rows->addWidget(debug_);
 
-  scroll_rows->addStretch();
+  scroll_rows->addStretch(1);
 }
 
 fs::path SimulationSettingsWidget::worldPath() const

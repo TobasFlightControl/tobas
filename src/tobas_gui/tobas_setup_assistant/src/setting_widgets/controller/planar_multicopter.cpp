@@ -22,7 +22,7 @@ PlanarMulticopterWidget::PlanarMulticopterWidget()
   do_dist_comp_rot_ = new QCheckBox("Do Disturbance Compensation (Rotation)");
   rows->addWidget(do_dist_comp_rot_);
 
-  rows->addStretch();
+  rows->addStretch(1);
 }
 
 void PlanarMulticopterWidget::setToDefaults()

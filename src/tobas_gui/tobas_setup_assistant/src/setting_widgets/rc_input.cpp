@@ -33,7 +33,7 @@ RcInputWidget::RcInputWidget()
   disarm_duration_->setSuffix(" s");
   addWidget(disarm_duration_);
 
-  addStretch();
+  addStretch(1);
 }
 
 const char* RcInputWidget::name() const

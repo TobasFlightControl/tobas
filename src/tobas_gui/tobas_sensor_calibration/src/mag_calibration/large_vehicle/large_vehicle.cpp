@@ -31,7 +31,7 @@ LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const rqt::RosQtBridge& _
   const auto rows = new QVBoxLayout(this);
   rows->addWidget(instruction);
   rows->addWidget(start_button_);
-  rows->addStretch();
+  rows->addStretch(1);
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);

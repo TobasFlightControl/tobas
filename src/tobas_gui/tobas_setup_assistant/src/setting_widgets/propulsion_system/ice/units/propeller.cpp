@@ -64,7 +64,7 @@ PropellerWidget::PropellerWidget()
   max_chord_->setSuffix(" mm");
   rows->addWidget(max_chord_);
 
-  rows->addStretch();
+  rows->addStretch(1);
 }
 
 const char* PropellerWidget::name() const

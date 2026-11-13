@@ -20,7 +20,7 @@ ESCWidget::ESCWidget()
   max_cont_current_->setSuffix(" A");
   rows->addWidget(max_cont_current_);
 
-  rows->addStretch();
+  rows->addStretch(1);
 }
 
 const char* ESCWidget::name() const

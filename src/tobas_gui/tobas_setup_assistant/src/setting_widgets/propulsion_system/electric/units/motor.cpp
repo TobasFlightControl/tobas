@@ -38,7 +38,7 @@ MotorWidget::MotorWidget()
   min_speed_->setSuffix(" rpm");
   rows->addWidget(min_speed_);
 
-  rows->addStretch();
+  rows->addStretch(1);
 }
 
 const char* MotorWidget::name() const

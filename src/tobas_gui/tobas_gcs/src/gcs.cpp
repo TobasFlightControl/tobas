@@ -176,7 +176,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr _
   header_cols->addWidget(flight_log_btn);
   header_cols->addWidget(fc_console_btn);
   header_cols->addWidget(simulation_btn);
-  header_cols->addStretch();
+  header_cols->addStretch(1);
   header_cols->addWidget(remote_conn_);
   header_cols->addLayout(configuration);
 

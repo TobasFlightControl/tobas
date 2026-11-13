@@ -61,7 +61,7 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   cols->addWidget(delete_row_btn);
   cols->addWidget(clear_btn);
   cols->addWidget(load_csv_btn);
-  cols->addStretch();  // Left-align the button.
+  cols->addStretch(1);  // Left-align the button.
 
   rows_->addLayout(cols);
   rows_->addWidget(table_);

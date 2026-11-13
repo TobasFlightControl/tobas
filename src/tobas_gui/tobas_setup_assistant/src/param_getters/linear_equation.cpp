@@ -26,7 +26,7 @@ ParamGetterWidget_LinearEquation::ParamGetterWidget_LinearEquation(
   cols->addWidget(new QLabel(_value + " + "));
   cols->addWidget(c0_);
   cols->addWidget(suffix_);
-  cols->addStretch();
+  cols->addStretch(1);
 
   connect(c0_, qOverload<double>(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
   connect(c1_, qOverload<double>(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);

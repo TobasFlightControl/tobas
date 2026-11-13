@@ -29,7 +29,7 @@ DynamicConfigWidget::DynamicConfigWidget()
   suspended_load_ = new SuspendedLoadWidget();
   scroll_rows->addWidget(suspended_load_);
 
-  scroll_rows->addStretch();
+  scroll_rows->addStretch(1);
 }
 
 void DynamicConfigWidget::reset()

@@ -35,7 +35,7 @@ WindParamsWidget::WindParamsWidget()
   // Layout
   const auto header_cols = new QHBoxLayout();
   header_cols->addWidget(title);
-  header_cols->addStretch();
+  header_cols->addStretch(1);
   header_cols->addWidget(reset_button_);
 
   const auto form = new qt::FormLayout();

@@ -118,7 +118,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
     }
   }
 
-  slider_rows_->addStretch();
+  slider_rows_->addStretch(1);
 
   // Enable the control buttons only when controllable joints exist.
   setControlButtonsEnabled(!sliders_.empty());

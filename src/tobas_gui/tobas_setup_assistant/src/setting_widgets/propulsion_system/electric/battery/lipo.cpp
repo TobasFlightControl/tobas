@@ -31,7 +31,7 @@ BatteryWidget_LiPo::BatteryWidget_LiPo()
   registance_->setSuffix(" mΩ");
   rows->addWidget(registance_);
 
-  rows->addStretch();
+  rows->addStretch(1);
 }
 
 const char* BatteryWidget_LiPo::name() const

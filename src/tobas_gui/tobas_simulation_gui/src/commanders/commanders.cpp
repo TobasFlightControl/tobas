@@ -26,7 +26,7 @@ CommandersWidget::CommandersWidget(const rqt::RosQtBridge& _bridge, const kdl::T
   joint_commander_ = new JointCommanderWidget(_tree, _drone);
   scroll_rows->addWidget(joint_commander_);
 
-  scroll_rows->addStretch();
+  scroll_rows->addStretch(1);
 }
 
 void CommandersWidget::reset()

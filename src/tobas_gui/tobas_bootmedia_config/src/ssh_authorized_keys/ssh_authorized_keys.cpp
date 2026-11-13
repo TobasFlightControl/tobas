@@ -51,7 +51,7 @@ SshAuthorizedKeysWidget::SshAuthorizedKeysWidget()
   cols->addWidget(add_button_);
   cols->addWidget(remove_button_);
   cols->addWidget(clear_button_);
-  cols->addStretch();
+  cols->addStretch(1);
 
   rows_->addLayout(cols);
   rows_->addWidget(list_);

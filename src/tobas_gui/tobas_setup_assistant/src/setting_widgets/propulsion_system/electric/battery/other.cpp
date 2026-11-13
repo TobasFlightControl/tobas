@@ -47,7 +47,7 @@ BatteryWidget_Other::BatteryWidget_Other()
   registance_->setSuffix(" mΩ");
   rows->addWidget(registance_);
 
-  rows->addStretch();
+  rows->addStretch(1);
 }
 
 const char* BatteryWidget_Other::name() const

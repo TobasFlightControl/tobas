@@ -30,7 +30,7 @@ AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget()
   connect(load_button, &QPushButton::clicked, this, &self::onLoadButtonClicked);
   rows->addWidget(load_button);
 
-  cols->addStretch();
+  cols->addStretch(1);
 
   form_ = new qt::FormLayout();
   rows->addLayout(form_);

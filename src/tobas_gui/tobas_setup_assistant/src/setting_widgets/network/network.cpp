@@ -22,7 +22,7 @@ NetworkWidget::NetworkWidget()
   addWidget(new qt::DescriptionWidget("Specify the network interface used by the flight controller."));
   addWidget(nic_);
 
-  addStretch();
+  addStretch(1);
 }
 
 const char* NetworkWidget::name() const

@@ -26,7 +26,7 @@ MissionExecutorWidget::MissionExecutorWidget()
   stack_->addWidget(multicopter_);
 
   addWidget(stack_);
-  addStretch();
+  addStretch(1);
 }
 
 const char* MissionExecutorWidget::name() const

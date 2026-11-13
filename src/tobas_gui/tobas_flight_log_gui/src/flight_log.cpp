@@ -18,13 +18,14 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr _local_node, const rqt:
 
   // Layout
   const auto log_cols = new QHBoxLayout();
+  log_cols->setSpacing(4);
   log_cols->addWidget(logs_fc_, 1);
   log_cols->addWidget(logs_gcs_, 1);
 
   const auto ctrl_rows = new QVBoxLayout();
-  ctrl_rows->addWidget(recorder_);
-  ctrl_rows->addSpacing(30);
-  ctrl_rows->addLayout(log_cols);
+  ctrl_rows->addWidget(recorder_, 0);
+  ctrl_rows->addSpacing(16);
+  ctrl_rows->addLayout(log_cols, 1);
 
   const auto root_cols = new QHBoxLayout(this);
   root_cols->setContentsMargins(0, 0, 0, 0);

@@ -54,7 +54,7 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& _brid
   connect(cancel_button_, &QPushButton::clicked, this, &self::onCancelButtonClicked);
   button_cols->addWidget(cancel_button_);
 
-  button_cols->addStretch();
+  button_cols->addStretch(1);
 
   // Sticks
   const auto stick_cols = new QHBoxLayout();
@@ -71,7 +71,7 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& _brid
   roll_yaw_rows->addWidget(roll_range_);
   qt::addWidgetCenter(new QLabel(std::format("Roll (CH{})", kRcChannelRoll + 1).c_str()), roll_yaw_rows);
 
-  roll_yaw_rows->addStretch();
+  roll_yaw_rows->addStretch(1);
 
   const auto pitch_throt_label_cols = new QHBoxLayout();
   roll_yaw_rows->addLayout(pitch_throt_label_cols);
@@ -84,7 +84,7 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& _brid
   throt_label->setAlignment(Qt::AlignRight);
   pitch_throt_label_cols->addWidget(throt_label);
 
-  roll_yaw_rows->addStretch();
+  roll_yaw_rows->addStretch(1);
 
   qt::addWidgetCenter(new QLabel(std::format("Yaw (CH{})", kRcChannelYaw + 1).c_str()), roll_yaw_rows);
   yaw_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);

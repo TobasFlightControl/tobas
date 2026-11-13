@@ -21,7 +21,7 @@ EngineResponseWidget::EngineResponseWidget()
   time_const_down_->setSuffix(" ms");
   rows->addWidget(time_const_down_);
 
-  rows->addStretch();
+  rows->addStretch(1);
 }
 
 void EngineResponseWidget::setToDefaults()

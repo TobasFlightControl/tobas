@@ -46,7 +46,7 @@ ObserverWidget::ObserverWidget()
   do_grav_estimation_ = new QCheckBox("Do Gravity Estimation");
   addWidget(do_grav_estimation_);
 
-  addStretch();
+  addStretch(1);
 }
 
 const char* ObserverWidget::name() const

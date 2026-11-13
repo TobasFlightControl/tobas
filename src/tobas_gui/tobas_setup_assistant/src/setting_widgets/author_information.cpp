@@ -64,7 +64,7 @@ AuthorInformationWidget::AuthorInformationWidget()
   email_ = new ParamGetterWidget_LineEdit("Email of the Maintainer", "");
   addWidget(email_);
 
-  addStretch();
+  addStretch(1);
 }
 
 const char* AuthorInformationWidget::name() const

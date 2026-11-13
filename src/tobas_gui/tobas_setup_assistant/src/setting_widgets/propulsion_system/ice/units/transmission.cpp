@@ -19,7 +19,7 @@ TransmissionWidget::TransmissionWidget()
   gear_ratio_->setRightText("Propeller");
   rows->addWidget(gear_ratio_);
 
-  rows->addStretch();
+  rows->addStretch(1);
 }
 
 const char* TransmissionWidget::name() const

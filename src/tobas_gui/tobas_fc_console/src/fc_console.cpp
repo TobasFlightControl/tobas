@@ -51,7 +51,7 @@ FcConsoleWidget::FcConsoleWidget(QWidget* _parent) : QWidget(_parent)
   controls->addWidget(service_);
   controls->addWidget(start_stop_btn_);
   controls->addWidget(status_label_);
-  controls->addStretch();
+  controls->addStretch(1);
   controls->addWidget(wrap);
   controls->addWidget(clear_btn);
   controls->addWidget(save_btn);

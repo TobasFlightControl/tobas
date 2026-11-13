@@ -71,7 +71,7 @@ CompleteMagCalibWidget::CompleteMagCalibWidget(const rqt::RosQtBridge& _bridge) 
   button_cols->addWidget(start_button_);
   button_cols->addWidget(finish_button_);
   button_cols->addWidget(cancel_button_);
-  button_cols->addStretch();
+  button_cols->addStretch(1);
 
   const auto face_cols = new QHBoxLayout();
   for (const auto& face_circle : face_circles_) {

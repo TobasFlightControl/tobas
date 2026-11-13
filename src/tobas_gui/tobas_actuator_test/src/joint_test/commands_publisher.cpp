@@ -99,7 +99,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
     commanders_[jnt_name] = commander;
   }
 
-  rows_->addStretch();
+  rows_->addStretch(1);
 }
 
 void JointCommandsPublisherWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)

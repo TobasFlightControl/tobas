@@ -37,7 +37,7 @@ JointCommanderWidget::JointCommanderWidget(const kdl::Tree& _tree, const Drone& 
   // Layout
   const auto header_cols = new QHBoxLayout();
   header_cols->addWidget(title);
-  header_cols->addStretch();
+  header_cols->addStretch(1);
   header_cols->addWidget(start_stop_button_);
 
   const auto button_cols = new QHBoxLayout();

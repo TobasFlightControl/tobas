@@ -36,7 +36,7 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr _node) : ssh_clie
   // Layout
   const auto cols = new QHBoxLayout();
   cols->addWidget(new qt::Label("Flight Controller", 12, QFont::Bold));
-  cols->addStretch();
+  cols->addStretch(1);
   cols->addWidget(read_button_);
   cols->addWidget(clean_button_);
 
