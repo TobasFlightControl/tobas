@@ -324,11 +324,6 @@ bool GnssReceiver::configureMeasurementRate()
 
 bool GnssReceiver::enableGps()
 {
-  if (!receiver_model_) {
-    std::cerr << "GNSS receiver is not initialized.\n";
-    return false;
-  }
-
   // Enable GPS.
   if (!enableGps(true)) {
     std::cerr << "Failed to enable GPS.\n";
@@ -400,11 +395,6 @@ bool GnssReceiver::disableSbas()
 
 bool GnssReceiver::enableGalileo()
 {
-  if (!receiver_model_) {
-    std::cerr << "GNSS receiver is not initialized.\n";
-    return false;
-  }
-
   // Enable Galileo.
   if (!enableGalileo(true)) {
     std::cerr << "Failed to enable Galileo.\n";
@@ -454,11 +444,6 @@ bool GnssReceiver::disableGalileo()
 
 bool GnssReceiver::enableBeiDou()
 {
-  if (!receiver_model_) {
-    std::cerr << "GNSS receiver is not initialized.\n";
-    return false;
-  }
-
   // Enable BeiDou.
   if (!enableBeiDou(true)) {
     std::cerr << "Failed to enable BeiDou.\n";
@@ -508,11 +493,6 @@ bool GnssReceiver::disableBeiDou()
 
 bool GnssReceiver::enableQzss()
 {
-  if (!receiver_model_) {
-    std::cerr << "GNSS receiver is not initialized.\n";
-    return false;
-  }
-
   // Enable QZSS.
   if (!enableQzss(true)) {
     std::cerr << "Failed to enable QZSS.\n";

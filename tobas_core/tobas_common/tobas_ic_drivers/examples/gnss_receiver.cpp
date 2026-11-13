@@ -53,12 +53,6 @@ int main(int _argc, char* _argv[])
     return EXIT_FAILURE;
   }
 
-  cout << "Configuring measurement rate.\n";
-  if (!gnss.configureMeasurementRate(1000)) {
-    cerr << "Failed to configure measurement rate.\n";
-    return EXIT_FAILURE;
-  }
-
   // Enable GNSS.
   cout << "Enabling GNSS.\n";
   if (!gnss.enableGps()) {
