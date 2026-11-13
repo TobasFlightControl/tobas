@@ -17,6 +17,9 @@ constexpr char kDeadBackgroundColor[] = "red";
 RotorsViewerWiddget::RotorsViewerWiddget(const rqt::RosQtBridge& _bridge, const Drone& _drone) : drone_(_drone)
 {
   cols_ = new QHBoxLayout(this);
+  cols_->setContentsMargins(2, 0, 2, 0);
+  cols_->setSpacing(0);
+  cols_->setSizeConstraint(QLayout::SetNoConstraint);
 
   connect(&_bridge, &rqt::RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
   connect(&_bridge, &rqt::RosQtBridge::rotorLivelinessReceived, this, &self::rotorLivelinessCb, Qt::QueuedConnection);
@@ -41,7 +44,7 @@ void RotorsViewerWiddget::updateInternalDataStructures()
     meter->setTopText(QString::fromStdString(link_name));
 
     meters_[link_name] = meter;
-    cols_->addWidget(meter);
+    cols_->addWidget(meter, 1);
   }
 }
 

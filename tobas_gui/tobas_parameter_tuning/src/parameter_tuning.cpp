@@ -37,7 +37,7 @@ ParameterTuningWidget::ParameterTuningWidget()
   default_button_ = new QPushButton("Default");
   default_button_->setToolTip("Restore all dynamic parameters to their default values.");
 
-  constexpr int kButtonWidth = 100;
+  constexpr int kButtonWidth = 120;
   constexpr int kButtonHeight = 40;
   load_button_->setFixedSize(kButtonWidth, kButtonHeight);
   save_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -48,6 +48,7 @@ ParameterTuningWidget::ParameterTuningWidget()
 
   // Layout
   const auto root_rows = new QVBoxLayout(this);
+  root_rows->setContentsMargins(0, 0, 0, 0);
 
   const auto button_cols = new QHBoxLayout();
   root_rows->addLayout(button_cols);

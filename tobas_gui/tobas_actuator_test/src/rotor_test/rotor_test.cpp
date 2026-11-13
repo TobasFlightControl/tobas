@@ -16,6 +16,8 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/core.hpp>
 
+#include "tobas_actuator_test/constants.hpp"
+
 namespace tobas::gui::at
 {
 namespace
@@ -29,9 +31,6 @@ std::string paramName(size_t _ch)
 RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone)
   : bridge_(_bridge), drone_(_drone)
 {
-  constexpr int kButtonWidth = 100;
-  constexpr int kButtonHeight = 40;
-
   registered_.fill(false);
 
   const auto warning =

@@ -31,8 +31,8 @@ ArmStateBanner::ArmStateBanner(const rqt::RosQtBridge& _bridge)
 {
   setAlignment(Qt::AlignCenter);
   setAutoFillBackground(true);
-  setFixedHeight(30);
-  setFont(qt::DefaultFont(14, QFont::Bold));
+  setFixedHeight(20);
+  setFont(qt::DefaultFont(-1, QFont::Bold));
   setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
 
   connect(&_bridge, &rqt::RosQtBridge::armingReceived, this, &self::armingCb, Qt::QueuedConnection);

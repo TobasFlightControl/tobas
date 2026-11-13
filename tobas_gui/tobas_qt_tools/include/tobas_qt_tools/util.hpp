@@ -26,8 +26,8 @@ void addSpacing(QVBoxLayout* _rows, int _height, QSizePolicy::Policy _v_policy);
 /** Insert a spacer with a size policy. */
 void addSpacing(QHBoxLayout* _cols, int _width, QSizePolicy::Policy _h_policy);
 
-/** Create a titled group box containing the widget. */
-QGroupBox* makeGroup(const QString& _title, QWidget* _widget, int _margin = 0);
+/** Create a group box containing the widget with an optional title. */
+QGroupBox* makeGroup(QWidget* _widget, const QString& _title = "", int _margin = 0);
 
 /** Create a fixed-width `QVBoxLayout`. */
 QVBoxLayout* createFixedWidthQVBoxLayout(int _width, QBoxLayout* _parent);

@@ -9,6 +9,8 @@ namespace tobas::gui::ctrl
 {
 HealthViewerWidget::HealthViewerWidget(const rqt::RosQtBridge& _bridge)
 {
+  setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+
   rt_compliance_status_ = new StatusWidget("Realtime Compliance");
   battery_voltage_status_ = new StatusWidget("Battery Voltage");
   cpu_temp_status_ = new StatusWidget("CPU Temperature");
@@ -17,8 +19,8 @@ HealthViewerWidget::HealthViewerWidget(const rqt::RosQtBridge& _bridge)
   level_atti_status_ = new StatusWidget("Level Attitude");
   gnss_fix_status_ = new StatusWidget("GNSS Fix");
   pos_stability_status_ = new StatusWidget("Position Stability");
-  hor_pos_accuracy_status_ = new StatusWidget("Horizontal Position Accuracy");
-  ver_pos_accuracy_status_ = new StatusWidget("Vertical Position Accuracy");
+  hor_pos_accuracy_status_ = new StatusWidget("Position Accuracy");
+  ver_pos_accuracy_status_ = new StatusWidget("Altitude Accuracy");
   atti_accuracy_status_ = new StatusWidget("Attitude Accuracy");
   head_accuracy_status_ = new StatusWidget("Heading Accuracy");
   mag_offset_status_ = new StatusWidget("Mag Offset");
@@ -28,6 +30,7 @@ HealthViewerWidget::HealthViewerWidget(const rqt::RosQtBridge& _bridge)
 
   // Layout
   const auto rows = new QVBoxLayout(this);
+  rows->setContentsMargins(2, 2, 2, 2);
   rows->addWidget(rt_compliance_status_);
   rows->addWidget(battery_voltage_status_);
   rows->addWidget(cpu_temp_status_);
@@ -44,7 +47,6 @@ HealthViewerWidget::HealthViewerWidget(const rqt::RosQtBridge& _bridge)
   rows->addWidget(mag_alignment_status_);
   rows->addWidget(vibration_level_status_);
   rows->addWidget(user_defined_status_);
-  rows->addStretch();
 
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::vehicleHealthReceived, this, &self::healthCb, Qt::QueuedConnection);

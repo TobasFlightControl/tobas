@@ -7,10 +7,10 @@
 #include <format>
 #include <memory>
 
+#include <QFormLayout>
+
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
 
 namespace tobas::gui::ctrl
 {
@@ -19,15 +19,13 @@ BatteryViewerWidget::BatteryViewerWidget(const rqt::RosQtBridge& _bridge, const 
   voltage_ = new qt::ProgressBar();
   current_ = new qt::ProgressBar();
 
-  constexpr int kBarHeight = 30;
-  voltage_->setFixedHeight(kBarHeight);
-  current_->setFixedHeight(kBarHeight);
-
   // Layout
-  const auto form = new qt::FormLayout(this);
-  constexpr int kLabelPSize = 12;
-  form->addVAlignedRow(new qt::Label("Volt", kLabelPSize), voltage_);
-  form->addVAlignedRow(new qt::Label("Curr", kLabelPSize), current_);
+  const auto form = new QFormLayout(this);
+  form->setContentsMargins(2, 0, 2, 0);
+  form->setSpacing(2);
+  form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  form->addRow("Voltage", voltage_);
+  form->addRow("Current", current_);
 
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::batteryReceived, this, &self::batteryCb, Qt::QueuedConnection);
@@ -55,7 +53,7 @@ void BatteryViewerWidget::updateVoltage(double _voltage)
 {
   const auto volt_rate = math::remap(_voltage, eprop_->battery.sag_voltage, eprop_->battery.max_voltage, 0.0, 100.0);
   voltage_->setPercentage(volt_rate);
-  voltage_->setFormat(std::format("{:.2f} V ({:.0f} %)", _voltage, std::clamp(volt_rate, 0.0, 100.0)).c_str());
+  voltage_->setFormat(std::format("{:.1f} V ({:.0f} %)", _voltage, std::clamp(volt_rate, 0.0, 100.0)).c_str());
 
   if (volt_rate > 20.0) {
     voltage_->setFillColor(qt::color::green500());

@@ -77,5 +77,4 @@ QString NetworkWidget::networkInterface() const
 {
   return nic_->networkInterface();
 }
-
 }  // namespace tobas::gui::sa::network

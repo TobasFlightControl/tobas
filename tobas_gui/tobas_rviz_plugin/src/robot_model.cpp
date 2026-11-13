@@ -512,5 +512,4 @@ LinkModel::SharedPtr RobotModel::constructLinkModel(const urdf::LinkConstSharedP
 
   return new_link_model;
 }
-
 }  // namespace tobas::rviz

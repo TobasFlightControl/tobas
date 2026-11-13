@@ -7,17 +7,15 @@
 
 #include <QFileInfo>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QVBoxLayout>
 
 #include <tobas_constants/path.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/thread.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_string_tools/core.hpp>
-
-#include "tobas_flight_log_gui/constants.hpp"
 
 namespace fs = std::filesystem;
 
@@ -44,7 +42,7 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& _bridge
 
   // Layout
   const auto name_cols = new QHBoxLayout();
-  name_cols->addWidget(new qt::Label("Log Name", kPSize2));
+  name_cols->addWidget(new QLabel("Log Name"));
   name_cols->addWidget(log_name_);
 
   const auto ctrl_cols = new QHBoxLayout();
@@ -53,8 +51,8 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& _bridge
   ctrl_cols->addWidget(duration_);
 
   const auto state_form = new qt::FormLayout();
-  state_form->addVAlignedRow(new qt::Label("File Size", kPSize2), file_size_);
-  state_form->addVAlignedRow(new qt::Label("Message Count", kPSize2), message_count_);
+  state_form->addVAlignedRow(new QLabel("File Size"), file_size_);
+  state_form->addVAlignedRow(new QLabel("Message Count"), message_count_);
 
   const auto root_rows = new QVBoxLayout(this);
   root_rows->addLayout(name_cols);

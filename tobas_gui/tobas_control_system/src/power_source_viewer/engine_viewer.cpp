@@ -10,7 +10,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
 
 namespace tobas::gui::ctrl
 {
@@ -19,15 +18,13 @@ EngineViewerWidget::EngineViewerWidget(const rqt::RosQtBridge& _bridge, const Dr
   fuel_quantity_ = new qt::ProgressBar();
   oil_temp_ = new qt::ProgressBar();
 
-  constexpr int kBarHeight = 30;
-  fuel_quantity_->setFixedHeight(kBarHeight);
-  oil_temp_->setFixedHeight(kBarHeight);
-
   // Layout
   const auto form = new qt::FormLayout(this);
-  constexpr int kLabelPSize = 12;
-  form->addVAlignedRow(new qt::Label("Fuel QTY", kLabelPSize), fuel_quantity_);
-  form->addVAlignedRow(new qt::Label("Oil Temp", kLabelPSize), oil_temp_);
+  form->setContentsMargins(2, 0, 2, 0);
+  form->setSpacing(2);
+  form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  form->addRow("Fuel QTY", fuel_quantity_);
+  form->addRow("Oil Temp", oil_temp_);
 
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::engineStateReceived, this, &self::engineStateCb, Qt::QueuedConnection);
@@ -57,7 +54,7 @@ void EngineViewerWidget::updateFuelQuantity(double _fuel_quantity)
   const auto fuel_rate = math::remap(_fuel_quantity, 0.0, kMaxFuelQuantity, 0.0, 100.0);
   fuel_quantity_->setPercentage(fuel_rate);
   fuel_quantity_->setFormat(
-    std::format("{:.2f} L ({:.0f} %)", _fuel_quantity, std::clamp(fuel_rate, 0.0, 100.0)).c_str());
+    std::format("{:.1f} L ({:.0f} %)", _fuel_quantity, std::clamp(fuel_rate, 0.0, 100.0)).c_str());
 
   if (fuel_rate > 20.0) {
     fuel_quantity_->setFillColor(qt::color::green500());

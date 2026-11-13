@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QHBoxLayout>
+#include <QWidget>
 
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>

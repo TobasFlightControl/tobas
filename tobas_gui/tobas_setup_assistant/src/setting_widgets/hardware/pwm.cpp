@@ -27,7 +27,6 @@ constexpr int kNumCols = kPeriodUbCol + 1;
 constexpr char kTargetNameLabel[] = "Target";
 constexpr char kPeriodLbLabel[] = "PWM Period (LB)";
 constexpr char kPeriodUbLabel[] = "PWM Period (UB)";
-
 }  // namespace
 
 PwmWidget::PwmWidget(const uadf::Model& _uadf, const Signals& _sig) : super(0, kNumCols), uadf_(_uadf)

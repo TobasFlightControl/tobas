@@ -98,13 +98,18 @@ MissionPlannerWidget::MissionPlannerWidget(const rqt::RosQtBridge& _bridge) : sp
   button_cols->addWidget(focus_button_, 1);
 
   const auto mission_cols = new QHBoxLayout();
-  mission_cols->addWidget(qt::makeGroup("Commands", command_list_), 1);
-  mission_cols->addWidget(qt::makeGroup("Command Details", commands_), 3);
+  mission_cols->addWidget(command_list_, 1);
+  mission_cols->addWidget(qt::makeGroup(commands_), 3);
+
+  const auto plan_rows = new QVBoxLayout();
+  plan_rows->setContentsMargins(0, 0, 0, 0);
+  plan_rows->addLayout(button_cols, 0);
+  plan_rows->addLayout(mission_cols, 1);
 
   const auto rows = new QVBoxLayout(this);
-  rows->addWidget(map_, 2);
-  rows->addLayout(button_cols, 0);
-  rows->addLayout(mission_cols, 1);
+  rows->setContentsMargins(0, 0, 0, 0);
+  rows->addWidget(map_, 8);
+  rows->addLayout(plan_rows, 5);
 
   // Connection
   connect(map_, &MapWidget::waypointMoved, this, &self::onWaypointMoved);

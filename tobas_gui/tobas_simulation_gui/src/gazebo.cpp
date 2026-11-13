@@ -61,7 +61,6 @@ bool waitUntilGazeboRenderingReady()
   WaitUntilGazeboRenderingReadyThread thread;
   return std::get<0>(qt::startThreadAndWait(thread, &WaitUntilGazeboRenderingReadyThread::finished));
 }
-
 }  // namespace tobas::gui::sim
 
 #include "gazebo.moc"

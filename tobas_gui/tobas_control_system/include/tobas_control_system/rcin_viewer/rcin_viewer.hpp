@@ -30,14 +30,13 @@ private:
   StickPanel* yaw_pitch_;
   StickPanel* roll_throttle_;
 
-  QLabel* enable_;
   QLabel* kill_;
   QLabel* sub_mode_;
   QLabel* acrobat_;
   QLabel* stabilize_;
   QLabel* loiter_;
 
-  QLabel* makeBadge(const QString& _text) const;
+  QLabel* makeBadge() const;
   void setBadge(QLabel* _badge, const QString& _text, const QColor& _background);
   void setMode(FlightMode _mode);
 

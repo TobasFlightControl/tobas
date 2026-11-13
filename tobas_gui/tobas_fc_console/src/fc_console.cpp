@@ -57,6 +57,7 @@ FcConsoleWidget::FcConsoleWidget(QWidget* _parent) : QWidget(_parent)
   controls->addWidget(save_btn);
 
   const auto rows = new QVBoxLayout(this);
+  rows->setContentsMargins(0, 0, 0, 0);
   rows->addLayout(controls);
   rows->addWidget(output_);
 

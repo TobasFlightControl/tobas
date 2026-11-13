@@ -27,6 +27,7 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
+#include "tobas_sensor_calibration/constants.hpp"
 #include "tobas_sensor_calibration/util.hpp"
 
 namespace tobas::gui::sc
@@ -49,8 +50,6 @@ CompleteMagCalibWidget::CompleteMagCalibWidget(const rqt::RosQtBridge& _bridge) 
   finish_button_ = new QPushButton("Finish");
   cancel_button_ = new QPushButton("Cancel");
 
-  constexpr int kButtonWidth = 100;
-  constexpr int kButtonHeight = 40;
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);
   finish_button_->setFixedSize(kButtonWidth, kButtonHeight);
   cancel_button_->setFixedSize(kButtonWidth, kButtonHeight);

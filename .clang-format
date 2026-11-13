@@ -96,5 +96,7 @@ FixNamespaceComments: true
 ShortNamespaceLines: 0
 InsertBraces: true
 AllowAllArgumentsOnNextLine: true
-RemoveEmptyLinesInUnwrappedLines: true
 EnumTrailingComma: Insert
+AllowShortNamespacesOnASingleLine: false
+RemoveEmptyLinesInUnwrappedLines: true
+WrapNamespaceBodyWithEmptyLines: Never

@@ -7,6 +7,7 @@
 
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLayout>
 #include <QStackedWidget>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -19,6 +20,7 @@ namespace tobas::gui::ctrl
 BaseCommandWidget::BaseCommandWidget()
 {
   const auto root_rows = new QVBoxLayout(this);
+  root_rows->setContentsMargins(-1, 0, -1, 0);
 
   const auto header_cols = new QHBoxLayout();
   root_rows->addLayout(header_cols);
@@ -27,7 +29,7 @@ BaseCommandWidget::BaseCommandWidget()
   label_->setFont(qt::DefaultFont(12, QFont::Bold));
   header_cols->addWidget(label_);
 
-  header_cols->addStretch();
+  header_cols->addStretch(1);
 
   delete_button_ = new QPushButton("Delete");
   header_cols->addWidget(delete_button_);
@@ -41,6 +43,7 @@ BaseCommandWidget::BaseCommandWidget()
   scroll_area->setWidget(content);
 
   form_ = new qt::FormLayout();
+  form_->setVerticalSpacing(4);
   field_rows->addLayout(form_);
 
   field_rows->addStretch(1);  // Minimize the form widget.
@@ -69,6 +72,7 @@ void BaseCommandWidget::addField(field::BaseFieldWidget* _widget, bool _overrida
     stacked->setCurrentIndex(1);
   }
 
+  _widget->layout()->setContentsMargins(-1, 0, -1, 0);
   form_->addVAlignedRow(checkbox, stacked);
 
   connect(checkbox, &QCheckBox::toggled, [stacked](bool _checked) { stacked->setCurrentIndex((int)_checked); });

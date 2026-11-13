@@ -93,5 +93,4 @@ std::expected<void, std::string> cleanWorkspace(const fs::path& _ws_path)
 
   return {};
 }
-
 }  // namespace tobas::colcon

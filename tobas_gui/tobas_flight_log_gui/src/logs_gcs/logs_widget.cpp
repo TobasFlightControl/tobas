@@ -17,7 +17,6 @@
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 
-#include "tobas_flight_log_gui/constants.hpp"
 #include "tobas_flight_log_gui/logs_gcs/exporter/export_thread_csv.hpp"
 #include "tobas_flight_log_gui/logs_gcs/exporter/export_thread_rosbag.hpp"
 #include "tobas_flight_log_gui/logs_gcs/log_item.hpp"
@@ -31,10 +30,9 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
 
-  constexpr int kButtonWidth = 100;
-  constexpr int kButtonHeight = 40;
-  read_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  clean_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  constexpr int kButtonWidth = 72;
+  read_button_->setFixedWidth(kButtonWidth);
+  clean_button_->setFixedWidth(kButtonWidth);
 
   read_button_->setEnabled(true);
   clean_button_->setEnabled(false);
@@ -44,7 +42,7 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
 
   // Layout
   const auto cols = new QHBoxLayout();
-  cols->addWidget(new qt::Label("Ground Station", kPSize1, QFont::Bold));
+  cols->addWidget(new qt::Label("Ground Station", 12, QFont::Bold));
   cols->addStretch();
   cols->addWidget(read_button_);
   cols->addWidget(clean_button_);

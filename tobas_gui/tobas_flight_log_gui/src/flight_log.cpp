@@ -27,6 +27,7 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr _local_node, const rqt:
   ctrl_rows->addLayout(log_cols);
 
   const auto root_cols = new QHBoxLayout(this);
+  root_cols->setContentsMargins(0, 0, 0, 0);
   root_cols->addLayout(ctrl_rows, 1);
   root_cols->addWidget(log_viewer_, 2);
 

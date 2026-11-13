@@ -73,5 +73,4 @@ std::expected<Eigen::VectorXd, std::string> PinvMixer::solve(
   const auto thrusts = E_.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_);
   return thrustDeadband(thrusts);
 }
-
 }  // namespace tobas::planar_multicopter

@@ -8,19 +8,18 @@
 
 namespace tobas::gui::ctrl
 {
-class ConsoleWidget : public QWidget
+class ConsoleWidget : public qt::TableWidget
 {
   Q_OBJECT
 
   using self = ConsoleWidget;
+  using super = qt::TableWidget;
 
 public:
   explicit ConsoleWidget(const rqt::RosQtBridge& _bridge);
 
-  void reset();
-
-private:
-  qt::TableWidget* table_;
+protected:
+  int sizeHintForColumn(int _column) const override;
 
 private Q_SLOTS:
   void messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& _msg);

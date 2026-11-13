@@ -5,6 +5,6 @@
 
 namespace tobas::gui::sim
 {
-static constexpr int kHeaderButtonWidth = 100;
+static constexpr int kHeaderButtonWidth = 120;
 static constexpr int kHeaderButtonHeight = 40;
 }  // namespace tobas::gui::sim

@@ -18,6 +18,7 @@ void blockSignalsRec(QObject* _obj, bool _block)
 void addWidgetCenter(QWidget* _widget, QVBoxLayout* _rows, int _stretch)
 {
   const auto cols = new QHBoxLayout();
+  cols->setContentsMargins(0, 0, 0, 0);
   cols->addWidget(_widget);
   cols->setAlignment(_widget, Qt::AlignHCenter);
   _rows->addLayout(cols, _stretch);
@@ -26,6 +27,7 @@ void addWidgetCenter(QWidget* _widget, QVBoxLayout* _rows, int _stretch)
 void addWidgetCenter(QWidget* _widget, QHBoxLayout* _cols, int _stretch)
 {
   const auto rows = new QVBoxLayout();
+  rows->setContentsMargins(0, 0, 0, 0);
   rows->addWidget(_widget);
   rows->setAlignment(_widget, Qt::AlignVCenter);
   _cols->addLayout(rows, _stretch);
@@ -43,7 +45,7 @@ void addSpacing(QHBoxLayout* _cols, int _width, QSizePolicy::Policy _h_policy)
   _cols->addSpacerItem(spacer);
 }
 
-QGroupBox* makeGroup(const QString& _title, QWidget* _widget, int _margin)
+QGroupBox* makeGroup(QWidget* _widget, const QString& _title, int _margin)
 {
   const auto group = new QGroupBox(_title);
   const auto rows = new QVBoxLayout(group);

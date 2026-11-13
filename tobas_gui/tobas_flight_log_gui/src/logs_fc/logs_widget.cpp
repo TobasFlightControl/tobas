@@ -17,7 +17,6 @@
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_std_tools/check.hpp>
 
-#include "tobas_flight_log_gui/constants.hpp"
 #include "tobas_flight_log_gui/logs_fc/log_item.hpp"
 
 namespace tobas::gui::log
@@ -27,17 +26,16 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr _node) : ssh_clie
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
 
-  constexpr int kButtonWidth = 100;
-  constexpr int kButtonHeight = 40;
-  read_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  clean_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  constexpr int kButtonWidth = 72;
+  read_button_->setFixedWidth(kButtonWidth);
+  clean_button_->setFixedWidth(kButtonWidth);
 
   log_list_ = new qt::ListWidget();
   log_list_->setSelectionMode(QListWidget::NoSelection);
 
   // Layout
   const auto cols = new QHBoxLayout();
-  cols->addWidget(new qt::Label("Flight Controller", kPSize1, QFont::Bold));
+  cols->addWidget(new qt::Label("Flight Controller", 12, QFont::Bold));
   cols->addStretch();
   cols->addWidget(read_button_);
   cols->addWidget(clean_button_);
