@@ -19,7 +19,6 @@ constexpr int kNameCol = kStampCol + 1;
 constexpr int kLevelCol = kNameCol + 1;
 constexpr int kMessageCol = kLevelCol + 1;
 constexpr int kNumCols = kMessageCol + 1;
-
 }  // namespace
 
 ConsoleWidget::ConsoleWidget(const rqt::RosQtBridge& _bridge) : super(0, kNumCols)
@@ -44,9 +43,17 @@ ConsoleWidget::ConsoleWidget(const rqt::RosQtBridge& _bridge) : super(0, kNumCol
 
 int ConsoleWidget::sizeHintForColumn(int _column) const
 {
-  constexpr int kNameColumnMaxWidth = 160;
   const auto width = super::sizeHintForColumn(_column);
-  return _column == kNameCol ? std::min(width, kNameColumnMaxWidth) : width;
+  if (_column != kNameCol) {
+    return width;
+  }
+
+  // Fall back to the fixed cap when the proportional width is too small.
+  constexpr int kNameColumnMaxWidth = 120;
+  constexpr double kNameColumnWidthRatio = 0.2;
+  const auto ratio_width = static_cast<int>(viewport()->width() * kNameColumnWidthRatio);
+  const auto max_width = std::max(ratio_width, kNameColumnMaxWidth);
+  return std::min(width, max_width);
 }
 
 void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& _msg)
