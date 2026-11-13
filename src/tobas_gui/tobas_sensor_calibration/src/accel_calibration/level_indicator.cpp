@@ -145,8 +145,9 @@ void LevelIndicatorWidget::paintEvent(QPaintEvent*)
   QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);
 
-  const QPointF center(width() / 2.0, height() / 2.0);
-  const auto radius = std::max(0.0, std::min(width(), height()) / 2.0 - kOuterMargin);
+  const auto size = std::min(width(), height());
+  const QPointF center(size / 2.0, height() / 2.0);
+  const auto radius = std::max(0.0, size / 2.0 - kOuterMargin);
   const QRectF level_rect(center.x() - radius, center.y() - radius, 2.0 * radius, 2.0 * radius);
 
   // Set the line color

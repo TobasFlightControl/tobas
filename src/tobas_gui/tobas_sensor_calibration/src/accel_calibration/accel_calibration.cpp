@@ -28,10 +28,9 @@ AccelCalibrationWidget::AccelCalibrationWidget(const rqt::RosQtBridge& _bridge) 
   level_indicator_ = new LevelIndicatorWidget();
 
   // Layout
-  rows_->addWidget(instruction);
-  rows_->addWidget(start_button_);
-  rows_->addWidget(level_indicator_, Qt::AlignLeft);
-  rows_->addStretch();
+  rows_->addWidget(instruction, 0);
+  rows_->addWidget(start_button_, 0);
+  rows_->addWidget(level_indicator_, 1);
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
