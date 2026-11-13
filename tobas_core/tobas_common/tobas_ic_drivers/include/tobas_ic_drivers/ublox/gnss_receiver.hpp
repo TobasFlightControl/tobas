@@ -139,7 +139,6 @@ public:
   bool enableMessage(UbxClass _cls, uint8_t _id, bool _enable);
   bool configureDynamicsModel(DynamicsModel _model);
   bool configureMeasurementRate(uint16_t _period_ms);
-  bool configureMeasurementRate();
 
   bool enableGps();
   bool disableGps();
@@ -303,6 +302,8 @@ private:
   bool waitForAcknowledge(UbxClass _cls, uint8_t _id);
   bool configure(UbxCfgId _cfg_id, const void* _msg, uint16_t _size);
   bool verifyMessage() const;
+
+  bool configureMeasurementRate();
 
   bool enableGps(bool _enable);
   bool enableGpsL1();

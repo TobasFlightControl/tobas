@@ -45,6 +45,11 @@ bool GnssReceiver::initialize()
     return false;
   }
 
+  if (!configureMeasurementRate()) {
+    std::cerr << "Failed to configure measurement rate.\n";
+    return false;
+  }
+
   return true;
 }
 
@@ -302,18 +307,14 @@ bool GnssReceiver::configureMeasurementRate(uint16_t _period_ms)
 
 bool GnssReceiver::configureMeasurementRate()
 {
-  if (!receiver_model_) {
-    std::cerr << "GNSS receiver is not initialized.\n";
-    return false;
-  }
-
   constexpr uint16_t kF9pPeriodMs = 50;
   constexpr uint16_t kX20pPeriodMs = 40;
+
+  assert(receiver_model_);
 
   switch (*receiver_model_) {
     case ReceiverModel::F9P:
       return configureMeasurementRate(kF9pPeriodMs);
-
     case ReceiverModel::X20P:
       return configureMeasurementRate(kX20pPeriodMs);
   }

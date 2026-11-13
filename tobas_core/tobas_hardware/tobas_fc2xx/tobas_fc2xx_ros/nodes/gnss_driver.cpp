@@ -149,12 +149,6 @@ bool GnssDriverNode::configure()
     return false;
   }
 
-  // The measurement rate cannot be too short because an overly high frequency fills the FIFO and causes a time shift.
-  if (!gnss_.configureMeasurementRate()) {
-    TOBAS_ERROR("Failed to configure measurement rate.");
-    return false;
-  }
-
   return true;
 }
 
