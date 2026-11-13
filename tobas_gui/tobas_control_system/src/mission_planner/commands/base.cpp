@@ -19,6 +19,7 @@ namespace tobas::gui::ctrl
 BaseCommandWidget::BaseCommandWidget()
 {
   const auto root_rows = new QVBoxLayout(this);
+  root_rows->setContentsMargins(-1, 0, -1, 0);
 
   const auto header_cols = new QHBoxLayout();
   root_rows->addLayout(header_cols);
@@ -27,7 +28,7 @@ BaseCommandWidget::BaseCommandWidget()
   label_->setFont(qt::DefaultFont(12, QFont::Bold));
   header_cols->addWidget(label_);
 
-  header_cols->addStretch();
+  header_cols->addStretch(1);
 
   delete_button_ = new QPushButton("Delete");
   header_cols->addWidget(delete_button_);
@@ -38,9 +39,11 @@ BaseCommandWidget::BaseCommandWidget()
 
   const auto content = new QWidget();
   const auto field_rows = new QVBoxLayout(content);
+  field_rows->setContentsMargins(0, 0, 0, 0);
   scroll_area->setWidget(content);
 
   form_ = new qt::FormLayout();
+  form_->setVerticalSpacing(0);
   field_rows->addLayout(form_);
 
   field_rows->addStretch(1);  // Minimize the form widget.
