@@ -129,7 +129,7 @@ void FaceCircleWidget::drawCircleLowerHalf(QPainter& _painter, const QColor& _co
 
   // Clip only the lower part.
   const auto top = center.y() + radius * (1 - 2 * _rate);
-  QRectF clip(0.0, top, width(), height() - top);
+  const QRectF clip(0.0, top, width(), height() - top);
   _painter.setClipRect(clip);
 
   // Draw.

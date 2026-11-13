@@ -5,13 +5,17 @@
 
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QSizePolicy>
 #include <QWidget>
 
 namespace tobas::qt
 {
 void FormLayout::addVAlignedRow(QWidget* _label, QWidget* _field)
 {
+  // Fill the row height so the label is centered against the field.
   const auto label_widget = new QWidget();
+  label_widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+
   const auto label_layout = new QHBoxLayout(label_widget);
   label_layout->setContentsMargins(0, 0, 0, 0);
   label_layout->addWidget(_label, 0, Qt::AlignLeft | Qt::AlignVCenter);
