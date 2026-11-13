@@ -6,7 +6,6 @@
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/event.hpp>
-#include <tobas_qt_tools/util.hpp>
 
 #include "tobas_gcs/util.hpp"
 
@@ -20,10 +19,10 @@ RemoteConnectionWidget::RemoteConnectionWidget(const rqt::RosQtBridge& _bridge) 
   pixmap_unknown_ = QPixmap(QString::fromStdString(rsrc_dir / "unknown.png"));
 
   icon_ = new QLabel();
-  icon_->setFixedSize(120, 40);          // Fix the size so the pixmap is not displayed too large.
-  icon_->setAlignment(Qt::AlignCenter);  // Place the `QPixmap` at the center of the `QLabel`.
+  icon_->setAlignment(Qt::AlignCenter);
 
   label_ = new QLabel();
+  label_->setAlignment(Qt::AlignCenter);
 
   constexpr int kTimeout = 10000;  // [ms]
   timeout_timer_.setInterval(kTimeout);
@@ -32,8 +31,11 @@ RemoteConnectionWidget::RemoteConnectionWidget(const rqt::RosQtBridge& _bridge) 
 
   // Layout
   const auto rows = new QVBoxLayout(this);
-  qt::addWidgetCenter(icon_, rows);
-  qt::addWidgetCenter(label_, rows);
+  constexpr int kHorizontalMargins = 12;
+  constexpr int kVerticalMargins = 6;
+  rows->setContentsMargins(kHorizontalMargins, kVerticalMargins, kHorizontalMargins, kVerticalMargins);
+  rows->addWidget(icon_, 1);
+  rows->addWidget(label_, 0);
 
   // Connection
   connect(&timeout_timer_, &QTimer::timeout, this, &self::onTimeout);

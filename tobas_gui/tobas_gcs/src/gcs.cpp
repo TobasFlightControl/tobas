@@ -134,7 +134,6 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr _
 
   // Connection checker
   remote_conn_ = new RemoteConnectionWidget(bridge_);
-  remote_conn_->setMaximumHeight(sensor_calib_btn->height());
 
   // Package manager
   proj_path_ = new QLineEdit();
@@ -156,6 +155,8 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr _
 
   // Layout
   const auto configuration = new QGridLayout();
+  configuration->setContentsMargins(0, 0, 0, 0);
+  configuration->setSpacing(4);
   configuration->addWidget(new QLabel("Endpoint"), 0, 0);
   configuration->addWidget(fc_selector_, 0, 1, 1, 3);
   configuration->addWidget(connect_btn_, 0, 4);
@@ -167,6 +168,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr _
   configuration->setColumnStretch(1, 1);
 
   const auto header_cols = new QHBoxLayout();
+  header_cols->setSpacing(0);
   header_cols->addWidget(sensor_calib_btn);
   header_cols->addWidget(actuator_test_btn);
   header_cols->addWidget(control_system_btn);
@@ -180,8 +182,8 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr _
 
   const auto rows = new QVBoxLayout(this);
   rows->setContentsMargins(0, 0, 0, 0);
-  rows->addLayout(header_cols);
-  rows->addWidget(app_sw_);
+  rows->addLayout(header_cols, 0);
+  rows->addWidget(app_sw_, 1);
 
   // Connection
   connect(app_btn_group_, &QButtonGroup::idClicked, app_sw_, &QStackedWidget::setCurrentIndex);
