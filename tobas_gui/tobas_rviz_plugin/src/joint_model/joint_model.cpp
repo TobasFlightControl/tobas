@@ -160,5 +160,4 @@ std::vector<JointModel::ConstSharedPtr> JointModel::getDescendantJointModels() c
 {
   return lockAll(descendant_joint_models_);
 }
-
 }  // namespace tobas::rviz

@@ -10,7 +10,6 @@ namespace tobas::kdl
 {
 namespace
 {
-
 }  // namespace
 
 TreeTaskSpacePID::TreeTaskSpacePID(const Tree& _tree, const Vector& _grav)

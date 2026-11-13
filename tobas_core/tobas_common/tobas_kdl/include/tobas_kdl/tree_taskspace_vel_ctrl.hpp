@@ -34,5 +34,4 @@ private:
 
   TaskSpaceDamping gain_;
 };
-
 }  // namespace tobas::kdl

@@ -25,5 +25,4 @@ public:
 private:
   TreeFkSolverPos fk_solver_;
 };
-
 }  // namespace tobas::kdl

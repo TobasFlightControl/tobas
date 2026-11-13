@@ -387,5 +387,4 @@ bool CxGb400::interpretCameraError(uint32_t _error_status, CameraErrorStatusDigi
   // If the `digit`-th bit of `error_status` is 1, the corresponding error is active.
   return (_error_status >> _digit) & 1;
 }
-
 }  // namespace tobas::driver

@@ -33,5 +33,4 @@ private:
   void resize();
   void jntToCartRec(const SegmentMap::const_iterator& _segment, const JntArray& _q, const JntArray& _qd);
 };
-
 }  // namespace tobas::kdl
