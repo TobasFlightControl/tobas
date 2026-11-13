@@ -11,7 +11,7 @@ ActuatorTestWidget::ActuatorTestWidget(const rqt::RosQtBridge& _bridge, const kd
   : drone_(_drone)
 {
   // Without at least this much height, the `TabBar` text is clipped horizontally for some reason.
-  setTabSize(35, 70);
+  setTabSize(32, 64);
 
   rotor_test_ = new RotorTestWidget(_bridge, _drone);
   addTab(rotor_test_, "Rotor Test");

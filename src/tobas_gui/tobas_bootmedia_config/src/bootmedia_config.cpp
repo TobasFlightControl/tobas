@@ -24,7 +24,7 @@ BootmediaConfigWidget::BootmediaConfigWidget()
 
   tabs_ = new qt::VerticalTabWidget();
   tabs_->enableWheelEvent(false);
-  tabs_->setTabSize(70, 35);
+  tabs_->setTabSize(64, 32);
 
   tabs_->addTab(new HostnameWidget(), "Hostname");
   tabs_->addTab(new LoginPasswordWidget(), "Login Password");

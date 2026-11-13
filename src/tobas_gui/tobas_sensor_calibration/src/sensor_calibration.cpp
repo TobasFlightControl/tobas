@@ -10,7 +10,7 @@ namespace tobas::gui::sc
 SensorCalibrationWidget::SensorCalibrationWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone) : drone_(_drone)
 {
   // Without at least this much height, the `TabBar` text is clipped horizontally for some reason.
-  setTabSize(70, 35);
+  setTabSize(64, 32);
 
   accel_calib_ = new AccelCalibrationWidget(_bridge);
   addTab(accel_calib_, "Accelerometer");
