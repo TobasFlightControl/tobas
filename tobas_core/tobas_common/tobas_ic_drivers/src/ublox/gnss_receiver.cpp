@@ -22,8 +22,6 @@ GnssReceiver::GnssReceiver(std::unique_ptr<UbxTransport> _transport)
 
 bool GnssReceiver::initialize()
 {
-  receiver_model_.reset();
-
   if (!transport_->initialize()) {
     return false;
   }
@@ -34,19 +32,24 @@ bool GnssReceiver::initialize()
     return false;
   }
 
+  module_.reset();
+  uint16_t default_meas_freq;  // [Hz]
+
   if (version->moduleId == "ZED-F9P") {
-    receiver_model_ = ReceiverModel::F9P;
+    module_ = Module::ZED_F9P;
+    default_meas_freq = 20;
   }
   else if (version->moduleId == "ZED-X20P") {
-    receiver_model_ = ReceiverModel::X20P;
+    module_ = Module::ZED_X20P;
+    default_meas_freq = 25;
   }
   else {
     std::cerr << "Unsupported GNSS module: " << version->moduleId << '\n';
     return false;
   }
 
-  if (!configureMeasurementRate()) {
-    std::cerr << "Failed to configure measurement rate.\n";
+  if (!configureMeasurementRate(1000 / default_meas_freq)) {
+    std::cerr << "Failed to set the measurement rate to " << default_meas_freq << " Hz.\n";
     return false;
   }
 
@@ -89,28 +92,9 @@ bool GnssReceiver::update(bool _blocking)
   return true;
 }
 
-std::expected<payload::MON_VER, std::string> GnssReceiver::pollVersion()
+GnssReceiver::Module GnssReceiver::getModule() const
 {
-  // Poll MON-VER without a request payload.
-  if (!sendMessage(CLASS_MON, MON_VER, nullptr, 0)) {
-    return std::unexpected("Failed to send MON-VER request.");
-  }
-
-  while (true) {
-    if (!update(true)) {
-      return std::unexpected("Failed to receive MON-VER response.");
-    }
-
-    // Ignore unrelated UBX messages.
-    if (latestClass() != CLASS_MON || latestId() != MON_VER) {
-      continue;
-    }
-
-    const auto length = scanner_.messageLength() - kUbxHeaderLength - kUbxChecksumLength;
-    payload::MON_VER version(length);
-    version.decode(payload());
-    return version;
-  }
+  return *module_;
 }
 
 bool GnssReceiver::enableMessage(UbxClass _cls, uint8_t _id, bool _enable)
@@ -305,23 +289,6 @@ bool GnssReceiver::configureMeasurementRate(uint16_t _period_ms)
   return cfgValSetSingle<uint16_t>(TWO_BYTES, CFG_RATE, 0x01, _period_ms);  // CFG-RATE-MEAS
 }
 
-bool GnssReceiver::configureMeasurementRate()
-{
-  constexpr uint16_t kF9pPeriodMs = 50;
-  constexpr uint16_t kX20pPeriodMs = 40;
-
-  assert(receiver_model_);
-
-  switch (*receiver_model_) {
-    case ReceiverModel::F9P:
-      return configureMeasurementRate(kF9pPeriodMs);
-    case ReceiverModel::X20P:
-      return configureMeasurementRate(kX20pPeriodMs);
-  }
-
-  return false;
-}
-
 bool GnssReceiver::enableGps()
 {
   // Enable GPS.
@@ -336,31 +303,29 @@ bool GnssReceiver::enableGps()
     return false;
   }
 
-  switch (*receiver_model_) {
-    case ReceiverModel::F9P:
+  switch (*module_) {
+    case Module::ZED_F9P:
       // Try to enable L2 band.
       if (enableGpsL2()) {
-        std::cout << "GPS L1/L2 is enabled.\n";
+        std::cout << "GPS L1/L2 has been enabled.\n";
         return true;
       }
-
       // Try to enable L5 band.
       if (enableGpsL5()) {
-        std::cout << "GPS L1/L5 is enabled.\n";
+        std::cout << "GPS L1/L5 has been enabled.\n";
         return true;
       }
-
       std::cerr << "Failed to enable either GPS L2 or L5 bands.\n";
       return false;
-
-    case ReceiverModel::X20P:
+    case Module::ZED_X20P:
       if (!enableGpsL2() || !enableGpsL5()) {
         std::cerr << "Failed to enable GPS L2/L5.\n";
         return false;
       }
-
-      std::cout << "GPS L1/L2/L5 is enabled.\n";
+      std::cout << "GPS L1/L2/L5 has been enabled.\n";
       return true;
+    default:
+      throw;
   }
 
   return false;
@@ -407,31 +372,29 @@ bool GnssReceiver::enableGalileo()
     return false;
   }
 
-  switch (*receiver_model_) {
-    case ReceiverModel::F9P:
+  switch (*module_) {
+    case Module::ZED_F9P:
       // Try to enable E5b band.
       if (enableGalileoE5b()) {
-        std::cout << "Galileo E1/E5b is enabled.\n";
+        std::cout << "Galileo E1/E5b has been enabled.\n";
         return true;
       }
-
       // Try to enable E5a band.
       if (enableGalileoE5a()) {
-        std::cout << "Galileo E1/E5a is enabled.\n";
+        std::cout << "Galileo E1/E5a has been enabled.\n";
         return true;
       }
-
       std::cerr << "Failed to enable either Galileo E5b or E5a bands.\n";
       return false;
-
-    case ReceiverModel::X20P:
+    case Module::ZED_X20P:
       if (!enableGalileoE5a() || !enableGalileoE6()) {
         std::cerr << "Failed to enable Galileo E5a/E6.\n";
         return false;
       }
-
-      std::cout << "Galileo E1/E5a/E6 is enabled.\n";
+      std::cout << "Galileo E1/E5a/E6 has been enabled.\n";
       return true;
+    default:
+      throw;
   }
 
   return false;
@@ -450,37 +413,35 @@ bool GnssReceiver::enableBeiDou()
     return false;
   }
 
-  switch (*receiver_model_) {
-    case ReceiverModel::F9P:
-      // Enable B1I band.
-      if (!enableBeiDouB1I()) {
-        std::cerr << "Failed to enable BeiDou B1I.\n";
-        return false;
-      }
+  // Enable B1I band.
+  if (!enableBeiDouB1I()) {
+    std::cerr << "Failed to enable BeiDou B1I.\n";
+    return false;
+  }
 
+  switch (*module_) {
+    case Module::ZED_F9P:
       // Try to enable B2I band.
       if (enableBeiDouB2I()) {
-        std::cout << "BeiDou B1I/B2I is enabled.\n";
+        std::cout << "BeiDou B1I/B2I has been enabled.\n";
         return true;
       }
-
       // Try to enable B2a band.
       if (enableBeiDouB2a()) {
-        std::cout << "BeiDou B1I/B2a is enabled.\n";
+        std::cout << "BeiDou B1I/B2a has been enabled.\n";
         return true;
       }
-
       std::cerr << "Failed to enable either BeiDou B2I or B2a bands.\n";
       return false;
-
-    case ReceiverModel::X20P:
+    case Module::ZED_X20P:
       if (!enableBeiDouB1C() || !enableBeiDouB2a() || !enableBeiDouB3I()) {
-        std::cerr << "Failed to enable BeiDou signals.\n";
+        std::cerr << "Failed to enable BeiDou B1C/B2a/B3I.\n";
         return false;
       }
-
-      std::cout << "BeiDou B1C/B2a/B3I is enabled.\n";
+      std::cout << "BeiDou B1I/B1C/B2a/B3I has been enabled.\n";
       return true;
+    default:
+      throw;
   }
 
   return false;
@@ -505,31 +466,29 @@ bool GnssReceiver::enableQzss()
     return false;
   }
 
-  switch (*receiver_model_) {
-    case ReceiverModel::F9P:
+  switch (*module_) {
+    case Module::ZED_F9P:
       // Try to enable L2 band.
       if (enableQzssL2()) {
-        std::cout << "QZSS L1/L2 is enabled.\n";
+        std::cout << "QZSS L1/L2 has been enabled.\n";
         return true;
       }
-
       // Try to enable L5 band.
       if (enableQzssL5()) {
-        std::cout << "QZSS L1/L5 is enabled.\n";
+        std::cout << "QZSS L1/L5 has been enabled.\n";
         return true;
       }
-
       std::cerr << "Failed to enable either QZSS L2 or L5 bands.\n";
       return false;
-
-    case ReceiverModel::X20P:
+    case Module::ZED_X20P:
       if (!enableQzssL2() || !enableQzssL5()) {
         std::cerr << "Failed to enable QZSS L2/L5.\n";
         return false;
       }
-
-      std::cout << "QZSS L1/L2/L5 is enabled.\n";
+      std::cout << "QZSS L1/L2/L5 has been enabled.\n";
       return true;
+    default:
+      throw;
   }
 
   return false;
@@ -554,14 +513,28 @@ bool GnssReceiver::enableGlonass()
     return false;
   }
 
-  // Try to enable L2 band.
-  if (enableGlonassL2()) {
-    std::cout << "GLONASS L1/L2 is enabled.\n";
-    return true;
+  switch (*module_) {
+    case Module::ZED_F9P:
+      // Try to enable L2 band.
+      if (enableGlonassL2()) {
+        std::cout << "GLONASS L1/L2 has been enabled.\n";
+        return true;
+      }
+      std::cout << "GLONASS L1 has been enabled.\n";
+      return true;
+    case Module::ZED_X20P:
+      // Try to enable L2 band.
+      if (enableGlonassL2()) {
+        std::cout << "GLONASS L1/L2 has been enabled.\n";
+        return true;
+      }
+      std::cout << "GLONASS L1 has been enabled.\n";
+      return true;
+    default:
+      throw;
   }
 
-  std::cout << "GLONASS L1 is enabled.\n";
-  return true;
+  return false;
 }
 
 bool GnssReceiver::disableGlonass()
@@ -583,7 +556,7 @@ bool GnssReceiver::enableNavIc()
     return false;
   }
 
-  std::cout << "NavIC L5 is enabled.\n";
+  std::cout << "NavIC L5 has been enabled.\n";
   return true;
 }
 
@@ -727,6 +700,30 @@ bool GnssReceiver::verifyMessage() const
   }
 
   return true;
+}
+
+std::expected<payload::MON_VER, std::string> GnssReceiver::pollVersion()
+{
+  // Poll MON-VER without a request payload.
+  if (!sendMessage(CLASS_MON, MON_VER, nullptr, 0)) {
+    return std::unexpected("Failed to send MON-VER request.");
+  }
+
+  while (true) {
+    if (!update(true)) {
+      return std::unexpected("Failed to receive MON-VER response.");
+    }
+
+    // Ignore unrelated UBX messages.
+    if (latestClass() != CLASS_MON || latestId() != MON_VER) {
+      continue;
+    }
+
+    const auto length = scanner_.messageLength() - kUbxHeaderLength - kUbxChecksumLength;
+    payload::MON_VER version(length);
+    version.decode(payload());
+    return version;
+  }
 }
 
 bool GnssReceiver::enableGps(bool _enable)

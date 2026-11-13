@@ -22,6 +22,12 @@ namespace tobas::ublox
 class GnssReceiver
 {
 public:
+  enum class Module
+  {
+    ZED_F9P,
+    ZED_X20P,
+  };
+
   enum UbxClass : uint8_t
   {
     CLASS_ACK = 0x05,
@@ -131,13 +137,13 @@ public:
   bool initialize();
   bool update(bool _blocking = false);
 
-  /** Polls the receiver for version information and waits for the response. */
-  std::expected<payload::MON_VER, std::string> pollVersion();
+  Module getModule() const;
 
   // ===== Configurations =====
 
   bool enableMessage(UbxClass _cls, uint8_t _id, bool _enable);
   bool configureDynamicsModel(DynamicsModel _model);
+  bool configureMeasurementRate(uint16_t _period_ms);
 
   bool enableGps();
   bool disableGps();
@@ -178,12 +184,6 @@ public:
   inline const uint8_t* payload() const;
 
 private:
-  enum class ReceiverModel
-  {
-    F9P,
-    X20P,
-  };
-
   /** Supported storage size identifiers */
   enum CfgSize : uint8_t
   {
@@ -292,7 +292,7 @@ private:
   const std::unique_ptr<UbxTransport> transport_;
   UbxScanner scanner_;
   tim::Rate scan_rate_;
-  std::optional<ReceiverModel> receiver_model_;
+  std::optional<Module> module_;
 
   template <typename T>
   bool cfgValSetSingle(CfgSize _size, CfgGroup _group, uint8_t _id, T _value);
@@ -302,8 +302,8 @@ private:
   bool configure(UbxCfgId _cfg_id, const void* _msg, uint16_t _size);
   bool verifyMessage() const;
 
-  bool configureMeasurementRate(uint16_t _period_ms);
-  bool configureMeasurementRate();
+  /** Polls the receiver for version information and waits for the response. */
+  std::expected<payload::MON_VER, std::string> pollVersion();
 
   bool enableGps(bool _enable);
   bool enableGpsL1();
