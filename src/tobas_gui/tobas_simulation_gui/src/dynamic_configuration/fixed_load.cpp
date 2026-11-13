@@ -24,7 +24,7 @@ namespace tobas::gui::sim
 {
 FixedLoadWidget::FixedLoadWidget()
 {
-  const auto title = new qt::Label("Fixed Load", cmn::kLabelPSize, QFont::Bold);
+  const auto title = new qt::Label("Fixed Load", cmn::kSubTitlePointSize, QFont::Bold);
 
   attach_detach_btn_ = new qt::ToggleButton("Attach", "Detach");
   attach_detach_btn_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);

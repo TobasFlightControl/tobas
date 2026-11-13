@@ -40,11 +40,11 @@ HardwareWidget::HardwareWidget(const uadf::Model& _uadf, const Signals& _sig)
 
   // Layout
   const auto pwm_rows = new QVBoxLayout();
-  pwm_rows->addWidget(new qt::Label(kPwmLabel, cmn::kLabelPSize, QFont::Bold));
+  pwm_rows->addWidget(new qt::Label(kPwmLabel, cmn::kSubTitlePointSize, QFont::Bold));
   pwm_rows->addWidget(pwm_);
 
   const auto dshot_rows = new QVBoxLayout();
-  dshot_rows->addWidget(new qt::Label(kDShotLabel, cmn::kLabelPSize, QFont::Bold));
+  dshot_rows->addWidget(new qt::Label(kDShotLabel, cmn::kSubTitlePointSize, QFont::Bold));
   dshot_rows->addWidget(dshot_);
 
   const auto rcout_cols = new QHBoxLayout();

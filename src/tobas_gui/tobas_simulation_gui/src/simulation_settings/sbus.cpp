@@ -29,7 +29,7 @@ SbusWidget::SbusWidget() : dir_(kDirPath)
   form->addRow("Device", device_names_);
 
   const auto rows = new QVBoxLayout(this);
-  rows->addWidget(new qt::Label("S.BUS", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new qt::Label("S.BUS", cmn::kSubTitlePointSize, QFont::Bold));
   rows->addLayout(form);
 
   // Connection

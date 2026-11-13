@@ -16,7 +16,7 @@ DebugWidget::DebugWidget()
 
   // Layout
   const auto rows = new QVBoxLayout(this);
-  rows->addWidget(new qt::Label("Debug", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new qt::Label("Debug", cmn::kSubTitlePointSize, QFont::Bold));
   rows->addWidget(user_debug_);
 }
 

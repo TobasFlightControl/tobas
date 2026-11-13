@@ -41,12 +41,12 @@ ParamGetterWidget<T>::ParamGetterWidget(const QString& _param_name, const QStrin
   rows_ = new QVBoxLayout(this);
 
   label_ = new QLabel(_param_name);
-  label_->setFont(qt::DefaultFont(cmn::kLabelPSize, QFont::Bold));
+  label_->setFont(qt::DefaultFont(cmn::kSubTitlePointSize, QFont::Bold));
   label_->setAlignment(Qt::AlignTop);
   rows_->addWidget(label_);
 
   if (!_description_text.isEmpty()) {
-    const auto description = new qt::DescriptionWidget(_description_text, cmn::kBodyPSize);
+    const auto description = new qt::DescriptionWidget(_description_text);
     rows_->addWidget(description);
   }
 }

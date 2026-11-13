@@ -18,17 +18,17 @@ constexpr char kControlSurfacesLabel[] = "Control Surfaces";
 FixedWingWidget::FixedWingWidget(const uadf::Model& _uadf)
 {
   // Vehicle
-  addWidget(new qt::Label(kVehicleLabel, cmn::kTitlePSize));
+  addWidget(new qt::Label(kVehicleLabel, cmn::kTitlePointSize));
   vehicle_ = new VehicleParametersWidget();
   addWidget(vehicle_);
 
   // Aerodynamic Coefficients
-  addWidget(new qt::Label(kAeroCoefsLabel, cmn::kTitlePSize));
+  addWidget(new qt::Label(kAeroCoefsLabel, cmn::kTitlePointSize));
   aero_coefs_ = new AerodynamicsCoefficientsWidget();
   addWidget(aero_coefs_);
 
   // Control Surfaces
-  addWidget(new qt::Label(kControlSurfacesLabel, cmn::kTitlePSize));
+  addWidget(new qt::Label(kControlSurfacesLabel, cmn::kTitlePointSize));
   control_surfaces_ = new ControlSurfacesWidget(_uadf);
   addWidget(control_surfaces_);
 }

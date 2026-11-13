@@ -21,7 +21,7 @@ WorldWidget::WorldWidget()
 {
   const auto rows = new QVBoxLayout(this);
 
-  const auto label = new qt::Label("World", cmn::kLabelPSize, QFont::Bold);
+  const auto label = new qt::Label("World", cmn::kSubTitlePointSize, QFont::Bold);
   rows->addWidget(label);
 
   const auto form = new qt::FormLayout();

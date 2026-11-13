@@ -15,7 +15,7 @@ DynamicConfigWidget::DynamicConfigWidget()
 {
   const auto rows = new QVBoxLayout(this);
 
-  const auto title = new qt::Label("Dynamic Configurations", cmn::kTitlePSize, QFont::Bold);
+  const auto title = new qt::Label("Dynamic Configurations", cmn::kTitlePointSize, QFont::Bold);
   qt::addWidgetCenter(title, rows);
 
   const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);

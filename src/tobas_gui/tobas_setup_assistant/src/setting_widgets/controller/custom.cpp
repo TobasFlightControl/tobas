@@ -71,7 +71,7 @@ CustomFrameWidget::CustomFrameWidget()
   form->addRow(kLoiterLabel, loiter_mode_);
 
   const auto rows = new QVBoxLayout(this);
-  rows->addWidget(new qt::Label("RC Command", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new qt::Label("RC Command", cmn::kSubTitlePointSize, QFont::Bold));
   rows->addLayout(form);
   rows->addStretch();
 }

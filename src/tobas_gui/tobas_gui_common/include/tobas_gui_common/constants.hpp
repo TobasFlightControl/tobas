@@ -5,9 +5,10 @@
 
 namespace tobas::gui::cmn
 {
-static constexpr int kTitlePSize = 18;
-static constexpr int kLabelPSize = 12;
-static constexpr int kBodyPSize = 9;
+static constexpr int kTitlePointSize = 16;
+static constexpr int kSubTitlePointSize = 13;
+static constexpr int kBodyPointSize = 11;  // Default
+static constexpr int kCaptionPointSize = 9;
 
 static constexpr int kSaveLogTextSizeThresh = 1000;
 

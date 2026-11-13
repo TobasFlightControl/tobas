@@ -42,7 +42,7 @@ FailsafeWidget::FailsafeWidget()
 
   // Layout
   const auto checklist_rows = new QVBoxLayout();
-  checklist_rows->addWidget(new qt::Label("Checklist", cmn::kLabelPSize, QFont::Bold));
+  checklist_rows->addWidget(new qt::Label("Checklist", cmn::kSubTitlePointSize, QFont::Bold));
   for (const auto& item : items_) {
     checklist_rows->addWidget(item);
   }
@@ -52,7 +52,7 @@ FailsafeWidget::FailsafeWidget()
   form->addRow("ESC no communication timeout", esc_no_comm_timeout_);
 
   const auto detail_rows = new QVBoxLayout();
-  detail_rows->addWidget(new qt::Label("Details", cmn::kLabelPSize, QFont::Bold));
+  detail_rows->addWidget(new qt::Label("Details", cmn::kSubTitlePointSize, QFont::Bold));
   detail_rows->addLayout(form);
   detail_rows->addStretch();
 

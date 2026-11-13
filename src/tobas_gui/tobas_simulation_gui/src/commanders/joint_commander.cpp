@@ -20,7 +20,7 @@ namespace tobas::gui::sim
 JointCommanderWidget::JointCommanderWidget(const kdl::Tree& _tree, const Drone& _drone)
   : tree_(_tree), drone_(_drone), rnd_gen_(rnd_dev_()), joint_parser_(_tree)
 {
-  const auto title = new qt::Label("User Joint", cmn::kLabelPSize, QFont::Bold);
+  const auto title = new qt::Label("User Joint", cmn::kSubTitlePointSize, QFont::Bold);
 
   start_stop_button_ = new qt::ToggleButton("Start", "Stop");
   start_stop_button_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);

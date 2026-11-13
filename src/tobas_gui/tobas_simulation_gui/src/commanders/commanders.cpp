@@ -15,7 +15,7 @@ CommandersWidget::CommandersWidget(const rqt::RosQtBridge& _bridge, const kdl::T
 {
   const auto rows = new QVBoxLayout(this);
 
-  const auto title = new qt::Label("Commanders", cmn::kTitlePSize, QFont::Bold);
+  const auto title = new qt::Label("Commanders", cmn::kTitlePointSize, QFont::Bold);
   qt::addWidgetCenter(title, rows);
 
   const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);

@@ -7,7 +7,6 @@
 #include <ranges>
 
 #include <tobas_constants/ros.hpp>
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
@@ -33,21 +32,19 @@ RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& _bridge, const Drone& _
 {
   registered_.fill(false);
 
-  const auto warning =
-    new qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n\n", cmn::kBodyPSize);
+  const auto warning = new qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n");
   warning->setStyleSheet("color: red; font-weight: bold;");
   rows_->addWidget(warning);
 
   const auto instruction = new qt::DescriptionWidget(
-    "1. Connect the ESCs to the FC in the correct order.\n\n"
-    "2. Click 'Start' to enable motors.\n\n"
+    "1. Connect the ESCs to the FC in the correct order.\n"
+    "2. Click 'Start' to enable motors.\n"
     "3. For each channel, confirm the following:\n"
-    "   - The motor rotates in the correct direction. If not, swap any two of the three ESC-motor connections.\n"
-    "   - The motor does not rotate when the command RPM is 0.\n\n"
-    "4. Tune the control gain of each channel to the maximum value at which no vibrations or abnormal noise occur.\n\n"
-    "5. Click 'Save' to save the control gains.\n\n"
-    "6. Click 'Stop' to disable motors.\n\n",
-    cmn::kBodyPSize);
+    "   • The motor rotates in the correct direction. If not, swap any two of the three ESC-motor connections.\n"
+    "   • The motor does not rotate when the command RPM is 0.\n"
+    "4. Tune the control gain of each channel to the maximum value at which no vibrations or abnormal noise occur.\n"
+    "5. Click 'Save' to save the control gains.\n"
+    "6. Click 'Stop' to disable motors.\n");
   rows_->addWidget(instruction);
 
   const auto button_cols = new QHBoxLayout();

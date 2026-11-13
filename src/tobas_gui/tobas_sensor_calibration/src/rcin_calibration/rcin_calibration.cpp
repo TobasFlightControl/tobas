@@ -7,7 +7,6 @@
 
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/ros.hpp>
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
@@ -34,8 +33,7 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& _brid
     "1. Click 'Start' to begin displaying S.BUS data in the view.\n"
     "2. For each channel, operate the stick or switch to ensure it covers the entire range. "
     "If the stick's movement is opposite to that of the bar, adjust the transmitter settings accordingly.\n"
-    "3. When the full range of all channels has been covered, click 'Finish.'\n",
-    cmn::kBodyPSize);
+    "3. When the full range of all channels has been covered, click 'Finish.'\n");
 
   const auto button_cols = new QHBoxLayout();
 

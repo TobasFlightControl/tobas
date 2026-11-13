@@ -21,7 +21,7 @@ namespace tobas::gui::sim
 {
 WindParamsWidget::WindParamsWidget()
 {
-  const auto title = new qt::Label("Wind Parameters", cmn::kLabelPSize, QFont::Bold);
+  const auto title = new qt::Label("Wind Parameters", cmn::kSubTitlePointSize, QFont::Bold);
 
   reset_button_ = new QPushButton("Reset");
   reset_button_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);

@@ -18,8 +18,8 @@ NetworkWidget::NetworkWidget()
 {
   nic_ = new NetworkIfaceWidget();
 
-  addWidget(new qt::Label(kNetworkIfaceLabel, cmn::kLabelPSize, QFont::Bold));
-  addWidget(new qt::DescriptionWidget("Specify the network interface used by the flight controller.", cmn::kBodyPSize));
+  addWidget(new qt::Label(kNetworkIfaceLabel, cmn::kSubTitlePointSize, QFont::Bold));
+  addWidget(new qt::DescriptionWidget("Specify the network interface used by the flight controller."));
   addWidget(nic_);
 
   addStretch();

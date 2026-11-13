@@ -15,7 +15,7 @@ BaseWidget::BaseWidget()
   setBackgroundColor(QPalette::Base);
 
   title_ = new QLabel();
-  title_->setFont(qt::DefaultFont(cmn::kTitlePSize, QFont::Bold));
+  title_->setFont(qt::DefaultFont(cmn::kTitlePointSize, QFont::Bold));
 
   rows_ = new QVBoxLayout(this);
   rows_->addWidget(title_, 0, Qt::AlignTop);

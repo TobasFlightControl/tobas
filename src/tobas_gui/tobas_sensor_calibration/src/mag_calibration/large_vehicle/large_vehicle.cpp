@@ -5,7 +5,6 @@
 
 #include <QVBoxLayout>
 
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
@@ -23,8 +22,7 @@ LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const rqt::RosQtBridge& _
     "3. Point the front of the flight controller as precisely as possible toward true north.\n"
     "4. Click 'Start'. Calibration will complete in a few seconds.\n"
     "5. Check that the heading indicator and the heading of the arrow on the map are stable "
-    "and match the orientation of the vehicle when turning it e.g. to the cardinal directions.\n",
-    cmn::kBodyPSize);
+    "and match the orientation of the vehicle when turning it e.g. to the cardinal directions.\n");
 
   start_button_ = new QPushButton("Start");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);

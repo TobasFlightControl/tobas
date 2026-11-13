@@ -3,7 +3,6 @@
 
 #include "tobas_actuator_test/joint_test/joint_test.hpp"
 
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
@@ -15,11 +14,10 @@ JointTestWidget::JointTestWidget(const rqt::RosQtBridge& _bridge, const kdl::Tre
   : tree_(_tree), drone_(_drone)
 {
   const auto instruction = new qt::DescriptionWidget(
-    "1. Click 'Start' to start joint test.\n\n"
-    "2. For each channel, confirm that the position, velocity, or effort is correctly following the command.\n\n"
-    "3. If any joint does not behave as expected, please review the UADF or Setup Assistant settings.\n\n"
-    "4. Click 'Stop' to stop joint test.\n\n",
-    cmn::kBodyPSize);
+    "1. Click 'Start' to start joint test.\n"
+    "2. For each channel, confirm that the position, velocity, or effort is correctly following the command.\n"
+    "3. If any joint does not behave as expected, please review the UADF or Setup Assistant settings.\n"
+    "4. Click 'Stop' to stop joint test.\n");
 
   start_stop_button_ = new qt::ToggleButton("Start", "Stop");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);

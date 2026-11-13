@@ -14,7 +14,6 @@
 #include <tobas_constants/ros.hpp>
 #include <tobas_eigen_conversions/eigen_msg.hpp>
 #include <tobas_eigen_tools/hash.hpp>
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -43,8 +42,7 @@ CompleteMagCalibWidget::CompleteMagCalibWidget(const rqt::RosQtBridge& _bridge) 
     "1. Click 'Start,' and the magnetic field points (white) will begin appearing in the view.\n"
     "2. With each face up, rotate the FC around the gravity vector until each gauge is full and green.\n"
     "3. When all six faces are green and the progress bar reaches 100%, click 'Finish.'\n"
-    "4. Confirm that the calibrated point cloud (green) draws a neat sphere around the origin.\n",
-    cmn::kBodyPSize);
+    "4. Confirm that the calibrated point cloud (green) draws a neat sphere around the origin.\n");
 
   start_button_ = new QPushButton("Start");
   finish_button_ = new QPushButton("Finish");

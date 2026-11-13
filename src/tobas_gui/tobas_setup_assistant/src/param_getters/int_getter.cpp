@@ -6,8 +6,6 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-#include <tobas_gui_common/constants.hpp>
-#include <tobas_qt_tools/font.hpp>
 #include <tobas_string_tools/core.hpp>
 
 namespace tobas::gui::sa
@@ -17,7 +15,6 @@ IntGetter::IntGetter(const QString& _name)
   const auto cols = new QHBoxLayout(this);
 
   const auto label = new QLabel(_name + ":");
-  label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   cols->addWidget(label);
 
   data_ = new qt::SpinBox();

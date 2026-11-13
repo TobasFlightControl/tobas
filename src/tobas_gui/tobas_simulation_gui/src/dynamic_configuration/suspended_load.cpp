@@ -22,7 +22,7 @@ namespace tobas::gui::sim
 {
 SuspendedLoadWidget::SuspendedLoadWidget()
 {
-  const auto title = new qt::Label("Suspended Load", cmn::kLabelPSize, QFont::Bold);
+  const auto title = new qt::Label("Suspended Load", cmn::kSubTitlePointSize, QFont::Bold);
 
   attach_detach_btn_ = new qt::ToggleButton("Attach", "Detach");
   attach_detach_btn_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
