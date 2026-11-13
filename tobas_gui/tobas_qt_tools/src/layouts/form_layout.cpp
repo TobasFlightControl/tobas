@@ -13,6 +13,7 @@ void FormLayout::addVAlignedRow(QWidget* _label, QWidget* _field)
 {
   const auto label_widget = new QWidget();
   const auto label_layout = new QHBoxLayout(label_widget);
+  label_layout->setContentsMargins(0, 0, 0, 0);
   label_layout->addWidget(_label, 0, Qt::AlignLeft | Qt::AlignVCenter);
 
   addRow(label_widget, _field);

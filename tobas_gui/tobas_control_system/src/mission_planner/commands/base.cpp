@@ -7,6 +7,7 @@
 
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLayout>
 #include <QStackedWidget>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -39,11 +40,10 @@ BaseCommandWidget::BaseCommandWidget()
 
   const auto content = new QWidget();
   const auto field_rows = new QVBoxLayout(content);
-  field_rows->setContentsMargins(0, 0, 0, 0);
   scroll_area->setWidget(content);
 
   form_ = new qt::FormLayout();
-  form_->setVerticalSpacing(0);
+  form_->setVerticalSpacing(4);
   field_rows->addLayout(form_);
 
   field_rows->addStretch(1);  // Minimize the form widget.
@@ -72,6 +72,7 @@ void BaseCommandWidget::addField(field::BaseFieldWidget* _widget, bool _overrida
     stacked->setCurrentIndex(1);
   }
 
+  _widget->layout()->setContentsMargins(0, 0, 0, 0);
   form_->addVAlignedRow(checkbox, stacked);
 
   connect(checkbox, &QCheckBox::toggled, [stacked](bool _checked) { stacked->setCurrentIndex((int)_checked); });
