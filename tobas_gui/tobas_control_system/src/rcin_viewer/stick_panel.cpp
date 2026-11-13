@@ -39,42 +39,52 @@ void StickPanel::setValues(double _x, double _y, bool _ok, bool _enabled)
 
 void StickPanel::paintEvent(QPaintEvent*)
 {
+  constexpr int kLineWidth = 1;
+  constexpr int kTextHeight = 20;
+  constexpr int kTitleTopMargin = 4;
+  constexpr int kAxisTextBottomOffset = 24;
+  constexpr int kAxisTextHorizontalMargin = 12;
+  constexpr int kMarkerRadius = 8;
+
   QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);
 
   const auto frame = rect().adjusted(0, 0, -1, -1);
-  painter.setPen(QPen(qt::color::gray70(), 1));
+  painter.setPen(QPen(qt::color::gray70(), kLineWidth));
   painter.setBrush(qt::color::gray90());
   painter.drawRect(frame);
 
   painter.setPen(palette().color(QPalette::WindowText));
-  painter.drawText(QRect(0, 4, width(), 18), Qt::AlignHCenter | Qt::AlignVCenter, title_);
+  painter.drawText(QRect(0, kTitleTopMargin, width(), kTextHeight), Qt::AlignHCenter | Qt::AlignVCenter, title_);
 
   const auto field = fieldRect();
-  painter.setPen(QPen(qt::color::gray80(), 1));
+  painter.setPen(QPen(qt::color::gray80(), kLineWidth));
   painter.setBrush(Qt::white);
   painter.drawRect(field);
 
-  painter.setPen(QPen(qt::color::gray80(), 1));
+  painter.setPen(QPen(qt::color::gray80(), kLineWidth));
   painter.drawLine(field.center().x(), field.top(), field.center().x(), field.bottom());
   painter.drawLine(field.left(), field.center().y(), field.right(), field.center().y());
 
-  constexpr int kMarkerRadius = 7;
   const auto marker_x = field.center().x() + x_ * (field.width() - kMarkerRadius * 2) / 2;
   const auto marker_y = field.center().y() - y_ * (field.height() - kMarkerRadius * 2) / 2;
   const QPointF marker_pos(marker_x, marker_y);
 
-  painter.setPen(QPen(enabled_ ? qt::color::steelBlue() : qt::color::gray50(), 1));
+  painter.setPen(QPen(enabled_ ? qt::color::steelBlue() : qt::color::gray50(), kLineWidth));
   painter.setBrush(ok_ ? (enabled_ ? qt::color::lightBlue() : qt::color::gray90()) : Qt::lightGray);
   painter.drawEllipse(marker_pos, kMarkerRadius, kMarkerRadius);
 
   if (height() >= kMinHeightForAxisText) {
-    const auto y = height() - 22;
+    const auto y = height() - kAxisTextBottomOffset;
     painter.setPen(qt::color::gray20());
     painter.drawText(
-      QRect(12, y, width() / 2 - 12, 18), Qt::AlignLeft | Qt::AlignVCenter, x_label_ + ": " + axisText(x_));
+      QRect(kAxisTextHorizontalMargin, y, width() / 2 - kAxisTextHorizontalMargin, kTextHeight),
+      Qt::AlignLeft | Qt::AlignVCenter,
+      x_label_ + ": " + axisText(x_));
     painter.drawText(
-      QRect(width() / 2, y, width() / 2 - 12, 18), Qt::AlignRight | Qt::AlignVCenter, y_label_ + ": " + axisText(y_));
+      QRect(width() / 2, y, width() / 2 - kAxisTextHorizontalMargin, kTextHeight),
+      Qt::AlignRight | Qt::AlignVCenter,
+      y_label_ + ": " + axisText(y_));
   }
 }
 
