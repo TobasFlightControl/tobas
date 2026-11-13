@@ -8,7 +8,11 @@ namespace tobas::qt
 ToggleButton::ToggleButton(const QString& _off_text, const QString& _on_text, QWidget* _parent)
   : super(_parent), off_text_(_off_text), on_text_(_on_text)
 {
-  setText(_off_text);
+  // Reserve space for both labels so toggling does not resize the button or shift the surrounding layout.
+  setText(on_text_);
+  const auto on_size = sizeHint();
+  setText(off_text_);
+  setMinimumSize(sizeHint().expandedTo(on_size));
 
   connect(this, &super::clicked, this, &self::onClicked);
 }
