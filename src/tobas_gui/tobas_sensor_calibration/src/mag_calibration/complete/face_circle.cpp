@@ -10,7 +10,7 @@ namespace tobas::gui::sc
 {
 namespace
 {
-constexpr int kLineWidth = 10;
+constexpr int kLineWidth = 8;
 }  // namespace
 
 FaceCircleWidget::FaceCircleWidget(const QString& _text) : text_(_text)
@@ -48,10 +48,10 @@ int FaceCircleWidget::calcMaxTextPointSize() const
 
   while (true) {
     font.setPointSize(psize++);
-    QFontMetrics fm(font);
+    const QFontMetrics fm(font);
 
     const auto text_width = fm.horizontalAdvance(text_);
-    if (text_width > 0.9 * diameter) {
+    if (text_width > diameter * 0.8) {
       break;
     }
   }
