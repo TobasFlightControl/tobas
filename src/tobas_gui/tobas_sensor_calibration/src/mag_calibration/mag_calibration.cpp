@@ -30,7 +30,6 @@ MagCalibrationWidget::MagCalibrationWidget(const rqt::RosQtBridge& _bridge)
 
   setCurrentIndex(kDefaultIndex);
 
-  rows_->addSpacing(20);
   rows_->addWidget(stack_);
 
   connect(btn_group_, &QButtonGroup::idClicked, stack_, &qt::StackedWidget::setCurrentIndex);
