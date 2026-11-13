@@ -12,6 +12,11 @@
 
 namespace tobas::gui::ctrl::rcin
 {
+namespace
+{
+constexpr int kMinHeightForAxisText = 180;
+}  // namespace
+
 StickPanel::StickPanel(const QString& _title, const QString& _x_label, const QString& _y_label)
   : title_(_title), x_label_(_x_label), y_label_(_y_label)
 {
@@ -63,17 +68,26 @@ void StickPanel::paintEvent(QPaintEvent*)
   painter.setBrush(ok_ ? (enabled_ ? qt::color::lightBlue() : qt::color::gray90()) : Qt::lightGray);
   painter.drawEllipse(marker_pos, kMarkerRadius, kMarkerRadius);
 
-  const auto text_y = height() - 22;
-  painter.setPen(qt::color::gray20());
-  painter.drawText(
-    QRect(12, text_y, width() / 2 - 12, 18), Qt::AlignLeft | Qt::AlignVCenter, x_label_ + ": " + axisText(x_));
-  painter.drawText(
-    QRect(width() / 2, text_y, width() / 2 - 12, 18), Qt::AlignRight | Qt::AlignVCenter, y_label_ + ": " + axisText(y_));
+  if (height() >= kMinHeightForAxisText) {
+    const auto y = height() - 22;
+    painter.setPen(qt::color::gray20());
+    painter.drawText(
+      QRect(12, y, width() / 2 - 12, 18), Qt::AlignLeft | Qt::AlignVCenter, x_label_ + ": " + axisText(x_));
+    painter.drawText(
+      QRect(width() / 2, y, width() / 2 - 12, 18), Qt::AlignRight | Qt::AlignVCenter, y_label_ + ": " + axisText(y_));
+  }
 }
 
 QRect StickPanel::fieldRect() const
 {
-  return rect().adjusted(12, 28, -12, -30);
+  constexpr int kHorizontalMargin = 12;
+  constexpr int kVerticalMargin = 28;
+  constexpr int kCompactMargin = 4;
+
+  const auto show_axis_text = height() >= kMinHeightForAxisText;
+  const auto horizontal_margin = show_axis_text ? kHorizontalMargin : kCompactMargin;
+  const auto bottom_margin = show_axis_text ? kVerticalMargin : kCompactMargin;
+  return rect().adjusted(horizontal_margin, kVerticalMargin, -horizontal_margin, -bottom_margin);
 }
 
 QString StickPanel::axisText(double _value) const
