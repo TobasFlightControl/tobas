@@ -73,7 +73,7 @@ SpeedmeterWidget::SpeedmeterWidget()
   const auto rows = new QVBoxLayout(this);
   rows->setSizeConstraint(QLayout::SetNoConstraint);
   rows->setContentsMargins(0, 0, 0, 0);
-  rows->setSpacing(2);
+  rows->setSpacing(0);
   rows->addWidget(top_text_, 0);
   rows->addLayout(gauge_row_, 1);
   rows->addWidget(bottom_text_, 0);

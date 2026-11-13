@@ -35,18 +35,19 @@ RCInputViewerWidget::RCInputViewerWidget(const rqt::RosQtBridge& _bridge)
   switch_cols->addWidget(sub_mode_, 1);
 
   const auto mode_cols = new QHBoxLayout();
-  mode_cols->setSpacing(2);
+  mode_cols->setSpacing(0);
   mode_cols->addWidget(acrobat_, 1);
   mode_cols->addWidget(stabilize_, 1);
   mode_cols->addWidget(loiter_, 1);
 
   const auto status_rows = new QVBoxLayout();
-  status_rows->setSpacing(2);
+  status_rows->setSpacing(0);
   status_rows->addLayout(switch_cols, 5);
   status_rows->addLayout(mode_cols, 8);
 
   const auto cols = new QHBoxLayout(this);
-  cols->setContentsMargins(1, 0, 1, 0);
+  cols->setSpacing(4);
+  cols->setContentsMargins(2, 0, 2, 0);
   cols->addWidget(yaw_pitch_, 3);
   cols->addWidget(roll_throttle_, 3);
   cols->addLayout(status_rows, 1);

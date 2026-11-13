@@ -20,9 +20,8 @@ EngineViewerWidget::EngineViewerWidget(const rqt::RosQtBridge& _bridge, const Dr
 
   // Layout
   const auto form = new qt::FormLayout(this);
-  form->setContentsMargins(1, 0, 1, 0);
-  form->setHorizontalSpacing(2);
-  form->setVerticalSpacing(1);
+  form->setContentsMargins(2, 0, 2, 0);
+  form->setSpacing(2);
   form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
   form->addRow("Fuel QTY", fuel_quantity_);
   form->addRow("Oil Temp", oil_temp_);

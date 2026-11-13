@@ -17,8 +17,8 @@ constexpr char kDeadBackgroundColor[] = "red";
 RotorsViewerWiddget::RotorsViewerWiddget(const rqt::RosQtBridge& _bridge, const Drone& _drone) : drone_(_drone)
 {
   cols_ = new QHBoxLayout(this);
-  cols_->setContentsMargins(1, 0, 1, 0);
-  cols_->setSpacing(2);
+  cols_->setContentsMargins(2, 0, 2, 0);
+  cols_->setSpacing(0);
   cols_->setSizeConstraint(QLayout::SetNoConstraint);
 
   connect(&_bridge, &rqt::RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);

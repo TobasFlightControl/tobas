@@ -25,7 +25,7 @@ StatusWidget::StatusWidget(const QString& _text)
 
   const auto cols = new QHBoxLayout(this);
   cols->setContentsMargins(0, 0, 0, 0);
-  cols->setSpacing(2);
+  cols->setSpacing(4);
   cols->addWidget(status_);
   cols->addWidget(label_);
 }
