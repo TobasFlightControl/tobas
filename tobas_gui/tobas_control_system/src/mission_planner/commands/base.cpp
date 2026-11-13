@@ -72,7 +72,7 @@ void BaseCommandWidget::addField(field::BaseFieldWidget* _widget, bool _overrida
     stacked->setCurrentIndex(1);
   }
 
-  _widget->layout()->setContentsMargins(0, 0, 0, 0);
+  _widget->layout()->setContentsMargins(-1, 0, -1, 0);
   form_->addVAlignedRow(checkbox, stacked);
 
   connect(checkbox, &QCheckBox::toggled, [stacked](bool _checked) { stacked->setCurrentIndex((int)_checked); });
