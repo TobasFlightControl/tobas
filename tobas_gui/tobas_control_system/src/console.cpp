@@ -3,6 +3,9 @@
 
 #include "tobas_control_system/console.hpp"
 
+#include <algorithm>
+
+#include <QChar>
 #include <QDebug>
 #include <QHeaderView>
 #include <QScrollBar>
@@ -12,12 +15,14 @@ namespace tobas::gui::ctrl
 namespace
 {
 constexpr int kStampCol = 0;
-constexpr int kNameCol = 1;
-constexpr int kLevelCol = 2;
-constexpr int kMessageCol = 3;
+constexpr int kNameCol = kStampCol + 1;
+constexpr int kLevelCol = kNameCol + 1;
+constexpr int kMessageCol = kLevelCol + 1;
+constexpr int kNumCols = kMessageCol + 1;
+
 }  // namespace
 
-ConsoleWidget::ConsoleWidget(const rqt::RosQtBridge& _bridge) : super(0, 4)
+ConsoleWidget::ConsoleWidget(const rqt::RosQtBridge& _bridge) : super(0, kNumCols)
 {
   setHorizontalHeaderLabels({ "Stamp", "Name", "Level", "Message" });
   setEditTriggers(QAbstractItemView::NoEditTriggers);  // Disable editing.
@@ -37,6 +42,13 @@ ConsoleWidget::ConsoleWidget(const rqt::RosQtBridge& _bridge) : super(0, 4)
   connect(&_bridge, &rqt::RosQtBridge::messageReceived, this, &self::messageCb, Qt::QueuedConnection);
 }
 
+int ConsoleWidget::sizeHintForColumn(int _column) const
+{
+  constexpr int kNameColumnMaxWidth = 160;
+  const auto width = super::sizeHintForColumn(_column);
+  return _column == kNameCol ? std::min(width, kNameColumnMaxWidth) : width;
+}
+
 void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& _msg)
 {
   // TODO: Screen messages with buttons.
@@ -51,12 +63,14 @@ void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& _m
     removeRow(num_rows - 1);
   }
 
-  const auto stamp_text = QString::number(_msg->header.stamp.sec) + "." + QString::number(_msg->header.stamp.nanosec);
+  const auto milliseconds = _msg->header.stamp.nanosec / 1'000'000;
+  const auto stamp_text = QString("%1.%2").arg(_msg->header.stamp.sec).arg(milliseconds, 3, 10, QChar('0'));
   const auto stamp_item = new QTableWidgetItem(stamp_text);
   setItem(0, kStampCol, stamp_item);
 
   const auto name = QString::fromStdString(_msg->name);
   const auto name_item = new QTableWidgetItem(name);
+  name_item->setToolTip(name);
   setItem(0, kNameCol, name_item);
 
   const auto level_item = new QTableWidgetItem();

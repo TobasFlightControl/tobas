@@ -18,6 +18,9 @@ class ConsoleWidget : public qt::TableWidget
 public:
   explicit ConsoleWidget(const rqt::RosQtBridge& _bridge);
 
+protected:
+  int sizeHintForColumn(int _column) const override;
+
 private Q_SLOTS:
   void messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& _msg);
 };
