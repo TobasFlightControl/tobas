@@ -162,11 +162,6 @@ bool testGnssReceiver()
     return false;
   }
 
-  if (!gnss.configureMeasurementRate(1000)) {
-    std::cerr << "Failed to configure measurement rate.\n";
-    return false;
-  }
-
   // Enable GNSS.
   if (!gnss.enableGps()) {
     std::cerr << "Failed to enable GPS.\n";
