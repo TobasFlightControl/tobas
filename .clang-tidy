@@ -1,5 +1,5 @@
 # Clang-Tidy: https://clang.llvm.org/extra/clang-tidy/
-# Naming rules: tobas_examples/tobas_code_style/CPP_CODE_STYLE.md
+# Naming rules: src/tobas_examples/tobas_code_style/CPP_CODE_STYLE.md
 
 # Report diagnostics in included non-system headers, except vendored code.
 HeaderFilterRegex: ".*"

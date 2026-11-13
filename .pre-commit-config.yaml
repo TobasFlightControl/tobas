@@ -1,7 +1,7 @@
 # cf. [moveit2/.pre-commit-config.yaml](https://github.com/moveit/moveit2/blob/main/.pre-commit-config.yaml)
 
 # Preserve the bundled upstream Qwt sources byte for byte.
-exclude: ^tobas_external/tobas_qwt_vendor/vendor/
+exclude: ^src/tobas_external/tobas_qwt_vendor/vendor/
 
 repos:
   # Standard hooks
@@ -59,34 +59,34 @@ repos:
         entry: isort
         language: system
         files: \.(py|tplpy)$
-        exclude: ^tobas_external/
+        exclude: ^src/tobas_external/
       - id: black
         name: black
         entry: black
         language: system
         files: \.(py|tplpy)$
-        exclude: ^tobas_external/
+        exclude: ^src/tobas_external/
       - id: shfmt
         name: shfmt
         entry: shfmt
         language: system
         args: ["-w"]
         types: [shell]
-        exclude: ^tobas_external/
+        exclude: ^src/tobas_external/
       - id: shellcheck
         name: shellcheck
         entry: shellcheck
         language: system
         args: ["--rcfile=config/shellcheckrc"]
         types: [shell]
-        exclude: ^tobas_external/
+        exclude: ^src/tobas_external/
       - id: clang-format
         name: clang-format
         entry: clang-format
         language: system
         args: ["-fallback-style=none", "-i"]
         files: \.(cpp|hpp|tplcpp|tplhpp)$
-        exclude: ^tobas_external/
+        exclude: ^src/tobas_external/
       - id: cmake-format
         name: cmake-format
         entry: cmake-format
@@ -150,4 +150,4 @@ repos:
         entry: python3 tools/normalize_japanese_punctuation
         language: system
         types: [text]
-        exclude: ^tobas_external/
+        exclude: ^src/tobas_external/

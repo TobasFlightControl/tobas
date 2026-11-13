@@ -21,9 +21,9 @@ cd "${script_dir}/.."
 
 # Sync packages..
 dest_dir="/home/pi/colcon_ws/src/tobas"
-rsync -rcmv --delete \
+rsync -rcmv --relative --delete \
   --rsync-path="mkdir -p ${dest_dir} && rsync" \
-  tobas tobas_core tools \
+  src/tobas src/tobas_core tools \
   LICENSE LICENSES THIRD_PARTY_NOTICES.txt \
   --exclude-from .gitignore \
   --exclude .git/ \

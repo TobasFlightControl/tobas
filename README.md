@@ -25,16 +25,6 @@ so unconventional aircraft can be simulated, configured, and flown through the s
 - ROS 2 Lyrical
 - Debian Trixie for flight-controller images
 
-## Repository Layout
-
-- `debian`: Debian packaging resources for supported images.
-- `docs`: MkDocs-based user and developer documentation.
-- `tobas_core`: Core flight-control, estimation, hardware, message, failsafe, and utility packages.
-- `tobas_gui`: Setup, ground-station, simulation, tuning, and visualization tools.
-- `tobas_examples`: Example packages and code-style references.
-- `tobas_external`: Third-party libraries wrapped for the Tobas workspace.
-- `tools`: Development, synchronization, and deployment helper scripts.
-
 ## For Contributors
 
 See [Contributing to Tobas](./CONTRIBUTING.md) for source setup, code style, pre-commit checks, and Git guidelines.

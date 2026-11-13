@@ -230,7 +230,7 @@ double scale = 1.;  // NG
 
 ## Format
 
-- Follow [.clang-format](../../.clang-format).
+- Follow [.clang-format](../../../.clang-format).
 
 ## ROS 2
 

@@ -247,11 +247,11 @@ Qwt 6.3.0
 ----------
 Source: https://sourceforge.net/projects/qwt/files/qwt/6.3.0/qwt-6.3.0.tar.bz2
 Copyright (C) 1997 Josef Wilgen; Copyright (C) 2002 Uwe Rathmann
-License: Qwt License 1.0; see tobas_external/tobas_qwt_vendor/vendor/COPYING.
+License: Qwt License 1.0; see src/tobas_external/tobas_qwt_vendor/vendor/COPYING.
 
 rapidcsv 8.99
 -------------
 Source: https://github.com/d99kris/rapidcsv/releases/tag/v8.99
 Source commit: 68f57cc6c83d5e0992904398822453489d8dfac1
 Copyright (c) 2017 Kristofer Berggren
-License: BSD-3-Clause; see tobas_external/tobas_rapidcsv_vendor/vendor/rapidcsv/LICENSE.
+License: BSD-3-Clause; see src/tobas_external/tobas_rapidcsv_vendor/vendor/rapidcsv/LICENSE.

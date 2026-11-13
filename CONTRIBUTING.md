@@ -53,15 +53,15 @@ $ tools/tobas_clang_tidy
 
 ### C++
 
-See [C++ Code Style](./tobas_examples/tobas_code_style/CPP_CODE_STYLE.md).
+See [C++ Code Style](./src/tobas_examples/tobas_code_style/CPP_CODE_STYLE.md).
 
 ### Python
 
-See [Python Code Style](./tobas_examples/tobas_code_style/PYTHON_CODE_STYLE.md).
+See [Python Code Style](./src/tobas_examples/tobas_code_style/PYTHON_CODE_STYLE.md).
 
 ### CMake
 
-See [CMake Code Style](./tobas_examples/tobas_code_style/CMAKE_CODE_STYLE.md).
+See [CMake Code Style](./src/tobas_examples/tobas_code_style/CMAKE_CODE_STYLE.md).
 
 ## Git
 
