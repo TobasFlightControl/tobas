@@ -117,6 +117,7 @@ void FlightLogViewerWidget::reset()
   }
 
   playback_ctrl_->reset();
+  playback_ctrl_->setEnabled(false);
 }
 
 void FlightLogViewerWidget::setLogName(const QString& _log_name)
@@ -142,6 +143,7 @@ void FlightLogViewerWidget::setLogName(const QString& _log_name)
   const auto& metadata = reader_.get_metadata();
   const auto duration = metadata.duration.count() * 1e-9;  // [s]
   playback_ctrl_->setDuration(std::max(duration - kWindowDuration, 0.0));
+  playback_ctrl_->setEnabled(true);
 
   // Show the log at time 0.
   setPlotData(0.0);
