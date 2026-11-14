@@ -3,8 +3,10 @@
 
 #pragma once
 
+#include <array>
 #include <filesystem>
 
+#include <QFrame>
 #include <QGridLayout>
 
 #include <rosbag2_cpp/reader.hpp>
@@ -35,6 +37,7 @@ private:
   rosbag2_cpp::Reader reader_;
 
   std::array<PlotPanelWidget*, 6> plot_panels_;
+  std::array<QFrame*, 3> plot_separators_;
   QGridLayout* plot_grid_;
   PlaybackControlWidget* playback_ctrl_;
 

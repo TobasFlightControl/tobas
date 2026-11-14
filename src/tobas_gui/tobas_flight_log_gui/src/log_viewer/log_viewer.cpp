@@ -21,6 +21,9 @@ namespace tobas::gui::log
 {
 namespace
 {
+constexpr int kPlotRows = 3;
+constexpr int kPlotColumns = 2;
+
 constexpr double kWindowDuration = 5.0;  // [s]
 }  // namespace
 
@@ -57,6 +60,7 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   plot_grid_ = new QGridLayout();
   rows->addLayout(plot_grid_);
 
+  // Place plot panels in even grid rows and columns, reserving the gaps for separators.
   for (const auto& [idx, plot_panel] : std::views::enumerate(plot_panels_)) {
     plot_panel = new PlotPanelWidget(
       odom->getValues(),
@@ -87,8 +91,8 @@ FlightLogViewerWidget::FlightLogViewerWidget()
 
     plot_panel->setCurrentIndex(idx);
 
-    const auto row = idx % 3;
-    const auto col = idx / 3;
+    const auto row = 2 * (idx % kPlotRows);
+    const auto col = 2 * (idx / kPlotRows);
     plot_grid_->addWidget(plot_panel, row, col, 1, 1);
     plot_grid_->setRowStretch(row, 1);
     plot_grid_->setColumnStretch(col, 1);
@@ -98,6 +102,20 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       &PlotPanelWidget::expandedChanged,
       this,
       [this, plot_panel](bool _expanded) { setExpandedPanel(_expanded ? plot_panel : nullptr); });
+  }
+
+  // Add one vertical and two horizontal separators between the plot panels.
+  for (const auto& [idx, separator] : std::views::enumerate(plot_separators_)) {
+    separator = new QFrame();
+    separator->setFrameShadow(QFrame::Sunken);
+    if (idx == 0) {
+      separator->setFrameShape(QFrame::VLine);
+      plot_grid_->addWidget(separator, 0, 1, 2 * kPlotRows - 1, 1);
+    }
+    else {
+      separator->setFrameShape(QFrame::HLine);
+      plot_grid_->addWidget(separator, 2 * idx - 1, 0, 1, 2 * kPlotColumns - 1);
+    }
   }
 
   playback_ctrl_ = new PlaybackControlWidget();
@@ -235,12 +253,16 @@ void FlightLogViewerWidget::setExpandedPanel(PlotPanelWidget* _expanded_panel)
   for (const auto& [idx, plot_panel] : std::views::enumerate(plot_panels_)) {
     plot_grid_->removeWidget(plot_panel);
     if (plot_panel == _expanded_panel) {
-      plot_grid_->addWidget(plot_panel, 0, 0, 3, 2);
+      plot_grid_->addWidget(plot_panel, 0, 0, 2 * kPlotRows - 1, 2 * kPlotColumns - 1);
     }
     else {
-      plot_grid_->addWidget(plot_panel, idx % 3, idx / 3, 1, 1);
+      plot_grid_->addWidget(plot_panel, 2 * (idx % kPlotRows), 2 * (idx / kPlotRows), 1, 1);
     }
     plot_panel->setVisible(!_expanded_panel || plot_panel == _expanded_panel);
+  }
+
+  for (const auto& separator : plot_separators_) {
+    separator->setVisible(!_expanded_panel);
   }
 }
 
