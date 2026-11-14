@@ -21,13 +21,18 @@
 
 namespace tobas::gui::sc
 {
+namespace
+{
+constexpr char kNotRegisteredText[] = "Not Registered";
+}  // namespace
+
 RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone)
   : drone_(_drone)
 {
   // The basic S.BUS throttle range is 172 to 1811.
   constexpr int kMinPeriod = 0;
   constexpr int kMaxPeriod = 2000;
-  constexpr int kRangeSideShort = 50;
+  constexpr int kRangeSideShort = 48;
 
   const auto instruction = new qt::DescriptionWidget(
     "1. Click 'Start' to begin displaying S.BUS data in the view.\n"
@@ -124,7 +129,7 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& _brid
   const auto gpsw_form = new qt::FormLayout();
 
   for (size_t i = 0; i < kMaxNumOfGpsw; ++i) {
-    gpsw_labels_[i] = new QLabel();
+    gpsw_labels_[i] = new QLabel(kNotRegisteredText);
     gpsw_ranges_[i] = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
     gpsw_ranges_[i]->setFixedHeight(kRangeSideShort);
     gpsw_form->addVAlignedRow(gpsw_labels_[i], gpsw_ranges_[i]);
@@ -211,7 +216,7 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
     gpsw_ranges_.at(i)->setEnabled(true);
   }
   for (size_t i = numOfGpswChannels(); i < kMaxNumOfGpsw; ++i) {
-    gpsw_labels_.at(i)->setText("Not Registered");
+    gpsw_labels_.at(i)->setText(kNotRegisteredText);
     gpsw_ranges_.at(i)->setEnabled(false);
   }
 }
