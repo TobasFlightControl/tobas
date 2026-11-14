@@ -112,8 +112,7 @@ void QwtPlot2::resizeEvent(QResizeEvent* _event)
 
   // Base the legend size on each plot, including when its panel is expanded or restored.
   constexpr int kCompactLegendWidth = 400;
-  constexpr int kCompactLegendHeight = 180;
-  const auto compact = width() < kCompactLegendWidth || height() < kCompactLegendHeight;
+  const auto compact = width() < kCompactLegendWidth;
   if (compact != compact_legend_) {
     setCompactLegend(compact);
     replot();
