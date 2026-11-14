@@ -6,6 +6,7 @@
 #include <QColor>
 #include <QCursor>
 #include <QHBoxLayout>
+#include <QObject>
 #include <QPainter>
 #include <QPalette>
 #include <QPoint>
@@ -26,10 +27,6 @@ FlightLogItemWidgetGCS::FlightLogItemWidgetGCS(const QString& _log_name)
   actions_menu_->addAction("Delete", this, [this]() { Q_EMIT deleteButtonClicked(logName()); });
   actions_menu_->installEventFilter(this);
 
-  close_menu_timer_ = new QTimer(this);
-  close_menu_timer_->setSingleShot(true);
-  close_menu_timer_->setInterval(200);
-
   setMouseTracking(true);
   installEventFilter(this);
 
@@ -37,11 +34,6 @@ FlightLogItemWidgetGCS::FlightLogItemWidgetGCS(const QString& _log_name)
   const auto cols = new QHBoxLayout(this);
   cols->addWidget(log_name_, 1);
   cols->addWidget(indicator, 0);
-
-  // Connection
-  connect(actions_menu_, &QMenu::aboutToShow, this, [this]() { update(); });
-  connect(actions_menu_, &QMenu::aboutToHide, this, [this]() { update(); });
-  connect(close_menu_timer_, &QTimer::timeout, this, &self::onCloseTimerTimeout);
 }
 
 QString FlightLogItemWidgetGCS::logName() const
@@ -51,26 +43,25 @@ QString FlightLogItemWidgetGCS::logName() const
 
 bool FlightLogItemWidgetGCS::eventFilter(QObject* _watched, QEvent* _event)
 {
-  if (_watched == this && _event->type() == QEvent::Enter) {
+  const auto type = _event->type();
+
+  // Open the action menu when the cursor enters this row.
+  if (_watched == this && type == QEvent::Enter) {
     showActionsMenu();
   }
 
   if (_watched == this || _watched == actions_menu_) {
-    if (_event->type() == QEvent::Enter || _event->type() == QEvent::Leave) {
+    // Repaint on hover and visibility changes to clear stale highlighting.
+    if (type == QEvent::Enter || type == QEvent::Leave || type == QEvent::Show || type == QEvent::Hide) {
       update();
     }
 
-    if (_event->type() == QEvent::Enter || _event->type() == QEvent::MouseMove) {
-      if (isCursorOverActions()) {
-        close_menu_timer_->stop();
+    // Allow movement between the row and its menu; close the menu only when the cursor leaves both.
+    if ((type == QEvent::Enter || type == QEvent::Leave || type == QEvent::MouseMove) && !isCursorOverActions()) {
+      actions_menu_->hide();
+      if (_watched == actions_menu_) {
+        return true;  // Do not pass the event on to the menu that was just closed.
       }
-      else if (!close_menu_timer_->isActive()) {
-        close_menu_timer_->start();
-      }
-    }
-    else if (_event->type() == QEvent::Leave) {
-      // Allow the pointer to move from the list item into the menu before closing it.
-      close_menu_timer_->start();
     }
   }
 
@@ -82,10 +73,9 @@ void FlightLogItemWidgetGCS::paintEvent(QPaintEvent* _event)
   super::paintEvent(_event);
 
   QPainter painter(this);
-  // Preserve the selection background drawn by the list.
 
-  // Keep the active row highlighted while its action menu is open.
-  if (underMouse() || actions_menu_->isVisible()) {
+  // Highlight the row while the cursor is over it or its action menu.
+  if (isCursorOverActions()) {
     auto highlight = palette().color(QPalette::Highlight);
     highlight.setAlpha(64);
     painter.fillRect(rect(), highlight);
@@ -102,16 +92,8 @@ bool FlightLogItemWidgetGCS::isCursorOverActions() const
 
 void FlightLogItemWidgetGCS::showActionsMenu()
 {
-  close_menu_timer_->stop();
   if (!actions_menu_->isVisible()) {
     actions_menu_->popup(mapToGlobal(QPoint(width(), 0)));
-  }
-}
-
-void FlightLogItemWidgetGCS::onCloseTimerTimeout()
-{
-  if (!isCursorOverActions()) {
-    actions_menu_->hide();
   }
 }
 }  // namespace tobas::gui::log

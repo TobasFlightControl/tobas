@@ -7,7 +7,6 @@
 #include <QLabel>
 #include <QMenu>
 #include <QPaintEvent>
-#include <QTimer>
 #include <QWidget>
 
 namespace tobas::gui::log
@@ -16,7 +15,6 @@ class FlightLogItemWidgetGCS : public QWidget
 {
   Q_OBJECT
 
-  using self = FlightLogItemWidgetGCS;
   using super = QWidget;
 
 Q_SIGNALS:
@@ -32,15 +30,11 @@ public:
 private:
   QLabel* log_name_;
   QMenu* actions_menu_;
-  QTimer* close_menu_timer_;
 
   bool eventFilter(QObject* _watched, QEvent* _event) override;
   void paintEvent(QPaintEvent* _event) override;
 
   bool isCursorOverActions() const;
   void showActionsMenu();
-
-private Q_SLOTS:
-  void onCloseTimerTimeout();
 };
 }  // namespace tobas::gui::log
