@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_flight_log_gui/logs_gcs/logs_widget.hpp"
+#include "tobas_flight_log_gui/log_list/log_list_gcs/logs_widget.hpp"
 
 #include <QFileDialog>
 #include <QFileInfo>
@@ -18,9 +18,10 @@
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 
-#include "tobas_flight_log_gui/logs_gcs/exporter/export_thread_csv.hpp"
-#include "tobas_flight_log_gui/logs_gcs/exporter/export_thread_rosbag.hpp"
-#include "tobas_flight_log_gui/logs_gcs/log_item.hpp"
+#include "tobas_flight_log_gui/log_list/constants.hpp"
+#include "tobas_flight_log_gui/log_list/log_list_gcs/exporter/export_thread_csv.hpp"
+#include "tobas_flight_log_gui/log_list/log_list_gcs/exporter/export_thread_rosbag.hpp"
+#include "tobas_flight_log_gui/log_list/log_list_gcs/log_item.hpp"
 
 namespace fs = std::filesystem;
 
@@ -31,9 +32,8 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
 
-  constexpr int kButtonWidth = 72;
-  read_button_->setFixedWidth(kButtonWidth);
-  clean_button_->setFixedWidth(kButtonWidth);
+  read_button_->setFixedWidth(kLogListButtonWidth);
+  clean_button_->setFixedWidth(kLogListButtonWidth);
 
   read_button_->setEnabled(true);
   clean_button_->setEnabled(false);
@@ -60,7 +60,7 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
 void FlightLogsWidgetGCS::addLog(const QString& _log_name)
 {
   const auto list_item = new qt::ListWidgetItem();
-  list_item->setSizeHint(QSize(0, 40));
+  list_item->setSizeHint(QSize(0, kLogItemHeight));
   list_item->setData(Qt::UserRole, _log_name);
   log_list_->addItem(list_item);
 

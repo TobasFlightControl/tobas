@@ -3,9 +3,9 @@
 
 #pragma once
 
+#include "./log_list/log_list_fc/logs_widget.hpp"
+#include "./log_list/log_list_gcs/logs_widget.hpp"
 #include "./log_viewer/log_viewer.hpp"
-#include "./logs_fc/logs_widget.hpp"
-#include "./logs_gcs/logs_widget.hpp"
 #include "./recorder/recorder.hpp"
 
 namespace tobas::gui::log

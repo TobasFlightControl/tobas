@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_flight_log_gui/logs_fc/logs_widget.hpp"
+#include "tobas_flight_log_gui/log_list/log_list_fc/logs_widget.hpp"
 
 #include <QDir>
 #include <QFileInfo>
@@ -18,7 +18,8 @@
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_std_tools/check.hpp>
 
-#include "tobas_flight_log_gui/logs_fc/log_item.hpp"
+#include "tobas_flight_log_gui/log_list/constants.hpp"
+#include "tobas_flight_log_gui/log_list/log_list_fc/log_item.hpp"
 
 namespace tobas::gui::log
 {
@@ -27,9 +28,8 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr _node) : ssh_clie
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
 
-  constexpr int kButtonWidth = 72;
-  read_button_->setFixedWidth(kButtonWidth);
-  clean_button_->setFixedWidth(kButtonWidth);
+  read_button_->setFixedWidth(kLogListButtonWidth);
+  clean_button_->setFixedWidth(kLogListButtonWidth);
 
   log_list_ = new qt::ListWidget();
   log_list_->setSelectionMode(QListWidget::NoSelection);
@@ -75,7 +75,7 @@ void FlightLogsWidgetFC::setEndpoint(const QString& _host, const QString& _user)
 void FlightLogsWidgetFC::addLog(const QString& _log_name)
 {
   const auto list_item = new qt::ListWidgetItem();
-  list_item->setSizeHint(QSize(0, 40));
+  list_item->setSizeHint(QSize(0, kLogItemHeight));
   list_item->setData(Qt::UserRole, _log_name);
   log_list_->addItem(list_item);
 

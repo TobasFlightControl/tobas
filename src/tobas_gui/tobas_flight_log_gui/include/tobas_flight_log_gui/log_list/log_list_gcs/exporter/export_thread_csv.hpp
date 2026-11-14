@@ -25,8 +25,8 @@
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/vibration_level.hpp>
 
-#include "../message_decoder.hpp"
-#include "./export_thread.hpp"
+#include "tobas_flight_log_gui/log_list/log_list_gcs/exporter/export_thread.hpp"
+#include "tobas_flight_log_gui/log_list/log_list_gcs/message_decoder.hpp"
 
 namespace tobas::gui::log
 {

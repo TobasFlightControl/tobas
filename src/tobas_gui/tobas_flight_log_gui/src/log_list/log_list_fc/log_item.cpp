@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_flight_log_gui/logs_fc/log_item.hpp"
+#include "tobas_flight_log_gui/log_list/log_list_fc/log_item.hpp"
 
 #include <QColor>
 #include <QCursor>
@@ -11,6 +11,8 @@
 #include <QPalette>
 #include <QPoint>
 
+#include "tobas_flight_log_gui/log_list/constants.hpp"
+
 namespace tobas::gui::log
 {
 FlightLogItemWidgetFC::FlightLogItemWidgetFC(const QString& _log_name)
@@ -18,7 +20,7 @@ FlightLogItemWidgetFC::FlightLogItemWidgetFC(const QString& _log_name)
   log_name_ = new QLabel(_log_name);
   log_name_->setAttribute(Qt::WA_TransparentForMouseEvents);
 
-  const auto indicator = new QLabel(">");
+  const auto indicator = new QLabel(kLogItemMenuIndicator);
   indicator->setAttribute(Qt::WA_TransparentForMouseEvents);
 
   actions_menu_ = new QMenu(this);
@@ -77,7 +79,7 @@ void FlightLogItemWidgetFC::paintEvent(QPaintEvent* _event)
   // Highlight the row while the cursor is over it or its action menu.
   if (isCursorOverActions()) {
     auto highlight = palette().color(QPalette::Highlight);
-    highlight.setAlpha(64);
+    highlight.setAlpha(kLogItemHighlightAlpha);
     painter.fillRect(rect(), highlight);
   }
 }

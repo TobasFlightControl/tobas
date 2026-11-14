@@ -5,7 +5,7 @@
 
 #include <quazip/quazip.h>
 
-#include "./export_thread.hpp"
+#include "tobas_flight_log_gui/log_list/log_list_gcs/exporter/export_thread.hpp"
 
 namespace tobas::gui::log
 {
