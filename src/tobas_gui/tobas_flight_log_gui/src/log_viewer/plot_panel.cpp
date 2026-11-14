@@ -4,6 +4,8 @@
 #include "tobas_flight_log_gui/log_viewer/plot_panel.hpp"
 
 #include <QComboBox>
+#include <QHBoxLayout>
+#include <QStyle>
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
@@ -91,6 +93,11 @@ PlotPanelWidget::PlotPanelWidget(
   plot_selector_ = new qt::ComboBox();
   plot_stack_ = new QStackedWidget();
 
+  expand_button_ = new QToolButton();
+  expand_button_->setCheckable(true);
+  expand_button_->setIcon(style()->standardIcon(QStyle::SP_TitleBarMaxButton));
+  expand_button_->setToolTip("Expand plot");
+
   addPlot(pose_plot_, "Pose");
   addPlot(twist_plot_, "Twist");
   addPlot(accel_plot_, "Accel");
@@ -117,12 +124,18 @@ PlotPanelWidget::PlotPanelWidget(
   addPlot(obsv_fb_plot_, "Observer");
   addPlot(mr_ctrl_fb_plot_, "Multirotor Controller");
 
+  const auto header = new QHBoxLayout();
+  header->addWidget(plot_selector_, 0);
+  header->addStretch(1);
+  header->addWidget(expand_button_, 0);
+
   const auto rows = new QVBoxLayout(this);
   rows->setContentsMargins(0, 0, 0, 0);
-  rows->addWidget(plot_selector_, 0);
+  rows->addLayout(header, 0);
   rows->addWidget(plot_stack_, 1);
 
   connect(plot_selector_, &QComboBox::currentIndexChanged, this, &self::onCurrentWidgetChanged);
+  connect(expand_button_, &QToolButton::toggled, this, &self::onExpandButtonToggled);
 }
 
 void PlotPanelWidget::setCurrentIndex(int _index)
@@ -245,5 +258,15 @@ void PlotPanelWidget::onCurrentWidgetChanged(int _index)
 {
   plot_stack_->setCurrentIndex(_index);
   plot(_index);
+}
+
+void PlotPanelWidget::onExpandButtonToggled(bool _expanded)
+{
+  expand_button_->setIcon(
+    style()->standardIcon(_expanded ? QStyle::SP_TitleBarNormalButton : QStyle::SP_TitleBarMaxButton));
+  const auto label = _expanded ? "Restore layout" : "Expand plot";
+  expand_button_->setToolTip(label);
+
+  Q_EMIT expandedChanged(_expanded);
 }
 }  // namespace tobas::gui::log

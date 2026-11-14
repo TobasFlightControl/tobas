@@ -54,8 +54,8 @@ FlightLogViewerWidget::FlightLogViewerWidget()
 
   const auto rows = new QVBoxLayout(this);
 
-  const auto grid = new QGridLayout();
-  rows->addLayout(grid);
+  plot_grid_ = new QGridLayout();
+  rows->addLayout(plot_grid_);
 
   for (const auto& [idx, plot_panel] : std::views::enumerate(plot_panels_)) {
     plot_panel = new PlotPanelWidget(
@@ -89,9 +89,15 @@ FlightLogViewerWidget::FlightLogViewerWidget()
 
     const auto row = idx % 3;
     const auto col = idx / 3;
-    grid->addWidget(plot_panel, row, col, 1, 1);
-    grid->setRowStretch(row, 1);
-    grid->setColumnStretch(col, 1);
+    plot_grid_->addWidget(plot_panel, row, col, 1, 1);
+    plot_grid_->setRowStretch(row, 1);
+    plot_grid_->setColumnStretch(col, 1);
+
+    connect(
+      plot_panel,
+      &PlotPanelWidget::expandedChanged,
+      this,
+      [this, plot_panel](bool _expanded) { setExpandedPanel(_expanded ? plot_panel : nullptr); });
   }
 
   playback_ctrl_ = new PlaybackControlWidget();
@@ -221,6 +227,20 @@ void FlightLogViewerWidget::setPlotData(double _time_from_start)
     // The plot becomes slightly distorted unless the range is set before setting data.
     plot_panel->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
     plot_panel->plot();
+  }
+}
+
+void FlightLogViewerWidget::setExpandedPanel(PlotPanelWidget* _expanded_panel)
+{
+  for (const auto& [idx, plot_panel] : std::views::enumerate(plot_panels_)) {
+    plot_grid_->removeWidget(plot_panel);
+    if (plot_panel == _expanded_panel) {
+      plot_grid_->addWidget(plot_panel, 0, 0, 3, 2);
+    }
+    else {
+      plot_grid_->addWidget(plot_panel, idx % 3, idx / 3, 1, 1);
+    }
+    plot_panel->setVisible(!_expanded_panel || plot_panel == _expanded_panel);
   }
 }
 

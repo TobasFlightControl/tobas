@@ -5,6 +5,7 @@
 
 #include <QStackedWidget>
 #include <QString>
+#include <QToolButton>
 #include <QWidget>
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
@@ -43,6 +44,9 @@ class PlotPanelWidget : public QWidget
   Q_OBJECT
 
   using self = PlotPanelWidget;
+
+Q_SIGNALS:
+  void expandedChanged(bool _expanded);
 
 public:
   explicit PlotPanelWidget(
@@ -107,6 +111,7 @@ private:
 
   qt::ComboBox* plot_selector_;
   QStackedWidget* plot_stack_;
+  QToolButton* expand_button_;
 
   PosePlotWidget* pose_plot_;
   TwistPlotWidget* twist_plot_;
@@ -140,5 +145,6 @@ private:
 
 private Q_SLOTS:
   void onCurrentWidgetChanged(int _index);
+  void onExpandButtonToggled(bool _expanded);
 };
 }  // namespace tobas::gui::log

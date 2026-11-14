@@ -5,6 +5,8 @@
 
 #include <filesystem>
 
+#include <QGridLayout>
+
 #include <rosbag2_cpp/reader.hpp>
 
 #include "./data.hpp"
@@ -33,6 +35,7 @@ private:
   rosbag2_cpp::Reader reader_;
 
   std::array<PlotPanelWidget*, 6> plot_panels_;
+  QGridLayout* plot_grid_;
   PlaybackControlWidget* playback_ctrl_;
 
   template <typename MsgType>
@@ -41,6 +44,8 @@ private:
   bool open(const std::string& _rosbag_path);
 
   void setPlotData(double _time_from_start);
+
+  void setExpandedPanel(PlotPanelWidget* _expanded_panel);
 
 private Q_SLOTS:
   void onPlaybackTimeChanged(double _time_from_start);
