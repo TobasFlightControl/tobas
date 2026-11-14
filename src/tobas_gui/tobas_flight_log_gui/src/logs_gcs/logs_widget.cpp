@@ -55,7 +55,6 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
   // Connection
   connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
   connect(clean_button_, &QPushButton::clicked, this, &self::onCleanButtonClicked);
-  connect(log_list_, &QListWidget::currentItemChanged, this, &self::onListItemChanged);
 }
 
 void FlightLogsWidgetGCS::addLog(const QString& _log_name)
@@ -66,6 +65,7 @@ void FlightLogsWidgetGCS::addLog(const QString& _log_name)
   log_list_->addItem(list_item);
 
   const auto widget = new FlightLogItemWidgetGCS(_log_name);
+  connect(widget, &FlightLogItemWidgetGCS::showButtonClicked, this, &self::onShowButtonClicked);
   connect(widget, &FlightLogItemWidgetGCS::exportButtonClicked, this, &self::onExportButtonClicked);
   connect(widget, &FlightLogItemWidgetGCS::deleteButtonClicked, this, &self::onDeleteButtonClicked);
   log_list_->setItemWidget(list_item, widget);
@@ -203,6 +203,18 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
   clearLogs();
 }
 
+void FlightLogsWidgetGCS::onShowButtonClicked(const QString& _log_name)
+{
+  const auto list_item = findLog(_log_name);
+  TOBAS_CHECK(list_item);
+
+  if (log_list_->currentItem() != list_item) {
+    log_list_->setCurrentItem(list_item);
+  }
+
+  Q_EMIT logSelected(_log_name);
+}
+
 void FlightLogsWidgetGCS::onExportButtonClicked(const QString& _log_name)
 {
   qDebug().nospace() << "FlightLogsWidgetGCS::onExportButtonClicked(" << _log_name << ")";
@@ -285,17 +297,5 @@ void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& _log_name)
   }
 
   removeLog(_log_name);
-}
-
-void FlightLogsWidgetGCS::onListItemChanged(QListWidgetItem* _item)
-{
-  qDebug() << "FlightLogsWidgetGCS::onListItemChanged";
-
-  if (!_item) {
-    return;
-  }
-
-  const auto log_widget = qt::qConstPointerCast<FlightLogItemWidgetGCS>(log_list_->itemWidget(_item));
-  Q_EMIT logSelected(log_widget->logName());
 }
 }  // namespace tobas::gui::log

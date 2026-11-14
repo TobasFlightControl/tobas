@@ -45,8 +45,8 @@ private:
 private Q_SLOTS:
   void onReadButtonClicked();
   void onCleanButtonClicked();
+  void onShowButtonClicked(const QString& _log_name);
   void onExportButtonClicked(const QString& _log_name);
   void onDeleteButtonClicked(const QString& _log_name);
-  void onListItemChanged(QListWidgetItem* _item);
 };
 }  // namespace tobas::gui::log

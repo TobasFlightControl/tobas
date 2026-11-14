@@ -35,7 +35,7 @@ FlightLogItemWidgetFC::FlightLogItemWidgetFC(const QString& _log_name)
   // Layout
   const auto cols = new QHBoxLayout(this);
   cols->addWidget(log_name_, 1);
-  cols->addWidget(indicator);
+  cols->addWidget(indicator, 0);
 
   // Connection
   connect(actions_menu_, &QMenu::aboutToShow, this, [this]() { update(); });
