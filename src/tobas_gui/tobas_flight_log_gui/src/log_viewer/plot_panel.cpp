@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_flight_log_gui/log_viewer/plot_tab.hpp"
+#include "tobas_flight_log_gui/log_viewer/plot_panel.hpp"
+
+#include <QComboBox>
+#include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
 
 namespace tobas::gui::log
 {
-PlotTabWidget::PlotTabWidget(
+PlotPanelWidget::PlotPanelWidget(
   const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& _odom_data,
   const QVector<tobas_msgs::msg::OdometryStamped>& _setpoint_data,
   const QVector<tobas_msgs::msg::Imu>& _imu_raw_data,
@@ -85,61 +88,78 @@ PlotTabWidget::PlotTabWidget(
   obsv_fb_plot_ = new ObserverFeedbackPlotWidget();
   mr_ctrl_fb_plot_ = new MRControllerFeedbackPlotWidget();
 
-  addTab(pose_plot_, "Pose");
-  addTab(twist_plot_, "Twist");
-  addTab(accel_plot_, "Accel");
-  addTab(imu_plot_, "IMU");
-  addTab(imu_fft_plot_, "IMU FFT");
-  addTab(mag_plot_, "Magnetic\nField");
-  addTab(pressure_plot_, "Air\nPressure");
-  addTab(gnss_plot_, "GNSS");
-  addTab(rcin_plot_, "RC Input");
-  addTab(battery_plot_, "Battery");
-  addTab(engine_plot_, "Engine");
-  addTab(cpu_plot_, "CPU");
-  addTab(rotor_speed_plot_, "Rotor Speed");
-  addTab(rotor_link_plot_, "Rotor Link");
-  addTab(propeller_pitch_plot_, "VPP Pitch");
-  addTab(joint_pos_plot_, "Joint\nPosition");
-  addTab(joint_vel_plot_, "Joint\nVelocity");
-  addTab(joint_eff_plot_, "Joint\nEffort");
-  addTab(pwm_plot_, "PWM");
-  addTab(latency_plot_, "Latency");
-  addTab(vibe_plot_, "Vibration\nLevel");
-  addTab(additional_accel_plot_, "Additional\nAccel");
-  addTab(dist_force_plot_, "Disturbance\nForce");
-  addTab(obsv_fb_plot_, "Observer");
-  addTab(mr_ctrl_fb_plot_, "Multirotor\nController");
+  plot_selector_ = new qt::ComboBox();
+  plot_stack_ = new QStackedWidget();
 
-  setTabSize(110, 50);
+  addPlot(pose_plot_, "Pose");
+  addPlot(twist_plot_, "Twist");
+  addPlot(accel_plot_, "Accel");
+  addPlot(imu_plot_, "IMU");
+  addPlot(imu_fft_plot_, "IMU FFT");
+  addPlot(mag_plot_, "Magnetic Field");
+  addPlot(pressure_plot_, "Air Pressure");
+  addPlot(gnss_plot_, "GNSS");
+  addPlot(rcin_plot_, "RC Input");
+  addPlot(battery_plot_, "Battery");
+  addPlot(engine_plot_, "Engine");
+  addPlot(cpu_plot_, "CPU");
+  addPlot(rotor_speed_plot_, "Rotor Speed");
+  addPlot(rotor_link_plot_, "Rotor Link");
+  addPlot(propeller_pitch_plot_, "VPP Pitch");
+  addPlot(joint_pos_plot_, "Joint Position");
+  addPlot(joint_vel_plot_, "Joint Velocity");
+  addPlot(joint_eff_plot_, "Joint Effort");
+  addPlot(pwm_plot_, "PWM");
+  addPlot(latency_plot_, "Latency");
+  addPlot(vibe_plot_, "Vibration Level");
+  addPlot(additional_accel_plot_, "Additional Accel");
+  addPlot(dist_force_plot_, "Disturbance Force");
+  addPlot(obsv_fb_plot_, "Observer");
+  addPlot(mr_ctrl_fb_plot_, "Multirotor Controller");
 
-  connect(this, &self::currentChanged, this, &self::onCurrentWidgetChanged);
+  const auto rows = new QVBoxLayout(this);
+  rows->setContentsMargins(0, 0, 0, 0);
+  rows->addWidget(plot_selector_, 0);
+  rows->addWidget(plot_stack_, 1);
+
+  connect(plot_selector_, &QComboBox::currentIndexChanged, this, &self::onCurrentWidgetChanged);
 }
 
-void PlotTabWidget::clear()
+void PlotPanelWidget::setCurrentIndex(int _index)
 {
-  for (int i = 0; i < count(); ++i) {
-    const auto plot = qt::qPointerCast<BasePlotWidget>(widget(i));
+  plot_selector_->setCurrentIndex(_index);
+}
+
+void PlotPanelWidget::clear()
+{
+  for (int i = 0; i < plot_stack_->count(); ++i) {
+    const auto plot = qt::qPointerCast<BasePlotWidget>(plot_stack_->widget(i));
     plot->clear();
   }
 }
 
-void PlotTabWidget::setTimeScale(double _t_start, double _t_stop)
+void PlotPanelWidget::setTimeScale(double _t_start, double _t_stop)
 {
-  for (int i = 0; i < count(); ++i) {
-    const auto plot = qt::qPointerCast<BasePlotWidget>(widget(i));
+  for (int i = 0; i < plot_stack_->count(); ++i) {
+    const auto plot = qt::qPointerCast<BasePlotWidget>(plot_stack_->widget(i));
     plot->setTimeScale(_t_start, _t_stop);
   }
 }
 
-void PlotTabWidget::plot()
+void PlotPanelWidget::plot()
 {
-  plot(currentIndex());
+  plot(plot_stack_->currentIndex());
 }
 
-void PlotTabWidget::plot(int _index)
+void PlotPanelWidget::addPlot(BasePlotWidget* _plot, const QString& _name)
 {
-  const auto cur_widget = widget(_index);
+  plot_selector_->addItem(_name);
+  plot_stack_->addWidget(_plot);
+}
+
+void PlotPanelWidget::plot(int _index)
+{
+  const auto cur_widget = plot_stack_->widget(_index);
 
   if (cur_widget == pose_plot_) {
     pose_plot_->setData(odom_data_, setpoint_data_);
@@ -221,8 +241,9 @@ void PlotTabWidget::plot(int _index)
   }
 }
 
-void PlotTabWidget::onCurrentWidgetChanged(int _index)
+void PlotPanelWidget::onCurrentWidgetChanged(int _index)
 {
+  plot_stack_->setCurrentIndex(_index);
   plot(_index);
 }
 }  // namespace tobas::gui::log

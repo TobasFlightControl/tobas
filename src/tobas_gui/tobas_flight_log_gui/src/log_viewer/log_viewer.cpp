@@ -57,8 +57,8 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   const auto grid = new QGridLayout();
   rows->addLayout(grid);
 
-  for (const auto& [idx, plot_tab] : std::views::enumerate(plot_tabs_)) {
-    plot_tab = new PlotTabWidget(
+  for (const auto& [idx, plot_panel] : std::views::enumerate(plot_panels_)) {
+    plot_panel = new PlotPanelWidget(
       odom->getValues(),
       setpoint->getValues(),
       imu_raw->getValues(),
@@ -85,11 +85,11 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       obsv_fb->getValues(),
       mr_ctrl_fb->getValues());
 
-    plot_tab->setCurrentIndex(idx);
+    plot_panel->setCurrentIndex(idx);
 
     const auto row = idx % 3;
     const auto col = idx / 3;
-    grid->addWidget(plot_tab, row, col, 1, 1);
+    grid->addWidget(plot_panel, row, col, 1, 1);
     grid->setRowStretch(row, 1);
     grid->setColumnStretch(col, 1);
   }
@@ -111,9 +111,9 @@ void FlightLogViewerWidget::reset()
     elem->clearCache();
   }
 
-  for (const auto& plot_tab : plot_tabs_) {
-    plot_tab->clear();
-    plot_tab->setTimeScale(0.0, kWindowDuration);
+  for (const auto& plot_panel : plot_panels_) {
+    plot_panel->clear();
+    plot_panel->setTimeScale(0.0, kWindowDuration);
   }
 
   playback_ctrl_->reset();
@@ -217,10 +217,10 @@ void FlightLogViewerWidget::setPlotData(double _time_from_start)
   }
 
   // Plot data.
-  for (const auto& plot_tab : plot_tabs_) {
+  for (const auto& plot_panel : plot_panels_) {
     // The plot becomes slightly distorted unless the range is set before setting data.
-    plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
-    plot_tab->plot();
+    plot_panel->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
+    plot_panel->plot();
   }
 }
 

@@ -9,7 +9,7 @@
 
 #include "./data.hpp"
 #include "./playback_control.hpp"
-#include "./plot_tab.hpp"
+#include "./plot_panel.hpp"
 
 namespace tobas::gui::log
 {
@@ -32,7 +32,7 @@ private:
   std::vector<std::shared_ptr<DataI>> data_;
   rosbag2_cpp::Reader reader_;
 
-  std::array<PlotTabWidget*, 6> plot_tabs_;
+  std::array<PlotPanelWidget*, 6> plot_panels_;
   PlaybackControlWidget* playback_ctrl_;
 
   template <typename MsgType>

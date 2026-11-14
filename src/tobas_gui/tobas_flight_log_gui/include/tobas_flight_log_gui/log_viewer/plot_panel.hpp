@@ -3,7 +3,11 @@
 
 #pragma once
 
-#include <tobas_qt_tools/widgets/tab_widget.hpp>
+#include <QStackedWidget>
+#include <QString>
+#include <QWidget>
+
+#include <tobas_qt_tools/widgets/combo_box.hpp>
 
 #include "./plots/accel_plot.hpp"
 #include "./plots/additional_accel_plot.hpp"
@@ -29,18 +33,19 @@
 #include "./plots/rotor_link_plot.hpp"
 #include "./plots/rotor_speed_plot.hpp"
 #include "./plots/twist_plot.hpp"
+#include "./plots/utilities/base_plot.hpp"
 #include "./plots/vibration_level_plot.hpp"
 
 namespace tobas::gui::log
 {
-class PlotTabWidget : public qt::TabWidget
+class PlotPanelWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = PlotTabWidget;
+  using self = PlotPanelWidget;
 
 public:
-  explicit PlotTabWidget(
+  explicit PlotPanelWidget(
     const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& _odom_data,
     const QVector<tobas_msgs::msg::OdometryStamped>& _setpoint_data,
     const QVector<tobas_msgs::msg::Imu>& _imu_raw_data,
@@ -66,6 +71,8 @@ public:
     const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _dist_force_data,
     const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _obsv_fb_data,
     const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& _mr_ctrl_fb_data);
+
+  void setCurrentIndex(int _index);
 
   void clear();
   void setTimeScale(double _t_start, double _t_stop);
@@ -98,6 +105,9 @@ private:
   const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data_;
   const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& mr_ctrl_fb_data_;
 
+  qt::ComboBox* plot_selector_;
+  QStackedWidget* plot_stack_;
+
   PosePlotWidget* pose_plot_;
   TwistPlotWidget* twist_plot_;
   AccelPlotWidget* accel_plot_;
@@ -123,6 +133,8 @@ private:
   DisturbanceForcePlotWidget* dist_force_plot_;
   ObserverFeedbackPlotWidget* obsv_fb_plot_;
   MRControllerFeedbackPlotWidget* mr_ctrl_fb_plot_;
+
+  void addPlot(BasePlotWidget* _plot, const QString& _name);
 
   void plot(int _index);
 
