@@ -5,6 +5,7 @@
 
 #include <QComboBox>
 #include <QHBoxLayout>
+#include <QLayout>
 #include <QStyle>
 #include <QVBoxLayout>
 
@@ -131,6 +132,7 @@ PlotPanelWidget::PlotPanelWidget(
 
   const auto rows = new QVBoxLayout(this);
   rows->setContentsMargins(0, 0, 0, 0);
+  rows->setSpacing(4);
   rows->addLayout(header, 0);
   rows->addWidget(plot_stack_, 1);
 
@@ -166,6 +168,10 @@ void PlotPanelWidget::plot()
 
 void PlotPanelWidget::addPlot(BasePlotWidget* _plot, const QString& _name)
 {
+  const auto plot_layout = _plot->layout();
+  plot_layout->setContentsMargins(0, 0, 0, 0);
+  plot_layout->setSpacing(0);
+
   plot_selector_->addItem(_name);
   plot_stack_->addWidget(_plot);
 }

@@ -58,6 +58,8 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   const auto rows = new QVBoxLayout(this);
 
   plot_grid_ = new QGridLayout();
+  plot_grid_->setContentsMargins(0, 0, 0, 0);
+  plot_grid_->setSpacing(4);
   rows->addLayout(plot_grid_);
 
   // Place plot panels in even grid rows and columns, reserving the gaps for separators.
