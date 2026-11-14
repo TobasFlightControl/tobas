@@ -27,7 +27,6 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& _bridge
   log_name_->setEnabled(false);
 
   start_stop_button_ = new qt::ToggleButton("▶ Start Recording", "■ Stop Recording");
-  start_stop_button_->setFixedSize(168, 56);
 
   duration_ = new QLCDNumber(8);
   duration_->setSegmentStyle(QLCDNumber::Flat);

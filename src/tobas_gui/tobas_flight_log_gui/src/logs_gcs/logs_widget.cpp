@@ -9,6 +9,7 @@
 #include <QVBoxLayout>
 
 #include <tobas_constants/path.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/thread.hpp>
@@ -42,7 +43,7 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
 
   // Layout
   const auto cols = new QHBoxLayout();
-  cols->addWidget(new qt::Label("Ground Station", 12, QFont::Bold));
+  cols->addWidget(new qt::Label("Ground Station", cmn::kSubTitlePointSize, QFont::Bold));
   cols->addStretch(1);
   cols->addWidget(read_button_);
   cols->addWidget(clean_button_);

@@ -17,20 +17,19 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr _local_node, const rqt:
   log_viewer_ = new FlightLogViewerWidget();
 
   // Layout
-  const auto log_cols = new QHBoxLayout();
-  log_cols->setSpacing(4);
-  log_cols->addWidget(logs_fc_, 1);
-  log_cols->addWidget(logs_gcs_, 1);
+  const auto log_rows = new QVBoxLayout();
+  log_rows->addWidget(logs_fc_, 1);
+  log_rows->addWidget(logs_gcs_, 1);
 
   const auto ctrl_rows = new QVBoxLayout();
   ctrl_rows->addWidget(recorder_, 0);
   ctrl_rows->addSpacing(16);
-  ctrl_rows->addLayout(log_cols, 1);
+  ctrl_rows->addLayout(log_rows, 1);
 
   const auto root_cols = new QHBoxLayout(this);
   root_cols->setContentsMargins(0, 0, 0, 0);
   root_cols->addLayout(ctrl_rows, 1);
-  root_cols->addWidget(log_viewer_, 2);
+  root_cols->addWidget(log_viewer_, 4);
 
   // Connection
   connect(recorder_, &FlightLogRecorderWidget::recordFinished, this, &self::onRecordFinished);
