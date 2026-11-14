@@ -16,6 +16,7 @@ namespace tobas::gui::sim
 SimulationSettingsWidget::SimulationSettingsWidget()
 {
   const auto rows = new QVBoxLayout(this);
+  rows->setContentsMargins(0, 0, 0, 0);
 
   const auto title = new qt::Label("Simulation Settings", cmn::kTitlePointSize, QFont::Bold);
   qt::addWidgetCenter(title, rows);

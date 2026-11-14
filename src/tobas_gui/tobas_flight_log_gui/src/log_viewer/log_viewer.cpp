@@ -56,6 +56,7 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   const auto mr_ctrl_fb = addData<tobas_debug_msgs::msg::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
 
   const auto rows = new QVBoxLayout(this);
+  rows->setContentsMargins(0, 0, 0, 0);
 
   plot_grid_ = new QGridLayout();
   plot_grid_->setContentsMargins(0, 0, 0, 0);

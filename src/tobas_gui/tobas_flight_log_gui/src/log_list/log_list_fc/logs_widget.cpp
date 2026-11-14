@@ -42,6 +42,7 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr _node) : ssh_clie
   cols->addWidget(clean_button_);
 
   const auto rows = new QVBoxLayout(this);
+  rows->setContentsMargins(0, 0, 0, 0);
   rows->addLayout(cols);
   rows->addWidget(log_list_);
 

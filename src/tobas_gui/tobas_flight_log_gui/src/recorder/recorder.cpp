@@ -54,6 +54,7 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& _bridge
   state_form->addVAlignedRow(new QLabel("Message Count"), message_count_);
 
   const auto root_rows = new QVBoxLayout(this);
+  root_rows->setContentsMargins(0, 0, 0, 0);
   root_rows->addLayout(name_cols);
   root_rows->addLayout(ctrl_cols);
   root_rows->addLayout(state_form);
