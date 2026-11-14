@@ -40,8 +40,8 @@ void AngleSideSlipThrottleVectorController::initialize(BaseNode* node, FlightMod
 {
   node->addDynamicDoubleParam(addMode("max_roll", mode), &self::maxRollCb, this, 5.0, 9, 1, 16, " deg");
   node->addDynamicDoubleParam(addMode("max_roll_rate", mode), &self::maxRollRateCb, this, 15.0, 6, 1, 12, " dps");
-  node->addDynamicDoubleParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 2.0, 7, 1, 14, " deg");
-  node->addDynamicDoubleParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 15.0, 6, 1, 12, " dps");
+  node->addDynamicDoubleParam(addMode("max_pitch", mode), &self::maxPitchCb, this, 2.0, 10, 1, 15, " deg");
+  node->addDynamicDoubleParam(addMode("max_pitch_rate", mode), &self::maxPitchRateCb, this, 5.0, 6, 1, 12, " dps");
   node->addDynamicDoubleParam(addMode("max_side_slip", mode), &self::maxSideSlipCb, this, 1.0, 6, 1, 12, " deg");
   node->addDynamicDoubleParam(addMode("max_yaw_rate", mode), &self::maxYawRateCb, this, 15.0, 6, 1, 12, " dps");
   node->addDynamicDoubleParam(

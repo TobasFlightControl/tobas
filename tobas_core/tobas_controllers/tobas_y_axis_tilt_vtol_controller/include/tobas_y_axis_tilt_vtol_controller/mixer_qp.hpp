@@ -7,6 +7,7 @@
 #include <tobas_control/pid/pi.hpp>
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
+#include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
 #include <tobas_std_tools/range.hpp>
 #include <tobas_tools/mixer_i.hpp>
@@ -37,6 +38,7 @@ public:
   explicit QpMixer(const Drone& drone, const kdl::Tree& tree);
 
   bool updateInternalDataStructures() override;
+  void registerInternalDataReset();
   double calcMaxThrust(const double& thrust_angle) const;  // thrust_angle [rad] -> max_thrust [N]
 
   bool solve(
@@ -51,6 +53,7 @@ public:
 
   double getThrust(size_t idx) const;
   double getTiltAngle(size_t idx) const;
+  double getForwardTiltAngle(size_t idx) const;
   double getDeflection(size_t idx) const;  // rad
 
 private:
@@ -62,6 +65,7 @@ private:
     double cs_weight = 1e-6;
   } cfg_;
 
+  kdl::TreeJointParser jnt_parser_;
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
 
@@ -109,11 +113,15 @@ private:
   ctrl::PIController y_controller_;
   ctrl::PIController z_controller_;
   ctrl::PIController z2_controller_;
+  bool require_internal_data_reset_;
 
   bool calcModesAngularFreq();
   double
   calcTiltAngle(const double& tx, const double& tz, const StaticRotorLinkInfo& info, const DynamicRotorLinkState& state)
     const;
+  double
+  calcThrustAngle(const double& tilt_angle, const StaticRotorLinkInfo& info, const DynamicRotorLinkState& state) const;
+  bool updateControlJointPositions(const kdl::JntArray& cur_q);
   st::Range<Eigen::Vector3d> calcMomentRange(
     const double& desiable_thrust,
     const double& thrust_angle,

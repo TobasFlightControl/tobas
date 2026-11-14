@@ -42,17 +42,17 @@ QString YAxisTiltVtolWidget::pluginName() const
 
 RcCommand YAxisTiltVtolWidget::acrobatModeCommand() const
 {
-  return RcCommand::kAngleSideSlipThrottleVector;
+  return RcCommand::kAileElevRudThrottle;
 }
 
 RcCommand YAxisTiltVtolWidget::stabilizeModeCommand() const
 {
-  return RcCommand::kPosVelAccPitchYawRollSideSlipMode;
+  return RcCommand::kAngleSideSlipThrottleVector;
 }
 
 RcCommand YAxisTiltVtolWidget::loiterModeCommand() const
 {
-  return RcCommand::kPosVelAccPitchYawRollSideSlipMode;  // TODO
+  return RcCommand::kPosVelAccPitchYawRollSideSlipMode;
 }
 
 YAML::Node YAxisTiltVtolWidget::staticParams() const

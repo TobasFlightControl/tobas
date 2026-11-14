@@ -16,13 +16,18 @@ namespace tobas
 namespace y_axis_tilt_vtol
 {
 QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree)
-  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
+  : super(drone, tree), jnt_parser_(tree), fk_solver_(tree), inertia_solver_(tree)
 {
 }
 
 bool QpMixer::updateInternalDataStructures()
 {
   if (!super::updateInternalDataStructures()) {
+    return false;
+  }
+
+  if (!jnt_parser_.updateInternalDataStructures()) {
+    std::cerr << jnt_parser_.errorMessage() << std::endl;
     return false;
   }
 
@@ -143,6 +148,11 @@ bool QpMixer::updateInternalDataStructures()
   return true;
 }
 
+void QpMixer::registerInternalDataReset()
+{
+  require_internal_data_reset_ = true;
+}
+
 double QpMixer::calcMaxThrust(const double& thrust_angle) const
 {
   const auto sin_chi_0 = std::sin(thrust_angle);
@@ -185,6 +195,18 @@ bool QpMixer::solve(
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
   const auto airspeed = cur_vel_G.norm();
+
+  if (require_internal_data_reset_) {
+    if (!updateControlJointPositions(cur_q)) {  // 最悪desiable_thrust angleに設定することになりそうだ
+      std::cerr << "Failed to update control joint positions." << std::endl;
+      return false;
+    }
+    x_controller_.reset();
+    y_controller_.reset();
+    z_controller_.reset();
+    z2_controller_.reset();
+    require_internal_data_reset_ = false;
+  }
 
   // Left-hand side of the EoM matrix equality. tilt rotors + fixed rotors
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
@@ -254,8 +276,8 @@ bool QpMixer::solve(
   }
 
   // Left-hand side of the EoM matrix equality. control surfaces
-  for (const auto& [idx, pair] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
-    const auto& cs = pair.second;
+  for (const auto& [idx, cs_it] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
+    const auto& cs = cs_it.second;
     const auto& cs_info = cs_info_[idx];
     const kdl::Vector effectiveness_frd = kdl::Vector(cs.c_roll_delta, cs.c_pitch_delta, cs.c_yaw_delta);
     kdl::Vector effectiveness_flu;
@@ -310,8 +332,8 @@ bool QpMixer::solve(
   // Weights for thrust.
   const auto thrust_scale = mass * st::kGravity / drone_.prop->numRotors();  // [N]
   const auto thrust_weight_base = cfg_.thrust_weight / math::sqr(thrust_scale);
-  for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
-    const auto& rotor = pair.second;
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
     const auto& info = info_[idx];
     const auto thrust_weight = thrust_weight_base * rotor->effortWeight();
     size_t size = 0;
@@ -327,8 +349,8 @@ bool QpMixer::solve(
   }
 
   // Weights for control surface
-  for (const auto& [idx, pair] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
-    const auto cs = pair.second;
+  for (const auto& [idx, cs_it] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
+    const auto cs = cs_it.second;
     const auto& cs_info = cs_info_[idx];
     const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
     const auto cs_scale = joint.upper_limit - joint.lower_limit;
@@ -340,8 +362,8 @@ bool QpMixer::solve(
   qp_.problem.q = -E_.transpose() * Q_ * f_;
 
   // Inequality constraints.
-  for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
-    const auto& rotor = pair.second;
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
     const auto& info = info_[idx];
     const auto& state = state_[idx];
 
@@ -374,10 +396,10 @@ bool QpMixer::solve(
       qp_.problem.b(info.inequality_row + 1) = drone_.prop->maxThrust(rotor->link_name);
     }
   }
-  for (const auto& [idx, pair] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
+  for (const auto& [idx, cs_it] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
     const auto& cs_info = cs_info_[idx];
     const auto& cs_state = cs_state_[idx];
-    const auto& cs = pair.second;
+    const auto& cs = cs_it.second;
     const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
     qp_.problem.A(cs_info.inequality_row, cs_info.column) = -1;
     qp_.problem.A(cs_info.inequality_row + 1, cs_info.column) = 1;
@@ -428,12 +450,25 @@ double QpMixer::getThrust(size_t idx) const
 double QpMixer::getTiltAngle(size_t idx) const
 {
   const auto& info = info_.at(idx);
-  const auto& state = state_.at(idx);
 
   if (info.is_tilt) {
     const auto tx = qp_.solution()(info.column);
     const auto tz = qp_.solution()(info.column + 1);
+    const auto& state = state_.at(idx);
     return calcTiltAngle(tx, tz, info, state);
+  }
+  else {
+    std::cerr << "Rotor " << idx << " is not a tilt rotor." << std::endl;
+    return 0.0;
+  }
+}
+
+double QpMixer::getForwardTiltAngle(size_t idx) const
+{
+  const auto& info = info_.at(idx);
+  if (info.is_tilt) {
+    const auto& state = state_.at(idx);
+    return calcTiltAngle(1.0, 0.0, info, state);
   }
   else {
     std::cerr << "Rotor " << idx << " is not a tilt rotor." << std::endl;
@@ -495,6 +530,77 @@ double QpMixer::calcTiltAngle(
   return info.sign * (std::atan2(tx, tz) - state.alpha);
 }
 
+double QpMixer::calcThrustAngle(
+  const double& tilt_angle,
+  const StaticRotorLinkInfo& info,
+  const DynamicRotorLinkState& state) const
+{
+  return tilt_angle / info.sign + state.alpha;
+}
+
+bool QpMixer::updateControlJointPositions(const kdl::JntArray& cur_q)
+{
+  // Compute forward kinematics.
+  if (fk_solver_.jntToCart(cur_q) < 0) {
+    std::cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << std::endl;
+    return false;
+  }
+  // Compute mass properties.
+  if (inertia_solver_.jntToCart(cur_q) < 0) {
+    std::cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << std::endl;
+    return false;
+  }
+
+  // Update tilt angle offsets viewed from the body frame
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
+    const auto& info = info_[idx];
+    auto& state = state_[idx];
+
+    const auto& cur_elem = tree_.getSegment(rotor->link_name)->second;
+    const auto& cur_seg = cur_elem.segment;
+    const auto& par_elem = cur_elem.parent->second;
+    const auto& par_seg = par_elem.segment;
+
+    if (info.is_tilt) {
+      // Update the rotor axis angle relative to the body frame at zero tilt angle.
+      const auto& gpar_elem = par_elem.parent->second;
+      const auto& gpar_seg = gpar_elem.segment;
+      const auto& B_T_gpar = fk_solver_.getFrame(gpar_seg.name());
+      const auto B_T_par = B_T_gpar * par_seg.pose(0.0);
+      const auto n = B_T_par.M * cur_seg.joint().axis();
+      state.alpha = std::atan2(n.x(), n.z());
+    }
+    else {
+      // Update the rotor axis angle relative to the body frame.
+      const auto& B_T_par = fk_solver_.getFrame(par_seg.name());
+      const auto n = B_T_par.M * cur_seg.joint().axis();
+      state.alpha = std::atan2(n.x(), n.z());
+    }
+  }
+
+  // Update last tilt joints & control surfaces positions
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& info = info_[idx];
+    if (info.is_tilt) {
+      const auto rotor = rotor_it.second;
+      const auto tilt_joint_name = rotor->tilt_joint_name;
+      const auto kdl_idx = jnt_parser_.jointIndex(tilt_joint_name);  // Index in the tree
+      auto& state = state_[idx];
+      state.last_thrust_angle = calcThrustAngle(cur_q(kdl_idx), info, state);
+    }
+  }
+  for (const auto& [idx, cs_it] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
+    const auto link_name = cs_it.first;
+    const auto cs = cs_it.second;
+    const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
+    const auto kdl_idx = jnt_parser_.jointIndex(joint.name);
+    auto& cs_state = cs_state_[idx];
+    cs_state.last_angle = cur_q(kdl_idx);
+  }
+  return true;
+}
+
 st::Range<Eigen::Vector3d> QpMixer::calcMomentRange(
   const double& desiable_thrust,
   const double& thrust_angle,
@@ -508,8 +614,8 @@ st::Range<Eigen::Vector3d> QpMixer::calcMomentRange(
 
   st::Range<Eigen::Vector3d> moment_range(Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero());
 
-  for (const auto& [idx, pair] : std::views::enumerate(drone_.prop->rotors)) {
-    const auto& rotor = pair.second;
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
     const auto& info = info_[idx];
 
     if (info.is_tilt) {
@@ -549,8 +655,8 @@ st::Range<Eigen::Vector3d> QpMixer::calcMomentRange(
     }
   }
 
-  for (const auto& [idx, pair] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
-    const auto cs = pair.second;
+  for (const auto& [idx, cs_it] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
+    const auto cs = cs_it.second;
     const auto& cs_info = cs_info_[idx];
     const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
 

@@ -24,6 +24,7 @@
 #include <tobas_tools/fixed_wing.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 
+#include <tobas_command_msgs/msg/aile_elev_rud_throttle.hpp>
 #include <tobas_command_msgs/msg/roll_pitch_side_slip_throttle_vector.hpp>
 #include <tobas_command_msgs/msg/vel_roll_side_slip_mode.hpp>
 #include <tobas_command_msgs_adapter/accel_pitch_yaw.hpp>
@@ -95,6 +96,8 @@ private:
   // shared commands
   std::unique_ptr<kdl::Vector> tar_gyro_ = nullptr;
   std::unique_ptr<kdl::Vector> tar_dgyro_ = nullptr;
+  std::unique_ptr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_ = nullptr;
+  std::unique_ptr<tobas_msgs::msg::JointCommandArray> tar_joint_angles_ = nullptr;
   double thrust_ = 0.0;        // Target thrust [N]
   double thrust_angle_ = 0.0;  // Target thrust angle [rad]
 
@@ -126,10 +129,11 @@ private:
   ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::AngleThrottleVector> multicopter_manual_cmd_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::PosVelAccPitchYaw> multicopter_stabilize_cmd_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::msg::RollPitchSideSlipThrottleVector> fixed_wing_manual_cmd_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::msg::VelRollSideSlipMode> fixed_wing_stabilize_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::AngleThrottleVector> multicopter_angle_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::PosVelAccPitchYaw> multicopter_pos_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::msg::AileElevRudThrottle> fixed_wing_manual_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::msg::RollPitchSideSlipThrottleVector> fixed_wing_angle_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::msg::VelRollSideSlipMode> fixed_wing_vel_cmd_sub_;
 
   // Timers
   ros2::TimerPtr check_topics_timer_;
@@ -156,10 +160,11 @@ private:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& odom_flu);
-  void multicopterManualCmdCb(const tobas_command_msgs::AngleThrottleVector::ConstSharedPtr& cmd);
-  void multicopterStabilizeCmdCb(const tobas_command_msgs::PosVelAccPitchYaw::ConstSharedPtr& cmd);
-  void fixedWingManualCmdCb(const tobas_command_msgs::msg::RollPitchSideSlipThrottleVector::ConstSharedPtr& cmd);
-  void fixedWingStabilizeCmdCb(const tobas_command_msgs::msg::VelRollSideSlipMode::ConstSharedPtr& cmd);
+  void multicopterAngleCmdCb(const tobas_command_msgs::AngleThrottleVector::ConstSharedPtr& cmd);
+  void multicopterPosCmdCb(const tobas_command_msgs::PosVelAccPitchYaw::ConstSharedPtr& cmd);
+  void fixedWingManualCmdCb(const tobas_command_msgs::msg::AileElevRudThrottle::ConstSharedPtr& cmd);
+  void fixedWingAngleCmdCb(const tobas_command_msgs::msg::RollPitchSideSlipThrottleVector::ConstSharedPtr& cmd);
+  void fixedWingVelCmdCb(const tobas_command_msgs::msg::VelRollSideSlipMode::ConstSharedPtr& cmd);
 
   void checkTopicsTimerCb();
 };
@@ -198,13 +203,12 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
   air_pressure_sub_ = createSubscriber(topic::kAirPressure, &self::airPressureCb, this);
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
-  multicopter_manual_cmd_sub_ = createSubscriber(topic::kAngleThrotVectorCmd, &self::multicopterManualCmdCb, this);
-  multicopter_stabilize_cmd_sub_ =
-    createSubscriber(topic::kPosVelAccPitchYawCmd, &self::multicopterStabilizeCmdCb, this);
-  fixed_wing_manual_cmd_sub_ =
-    createSubscriber(topic::kRollPitchSideSlipThrotVectorCmd, &self::fixedWingManualCmdCb, this);
-  fixed_wing_stabilize_cmd_sub_ =
-    createSubscriber(topic::kVelRollSideSlipModeCmd, &self::fixedWingStabilizeCmdCb, this);
+  multicopter_angle_cmd_sub_ = createSubscriber(topic::kAngleThrotVectorCmd, &self::multicopterAngleCmdCb, this);
+  multicopter_pos_cmd_sub_ = createSubscriber(topic::kPosVelAccPitchYawCmd, &self::multicopterPosCmdCb, this);
+  fixed_wing_manual_cmd_sub_ = createSubscriber(topic::kAileElevRudThrottleCmd, &self::fixedWingManualCmdCb, this);
+  fixed_wing_angle_cmd_sub_ =
+    createSubscriber(topic::kRollPitchSideSlipThrotVectorCmd, &self::fixedWingAngleCmdCb, this);
+  fixed_wing_vel_cmd_sub_ = createSubscriber(topic::kVelRollSideSlipModeCmd, &self::fixedWingVelCmdCb, this);
 
   // Register timers.
   check_topics_timer_ = createTimer(kCheckTopicsPeriod, &self::checkTopicsTimerCb, this);
@@ -416,6 +420,8 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   const auto& cur_gyro_G = cur_twist_G.rot;
   kdl::Vector cur_vel_G_frd;
   kdl::vectorFluToFrd(cur_vel_G, cur_vel_G_frd);
+
+  // Updates.
   const auto beta = cur_vel_G_frd.x() > kAngleCalcThreshold ?
                       angleOfSideSlip(cur_vel_G_frd.x(), cur_vel_G_frd.y(), cur_vel_G_frd.z()) :
                       0.0;
@@ -614,48 +620,60 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       setpoint->odom.accel.angular = *tar_dgyro_;
     }
 
-    // Publish target thrust.
-    auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
-    tar_thrusts->header.stamp = cur_time;
-    for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
-      tar_thrusts->thrusts.emplace_back();
-      tar_thrusts->thrusts.back().link_name = rotor_it.first;
-      tar_thrusts->thrusts.back().thrust = mixer_.getThrust(idx);
+    // Setup target thrust.
+    if (!tar_thrusts_) {
+      tar_thrusts_ = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
     }
-    tar_thrusts_pub_->publish(std::move(tar_thrusts));
 
-    // Publish joint command angles.
-    auto tar_angles_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
-    tar_angles_msg->header.stamp = cur_time;
+    tar_thrusts_->header.stamp = cur_time;
+    tar_thrusts_->thrusts.clear();
+    for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+      tar_thrusts_->thrusts.emplace_back();
+      tar_thrusts_->thrusts.back().link_name = rotor_it.first;
+      tar_thrusts_->thrusts.back().thrust = mixer_.getThrust(idx);
+    }
+
+    // Setup joint command angles.
+    if (!tar_joint_angles_) {
+      tar_joint_angles_ = std::make_unique<tobas_msgs::msg::JointCommandArray>();
+    }
+
+    tar_joint_angles_->header.stamp = cur_time;
+    tar_joint_angles_->commands.clear();
     // tilt joints
     for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
       const auto& rotor = rotor_it.second;
       if (rotor->tilt_joint_name.empty()) {
         continue;
       }
-      tar_angles_msg->commands.emplace_back();
-      tar_angles_msg->commands.back().name = rotor->tilt_joint_name;
-      tar_angles_msg->commands.back().data = mixer_.getTiltAngle(idx);
+      tar_joint_angles_->commands.emplace_back();
+      tar_joint_angles_->commands.back().name = rotor->tilt_joint_name;
+      tar_joint_angles_->commands.back().data = mixer_.getTiltAngle(idx);
     }
     // control surfaces
     for (const auto& [idx, cs_item] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
       const auto& link_name = cs_item.first;
       const auto& joint = tree_.getSegment(link_name)->second.segment.joint();
-
-      tar_angles_msg->commands.emplace_back();
-      tar_angles_msg->commands.back().name = joint.name;
-      tar_angles_msg->commands.back().data =
+      tar_joint_angles_->commands.emplace_back();
+      tar_joint_angles_->commands.back().name = joint.name;
+      tar_joint_angles_->commands.back().data =
         std::clamp(mixer_.getDeflection(idx), joint.lower_limit, joint.upper_limit);
     }
+  }
 
-    tar_angles_pub_->publish(std::move(tar_angles_msg));
+  // Publish commands (including manual control commands)
+  if (tar_thrusts_) {
+    tar_thrusts_pub_->publish(std::move(tar_thrusts_));
+  }
+  if (tar_joint_angles_) {
+    tar_angles_pub_->publish(std::move(tar_joint_angles_));
   }
 
   // Publish the feedback message.
   setpoint_pub_->publish(std::move(setpoint));
 }
 
-void ControllerNode::multicopterStabilizeCmdCb(const tobas_command_msgs::PosVelAccPitchYaw::ConstSharedPtr& cmd)
+void ControllerNode::multicopterPosCmdCb(const tobas_command_msgs::PosVelAccPitchYaw::ConstSharedPtr& cmd)
 {
   if (!isCommandAccepted(cmd->priority)) {
     return;
@@ -677,7 +695,7 @@ void ControllerNode::multicopterStabilizeCmdCb(const tobas_command_msgs::PosVelA
   *multicopter_pos_cmd_ = *cmd;
 }
 
-void ControllerNode::multicopterManualCmdCb(const tobas_command_msgs::AngleThrottleVector::ConstSharedPtr& cmd)
+void ControllerNode::multicopterAngleCmdCb(const tobas_command_msgs::AngleThrottleVector::ConstSharedPtr& cmd)
 {
   if (!isCommandAccepted(cmd->priority)) {
     return;
@@ -716,7 +734,7 @@ void ControllerNode::multicopterManualCmdCb(const tobas_command_msgs::AngleThrot
   thrust_angle_ = cmd->thrust_angle;
 }
 
-void ControllerNode::fixedWingStabilizeCmdCb(const tobas_command_msgs::msg::VelRollSideSlipMode::ConstSharedPtr& cmd)
+void ControllerNode::fixedWingVelCmdCb(const tobas_command_msgs::msg::VelRollSideSlipMode::ConstSharedPtr& cmd)
 {
   if (!isCommandAccepted(cmd->priority)) {
     return;
@@ -749,7 +767,7 @@ void ControllerNode::fixedWingStabilizeCmdCb(const tobas_command_msgs::msg::VelR
   *fixed_wing_vel_cmd_ = *cmd;
 }
 
-void ControllerNode::fixedWingManualCmdCb(
+void ControllerNode::fixedWingAngleCmdCb(
   const tobas_command_msgs::msg::RollPitchSideSlipThrottleVector::ConstSharedPtr& cmd)
 {
   if (!isCommandAccepted(cmd->priority)) {
@@ -789,6 +807,84 @@ void ControllerNode::fixedWingManualCmdCb(
   const auto tar_thrust = mixer_.calcMaxThrust(cmd->thrust_angle) * std::clamp(cmd->throttle, kMinThrot, kMaxThrot);
   thrust_ = tar_thrust;
   thrust_angle_ = cmd->thrust_angle;
+}
+
+void ControllerNode::fixedWingManualCmdCb(const tobas_command_msgs::msg::AileElevRudThrottle::ConstSharedPtr& cmd)
+{
+  if (!isCommandAccepted(cmd->priority)) {
+    return;
+  }
+
+  // Stop the outer control loop.
+  multicopter_pos_cmd_.reset();
+  multicopter_acc_cmd_.reset();
+  tar_angle_.reset();
+  fixed_wing_vel_cmd_.reset();
+  tar_roll_pitch_sideslip_.reset();
+  tar_dgyro_.reset();
+  mixer_.registerInternalDataReset();
+
+  // Create the command.
+  if (!tar_thrusts_) {
+    tar_thrusts_ = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
+  }
+  if (!tar_joint_angles_) {
+    tar_joint_angles_ = std::make_unique<tobas_msgs::msg::JointCommandArray>();
+  }
+
+  // Setup thrusts
+  const auto cur_time = cmd->header.stamp;
+  if (!tar_thrusts_) {
+    tar_thrusts_ = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
+  }
+
+  tar_thrusts_->header.stamp = cur_time;
+  tar_thrusts_->thrusts.clear();
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    tar_thrusts_->thrusts.emplace_back();
+    const auto link_name = rotor_it.first;
+    const auto rotor = rotor_it.second;
+    tar_thrusts_->thrusts.back().link_name = link_name;
+    tar_thrusts_->thrusts.back().thrust =
+      rotor->tilt_joint_name.empty() ? 0.0 : drone_.prop->maxThrust(link_name) * cmd->throttle;
+  }
+
+  // Setup joint command angles.
+  if (!tar_joint_angles_) {
+    tar_joint_angles_ = std::make_unique<tobas_msgs::msg::JointCommandArray>();
+  }
+  tar_joint_angles_->header.stamp = cur_time;
+  tar_joint_angles_->commands.clear();
+  // tilt joints
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& rotor = rotor_it.second;
+    if (rotor->tilt_joint_name.empty()) {
+      continue;
+    }
+    tar_joint_angles_->commands.emplace_back();
+    tar_joint_angles_->commands.back().name = rotor->tilt_joint_name;
+    tar_joint_angles_->commands.back().data = mixer_.getForwardTiltAngle(idx);
+  }
+  // control surfaces
+  for (const auto& [idx, cs_item] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
+    const auto& link_name = cs_item.first;
+    const auto& joint = tree_.getSegment(link_name)->second.segment.joint();
+    const auto type = cs_item.second.type;
+    double command = 0.0;
+    if (type == ControlSurfaceType::kAileron) {
+      command = cmd->aileron;
+    }
+    else if (type == ControlSurfaceType::kElevator) {
+      command = cmd->elevator;
+    }
+    else if (type == ControlSurfaceType::kRudder) {
+      command = cmd->rudder;
+    }
+    tar_joint_angles_->commands.emplace_back();
+    tar_joint_angles_->commands.back().name = joint.name;
+    tar_joint_angles_->commands.back().data =
+      math::remap(command, cmd->MIN_DEFLECTION, cmd->MAX_DEFLECTION, joint.lower_limit, joint.upper_limit);
+  }
 }
 
 void ControllerNode::checkTopicsTimerCb()
