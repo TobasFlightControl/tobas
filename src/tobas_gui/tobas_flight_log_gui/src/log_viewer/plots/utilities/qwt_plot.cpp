@@ -11,6 +11,9 @@
 #include <qwt/qwt_scale_draw.h>
 #include <qwt/qwt_text.h>
 
+#include <tobas_gui_common/constants.hpp>
+#include <tobas_qt_tools/font.hpp>
+
 namespace tobas::gui::log
 {
 namespace
@@ -69,14 +72,24 @@ QwtPlot2::QwtPlot2(QWidget* _parent) : super(_parent)
   setMinimumSize(1, 1);
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
+  // Use the auxiliary font size for all axis labels.
+  for (int axis = 0; axis < QwtPlot::axisCnt; ++axis) {
+    auto axis_font = axisFont(axis);
+    axis_font.setPointSize(cmn::kAuxiliaryPointSize);
+    setAxisFont(axis, axis_font);
+  }
+
   // Place the legend inside.
   legend_item_ = new QwtPlotLegendItem();
   legend_item_->attach(this);
   legend_item_->setAlignmentInCanvas(Qt::AlignTop | Qt::AlignRight);  // Place it at the upper right.
   legend_item_->setMaxColumns(1);                                     // Arrange in one column.
-  legend_item_->setBackgroundMode(QwtPlotLegendItem::LegendBackground);
-  legend_item_->setBorderPen(QPen(Qt::black, 1));  // Black border.
-  setCompactLegend(false);
+  legend_item_->setBorderPen(QPen(Qt::black, 0.5));                   // Draw a thin black border.
+  legend_item_->setFont(qt::DefaultFont(cmn::kAuxiliaryPointSize));   // Auxiliary font size.
+  legend_item_->setMargin(1);                                         // 1-pixel outer margin.
+  legend_item_->setItemMargin(1);                                     // 1-pixel margin around each item.
+  legend_item_->setItemSpacing(1);                                    // 1-pixel gap between icon and label.
+  legend_item_->setOffsetInCanvas(Qt::Horizontal | Qt::Vertical, 2);  // 2-pixel inset from canvas edges.
 }
 
 void QwtPlot2::setAxisNoLabel(QwtPlot::Axis _axis)
@@ -104,33 +117,5 @@ void QwtPlot2::setupIndexedLabelPlot(const QStringList& _labels)
   setAxisScaleDiv(QwtPlot::yLeft, ydiv);
 
   setAxisScaleDraw(QwtPlot::yLeft, new IndexedLabelScaleDraw(_labels));
-}
-
-void QwtPlot2::resizeEvent(QResizeEvent* _event)
-{
-  super::resizeEvent(_event);
-
-  // Base the legend size on each plot, including when its panel is expanded or restored.
-  constexpr int kCompactLegendWidth = 400;
-  const auto compact = width() < kCompactLegendWidth;
-  if (compact != compact_legend_) {
-    setCompactLegend(compact);
-    replot();
-  }
-}
-
-void QwtPlot2::setCompactLegend(bool _compact)
-{
-  compact_legend_ = _compact;
-
-  auto legend_font = font();
-  if (_compact) {
-    legend_font.setPointSizeF(fontInfo().pointSizeF() * 0.6);
-  }
-  legend_item_->setFont(legend_font);
-  legend_item_->setMargin(_compact ? 1 : 0);
-  legend_item_->setItemMargin(_compact ? 1 : 4);
-  legend_item_->setItemSpacing(_compact ? 2 : 4);
-  legend_item_->setOffsetInCanvas(Qt::Horizontal | Qt::Vertical, _compact ? 2 : 10);
 }
 }  // namespace tobas::gui::log

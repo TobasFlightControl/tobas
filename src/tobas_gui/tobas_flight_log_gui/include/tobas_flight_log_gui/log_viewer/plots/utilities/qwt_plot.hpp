@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <QResizeEvent>
-
 #include <qwt/qwt_plot.h>
 #include <qwt/qwt_plot_legenditem.h>
 
@@ -24,13 +22,7 @@ public:
 
   void setupIndexedLabelPlot(const QStringList& _labels);
 
-protected:
-  void resizeEvent(QResizeEvent* _event) override;
-
 private:
   QwtPlotLegendItem* legend_item_;
-  bool compact_legend_ = false;
-
-  void setCompactLegend(bool _compact);
 };
 }  // namespace tobas::gui::log
