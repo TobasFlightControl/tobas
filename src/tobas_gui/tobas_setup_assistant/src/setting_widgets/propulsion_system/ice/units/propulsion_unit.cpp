@@ -3,8 +3,12 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/propulsion_unit.hpp"
 
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/cast.hpp>
-#include <tobas_qt_tools/util.hpp>
+
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
 
 namespace tobas::gui::sa::propulsion::ice
 {
@@ -12,18 +16,19 @@ PropulsionUnitWidget::PropulsionUnitWidget()
 {
   const auto rows = new QVBoxLayout(this);
 
-  const auto button_cols = new QHBoxLayout();
-  rows->addLayout(button_cols);
-
   copy_to_all_btn_ = new QPushButton("Copy To All");
-  copy_to_all_btn_->setFixedSize(125, 50);
-  qt::addWidgetCenter(copy_to_all_btn_, rows);
+  copy_to_all_btn_->setFixedWidth(kCopyToAllButtonWidth);
 
-  button_cols->addStretch(1);
+  // Wrap the fixed-width button so the corner layout reserves its full width.
+  const auto corner_widget = new QWidget();
+  const auto corner_cols = new QHBoxLayout(corner_widget);
+  corner_cols->setContentsMargins(0, 0, 0, 0);
+  corner_cols->addWidget(copy_to_all_btn_);
 
   tabs_ = new qt::TabWidget();
   tabs_->enableWheelEvent(false);
-  tabs_->setTabSize(120, 40);
+  tabs_->setTabWidth(kConfigurationTabWidth);
+  tabs_->setCornerWidget(corner_widget, Qt::TopRightCorner);
   rows->addWidget(tabs_);
 
   transmission_ = new TransmissionWidget();

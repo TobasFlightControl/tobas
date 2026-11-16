@@ -18,7 +18,7 @@ RotorWidget::RotorWidget()
 
   cur_rpm_meter_ = new QwtThermo();
   cur_rpm_meter_->setLowerBound(0);
-  cur_rpm_meter_->setPipeWidth(50);
+  cur_rpm_meter_->setPipeWidth(48);
 
   tar_rpm_slider_ = new QwtSlider(Qt::Vertical);
   tar_rpm_slider_->setLowerBound(0);

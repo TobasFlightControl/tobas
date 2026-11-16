@@ -52,7 +52,7 @@ HardwareWidget::HardwareWidget(const uadf::Model& _uadf, const Signals& _sig)
   rcout_cols->addLayout(dshot_rows, 1);
 
   addWidget(type_);
-  addSpacing(50);
+  addSpacing(16);
   addWidget(hardwares_, 0);
   addLayout(rcout_cols, 1);
 

@@ -32,7 +32,7 @@ PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& _uadf, Signals
   addPropulsionSystemWidget(new electric::PropulsionSystemWidget(_uadf), id++);
   addPropulsionSystemWidget(new ice::PropulsionSystemWidget(_uadf), id++);
 
-  addSpacing(50);
+  addSpacing(16);
   addWidget(propulsion_stack_);
 
   connect(type_btn_group_, &QButtonGroup::idClicked, this, &self::onPropulsionTypeClicked);

@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/engine/engine.hpp"
 
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
+
 namespace tobas::gui::sa::propulsion::ice
 {
 namespace
@@ -14,7 +16,7 @@ constexpr char kResponseLabel[] = "Response";
 EngineWidget::EngineWidget()
 {
   enableWheelEvent(false);
-  setTabSize(135, 45);
+  setTabWidth(kConfigurationTabWidth);
 
   dynamics_ = new EngineDynamicsWidget();
   response_ = new EngineResponseWidget();

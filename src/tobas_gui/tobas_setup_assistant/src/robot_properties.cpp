@@ -15,7 +15,7 @@ RobotPropertiesWidget::RobotPropertiesWidget(const uadf::Model& _uadf, const kdl
   mass_ = new qt::FramedLabel();
 
   const auto form = new qt::FormLayout(this);
-  form->setHorizontalSpacing(30);
+  form->setHorizontalSpacing(24);
   form->addRow("Robot Name", robot_name_);
   form->addRow("Frame Type", frame_type_);
   form->addRow("Total Mass", mass_);

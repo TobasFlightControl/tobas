@@ -69,8 +69,9 @@ QString ParamBlockWidget::getLabelText() const
 
 std::expected<void, QString> ParamBlockWidget::load()
 {
-  constexpr int kParamNameWidth = 250;
-  constexpr int kLineEditWidth = 150;
+  // Use fixed widths to keep all blocks aligned.
+  constexpr int kParamNameWidth = 256;
+  constexpr int kLineEditWidth = 128;
 
   clear();
 

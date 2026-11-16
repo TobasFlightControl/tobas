@@ -126,21 +126,21 @@ void LevelIndicatorWidget::setCalibratedAccel(const kdl::Vector& _acc, double _d
 
 void LevelIndicatorWidget::paintEvent(QPaintEvent*)
 {
-  constexpr int kOuterMargin = 64;
-  constexpr int kVerticalDirectionLabelGap = 4;
-  constexpr int kHorizontalDirectionLabelGap = 12;
-  constexpr int kDirectionFontPointSize = 16;
-  constexpr int kReadingFontPointSize = 12;
-  constexpr int kReadingLineHeight = 26;
-  constexpr int kReadingBottomMargin = 18;
-  constexpr int kTiltPrecision = 1;
-  constexpr double kOutlineWidth = 2.0;
-  constexpr double kGuideWidth = 1.0;
-  constexpr double kMinimumMarkerRadius = 9.0;
+  constexpr int kOuterMargin = 64;                  // [px]
+  constexpr int kVerticalDirectionLabelGap = 4;     // [px]
+  constexpr int kHorizontalDirectionLabelGap = 12;  // [px]
+  constexpr int kDirectionFontPointSize = 16;       // [px]
+  constexpr int kReadingFontPointSize = 12;         // [px]
+  constexpr int kReadingLineHeight = 28;            // [px]
+  constexpr int kReadingBottomMargin = 20;          // [px]
+  constexpr double kOutlineWidth = 2.0;             // [px]
+  constexpr double kGuideWidth = 1.0;               // [px]
+  constexpr double kMinimumMarkerRadius = 8.0;      // [px]
   constexpr double kMarkerRadiusRatio = 1.0 / 16.0;
   constexpr double kTargetRadiusRatio = 0.1;
   constexpr auto kRawColor = Qt::darkYellow;
   constexpr auto kCalibratedColor = Qt::darkGreen;
+  constexpr int kTiltPrecision = 1;
 
   QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);

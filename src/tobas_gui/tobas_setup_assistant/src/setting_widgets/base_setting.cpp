@@ -28,7 +28,7 @@ BaseSettingWidget::BaseSettingWidget()
 
   const auto rows = new QVBoxLayout(this);
   rows->addLayout(header_rows_);
-  rows->addSpacing(30);
+  rows->addSpacing(16);
   rows->addLayout(content_rows_);
 
   QTimer::singleShot(0, this, &self::initialize);

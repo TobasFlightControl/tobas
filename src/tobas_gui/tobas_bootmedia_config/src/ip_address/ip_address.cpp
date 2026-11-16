@@ -15,7 +15,7 @@ namespace tobas::gui::bm
 IpAddressWidget::IpAddressWidget()
 {
   tabs_ = new qt::TabWidget();
-  tabs_->setTabSize(135, 45);
+  tabs_->setTabSize(120, 40);
   tabs_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
   tabs_->addTab(new IPv4Widget("eth0"), "Wired");
   tabs_->addTab(new IPv4Widget("wlan0"), "Wireless");
@@ -25,7 +25,7 @@ IpAddressWidget::IpAddressWidget()
 
   // Layout
   rows_->addWidget(tabs_);
-  rows_->addSpacing(30);
+  rows_->addSpacing(32);
   qt::addWidgetCenter(write_button_, rows_);
   rows_->addStretch(1);
 

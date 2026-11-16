@@ -5,5 +5,5 @@
 
 namespace tobas::gui::sa::hw
 {
-static constexpr int kTableHeaderSectionSize = 150;
+static constexpr int kTableHeaderSectionSize = 160;
 }  // namespace tobas::gui::sa::hw

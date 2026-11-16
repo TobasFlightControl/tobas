@@ -22,7 +22,7 @@ BaseConfigWidget::BaseConfigWidget()
 
   rows_ = new QVBoxLayout(this);
   rows_->addWidget(title_, 0, Qt::AlignTop);
-  rows_->addSpacing(30);
+  rows_->addSpacing(32);
 
   QTimer::singleShot(0, this, &BaseConfigWidget::initialize);
 }

@@ -32,7 +32,7 @@ RemoteConnectionWidget::RemoteConnectionWidget(const rqt::RosQtBridge& _bridge) 
   // Layout
   const auto rows = new QVBoxLayout(this);
   constexpr int kHorizontalMargin = 12;
-  constexpr int kVerticalMargin = 6;
+  constexpr int kVerticalMargin = 6;  // Adjusted to align with the surrounding widgets.
   rows->setContentsMargins(kHorizontalMargin, kVerticalMargin, kHorizontalMargin, kVerticalMargin);
   rows->addWidget(icon_, 1);
   rows->addWidget(label_, 0);

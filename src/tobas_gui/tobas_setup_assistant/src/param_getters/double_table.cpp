@@ -44,12 +44,11 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   const auto clear_btn = new QPushButton("Clear");
   const auto load_csv_btn = new QPushButton("Load CSV");
 
-  constexpr int kButtonWidth = 90;
-  constexpr int kButtonHeight = 36;
-  add_row_btn->setFixedSize(kButtonWidth, kButtonHeight);
-  delete_row_btn->setFixedSize(kButtonWidth, kButtonHeight);
-  clear_btn->setFixedSize(kButtonWidth, kButtonHeight);
-  load_csv_btn->setFixedSize(kButtonWidth, kButtonHeight);
+  constexpr int kButtonWidth = 96;
+  add_row_btn->setFixedWidth(kButtonWidth);
+  delete_row_btn->setFixedWidth(kButtonWidth);
+  clear_btn->setFixedWidth(kButtonWidth);
+  load_csv_btn->setFixedWidth(kButtonWidth);
 
   table_ = new qt::TableWidget(0, num_entry_);
   table_->verticalHeader()->setVisible(true);  // Show row numbers.
