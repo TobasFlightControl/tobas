@@ -6,11 +6,14 @@
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 
+#include "tobas_bootmedia_config/constants.hpp"
+
 namespace tobas::gui::bm
 {
 IPv4Widget::IPv4Widget(const QString& _name) : name_(_name)
 {
   const auto form = new qt::FormLayout(this);
+  form->setHorizontalSpacing(kFormSpacing);
 
   method_ = new qt::ComboBox();
   method_->addItem("Automatic");

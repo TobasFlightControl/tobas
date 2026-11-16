@@ -20,6 +20,7 @@ constexpr char kEmptyMeansZeroProperty[] = "emptyMeansZero";
 IPv4Edit::IPv4Edit(QWidget* _parent) : super(_parent)
 {
   const auto cols = new QHBoxLayout(this);
+  cols->setContentsMargins(0, 0, 0, 0);
 
   for (int i = kNumFields - 1; i >= 0; --i) {
     const auto field = new QLineEdit();
