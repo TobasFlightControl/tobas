@@ -4,18 +4,15 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
-
-#include <tobas_qt_tools/widgets/scroll_area.hpp>
+#include <QWidget>
 
 namespace tobas::gui::sa::propulsion::ice
 {
-class BaseSelectedLinkSettingWidget : public qt::ScrollArea
+class BaseSelectedLinkSettingWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit BaseSelectedLinkSettingWidget();
-
   virtual const char* name() const = 0;
   virtual void setToDefaults() = 0;
   virtual bool isValid() = 0;

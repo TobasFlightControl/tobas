@@ -26,7 +26,8 @@ BaseSettingWidget::BaseSettingWidget()
 
   content_rows_ = new QVBoxLayout();
 
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
   rows->addLayout(header_rows_);
   rows->addSpacing(16);
   rows->addLayout(content_rows_);

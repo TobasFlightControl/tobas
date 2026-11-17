@@ -20,8 +20,7 @@ constexpr char kMethodNameKey[] = "method_name";
 
 AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : propeller_(_propeller)
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  const auto rows = new QVBoxLayout(this);
 
   method_name_ = new qt::ComboBox();
 
