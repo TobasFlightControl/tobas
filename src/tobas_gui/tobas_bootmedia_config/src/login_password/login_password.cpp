@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include <QFormLayout>
+#include <QVBoxLayout>
 
 #include <tobas_crypt/crypt.hpp>
 #include <tobas_crypt/yescrypt.hpp>
@@ -37,11 +38,12 @@ LoginPasswordWidget::LoginPasswordWidget()
   form->addRow("New Password", pswd1_);
   form->addRow("Confirm Password", pswd2_);
 
-  rows_->addLayout(form);
-  rows_->addWidget(warn_text_);
-  rows_->addSpacing(32);
-  qt::addWidgetCenter(write_button_, rows_);
-  rows_->addStretch(1);
+  const auto rows = new QVBoxLayout(this);
+  rows->addLayout(form);
+  rows->addWidget(warn_text_);
+  rows->addSpacing(32);
+  qt::addWidgetCenter(write_button_, rows);
+  rows->addStretch(1);
 
   // Connection
   connect(pswd1_, &QLineEdit::textChanged, this, &self::onTextChanged);

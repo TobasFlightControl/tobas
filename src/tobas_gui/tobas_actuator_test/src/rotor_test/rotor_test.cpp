@@ -6,6 +6,8 @@
 #include <memory>
 #include <ranges>
 
+#include <QVBoxLayout>
+
 #include <tobas_constants/ros.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
@@ -30,11 +32,13 @@ std::string paramName(size_t _ch)
 RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone)
   : bridge_(_bridge), drone_(_drone)
 {
+  const auto rows = new QVBoxLayout(this);
+
   registered_.fill(false);
 
   const auto warning = new qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n");
   warning->setStyleSheet("color: red; font-weight: bold;");
-  rows_->addWidget(warning);
+  rows->addWidget(warning);
 
   const auto instruction = new qt::DescriptionWidget(
     "1. Connect the ESCs to the FC in the correct order.\n"
@@ -45,10 +49,10 @@ RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& _bridge, const Drone& _
     "4. Tune the control gain of each channel to the maximum value at which no vibrations or abnormal noise occur.\n"
     "5. Click 'Save' to save the control gains.\n"
     "6. Click 'Stop' to disable motors.\n");
-  rows_->addWidget(instruction);
+  rows->addWidget(instruction);
 
   const auto button_cols = new QHBoxLayout();
-  rows_->addLayout(button_cols);
+  rows->addLayout(button_cols);
 
   start_stop_button_ = new qt::ToggleButton("Start", "Stop");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -64,7 +68,7 @@ RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& _bridge, const Drone& _
   button_cols->addStretch(1);
 
   const auto rotor_cols = new QHBoxLayout();
-  rows_->addLayout(rotor_cols);
+  rows->addLayout(rotor_cols);
 
   for (size_t ch = 0; ch < kMaxDshotChannels; ++ch) {
     rotor_widgets_.at(ch) = new RotorWidget();

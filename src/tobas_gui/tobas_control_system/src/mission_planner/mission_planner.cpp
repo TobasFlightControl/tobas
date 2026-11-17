@@ -81,6 +81,9 @@ MissionPlannerWidget::MissionPlannerWidget(const rqt::RosQtBridge& _bridge) : sp
   command_list_->setSelectionMode(QListWidget::SingleSelection);
   command_list_->setDragDropMode(QListWidget::InternalMove);
 
+  command_panel_ = new QWidget();
+  command_title_ = new qt::Label("", cmn::kSubTitlePointSize, QFont::Bold);
+  delete_command_button_ = new QPushButton("Delete");
   commands_ = new qt::StackedWidget();
 
   reset();
@@ -97,19 +100,29 @@ MissionPlannerWidget::MissionPlannerWidget(const rqt::RosQtBridge& _bridge) : sp
   button_cols->addWidget(cancel_button_, 1);
   button_cols->addWidget(focus_button_, 1);
 
+  const auto command_header_cols = new QHBoxLayout();
+  command_header_cols->addWidget(command_title_);
+  command_header_cols->addStretch(1);
+  command_header_cols->addWidget(delete_command_button_);
+
+  const auto command_rows = new QVBoxLayout(command_panel_);
+  command_rows->setContentsMargins(-1, 0, -1, 0);
+  command_rows->addLayout(command_header_cols);
+  command_rows->addWidget(commands_, 1);
+
   const auto mission_cols = new QHBoxLayout();
   mission_cols->addWidget(command_list_, 1);
-  mission_cols->addWidget(qt::makeGroup(commands_), 3);
+  mission_cols->addWidget(qt::makeGroup(command_panel_), 3);
 
   const auto plan_rows = new QVBoxLayout();
   plan_rows->setContentsMargins(0, 0, 0, 0);
   plan_rows->addLayout(button_cols, 0);
   plan_rows->addLayout(mission_cols, 1);
 
-  const auto rows = new QVBoxLayout(this);
-  rows->setContentsMargins(0, 0, 0, 0);
-  rows->addWidget(map_, 8);
-  rows->addLayout(plan_rows, 5);
+  const auto root_rows = new QVBoxLayout(this);
+  root_rows->setContentsMargins(0, 0, 0, 0);
+  root_rows->addWidget(map_, 8);
+  root_rows->addLayout(plan_rows, 5);
 
   // Connection
   connect(map_, &MapWidget::waypointMoved, this, &self::onWaypointMoved);
@@ -123,6 +136,8 @@ MissionPlannerWidget::MissionPlannerWidget(const rqt::RosQtBridge& _bridge) : sp
   connect(focus_button_, &CommandButton::clicked, this, &self::onFocusButtonClicked);
   connect(command_list_, &qt::ListWidget::currentItemChanged, this, &self::onListItemChanged);
   connect(command_list_, &qt::ListWidget::itemMoved, this, &self::onListItemChanged);
+  connect(delete_command_button_, &QPushButton::clicked, this, &self::onDeleteButtonClicked);
+  connect(commands_, &QStackedWidget::currentChanged, this, &self::updateCommandHeader);
   connect(&_bridge, &rqt::RosQtBridge::gnssReceived, this, &self::gnssCb, Qt::QueuedConnection);
   connect(&_bridge, &rqt::RosQtBridge::odomReceived, this, &self::odomCb, Qt::QueuedConnection);
   connect(this, &self::goalResponseReceived, this, &self::actionGoalResponseCb, Qt::QueuedConnection);
@@ -137,6 +152,7 @@ void MissionPlannerWidget::reset()
   map_->setArrowRotation(0.0);
 
   clearMission();
+  updateCommandHeader(-1);
   setEditMode();
 
   mission_executing_ = false;
@@ -182,10 +198,21 @@ void MissionPlannerWidget::addCommand(mission::Type _type, BaseCommandWidget* _w
 
   commands_->addWidget(_widget);
   connect(_widget, &BaseCommandWidget::updated, this, &self::onMissionUpdated);
-  connect(
-    _widget, &BaseCommandWidget::deleteButtonClicked, std::bind(&self::onDeleteButtonClicked, this, item, _widget));
 
   pairs_.insert({ item, _widget });
+}
+
+void MissionPlannerWidget::updateCommandHeader(int _index)
+{
+  const auto index_valid = _index >= 0;
+  delete_command_button_->setEnabled(index_valid);
+  if (!index_valid) {
+    command_title_->clear();
+    return;
+  }
+
+  const auto command = qt::qPointerCast<BaseCommandWidget>(commands_->widget(_index));
+  command_title_->setText(command->name());
 }
 
 void MissionPlannerWidget::setExecuteMode()
@@ -198,7 +225,7 @@ void MissionPlannerWidget::setExecuteMode()
   cancel_button_->setEnabled(true);
 
   command_list_->setDragDropMode(QListWidget::NoDragDrop);
-  commands_->setEnabled(false);
+  command_panel_->setEnabled(false);
 }
 
 void MissionPlannerWidget::setEditMode()
@@ -211,7 +238,7 @@ void MissionPlannerWidget::setEditMode()
   cancel_button_->setEnabled(false);
 
   command_list_->setDragDropMode(QListWidget::InternalMove);
-  commands_->setEnabled(true);
+  command_panel_->setEnabled(true);
 }
 
 void MissionPlannerWidget::listToCommands()
@@ -737,18 +764,22 @@ void MissionPlannerWidget::onFocusButtonClicked()
   map_->setMapCenter(arrow_pos.latitude(), arrow_pos.longitude());
 }
 
-void MissionPlannerWidget::onDeleteButtonClicked(QListWidgetItem* _target_item, BaseCommandWidget* _target_widget)
+void MissionPlannerWidget::onDeleteButtonClicked()
 {
   qDebug() << "MissionPlannerWidget::onDeleteButtonClicked";
 
-  command_list_->remove(_target_item);
-  commands_->removeWidget(_target_widget);
+  const auto target_item = command_list_->currentItem();
+  const auto target_widget = findCommandWidget(target_item);
+  TOBAS_CHECK(target_widget);
+
+  command_list_->remove(target_item);
+  commands_->removeWidget(target_widget);
 
   bool found = false;
   for (const auto& pair : pairs_) {
     const auto& item = pair.first;
     const auto& widget = pair.second;
-    if (item == _target_item && widget == _target_widget) {
+    if (item == target_item && widget == target_widget) {
       found = true;
       pairs_.erase(pair);
       break;

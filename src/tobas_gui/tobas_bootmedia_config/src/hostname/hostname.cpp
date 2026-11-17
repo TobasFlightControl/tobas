@@ -4,6 +4,7 @@
 #include "tobas_bootmedia_config/hostname/hostname.hpp"
 
 #include <QFormLayout>
+#include <QVBoxLayout>
 #include <inja/inja.hpp>
 
 #include <tobas_qt_tools/message.hpp>
@@ -41,11 +42,12 @@ HostnameWidget::HostnameWidget()
   form->setHorizontalSpacing(kFormSpacing);
   form->addRow("Hostname", hostname_);
 
-  rows_->addLayout(form);
-  rows_->addWidget(warn_text_);
-  rows_->addSpacing(32);
-  qt::addWidgetCenter(write_button_, rows_);
-  rows_->addStretch(1);
+  const auto rows = new QVBoxLayout(this);
+  rows->addLayout(form);
+  rows->addWidget(warn_text_);
+  rows->addSpacing(32);
+  qt::addWidgetCenter(write_button_, rows);
+  rows->addStretch(1);
 
   // Connection
   connect(hostname_, &QLineEdit::textChanged, this, &self::onHostnameChanged);

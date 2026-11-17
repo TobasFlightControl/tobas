@@ -3,6 +3,8 @@
 
 #include "tobas_bootmedia_config/ip_address/ip_address.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
@@ -24,10 +26,11 @@ IpAddressWidget::IpAddressWidget()
   write_button_->setFixedSize(kCtrlButtonWidth, kCtrlButtonHeight);
 
   // Layout
-  rows_->addWidget(tabs_);
-  rows_->addSpacing(32);
-  qt::addWidgetCenter(write_button_, rows_);
-  rows_->addStretch(1);
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(tabs_);
+  rows->addSpacing(32);
+  qt::addWidgetCenter(write_button_, rows);
+  rows->addStretch(1);
 
   // Connection
   connect(write_button_, &QPushButton::clicked, this, &self::onWriteButtonClicked);

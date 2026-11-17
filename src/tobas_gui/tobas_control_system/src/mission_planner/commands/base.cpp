@@ -5,14 +5,11 @@
 
 #include <cmath>
 
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QLayout>
 #include <QStackedWidget>
-#include <QTimer>
 #include <QVBoxLayout>
 
-#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
 namespace tobas::gui::ctrl
@@ -20,20 +17,7 @@ namespace tobas::gui::ctrl
 BaseCommandWidget::BaseCommandWidget()
 {
   const auto root_rows = new QVBoxLayout(this);
-  root_rows->setContentsMargins(-1, 0, -1, 0);
-
-  const auto header_cols = new QHBoxLayout();
-  root_rows->addLayout(header_cols);
-
-  label_ = new QLabel();
-  label_->setFont(qt::DefaultFont(12, QFont::Bold));
-  header_cols->addWidget(label_);
-
-  header_cols->addStretch(1);
-
-  delete_button_ = new QPushButton("Delete");
-  header_cols->addWidget(delete_button_);
-  connect(delete_button_, &QPushButton::clicked, this, &self::onDeleteButtonClicked);
+  root_rows->setContentsMargins(0, 0, 0, 0);
 
   const auto scroll_area = new qt::ScrollArea();
   root_rows->addWidget(scroll_area);
@@ -47,9 +31,6 @@ BaseCommandWidget::BaseCommandWidget()
   field_rows->addLayout(form_);
 
   field_rows->addStretch(1);  // Minimize the form widget.
-
-  // Use a timer callback because pure virtual functions cannot be called from the base-class constructor.
-  QTimer::singleShot(0, this, &self::initialize);
 }
 
 void BaseCommandWidget::addField(field::BaseFieldWidget* _widget, bool _overridable)
@@ -107,18 +88,8 @@ void BaseCommandWidget::setValueOrDefault(field::FieldWidget<double>* _widget, d
   }
 }
 
-void BaseCommandWidget::initialize()
-{
-  label_->setText(name());
-}
-
 void BaseCommandWidget::onFieldUpdated()
 {
   Q_EMIT updated();
-}
-
-void BaseCommandWidget::onDeleteButtonClicked()
-{
-  Q_EMIT deleteButtonClicked();
 }
 }  // namespace tobas::gui::ctrl

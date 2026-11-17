@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QGridLayout>
 #include <QString>
+#include <QVBoxLayout>
 
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/ros.hpp>
@@ -127,10 +128,11 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(const rqt::RosQtBridge& _brid
     }
   }
 
-  rows_->addWidget(instruction, 0);
-  rows_->addLayout(button_cols, 0);
-  rows_->addSpacing(40);
-  rows_->addLayout(rc_range_grid, 1);
+  const auto root_rows = new QVBoxLayout(this);
+  root_rows->addWidget(instruction, 0);
+  root_rows->addLayout(button_cols, 0);
+  root_rows->addSpacing(40);
+  root_rows->addLayout(rc_range_grid, 1);
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);

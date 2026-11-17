@@ -7,6 +7,7 @@
 #include <QEvent>
 #include <QHeaderView>
 #include <QString>
+#include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -58,8 +59,9 @@ WifiClientWidget::WifiClientWidget()
   cols->addWidget(clear_button_);
   cols->addStretch(1);
 
-  rows_->addLayout(cols);
-  rows_->addWidget(table_);
+  const auto rows = new QVBoxLayout(this);
+  rows->addLayout(cols);
+  rows->addWidget(table_);
 
   // Connection
   connect(add_button_, &QPushButton::clicked, this, &self::onAddButtonClicked);

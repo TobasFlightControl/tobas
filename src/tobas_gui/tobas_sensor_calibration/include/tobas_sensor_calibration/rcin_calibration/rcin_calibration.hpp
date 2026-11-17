@@ -5,6 +5,7 @@
 
 #include <optional>
 
+#include <QLabel>
 #include <QPushButton>
 
 #include <tobas_constants/rc_input.hpp>

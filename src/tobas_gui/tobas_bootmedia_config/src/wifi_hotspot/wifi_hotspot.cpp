@@ -5,6 +5,7 @@
 
 #include <QFormLayout>
 #include <QRegularExpression>
+#include <QVBoxLayout>
 #include <inja/inja.hpp>
 
 #include <tobas_qt_tools/message.hpp>
@@ -35,11 +36,12 @@ WifiHotspotWidget::WifiHotspotWidget()
   form->addRow("New SSID", ssid_);
   form->addRow("New PSK", psk_);
 
-  rows_->addLayout(form);
-  rows_->addWidget(warn_text_);
-  rows_->addSpacing(32);
-  qt::addWidgetCenter(write_button_, rows_);
-  rows_->addStretch(1);
+  const auto rows = new QVBoxLayout(this);
+  rows->addLayout(form);
+  rows->addWidget(warn_text_);
+  rows->addSpacing(32);
+  qt::addWidgetCenter(write_button_, rows);
+  rows->addStretch(1);
 
   // Connection
   connect(ssid_, &QLineEdit::textChanged, this, &self::onTextChanged);

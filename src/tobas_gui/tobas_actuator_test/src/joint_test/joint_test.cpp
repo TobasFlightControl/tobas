@@ -3,6 +3,8 @@
 
 #include "tobas_actuator_test/joint_test/joint_test.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
@@ -37,9 +39,10 @@ JointTestWidget::JointTestWidget(const rqt::RosQtBridge& _bridge, const kdl::Tre
   cols->addWidget(zero_button_);
   cols->addWidget(home_button_);
 
-  rows_->addWidget(instruction);
-  rows_->addLayout(cols);
-  rows_->addWidget(commands_publisher_);
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(instruction);
+  rows->addLayout(cols);
+  rows->addWidget(commands_publisher_);
 
   // Connection
   connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartButtonClicked);

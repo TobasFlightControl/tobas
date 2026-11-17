@@ -3,6 +3,8 @@
 
 #include "tobas_sensor_calibration/accel_calibration/accel_calibration.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
@@ -26,9 +28,10 @@ AccelCalibrationWidget::AccelCalibrationWidget(const rqt::RosQtBridge& _bridge) 
   level_indicator_ = new LevelIndicatorWidget();
 
   // Layout
-  rows_->addWidget(instruction, 0);
-  rows_->addWidget(start_button_, 0);
-  rows_->addWidget(level_indicator_, 1);
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(instruction, 0);
+  rows->addWidget(start_button_, 0);
+  rows->addWidget(level_indicator_, 1);
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
