@@ -89,7 +89,6 @@ QWidget* BootmediaConfigWidget::createTabPage(BaseConfigWidget* _content)
   const auto title = new QLabel(_content->title());
   title->setFont(qt::DefaultFont(cmn::kTitlePointSize, QFont::Bold));
 
-  // Keep the original page margins around the header and content together.
   _content->layout()->setContentsMargins(0, 0, 0, 0);
 
   const auto rows = new QVBoxLayout(page);

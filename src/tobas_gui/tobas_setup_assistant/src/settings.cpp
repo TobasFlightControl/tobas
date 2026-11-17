@@ -198,6 +198,8 @@ int SettingsWidget::getIndex(BaseSettingWidget* _page) const
 
 void SettingsWidget::addPage(BaseSettingWidget* _page)
 {
+  _page->layout()->setContentsMargins(0, 0, 0, 0);
+
   const auto idx = stack_->addWidget(_page);
   navigation_->addEntry(_page->name(), idx);
 }

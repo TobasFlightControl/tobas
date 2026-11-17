@@ -160,6 +160,8 @@ const BasePropulsionSystemWidget* PropulsionSystemWidget::selected() const
 
 void PropulsionSystemWidget::addPropulsionSystemWidget(BasePropulsionSystemWidget* _widget, int _id)
 {
+  _widget->layout()->setContentsMargins(0, 0, 0, 0);
+
   const auto btn = new QRadioButton(_widget->name());
   type_btn_group_->addButton(btn, _id);
   propulsion_stack_->addWidget(_widget);
