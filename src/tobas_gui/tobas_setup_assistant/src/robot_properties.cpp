@@ -14,7 +14,8 @@ RobotPropertiesWidget::RobotPropertiesWidget(const uadf::Model& _uadf, const kdl
   frame_type_ = new qt::FramedLabel();
   mass_ = new qt::FramedLabel();
 
-  const auto form = new qt::FormLayout(this);
+  const auto form = new qt::FormLayout();
+  setLayout(form);  // Do not pass `this` to the layout constructor.
   form->setHorizontalSpacing(24);
   form->addRow("Robot Name", robot_name_);
   form->addRow("Frame Type", frame_type_);

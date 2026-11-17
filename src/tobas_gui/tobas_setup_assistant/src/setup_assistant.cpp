@@ -82,10 +82,14 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr _node)
   viewer_cols->addWidget(rviz_, 2);
   viewer_cols->addWidget(jsp_, 1);
 
+  const auto header_rows = new QVBoxLayout();
+  header_rows->setContentsMargins(0, 0, 0, 0);
+  header_rows->addLayout(pkg_cols, 0);
+  header_rows->addLayout(viewer_cols, 1);
+
   const auto root_rows = new QVBoxLayout(this);
-  root_rows->addLayout(pkg_cols, 0);
-  root_rows->addLayout(viewer_cols, 2);
-  root_rows->addWidget(settings_, 5);
+  root_rows->addLayout(header_rows, 5);
+  root_rows->addWidget(settings_, 8);
 
   // Connection
   connect(new_btn_, &QPushButton::clicked, this, &self::onNewButtonClicked);

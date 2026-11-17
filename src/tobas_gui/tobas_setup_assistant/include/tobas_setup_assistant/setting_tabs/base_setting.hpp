@@ -6,13 +6,13 @@
 #include <yaml-cpp/yaml.h>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QWidget>
 
 #include <tobas_qt_tools/widgets/description_widget.hpp>
-#include <tobas_qt_tools/widgets/scroll_area.hpp>
 
 namespace tobas::gui::sa
 {
-class BaseSettingWidget : public qt::ScrollArea
+class BaseSettingWidget : public QWidget
 {
   Q_OBJECT
 

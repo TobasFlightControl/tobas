@@ -14,7 +14,7 @@ JointCommandsPublisherWidget::JointCommandsPublisherWidget(const kdl::Tree& _tre
   : tree_(_tree), drone_(_drone), joint_parser_(_tree)
 {
   rows_ = new QVBoxLayout();
-  setLayout(rows_);
+  setLayout(rows_);  // Do not pass `this` to the layout constructor.
 
   connect(&publish_timer_, &QTimer::timeout, this, &self::publishCurrentValues);
 }
