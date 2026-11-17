@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/fixed_wing.hpp"
 
+#include <QFont>
+
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
@@ -18,17 +20,17 @@ constexpr char kControlSurfacesLabel[] = "Control Surfaces";
 FixedWingWidget::FixedWingWidget(const uadf::Model& _uadf)
 {
   // Vehicle
-  addWidget(new qt::Label(kVehicleLabel, cmn::kTitlePointSize));
+  addWidget(new qt::Label(kVehicleLabel, cmn::kSubTitlePointSize, QFont::Bold));
   vehicle_ = new VehicleParametersWidget();
   addWidget(vehicle_);
 
   // Aerodynamic Coefficients
-  addWidget(new qt::Label(kAeroCoefsLabel, cmn::kTitlePointSize));
+  addWidget(new qt::Label(kAeroCoefsLabel, cmn::kSubTitlePointSize, QFont::Bold));
   aero_coefs_ = new AerodynamicsCoefficientsWidget();
   addWidget(aero_coefs_);
 
   // Control Surfaces
-  addWidget(new qt::Label(kControlSurfacesLabel, cmn::kTitlePointSize));
+  addWidget(new qt::Label(kControlSurfacesLabel, cmn::kSubTitlePointSize, QFont::Bold));
   control_surfaces_ = new ControlSurfacesWidget(_uadf);
   addWidget(control_surfaces_);
 }

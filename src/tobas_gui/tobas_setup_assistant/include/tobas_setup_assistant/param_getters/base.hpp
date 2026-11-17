@@ -41,7 +41,7 @@ ParamGetterWidget<T>::ParamGetterWidget(const QString& _param_name, const QStrin
   rows_ = new QVBoxLayout(this);
 
   label_ = new QLabel(_param_name);
-  label_->setFont(qt::DefaultFont(cmn::kSubTitlePointSize, QFont::Bold));
+  label_->setFont(qt::DefaultFont(cmn::kBodyPointSize, QFont::Bold));
   label_->setAlignment(Qt::AlignTop);
   rows_->addWidget(label_);
 
