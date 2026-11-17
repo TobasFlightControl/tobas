@@ -4,11 +4,12 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
-#include <QWidget>
+
+#include <tobas_qt_tools/widgets/tab_widget.hpp>
 
 namespace tobas::gui::sa::mission
 {
-class BaseExecutorWidget : public QWidget
+class BaseExecutorWidget : public qt::TabWidget
 {
   Q_OBJECT
 
