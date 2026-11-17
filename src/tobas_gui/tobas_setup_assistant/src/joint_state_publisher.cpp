@@ -35,11 +35,6 @@ JointStatePublisherWidget::JointStatePublisherWidget(
   center_button_ = new QPushButton("Center");
   random_button_ = new QPushButton("Random");
 
-  constexpr int kButtonHeight = 40;
-  zero_button_->setFixedHeight(kButtonHeight);
-  center_button_->setFixedHeight(kButtonHeight);
-  random_button_->setFixedHeight(kButtonHeight);
-
   setControlButtonsEnabled(false);
 
   // Layout

@@ -71,7 +71,7 @@ SettingsWidget::SettingsWidget(const uadf::Model& _uadf, const kdl::Tree& _tree,
   const auto cols = new QHBoxLayout(this);
   cols->setContentsMargins(0, 0, 0, 0);
   cols->addWidget(navigation_, 0);
-  cols->addSpacing(32);
+  cols->addSpacing(16);
   cols->addLayout(rows, 1);
 }
 

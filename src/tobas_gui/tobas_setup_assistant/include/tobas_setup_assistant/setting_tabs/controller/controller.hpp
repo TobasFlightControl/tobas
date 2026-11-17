@@ -52,6 +52,8 @@ private:
   QCheckBox* dont_use_builtin_ctrl_;
   qt::StackedWidget* stack_;
 
+  void addController(BaseControllerWidget* _widget);
+
   BaseControllerWidget* widget(int _index);
   const BaseControllerWidget* widget(int _index) const;
 

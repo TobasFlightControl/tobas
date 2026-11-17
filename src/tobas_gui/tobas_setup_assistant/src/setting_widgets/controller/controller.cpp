@@ -25,12 +25,12 @@ ControllerWidget::ControllerWidget()
 
   stack_ = new qt::StackedWidget();
 
-  stack_->addWidget(new CustomFrameWidget());
-  stack_->addWidget(new PlanarMulticopterWidget());
-  stack_->addWidget(new NonPlanarMulticopterWidget());
-  stack_->addWidget(new YAxisTiltMulticopterWidget());
-  stack_->addWidget(new RandomAxisTiltMulticopterWidget());
-  stack_->addWidget(new FixedWingWidget());
+  addController(new CustomFrameWidget());
+  addController(new PlanarMulticopterWidget());
+  addController(new NonPlanarMulticopterWidget());
+  addController(new YAxisTiltMulticopterWidget());
+  addController(new RandomAxisTiltMulticopterWidget());
+  addController(new FixedWingWidget());
   TOBAS_CHECK(static_cast<size_t>(stack_->count()) == magic_enum::enum_count<FrameType>());
 
   // Layout
@@ -156,6 +156,12 @@ RcCommand ControllerWidget::loiterModeCommand() const
 YAML::Node ControllerWidget::staticParams() const
 {
   return selected()->staticParams();
+}
+
+void ControllerWidget::addController(BaseControllerWidget* _widget)
+{
+  _widget->layout()->setContentsMargins(0, 0, 0, 0);
+  stack_->addWidget(_widget);
 }
 
 BaseControllerWidget* ControllerWidget::widget(int _index)

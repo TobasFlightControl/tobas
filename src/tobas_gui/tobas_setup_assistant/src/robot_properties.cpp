@@ -16,7 +16,7 @@ RobotPropertiesWidget::RobotPropertiesWidget(const uadf::Model& _uadf, const kdl
 
   const auto form = new qt::FormLayout();
   setLayout(form);  // Do not pass `this` to the layout constructor.
-  form->setHorizontalSpacing(24);
+  form->setHorizontalSpacing(8);
   form->addRow("Robot Name", robot_name_);
   form->addRow("Frame Type", frame_type_);
   form->addRow("Total Mass", mass_);
