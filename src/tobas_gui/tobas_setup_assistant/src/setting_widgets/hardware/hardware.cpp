@@ -51,10 +51,11 @@ HardwareWidget::HardwareWidget(const uadf::Model& _uadf, const Signals& _sig)
   rcout_cols->addLayout(pwm_rows, 1);
   rcout_cols->addLayout(dshot_rows, 1);
 
-  addWidget(type_);
-  addSpacing(16);
-  addWidget(hardwares_, 0);
-  addLayout(rcout_cols, 1);
+  const auto root_rows = new QVBoxLayout(this);
+  root_rows->addWidget(type_);
+  root_rows->addSpacing(16);
+  root_rows->addWidget(hardwares_, 0);
+  root_rows->addLayout(rcout_cols, 1);
 
   // Connection
   connect(type_, qOverload<int>(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentHardware);

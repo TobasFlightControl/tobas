@@ -5,13 +5,15 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
+
 #include "tobas_setup_assistant/param_getters/double_range.hpp"
 #include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
 #include "tobas_setup_assistant/param_getters/vector3d.hpp"
 
 namespace tobas::gui::sa::fw
 {
-class VehicleParametersWidget : public QWidget
+class VehicleParametersWidget : public qt::ScrollArea
 {
   Q_OBJECT
 

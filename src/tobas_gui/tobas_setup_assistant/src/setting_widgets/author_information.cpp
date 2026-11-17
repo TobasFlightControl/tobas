@@ -4,6 +4,7 @@
 #include "tobas_setup_assistant/setting_tabs/author_information.hpp"
 
 #include <QDebug>
+#include <QVBoxLayout>
 
 #include <tobas_git/core.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -59,12 +60,12 @@ QString getDefaultEmail()
 AuthorInformationWidget::AuthorInformationWidget()
 {
   name_ = new ParamGetterWidget_LineEdit("Name of the Maintainer", "");
-  addWidget(name_);
-
   email_ = new ParamGetterWidget_LineEdit("Email of the Maintainer", "");
-  addWidget(email_);
 
-  addStretch(1);
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(name_);
+  rows->addWidget(email_);
+  rows->addStretch(1);
 }
 
 const char* AuthorInformationWidget::name() const

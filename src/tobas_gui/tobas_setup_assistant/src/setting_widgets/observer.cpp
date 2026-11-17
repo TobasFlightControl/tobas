@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/observer.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
@@ -10,43 +12,45 @@ namespace tobas::gui::sa
 {
 ObserverWidget::ObserverWidget()
 {
+  const auto rows = new QVBoxLayout(this);
+
   use_magnetometer_ = new QCheckBox("Use Magnetometer");
-  addWidget(use_magnetometer_);
+  rows->addWidget(use_magnetometer_);
 
   use_barometer_ = new QCheckBox("Use Barometer");
-  addWidget(use_barometer_);
+  rows->addWidget(use_barometer_);
 
   use_gnss_ = new QCheckBox("Use GNSS");
-  addWidget(use_gnss_);
+  rows->addWidget(use_gnss_);
 
   use_ext_pose_ = new QCheckBox("Use External Pose");
-  addWidget(use_ext_pose_);
+  rows->addWidget(use_ext_pose_);
 
   adaptive_gnss_noise_ = new QCheckBox("Adaptive GNSS Measurement Noise");
-  addWidget(adaptive_gnss_noise_);
+  rows->addWidget(adaptive_gnss_noise_);
 
   adaptive_grav_noise_ = new QCheckBox("Adaptive Gravity Measurement Noise");
-  addWidget(adaptive_grav_noise_);
+  rows->addWidget(adaptive_grav_noise_);
 
   do_acc_bias_estimation_ = new QCheckBox("Do Accelerometer Bias Estimation");
-  addWidget(do_acc_bias_estimation_);
+  rows->addWidget(do_acc_bias_estimation_);
 
   do_gyro_bias_estimation_ = new QCheckBox("Do Gyroscope Bias Estimation");
-  addWidget(do_gyro_bias_estimation_);
+  rows->addWidget(do_gyro_bias_estimation_);
 
   do_mag_hard_bias_estimation_ = new QCheckBox("Do Magnetometer Hard-Iron Bias Estimation");
-  addWidget(do_mag_hard_bias_estimation_);
+  rows->addWidget(do_mag_hard_bias_estimation_);
 
   do_mag_soft_bias_estimation_ = new QCheckBox("Do Magnetometer Soft-Iron Bias Estimation");
-  addWidget(do_mag_soft_bias_estimation_);
+  rows->addWidget(do_mag_soft_bias_estimation_);
 
   do_baro_alt_bias_estimation_ = new QCheckBox("Do Barometer Altitude Bias Estimation");
-  addWidget(do_baro_alt_bias_estimation_);
+  rows->addWidget(do_baro_alt_bias_estimation_);
 
   do_grav_estimation_ = new QCheckBox("Do Gravity Estimation");
-  addWidget(do_grav_estimation_);
+  rows->addWidget(do_grav_estimation_);
 
-  addStretch(1);
+  rows->addStretch(1);
 }
 
 const char* ObserverWidget::name() const

@@ -3,6 +3,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/vehicle.hpp"
 
+#include <QFrame>
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/message.hpp>
@@ -14,35 +15,39 @@ namespace tobas::gui::sa::fw
 {
 VehicleParametersWidget::VehicleParametersWidget()
 {
-  const auto rows = new QVBoxLayout(this);
+  setFrameShape(QFrame::NoFrame);
 
   wing_surface_ = new ParamGetterWidget_DoubleSpinBox("Wing Surface", "");
   wing_surface_->setDecimals(3);
   wing_surface_->setMinimum(1e-3);
   wing_surface_->setSuffix(" m^2");
-  rows->addWidget(wing_surface_);
 
   wing_span_ = new ParamGetterWidget_DoubleSpinBox("Wing Span", "");
   wing_span_->setDecimals(3);
   wing_span_->setMinimum(1e-3);
   wing_span_->setSuffix(" m");
-  rows->addWidget(wing_span_);
 
   mac_ = new ParamGetterWidget_DoubleSpinBox("Mean Aerodynamic Chord", "");
   mac_->setDecimals(3);
   mac_->setMinimum(1e-3);
   mac_->setSuffix(" m");
-  rows->addWidget(mac_);
 
   aerodynamic_center_ = new ParamGetterWidget_Vector3d("Aerodynamic Center", "");
   aerodynamic_center_->setDecimals(3);
   aerodynamic_center_->setSuffix(" m");
-  rows->addWidget(aerodynamic_center_);
 
   alpha_limit_ = new ParamGetterWidget_DoubleRange("Limitation of Angle of Attack", "");
   alpha_limit_->setDecimals(3);
   alpha_limit_->setSuffix(" rad");
+
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);  // Do not pass `this` to the layout constructor.
+  rows->addWidget(wing_surface_);
+  rows->addWidget(wing_span_);
+  rows->addWidget(mac_);
+  rows->addWidget(aerodynamic_center_);
   rows->addWidget(alpha_limit_);
+  rows->addStretch(1);
 }
 
 void VehicleParametersWidget::updateInternalDataStructures()

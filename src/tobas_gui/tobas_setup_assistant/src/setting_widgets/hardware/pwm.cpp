@@ -31,7 +31,6 @@ constexpr char kPeriodUbLabel[] = "PWM Period (UB)";
 
 PwmWidget::PwmWidget(const uadf::Model& _uadf, const Signals& _sig) : super(0, kNumCols), uadf_(_uadf)
 {
-  setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
   setHorizontalHeaderLabels({ kTargetNameLabel, kPeriodLbLabel, kPeriodUbLabel });
   setHeaderSectionsClickable(false);
 

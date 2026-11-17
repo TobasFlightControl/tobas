@@ -56,11 +56,9 @@ FailsafeWidget::FailsafeWidget()
   detail_rows->addLayout(form);
   detail_rows->addStretch(1);
 
-  const auto cols = new QHBoxLayout();
+  const auto cols = new QHBoxLayout(this);
   cols->addLayout(checklist_rows, 1);
   cols->addLayout(detail_rows, 1);
-
-  addLayout(cols);
 }
 
 const char* FailsafeWidget::name() const

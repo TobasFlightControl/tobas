@@ -9,15 +9,14 @@ namespace tobas::qt
 {
 Vector3dEditHorizontal::Vector3dEditHorizontal(QWidget* _parent) : super(_parent)
 {
-  const auto cols = new QHBoxLayout(this);
-
   x_ = new LabeledDoubleSpinBox("X");
-  cols->addWidget(x_);
-
   y_ = new LabeledDoubleSpinBox("Y");
-  cols->addWidget(y_);
-
   z_ = new LabeledDoubleSpinBox("Z");
+
+  const auto cols = new QHBoxLayout(this);
+  cols->setContentsMargins(0, 0, 0, 0);
+  cols->addWidget(x_);
+  cols->addWidget(y_);
   cols->addWidget(z_);
 
   connect(x_, &LabeledDoubleSpinBox::valueChanged, this, &self::onValueChanged);

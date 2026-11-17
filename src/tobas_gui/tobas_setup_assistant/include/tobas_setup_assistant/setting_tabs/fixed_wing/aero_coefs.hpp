@@ -8,10 +8,11 @@
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 
 namespace tobas::gui::sa::fw
 {
-class AerodynamicsCoefficientsWidget : public QWidget
+class AerodynamicsCoefficientsWidget : public qt::ScrollArea
 {
   Q_OBJECT
 

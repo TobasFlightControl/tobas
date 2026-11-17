@@ -53,11 +53,12 @@ ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& _uadf) : super(0
       kPitchCoefLabel,
       kYawCoefLabel,
     });
-  setColumnsWidth(120);
-  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
   setHeaderSectionsClickable(false);
-  horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+
+  const auto hor_header = horizontalHeader();
+  hor_header->setSectionResizeMode(QHeaderView::Fixed);
+  hor_header->setSectionResizeMode(QHeaderView::ResizeToContents);
+  hor_header->setMinimumSectionSize(160);
 }
 
 void ControlSurfacesWidget::updateInternalDataStructures()
@@ -164,31 +165,37 @@ void ControlSurfacesWidget::add(const QString& _link_name)
   setCellWidget(row, kJointNameCol, joint_name_label);
 
   const auto c_lift_delta = new qt::DoubleSpinBox();
+  c_lift_delta->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_lift_delta->setDecimals(kStabilityCoefDecimals);
   c_lift_delta->setSuffix(" /rad");
   setCellWidget(row, kLiftCoefCol, c_lift_delta);
 
   const auto c_drag_delta = new qt::DoubleSpinBox();
+  c_drag_delta->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_drag_delta->setDecimals(kStabilityCoefDecimals);
   c_drag_delta->setSuffix(" /rad");
   setCellWidget(row, kDragCoefCol, c_drag_delta);
 
   const auto c_side_delta = new qt::DoubleSpinBox();
+  c_side_delta->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_side_delta->setDecimals(kStabilityCoefDecimals);
   c_side_delta->setSuffix(" /rad");
   setCellWidget(row, kSideCoefCol, c_side_delta);
 
   const auto c_roll_delta = new qt::DoubleSpinBox();
+  c_roll_delta->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_roll_delta->setDecimals(kStabilityCoefDecimals);
   c_roll_delta->setSuffix(" /rad");
   setCellWidget(row, kRollCoefCol, c_roll_delta);
 
   const auto c_pitch_delta = new qt::DoubleSpinBox();
+  c_pitch_delta->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_pitch_delta->setDecimals(kStabilityCoefDecimals);
   c_pitch_delta->setSuffix(" /rad");
   setCellWidget(row, kPitchCoefCol, c_pitch_delta);
 
   const auto c_yaw_delta = new qt::DoubleSpinBox();
+  c_yaw_delta->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_yaw_delta->setDecimals(kStabilityCoefDecimals);
   c_yaw_delta->setSuffix(" /rad");
   setCellWidget(row, kYawCoefCol, c_yaw_delta);

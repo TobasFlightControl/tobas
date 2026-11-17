@@ -10,13 +10,12 @@ namespace tobas::qt
 {
 LabeledDoubleSpinBox::LabeledDoubleSpinBox(const QString& _label_text)
 {
-  const auto cols = new QHBoxLayout(this);
-
-  const auto label = new QLabel(_label_text + ":");
-  cols->addWidget(label);
-
   data_ = new qt::DoubleSpinBox();
   data_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+  const auto cols = new QHBoxLayout(this);
+  cols->setContentsMargins(0, 0, 0, 0);
+  cols->addWidget(new QLabel(_label_text + ":"));
   cols->addWidget(data_);
 
   connect(data_, qOverload<double>(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);

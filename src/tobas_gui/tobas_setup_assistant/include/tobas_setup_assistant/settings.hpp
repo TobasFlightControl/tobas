@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <QLabel>
+
+#include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "./setting_tabs/author_information.hpp"
@@ -23,6 +26,8 @@ namespace tobas::gui::sa
 class SettingsWidget : public QWidget
 {
   Q_OBJECT
+
+  using self = SettingsWidget;
 
 public:
   propulsion::PropulsionSystemWidget* propulsion_system;
@@ -52,10 +57,13 @@ private:
   const uadf::Model& uadf_;
 
   SettingsNavigationWidget* navigation_;
+  QLabel* title_;
+  qt::DescriptionWidget* description_;
   qt::StackedWidget* stack_;
 
   int getIndex(BaseSettingWidget* _page) const;
   void addPage(BaseSettingWidget* _page);
+  void updateHeader(int _idx);
   void setCurrentPage(int _idx);
   void setCurrentPage(BaseSettingWidget* _page);
   void setPageEnabled(int _idx, bool _enabled, const QString& _disabled_reason = {});

@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/network/network.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
@@ -18,11 +20,11 @@ NetworkWidget::NetworkWidget()
 {
   nic_ = new NetworkIfaceWidget();
 
-  addWidget(new qt::Label(kNetworkIfaceLabel, cmn::kSubTitlePointSize, QFont::Bold));
-  addWidget(new qt::DescriptionWidget("Specify the network interface used by the flight controller."));
-  addWidget(nic_);
-
-  addStretch(1);
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(new qt::Label(kNetworkIfaceLabel, cmn::kSubTitlePointSize, QFont::Bold));
+  rows->addWidget(new qt::DescriptionWidget("Specify the network interface used by the flight controller."));
+  rows->addWidget(nic_);
+  rows->addStretch(1);
 }
 
 const char* NetworkWidget::name() const

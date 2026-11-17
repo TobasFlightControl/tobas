@@ -4,11 +4,7 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
-#include <QLabel>
-#include <QVBoxLayout>
 #include <QWidget>
-
-#include <tobas_qt_tools/widgets/description_widget.hpp>
 
 namespace tobas::gui::sa
 {
@@ -16,11 +12,7 @@ class BaseSettingWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = BaseSettingWidget;
-
 public:
-  explicit BaseSettingWidget();
-
   virtual const char* name() const = 0;
   virtual const char* title() const = 0;
   virtual const char* description() const = 0;
@@ -39,22 +31,5 @@ public:
 
   /** Load user settings. */
   virtual void load(const YAML::Node& _node) = 0;
-
-protected:
-  void addWidget(QWidget* _widget, int _stretch = 0);
-  void addWidgetCenter(QWidget* _widget, int _stretch = 0);
-  void addLayout(QLayout* _layout, int _stretch = 0);
-  void addStretch(int _stretch = 0);
-  void addSpacing(int _size);
-
-private:
-  QLabel* title_;
-  qt::DescriptionWidget* description_;
-
-  QVBoxLayout* header_rows_;
-  QVBoxLayout* content_rows_;
-
-private Q_SLOTS:
-  void initialize();
 };
 }  // namespace tobas::gui::sa

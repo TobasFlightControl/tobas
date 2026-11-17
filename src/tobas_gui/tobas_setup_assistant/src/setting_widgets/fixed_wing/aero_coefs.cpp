@@ -6,8 +6,11 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QFrame>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -20,100 +23,122 @@ namespace tobas::gui::sa::fw
 {
 AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget()
 {
-  const auto rows = new QVBoxLayout(this);
-
-  const auto cols = new QHBoxLayout();
-  rows->addLayout(cols);
+  setFrameShape(QFrame::NoFrame);
 
   const auto load_button = new QPushButton("Load VSPAERO Output");
-  load_button->setFixedSize(180, 60);
-  connect(load_button, &QPushButton::clicked, this, &self::onLoadButtonClicked);
-  rows->addWidget(load_button);
-
-  cols->addStretch(1);
-
-  form_ = new qt::FormLayout();
-  rows->addLayout(form_);
+  load_button->setFixedWidth(200);
 
   c_lift_0_ = new qt::DoubleSpinBox();
+  c_lift_0_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_lift_0_->setDecimals(kStabilityCoefDecimals);
   c_lift_0_->setSuffix(" [-]");
-  form_->addRow(new QLabel("c_lift_0"), c_lift_0_);
 
   c_lift_alpha_ = new qt::DoubleSpinBox();
+  c_lift_alpha_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_lift_alpha_->setDecimals(kStabilityCoefDecimals);
   c_lift_alpha_->setSuffix(" [/rad]");
-  form_->addRow(new QLabel("c_lift_alpha"), c_lift_alpha_);
 
   c_drag_0_ = new qt::DoubleSpinBox();
+  c_drag_0_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_drag_0_->setDecimals(kStabilityCoefDecimals);
   c_drag_0_->setSuffix(" [-]");
-  form_->addRow(new QLabel("c_drag_0"), c_drag_0_);
 
   c_drag_alpha_ = new qt::DoubleSpinBox();
+  c_drag_alpha_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_drag_alpha_->setDecimals(kStabilityCoefDecimals);
   c_drag_alpha_->setSuffix(" [/rad]");
-  form_->addRow(new QLabel("c_drag_alpha"), c_drag_alpha_);
 
   c_side_beta_ = new qt::DoubleSpinBox();
+  c_side_beta_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_side_beta_->setDecimals(kStabilityCoefDecimals);
   c_side_beta_->setSuffix(" [/rad]");
-  form_->addRow(new QLabel("c_side_beta"), c_side_beta_);
 
   c_roll_beta_ = new qt::DoubleSpinBox();
+  c_roll_beta_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_roll_beta_->setDecimals(kStabilityCoefDecimals);
   c_roll_beta_->setSuffix(" [/rad]");
-  form_->addRow(new QLabel("c_roll_beta"), c_roll_beta_);
 
   c_roll_p_ = new qt::DoubleSpinBox();
+  c_roll_p_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_roll_p_->setDecimals(kStabilityCoefDecimals);
   c_roll_p_->setSuffix(" [s/rad]");
-  form_->addRow(new QLabel("c_roll_p"), c_roll_p_);
 
   c_roll_r_ = new qt::DoubleSpinBox();
+  c_roll_r_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_roll_r_->setDecimals(kStabilityCoefDecimals);
   c_roll_r_->setSuffix(" [s/rad]");
-  form_->addRow(new QLabel("c_roll_r"), c_roll_r_);
 
   c_pitch_0_ = new qt::DoubleSpinBox();
+  c_pitch_0_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_pitch_0_->setDecimals(kStabilityCoefDecimals);
   c_pitch_0_->setSuffix(" [-]");
-  form_->addRow(new QLabel("c_pitch_0"), c_pitch_0_);
 
   c_pitch_alpha_ = new qt::DoubleSpinBox();
+  c_pitch_alpha_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_pitch_alpha_->setDecimals(kStabilityCoefDecimals);
   c_pitch_alpha_->setSuffix(" [/rad]");
-  form_->addRow(new QLabel("c_pitch_alpha"), c_pitch_alpha_);
 
   c_pitch_abs_beta_ = new qt::DoubleSpinBox();
+  c_pitch_abs_beta_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_pitch_abs_beta_->setDecimals(kStabilityCoefDecimals);
   c_pitch_abs_beta_->setSuffix(" [/rad]");
-  form_->addRow(new QLabel("c_pitch_abs_beta"), c_pitch_abs_beta_);
 
   c_pitch_alpha_rate_ = new qt::DoubleSpinBox();
+  c_pitch_alpha_rate_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_pitch_alpha_rate_->setDecimals(kStabilityCoefDecimals);
   c_pitch_alpha_rate_->setSuffix(" [s/rad]");
-  form_->addRow(new QLabel("c_pitch_alpha_rate"), c_pitch_alpha_rate_);
 
   c_pitch_q_ = new qt::DoubleSpinBox();
+  c_pitch_q_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_pitch_q_->setDecimals(kStabilityCoefDecimals);
   c_pitch_q_->setSuffix(" [s/rad]");
-  form_->addRow(new QLabel("c_pitch_q"), c_pitch_q_);
 
   c_yaw_beta_ = new qt::DoubleSpinBox();
+  c_yaw_beta_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_yaw_beta_->setDecimals(kStabilityCoefDecimals);
   c_yaw_beta_->setSuffix(" [/rad]");
-  form_->addRow(new QLabel("c_yaw_beta"), c_yaw_beta_);
 
   c_yaw_p_ = new qt::DoubleSpinBox();
+  c_yaw_p_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_yaw_p_->setDecimals(kStabilityCoefDecimals);
   c_yaw_p_->setSuffix(" [s/rad]");
-  form_->addRow(new QLabel("c_yaw_p"), c_yaw_p_);
 
   c_yaw_r_ = new qt::DoubleSpinBox();
+  c_yaw_r_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_yaw_r_->setDecimals(kStabilityCoefDecimals);
   c_yaw_r_->setSuffix(" [s/rad]");
-  form_->addRow(new QLabel("c_yaw_r"), c_yaw_r_);
+
+  // Layout
+  const auto button_cols = new QHBoxLayout();
+  button_cols->addWidget(load_button);
+  button_cols->addStretch(1);
+
+  form_ = new qt::FormLayout();
+  form_->addRow("c_lift_0", c_lift_0_);
+  form_->addRow("c_lift_alpha", c_lift_alpha_);
+  form_->addRow("c_drag_0", c_drag_0_);
+  form_->addRow("c_drag_alpha", c_drag_alpha_);
+  form_->addRow("c_side_beta", c_side_beta_);
+  form_->addRow("c_roll_beta", c_roll_beta_);
+  form_->addRow("c_roll_p", c_roll_p_);
+  form_->addRow("c_roll_r", c_roll_r_);
+  form_->addRow("c_pitch_0", c_pitch_0_);
+  form_->addRow("c_pitch_alpha", c_pitch_alpha_);
+  form_->addRow("c_pitch_abs_beta", c_pitch_abs_beta_);
+  form_->addRow("c_pitch_alpha_rate", c_pitch_alpha_rate_);
+  form_->addRow("c_pitch_q", c_pitch_q_);
+  form_->addRow("c_yaw_beta", c_yaw_beta_);
+  form_->addRow("c_yaw_p", c_yaw_p_);
+  form_->addRow("c_yaw_r", c_yaw_r_);
+
+  const auto root_rows = new QVBoxLayout();
+  setLayout(root_rows);  // Do not pass `this` to the layout constructor.
+  root_rows->addLayout(button_cols, 0);
+  root_rows->addSpacing(16);
+  root_rows->addLayout(form_, 1);
+
+  // Connection
+  connect(load_button, &QPushButton::clicked, this, &self::onLoadButtonClicked);
 }
 
 void AerodynamicsCoefficientsWidget::updateInternalDataStructures()

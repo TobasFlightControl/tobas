@@ -5,6 +5,7 @@
 
 #include <QDebug>
 #include <QHeaderView>
+#include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_std_tools/check.hpp>
@@ -41,7 +42,9 @@ ExtraJointsWidget::ExtraJointsWidget(const uadf::Model& _uadf, const kdl::Tree& 
   table_->setHeaderSectionsClickable(false);
   table_->setHorizontalHeaderLabels({ kLinkNameLabel, kJointNameLabel, kCmdIfaceLabel, kHomePosLabel });
   table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  addWidget(table_);
+
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(table_);
 }
 
 const char* ExtraJointsWidget::name() const

@@ -3,6 +3,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/controller/controller.hpp"
 
+#include <QVBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
 #include <tobas_qt_tools/cast.hpp>
@@ -33,9 +34,10 @@ ControllerWidget::ControllerWidget()
   TOBAS_CHECK(static_cast<size_t>(stack_->count()) == magic_enum::enum_count<FrameType>());
 
   // Layout
-  addWidget(stack_);
-  addStretch(1);
-  addWidget(dont_use_builtin_ctrl_);
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(stack_);
+  rows->addStretch(1);
+  rows->addWidget(dont_use_builtin_ctrl_);
 
   // Connection
   connect(dont_use_builtin_ctrl_, &QCheckBox::toggled, this, &self::onDontUseBuiltinCtrlCheckBoxToggled);

@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/rc_input.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_constants/rc_input.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
@@ -14,7 +16,6 @@ RcInputWidget::RcInputWidget()
     "S.BUS Channels", "Specifies the number of S.BUS channels actually used in manual control mode.");
   num_sbus_channels_->setMinimum(kMinSbusChannels);
   num_sbus_channels_->setMaximum(kMaxSbusChannels);
-  addWidget(num_sbus_channels_);
 
   arm_duration_ = new ParamGetterWidget_DoubleSpinBox(
     "Arm Duration", "Specifies the amount of time the stick must be held to arm the vehicle from the transmitter.");
@@ -22,7 +23,6 @@ RcInputWidget::RcInputWidget()
   arm_duration_->setMinimum(0.0);
   arm_duration_->setMaximum(10.0);
   arm_duration_->setSuffix(" s");
-  addWidget(arm_duration_);
 
   disarm_duration_ = new ParamGetterWidget_DoubleSpinBox(
     "Disarm Duration",
@@ -31,9 +31,12 @@ RcInputWidget::RcInputWidget()
   disarm_duration_->setMinimum(0.0);
   disarm_duration_->setMaximum(10.0);
   disarm_duration_->setSuffix(" s");
-  addWidget(disarm_duration_);
 
-  addStretch(1);
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(num_sbus_channels_);
+  rows->addWidget(arm_duration_);
+  rows->addWidget(disarm_duration_);
+  rows->addStretch(1);
 }
 
 const char* RcInputWidget::name() const

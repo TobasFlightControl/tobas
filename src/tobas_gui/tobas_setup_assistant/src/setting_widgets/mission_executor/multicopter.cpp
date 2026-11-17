@@ -3,11 +3,13 @@
 
 #include "tobas_setup_assistant/setting_tabs/mission_executor/multicopter.hpp"
 
+#include <QFrame>
+#include <QLayout>
 #include <QVBoxLayout>
 
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
+#include <tobas_qt_tools/widgets/tab_widget.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/format.hpp>
@@ -147,15 +149,29 @@ MulticopterWidget::MulticopterWidget()
   const auto rtl_form = new qt::FormLayout();
   rtl_form->addVAlignedRow("Minimum Altitude (wrt. Launch Point)", rtl_min_alt_);
 
+  const auto tabs = new qt::TabWidget();
+  tabs->setTabWidth(160);
+  tabs->enableWheelEvent(false);
+  tabs->setTabPosition(QTabWidget::North);
+
+  const auto add_tab = [tabs](QLayout* _form, const char* _name)
+  {
+    const auto content_rows = new QVBoxLayout();
+    content_rows->addLayout(_form);
+    content_rows->addStretch(1);
+
+    const auto scroll_area = new qt::ScrollArea();
+    scroll_area->setFrameShape(QFrame::NoFrame);
+    scroll_area->setLayout(content_rows);
+    tabs->addTab(scroll_area, _name);
+  };
+  add_tab(wp_form, "Waypoint");
+  add_tab(takeoff_form, "Takeoff");
+  add_tab(land_form, "Land");
+  add_tab(rtl_form, "Return-to-Launch");
+
   const auto rows = new QVBoxLayout(this);
-  rows->addWidget(new qt::Label("Waypoint", cmn::kSubTitlePointSize, QFont::Bold));
-  rows->addLayout(wp_form);
-  rows->addWidget(new qt::Label("Takeoff", cmn::kSubTitlePointSize, QFont::Bold));
-  rows->addLayout(takeoff_form);
-  rows->addWidget(new qt::Label("Land", cmn::kSubTitlePointSize, QFont::Bold));
-  rows->addLayout(land_form);
-  rows->addWidget(new qt::Label("Return-to-Launch", cmn::kSubTitlePointSize, QFont::Bold));
-  rows->addLayout(rtl_form);
+  rows->addWidget(tabs);
 }
 
 void MulticopterWidget::setToDefaults()
