@@ -51,8 +51,15 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   load_csv_btn->setFixedWidth(kButtonWidth);
 
   table_ = new qt::TableWidget(0, num_entry_);
-  table_->verticalHeader()->setVisible(true);  // Show row numbers.
   table_->setHorizontalHeaderLabels(_labels);
+
+  const auto ver_header = table_->verticalHeader();
+  ver_header->setVisible(true);  // Show row numbers.
+
+  const auto hor_header = table_->horizontalHeader();
+  hor_header->setSectionResizeMode(QHeaderView::Fixed);
+  hor_header->setSectionResizeMode(QHeaderView::ResizeToContents);
+  hor_header->setMinimumSectionSize(160);
 
   // Layout
   const auto cols = new QHBoxLayout();

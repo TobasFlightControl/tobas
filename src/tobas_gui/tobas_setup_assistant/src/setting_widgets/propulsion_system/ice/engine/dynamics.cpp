@@ -20,7 +20,6 @@ EngineDynamicsWidget::EngineDynamicsWidget()
   data_->setDecimals({ 2, 0, 6 });
   data_->setMinimum({ 1e-2, 1, 1e-6 });
   data_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-  data_->table()->setColumnsWidth(kDataTableColWidth);
 
   // Layout
   const auto rows = new QVBoxLayout(this);
