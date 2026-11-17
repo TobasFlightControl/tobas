@@ -4,6 +4,7 @@
 #pragma once
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
+#include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "../base.hpp"
@@ -40,9 +41,12 @@ private:
   const PropellerWidget* const propeller_;
 
   qt::ComboBox* method_name_;
+  qt::DescriptionWidget* description_;
   qt::StackedWidget* methods_;
 
   AerodynamicsWidget_Base* selected();
   const AerodynamicsWidget_Base* selected() const;
+
+  void updateDescription(int _index);
 };
 }  // namespace tobas::gui::sa::propulsion::electric

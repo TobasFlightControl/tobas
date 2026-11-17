@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/aerodynamics.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
@@ -22,9 +24,8 @@ AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : prop
 {
   setWidgetResizable(false);
 
-  const auto rows = new QVBoxLayout(this);
-
   method_name_ = new qt::ComboBox();
+  description_ = new qt::DescriptionWidget();
 
   const auto preset = new AerodynamicsWidget_Preset(_propeller);
   const auto thrust_stand = new AerodynamicsWidget_ThrustStand();
@@ -41,12 +42,25 @@ AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : prop
   }
 
   // Layout
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(method_name_);
+  rows->addWidget(description_);
   rows->addWidget(methods_);
 
   // Connection
   connect(
     method_name_, qOverload<int>(&qt::ComboBox::currentIndexChanged), methods_, &qt::StackedWidget::setCurrentIndex);
+  connect(methods_, &QStackedWidget::currentChanged, this, &AerodynamicsWidget::updateDescription);
+}
+
+void AerodynamicsWidget::updateDescription(int _index)
+{
+  if (_index < 0) {
+    description_->clear();
+    return;
+  }
+
+  description_->setText(selected()->description());
 }
 
 void AerodynamicsWidget::setToDefaults()

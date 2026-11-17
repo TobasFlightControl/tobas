@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/uiuc.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
@@ -20,7 +22,8 @@ AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(const PropellerWidget* _propell
   data_->setMinimum({ 1e-3, 1e-6, 1e-6 });
   data_->table()->setColumnsWidth(kDataTableColWidth);
 
-  rows_->addWidget(data_);
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(data_);
 }
 
 void AerodynamicsWidget_UIUC::setToDefaults()

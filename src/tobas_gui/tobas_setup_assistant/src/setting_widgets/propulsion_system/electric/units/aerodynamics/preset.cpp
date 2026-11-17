@@ -5,6 +5,8 @@
 
 #include <rapidcsv.h>
 
+#include <QVBoxLayout>
+
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
@@ -46,8 +48,9 @@ AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* _pro
   data_name_->sort();
 
   // Layout
-  rows_->addWidget(data_name_);
-  rows_->addStretch(1);
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(data_name_);
+  rows->addStretch(1);
 }
 
 void AerodynamicsWidget_Preset::setToDefaults()
