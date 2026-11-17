@@ -30,6 +30,7 @@ BatteryWidget::BatteryWidget()
   }
 
   const auto rows = new QVBoxLayout(this);
+  rows->setContentsMargins(0, 0, 0, 0);
   rows->addWidget(type_);
   rows->addWidget(batteries_);
 
