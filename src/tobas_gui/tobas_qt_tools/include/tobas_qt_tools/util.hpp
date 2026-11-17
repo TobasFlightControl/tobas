@@ -39,5 +39,5 @@ QHBoxLayout* createFixedHeightQHBoxLayout(int _height, QBoxLayout* _parent);
 void clearLayout(QLayout* _layout);
 
 /** Create a `QVBoxLayout` with a `ScrollWidget` between them. */
-QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* _parent);
+QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* _parent, int _stretch = 0);
 }  // namespace tobas::qt
