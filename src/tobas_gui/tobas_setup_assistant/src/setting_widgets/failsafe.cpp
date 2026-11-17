@@ -4,11 +4,12 @@
 #include "tobas_setup_assistant/setting_tabs/failsafe.hpp"
 
 #include <QFormLayout>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QVBoxLayout>
 
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace tobas::gui::sa
@@ -42,23 +43,30 @@ FailsafeWidget::FailsafeWidget()
 
   // Layout
   const auto checklist_rows = new QVBoxLayout();
-  checklist_rows->addWidget(new qt::Label("Checklist", cmn::kSubTitlePointSize, QFont::Bold));
   for (const auto& item : items_) {
     checklist_rows->addWidget(item);
   }
   checklist_rows->addStretch(1);
+  const auto checklist_scroll = new qt::ScrollArea();
+  checklist_scroll->setLayout(checklist_rows);
 
   const auto form = new QFormLayout();
   form->addRow("ESC no communication timeout", esc_no_comm_timeout_);
 
   const auto detail_rows = new QVBoxLayout();
-  detail_rows->addWidget(new qt::Label("Details", cmn::kSubTitlePointSize, QFont::Bold));
   detail_rows->addLayout(form);
   detail_rows->addStretch(1);
+  const auto detail_scroll = new qt::ScrollArea();
+  detail_scroll->setLayout(detail_rows);
 
-  const auto cols = new QHBoxLayout(this);
-  cols->addLayout(checklist_rows, 1);
-  cols->addLayout(detail_rows, 1);
+  const auto grid = new QGridLayout(this);
+  grid->addWidget(new qt::Label("Checklist", cmn::kSubTitlePointSize, QFont::Bold), 0, 0);
+  grid->addWidget(new qt::Label("Details", cmn::kSubTitlePointSize, QFont::Bold), 0, 1);
+  grid->addWidget(checklist_scroll, 1, 0);
+  grid->addWidget(detail_scroll, 1, 1);
+  grid->setRowStretch(1, 1);
+  grid->setColumnStretch(0, 1);
+  grid->setColumnStretch(1, 1);
 }
 
 const char* FailsafeWidget::name() const
