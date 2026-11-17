@@ -48,9 +48,10 @@ JointStatePublisherWidget::JointStatePublisherWidget(
   button_cols->addWidget(center_button_);
   button_cols->addWidget(random_button_);
 
-  const auto rows = new QVBoxLayout(this);
-  rows->addWidget(scroll_area);
-  rows->addLayout(button_cols);
+  const auto root_rows = new QVBoxLayout(this);
+  root_rows->setContentsMargins(0, 0, 0, 0);
+  root_rows->addWidget(scroll_area);
+  root_rows->addLayout(button_cols);
 
   // Connection
   connect(zero_button_, &QPushButton::clicked, this, &self::onZeroButtonClicked);

@@ -48,23 +48,26 @@ RvizWidget::RvizWidget(const uadf::Model& _uadf, const kdl::Tree& _tree)
   enable_collision_->setBool(kDefaultCollisionEnabled);
   enable_inertia_->setBool(kDefaultInertiaEnabled);
 
-  // Visualization button.
+  // Visualization button
   const auto visual_box = new QCheckBox("Show Visual");
-  visual_box->setChecked(kDefaultVisualEnabled);
   const auto collision_box = new QCheckBox("Show Collision");
-  collision_box->setChecked(kDefaultCollisionEnabled);
   const auto inertia_box = new QCheckBox("Show Inertial");
+  visual_box->setChecked(kDefaultVisualEnabled);
+  collision_box->setChecked(kDefaultCollisionEnabled);
   inertia_box->setChecked(kDefaultInertiaEnabled);
 
-  // Layout.
-  const auto rows = new QVBoxLayout(this);
-  const auto cols = new QHBoxLayout();
-  rows->addWidget(rviz_manager_.widget());
-  rows->addLayout(cols);
-  cols->addStretch(1);
-  cols->addWidget(visual_box);
-  cols->addWidget(collision_box);
-  cols->addWidget(inertia_box);
+  // Layout
+  const auto ctrl_cols = new QHBoxLayout();
+  ctrl_cols->setContentsMargins(0, 0, 0, 0);
+  ctrl_cols->addStretch(1);
+  ctrl_cols->addWidget(visual_box);
+  ctrl_cols->addWidget(collision_box);
+  ctrl_cols->addWidget(inertia_box);
+
+  const auto root_rows = new QVBoxLayout(this);
+  root_rows->setContentsMargins(0, 0, 0, 0);
+  root_rows->addWidget(rviz_manager_.widget());
+  root_rows->addLayout(ctrl_cols);
 
   // Connection
   connect(visual_box, &QCheckBox::toggled, this, &self::onVisualBoxToggled);
