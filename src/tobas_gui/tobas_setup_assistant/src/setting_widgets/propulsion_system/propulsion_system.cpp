@@ -37,6 +37,7 @@ PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& _uadf, Signals
   for (const auto button : type_btn_group_->buttons()) {
     rows->addWidget(button);
   }
+  rows->addSpacing(8);
   rows->addWidget(propulsion_stack_);
 
   connect(type_btn_group_, &QButtonGroup::idClicked, this, &self::onPropulsionTypeClicked);
