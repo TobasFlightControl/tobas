@@ -30,8 +30,6 @@ SettingsNavigationWidget::SettingsNavigationWidget()
   setStyleSheet(R"(
     QListWidget#settingsNavigation {
       background-color: palette(base);
-      border: 1px solid palette(midlight);
-      outline: none;
       padding: 4px 0;
     }
     QListWidget#settingsNavigation::item {
