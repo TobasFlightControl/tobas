@@ -27,7 +27,8 @@ AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : prop
   data_->table()->setColumnsWidth(kDataTableColWidth);
 
   // Layout
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
   rows->addWidget(data_);
 }
 

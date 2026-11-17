@@ -11,7 +11,8 @@ namespace tobas::gui::sa::propulsion::electric
 {
 MotorWidget::MotorWidget()
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   num_poles_ = new ParamGetterWidget_SpinBox(
     "Number of Poles",

@@ -11,7 +11,8 @@ namespace tobas::gui::sa::propulsion::ice
 {
 TransmissionWidget::TransmissionWidget()
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   gear_ratio_ = new ParamGetterWidget_Ratio("Gear Ratio", "");  // TODO
   gear_ratio_->setMinimum(1);
