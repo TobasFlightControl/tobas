@@ -7,7 +7,8 @@ namespace tobas::gui::sa::propulsion::electric
 {
 BatteryWidget_LiPo::BatteryWidget_LiPo()
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);  // Do not pass `this` to the layout constructor.
 
   num_cells_ = new ParamGetterWidget_SpinBox("Number of Cells", "The number of cells in the battery.");
   num_cells_->setMinimum(1);

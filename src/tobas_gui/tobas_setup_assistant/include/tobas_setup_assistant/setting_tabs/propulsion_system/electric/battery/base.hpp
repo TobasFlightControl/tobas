@@ -4,11 +4,12 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
-#include <QWidget>
+
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 
 namespace tobas::gui::sa::propulsion::electric
 {
-class BatteryWidget_Base : public QWidget
+class BatteryWidget_Base : public qt::ScrollArea
 {
   Q_OBJECT
 

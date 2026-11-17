@@ -18,6 +18,8 @@ namespace tobas::gui::sa::propulsion::ice
 {
 AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : propeller_(_propeller)
 {
+  setWidgetResizable(false);
+
   data_ = new ParamGetterWidget_DoubleTable(
     "Propeller Single Test Data", "Select Test Data", { "RPM", "Pitch [deg]", "Thrust [N]", "Torque [Nm]" });
   data_->setDecimals({ 0, 2, 6, 6 });
