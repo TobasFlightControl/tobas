@@ -3,12 +3,14 @@
 
 #pragma once
 
+#include <QSize>
 #include <QStackedWidget>
 
 namespace tobas::qt
 {
 /**
  * ===== Differences from `QStackedWidget` =====
+ * - Prefer the minimum height while retaining the preferred width
  * - Stabilize `setCurrentIndex`
  * - Additional methods
  */
@@ -20,6 +22,8 @@ class StackedWidget : public QStackedWidget
 
 public:
   using super::QStackedWidget;
+
+  QSize sizeHint() const override;
 
   /** Delete all widgets and free memory. */
   void clear();
