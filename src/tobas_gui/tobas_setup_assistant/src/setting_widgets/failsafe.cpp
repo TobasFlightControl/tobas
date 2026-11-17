@@ -60,13 +60,13 @@ FailsafeWidget::FailsafeWidget()
   detail_scroll->setLayout(detail_rows);
 
   const auto grid = new QGridLayout(this);
+  grid->setRowStretch(1, 1);
+  grid->setColumnStretch(0, 1);
+  grid->setColumnStretch(1, 1);
   grid->addWidget(new qt::Label("Checklist", cmn::kSubTitlePointSize, QFont::Bold), 0, 0);
   grid->addWidget(new qt::Label("Details", cmn::kSubTitlePointSize, QFont::Bold), 0, 1);
   grid->addWidget(checklist_scroll, 1, 0);
   grid->addWidget(detail_scroll, 1, 1);
-  grid->setRowStretch(1, 1);
-  grid->setColumnStretch(0, 1);
-  grid->setColumnStretch(1, 1);
 }
 
 const char* FailsafeWidget::name() const
