@@ -4,35 +4,29 @@
 #pragma once
 
 #include <QSettings>
+#include <QWidget>
 #include <eigen3/Eigen/Core>
 
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 
-#include "./base.hpp"
-
 namespace tobas::gui::sa
 {
-class ParamGetterWidget_DoubleTable : public ParamGetterWidget<Eigen::MatrixXd>
+class ParamGetterWidget_DoubleTable : public QWidget
 {
   Q_OBJECT
 
   using self = ParamGetterWidget_DoubleTable;
-  using super = ParamGetterWidget<Eigen::MatrixXd>;
 
 Q_SIGNALS:
   void dataChanged();
 
 public:
-  explicit ParamGetterWidget_DoubleTable(
-    const QString& _param_name,
-    const QString& _title,
-    const QStringList& _labels,
-    const QString& _description_text = "");
+  explicit ParamGetterWidget_DoubleTable(const QString& _param_name, const QString& _title, const QStringList& _labels);
 
-  Eigen::MatrixXd getValue() const override;
-  bool setValue(const Eigen::MatrixXd& _src) override;
+  Eigen::MatrixXd getData() const;
+  bool setData(const Eigen::MatrixXd& _src);
 
-  qt::TableWidget* table();
+  void clearData();
 
   void setDecimals(const QVector<int>& _decimals);
   void setMinimum(const QVector<double>& _minimum);
@@ -40,12 +34,6 @@ public:
   void setDefault(const QVector<double>& _default);
 
   int count() const;
-
-private Q_SLOTS:
-  void addRow();
-  void deleteRow();
-  void loadCsv();
-  void onCellValueChanged();
 
 private:
   const QString last_opened_dir_key_;
@@ -64,5 +52,11 @@ private:
 
   QString getCsvPath();
   bool isValidData(const Eigen::MatrixXd& _src);
+
+private Q_SLOTS:
+  void addRow();
+  void deleteRow();
+  void loadCsv();
+  void onCellValueChanged();
 };
 }  // namespace tobas::gui::sa

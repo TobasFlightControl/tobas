@@ -4,8 +4,9 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
+#include <QWidget>
 
-#include "tobas_setup_assistant/param_getters/spin_box.hpp"
+#include <tobas_qt_tools/widgets/spin_box.hpp>
 
 namespace tobas::gui::sa::propulsion::ice
 {
@@ -29,7 +30,7 @@ public:
   double timeConstDown() const;
 
 private:
-  ParamGetterWidget_SpinBox* time_const_up_;
-  ParamGetterWidget_SpinBox* time_const_down_;
+  qt::SpinBox* time_const_up_;
+  qt::SpinBox* time_const_down_;
 };
 }  // namespace tobas::gui::sa::propulsion::ice

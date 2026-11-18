@@ -45,9 +45,6 @@ public:
   double c_yaw_p() const;
   double c_yaw_r() const;
 
-private Q_SLOTS:
-  void onLoadButtonClicked();
-
 private:
   QSettings settings_store_;
 
@@ -69,5 +66,8 @@ private:
   qt::DoubleSpinBox* c_yaw_beta_;
   qt::DoubleSpinBox* c_yaw_p_;
   qt::DoubleSpinBox* c_yaw_r_;
+
+private Q_SLOTS:
+  void onLoadButtonClicked();
 };
 }  // namespace tobas::gui::sa::fw

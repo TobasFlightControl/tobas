@@ -30,9 +30,6 @@ public:
   /** Add a row with the label centered on the left. */
   void addVAlignedRow(const QString& _label_text, QLayout* _field);
 
-  /** Add an expanding stretch. */
-  void addStretch();
-
   /** Delete all forms. */
   void clear();
 

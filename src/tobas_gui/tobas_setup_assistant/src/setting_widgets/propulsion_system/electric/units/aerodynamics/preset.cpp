@@ -6,14 +6,15 @@
 #include <rapidcsv.h>
 
 #include <QVBoxLayout>
+#include <ament_index_cpp/get_package_share_path.hpp>
 
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+#include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/rapidcsv.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/util.hpp"
-#include "tobas_setup_assistant/util.hpp"
 
 namespace fs = std::filesystem;
 
@@ -189,7 +190,7 @@ AerodynamicsWidget_Preset::parseUiucData(const fs::path& _path) const
 
 fs::path AerodynamicsWidget_Preset::dataDir()
 {
-  return getPkgShareDir() / "data";
+  return ament_index_cpp::get_package_share_path(kPackageName) / "data";
 }
 
 fs::path AerodynamicsWidget_Preset::thrustStandDataDir()

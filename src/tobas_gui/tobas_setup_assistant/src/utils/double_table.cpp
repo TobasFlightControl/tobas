@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_setup_assistant/param_getters/double_table.hpp"
+#include "tobas_setup_assistant/utils/double_table.hpp"
 
+#include <limits>
 #include <utility>
 
 #include <QDir>
@@ -10,9 +11,13 @@
 #include <QFileInfo>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QLabel>
 #include <QPushButton>
+#include <QVBoxLayout>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_std_tools/check.hpp>
@@ -24,10 +29,8 @@ namespace tobas::gui::sa
 ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   const QString& _param_name,
   const QString& _title,
-  const QStringList& _labels,
-  const QString& _description_text)
-  : super(_param_name, _description_text)
-  , last_opened_dir_key_("double_table/last_opened_dir/" + QString(_param_name).replace(' ', '_'))
+  const QStringList& _labels)
+  : last_opened_dir_key_("double_table/last_opened_dir/" + QString(_param_name).replace(' ', '_'))
   , title_(_title)
   , labels_(_labels)
   , num_entry_(_labels.size())
@@ -38,6 +41,10 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   maximum_.fill(std::numeric_limits<double>::max(), num_entry_);
   default_.fill(0.0, num_entry_);
   decimals_.fill(2, num_entry_);
+
+  const auto label = new QLabel(_param_name);
+  label->setFont(qt::DefaultFont(cmn::kBodyPointSize, QFont::Bold));
+  label->setAlignment(Qt::AlignTop);
 
   const auto add_row_btn = new QPushButton("Add Row");
   const auto delete_row_btn = new QPushButton("Delete Row");
@@ -69,17 +76,19 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   cols->addWidget(load_csv_btn);
   cols->addStretch(1);  // Left-align the button.
 
-  rows_->addLayout(cols);
-  rows_->addWidget(table_);
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(label);
+  rows->addLayout(cols);
+  rows->addWidget(table_);
 
   // Connection
   connect(add_row_btn, &QPushButton::clicked, this, &self::addRow);
   connect(delete_row_btn, &QPushButton::clicked, this, &self::deleteRow);
-  connect(clear_btn, &QPushButton::clicked, table_, &qt::TableWidget::removeAll);
+  connect(clear_btn, &QPushButton::clicked, this, &self::clearData);
   connect(load_csv_btn, &QPushButton::clicked, this, &self::loadCsv);
 }
 
-Eigen::MatrixXd ParamGetterWidget_DoubleTable::getValue() const
+Eigen::MatrixXd ParamGetterWidget_DoubleTable::getData() const
 {
   const auto rows = count();
 
@@ -94,13 +103,13 @@ Eigen::MatrixXd ParamGetterWidget_DoubleTable::getValue() const
   return res;
 }
 
-bool ParamGetterWidget_DoubleTable::setValue(const Eigen::MatrixXd& _src)
+bool ParamGetterWidget_DoubleTable::setData(const Eigen::MatrixXd& _src)
 {
   if (!isValidData(_src)) {
     return false;
   }
 
-  table_->removeAll();
+  clearData();
 
   for (int row = 0; row < _src.rows(); ++row) {
     addRow();
@@ -113,9 +122,9 @@ bool ParamGetterWidget_DoubleTable::setValue(const Eigen::MatrixXd& _src)
   return true;
 }
 
-qt::TableWidget* ParamGetterWidget_DoubleTable::table()
+void ParamGetterWidget_DoubleTable::clearData()
 {
-  return table_;
+  table_->removeAll();
 }
 
 void ParamGetterWidget_DoubleTable::setDecimals(const QVector<int>& _decimals)
@@ -145,6 +154,40 @@ void ParamGetterWidget_DoubleTable::setDefault(const QVector<double>& _default)
 int ParamGetterWidget_DoubleTable::count() const
 {
   return table_->rowCount();
+}
+
+QString ParamGetterWidget_DoubleTable::getCsvPath()
+{
+  const auto last_opened_dir = settings_store_.value(last_opened_dir_key_, QDir::homePath()).toString();
+
+  const auto file_path = QFileDialog::getOpenFileName(
+    this, title_, last_opened_dir, "CSV File (*.csv)", nullptr, QFileDialog::DontUseNativeDialog);
+
+  // Save the last opened path.
+  if (!file_path.isEmpty()) {
+    const auto par_dir = QFileInfo(file_path).absolutePath();
+    settings_store_.setValue(last_opened_dir_key_, par_dir);
+  }
+
+  return file_path;
+}
+
+bool ParamGetterWidget_DoubleTable::isValidData(const Eigen::MatrixXd& _src)
+{
+  if (_src.cols() != num_entry_) {
+    qt::qErrorBox(this, "Column size mismatch.");
+    return false;
+  }
+
+  for (int col = 0; col < num_entry_; ++col) {
+    const auto column = _src.col(col).array().eval();
+    if ((column < minimum_.at(col)).any() || (maximum_.at(col) < column).any()) {
+      qt::qErrorBox(this, "Some values of field '" + labels_.at(col) + "' are out of limits.");
+      return false;
+    }
+  }
+
+  return true;
 }
 
 void ParamGetterWidget_DoubleTable::addRow()
@@ -210,7 +253,7 @@ void ParamGetterWidget_DoubleTable::loadCsv()
   }
 
   // Set data.
-  if (!setValue(data_array)) {
+  if (!setData(data_array)) {
     return;
   }
 
@@ -220,39 +263,5 @@ void ParamGetterWidget_DoubleTable::loadCsv()
 void ParamGetterWidget_DoubleTable::onCellValueChanged()
 {
   Q_EMIT dataChanged();
-}
-
-QString ParamGetterWidget_DoubleTable::getCsvPath()
-{
-  const auto last_opened_dir = settings_store_.value(last_opened_dir_key_, QDir::homePath()).toString();
-
-  const auto file_path = QFileDialog::getOpenFileName(
-    this, title_, last_opened_dir, "CSV File (*.csv)", nullptr, QFileDialog::DontUseNativeDialog);
-
-  // Save the last opened path.
-  if (!file_path.isEmpty()) {
-    const auto par_dir = QFileInfo(file_path).absolutePath();
-    settings_store_.setValue(last_opened_dir_key_, par_dir);
-  }
-
-  return file_path;
-}
-
-bool ParamGetterWidget_DoubleTable::isValidData(const Eigen::MatrixXd& _src)
-{
-  if (_src.cols() != num_entry_) {
-    qt::qErrorBox(this, "Column size mismatch.");
-    return false;
-  }
-
-  for (int col = 0; col < num_entry_; ++col) {
-    const auto column = _src.col(col).array().eval();
-    if ((column < minimum_.at(col)).any() || (maximum_.at(col) < column).any()) {
-      qt::qErrorBox(this, "Some values of field '" + labels_.at(col) + "' are out of limits.");
-      return false;
-    }
-  }
-
-  return true;
 }
 }  // namespace tobas::gui::sa

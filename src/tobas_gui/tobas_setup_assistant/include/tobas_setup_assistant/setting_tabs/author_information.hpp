@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include "../param_getters/line_edit.hpp"
+#include <QLineEdit>
+
 #include "./base_setting.hpp"
 
 namespace tobas::gui::sa
@@ -30,7 +31,7 @@ public:
   QString authorEmail() const;
 
 private:
-  ParamGetterWidget_LineEdit* name_;
-  ParamGetterWidget_LineEdit* email_;
+  QLineEdit* name_;
+  QLineEdit* email_;
 };
 }  // namespace tobas::gui::sa

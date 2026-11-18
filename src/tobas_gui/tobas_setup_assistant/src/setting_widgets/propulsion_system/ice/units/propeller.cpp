@@ -3,9 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/propeller.hpp"
 
-#include <QVBoxLayout>
-
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/range.hpp>
@@ -13,59 +12,72 @@
 
 namespace tobas::gui::sa::propulsion::ice
 {
+namespace
+{
+constexpr char kNumBladesLabel[] = "Number of Blades";
+constexpr char kDiameterLabel[] = "Propeller Diameter";
+constexpr char kPitchLengthNeutoralLabel[] = "Propeller Pitch (Neutoral)";
+constexpr char kPitchAngleLimitLabel[] = "Pitch Angle Limit";
+constexpr char kCenterPitchAngleLabel[] = "Center Pitch Angle";
+constexpr char kMaxPitchAngleRateLabel[] = "Max Pitch Angle Rate";
+constexpr char kMinChordLabel[] = "Minimum Blade Chord Length";
+constexpr char kMaxChordLabel[] = "Maximum Blade Chord Length";
+}  // namespace
+
 PropellerWidget::PropellerWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);  // Do not pass `this` to the layout constructor.
+  const auto form = new qt::FormLayout();
+  setLayout(form);  // Do not pass `this` to the layout constructor.
 
-  num_blades_ = new ParamGetterWidget_SpinBox("Number of Blades");
+  num_blades_ = new qt::SpinBox();
   num_blades_->setMinimum(2);
   num_blades_->setMaximum(5);
-  rows->addWidget(num_blades_);
+  form->addRow(kNumBladesLabel, num_blades_);
 
-  diameter_ = new ParamGetterWidget_SpinBox("Propeller Diameter");
+  diameter_ = new qt::SpinBox();
   diameter_->setMinimum(1);
   diameter_->setSuffix(" inch");
-  rows->addWidget(diameter_);
+  form->addRow(kDiameterLabel, diameter_);
 
-  pitch_length_neutoral_ = new ParamGetterWidget_DoubleSpinBox(
-    "Propeller Pitch (Neutoral)", "The propeller pitch length when the pitch angle is 0°.");
+  pitch_length_neutoral_ = new qt::DoubleSpinBox();
+  pitch_length_neutoral_->setToolTip("The propeller pitch length when the pitch angle is 0°.");
   pitch_length_neutoral_->setDecimals(1);
   pitch_length_neutoral_->setMinimum(0.1);
   pitch_length_neutoral_->setSuffix(" inch");
-  rows->addWidget(pitch_length_neutoral_);
+  form->addRow(kPitchLengthNeutoralLabel, pitch_length_neutoral_);
+  form->labelForField(pitch_length_neutoral_)->setToolTip(pitch_length_neutoral_->toolTip());
 
-  pitch_angle_limit_ = new ParamGetterWidget_DoubleRange(
-    "Pitch Angle Limit", "Specify the range over which thrust varies linearly with propeller pitch angle.");
+  pitch_angle_limit_ = new DoubleRangeWidget();
   pitch_angle_limit_->setDecimals(1);
-  pitch_angle_limit_->setMinimum(-90);
-  pitch_angle_limit_->setMaximum(+90);
+  pitch_angle_limit_->setRange(-90, 90);
+  pitch_angle_limit_->setToolTip("Specify the range over which thrust varies linearly with propeller pitch angle.");
   pitch_angle_limit_->setSuffix(" deg");
-  rows->addWidget(pitch_angle_limit_);
+  form->addRow(kPitchAngleLimitLabel, pitch_angle_limit_);
+  form->labelForField(pitch_angle_limit_)->setToolTip(pitch_angle_limit_->toolTip());
 
-  center_pitch_angle_ = new ParamGetterWidget_DoubleSpinBox("Center Pitch Angle");
+  center_pitch_angle_ = new qt::DoubleSpinBox();
   center_pitch_angle_->setDecimals(1);
   center_pitch_angle_->setMinimum(-90);
   center_pitch_angle_->setMaximum(+90);
   center_pitch_angle_->setSuffix(" deg");
-  rows->addWidget(center_pitch_angle_);
+  form->addRow(kCenterPitchAngleLabel, center_pitch_angle_);
 
-  max_pitch_angle_rate_ = new ParamGetterWidget_SpinBox("Max Pitch Angle Rate");
+  max_pitch_angle_rate_ = new qt::SpinBox();
   max_pitch_angle_rate_->setMinimum(0);
   max_pitch_angle_rate_->setSuffix(" dps");
-  rows->addWidget(max_pitch_angle_rate_);
+  form->addRow(kMaxPitchAngleRateLabel, max_pitch_angle_rate_);
 
-  min_chord_ = new ParamGetterWidget_SpinBox("Minimum Blade Chord Length", "Typically at the propeller tip.");
+  min_chord_ = new qt::SpinBox();
+  min_chord_->setToolTip("Typically at the propeller tip.");
   min_chord_->setMinimum(1);
   min_chord_->setSuffix(" mm");
-  rows->addWidget(min_chord_);
+  form->addRow(kMinChordLabel, min_chord_);
+  form->labelForField(min_chord_)->setToolTip(min_chord_->toolTip());
 
-  max_chord_ = new ParamGetterWidget_SpinBox("Maximum Blade Chord Length", "");
+  max_chord_ = new qt::SpinBox();
   max_chord_->setMinimum(1);
   max_chord_->setSuffix(" mm");
-  rows->addWidget(max_chord_);
-
-  rows->addStretch(1);
+  form->addRow(kMaxChordLabel, max_chord_);
 }
 
 const char* PropellerWidget::name() const
@@ -99,7 +111,7 @@ bool PropellerWidget::isValid()
     return false;
   }
 
-  if (min_chord_->getValue() > max_chord_->getValue()) {
+  if (min_chord_->value() > max_chord_->value()) {
     qt::qWarnBox(this, "Blade chord range is invalid.");
     return false;
   }
@@ -111,52 +123,52 @@ void PropellerWidget::copyFrom(const BaseSelectedLinkSettingWidget* _src)
 {
   const auto derived = qt::qConstPointerCast<PropellerWidget>(_src);
 
-  num_blades_->setValue(derived->num_blades_->getValue());
-  diameter_->setValue(derived->diameter_->getValue());
-  pitch_length_neutoral_->setValue(derived->pitch_length_neutoral_->getValue());
-  pitch_angle_limit_->setValue(derived->pitch_angle_limit_->getValue());
-  center_pitch_angle_->setValue(derived->center_pitch_angle_->getValue());
-  max_pitch_angle_rate_->setValue(derived->max_pitch_angle_rate_->getValue());
-  min_chord_->setValue(derived->min_chord_->getValue());
-  max_chord_->setValue(derived->max_chord_->getValue());
+  num_blades_->setValue(derived->num_blades_->value());
+  diameter_->setValue(derived->diameter_->value());
+  pitch_length_neutoral_->setValue(derived->pitch_length_neutoral_->value());
+  pitch_angle_limit_->setValue(derived->pitch_angle_limit_->value());
+  center_pitch_angle_->setValue(derived->center_pitch_angle_->value());
+  max_pitch_angle_rate_->setValue(derived->max_pitch_angle_rate_->value());
+  min_chord_->setValue(derived->min_chord_->value());
+  max_chord_->setValue(derived->max_chord_->value());
 }
 
 YAML::Node PropellerWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[num_blades_->name()] = num_blades_->getValue();
-  node[diameter_->name()] = diameter_->getValue();
-  node[pitch_length_neutoral_->name()] = yaml::format(pitch_length_neutoral_->getValue());
-  node[pitch_angle_limit_->name()] = pitch_angle_limit_->getValue();
-  node[center_pitch_angle_->name()] = yaml::format(center_pitch_angle_->getValue());
-  node[max_pitch_angle_rate_->name()] = max_pitch_angle_rate_->getValue();
-  node[min_chord_->name()] = min_chord_->getValue();
-  node[max_chord_->name()] = max_chord_->getValue();
+  node[kNumBladesLabel] = num_blades_->value();
+  node[kDiameterLabel] = diameter_->value();
+  node[kPitchLengthNeutoralLabel] = yaml::format(pitch_length_neutoral_->value());
+  node[kPitchAngleLimitLabel] = pitch_angle_limit_->value();
+  node[kCenterPitchAngleLabel] = yaml::format(center_pitch_angle_->value());
+  node[kMaxPitchAngleRateLabel] = max_pitch_angle_rate_->value();
+  node[kMinChordLabel] = min_chord_->value();
+  node[kMaxChordLabel] = max_chord_->value();
 
   return node;
 }
 
 void PropellerWidget::load(const YAML::Node& _node)
 {
-  num_blades_->setValue(_node[num_blades_->name()].as<int>());
-  diameter_->setValue(_node[diameter_->name()].as<int>());
-  pitch_length_neutoral_->setValue(_node[pitch_length_neutoral_->name()].as<double>());
-  pitch_angle_limit_->setValue(_node[pitch_angle_limit_->name()].as<st::Range<double>>());
-  center_pitch_angle_->setValue(_node[center_pitch_angle_->name()].as<double>());
-  max_pitch_angle_rate_->setValue(_node[max_pitch_angle_rate_->name()].as<int>());
-  min_chord_->setValue(_node[min_chord_->name()].as<int>());
-  max_chord_->setValue(_node[max_chord_->name()].as<int>());
+  num_blades_->setValue(_node[kNumBladesLabel].as<int>());
+  diameter_->setValue(_node[kDiameterLabel].as<int>());
+  pitch_length_neutoral_->setValue(_node[kPitchLengthNeutoralLabel].as<double>());
+  pitch_angle_limit_->setValue(_node[kPitchAngleLimitLabel].as<st::Range<double>>());
+  center_pitch_angle_->setValue(_node[kCenterPitchAngleLabel].as<double>());
+  max_pitch_angle_rate_->setValue(_node[kMaxPitchAngleRateLabel].as<int>());
+  min_chord_->setValue(_node[kMinChordLabel].as<int>());
+  max_chord_->setValue(_node[kMaxChordLabel].as<int>());
 }
 
 int PropellerWidget::numBlades() const
 {
-  return num_blades_->getValue();
+  return num_blades_->value();
 }
 
 double PropellerWidget::diameter() const
 {
-  return st::inch2meter(diameter_->getValue());
+  return st::inch2meter(diameter_->value());
 }
 
 double PropellerWidget::radius() const
@@ -166,7 +178,7 @@ double PropellerWidget::radius() const
 
 double PropellerWidget::pitchLengthNeutoral() const
 {
-  return st::inch2meter(pitch_length_neutoral_->getValue());
+  return st::inch2meter(pitch_length_neutoral_->value());
 }
 
 double PropellerWidget::pitchAngleNeutoral() const
@@ -176,29 +188,30 @@ double PropellerWidget::pitchAngleNeutoral() const
 
 st::Range<double> PropellerWidget::pitchAngleLimit() const
 {
-  const auto lower = st::deg2rad(pitch_angle_limit_->min());
-  const auto upper = st::deg2rad(pitch_angle_limit_->max());
+  const auto limit = pitch_angle_limit_->value();
+  const auto lower = st::deg2rad(limit.lower);
+  const auto upper = st::deg2rad(limit.upper);
   return { lower, upper };
 }
 
 double PropellerWidget::centerPitchAngle() const
 {
-  return st::deg2rad(center_pitch_angle_->getValue());
+  return st::deg2rad(center_pitch_angle_->value());
 }
 
 double PropellerWidget::maxPitchAngleRate() const
 {
-  return st::deg2rad(max_pitch_angle_rate_->getValue());
+  return st::deg2rad(max_pitch_angle_rate_->value());
 }
 
 double PropellerWidget::minChord() const
 {
-  return min_chord_->getValue() * 1e-3;
+  return min_chord_->value() * 1e-3;
 }
 
 double PropellerWidget::maxChord() const
 {
-  return max_chord_->getValue() * 1e-3;
+  return max_chord_->value() * 1e-3;
 }
 
 double PropellerWidget::meanChord() const

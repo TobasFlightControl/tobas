@@ -22,16 +22,16 @@ public:
 
   void updateInternalDataStructures();
 
-private Q_SLOTS:
-  void onItemChanged(QTreeWidgetItem* _ite);
-
-  /** Adjust column widths according to string length. */
-  void resizeColumns();
-
 private:
   const kdl::Tree& tree_;
   RvizWidget* const rviz_;
 
   void addTreeItemsRec(QTreeWidgetItem* _parent_item);
+
+private Q_SLOTS:
+  void onItemChanged(QTreeWidgetItem* _ite);
+
+  /** Adjust column widths according to string length. */
+  void resizeColumns();
 };
 }  // namespace tobas::gui::sa

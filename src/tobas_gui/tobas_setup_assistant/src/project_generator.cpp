@@ -7,6 +7,7 @@
 #include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
+#include <ament_index_cpp/get_package_share_path.hpp>
 
 #include <tobas_constants/imu.hpp>
 #include <tobas_constants/pwm_key.hpp>
@@ -29,9 +30,9 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
+#include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_system.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_system.hpp"
-#include "tobas_setup_assistant/util.hpp"
 #include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
 
 namespace tobas::gui::sa
@@ -63,7 +64,7 @@ ProjectGenerator::ProjectGenerator(
   QWidget* _parent)
   : uadf_(_uadf), tree_(_tree), settings_(_settings), parent_(_parent)
 {
-  const auto pkg_share_path = QString::fromStdString(getPkgShareDir().string());
+  const auto pkg_share_path = QString::fromStdString(ament_index_cpp::get_package_share_path(kPackageName).string());
   const auto templates_path = QDir(pkg_share_path).filePath("templates");
   meta_env_.emplace(QDir(templates_path).filePath("meta_package"));
   config_env_.emplace(QDir(templates_path).filePath("config_package"));

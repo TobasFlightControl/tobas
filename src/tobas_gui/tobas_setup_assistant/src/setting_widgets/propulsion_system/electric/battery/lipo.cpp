@@ -3,36 +3,50 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/lipo.hpp"
 
+#include <tobas_qt_tools/layouts/form_layout.hpp>
+
 namespace tobas::gui::sa::propulsion::electric
 {
+namespace
+{
+constexpr char kNumCellsLabel[] = "Number of Cells";
+constexpr char kCapacityLabel[] = "Current Capacity";
+constexpr char kContinuousDischargeRateLabel[] = "Continuous Discharge Current Rate";
+constexpr char kResistanceLabel[] = "Internal Registance";
+}  // namespace
+
 BatteryWidget_LiPo::BatteryWidget_LiPo()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);  // Do not pass `this` to the layout constructor.
+  const auto form = new qt::FormLayout();
+  setLayout(form);  // Do not pass `this` to the layout constructor.
 
-  num_cells_ = new ParamGetterWidget_SpinBox("Number of Cells", "The number of cells in the battery.");
+  num_cells_ = new qt::SpinBox();
+  num_cells_->setToolTip("The number of cells in the battery.");
   num_cells_->setMinimum(1);
   num_cells_->setMaximum(100);
-  rows->addWidget(num_cells_);
+  form->addRow(kNumCellsLabel, num_cells_);
+  form->labelForField(num_cells_)->setToolTip(num_cells_->toolTip());
 
-  capacity_ = new ParamGetterWidget_SpinBox(
-    "Current Capacity", "The amount of electric charge that can be drawn from the battery.");
+  capacity_ = new qt::SpinBox();
+  capacity_->setToolTip("The amount of electric charge that can be drawn from the battery.");
   capacity_->setMinimum(1);
   capacity_->setSuffix(" mAh");
-  rows->addWidget(capacity_);
+  form->addRow(kCapacityLabel, capacity_);
+  form->labelForField(capacity_)->setToolTip(capacity_->toolTip());
 
-  C_cont_ = new ParamGetterWidget_SpinBox(
-    "Continuous Discharge Current Rate", "The maximum continuous discharge current that the battery can provide.");
-  C_cont_->setMinimum(1);
-  C_cont_->setSuffix(" /h");
-  rows->addWidget(C_cont_);
+  c_cont_ = new qt::SpinBox();
+  c_cont_->setToolTip("The maximum continuous discharge current that the battery can provide.");
+  c_cont_->setMinimum(1);
+  c_cont_->setSuffix(" /h");
+  form->addRow(kContinuousDischargeRateLabel, c_cont_);
+  form->labelForField(c_cont_)->setToolTip(c_cont_->toolTip());
 
-  registance_ = new ParamGetterWidget_SpinBox("Internal Registance", "Internal resistance value per cell.");
+  registance_ = new qt::SpinBox();
+  registance_->setToolTip("Internal resistance value per cell.");
   registance_->setMinimum(0);
   registance_->setSuffix(" mΩ");
-  rows->addWidget(registance_);
-
-  rows->addStretch(1);
+  form->addRow(kResistanceLabel, registance_);
+  form->labelForField(registance_)->setToolTip(registance_->toolTip());
 }
 
 const char* BatteryWidget_LiPo::name() const
@@ -44,7 +58,7 @@ void BatteryWidget_LiPo::setToDefaults()
 {
   num_cells_->setValue(3);
   capacity_->setValue(5000);
-  C_cont_->setValue(50);
+  c_cont_->setValue(50);
   registance_->setValue(3);
 }
 
@@ -57,52 +71,52 @@ YAML::Node BatteryWidget_LiPo::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[num_cells_->name()] = num_cells_->getValue();
-  node[capacity_->name()] = capacity_->getValue();
-  node[C_cont_->name()] = C_cont_->getValue();
-  node[registance_->name()] = registance_->getValue();
+  node[kNumCellsLabel] = num_cells_->value();
+  node[kCapacityLabel] = capacity_->value();
+  node[kContinuousDischargeRateLabel] = c_cont_->value();
+  node[kResistanceLabel] = registance_->value();
 
   return node;
 }
 
 void BatteryWidget_LiPo::load(const YAML::Node& _node)
 {
-  num_cells_->setValue(_node[num_cells_->name()].as<int>());
-  capacity_->setValue(_node[capacity_->name()].as<int>());
-  C_cont_->setValue(_node[C_cont_->name()].as<int>());
-  registance_->setValue(_node[registance_->name()].as<int>());
+  num_cells_->setValue(_node[kNumCellsLabel].as<int>());
+  capacity_->setValue(_node[kCapacityLabel].as<int>());
+  c_cont_->setValue(_node[kContinuousDischargeRateLabel].as<int>());
+  registance_->setValue(_node[kResistanceLabel].as<int>());
 }
 
 double BatteryWidget_LiPo::nominalVoltage()
 {
   constexpr double kNominalVoltagePerCell = 3.7;  // Nominal voltage per cell
-  return num_cells_->getValue() * kNominalVoltagePerCell;
+  return num_cells_->value() * kNominalVoltagePerCell;
 }
 
 double BatteryWidget_LiPo::maxVoltage()
 {
   constexpr double kMaxVoltagePerCell = 4.2;  // Maximum voltage per cell
-  return num_cells_->getValue() * kMaxVoltagePerCell;
+  return num_cells_->value() * kMaxVoltagePerCell;
 }
 
 double BatteryWidget_LiPo::sagVoltage()
 {
   constexpr double kSagVoltagePerCell = 3.4;  // Voltage where discharge characteristics change abruptly
-  return num_cells_->getValue() * kSagVoltagePerCell;
+  return num_cells_->value() * kSagVoltagePerCell;
 }
 
 double BatteryWidget_LiPo::maxCurrent()
 {
-  return capacity_->getValue() * C_cont_->getValue() * 1e-3;
+  return capacity_->value() * c_cont_->value() * 1e-3;
 }
 
 double BatteryWidget_LiPo::capacity()
 {
-  return capacity_->getValue() * 3600 * 1e-3;
+  return capacity_->value() * 3600 * 1e-3;
 }
 
 double BatteryWidget_LiPo::internalRegistance()
 {
-  return num_cells_->getValue() * registance_->getValue() * 1e-3;
+  return num_cells_->value() * registance_->value() * 1e-3;
 }
 }  // namespace tobas::gui::sa::propulsion::electric

@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/engine/dynamics.hpp"
 
+#include <QVBoxLayout>
+
 #include <eigen3/Eigen/SVD>
 
 #include <tobas_qt_tools/message.hpp>
@@ -13,10 +15,14 @@
 
 namespace tobas::gui::sa::propulsion::ice
 {
+namespace
+{
+constexpr char kDataLabel[] = "Engine Torque Test Data";
+}  // namespace
+
 EngineDynamicsWidget::EngineDynamicsWidget()
 {
-  data_ = new ParamGetterWidget_DoubleTable(
-    "Engine Torque Test Data", "Select Test Data", { "Throttle [%]", "RPM", "Torque [Nm]" });
+  data_ = new ParamGetterWidget_DoubleTable(kDataLabel, "Select Test Data", { "Throttle [%]", "RPM", "Torque [Nm]" });
   data_->setDecimals({ 2, 0, 6 });
   data_->setMinimum({ 1e-2, 1, 1e-6 });
   data_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
@@ -28,7 +34,7 @@ EngineDynamicsWidget::EngineDynamicsWidget()
 
 void EngineDynamicsWidget::setToDefaults()
 {
-  data_->table()->removeAll();
+  data_->clearData();
 }
 
 bool EngineDynamicsWidget::isValid()
@@ -45,20 +51,20 @@ YAML::Node EngineDynamicsWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[data_->name()] = data_->getValue();
+  node[kDataLabel] = data_->getData();
 
   return node;
 }
 
 void EngineDynamicsWidget::load(const YAML::Node& _node)
 {
-  data_->setValue(_node[data_->name()].as<Eigen::MatrixXd>());
+  data_->setData(_node[kDataLabel].as<Eigen::MatrixXd>());
 }
 
 std::pair<double, double> EngineDynamicsWidget::engineConstant() const
 {
   const auto num_data = data_->count();
-  const auto data_mat = data_->getValue();
+  const auto data_mat = data_->getData();
 
   // Extract the data.
   const auto throttles = data_mat.col(0) / 100.0;       // [-]

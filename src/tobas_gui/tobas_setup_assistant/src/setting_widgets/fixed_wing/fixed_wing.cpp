@@ -18,7 +18,7 @@ constexpr char kControlSurfacesLabel[] = "Control Surfaces";
 
 FixedWingWidget::FixedWingWidget(const uadf::Model& _uadf)
 {
-  vehicle_ = new VehicleParametersWidget();
+  vehicle_ = new VehicleWidget();
   aero_coefs_ = new AerodynamicsCoefficientsWidget();
   control_surfaces_ = new ControlSurfacesWidget(_uadf);
 
@@ -103,7 +103,7 @@ void FixedWingWidget::load(const YAML::Node& _node)
   control_surfaces_->load(_node[kControlSurfacesLabel]);
 }
 
-const VehicleParametersWidget* FixedWingWidget::vehicle() const
+const VehicleWidget* FixedWingWidget::vehicle() const
 {
   return vehicle_;
 }

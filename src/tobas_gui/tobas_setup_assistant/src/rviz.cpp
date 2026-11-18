@@ -6,6 +6,7 @@
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <ament_index_cpp/get_package_share_path.hpp>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_ros2_tools/parameter.hpp>
@@ -13,7 +14,6 @@
 #include <tobas_xml_tools/core.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"
-#include "tobas_setup_assistant/util.hpp"
 
 namespace tobas::gui::sa
 {
@@ -29,7 +29,7 @@ RvizWidget::RvizWidget(const uadf::Model& _uadf, const kdl::Tree& _tree)
   ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionParam, kMinimulUrdf);
 
   // Initialize RViz.
-  const auto rviz_config_path = getPkgShareDir() / "config/setup_assistant.rviz";
+  const auto rviz_config_path = ament_index_cpp::get_package_share_path(kPackageName) / "config/setup_assistant.rviz";
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
   resetOrbitView();
 

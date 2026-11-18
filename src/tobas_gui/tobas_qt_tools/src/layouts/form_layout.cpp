@@ -41,11 +41,6 @@ void FormLayout::addVAlignedRow(const QString& _label_text, QLayout* _field)
   addVAlignedRow(new QLabel(_label_text), _field);
 }
 
-void FormLayout::addStretch()
-{
-  addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-}
-
 void FormLayout::clear()
 {
   while (rowCount() > 0) {

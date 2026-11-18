@@ -14,10 +14,15 @@
 
 namespace tobas::gui::sa::propulsion::electric
 {
+namespace
+{
+constexpr char kDataLabel[] = "Data from thrust stand";
+}  // namespace
+
 AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand()
 {
-  data_ = new ParamGetterWidget_DoubleTable(
-    "Data from thrust stand", "Select Test Data", { kRpmColName, kThrustColName, kTorqueColName });
+  data_ =
+    new ParamGetterWidget_DoubleTable(kDataLabel, "Select Test Data", { kRpmColName, kThrustColName, kTorqueColName });
   data_->setDecimals({ 0, 6, 6 });
   data_->setMinimum({ 1, 1e-6, 1e-6 });
 
@@ -27,7 +32,7 @@ AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand()
 
 void AerodynamicsWidget_ThrustStand::setToDefaults()
 {
-  data_->table()->removeAll();
+  data_->clearData();
 }
 
 const char* AerodynamicsWidget_ThrustStand::name() const
@@ -56,28 +61,28 @@ bool AerodynamicsWidget_ThrustStand::isValid()
 void AerodynamicsWidget_ThrustStand::copyFrom(const AerodynamicsWidget_Base* _src)
 {
   const auto derived = qt::qConstPointerCast<AerodynamicsWidget_ThrustStand>(_src);
-  data_->setValue(derived->data_->getValue());
+  data_->setData(derived->data_->getData());
 }
 
 YAML::Node AerodynamicsWidget_ThrustStand::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[data_->name()] = data_->getValue();
+  node[kDataLabel] = data_->getData();
 
   return node;
 }
 
 void AerodynamicsWidget_ThrustStand::load(const YAML::Node& _node)
 {
-  data_->setValue(_node[data_->name()].as<Eigen::MatrixXd>());
+  data_->setData(_node[kDataLabel].as<Eigen::MatrixXd>());
 }
 
 double AerodynamicsWidget_ThrustStand::motorConst() const
 {
   // TODO: Remove outliers
   // TODO: Warn if the data is too far from the model (linear function).
-  const auto data_mat = data_->getValue();
+  const auto data_mat = data_->getData();
   const auto rpms = data_mat.col(0).eval();
   const auto thrusts = data_mat.col(1).eval();
   return motorConstFromThrustStand(rpms, thrusts);
@@ -87,7 +92,7 @@ double AerodynamicsWidget_ThrustStand::momentConst() const
 {
   // TODO: Remove outliers
   // TODO: Warn if the data is too far from the model (linear function).
-  const auto data_mat = data_->getValue();
+  const auto data_mat = data_->getData();
   const auto thrusts = data_mat.col(1).eval();
   const auto torques = data_mat.col(2).eval();
   return momentConstFromThrustStand(thrusts, torques);

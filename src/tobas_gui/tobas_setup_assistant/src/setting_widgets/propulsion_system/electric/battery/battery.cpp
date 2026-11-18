@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/battery.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
