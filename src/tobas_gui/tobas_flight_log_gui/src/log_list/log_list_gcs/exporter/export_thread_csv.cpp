@@ -29,7 +29,7 @@ void ExportThreadCsv::run()
   const auto log_path = ros2::expandUser(kRosbagDirHome) / log_name_.toStdString();
   if (!openRosBag(log_path.string())) {
     if (!ros2::reindexRosBag(log_path.string())) {
-      Q_EMIT finished(false, "The log file is broken and failed to fix it.");
+      Q_EMIT finished(false, "Failed to repair the log file.");
       return;
     }
     if (!openRosBag(log_path.string())) {
@@ -240,13 +240,13 @@ std::string ExportThreadCsv::makeCsvHeader() const
     "CPU/Frequency[GHz],CPU/Temperature[degC],CPU/Load[%],";
 
   for (const auto& link_name : rotor_link_names_) {
-    csv_header += "Roter/TargetRPM/" + link_name + ',';
+    csv_header += "Rotor/TargetRPM/" + link_name + ',';
   }
   for (const auto& link_name : rotor_link_names_) {
-    csv_header += "Roter/CurrentRPM/" + link_name + ',';
+    csv_header += "Rotor/CurrentRPM/" + link_name + ',';
   }
   for (const auto& link_name : rotor_link_names_) {
-    csv_header += "Roter/Link/" + link_name + ',';
+    csv_header += "Rotor/Link/" + link_name + ',';
   }
 
   csv_header += "Latency/ControlLatency[us],"

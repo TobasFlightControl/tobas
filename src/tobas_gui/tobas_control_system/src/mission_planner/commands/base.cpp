@@ -37,9 +37,16 @@ void BaseCommandWidget::addField(field::BaseFieldWidget* _widget, bool _overrida
 {
   const auto checkbox = new qt::CheckBox(_widget->label());
   checkbox->setDisabledTextNormal();
+  auto tooltip = _widget->toolTip();
+  if (_overridable) {
+    tooltip += "\nSelect this option to override the project default for this command. "
+               "Clear it to use the default configured in Setup Assistant.";
+  }
+  checkbox->setToolTip(tooltip);
   checkboxes_[_widget] = checkbox;
 
   const auto stacked = new QStackedWidget();
+  stacked->setToolTip(tooltip);
   stacked->addWidget(new QLabel("    Project Default"));
   stacked->addWidget(_widget);
 

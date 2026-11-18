@@ -291,7 +291,7 @@ void RotorTestWidget::onSaveButtonClicked()
   qt::qInfoBox(
     this,
     "The RPM control gains have been saved to the local project. "
-    "Please click 'Write' button again to flash them to the FC.");
+    "Click the 'Write' button in the GCS to deploy the updated project to the flight controller.");
 }
 
 void RotorTestWidget::onTargetRPMChanged(int, size_t)

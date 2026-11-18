@@ -13,6 +13,7 @@ namespace tobas::gui::sim
 DebugWidget::DebugWidget()
 {
   user_debug_ = new QCheckBox("User Debug");
+  user_debug_->setToolTip("Enable the robot description's DEBUG option when generating the simulation model.");
 
   // Layout
   const auto rows = new QVBoxLayout(this);

@@ -5,7 +5,7 @@
 
 namespace tobas::gui::log
 {
-static constexpr int kLogListButtonWidth = 72;
+static constexpr int kLogListButtonWidth = 80;
 static constexpr int kLogItemHeight = 40;
 static constexpr int kLogItemHighlightAlpha = 64;
 

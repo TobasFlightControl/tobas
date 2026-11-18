@@ -45,19 +45,19 @@ void GnssViewerWidget::setStatus(uint8_t _status)
       status_->setText("No Fix");
       break;
     case tobas_msgs::msg::Gnss::DEAD_RECHONING_ONLY:
-      status_->setText("Dead Rechoning Only");
+      status_->setText("Dead Reckoning Only");
       break;
     case tobas_msgs::msg::Gnss::FIX_2D:
-      status_->setText("Fix 2D");
+      status_->setText("2D Fix");
       break;
     case tobas_msgs::msg::Gnss::FIX_3D:
-      status_->setText("Fix 3D");
+      status_->setText("3D Fix");
       break;
     case tobas_msgs::msg::Gnss::GPS_DEAD_RECHONING_COMBINED:
-      status_->setText("Dead Rechoning Combined");
+      status_->setText("GNSS + Dead Reckoning");
       break;
     case tobas_msgs::msg::Gnss::TIME_ONLY_FIX:
-      status_->setText("Time Fix Only");
+      status_->setText("Time-Only Fix");
       break;
     default:
       qWarning() << "Unknown status:" << (int)_status;

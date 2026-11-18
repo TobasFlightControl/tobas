@@ -28,29 +28,40 @@ SuspendedLoadWidget::SuspendedLoadWidget()
   attach_detach_btn_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
 
   attach_point_ = new qt::Vector3dEditVertical();
+  attach_point_->setToolTip(
+    "Cable attachment point on the aircraft in meters relative to the vehicle's base link, "
+    "expressed in that link's frame.");
   attach_point_->setDecimals(3);
   attach_point_->setSuffix(" m");
 
   load_size_ = new qt::Vector3dEditVertical();
+  load_size_->setToolTip("Box dimensions in meters along the load's local X, Y, and Z axes.");
   load_size_->setDecimals(3);
   load_size_->setMinimum(1e-3);
   load_size_->setSuffix(" m");
 
   load_mass_ = new qt::DoubleSpinBox();
+  load_mass_->setToolTip("Mass of the suspended load in kilograms.");
   load_mass_->setDecimals(3);
   load_mass_->setMinimum(1e-3);
   load_mass_->setSuffix(" kg");
 
   cable_length_ = new qt::DoubleSpinBox();
+  cable_length_->setToolTip(
+    "Unstretched cable length in meters, measured between the aircraft and load attachment points.");
   cable_length_->setDecimals(1);
   cable_length_->setMinimum(0.1);
   cable_length_->setSuffix(" m");
 
   cable_young_ = new qt::SpinBox();
+  cable_young_->setToolTip(
+    "Young's modulus of the cable material in megapascals. "
+    "Together with cable length and cross-sectional area, this determines axial stiffness.");
   cable_young_->setMinimum(1);
   cable_young_->setSuffix(" MPa");
 
   cable_csa_ = new qt::SpinBox();
+  cable_csa_->setToolTip("Cross-sectional area of the cable in square millimeters, used to calculate axial stiffness.");
   cable_csa_->setMinimum(1);
   cable_csa_->setSuffix(QString::fromStdString(str::convertToSuperscript(" mm^2")));
 
@@ -65,8 +76,11 @@ SuspendedLoadWidget::SuspendedLoadWidget()
   form->addVAlignedRow("Load Size", load_size_);
   form->addVAlignedRow("Load Mass", load_mass_);
   form->addVAlignedRow("Cable Length", cable_length_);
-  form->addVAlignedRow("Cable Young Modulus", cable_young_);
+  form->addVAlignedRow("Cable Young's Modulus", cable_young_);
   form->addVAlignedRow("Cable Cross-Sectional Area", cable_csa_);
+  for (int row = 0; row < form->rowCount(); ++row) {
+    form->getLabel(row)->setToolTip(form->getWidget(row)->toolTip());
+  }
 
   const auto rows = new QVBoxLayout(this);
   rows->addLayout(header_cols);

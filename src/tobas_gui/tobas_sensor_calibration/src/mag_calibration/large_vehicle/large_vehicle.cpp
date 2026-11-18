@@ -17,7 +17,8 @@ namespace tobas::gui::sc
 LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(const rqt::RosQtBridge& _bridge) : thread_(_bridge)
 {
   const auto instruction = new qt::DescriptionWidget(
-    "1. Make sure the GNSS is fixed. This is required to obtain the reference geomagnetic field.\n"
+    "1. Make sure the GNSS receiver has a 3D fix. "
+    "This is required to obtain the reference geomagnetic field.\n"
     "2. Place the vehicle on a level surface.\n"
     "3. Point the front of the flight controller as precisely as possible toward true north.\n"
     "4. Click 'Start'. Calibration will complete in a few seconds.\n"

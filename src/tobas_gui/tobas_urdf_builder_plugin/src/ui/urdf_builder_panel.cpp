@@ -516,7 +516,7 @@ bool UrdfBuilderPanel::isRobotNameValid()
   const auto name = ui_->RobotName->text();
 
   if (name.isEmpty()) {
-    QMessageBox::warning(this, kError, "Please set robot name.");
+    QMessageBox::warning(this, kError, "Please enter a robot name.");
     return false;
   }
 

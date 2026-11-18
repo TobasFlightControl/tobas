@@ -38,6 +38,7 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(const rqt::RosQtBridge& _bridge
   constexpr std::array kLabelsXYZ = { "X", "Y", "Z" };
   for (size_t i = 0; i < 3; ++i) {
     cmd_xyz_[i] = new qt::DoubleSliderDisplay();
+    cmd_xyz_[i]->setToolTip("Target position along this axis in meters in the controller's global frame.");
     cmd_xyz_[i]->setRange(-10.0, 10.0);
     cmd_xyz_[i]->setText(kLabelsXYZ[i]);
     cmd_xyz_[i]->setSuffix(" m");
@@ -50,6 +51,8 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(const rqt::RosQtBridge& _bridge
   constexpr std::array kLabelsRPY = { "Roll", "Pitch", "Yaw" };
   for (size_t i = 0; i < 3; ++i) {
     cmd_rpy_[i] = new qt::IntSliderDisplay();
+    cmd_rpy_[i]->setToolTip(
+      "Target roll, pitch, or yaw angle in degrees. Supported angles depend on the flight controller.");
     cmd_rpy_[i]->setRange(-180, 180);
     cmd_rpy_[i]->setText(kLabelsRPY[i]);
     cmd_rpy_[i]->setSuffix(" deg");
@@ -257,7 +260,7 @@ void BasePoseCommanderWidget::onDisarmButtonClicked()
 
   reset();
 
-  qt::qInfoBox(this, "GUI teleoperation was finished.");
+  qt::qInfoBox(this, "GUI teleoperation has stopped.");
 }
 
 void BasePoseCommanderWidget::onValueChanged()

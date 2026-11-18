@@ -61,7 +61,7 @@ void AddLinkDialog::checkValidity()
   const auto joint_name = ui_->JointNameLineEdit->text();
 
   if (link_name.isEmpty()) {
-    ui_->WarnTextLabel->setText("Please set link name.");
+    ui_->WarnTextLabel->setText("Please enter a link name.");
     enableOkButton(false);
     return;
   }
@@ -73,7 +73,7 @@ void AddLinkDialog::checkValidity()
   }
 
   if (joint_name.isEmpty()) {
-    ui_->WarnTextLabel->setText("Please set joint name.");
+    ui_->WarnTextLabel->setText("Please enter a joint name.");
     enableOkButton(false);
     return;
   }

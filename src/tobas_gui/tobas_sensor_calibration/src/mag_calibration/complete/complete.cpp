@@ -472,7 +472,7 @@ bool CompleteMagCalibWidget::updateRemoteParameters(const Eigen::Vector3d& _hard
 
   // Check the result.
   if (!res->success) {
-    qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
+    qt::qErrorBox(this, "Calibration results were rejected: " + QString::fromStdString(res->message));
     return false;
   }
 

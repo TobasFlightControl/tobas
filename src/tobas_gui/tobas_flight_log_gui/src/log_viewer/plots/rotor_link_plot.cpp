@@ -48,7 +48,7 @@ void RotorLinkPlotWidget::setData(const QVector<tobas_msgs::msg::RotorStateArray
 
   for (const auto& msg : _msgs) {
     if (msg.states.size() != num_rotors_) {
-      qWarning() << "The number of rotors mismatch.";
+      qWarning() << "Rotor count mismatch.";
       continue;
     }
 

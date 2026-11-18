@@ -270,7 +270,7 @@ void JointCommanderWidget::onStopRequested()
 {
   reset();
 
-  qt::qInfoBox(this, "GUI teleoperation is ready.");
+  qt::qInfoBox(this, "GUI teleoperation has stopped.");
 }
 
 void JointCommanderWidget::onValueChanged(double _value, const std::string& _jnt_name)

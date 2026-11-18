@@ -29,8 +29,8 @@ namespace tobas::gui::log
 {
 FlightLogsWidgetGCS::FlightLogsWidgetGCS()
 {
-  read_button_ = new QPushButton("Read");
-  clean_button_ = new QPushButton("Clean");
+  read_button_ = new QPushButton("Refresh");
+  clean_button_ = new QPushButton("Delete All");
 
   read_button_->setFixedWidth(kLogListButtonWidth);
   clean_button_->setFixedWidth(kLogListButtonWidth);
@@ -173,7 +173,7 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
 {
   qDebug() << "FlightLogsWidgetGCS::onCleanButtonClicked";
 
-  if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the GCS?", qt::WARN)) {
+  if (!qt::yesOrNo(this, "Do you want to delete all flight logs saved on the ground control station?", qt::WARN)) {
     return;
   }
 

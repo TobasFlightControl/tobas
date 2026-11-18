@@ -323,7 +323,7 @@ bool RCInputCalibrationWidget::saveParamsToFc()
   }
 
   if (!res->success) {
-    qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
+    qt::qErrorBox(this, "Calibration results were rejected: " + QString::fromStdString(res->message));
     return false;
   }
 

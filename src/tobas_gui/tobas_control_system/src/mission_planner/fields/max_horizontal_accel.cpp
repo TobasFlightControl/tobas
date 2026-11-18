@@ -9,6 +9,8 @@ namespace tobas::gui::ctrl::field
 {
 MaxHorizontalAccelWidget::MaxHorizontalAccelWidget()
 {
+  setToolTip("Maximum horizontal acceleration in meters per second squared.");
+
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_HOR_MAX
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);

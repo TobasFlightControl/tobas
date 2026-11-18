@@ -9,6 +9,10 @@ namespace tobas::gui::ctrl::field
 {
 AcceptanceRadiusWidget::AcceptanceRadiusWidget()
 {
+  setToolTip(
+    "Maximum horizontal distance from the target in meters for considering the destination reached. "
+    "For pass-through waypoints, this is used at the end of the spline segment.");
+
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#NAV_ACC_RAD
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(2);

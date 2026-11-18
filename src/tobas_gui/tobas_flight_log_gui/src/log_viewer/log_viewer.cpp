@@ -157,7 +157,7 @@ void FlightLogViewerWidget::setLogName(const QString& _log_name)
   // Open the rosbag.
   if (!open(log_path_)) {
     if (!ros2::reindexRosBag(log_path_)) {
-      qt::qErrorBox(this, "The log file is broken and failed to fix it.");
+      qt::qErrorBox(this, "Failed to repair the log file.");
       return;
     }
     if (!open(log_path_)) {

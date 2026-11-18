@@ -757,7 +757,7 @@
                               <enum>Qt::LeftToRight</enum>
                             </property>
                             <property name="text">
-                              <string>Dampling</string>
+                              <string>Damping</string>
                             </property>
                             <property name="alignment">
                               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3004,7 +3004,7 @@
                     <bool>true</bool>
                   </property>
                   <property name="title">
-                    <string>Inertia with regard to CoM</string>
+                    <string>Inertia About Center of Mass</string>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_8">
                     <item row="0" column="5">

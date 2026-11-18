@@ -16,10 +16,10 @@ JointTestWidget::JointTestWidget(const rqt::RosQtBridge& _bridge, const kdl::Tre
   : tree_(_tree), drone_(_drone)
 {
   const auto instruction = new qt::DescriptionWidget(
-    "1. Click 'Start' to start joint test.\n"
+    "1. Click 'Start' to start the joint test.\n"
     "2. For each channel, confirm that the position, velocity, or effort is correctly following the command.\n"
     "3. If any joint does not behave as expected, please review the UADF or Setup Assistant settings.\n"
-    "4. Click 'Stop' to stop joint test.\n");
+    "4. Click 'Stop' to stop the joint test.\n");
 
   start_stop_button_ = new qt::ToggleButton("Start", "Stop");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);

@@ -27,10 +27,23 @@ WindParamsWidget::WindParamsWidget()
   reset_button_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
 
   mean_speed_ = new qt::DoubleSliderTextWidget(0.0, 20.0, 1);
+  mean_speed_->setToolTip("Mean horizontal wind speed in meters per second, before adding gusts and turbulence.");
+
   direction_ = new qt::IntSliderTextWidget(-180, 180);
+  direction_->setToolTip(
+    "Direction the wind blows toward in degrees in the Gazebo world frame: "
+    "0 degrees is +X and 90 degrees is +Y. This is not the meteorological wind-from direction.");
+
   gust_speed_factor_ = new qt::DoubleSliderTextWidget(0.0, 10.0, 1);
+  gust_speed_factor_->setToolTip(
+    "Peak additional gust speed divided by mean wind speed. "
+    "For a factor of 1, the peak additional gust speed equals the mean wind speed.");
+
   gust_duration_ = new qt::DoubleSliderTextWidget(0.0, 10.0, 1);
+  gust_duration_->setToolTip("Duration of each gust in seconds.");
+
   gust_interval_ = new qt::DoubleSliderTextWidget(0.0, 30.0, 1);
+  gust_interval_->setToolTip("Time in seconds from the end of one gust to the start of the next.");
 
   // Layout
   const auto header_cols = new QHBoxLayout();
@@ -44,6 +57,9 @@ WindParamsWidget::WindParamsWidget()
   form->addVAlignedRow("Gust Speed Factor [-]", gust_speed_factor_);
   form->addVAlignedRow("Gust Duration [s]", gust_duration_);
   form->addVAlignedRow("Gust Interval [s]", gust_interval_);
+  for (int row = 0; row < form->rowCount(); ++row) {
+    form->getLabel(row)->setToolTip(form->getWidget(row)->toolTip());
+  }
 
   const auto rows = new QVBoxLayout(this);
   rows->addLayout(header_cols);

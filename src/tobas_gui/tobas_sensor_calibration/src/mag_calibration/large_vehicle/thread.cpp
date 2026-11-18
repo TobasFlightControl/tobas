@@ -43,7 +43,7 @@ void LargeVehicleMagCalibThread::run()
 
   // Confirm that position information has been received.
   if (gnss_->fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
-    Q_EMIT finished(false, "GNSS is not fixed.");
+    Q_EMIT finished(false, "A 3D GNSS fix is required.");
     return;
   }
 
@@ -71,13 +71,13 @@ void LargeVehicleMagCalibThread::run()
       break;
     }
     if (arming_->data) {  // Abort if the vehicle is armed while collecting data.
-      Q_EMIT finished(false, "Accelerometer calibration was canceled because an arming command was issued.");
+      Q_EMIT finished(false, "Magnetometer calibration was canceled because an arming command was issued.");
       get_data_ = false;
       return;
     }
     constexpr auto kCollectDataTimeout = 10s;
     if (clock->now() - start_time > kCollectDataTimeout) {
-      Q_EMIT finished(false, "Timeout before Magnetic field collection is completed.");
+      Q_EMIT finished(false, "Timed out while collecting magnetic field data.");
       get_data_ = false;
       return;
     }
@@ -118,7 +118,7 @@ void LargeVehicleMagCalibThread::run()
 
   // Check the result.
   if (!res->success) {
-    Q_EMIT finished(false, "Calibration results are rejected: " + QString::fromStdString(res->message));
+    Q_EMIT finished(false, "Calibration results were rejected: " + QString::fromStdString(res->message));
     return;
   }
 

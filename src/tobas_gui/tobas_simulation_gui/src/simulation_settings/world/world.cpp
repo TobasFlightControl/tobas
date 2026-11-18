@@ -48,6 +48,8 @@ fs::path WorldWidget::worldPath() const
 void WorldWidget::addRow(qt::FormLayout* _form, QButtonGroup* _btn_group, BaseWorldWidget* _widget, const QString& _label)
 {
   const auto button = new QRadioButton(_label);
+  button->setToolTip(_widget->toolTip());
+
   _btn_group->addButton(button, rowCount());
   _form->addVAlignedRow(button, _widget);
 

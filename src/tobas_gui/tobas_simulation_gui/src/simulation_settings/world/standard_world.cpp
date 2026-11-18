@@ -12,6 +12,8 @@ namespace tobas::gui::sim
 {
 WorldWidget_Standard::WorldWidget_Standard()
 {
+  setToolTip("Select a bundled Gazebo world for the simulation.");
+
   const auto cols = new QHBoxLayout(this);
 
   combo_box_ = new qt::ComboBox();

@@ -238,7 +238,7 @@ bool WifiClientWidget::writeCurrentConfig()
     return false;
   }
 
-  qt::qInfoBox(this, "Network configuration is updated successfully.");
+  qt::qInfoBox(this, "Network configuration has been updated successfully.");
   return true;
 }
 

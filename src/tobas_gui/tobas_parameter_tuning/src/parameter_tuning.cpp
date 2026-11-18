@@ -171,7 +171,7 @@ void ParameterTuningWidget::onSaveButtonClicked()
   qt::qInfoBox(
     this,
     "Dynamic parameters have been saved to the local project. "
-    "Please click 'Write' button again to flash them to the FC.");
+    "Click the 'Write' button in the GCS to deploy the updated project to the flight controller.");
 }
 
 void ParameterTuningWidget::onResetButtonClicked()

@@ -189,7 +189,7 @@ bool SshAuthorizedKeysWidget::writeCurrentConfig()
     return false;
   }
 
-  qt::qInfoBox(this, "SSH authorized keys are updated successfully.");
+  qt::qInfoBox(this, "SSH authorized keys have been updated successfully.");
   return true;
 }
 

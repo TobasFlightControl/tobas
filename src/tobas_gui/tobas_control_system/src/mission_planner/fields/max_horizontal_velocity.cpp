@@ -9,6 +9,8 @@ namespace tobas::gui::ctrl::field
 {
 MaxHorizontalVelocityWidget::MaxHorizontalVelocityWidget()
 {
+  setToolTip("Maximum horizontal speed in meters per second.");
+
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_XY_CRUISE
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);

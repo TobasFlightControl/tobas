@@ -896,7 +896,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.progressStep();
 
   progress.close();
-  qt::qInfoBox(this, "The current project has been flashed to the flight controller successfully.");
+  qt::qInfoBox(this, "The current project has been deployed to the flight controller successfully.");
 }
 
 void GroundControlStationWidget::onFlightControllerScanFinished(

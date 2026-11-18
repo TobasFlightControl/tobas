@@ -9,6 +9,10 @@ namespace tobas::gui::ctrl::field
 {
 AltitudeToleranceWidget::AltitudeToleranceWidget()
 {
+  setToolTip(
+    "Maximum vertical distance from the target altitude in meters for considering the destination reached. "
+    "For pass-through waypoints, this is used at the end of the spline segment.");
+
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#NAV_MC_ALT_RAD
   // Use the ArduPilot default value (`WPNAV_WP_RADIUS`) because the PX4 default of 0.8 m is often too small.
   spin_box_ = new qt::DoubleSpinBox();
