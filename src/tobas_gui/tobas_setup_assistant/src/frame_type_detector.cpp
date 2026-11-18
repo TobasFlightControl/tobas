@@ -25,7 +25,7 @@ FrameTypeDetectionResult FrameTypeDetector::determineFrameType()
 {
   constexpr char kIsNotSupported[] = "\nis not supported.";
 
-  std::string msg = "Airframe\n\n";
+  std::string msg = "An airframe\n\n";
 
   if (uadf_.control_surfaces.empty()) {
     msg += "  • which does not have fixed wings\n";
@@ -45,13 +45,13 @@ FrameTypeDetectionResult FrameTypeDetector::determineFrameType()
           return { FrameType::kPlanarMulticopter, {} };  // TODO: Classify by manipulability.
         }
         else {
-          msg += "  • which have propellers whose rotation axis can be oriented in a direction other than Z+\n";
+          msg += "  • which has propellers whose rotation axes can be oriented in a direction other than Z+\n";
           return { FrameType::kNonPlanarMulticopter, {} };  // TODO: Classify by manipulability.
         }
       }
     }
     else {
-      msg += "  • which has at least one tilt rotors\n";
+      msg += "  • which has at least one tilt rotor\n";
 
       if (eachTiltRotorAxesPerpendicular()) {
         msg += "  • which has each tilt axis perpendicular to its corresponding propeller rotation axis\n";

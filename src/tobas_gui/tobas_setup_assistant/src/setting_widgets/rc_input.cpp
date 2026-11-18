@@ -19,13 +19,13 @@ constexpr char kDisarmDurationLabel[] = "Disarm Duration";
 RcInputWidget::RcInputWidget()
 {
   num_sbus_channels_ = new qt::SpinBox();
-  num_sbus_channels_->setToolTip("Specifies the number of S.BUS channels actually used in manual control mode.");
+  num_sbus_channels_->setToolTip("Number of S.BUS channels used for transmitter input.");
   num_sbus_channels_->setMinimum(kMinSbusChannels);
   num_sbus_channels_->setMaximum(kMaxSbusChannels);
 
   arm_duration_ = new qt::DoubleSpinBox();
   arm_duration_->setToolTip(
-    "Specifies the amount of time the stick must be held to arm the vehicle from the transmitter.");
+    "Time in seconds that the transmitter sticks must remain in the arming position before the vehicle arms.");
   arm_duration_->setDecimals(1);
   arm_duration_->setMinimum(0.0);
   arm_duration_->setMaximum(10.0);
@@ -33,7 +33,7 @@ RcInputWidget::RcInputWidget()
 
   disarm_duration_ = new qt::DoubleSpinBox();
   disarm_duration_->setToolTip(
-    "Specifies the amount of time the stick must be held to disarm the vehicle from the transmitter.");
+    "Time in seconds that the transmitter sticks must remain in the disarming position before the vehicle disarms.");
   disarm_duration_->setDecimals(1);
   disarm_duration_->setMinimum(0.0);
   disarm_duration_->setMaximum(10.0);
@@ -41,11 +41,10 @@ RcInputWidget::RcInputWidget()
 
   const auto form = new qt::FormLayout(this);
   form->addRow(kNumSbusChannelsLabel, num_sbus_channels_);
-  form->addRow(kArmDurationLabel, arm_duration_);
-  form->addRow(kDisarmDurationLabel, disarm_duration_);
-
   form->labelForField(num_sbus_channels_)->setToolTip(num_sbus_channels_->toolTip());
+  form->addRow(kArmDurationLabel, arm_duration_);
   form->labelForField(arm_duration_)->setToolTip(arm_duration_->toolTip());
+  form->addRow(kDisarmDurationLabel, disarm_duration_);
   form->labelForField(disarm_duration_)->setToolTip(disarm_duration_->toolTip());
 }
 
@@ -61,9 +60,7 @@ const char* RcInputWidget::title() const
 
 const char* RcInputWidget::description() const
 {
-  return "Configure the parameters for transmitter-based remote operation. "
-         "Tobas supports S.BUS and S.BUS2 receiver protocols. "
-         "Enter the appropriate values in each field.";
+  return "Configure the S.BUS channel count and the transmitter stick hold times used to arm and disarm the vehicle.";
 }
 
 void RcInputWidget::updateInternalDataStructures()

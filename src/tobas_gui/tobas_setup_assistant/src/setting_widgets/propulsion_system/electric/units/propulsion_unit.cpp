@@ -16,7 +16,7 @@ PropulsionUnitWidget::PropulsionUnitWidget()
 {
   const auto rows = new QVBoxLayout(this);
 
-  copy_to_all_btn_ = new QPushButton("Copy To All");
+  copy_to_all_btn_ = new QPushButton("Copy to All");
   copy_to_all_btn_->setFixedWidth(kCopyToAllButtonWidth);
 
   // Wrap the fixed-width button so the corner layout reserves its full width.

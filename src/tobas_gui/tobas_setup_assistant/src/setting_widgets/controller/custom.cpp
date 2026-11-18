@@ -20,17 +20,17 @@ constexpr char kAcrobatLabel[] = "Acrobat Mode";
 constexpr char kStabilizeLabel[] = "Stabilize Mode";
 constexpr char kLoiterLabel[] = "Loiter Mode";
 
-constexpr char kRateThrottleLabel[] = "Angle Rate + Throttle";
-constexpr char kRateThrottleVectorLabel[] = "Angle Rate + Throttle + Thrust Direction";
-constexpr char kAngleThrottleLabel[] = "Euler Angle + Throttle";
-constexpr char kAngleThrottleVectorLabel[] = "Euler Angle + Throttle + Thrust Direction";
-constexpr char kAccelYawLabel[] = "Accel + Yaw";
-constexpr char kAccelPitchYawLabel[] = "Accel + Pitch + Yaw";
-constexpr char kPosVelAccYawLabel[] = "Position + Velocity + Yaw";
-constexpr char kPosVelAccPitchYawLabel[] = "Position + Velocity + Pitch + Yaw";
-constexpr char kAccelRateLabel[] = "Accel + Angle Rate";
-constexpr char kAccelAngleLabel[] = "Accel + Euler Angle";
-constexpr char kPosVelAccAngleLabel[] = "Position + Velocity + Angle";
+constexpr char kRateThrottleLabel[] = "Angular Rate + Throttle";
+constexpr char kRateThrottleVectorLabel[] = "Angular Rate + Throttle + Thrust Direction";
+constexpr char kAngleThrottleLabel[] = "Euler Angles + Throttle";
+constexpr char kAngleThrottleVectorLabel[] = "Euler Angles + Throttle + Thrust Direction";
+constexpr char kAccelYawLabel[] = "Acceleration + Yaw";
+constexpr char kAccelPitchYawLabel[] = "Acceleration + Pitch + Yaw";
+constexpr char kPosVelAccYawLabel[] = "Position + Velocity + Acceleration + Yaw";
+constexpr char kPosVelAccPitchYawLabel[] = "Position + Velocity + Acceleration + Pitch + Yaw";
+constexpr char kAccelRateLabel[] = "Acceleration + Angular Rate";
+constexpr char kAccelAngleLabel[] = "Acceleration + Euler Angles";
+constexpr char kPosVelAccAngleLabel[] = "Position + Velocity + Acceleration + Euler Angles";
 constexpr char kSpeedRollDeltaPitchLabel[] = "Speed + Roll + Pitch";
 
 const std::map<QString, RcCommand> kCommandMap{
@@ -54,8 +54,17 @@ CustomFrameWidget::CustomFrameWidget()
   TOBAS_CHECK(kCommandMap.size() == magic_enum::enum_count<RcCommand>());
 
   acrobat_mode_ = new qt::ComboBox();
+  acrobat_mode_->setToolTip(
+    "Command type sent to the controller when the transmitter selects Acrobat mode. "
+    "Select a command type supported by your custom controller.");
   stabilize_mode_ = new qt::ComboBox();
+  stabilize_mode_->setToolTip(
+    "Command type sent to the controller when the transmitter selects Stabilize mode. "
+    "Select a command type supported by your custom controller.");
   loiter_mode_ = new qt::ComboBox();
+  loiter_mode_->setToolTip(
+    "Command type sent to the controller when the transmitter selects Loiter mode. "
+    "Select a command type supported by your custom controller.");
 
   // Add command choices.
   for (const auto& [text, _] : kCommandMap) {
@@ -67,8 +76,11 @@ CustomFrameWidget::CustomFrameWidget()
   // Layout
   const auto form = new qt::FormLayout();
   form->addRow(kAcrobatLabel, acrobat_mode_);
+  form->labelForField(acrobat_mode_)->setToolTip(acrobat_mode_->toolTip());
   form->addRow(kStabilizeLabel, stabilize_mode_);
+  form->labelForField(stabilize_mode_)->setToolTip(stabilize_mode_->toolTip());
   form->addRow(kLoiterLabel, loiter_mode_);
+  form->labelForField(loiter_mode_)->setToolTip(loiter_mode_->toolTip());
 
   const auto rows = new QVBoxLayout(this);
   rows->addWidget(new qt::Label("RC Command", cmn::kSubTitlePointSize, QFont::Bold));

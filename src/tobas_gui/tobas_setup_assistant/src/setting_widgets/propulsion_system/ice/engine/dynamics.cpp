@@ -23,6 +23,9 @@ constexpr char kDataLabel[] = "Engine Torque Test Data";
 EngineDynamicsWidget::EngineDynamicsWidget()
 {
   data_ = new ParamGetterWidget_DoubleTable(kDataLabel, "Select Test Data", { "Throttle [%]", "RPM", "Torque [Nm]" });
+  data_->setToolTip(
+    "Engine test measurements: throttle in percent, rotational speed in rpm, and torque in newton-meters. "
+    "These measurements are fitted to the engine torque model.");
   data_->setDecimals({ 2, 0, 6 });
   data_->setMinimum({ 1e-2, 1, 1e-6 });
   data_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);

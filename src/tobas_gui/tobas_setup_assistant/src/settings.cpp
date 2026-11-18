@@ -37,7 +37,7 @@ SettingsWidget::SettingsWidget(const uadf::Model& _uadf, const kdl::Tree& _tree,
   rc_input = new RcInputWidget();
   extra_joints = new ExtraJointsWidget(_uadf, _tree);
   failsafe = new FailsafeWidget();
-  author_info = new AuthorInformationWidget();
+  maintainer_info = new MaintainerInformationWidget();
 
   // Basic settings
   navigation_->addSection("BASIC SETTINGS");
@@ -54,7 +54,7 @@ SettingsWidget::SettingsWidget(const uadf::Model& _uadf, const kdl::Tree& _tree,
   addPage(rc_input);
   addPage(extra_joints);
   addPage(failsafe);
-  addPage(author_info);
+  addPage(maintainer_info);
 
   // Disable all pages.
   for (int i = 0; i < stack_->count(); ++i) {

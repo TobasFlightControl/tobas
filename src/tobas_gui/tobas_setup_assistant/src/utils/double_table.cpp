@@ -175,14 +175,14 @@ QString ParamGetterWidget_DoubleTable::getCsvPath()
 bool ParamGetterWidget_DoubleTable::isValidData(const Eigen::MatrixXd& _src)
 {
   if (_src.cols() != num_entry_) {
-    qt::qErrorBox(this, "Column size mismatch.");
+    qt::qErrorBox(this, "Column count mismatch.");
     return false;
   }
 
   for (int col = 0; col < num_entry_; ++col) {
     const auto column = _src.col(col).array().eval();
     if ((column < minimum_.at(col)).any() || (maximum_.at(col) < column).any()) {
-      qt::qErrorBox(this, "Some values of field '" + labels_.at(col) + "' are out of limits.");
+      qt::qErrorBox(this, "Some values in column '" + labels_.at(col) + "' are outside the allowed range.");
       return false;
     }
   }
@@ -257,7 +257,7 @@ void ParamGetterWidget_DoubleTable::loadCsv()
     return;
   }
 
-  qt::qInfoBox(this, "Data is loaded successfully.");
+  qt::qInfoBox(this, "Data loaded successfully.");
 }
 
 void ParamGetterWidget_DoubleTable::onCellValueChanged()

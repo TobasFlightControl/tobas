@@ -15,8 +15,8 @@ constexpr char kNominalVoltageLabel[] = "Nominal Voltage";
 constexpr char kMaxVoltageLabel[] = "Maximum Voltage";
 constexpr char kSagVoltageLabel[] = "Voltage Threshold";
 constexpr char kMaxCurrentLabel[] = "Maximum Current";
-constexpr char kCapacityLabel[] = "Current Capacity";
-constexpr char kResistanceLabel[] = "Internal Registance";
+constexpr char kCapacityLabel[] = "Battery Capacity";
+constexpr char kResistanceLabel[] = "Internal Resistance";
 }  // namespace
 
 BatteryWidget_Other::BatteryWidget_Other()
@@ -25,7 +25,7 @@ BatteryWidget_Other::BatteryWidget_Other()
   setLayout(form);  // Do not pass `this` to the layout constructor.
 
   nominal_voltage_ = new qt::DoubleSpinBox();
-  nominal_voltage_->setToolTip("Nominal voltage of the battery.");
+  nominal_voltage_->setToolTip("Nominal voltage of the complete battery pack in volts.");
   nominal_voltage_->setDecimals(1);
   nominal_voltage_->setMinimum(0.1);
   nominal_voltage_->setSuffix(" V");
@@ -33,7 +33,8 @@ BatteryWidget_Other::BatteryWidget_Other()
   form->labelForField(nominal_voltage_)->setToolTip(nominal_voltage_->toolTip());
 
   max_voltage_ = new qt::DoubleSpinBox();
-  max_voltage_->setToolTip("Maximum voltage of the battery.");
+  max_voltage_->setToolTip(
+    "Voltage of the complete battery pack at full charge, in volts. Must exceed the voltage threshold.");
   max_voltage_->setDecimals(1);
   max_voltage_->setMinimum(0.1);
   max_voltage_->setSuffix(" V");
@@ -41,7 +42,9 @@ BatteryWidget_Other::BatteryWidget_Other()
   form->labelForField(max_voltage_)->setToolTip(max_voltage_->toolTip());
 
   sag_voltage_ = new qt::DoubleSpinBox();
-  sag_voltage_->setToolTip("Voltage at which the discharge characteristics change abruptly.");
+  sag_voltage_->setToolTip(
+    "Pack voltage in volts at the knee of the discharge curve, "
+    "where the battery model changes its discharge characteristics.");
   sag_voltage_->setDecimals(1);
   sag_voltage_->setMinimum(0.1);
   sag_voltage_->setSuffix(" V");
@@ -49,21 +52,22 @@ BatteryWidget_Other::BatteryWidget_Other()
   form->labelForField(sag_voltage_)->setToolTip(sag_voltage_->toolTip());
 
   max_current_ = new qt::SpinBox();
-  max_current_->setToolTip("Maximum current of the battery.");
+  max_current_->setToolTip("Maximum continuous discharge current of the complete battery pack in amperes.");
   max_current_->setMinimum(1);
   max_current_->setSuffix(" A");
   form->addRow(kMaxCurrentLabel, max_current_);
   form->labelForField(max_current_)->setToolTip(max_current_->toolTip());
 
   capacity_ = new qt::SpinBox();
-  capacity_->setToolTip("The amount of electric charge that can be drawn from the battery.");
+  capacity_->setToolTip("Rated charge capacity of the battery pack in milliampere-hours (mAh).");
   capacity_->setMinimum(1);
   capacity_->setSuffix(" mAh");
   form->addRow(kCapacityLabel, capacity_);
   form->labelForField(capacity_)->setToolTip(capacity_->toolTip());
 
   registance_ = new qt::SpinBox();
-  registance_->setToolTip("Internal resistance value per cell.");
+  registance_->setToolTip(
+    "Total internal resistance of the complete battery pack in milliohms. Enter the pack value, not a per-cell value.");
   registance_->setMinimum(0);
   registance_->setSuffix(" mΩ");
   form->addRow(kResistanceLabel, registance_);

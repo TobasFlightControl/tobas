@@ -26,32 +26,42 @@ PropellerWidget::PropellerWidget()
   setLayout(form);  // Do not pass `this` to the layout constructor.
 
   num_blades_ = new qt::SpinBox();
+  num_blades_->setToolTip("Number of blades on one propeller.");
   num_blades_->setMinimum(2);
   num_blades_->setMaximum(5);
   form->addRow(kNumBladesLabel, num_blades_);
+  form->labelForField(num_blades_)->setToolTip(num_blades_->toolTip());
 
   diameter_ = new qt::SpinBox();
+  diameter_->setToolTip("Diameter of the circle swept by the propeller tips, in inches.");
   diameter_->setMinimum(1);
   diameter_->setSuffix(" inch");
   form->addRow(kDiameterLabel, diameter_);
+  form->labelForField(diameter_)->setToolTip(diameter_->toolTip());
 
   pitch_ = new qt::DoubleSpinBox();
+  pitch_->setToolTip("Geometric pitch in inches: the theoretical advance in one revolution without slip.");
   pitch_->setDecimals(1);
   pitch_->setMinimum(0.1);
   pitch_->setSuffix(" inch");
   form->addRow(kPitchLabel, pitch_);
+  form->labelForField(pitch_)->setToolTip(pitch_->toolTip());
 
   min_chord_ = new qt::SpinBox();
-  min_chord_->setToolTip("Typically at the propeller tip.");
+  min_chord_->setToolTip(
+    "Minimum blade chord length in millimeters. "
+    "The mean of the minimum and maximum chord lengths is used by the blade model.");
   min_chord_->setMinimum(1);
   min_chord_->setSuffix(" mm");
   form->addRow(kMinChordLabel, min_chord_);
   form->labelForField(min_chord_)->setToolTip(min_chord_->toolTip());
 
   max_chord_ = new qt::SpinBox();
+  max_chord_->setToolTip("Maximum blade chord length in millimeters. Must be at least the minimum chord length.");
   max_chord_->setMinimum(1);
   max_chord_->setSuffix(" mm");
   form->addRow(kMaxChordLabel, max_chord_);
+  form->labelForField(max_chord_)->setToolTip(max_chord_->toolTip());
 }
 
 const char* PropellerWidget::name() const

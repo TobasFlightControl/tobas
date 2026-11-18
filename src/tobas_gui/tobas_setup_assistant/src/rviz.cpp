@@ -49,9 +49,9 @@ RvizWidget::RvizWidget(const uadf::Model& _uadf, const kdl::Tree& _tree)
   enable_inertia_->setBool(kDefaultInertiaEnabled);
 
   // Visualization button
-  const auto visual_box = new QCheckBox("Show Visual");
-  const auto collision_box = new QCheckBox("Show Collision");
-  const auto inertia_box = new QCheckBox("Show Inertial");
+  const auto visual_box = new QCheckBox("Show Visual Geometry");
+  const auto collision_box = new QCheckBox("Show Collision Geometry");
+  const auto inertia_box = new QCheckBox("Show Inertia");
   visual_box->setChecked(kDefaultVisualEnabled);
   collision_box->setChecked(kDefaultCollisionEnabled);
   inertia_box->setChecked(kDefaultInertiaEnabled);

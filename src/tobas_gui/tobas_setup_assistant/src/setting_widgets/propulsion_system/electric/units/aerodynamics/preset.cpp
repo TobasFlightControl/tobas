@@ -28,6 +28,9 @@ constexpr char kPropellerNameKey[] = "propeller_name";
 AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* _propeller) : propeller_(_propeller)
 {
   data_name_ = new qt::ComboBox();
+  data_name_->setToolTip(
+    "Select the bundled propeller dataset used to estimate aerodynamic constants. "
+    "The dataset should match the propeller being configured.");
 
   // Add thrust data names.
   for (const auto& entry : fs::recursive_directory_iterator(thrustStandDataDir())) {
@@ -66,8 +69,8 @@ const char* AerodynamicsWidget_Preset::name() const
 
 const char* AerodynamicsWidget_Preset::description() const
 {
-  return "If your propeller appears in the list, "
-         "just pick it and the correct aerodynamic parameters will be applied automatically.";
+  return "Select a bundled dataset that matches your propeller to estimate its aerodynamic constants. "
+         "Use a measurement-based method if no suitable dataset is available.";
 }
 
 bool AerodynamicsWidget_Preset::isValid()

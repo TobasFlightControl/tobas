@@ -32,12 +32,12 @@ constexpr int kNumCols = kYawCoefCol + 1;
 /* Labels */
 constexpr char kLinkNameLabel[] = "Link Name";
 constexpr char kJointNameLabel[] = "Joint Name";
-constexpr char kLiftCoefLabel[] = "Lift Coef";
-constexpr char kDragCoefLabel[] = "Drag Coef";
-constexpr char kSideCoefLabel[] = "Side Coef";
-constexpr char kRollCoefLabel[] = "Roll Coef";
-constexpr char kPitchCoefLabel[] = "Pitch Coef";
-constexpr char kYawCoefLabel[] = "Yaw Coef";
+constexpr char kLiftCoefLabel[] = "Lift Coef.";
+constexpr char kDragCoefLabel[] = "Drag Coef.";
+constexpr char kSideCoefLabel[] = "Side-Force Coef.";
+constexpr char kRollCoefLabel[] = "Roll-Moment Coef.";
+constexpr char kPitchCoefLabel[] = "Pitch-Moment Coef.";
+constexpr char kYawCoefLabel[] = "Yaw-Moment Coef.";
 }  // namespace
 
 ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& _uadf) : super(0, kNumCols), uadf_(_uadf)

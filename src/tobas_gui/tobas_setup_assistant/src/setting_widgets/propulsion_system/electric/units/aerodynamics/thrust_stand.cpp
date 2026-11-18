@@ -16,13 +16,16 @@ namespace tobas::gui::sa::propulsion::electric
 {
 namespace
 {
-constexpr char kDataLabel[] = "Data from thrust stand";
+constexpr char kDataLabel[] = "Thrust Stand Test Data";
 }  // namespace
 
 AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand()
 {
   data_ =
     new ParamGetterWidget_DoubleTable(kDataLabel, "Select Test Data", { kRpmColName, kThrustColName, kTorqueColName });
+  data_->setToolTip(
+    "Measured propeller speed in rpm, thrust in newtons, and reaction torque in newton-meters. "
+    "Use measurements for the selected motor and propeller.");
   data_->setDecimals({ 0, 6, 6 });
   data_->setMinimum({ 1, 1e-6, 1e-6 });
 
@@ -43,9 +46,9 @@ const char* AerodynamicsWidget_ThrustStand::name() const
 const char* AerodynamicsWidget_ThrustStand::description() const
 {
   // Hyperlinks do not work if a newline is inserted in the text.
-  return "We estimate the aerodynamic constants from data obtained through Thrust Stand experiments. "
+  return "Estimate propeller aerodynamic constants from measured rotational speed, thrust, and torque. "
          "For example, see "
-         "<a href='https://www.tytorobotics.com/pages/series-1580-1585'>Tyto Rootics Series 1585 Thrust Stand</a>.";
+         "<a href='https://www.tytorobotics.com/pages/series-1580-1585'>Tyto Robotics Series 1585 Thrust Stand</a>.";
 }
 
 bool AerodynamicsWidget_ThrustStand::isValid()

@@ -14,8 +14,8 @@ namespace
 {
 constexpr char kNumPolesLabel[] = "Number of Poles";
 constexpr char kKvLabel[] = "Kv";
-constexpr char kResistanceLabel[] = "Internal Registance";
-constexpr char kMinSpeedLabel[] = "Minimum Rotation Speed";
+constexpr char kResistanceLabel[] = "Internal Resistance";
+constexpr char kMinSpeedLabel[] = "Minimum Rotational Speed";
 }  // namespace
 
 MotorWidget::MotorWidget()
@@ -25,29 +25,29 @@ MotorWidget::MotorWidget()
 
   num_poles_ = new qt::SpinBox();
   num_poles_->setToolTip(
-    "The number of magnetic poles arranged on the rotor inside the motor. "
-    "It is the number of pairs of N and S poles of permanent magnets attached to the rotor.");
+    "Total number of magnetic poles on the motor rotor, counting both north and south poles. "
+    "Enter the pole count, not the number of pole pairs; for example, 14 poles means 7 pole pairs.");
   num_poles_->setSingleStep(2);
   num_poles_->setMinimum(2);
   form->addRow(kNumPolesLabel, num_poles_);
   form->labelForField(num_poles_)->setToolTip(num_poles_->toolTip());
 
   kv_ = new qt::SpinBox();
-  kv_->setToolTip("Motor's rotational speed under no load, relative to the supplied voltage.");
+  kv_->setToolTip("No-load motor speed per volt, in rpm/V. Use the motor manufacturer's Kv rating.");
   kv_->setMinimum(1);
   kv_->setSuffix(" rpm/V");
   form->addRow(kKvLabel, kv_);
   form->labelForField(kv_)->setToolTip(kv_->toolTip());
 
   resistance_ = new qt::SpinBox();
-  resistance_->setToolTip("Internal resistance value of the motor.");
+  resistance_->setToolTip("Internal resistance of the motor in milliohms, used by the electrical motor model.");
   resistance_->setMinimum(1);
   resistance_->setSuffix(" mΩ");
   form->addRow(kResistanceLabel, resistance_);
   form->labelForField(resistance_)->setToolTip(resistance_->toolTip());
 
   min_speed_ = new qt::SpinBox();
-  min_speed_->setToolTip("The minimum rotational speed at which the motor can spin smoothly.");
+  min_speed_->setToolTip("Minimum rotational speed in rpm at which the motor can run continuously and smoothly.");
   min_speed_->setMinimum(0);
   min_speed_->setSuffix(" rpm");
   form->addRow(kMinSpeedLabel, min_speed_);

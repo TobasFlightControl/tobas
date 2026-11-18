@@ -10,9 +10,9 @@ namespace tobas::gui::sa::propulsion::electric
 namespace
 {
 constexpr char kNumCellsLabel[] = "Number of Cells";
-constexpr char kCapacityLabel[] = "Current Capacity";
-constexpr char kContinuousDischargeRateLabel[] = "Continuous Discharge Current Rate";
-constexpr char kResistanceLabel[] = "Internal Registance";
+constexpr char kCapacityLabel[] = "Battery Capacity";
+constexpr char kContinuousDischargeRateLabel[] = "Continuous Discharge C-Rate";
+constexpr char kResistanceLabel[] = "Internal Resistance";
 }  // namespace
 
 BatteryWidget_LiPo::BatteryWidget_LiPo()
@@ -21,28 +21,33 @@ BatteryWidget_LiPo::BatteryWidget_LiPo()
   setLayout(form);  // Do not pass `this` to the layout constructor.
 
   num_cells_ = new qt::SpinBox();
-  num_cells_->setToolTip("The number of cells in the battery.");
+  num_cells_->setToolTip(
+    "Number of cells connected in series. Used to calculate the pack voltage and total internal resistance.");
   num_cells_->setMinimum(1);
   num_cells_->setMaximum(100);
   form->addRow(kNumCellsLabel, num_cells_);
   form->labelForField(num_cells_)->setToolTip(num_cells_->toolTip());
 
   capacity_ = new qt::SpinBox();
-  capacity_->setToolTip("The amount of electric charge that can be drawn from the battery.");
+  capacity_->setToolTip("Rated charge capacity of the battery pack in milliampere-hours (mAh).");
   capacity_->setMinimum(1);
   capacity_->setSuffix(" mAh");
   form->addRow(kCapacityLabel, capacity_);
   form->labelForField(capacity_)->setToolTip(capacity_->toolTip());
 
   c_cont_ = new qt::SpinBox();
-  c_cont_->setToolTip("The maximum continuous discharge current that the battery can provide.");
+  c_cont_->setToolTip(
+    "Continuous discharge C-rate, expressed per hour. "
+    "Maximum current in amperes equals capacity in ampere-hours multiplied by this value.");
   c_cont_->setMinimum(1);
   c_cont_->setSuffix(" /h");
   form->addRow(kContinuousDischargeRateLabel, c_cont_);
   form->labelForField(c_cont_)->setToolTip(c_cont_->toolTip());
 
   registance_ = new qt::SpinBox();
-  registance_->setToolTip("Internal resistance value per cell.");
+  registance_->setToolTip(
+    "Internal resistance of one cell in milliohms. "
+    "The pack resistance is this value multiplied by the number of series cells.");
   registance_->setMinimum(0);
   registance_->setSuffix(" mΩ");
   form->addRow(kResistanceLabel, registance_);

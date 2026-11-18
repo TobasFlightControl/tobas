@@ -50,7 +50,7 @@ const char* PropulsionSystemWidget::name() const
 
 const char* PropulsionSystemWidget::title() const
 {
-  return "Define Propulsion System";
+  return "Configure Propulsion System";
 }
 
 const char* PropulsionSystemWidget::description() const

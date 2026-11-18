@@ -9,12 +9,12 @@
 
 namespace tobas::gui::sa
 {
-class AuthorInformationWidget : public BaseSettingWidget
+class MaintainerInformationWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
 public:
-  explicit AuthorInformationWidget();
+  explicit MaintainerInformationWidget();
 
   const char* name() const override;
   const char* title() const override;
@@ -27,8 +27,8 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& _node) override;
 
-  QString authorName() const;
-  QString authorEmail() const;
+  QString maintainerName() const;
+  QString maintainerEmail() const;
 
 private:
   QLineEdit* name_;

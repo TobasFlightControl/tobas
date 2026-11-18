@@ -20,9 +20,8 @@ ESCWidget::ESCWidget()
 
   max_cont_current_ = new qt::SpinBox();
   max_cont_current_->setToolTip(
-    "Maximum current that the ESC (Electronic Speed Controller) can safely handle. "
-    "Exceeding this maximum current may lead to overheating or damage to the ESC, "
-    "and in the worst case, it could cause failure or fire.");
+    "Continuous current rating of the ESC in amperes. "
+    "Use the continuous rating rather than a short-duration burst rating.");
   max_cont_current_->setMinimum(1);
   max_cont_current_->setSuffix(" A");
   form->addRow(kMaxContinuousCurrentLabel, max_cont_current_);

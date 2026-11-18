@@ -15,11 +15,11 @@ namespace tobas::gui::sa::fw
 {
 namespace
 {
-constexpr char kWingSurfaceLabel[] = "Wing Surface";
+constexpr char kWingSurfaceLabel[] = "Wing Area";
 constexpr char kWingSpanLabel[] = "Wing Span";
 constexpr char kMacLabel[] = "Mean Aerodynamic Chord";
 constexpr char kAerodynamicCenterLabel[] = "Aerodynamic Center";
-constexpr char kAlphaLimitLabel[] = "Limitation of Angle of Attack";
+constexpr char kAlphaLimitLabel[] = "Angle-of-Attack Limits";
 }  // namespace
 
 VehicleWidget::VehicleWidget()
@@ -27,35 +27,50 @@ VehicleWidget::VehicleWidget()
   setFrameShape(QFrame::NoFrame);
 
   wing_surface_ = new qt::DoubleSpinBox();
+  wing_surface_->setToolTip("Reference wing area in square meters, used to scale aerodynamic forces and moments.");
   wing_surface_->setDecimals(3);
   wing_surface_->setMinimum(1e-3);
   wing_surface_->setSuffix(" m²");
 
   wing_span_ = new qt::DoubleSpinBox();
+  wing_span_->setToolTip("Reference wing span in meters, used to scale rolling and yawing moments.");
   wing_span_->setDecimals(3);
   wing_span_->setMinimum(1e-3);
   wing_span_->setSuffix(" m");
 
   mac_ = new qt::DoubleSpinBox();
+  mac_->setToolTip("Mean aerodynamic chord in meters, used as the reference length for pitching moments.");
   mac_->setDecimals(3);
   mac_->setMinimum(1e-3);
   mac_->setSuffix(" m");
 
   aerodynamic_center_ = new qt::Vector3dEditHorizontal();
+  aerodynamic_center_->setToolTip(
+    "Aerodynamic center position in meters relative to the airframe origin. "
+    "Coordinates use the forward-left-up (FLU) frame.");
   aerodynamic_center_->setDecimals(3);
   aerodynamic_center_->setSuffix(" m");
 
   alpha_limit_ = new DoubleRangeWidget();
+  alpha_limit_->setToolTip(
+    "Lower and upper limits of the modeled angle of attack in radians, "
+    "bounded by the negative and positive stall angles. "
+    "The lower limit must not exceed the upper limit.");
   alpha_limit_->setDecimals(3);
   alpha_limit_->setSuffix(" rad");
 
   const auto form = new qt::FormLayout();
   setLayout(form);  // Do not pass `this` to the layout constructor.
   form->addRow(kWingSurfaceLabel, wing_surface_);
+  form->labelForField(wing_surface_)->setToolTip(wing_surface_->toolTip());
   form->addRow(kWingSpanLabel, wing_span_);
+  form->labelForField(wing_span_)->setToolTip(wing_span_->toolTip());
   form->addRow(kMacLabel, mac_);
+  form->labelForField(mac_)->setToolTip(mac_->toolTip());
   form->addRow(kAerodynamicCenterLabel, aerodynamic_center_);
+  form->labelForField(aerodynamic_center_)->setToolTip(aerodynamic_center_->toolTip());
   form->addRow(kAlphaLimitLabel, alpha_limit_);
+  form->labelForField(alpha_limit_)->setToolTip(alpha_limit_->toolTip());
 }
 
 void VehicleWidget::updateInternalDataStructures()
@@ -74,7 +89,7 @@ void VehicleWidget::setToDefaults()
 bool VehicleWidget::isValid()
 {
   if (!alpha_limit_->isValid()) {
-    qt::qWarnBox(this, "Invalid limitation of angle of attack.");
+    qt::qWarnBox(this, "Invalid angle-of-attack limits.");
     return false;
   }
 

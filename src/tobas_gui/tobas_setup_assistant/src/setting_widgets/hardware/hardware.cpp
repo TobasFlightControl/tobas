@@ -65,13 +65,13 @@ const char* HardwareWidget::name() const
 
 const char* HardwareWidget::title() const
 {
-  return "Configure Hardware Interface";
+  return "Configure Hardware Interfaces";
 }
 
 const char* HardwareWidget::description() const
 {
-  return "Select the FMU you intend to use, "
-         "then freely assign each hardware interface to any PWM or DShot channel.";
+  return "Select the flight management unit (FMU), then assign actuators to the available PWM and DShot channels. "
+         "Configure the PWM pulse-width limits and DShot options for the connected hardware.";
 }
 
 void HardwareWidget::updateInternalDataStructures()

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_setup_assistant/setting_tabs/author_information.hpp"
+#include "tobas_setup_assistant/setting_tabs/maintainer_information.hpp"
 
 #include <QDebug>
 
@@ -16,8 +16,8 @@ namespace tobas::gui::sa
 {
 namespace
 {
-constexpr char kNameLabel[] = "Name of the Maintainer";
-constexpr char kEmailLabel[] = "Email of the Maintainer";
+constexpr char kNameLabel[] = "Maintainer Name";
+constexpr char kEmailLabel[] = "Maintainer Email";
 
 QString getDefaultName()
 {
@@ -60,58 +60,62 @@ QString getDefaultEmail()
 }
 }  // namespace
 
-AuthorInformationWidget::AuthorInformationWidget()
+MaintainerInformationWidget::MaintainerInformationWidget()
 {
-  name_ = new QLineEdit();
-  email_ = new QLineEdit();
-
   const auto form = new qt::FormLayout(this);
+
+  name_ = new QLineEdit();
+  name_->setToolTip("Name of the maintainer recorded in the generated ROS package manifests.");
   form->addRow(kNameLabel, name_);
+  form->labelForField(name_)->setToolTip(name_->toolTip());
+
+  email_ = new QLineEdit();
+  email_->setToolTip(
+    "Email address of the maintainer recorded in the generated ROS package manifests. Enter a valid email address.");
   form->addRow(kEmailLabel, email_);
+  form->labelForField(email_)->setToolTip(email_->toolTip());
 }
 
-const char* AuthorInformationWidget::name() const
+const char* MaintainerInformationWidget::name() const
 {
-  return "Author Information";
+  return "Maintainer Information";
 }
 
-const char* AuthorInformationWidget::title() const
+const char* MaintainerInformationWidget::title() const
 {
-  return "Specify Author Information";
+  return "Enter Maintainer Information";
 }
 
-const char* AuthorInformationWidget::description() const
+const char* MaintainerInformationWidget::description() const
 {
-  return "Enter the name and email address of the person administering the Tobas project "
-         "that you are creating with the Setup Assistant. "
-         "This step is important for keeping track of package ownership and for any necessary future communications.";
+  return "Enter the maintainer name and email address to include in the generated ROS package manifests.";
 }
 
-void AuthorInformationWidget::updateInternalDataStructures()
+void MaintainerInformationWidget::updateInternalDataStructures()
 {
   return;
 }
 
-void AuthorInformationWidget::setToDefaults()
+void MaintainerInformationWidget::setToDefaults()
 {
   name_->setText(getDefaultName());
   email_->setText(getDefaultEmail());
 }
 
-bool AuthorInformationWidget::isValid()
+bool MaintainerInformationWidget::isValid()
 {
-  const auto author_name = name_->text();
-  if (author_name.isEmpty()) {
-    qt::qWarnBox(this, "Please specify author name.");
+  const auto maintainer_name = name_->text();
+  if (maintainer_name.isEmpty()) {
+    qt::qWarnBox(this, "Please enter the maintainer's name.");
     return false;
   }
 
-  const auto author_email = email_->text();
-  if (author_email.isEmpty()) {
-    qt::qWarnBox(this, "Please specify author email address.");
+  const auto maintainer_email = email_->text();
+  if (maintainer_email.isEmpty()) {
+    qt::qWarnBox(this, "Please enter the maintainer's email address.");
     return false;
   }
-  if (!str::isValidEmail(author_email.toStdString())) {
+  if (!str::isValidEmail(maintainer_email.toStdString())) {
     qt::qWarnBox(this, "Invalid email address.");
     return false;
   }
@@ -119,7 +123,7 @@ bool AuthorInformationWidget::isValid()
   return true;
 }
 
-YAML::Node AuthorInformationWidget::dump() const
+YAML::Node MaintainerInformationWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -129,18 +133,18 @@ YAML::Node AuthorInformationWidget::dump() const
   return node;
 }
 
-void AuthorInformationWidget::load(const YAML::Node& _node)
+void MaintainerInformationWidget::load(const YAML::Node& _node)
 {
   name_->setText(_node[kNameLabel].as<QString>());
   email_->setText(_node[kEmailLabel].as<QString>());
 }
 
-QString AuthorInformationWidget::authorName() const
+QString MaintainerInformationWidget::maintainerName() const
 {
   return name_->text();
 }
 
-QString AuthorInformationWidget::authorEmail() const
+QString MaintainerInformationWidget::maintainerEmail() const
 {
   return email_->text();
 }

@@ -132,8 +132,8 @@ inja::json ProjectGenerator::createTemplateData() const
   tpl_data["hardware_pkg"] = settings_->hardware->hardwarePackage();
 
   // Author Info
-  tpl_data["author_name"] = settings_->author_info->authorName().toStdString();
-  tpl_data["author_email"] = settings_->author_info->authorEmail().toStdString();
+  tpl_data["author_name"] = settings_->maintainer_info->maintainerName().toStdString();
+  tpl_data["author_email"] = settings_->maintainer_info->maintainerEmail().toStdString();
 
   // Ros Package
   tpl_data["meta_pkg_name"] = proj_paths_.metaPkgName().toStdString();

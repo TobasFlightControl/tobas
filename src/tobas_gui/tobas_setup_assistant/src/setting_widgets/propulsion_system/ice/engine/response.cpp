@@ -10,8 +10,8 @@ namespace tobas::gui::sa::propulsion::ice
 {
 namespace
 {
-constexpr char kTimeConstUpLabel[] = "Time Constant Up";
-constexpr char kTimeConstDownLabel[] = "Time Constant Down";
+constexpr char kTimeConstUpLabel[] = "Speed Increase Time Constant";
+constexpr char kTimeConstDownLabel[] = "Speed Decrease Time Constant";
 }  // namespace
 
 EngineResponseWidget::EngineResponseWidget()
@@ -19,14 +19,22 @@ EngineResponseWidget::EngineResponseWidget()
   const auto form = new qt::FormLayout(this);
 
   time_const_up_ = new qt::SpinBox();
+  time_const_up_->setToolTip(
+    "First-order time constant in milliseconds for increasing engine speed in simulation. "
+    "A larger value produces a slower response.");
   time_const_up_->setMinimum(0);
   time_const_up_->setSuffix(" ms");
   form->addRow(kTimeConstUpLabel, time_const_up_);
+  form->labelForField(time_const_up_)->setToolTip(time_const_up_->toolTip());
 
   time_const_down_ = new qt::SpinBox();
+  time_const_down_->setToolTip(
+    "First-order time constant in milliseconds for decreasing engine speed in simulation. "
+    "A larger value produces a slower response.");
   time_const_down_->setMinimum(0);
   time_const_down_->setSuffix(" ms");
   form->addRow(kTimeConstDownLabel, time_const_down_);
+  form->labelForField(time_const_down_)->setToolTip(time_const_down_->toolTip());
 }
 
 void EngineResponseWidget::setToDefaults()

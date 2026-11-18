@@ -8,7 +8,7 @@ namespace tobas::gui::sa
 FrameTreeWidget::FrameTreeWidget(const kdl::Tree& _tree, RvizWidget* _rviz) : tree_(_tree), rviz_(_rviz)
 {
   setColumnCount(1);
-  setHeaderLabels({ "Frames Tree" });
+  setHeaderLabels({ "Frame Tree" });
 
   setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);

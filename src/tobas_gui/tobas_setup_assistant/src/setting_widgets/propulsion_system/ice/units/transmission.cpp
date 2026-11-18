@@ -23,10 +23,15 @@ TransmissionWidget::TransmissionWidget()
   setLayout(form);  // Do not pass `this` to the layout constructor.
 
   gear_ratio_ = new RatioWidget();
+  gear_ratio_->setToolTip(
+    "Engine rotational speed : propeller rotational speed. "
+    "For a 2:1 reduction, enter 2 on the engine side and 1 on the propeller side. "
+    "The engine value must be at least the propeller value.");
   gear_ratio_->setMinimum(1);
   gear_ratio_->setLeftText("Engine");
   gear_ratio_->setRightText("Propeller");
   form->addRow(kGearRatioLabel, gear_ratio_);
+  form->labelForField(gear_ratio_)->setToolTip(gear_ratio_->toolTip());
 }
 
 const char* TransmissionWidget::name() const

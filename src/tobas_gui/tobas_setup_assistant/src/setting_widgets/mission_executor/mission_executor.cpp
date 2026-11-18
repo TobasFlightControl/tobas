@@ -91,7 +91,7 @@ void MissionExecutorWidget::setFrameType(FrameType _type)
     stack_->setCurrentWidget(multicopter_);
   }
   else {
-    qt::qWarnBox(this, "The Mission Planner does not support this frame type.");
+    qt::qWarnBox(this, "The Mission Executor does not support this frame type.");
     stack_->setCurrentWidget(none_);
   }
 }

@@ -59,8 +59,9 @@ const char* ExtraJointsWidget::title() const
 
 const char* ExtraJointsWidget::description() const
 {
-  return "Configure any joints that are not directly involved in flight control. "
-         "Complete every field in the table below with the appropriate values.";
+  return "Configure the command interface and home position for movable joints that are not used for flight control. "
+         "Joint and link names are taken from the robot model. "
+         "Select None for joints that do not need a command interface.";
 }
 
 void ExtraJointsWidget::updateInternalDataStructures()

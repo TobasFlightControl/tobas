@@ -42,18 +42,18 @@ const char* FixedWingWidget::name() const
 
 const char* FixedWingWidget::title() const
 {
-  return "Define Fixed Wing";
+  return "Configure Fixed-Wing Parameters";
 }
 
 const char* FixedWingWidget::description() const
 {
-  return "Build the mathematical model for the fixed wing and its control surfaces. "
-         "In addition to the general airframe specifications, "
-         "supply the stability derivatives for the main wing and each control surface. "
+  return "Configure the fixed-wing geometry, aerodynamic coefficients, and control-surface derivatives. "
+         "Use the same reference wing area, span, and mean aerodynamic chord as the aerodynamic data. "
+         "Moment coefficients are referenced to the aerodynamic center specified in Vehicle Parameters. "
          "<a href="
          "'https://vspu.larc.nasa.gov/training-content/chapter-3-model-analysis-in-openvsp/vspaero-basics'"
          ">VSPAERO</a> "
-         "analysis results can be imported for the main wing if available.";
+         "stability output files (.stab) can be imported in the Aerodynamic Coefficients tab.";
 }
 
 void FixedWingWidget::updateInternalDataStructures()

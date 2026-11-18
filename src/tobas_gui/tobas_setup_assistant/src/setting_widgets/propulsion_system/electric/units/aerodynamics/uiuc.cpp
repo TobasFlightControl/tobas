@@ -16,13 +16,16 @@ namespace tobas::gui::sa::propulsion::electric
 {
 namespace
 {
-constexpr char kDataLabel[] = "Measurements in static condition";
+constexpr char kDataLabel[] = "Static Test Data";
 }  // namespace
 
 AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(const PropellerWidget* _propeller) : propeller_(_propeller)
 {
   data_ =
     new ParamGetterWidget_DoubleTable(kDataLabel, "Select UIUC Data", { kRpmColName, kUiucCtColName, kUiucCpColName });
+  data_->setToolTip(
+    "Static propeller measurements: rotational speed in rpm, thrust coefficient CT, and power coefficient CP. "
+    "Use data for the selected propeller geometry.");
   data_->setDecimals({ 3, 6, 6 });
   data_->setMinimum({ 1e-3, 1e-6, 1e-6 });
 
@@ -44,13 +47,14 @@ const char* AerodynamicsWidget_UIUC::description() const
 {
   return "If the propeller is listed in the "
          "<a href='https://m-selig.ae.illinois.edu/props/propDB.html'>UIUC Propeller Data Site</a>, "
-         "aerodynamic constants measured by research institutions can be utilized.";
+         "use its static thrust and power coefficient data to estimate the aerodynamic constants. "
+         "The propeller diameter is taken from the Propeller tab.";
 }
 
 bool AerodynamicsWidget_UIUC::isValid()
 {
   if (data_->count() == 0) {
-    qt::qWarnBox(this, "Measurements in static condition is blank.");
+    qt::qWarnBox(this, "No static test data has been entered.");
     return false;
   }
 

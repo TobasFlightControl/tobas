@@ -20,7 +20,7 @@ namespace tobas::gui::sa::propulsion::ice
 {
 namespace
 {
-constexpr char kDataLabel[] = "Propeller Single Test Data";
+constexpr char kDataLabel[] = "Single-Propeller Test Data";
 }  // namespace
 
 AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : propeller_(_propeller)
@@ -29,6 +29,10 @@ AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : prop
 
   data_ = new ParamGetterWidget_DoubleTable(
     kDataLabel, "Select Test Data", { "RPM", "Pitch [deg]", "Thrust [N]", "Torque [Nm]" });
+  data_->setToolTip(
+    "Single-propeller test measurements: "
+    "rotational speed in rpm, variable-pitch angle in degrees, thrust in newtons, and torque in newton-meters. "
+    "Use the same pitch zero position as in the Propeller tab.");
   data_->setDecimals({ 0, 2, 6, 6 });
   data_->setMinimum({ 1, -90, 1e-6, 1e-6 });
   data_->setMaximum({ INFINITY, 90, INFINITY, INFINITY });
@@ -59,7 +63,7 @@ bool AerodynamicsWidget::isValid()
   if (const auto result = motorConst().validate(); !result) {
     qt::qWarnBox(
       this,
-      "Failed to estimate the motor constant of the variable pitch propeller:\n\n" +
+      "Failed to estimate thrust-model coefficients for the variable-pitch propeller:\n\n" +
         QString::fromStdString(result.error()));
     return false;
   }

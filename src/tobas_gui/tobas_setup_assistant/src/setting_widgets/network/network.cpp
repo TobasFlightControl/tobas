@@ -34,7 +34,7 @@ const char* NetworkWidget::name() const
 
 const char* NetworkWidget::title() const
 {
-  return "Set up FC Network";
+  return "Configure Network";
 }
 
 const char* NetworkWidget::description() const
