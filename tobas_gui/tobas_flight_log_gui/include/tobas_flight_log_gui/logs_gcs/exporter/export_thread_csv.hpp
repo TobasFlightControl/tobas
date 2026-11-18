@@ -74,6 +74,7 @@ private:
   MessageDecoder<tobas_kdl_msgs::msg::WrenchStamped> wrench_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_decoder_;
   MessageDecoder<tobas_debug_msgs::msg::MulticopterControllerFeedback> mr_ctrl_fb_decoder_;
+  MessageDecoder<tobas_msgs::msg::OdometryStamped> traj_setpoint_decoder_;
 
   bool openRosBag(const std::string& path);
 
