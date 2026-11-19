@@ -93,6 +93,10 @@ void ExportThreadCsv::run()
         const auto& msg = odom_cov_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kOdometry] = ser_data;
       }
+      else if (topic.ends_with(str::concat('/', topic::kTrajSetpoint).data())) {
+        const auto& msg = odom_decoder_.decode(ser_data);
+        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kTrajSetpoint] = ser_data;
+      }
       else if (topic.ends_with(str::concat('/', topic::kMagneticField).data())) {
         const auto& msg = mag_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kMagneticField] = ser_data;
@@ -158,10 +162,6 @@ void ExportThreadCsv::run()
       else if (topic.ends_with(str::concat('/', topic::kMRCtrlFeedback).data())) {
         const auto& msg = mr_ctrl_fb_decoder_.decode(ser_data);
         histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kMRCtrlFeedback] = ser_data;
-      }
-      else if (topic.ends_with(str::concat('/', topic::kTrajSetpoint).data())) {
-        const auto& msg = traj_setpoint_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kTrajSetpoint] = ser_data;
       }
     }
     catch (const std::exception& e) {
@@ -231,6 +231,12 @@ std::string ExportThreadCsv::makeCsvHeader() const
     "Twist/AngularVelocity/X[rad/s],Twist/AngularVelocity/Y[rad/s],Twist/AngularVelocity/Z[rad/s],"
     "Accel/LinearAccel/X[m/s^2],Accel/LinearAccel/Y[m/s^2],Accel/LinearAccel/Z[m/s^2],"
     "Accel/AngularAccel/X[rad/s^2],Accel/AngularAccel/Y[rad/s^2],Accel/AngularAccel/Z[rad/s^2],"
+    "TargetPose/X[m],TargetPose/Y[m],TargetPose/Z[m],"
+    "TargetPose/Roll[deg],TargetPose/Pitch[deg],TargetPose/Yaw[deg],"
+    "TargetTwist/LinearVelocity/X[m/s],TargetTwist/LinearVelocity/Y[m/s],TargetTwist/LinearVelocity/Z[m/s],"
+    "TargetTwist/AngularVelocity/X[rad/s],TargetTwist/AngularVelocity/Y[rad/s],TargetTwist/AngularVelocity/Z[rad/s],"
+    "TargetAccel/LinearAccel/X[m/s^2],TargetAccel/LinearAccel/Y[m/s^2],TargetAccel/LinearAccel/Z[m/s^2],"
+    "TargetAccel/AngularAccel/X[rad/s^2],TargetAccel/AngularAccel/Y[rad/s^2],TargetAccel/AngularAccel/Z[rad/s^2],"
     "IMU/Accel/X[m/s^2],IMU/Accel/Y[m/s^2],IMU/Accel/Z[m/s^2],"
     "IMU/Gyro/X[rad/s],IMU/Gyro/Y[rad/s],IMU/Gyro/Z[rad/s],"
     "IMU/DGyro/X[rad/s^2],IMU/DGyro/Y[rad/s^2],IMU/DGyro/Z[rad/s^2],"
@@ -269,13 +275,7 @@ std::string ExportThreadCsv::makeCsvHeader() const
                 "MultirotorController/IntegralError/Z[m*s],"
                 "MultirotorController/IntegralError/Roll[rad*s],"
                 "MultirotorController/IntegralError/Pitch[rad*s],"
-                "MultirotorController/IntegralError/Yaw[rad*s],"
-                "TarPose/X[m],TarPose/Y[m],TarPose/Z[m],"
-                "TarPose/Roll[deg],TarPose/Pitch[deg],TarPose/Yaw[deg],"
-                "TarTwist/LinearVelocity/X[m/s],TarTwist/LinearVelocity/Y[m/s],TarTwist/LinearVelocity/Z[m/s],"
-                "TarTwist/AngularVelocity/X[rad/s],TarTwist/AngularVelocity/Y[rad/s],TarTwist/AngularVelocity/Z[rad/s],"
-                "TarAccel/LinearAccel/X[m/s^2],TarAccel/LinearAccel/Y[m/s^2],TarAccel/LinearAccel/Z[m/s^2],"
-                "TarAccel/AngularAccel/X[rad/s^2],TarAccel/AngularAccel/Y[rad/s^2],TarAccel/AngularAccel/Z[rad/s^2]";
+                "MultirotorController/IntegralError/Yaw[rad*s]";
 
   return csv_header;
 }
@@ -287,7 +287,7 @@ std::string ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedDataMap&
   // Time
   res += std::to_string(_time * 1e-9) + ',';
 
-  // Pose, Twist, Accel
+  // Odometry
   const auto odom_it = _data.find(topic::kOdometry);
   if (odom_it != _data.end()) {
     const auto& msg = odom_cov_decoder_.decode(odom_it->second);
@@ -306,6 +306,32 @@ std::string ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedDataMap&
 
     const auto& lin_acc = msg.odom.odom.accel.linear;
     const auto& ang_acc = msg.odom.odom.accel.angular;
+    res += std::to_string(lin_acc.x) + ',' + std::to_string(lin_acc.y) + ',' + std::to_string(lin_acc.z) + ',' +
+           std::to_string(ang_acc.x) + ',' + std::to_string(ang_acc.y) + ',' + std::to_string(ang_acc.z) + ',';
+  }
+  else {
+    res += std::string(18, ',');
+  }
+
+  // Target Odometry
+  const auto traj_setpoint_it = _data.find(topic::kTrajSetpoint);
+  if (traj_setpoint_it != _data.end()) {
+    const auto& msg = odom_decoder_.decode(traj_setpoint_it->second);
+
+    const auto& pos = msg.odom.frame.trans;
+    const kdl::Rotation rot(msg.odom.frame.rot.data);
+    const auto [roll, pitch, yaw] = rot.getRPY();
+    res += std::to_string(pos.x) + ',' + std::to_string(pos.y) + ',' + std::to_string(pos.z) + ',' +
+           std::to_string(st::rad2deg(roll)) + ',' + std::to_string(st::rad2deg(pitch)) + ',' +
+           std::to_string(st::rad2deg(yaw)) + ',';
+
+    const auto& lin_vel = msg.odom.twist.linear;
+    const auto& ang_vel = msg.odom.twist.angular;
+    res += std::to_string(lin_vel.x) + ',' + std::to_string(lin_vel.y) + ',' + std::to_string(lin_vel.z) + ',' +
+           std::to_string(ang_vel.x) + ',' + std::to_string(ang_vel.y) + ',' + std::to_string(ang_vel.z) + ',';
+
+    const auto& lin_acc = msg.odom.accel.linear;
+    const auto& ang_acc = msg.odom.accel.angular;
     res += std::to_string(lin_acc.x) + ',' + std::to_string(lin_acc.y) + ',' + std::to_string(lin_acc.z) + ',' +
            std::to_string(ang_acc.x) + ',' + std::to_string(ang_acc.y) + ',' + std::to_string(ang_acc.z) + ',';
   }
@@ -504,36 +530,10 @@ std::string ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedDataMap&
     const auto& pos_ie = msg.position_integral_error;
     const auto& rot_ie = msg.angle_integral_error;
     res += std::to_string(pos_ie.x) + ',' + std::to_string(pos_ie.y) + ',' + std::to_string(pos_ie.z) + ',' +
-           std::to_string(rot_ie.x) + ',' + std::to_string(rot_ie.y) + ',' + std::to_string(rot_ie.z) + ',';
+           std::to_string(rot_ie.x) + ',' + std::to_string(rot_ie.y) + ',' + std::to_string(rot_ie.z);  // End
   }
   else {
-    res += std::string(6, ',');
-  }
-
-  // TarPose, TarTwist, TarAccel
-  const auto traj_setpoint_it = _data.find(topic::kTrajSetpoint);
-  if (traj_setpoint_it != _data.end()) {
-    const auto& msg = traj_setpoint_decoder_.decode(traj_setpoint_it->second);
-
-    const auto& pos = msg.odom.frame.trans;
-    const kdl::Rotation rot(msg.odom.frame.rot.data);
-    const auto [roll, pitch, yaw] = rot.getRPY();
-    res += std::to_string(pos.x) + ',' + std::to_string(pos.y) + ',' + std::to_string(pos.z) + ',' +
-           std::to_string(st::rad2deg(roll)) + ',' + std::to_string(st::rad2deg(pitch)) + ',' +
-           std::to_string(st::rad2deg(yaw)) + ',';
-
-    const auto& lin_vel = msg.odom.twist.linear;
-    const auto& ang_vel = msg.odom.twist.angular;
-    res += std::to_string(lin_vel.x) + ',' + std::to_string(lin_vel.y) + ',' + std::to_string(lin_vel.z) + ',' +
-           std::to_string(ang_vel.x) + ',' + std::to_string(ang_vel.y) + ',' + std::to_string(ang_vel.z) + ',';
-
-    const auto& lin_acc = msg.odom.accel.linear;
-    const auto& ang_acc = msg.odom.accel.angular;
-    res += std::to_string(lin_acc.x) + ',' + std::to_string(lin_acc.y) + ',' + std::to_string(lin_acc.z) + ',' +
-           std::to_string(ang_acc.x) + ',' + std::to_string(ang_acc.y) + ',' + std::to_string(ang_acc.z);  // End
-  }
-  else {
-    res += std::string(18 - 1, ',');
+    res += std::string(6 - 1, ',');
   }
 
   return res;
