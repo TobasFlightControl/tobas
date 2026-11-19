@@ -32,7 +32,9 @@ JointStatePublisherWidget::JointStatePublisherWidget(
   scroll_area->setWidget(content);
 
   zero_button_ = new QPushButton("Zero");
+  lower_button_ = new QPushButton("Lower");
   center_button_ = new QPushButton("Center");
+  upper_button_ = new QPushButton("Upper");
   random_button_ = new QPushButton("Random");
 
   setControlButtonsEnabled(false);
@@ -40,7 +42,9 @@ JointStatePublisherWidget::JointStatePublisherWidget(
   // Layout
   const auto button_cols = new QHBoxLayout();
   button_cols->addWidget(zero_button_);
+  button_cols->addWidget(lower_button_);
   button_cols->addWidget(center_button_);
+  button_cols->addWidget(upper_button_);
   button_cols->addWidget(random_button_);
 
   const auto root_rows = new QVBoxLayout(this);
@@ -50,7 +54,9 @@ JointStatePublisherWidget::JointStatePublisherWidget(
 
   // Connection
   connect(zero_button_, &QPushButton::clicked, this, &self::onZeroButtonClicked);
+  connect(lower_button_, &QPushButton::clicked, this, &self::onLowerButtonClicked);
   connect(center_button_, &QPushButton::clicked, this, &self::onCenterButtonClicked);
+  connect(upper_button_, &QPushButton::clicked, this, &self::onUpperButtonClicked);
   connect(random_button_, &QPushButton::clicked, this, &self::onRandomButtonClicked);
   connect(&publish_timer_, &QTimer::timeout, this, &self::publishCurrentPositions);
 
@@ -149,7 +155,9 @@ void JointStatePublisherWidget::publishCurrentPositions()
 void JointStatePublisherWidget::setControlButtonsEnabled(bool _enabled)
 {
   zero_button_->setEnabled(_enabled);
+  lower_button_->setEnabled(_enabled);
   center_button_->setEnabled(_enabled);
+  upper_button_->setEnabled(_enabled);
   random_button_->setEnabled(_enabled);
 }
 
@@ -171,11 +179,25 @@ void JointStatePublisherWidget::onZeroButtonClicked()
   }
 }
 
+void JointStatePublisherWidget::onLowerButtonClicked()
+{
+  for (auto& slider : sliders_) {
+    slider->setValue(slider->getMinimum());
+  }
+}
+
 void JointStatePublisherWidget::onCenterButtonClicked()
 {
   for (auto& slider : sliders_) {
     const auto value = (slider->getMinimum() + slider->getMaximum()) / 2;
     slider->setValue(value);
+  }
+}
+
+void JointStatePublisherWidget::onUpperButtonClicked()
+{
+  for (auto& slider : sliders_) {
+    slider->setValue(slider->getMaximum());
   }
 }
 

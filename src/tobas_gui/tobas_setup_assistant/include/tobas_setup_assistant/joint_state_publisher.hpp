@@ -56,7 +56,9 @@ private:
 
   QVBoxLayout* slider_rows_;
   QPushButton* zero_button_;
+  QPushButton* lower_button_;
   QPushButton* center_button_;
+  QPushButton* upper_button_;
   QPushButton* random_button_;
 
   sensor_msgs::msg::JointState js_;
@@ -76,7 +78,9 @@ private Q_SLOTS:
   void onValueChanged(int _value, const std::string& _jnt_name, double _position_per_step);
 
   void onZeroButtonClicked();
+  void onLowerButtonClicked();
   void onCenterButtonClicked();
+  void onUpperButtonClicked();
   void onRandomButtonClicked();
 };
 }  // namespace tobas::gui::sa
