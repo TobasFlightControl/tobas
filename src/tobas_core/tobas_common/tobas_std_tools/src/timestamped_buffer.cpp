@@ -30,7 +30,13 @@ double TimestampedBufferDouble::min() const
 
 double TimestampedBufferDouble::range() const
 {
-  return max() - min();
+  double minimum = INFINITY;
+  double maximum = -INFINITY;
+  for (const auto& [_, x] : map_) {
+    minimum = std::min(minimum, x);
+    maximum = std::max(maximum, x);
+  }
+  return maximum - minimum;
 }
 
 double TimestampedBufferDouble::mean() const

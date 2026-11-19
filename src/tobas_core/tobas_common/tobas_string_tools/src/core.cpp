@@ -4,9 +4,10 @@
 #include "tobas_string_tools/core.hpp"
 
 #include <algorithm>
-#include <map>
+#include <array>
 #include <regex>
 #include <sstream>
+#include <string_view>
 
 namespace tobas::str
 {
@@ -190,33 +191,23 @@ bool isValidFileName(const std::string& _file_name)
 
 bool isValidEmail(const std::string& _email)
 {
-  const std::regex pattern(R"(\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b)");
+  static const std::regex pattern(R"(\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b)");
   return std::regex_match(_email, pattern);
 }
 
 std::string convertToSuperscript(const std::string& _input)
 {
-  // Superscript mapping table.
-  const std::map<std::string, std::string> superscripts = {
-    { "^0", "⁰" }, { "^1", "¹" }, { "^2", "²" }, { "^3", "³" }, { "^4", "⁴" },
-    { "^5", "⁵" }, { "^6", "⁶" }, { "^7", "⁷" }, { "^8", "⁸" }, { "^9", "⁹" },
-  };
+  constexpr std::array<std::string_view, 10> kSuperscripts{ "⁰", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹" };
 
   std::string output;
-  size_t pos = 0;
-
-  while (pos < _input.size()) {
-    if (_input[pos] == '^' && pos + 1 < _input.size() && std::isdigit(_input[pos + 1])) {
-      const auto key = _input.substr(pos, 2);  // Get "^N".
-      const auto it = superscripts.find(key);
-      if (it != superscripts.end()) {
-        output += it->second;  // Convert to superscript.
-        pos += 2;
-        continue;
-      }
+  output.reserve(_input.size());
+  for (size_t pos = 0; pos < _input.size(); ++pos) {
+    if (_input[pos] == '^' && pos + 1 < _input.size() && _input[pos + 1] >= '0' && _input[pos + 1] <= '9') {
+      output += kSuperscripts[_input[++pos] - '0'];
     }
-    output += _input[pos];
-    ++pos;
+    else {
+      output += _input[pos];
+    }
   }
 
   return output;

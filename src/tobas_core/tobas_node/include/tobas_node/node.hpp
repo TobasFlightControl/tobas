@@ -3,6 +3,10 @@
 
 #pragma once
 
+#include <string_view>
+#include <unordered_map>
+#include <unordered_set>
+
 #include <rclcpp/node.hpp>
 #include <rclcpp_action/create_server.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
@@ -224,8 +228,48 @@ public:
   static rclcpp::NodeOptions nodeOptions_DParam(rclcpp::NodeOptions _options);
 
 private:
-  std::unordered_set<std::string> log_once_;
-  std::unordered_map<std::string, rclcpp::Time> log_throttle_;
+  struct LogLocationView
+  {
+    std::string_view file;
+    int line;
+
+    bool operator==(const LogLocationView&) const = default;
+  };
+
+  struct LogLocation
+  {
+    std::string file;
+    int line;
+
+    operator LogLocationView() const
+    {
+      return { file, line };
+    }
+  };
+
+  struct LogLocationHash
+  {
+    using is_transparent = void;
+
+    size_t operator()(LogLocationView _location) const
+    {
+      return std::hash<std::string_view>{}(_location.file) ^ (std::hash<int>{}(_location.line) << 1);
+    }
+  };
+
+  struct LogLocationEqual
+  {
+    using is_transparent = void;
+
+    bool operator()(LogLocationView _lhs, LogLocationView _rhs) const
+    {
+      return _lhs == _rhs;
+    }
+  };
+
+  // Own file names on insertion; suppressed calls only look up a view, without allocating or formatting strings.
+  std::unordered_set<LogLocation, LogLocationHash, LogLocationEqual> log_once_;
+  std::unordered_map<LogLocation, rclcpp::Time, LogLocationHash, LogLocationEqual> log_throttle_;
 
   ros2::PublisherPtr<tobas_msgs::msg::Message> message_pub_;
 
@@ -250,8 +294,6 @@ private:
     const tobas_dparam_msgs::srv::GetParams::Response::SharedPtr& _res);
 
   static void setClockType(rclcpp::NodeOptions& _options);
-
-  static inline std::string createID(const char* _file, int _line);
 };
 
 inline std::string BaseNode::ns() const
@@ -533,23 +575,23 @@ void BaseNode::log(uint8_t _level, const Args&... _args) const
 template <typename... Args>
 void BaseNode::logOnce(const char* _file, int _line, uint8_t _level, const Args&... _args)
 {
-  const auto id = createID(_file, _line);
-  if (log_once_.contains(id)) {
+  const LogLocationView location{ _file, _line };
+  if (log_once_.contains(location)) {
     return;
   }
   log(_level, _args...);
-  log_once_.insert(id);
+  log_once_.insert({ std::string(_file), _line });
 }
 
 template <typename... Args>
 void BaseNode::logThrottle(const char* _file, int _line, uint8_t _level, double _period, const Args&... _args)
 {
-  const auto id = createID(_file, _line);
+  const LogLocationView location{ _file, _line };
   const auto cur_time = now();
-  auto it = log_throttle_.find(id);
+  auto it = log_throttle_.find(location);
   if (it == log_throttle_.end()) {
     log(_level, _args...);
-    log_throttle_[id] = cur_time;
+    log_throttle_.emplace(LogLocation{ std::string(_file), _line }, cur_time);
   }
   else {
     const auto diff = (cur_time - it->second).seconds();
@@ -695,10 +737,5 @@ T BaseNode::declareDynamicParam(const std::string& _name, const T& _default_valu
   }
 
   return declare_parameter(_name, _default_value);
-}
-
-inline std::string BaseNode::createID(const char* _file, int _line)
-{
-  return std::string(_file) + ":" + std::to_string(_line);
 }
 }  // namespace tobas

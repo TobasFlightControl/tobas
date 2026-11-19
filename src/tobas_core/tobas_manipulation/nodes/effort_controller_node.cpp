@@ -188,17 +188,19 @@ bool EffortControllerNode::taskSpaceControl(
     return false;
   }
 
+  // Look up the shared transform to the tree root once for all target link states.
+  const auto T_Base_Parent = tf_listener_.lookupTransform(tree_.getRootName(), _tar_ls.header.frame_id);
+  if (!T_Base_Parent) {
+    TOBAS_ERROR(T_Base_Parent.error());
+    return false;
+  }
+
   // Update task-space target values.
   kdl::FrameMap tar_p;
   kdl::TwistMap tar_v;
   kdl::AccelMap a_ff;
   kdl::WrenchMap f_ext;
   for (const auto& ls : _tar_ls.states) {
-    const auto T_Base_Parent = tf_listener_.lookupTransform(tree_.getRootName(), _tar_ls.header.frame_id);
-    if (!T_Base_Parent) {
-      TOBAS_ERROR(T_Base_Parent.error());
-      continue;
-    }
     tar_p[ls.name] = *T_Base_Parent * ls.frame;
     tar_v[ls.name] = T_Base_Parent->M * ls.twist;
     a_ff[ls.name] = T_Base_Parent->M * ls.accel;

@@ -8,6 +8,7 @@
 
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
+#include <eigen3/Eigen/LU>
 
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/linalg.hpp>
@@ -514,8 +515,10 @@ double ErrorStateKalmanFilter::correct(
 
   // (274) Compute kalman gain
   const Eigen::Matrix<double, kDeltaStateSize, M> PHt = P_ * _h.transpose();
-  const Eigen::Matrix<double, M, M> Sigma_inv = (_h * PHt + _meas_cov).inverse();
-  const Eigen::Matrix<double, kDeltaStateSize, M> K = PHt * Sigma_inv;
+  const Eigen::Matrix<double, M, M> Sigma = _h * PHt + _meas_cov;
+  const Eigen::PartialPivLU<Eigen::Matrix<double, M, M>> lu(Sigma);  // Reuse the matrix factorization.
+  const Eigen::Matrix<double, M, kDeltaStateSize> Kt = lu.transpose().solve(PHt.transpose());  // = Σ^-1 @ H @ P
+  const Eigen::Matrix<double, kDeltaStateSize, M> K = Kt.transpose();
 
   // (275) Compute error state
   const DeltaStateVector delta_x = K * _delta_meas;
@@ -557,7 +560,7 @@ double ErrorStateKalmanFilter::correct(
   applyConstraints();
 
   // Compute anomaly score.
-  const double anomaly_score = (_delta_meas.transpose() * Sigma_inv * _delta_meas)(0) / M;
+  const double anomaly_score = _delta_meas.dot(lu.solve(_delta_meas)) / M;  // = (δ^T @ Σ^-1 @ δ) / M
   return anomaly_score;
 }
 }  // namespace tobas::eskf
