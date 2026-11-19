@@ -3,13 +3,17 @@
 
 #pragma once
 
+#include <array>
 #include <filesystem>
+
+#include <QFrame>
+#include <QGridLayout>
 
 #include <rosbag2_cpp/reader.hpp>
 
 #include "./data.hpp"
 #include "./playback_control.hpp"
-#include "./plot_tab.hpp"
+#include "./plot_panel.hpp"
 
 namespace tobas::gui::log
 {
@@ -32,7 +36,9 @@ private:
   std::vector<std::shared_ptr<DataI>> data_;
   rosbag2_cpp::Reader reader_;
 
-  std::array<PlotTabWidget*, 6> plot_tabs_;
+  std::array<PlotPanelWidget*, 6> plot_panels_;
+  std::array<QFrame*, 3> plot_separators_;
+  QGridLayout* plot_grid_;
   PlaybackControlWidget* playback_ctrl_;
 
   template <typename MsgType>
@@ -41,6 +47,8 @@ private:
   bool open(const std::string& _rosbag_path);
 
   void setPlotData(double _time_from_start);
+
+  void setExpandedPanel(PlotPanelWidget* _expanded_panel);
 
 private Q_SLOTS:
   void onPlaybackTimeChanged(double _time_from_start);

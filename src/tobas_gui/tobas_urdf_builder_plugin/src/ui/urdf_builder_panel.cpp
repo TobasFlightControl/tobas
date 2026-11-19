@@ -3,11 +3,13 @@
 
 #include "tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
 
+#include <algorithm>
 #include <cassert>
 
 #include <QDebug>
 #include <QMenu>
 #include <QMessageBox>
+#include <QScrollBar>
 #include <pluginlib/class_list_macros.hpp>
 
 #include "ui_urdf_builder_panel.h"
@@ -37,6 +39,9 @@ UrdfBuilderPanel::UrdfBuilderPanel(QWidget* _parent)
   link_dialog_ = new UpdateLinkDialog(this);
   link_dialog_->hide();
   ui_->scrollAreaWidgetContents->layout()->addWidget(link_dialog_);
+
+  // Recalculate the required width when the link editor's layout changes.
+  ui_->scrollAreaWidgetContents->installEventFilter(this);
 
   defineConnections();
 }
@@ -72,6 +77,21 @@ QStringList UrdfBuilderPanel::linkNames() const
 QStringList UrdfBuilderPanel::jointNames() const
 {
   return vm_.jointNames();
+}
+
+bool UrdfBuilderPanel::eventFilter(QObject* _watched, QEvent* _event)
+{
+  if (_watched == ui_->scrollAreaWidgetContents && _event->type() == QEvent::LayoutRequest) {
+    // Keep every field visible horizontally, including when a vertical scrollbar takes up space.
+    // Reserve the editor's width even before a root link is created and the editor becomes visible.
+    const auto margins = ui_->scrollAreaWidgetContents->layout()->contentsMargins();
+    const auto editor_width = link_dialog_->minimumSizeHint().width() + margins.left() + margins.right();
+    const auto content_width = std::max(ui_->scrollAreaWidgetContents->minimumSizeHint().width(), editor_width);
+    const auto scrollbar_width = ui_->ScrollArea->verticalScrollBar()->sizeHint().width();
+    ui_->ScrollArea->setMinimumWidth(content_width + 2 * ui_->ScrollArea->frameWidth() + scrollbar_width);
+  }
+
+  return Panel::eventFilter(_watched, _event);
 }
 
 void UrdfBuilderPanel::onRobotNameTextChanged(const QString& _name)
@@ -516,7 +536,7 @@ bool UrdfBuilderPanel::isRobotNameValid()
   const auto name = ui_->RobotName->text();
 
   if (name.isEmpty()) {
-    QMessageBox::warning(this, kError, "Please set robot name.");
+    QMessageBox::warning(this, kError, "Please enter a robot name.");
     return false;
   }
 

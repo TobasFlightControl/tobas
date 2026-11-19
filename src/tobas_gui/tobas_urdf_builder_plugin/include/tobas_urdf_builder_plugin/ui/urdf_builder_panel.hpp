@@ -5,6 +5,7 @@
 
 #include <optional>
 
+#include <QEvent>
 #include <QSettings>
 #include <QTimer>
 #include <QTreeWidgetItem>
@@ -39,6 +40,9 @@ public:
 
   QStringList linkNames() const;
   QStringList jointNames() const;
+
+protected:
+  bool eventFilter(QObject* _watched, QEvent* _event) override;
 
 private Q_SLOTS:
   void onRobotNameTextChanged(const QString& _name);

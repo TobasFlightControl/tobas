@@ -3,46 +3,65 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/propeller.hpp"
 
-#include <QVBoxLayout>
-
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
 namespace tobas::gui::sa::propulsion::electric
 {
+namespace
+{
+constexpr char kNumBladesLabel[] = "Number of Blades";
+constexpr char kDiameterLabel[] = "Propeller Diameter";
+constexpr char kPitchLabel[] = "Propeller Pitch";
+constexpr char kMinChordLabel[] = "Minimum Blade Chord Length";
+constexpr char kMaxChordLabel[] = "Maximum Blade Chord Length";
+}  // namespace
+
 PropellerWidget::PropellerWidget()
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto form = new qt::FormLayout();
+  setLayout(form);  // Do not pass `this` to the layout constructor.
 
-  num_blades_ = new ParamGetterWidget_SpinBox("Number of Blades", "");
+  num_blades_ = new qt::SpinBox();
+  num_blades_->setToolTip("Number of blades on one propeller.");
   num_blades_->setMinimum(2);
   num_blades_->setMaximum(5);
-  rows->addWidget(num_blades_);
+  form->addRow(kNumBladesLabel, num_blades_);
+  form->labelForField(num_blades_)->setToolTip(num_blades_->toolTip());
 
-  diameter_ = new ParamGetterWidget_SpinBox("Propeller Diameter", "");
+  diameter_ = new qt::SpinBox();
+  diameter_->setToolTip("Diameter of the circle swept by the propeller tips, in inches.");
   diameter_->setMinimum(1);
   diameter_->setSuffix(" inch");
-  rows->addWidget(diameter_);
+  form->addRow(kDiameterLabel, diameter_);
+  form->labelForField(diameter_)->setToolTip(diameter_->toolTip());
 
-  pitch_ = new ParamGetterWidget_DoubleSpinBox("Propeller Pitch", "");
+  pitch_ = new qt::DoubleSpinBox();
+  pitch_->setToolTip("Geometric pitch in inches: the theoretical advance in one revolution without slip.");
   pitch_->setDecimals(1);
   pitch_->setMinimum(0.1);
   pitch_->setSuffix(" inch");
-  rows->addWidget(pitch_);
+  form->addRow(kPitchLabel, pitch_);
+  form->labelForField(pitch_)->setToolTip(pitch_->toolTip());
 
-  min_chord_ = new ParamGetterWidget_SpinBox("Minimum Blade Chord Length", "Typically at the propeller tip.");
+  min_chord_ = new qt::SpinBox();
+  min_chord_->setToolTip(
+    "Minimum blade chord length in millimeters. "
+    "The mean of the minimum and maximum chord lengths is used by the blade model.");
   min_chord_->setMinimum(1);
   min_chord_->setSuffix(" mm");
-  rows->addWidget(min_chord_);
+  form->addRow(kMinChordLabel, min_chord_);
+  form->labelForField(min_chord_)->setToolTip(min_chord_->toolTip());
 
-  max_chord_ = new ParamGetterWidget_SpinBox("Maximum Blade Chord Length", "");
+  max_chord_ = new qt::SpinBox();
+  max_chord_->setToolTip("Maximum blade chord length in millimeters. Must be at least the minimum chord length.");
   max_chord_->setMinimum(1);
   max_chord_->setSuffix(" mm");
-  rows->addWidget(max_chord_);
-
-  rows->addStretch();
+  form->addRow(kMaxChordLabel, max_chord_);
+  form->labelForField(max_chord_)->setToolTip(max_chord_->toolTip());
 }
 
 const char* PropellerWidget::name() const
@@ -61,7 +80,7 @@ void PropellerWidget::setToDefaults()
 
 bool PropellerWidget::isValid()
 {
-  if (min_chord_->getValue() > max_chord_->getValue()) {
+  if (min_chord_->value() > max_chord_->value()) {
     qt::qWarnBox(this, "Blade chord range is invalid.");
     return false;
   }
@@ -73,43 +92,43 @@ void PropellerWidget::copyFrom(const BaseSelectedLinkSettingWidget* _src)
 {
   const auto derived = qt::qConstPointerCast<PropellerWidget>(_src);
 
-  num_blades_->setValue(derived->num_blades_->getValue());
-  diameter_->setValue(derived->diameter_->getValue());
-  pitch_->setValue(derived->pitch_->getValue());
-  min_chord_->setValue(derived->min_chord_->getValue());
-  max_chord_->setValue(derived->max_chord_->getValue());
+  num_blades_->setValue(derived->num_blades_->value());
+  diameter_->setValue(derived->diameter_->value());
+  pitch_->setValue(derived->pitch_->value());
+  min_chord_->setValue(derived->min_chord_->value());
+  max_chord_->setValue(derived->max_chord_->value());
 }
 
 YAML::Node PropellerWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[num_blades_->name()] = num_blades_->getValue();
-  node[diameter_->name()] = diameter_->getValue();
-  node[pitch_->name()] = yaml::format(pitch_->getValue());
-  node[min_chord_->name()] = min_chord_->getValue();
-  node[max_chord_->name()] = max_chord_->getValue();
+  node[kNumBladesLabel] = num_blades_->value();
+  node[kDiameterLabel] = diameter_->value();
+  node[kPitchLabel] = yaml::format(pitch_->value());
+  node[kMinChordLabel] = min_chord_->value();
+  node[kMaxChordLabel] = max_chord_->value();
 
   return node;
 }
 
 void PropellerWidget::load(const YAML::Node& _node)
 {
-  num_blades_->setValue(_node[num_blades_->name()].as<int>());
-  diameter_->setValue(_node[diameter_->name()].as<int>());
-  pitch_->setValue(_node[pitch_->name()].as<double>());
-  min_chord_->setValue(_node[min_chord_->name()].as<int>());
-  max_chord_->setValue(_node[max_chord_->name()].as<int>());
+  num_blades_->setValue(_node[kNumBladesLabel].as<int>());
+  diameter_->setValue(_node[kDiameterLabel].as<int>());
+  pitch_->setValue(_node[kPitchLabel].as<double>());
+  min_chord_->setValue(_node[kMinChordLabel].as<int>());
+  max_chord_->setValue(_node[kMaxChordLabel].as<int>());
 }
 
 int PropellerWidget::numBlades() const
 {
-  return num_blades_->getValue();
+  return num_blades_->value();
 }
 
 double PropellerWidget::diameter() const
 {
-  return st::inch2meter(diameter_->getValue());
+  return st::inch2meter(diameter_->value());
 }
 
 double PropellerWidget::radius() const
@@ -119,7 +138,7 @@ double PropellerWidget::radius() const
 
 double PropellerWidget::pitchLength() const
 {
-  return st::inch2meter(pitch_->getValue());
+  return st::inch2meter(pitch_->value());
 }
 
 double PropellerWidget::pitchAngle() const
@@ -129,12 +148,12 @@ double PropellerWidget::pitchAngle() const
 
 double PropellerWidget::minChord() const
 {
-  return min_chord_->getValue() * 1e-3;
+  return min_chord_->value() * 1e-3;
 }
 
 double PropellerWidget::maxChord() const
 {
-  return max_chord_->getValue() * 1e-3;
+  return max_chord_->value() * 1e-3;
 }
 
 double PropellerWidget::meanChord() const

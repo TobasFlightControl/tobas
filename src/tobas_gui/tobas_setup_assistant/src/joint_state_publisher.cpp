@@ -9,6 +9,7 @@
 
 #include <QDebug>
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 
 #include <tobas_math/definitions.hpp>
 #include <tobas_qt_tools/util.hpp>
@@ -25,36 +26,41 @@ JointStatePublisherWidget::JointStatePublisherWidget(
   : node_(_node), uadf_(_uadf), tree_(_tree), rnd_gen_(rnd_dev_())
 {
   const auto content = new QWidget();
-  slider_rows_ = new QVBoxLayout(content);
+  slider_grid_ = new QGridLayout(content);
+  slider_grid_->setAlignment(Qt::AlignTop);
+  slider_grid_->setColumnStretch(0, 1);
+  slider_grid_->setColumnStretch(1, 1);
 
   const auto scroll_area = new qt::ScrollArea();
   scroll_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   scroll_area->setWidget(content);
 
   zero_button_ = new QPushButton("Zero");
+  lower_button_ = new QPushButton("Lower");
   center_button_ = new QPushButton("Center");
+  upper_button_ = new QPushButton("Upper");
   random_button_ = new QPushButton("Random");
-
-  constexpr int kButtonHeight = 40;
-  zero_button_->setFixedHeight(kButtonHeight);
-  center_button_->setFixedHeight(kButtonHeight);
-  random_button_->setFixedHeight(kButtonHeight);
 
   setControlButtonsEnabled(false);
 
   // Layout
   const auto button_cols = new QHBoxLayout();
   button_cols->addWidget(zero_button_);
+  button_cols->addWidget(lower_button_);
   button_cols->addWidget(center_button_);
+  button_cols->addWidget(upper_button_);
   button_cols->addWidget(random_button_);
 
-  const auto rows = new QVBoxLayout(this);
-  rows->addWidget(scroll_area);
-  rows->addLayout(button_cols);
+  const auto root_rows = new QVBoxLayout(this);
+  root_rows->setContentsMargins(0, 0, 0, 0);
+  root_rows->addWidget(scroll_area);
+  root_rows->addLayout(button_cols);
 
   // Connection
   connect(zero_button_, &QPushButton::clicked, this, &self::onZeroButtonClicked);
+  connect(lower_button_, &QPushButton::clicked, this, &self::onLowerButtonClicked);
   connect(center_button_, &QPushButton::clicked, this, &self::onCenterButtonClicked);
+  connect(upper_button_, &QPushButton::clicked, this, &self::onUpperButtonClicked);
   connect(random_button_, &QPushButton::clicked, this, &self::onRandomButtonClicked);
   connect(&publish_timer_, &QTimer::timeout, this, &self::publishCurrentPositions);
 
@@ -70,7 +76,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
   js_.position.clear();
   sliders_.clear();
   thrust_joints_.clear();
-  qt::clearLayout(slider_rows_);
+  qt::clearLayout(slider_grid_);
 
   for (const auto& [_, elem] : tree_.getSegments()) {
     const auto& joint = elem.segment.joint();
@@ -111,14 +117,13 @@ void JointStatePublisherWidget::updateInternalDataStructures()
         this,
         std::bind(&self::onValueChanged, this, std::placeholders::_1, joint.name, position_per_step));
 
+      const auto index = static_cast<int>(sliders_.size());
+      slider_grid_->addWidget(slider, index / 2, index % 2);
       sliders_.push_back(slider);
-      slider_rows_->addWidget(slider);
 
       qDebug() << QString::fromStdString(joint.name) << "was added to the JSP slider.";
     }
   }
-
-  slider_rows_->addStretch();
 
   // Enable the control buttons only when controllable joints exist.
   setControlButtonsEnabled(!sliders_.empty());
@@ -153,7 +158,9 @@ void JointStatePublisherWidget::publishCurrentPositions()
 void JointStatePublisherWidget::setControlButtonsEnabled(bool _enabled)
 {
   zero_button_->setEnabled(_enabled);
+  lower_button_->setEnabled(_enabled);
   center_button_->setEnabled(_enabled);
+  upper_button_->setEnabled(_enabled);
   random_button_->setEnabled(_enabled);
 }
 
@@ -175,11 +182,25 @@ void JointStatePublisherWidget::onZeroButtonClicked()
   }
 }
 
+void JointStatePublisherWidget::onLowerButtonClicked()
+{
+  for (auto& slider : sliders_) {
+    slider->setValue(slider->getMinimum());
+  }
+}
+
 void JointStatePublisherWidget::onCenterButtonClicked()
 {
   for (auto& slider : sliders_) {
     const auto value = (slider->getMinimum() + slider->getMaximum()) / 2;
     slider->setValue(value);
+  }
+}
+
+void JointStatePublisherWidget::onUpperButtonClicked()
+{
+  for (auto& slider : sliders_) {
+    slider->setValue(slider->getMaximum());
   }
 }
 

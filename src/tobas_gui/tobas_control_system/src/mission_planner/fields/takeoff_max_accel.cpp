@@ -9,6 +9,8 @@ namespace tobas::gui::ctrl::field
 {
 TakeoffMaxAccelWidget::TakeoffMaxAccelWidget()
 {
+  setToolTip("Maximum vertical acceleration during takeoff in meters per second squared.");
+
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);

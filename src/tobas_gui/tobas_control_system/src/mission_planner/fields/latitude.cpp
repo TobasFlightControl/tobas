@@ -9,6 +9,8 @@ namespace tobas::gui::ctrl::field
 {
 LatitudeWidget::LatitudeWidget()
 {
+  setToolTip("Target geodetic latitude in degrees. Positive values are north of the equator.");
+
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(9);
   spin_box_->setMinimum(-90.0);

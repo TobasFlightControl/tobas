@@ -30,6 +30,8 @@ private:
 
   BaseConfigWidget* getWidget(int _index);
 
+  QWidget* createTabPage(BaseConfigWidget* _content);
+
   void setTabsEnabled(bool _enabled);
 
 private Q_SLOTS:

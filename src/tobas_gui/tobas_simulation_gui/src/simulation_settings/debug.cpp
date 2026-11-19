@@ -13,10 +13,11 @@ namespace tobas::gui::sim
 DebugWidget::DebugWidget()
 {
   user_debug_ = new QCheckBox("User Debug");
+  user_debug_->setToolTip("Enable the robot description's DEBUG option when generating the simulation model.");
 
   // Layout
   const auto rows = new QVBoxLayout(this);
-  rows->addWidget(new qt::Label("Debug", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new qt::Label("Debug", cmn::kSubTitlePointSize, QFont::Bold));
   rows->addWidget(user_debug_);
 }
 

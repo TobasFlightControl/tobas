@@ -25,13 +25,12 @@ constexpr int kPeriodUbCol = kPeriodLbCol + 1;
 constexpr int kNumCols = kPeriodUbCol + 1;
 
 constexpr char kTargetNameLabel[] = "Target";
-constexpr char kPeriodLbLabel[] = "PWM Period (LB)";
-constexpr char kPeriodUbLabel[] = "PWM Period (UB)";
+constexpr char kPeriodLbLabel[] = "Pulse Width (LB)";
+constexpr char kPeriodUbLabel[] = "Pulse Width (UB)";
 }  // namespace
 
 PwmWidget::PwmWidget(const uadf::Model& _uadf, const Signals& _sig) : super(0, kNumCols), uadf_(_uadf)
 {
-  setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
   setHorizontalHeaderLabels({ kTargetNameLabel, kPeriodLbLabel, kPeriodUbLabel });
   setHeaderSectionsClickable(false);
 
@@ -138,7 +137,7 @@ PwmWidget::TargetType PwmWidget::targetType(int _channel) const
     return TargetType::kEngineThrottle;
   }
   else {
-    throw std::runtime_error("Invalid PWM target_name name: " + target_name);
+    throw std::runtime_error("Invalid PWM target: " + target_name);
   }
 }
 
@@ -233,7 +232,7 @@ void PwmWidget::addLastChannel()
       throw;
   }
 
-  // PWM period (LB)
+  // PWM pulse width (lower bound)
   const auto period_lb = new qt::DoubleSpinBox();
   period_lb->setDecimals(kPeriodDecimals);
   period_lb->setMinimum(0);
@@ -241,7 +240,7 @@ void PwmWidget::addLastChannel()
   period_lb->setValue(1000);
   period_lb->setSuffix(" us");
 
-  // PWM period (UB)
+  // PWM pulse width (upper bound)
   const auto period_ub = new qt::DoubleSpinBox();
   period_ub->setDecimals(kPeriodDecimals);
   period_ub->setMinimum(0);

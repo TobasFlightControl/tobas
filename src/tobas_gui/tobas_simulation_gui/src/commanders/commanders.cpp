@@ -14,8 +14,9 @@ namespace tobas::gui::sim
 CommandersWidget::CommandersWidget(const rqt::RosQtBridge& _bridge, const kdl::Tree& _tree, const Drone& _drone)
 {
   const auto rows = new QVBoxLayout(this);
+  rows->setContentsMargins(0, 0, 0, 0);
 
-  const auto title = new qt::Label("Commanders", cmn::kTitlePSize, QFont::Bold);
+  const auto title = new qt::Label("Commanders", cmn::kTitlePointSize, QFont::Bold);
   qt::addWidgetCenter(title, rows);
 
   const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
@@ -26,7 +27,7 @@ CommandersWidget::CommandersWidget(const rqt::RosQtBridge& _bridge, const kdl::T
   joint_commander_ = new JointCommanderWidget(_tree, _drone);
   scroll_rows->addWidget(joint_commander_);
 
-  scroll_rows->addStretch();
+  scroll_rows->addStretch(1);
 }
 
 void CommandersWidget::reset()

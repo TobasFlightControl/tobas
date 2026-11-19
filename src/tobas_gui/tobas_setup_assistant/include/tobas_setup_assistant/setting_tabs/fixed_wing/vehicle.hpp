@@ -4,19 +4,23 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
+#include <eigen3/Eigen/Core>
 
-#include "tobas_setup_assistant/param_getters/double_range.hpp"
-#include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
-#include "tobas_setup_assistant/param_getters/vector3d.hpp"
+#include <tobas_qt_tools/widgets/double_spin_box.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
+#include <tobas_qt_tools/widgets/vector3d_edit_horizontal.hpp>
+#include <tobas_std_tools/range.hpp>
+
+#include "tobas_setup_assistant/utils/double_range.hpp"
 
 namespace tobas::gui::sa::fw
 {
-class VehicleParametersWidget : public QWidget
+class VehicleWidget : public qt::ScrollArea
 {
   Q_OBJECT
 
 public:
-  explicit VehicleParametersWidget();
+  explicit VehicleWidget();
 
   void updateInternalDataStructures();
   void setToDefaults();
@@ -32,10 +36,10 @@ public:
   st::Range<double> alphaLimit() const;
 
 private:
-  ParamGetterWidget_DoubleSpinBox* wing_surface_;
-  ParamGetterWidget_DoubleSpinBox* wing_span_;
-  ParamGetterWidget_DoubleSpinBox* mac_;
-  ParamGetterWidget_Vector3d* aerodynamic_center_;
-  ParamGetterWidget_DoubleRange* alpha_limit_;
+  qt::DoubleSpinBox* wing_surface_;
+  qt::DoubleSpinBox* wing_span_;
+  qt::DoubleSpinBox* mac_;
+  qt::Vector3dEditHorizontal* aerodynamic_center_;
+  DoubleRangeWidget* alpha_limit_;
 };
 }  // namespace tobas::gui::sa::fw

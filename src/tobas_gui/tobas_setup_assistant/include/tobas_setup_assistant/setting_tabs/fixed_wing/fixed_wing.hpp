@@ -28,12 +28,12 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& _node) override;
 
-  const VehicleParametersWidget* vehicle() const;
+  const VehicleWidget* vehicle() const;
   const AerodynamicsCoefficientsWidget* aeroCoefs() const;
   const ControlSurfacesWidget* controlSurfaces() const;
 
 private:
-  VehicleParametersWidget* vehicle_;
+  VehicleWidget* vehicle_;
   AerodynamicsCoefficientsWidget* aero_coefs_;
   ControlSurfacesWidget* control_surfaces_;
 };

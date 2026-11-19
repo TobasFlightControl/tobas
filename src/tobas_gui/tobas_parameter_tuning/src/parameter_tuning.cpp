@@ -54,16 +54,15 @@ ParameterTuningWidget::ParameterTuningWidget()
   root_rows->addLayout(button_cols);
   button_cols->addWidget(load_button_);
   button_cols->addWidget(save_button_);
-  button_cols->addSpacing(50);
   button_cols->addWidget(reset_button_);
   button_cols->addWidget(default_button_);
-  button_cols->addStretch();
+  button_cols->addStretch(1);
 
   const auto param_rows = qt::createScrollableQVBoxLayout(root_rows);
   for (const auto& block : blocks_) {
     param_rows->addWidget(block);
   }
-  param_rows->addStretch();
+  param_rows->addStretch(1);
 
   // Connection
   connect(load_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
@@ -172,7 +171,7 @@ void ParameterTuningWidget::onSaveButtonClicked()
   qt::qInfoBox(
     this,
     "Dynamic parameters have been saved to the local project. "
-    "Please click 'Write' button again to flash them to the FC.");
+    "Click the 'Write' button in the GCS to deploy the updated project to the flight controller.");
 }
 
 void ParameterTuningWidget::onResetButtonClicked()

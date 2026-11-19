@@ -1,0 +1,302 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Tobas, Inc.
+
+#include "tobas_flight_log_gui/log_list/log_list_gcs/logs_widget.hpp"
+
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
+#include <tobas_constants/path.hpp>
+#include <tobas_gui_common/constants.hpp>
+#include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/thread.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
+#include <tobas_ros2_tools/util.hpp>
+#include <tobas_std_tools/check.hpp>
+
+#include "tobas_flight_log_gui/log_list/constants.hpp"
+#include "tobas_flight_log_gui/log_list/log_list_gcs/exporter/export_thread_csv.hpp"
+#include "tobas_flight_log_gui/log_list/log_list_gcs/exporter/export_thread_rosbag.hpp"
+#include "tobas_flight_log_gui/log_list/log_list_gcs/log_item.hpp"
+
+namespace fs = std::filesystem;
+
+namespace tobas::gui::log
+{
+FlightLogsWidgetGCS::FlightLogsWidgetGCS()
+{
+  read_button_ = new QPushButton("Refresh");
+  clean_button_ = new QPushButton("Delete All");
+
+  read_button_->setFixedWidth(kLogListButtonWidth);
+  clean_button_->setFixedWidth(kLogListButtonWidth);
+
+  read_button_->setEnabled(true);
+  clean_button_->setEnabled(false);
+
+  log_list_ = new qt::ListWidget();
+  log_list_->setSelectionMode(QListWidget::SingleSelection);
+
+  // Layout
+  const auto cols = new QHBoxLayout();
+  cols->addWidget(new qt::Label("Ground Station", cmn::kSubTitlePointSize, QFont::Bold));
+  cols->addStretch(1);
+  cols->addWidget(read_button_);
+  cols->addWidget(clean_button_);
+
+  const auto rows = new QVBoxLayout(this);
+  rows->setContentsMargins(0, 0, 0, 0);
+  rows->addLayout(cols);
+  rows->addWidget(log_list_);
+
+  // Connection
+  connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
+  connect(clean_button_, &QPushButton::clicked, this, &self::onCleanButtonClicked);
+}
+
+void FlightLogsWidgetGCS::addLog(const QString& _log_name)
+{
+  const auto list_item = new qt::ListWidgetItem();
+  list_item->setSizeHint(QSize(0, kLogItemHeight));
+  list_item->setData(Qt::UserRole, _log_name);
+  log_list_->addItem(list_item);
+
+  const auto widget = new FlightLogItemWidgetGCS(_log_name);
+  connect(widget, &FlightLogItemWidgetGCS::showButtonClicked, this, &self::onShowButtonClicked);
+  connect(widget, &FlightLogItemWidgetGCS::exportButtonClicked, this, &self::onExportButtonClicked);
+  connect(widget, &FlightLogItemWidgetGCS::deleteButtonClicked, this, &self::onDeleteButtonClicked);
+  log_list_->setItemWidget(list_item, widget);
+
+  sortLogs();
+}
+
+void FlightLogsWidgetGCS::removeLog(const QString& _log_name)
+{
+  const auto list_item = findLog(_log_name);
+  TOBAS_CHECK(list_item);
+  log_list_->remove(list_item);
+}
+
+QListWidgetItem* FlightLogsWidgetGCS::findLog(const QString& _log_name)
+{
+  for (int row = 0; row < log_list_->count(); ++row) {
+    const auto list_item = log_list_->item(row);
+    const auto log_widget = qt::qConstPointerCast<FlightLogItemWidgetGCS>(log_list_->itemWidget(list_item));
+
+    if (log_widget->logName() == _log_name) {
+      return list_item;
+    }
+  }
+
+  return nullptr;
+}
+
+void FlightLogsWidgetGCS::clearLogs()
+{
+  log_list_->clear();
+}
+
+QString FlightLogsWidgetGCS::currentLogName() const
+{
+  const auto cur_item = log_list_->currentItem();
+  if (!cur_item) {
+    qWarning() << "Log name not selected.";
+    return "";
+  }
+
+  return cur_item->data(Qt::UserRole).toString();
+}
+
+void FlightLogsWidgetGCS::setCurrentLogName(const QString& _log_name)
+{
+  for (int i = 0; i < log_list_->count(); ++i) {
+    const auto item = log_list_->item(i);
+    if (item->data(Qt::UserRole).toString() == _log_name) {
+      log_list_->setCurrentItem(item);
+      return;
+    }
+  }
+
+  qWarning() << _log_name << "not found.";
+}
+
+void FlightLogsWidgetGCS::sortLogs()
+{
+  log_list_->sortItems();
+}
+
+void FlightLogsWidgetGCS::onReadButtonClicked()
+{
+  qDebug() << "FlightLogsWidgetGCS::onReadButtonClicked";
+
+  // Get the currently selected item.
+  const auto cur_text = currentLogName();
+
+  clearLogs();
+
+  const auto rosbag_dir = ros2::expandUser(kRosbagDirHome);
+  if (!fs::is_directory(rosbag_dir)) {
+    TOBAS_CHECK(fs::create_directories(rosbag_dir));
+  }
+
+  try {
+    for (const auto& entry : fs::directory_iterator(rosbag_dir)) {
+      const QString log_name(entry.path().filename().c_str());
+      addLog(log_name);
+    }
+  }
+  catch (const std::exception& e) {
+    qt::qErrorBox(this, "Exception occurred while iterating " + QString::fromStdString(rosbag_dir) + ": " + e.what());
+    return;
+  }
+
+  if (log_list_->count() == 0) {
+    qt::qWarnBox(this, "There are no flight logs saved on the ground control station.");
+    return;
+  }
+
+  sortLogs();
+
+  // Select the previously selected item again.
+  if (!cur_text.isEmpty()) {
+    setCurrentLogName(cur_text);
+  }
+
+  clean_button_->setEnabled(true);
+}
+
+void FlightLogsWidgetGCS::onCleanButtonClicked()
+{
+  qDebug() << "FlightLogsWidgetGCS::onCleanButtonClicked";
+
+  if (!qt::yesOrNo(this, "Do you want to delete all flight logs saved on the ground control station?", qt::WARN)) {
+    return;
+  }
+
+  const auto rosbag_dir = ros2::expandUser(kRosbagDirHome);
+  if (!fs::is_directory(rosbag_dir)) {
+    TOBAS_CHECK(fs::create_directories(rosbag_dir));
+  }
+
+  try {
+    for (const auto& entry : fs::directory_iterator(rosbag_dir)) {
+      if (fs::remove_all(entry.path()) == 0) {
+        qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(entry.path()));
+        return;
+      }
+    }
+  }
+  catch (const std::exception& e) {
+    qt::qErrorBox(
+      this, "Exception occurred while iterating " + QString::fromStdString(rosbag_dir) + ": " + QString(e.what()));
+    return;
+  }
+
+  if (log_list_->currentItem()) {
+    log_list_->deselect();
+    Q_EMIT logDeselected();
+  }
+
+  clearLogs();
+}
+
+void FlightLogsWidgetGCS::onShowButtonClicked(const QString& _log_name)
+{
+  const auto list_item = findLog(_log_name);
+  TOBAS_CHECK(list_item);
+
+  if (log_list_->currentItem() != list_item) {
+    log_list_->setCurrentItem(list_item);
+  }
+
+  Q_EMIT logSelected(_log_name);
+}
+
+void FlightLogsWidgetGCS::onExportButtonClicked(const QString& _log_name)
+{
+  qDebug().nospace() << "FlightLogsWidgetGCS::onExportButtonClicked(" << _log_name << ")";
+
+  constexpr char kFilterTextCsv[] = "CSV Files (*.csv)";
+  constexpr char kFilterTextRosbag[] = "ROS bag Archive (*.zip)";
+  constexpr char kLastOpenedDirKey[] = "flight_logs_gcs/last_opened_dir";
+
+  // Get the last opened directory path.
+  const auto last_opened_dir = settings_store_.value(kLastOpenedDirKey, QDir::homePath()).toString();
+
+  // Set the default output file path.
+  const auto default_filename = _log_name + ".csv";
+  const auto default_path = QDir(last_opened_dir).filePath(default_filename);
+
+  // Get the save file path.
+  QString selected_filter;
+  const auto save_path = QFileDialog::getSaveFileName(
+    this,
+    "Export Flight Log",
+    default_path,
+    kFilterTextCsv + QString(";;") + kFilterTextRosbag,
+    &selected_filter,
+    QFileDialog::DontUseNativeDialog);
+
+  // Return if canceled.
+  if (save_path.isEmpty()) {
+    return;
+  }
+
+  // Save the selected directory path.
+  const auto par_dir = QFileInfo(save_path).absolutePath();
+  settings_store_.setValue(kLastOpenedDirKey, par_dir);
+
+  // Create an export thread.
+  ExportThread* thread = nullptr;
+  if (selected_filter == kFilterTextCsv) {
+    thread = new ExportThreadCsv(_log_name, save_path);
+  }
+  else if (selected_filter == kFilterTextRosbag) {
+    thread = new ExportThreadRosbag(_log_name, save_path);
+  }
+  else {
+    throw std::runtime_error("Unexpected filter: " + selected_filter.toStdString());
+  }
+
+  // Export the flight log.
+  qt::WaitSpinnerWidget spinner(Qt::WindowModal, this);
+  spinner.start();
+  const auto [success, message] = qt::startThreadAndWait(*thread, &ExportThread::finished);
+  spinner.stop();
+
+  // Show the result.
+  if (success) {
+    qt::qInfoBox(this, "The flight log has been exported successfully.");
+  }
+  else {
+    qt::qErrorBox(this, "Failed to export the flight log: " + message);
+  }
+}
+
+void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& _log_name)
+{
+  qDebug().nospace() << "FlightLogsWidgetGCS::onDeleteButtonClicked(" << _log_name << ")";
+
+  const auto log_path = ros2::expandUser(kRosbagDirHome) / _log_name.toStdString();
+
+  if (!qt::yesOrNo(this, "Do you want to delete flight log '" + _log_name + "'?", qt::WARN)) {
+    return;
+  }
+
+  if (fs::remove_all(log_path) == 0) {
+    qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(log_path));
+    return;
+  }
+
+  if (currentLogName() == _log_name) {
+    log_list_->deselect();
+    Q_EMIT logDeselected();
+  }
+
+  removeLog(_log_name);
+}
+}  // namespace tobas::gui::log

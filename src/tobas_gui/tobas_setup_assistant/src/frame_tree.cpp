@@ -8,7 +8,7 @@ namespace tobas::gui::sa
 FrameTreeWidget::FrameTreeWidget(const kdl::Tree& _tree, RvizWidget* _rviz) : tree_(_tree), rviz_(_rviz)
 {
   setColumnCount(1);
-  setHeaderLabels({ "Frames Tree" });
+  setHeaderLabels({ "Frame Tree" });
 
   setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -33,22 +33,6 @@ void FrameTreeWidget::updateInternalDataStructures()
   resizeColumns();
 }
 
-void FrameTreeWidget::onItemChanged(QTreeWidgetItem* _item)
-{
-  // Clearing the tree during a reload also clears the current item.
-  if (!_item) {
-    return;
-  }
-
-  const auto link_name = _item->text(0);
-  rviz_->heightLink(link_name);
-}
-
-void FrameTreeWidget::resizeColumns()
-{
-  resizeColumnToContents(0);
-}
-
 void FrameTreeWidget::addTreeItemsRec(QTreeWidgetItem* _parent_item)
 {
   const auto parent_name = _parent_item->text(0).toStdString();
@@ -64,5 +48,21 @@ void FrameTreeWidget::addTreeItemsRec(QTreeWidgetItem* _parent_item)
     _parent_item->addChild(child_item);
     addTreeItemsRec(child_item);
   }
+}
+
+void FrameTreeWidget::onItemChanged(QTreeWidgetItem* _item)
+{
+  // Clearing the tree during a reload also clears the current item.
+  if (!_item) {
+    return;
+  }
+
+  const auto link_name = _item->text(0);
+  rviz_->heightLink(link_name);
+}
+
+void FrameTreeWidget::resizeColumns()
+{
+  resizeColumnToContents(0);
 }
 }  // namespace tobas::gui::sa

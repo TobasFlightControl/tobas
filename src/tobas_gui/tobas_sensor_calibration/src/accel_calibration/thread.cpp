@@ -60,7 +60,7 @@ void AccelCalibrationThread::run()
     }
     constexpr auto kCollectDataTimeout = 30s;
     if (clock->now() - start_time > kCollectDataTimeout) {
-      Q_EMIT finished(false, "Timeout before IMU data collection is completed.");
+      Q_EMIT finished(false, "Timed out while collecting IMU data.");
       get_data_ = false;
       return;
     }
@@ -102,7 +102,7 @@ void AccelCalibrationThread::run()
 
   // Check the result.
   if (!res->success) {
-    Q_EMIT finished(false, "Calibration results are rejected: " + QString::fromStdString(res->message));
+    Q_EMIT finished(false, "Calibration results were rejected: " + QString::fromStdString(res->message));
     return;
   }
 

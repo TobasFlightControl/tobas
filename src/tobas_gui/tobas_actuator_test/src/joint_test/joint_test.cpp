@@ -3,7 +3,8 @@
 
 #include "tobas_actuator_test/joint_test/joint_test.hpp"
 
-#include <tobas_gui_common/constants.hpp>
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
@@ -15,11 +16,10 @@ JointTestWidget::JointTestWidget(const rqt::RosQtBridge& _bridge, const kdl::Tre
   : tree_(_tree), drone_(_drone)
 {
   const auto instruction = new qt::DescriptionWidget(
-    "1. Click 'Start' to start joint test.\n\n"
-    "2. For each channel, confirm that the position, velocity, or effort is correctly following the command.\n\n"
-    "3. If any joint does not behave as expected, please review the UADF or Setup Assistant settings.\n\n"
-    "4. Click 'Stop' to stop joint test.\n\n",
-    cmn::kBodyPSize);
+    "1. Click 'Start' to start the joint test.\n"
+    "2. For each channel, confirm that the position, velocity, or effort is correctly following the command.\n"
+    "3. If any joint does not behave as expected, please review the UADF or Setup Assistant settings.\n"
+    "4. Click 'Stop' to stop the joint test.\n");
 
   start_stop_button_ = new qt::ToggleButton("Start", "Stop");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -35,14 +35,14 @@ JointTestWidget::JointTestWidget(const rqt::RosQtBridge& _bridge, const kdl::Tre
   // Layout
   const auto cols = new QHBoxLayout();
   cols->addWidget(start_stop_button_);
-  cols->addStretch();
+  cols->addStretch(1);
   cols->addWidget(zero_button_);
   cols->addWidget(home_button_);
 
-  rows_->addWidget(instruction);
-  rows_->addLayout(cols);
-  rows_->addWidget(commands_publisher_);
-  rows_->addStretch();
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(instruction);
+  rows->addLayout(cols);
+  rows->addWidget(commands_publisher_);
 
   // Connection
   connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartButtonClicked);

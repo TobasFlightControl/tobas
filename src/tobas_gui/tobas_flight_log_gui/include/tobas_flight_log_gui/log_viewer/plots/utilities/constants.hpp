@@ -7,9 +7,10 @@
 
 namespace tobas::gui::log
 {
-static constexpr int kMaxVerticalScaleSteps = 6;
+static constexpr int kMaxVerticalAxisLabels = 6;
+static constexpr int kMaxVerticalScaleSteps = kMaxVerticalAxisLabels - 1;
 
-static constexpr double kLineWidth = 1.0;
+static constexpr double kLineWidth = 0.8;  // [px]
 
 static constexpr Qt::GlobalColor kCurrentValueColor = Qt::blue;
 static constexpr Qt::GlobalColor kTargetValueColor = Qt::red;

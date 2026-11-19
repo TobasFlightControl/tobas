@@ -24,26 +24,32 @@ namespace tobas::gui::sim
 {
 FixedLoadWidget::FixedLoadWidget()
 {
-  const auto title = new qt::Label("Fixed Load", cmn::kLabelPSize, QFont::Bold);
+  const auto title = new qt::Label("Fixed Load", cmn::kSubTitlePointSize, QFont::Bold);
 
   attach_detach_btn_ = new qt::ToggleButton("Attach", "Detach");
   attach_detach_btn_->setFixedSize(kHeaderButtonWidth, kHeaderButtonHeight);
 
   load_position_ = new qt::Vector3dEditVertical({ "X", "Y", "Z" });
+  load_position_->setToolTip(
+    "Position of the load's center of mass in meters relative to the vehicle's attachment link, "
+    "expressed in that link's frame.");
   load_position_->setDecimals(3);
   load_position_->setSuffix(" m");
 
   load_angle_ = new qt::Vector3dEditVertical({ "Roll", "Pitch", "Yaw" });
+  load_angle_->setToolTip("Roll, pitch, and yaw of the load in degrees relative to the vehicle's attachment link.");
   load_angle_->setDecimals(1);
   load_angle_->setRange(-180.0, 180.0);
   load_angle_->setSuffix(" deg");
 
   load_size_ = new qt::Vector3dEditVertical();
+  load_size_->setToolTip("Box dimensions in meters along the load's local X, Y, and Z axes.");
   load_size_->setDecimals(3);
   load_size_->setMinimum(1e-3);
   load_size_->setSuffix(" m");
 
   load_mass_ = new qt::DoubleSpinBox();
+  load_mass_->setToolTip("Mass of the attached load in kilograms.");
   load_mass_->setDecimals(3);
   load_mass_->setMinimum(1e-3);
   load_mass_->setSuffix(" kg");
@@ -51,7 +57,7 @@ FixedLoadWidget::FixedLoadWidget()
   // Layout
   const auto header_cols = new QHBoxLayout();
   header_cols->addWidget(title);
-  header_cols->addStretch();
+  header_cols->addStretch(1);
   header_cols->addWidget(attach_detach_btn_);
 
   const auto pose_cols = new QHBoxLayout();
@@ -62,6 +68,9 @@ FixedLoadWidget::FixedLoadWidget()
   form->addVAlignedRow("Load Pose", pose_cols);
   form->addVAlignedRow("Load Size", load_size_);
   form->addVAlignedRow("Load Mass", load_mass_);
+  form->getLabel(0)->setToolTip(load_position_->toolTip() + "\n" + load_angle_->toolTip());
+  form->getLabel(1)->setToolTip(load_size_->toolTip());
+  form->getLabel(2)->setToolTip(load_mass_->toolTip());
 
   const auto rows = new QVBoxLayout(this);
   rows->addLayout(header_cols);

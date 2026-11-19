@@ -5,7 +5,9 @@
 
 #include <QDebug>
 #include <QEvent>
+#include <QHeaderView>
 #include <QString>
+#include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -44,21 +46,22 @@ WifiClientWidget::WifiClientWidget()
 
   table_ = new qt::TableWidget(0, kNumCols);
   table_->setHorizontalHeaderLabels({ "AKM", "SSID", "PSK", "Priority", "Hidden" });
-  table_->setColumnsWidth(150);
-  table_->setEditTriggers(QAbstractItemView::NoEditTriggers);    // Disable editing.
-  table_->setSelectionBehavior(QAbstractItemView::SelectRows);   // Select by row.
-  table_->setSelectionMode(QAbstractItemView::SingleSelection);  // Select only one row.
-  table_->setHeaderSectionsClickable(false);                     // Disable header clicks.
+  table_->setEditTriggers(QAbstractItemView::NoEditTriggers);                       // Disable editing.
+  table_->setSelectionBehavior(QAbstractItemView::SelectRows);                      // Select by row.
+  table_->setSelectionMode(QAbstractItemView::SingleSelection);                     // Select only one row.
+  table_->setHeaderSectionsClickable(false);                                        // Disable header clicks.
+  table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);  // Fit column widths to contents.
 
   // Layout
   const auto cols = new QHBoxLayout();
   cols->addWidget(add_button_);
   cols->addWidget(remove_button_);
   cols->addWidget(clear_button_);
-  cols->addStretch();
+  cols->addStretch(1);
 
-  rows_->addLayout(cols);
-  rows_->addWidget(table_);
+  const auto rows = new QVBoxLayout(this);
+  rows->addLayout(cols);
+  rows->addWidget(table_);
 
   // Connection
   connect(add_button_, &QPushButton::clicked, this, &self::onAddButtonClicked);
@@ -235,7 +238,7 @@ bool WifiClientWidget::writeCurrentConfig()
     return false;
   }
 
-  qt::qInfoBox(this, "Network configuration is updated successfully.");
+  qt::qInfoBox(this, "Network configuration has been updated successfully.");
   return true;
 }
 

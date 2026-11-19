@@ -50,7 +50,7 @@ void PropellerPitchPlotWidget::setData(const QVector<tobas_msgs::msg::IcePropuls
 
   for (const auto& msg : _msgs) {
     if (msg.pitch_angles.size() != num_rotors_) {
-      qWarning() << "The number of VPPs mismatch.";
+      qWarning() << "VPP count mismatch.";
       continue;
     }
 

@@ -11,7 +11,7 @@ FixedWingWidget::FixedWingWidget()
 {
   const auto rows = new QVBoxLayout(this);
 
-  rows->addStretch();
+  rows->addStretch(1);
 }
 
 void FixedWingWidget::setToDefaults()

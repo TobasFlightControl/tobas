@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QString>
+#include <QWidget>
 
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
 
@@ -33,5 +34,7 @@ private:
 
   BaseWidget* getWidget(int _index);
   const BaseWidget* getWidget(int _index) const;
+
+  QWidget* createTabPage(BaseWidget* _content);
 };
 }  // namespace tobas::gui::at

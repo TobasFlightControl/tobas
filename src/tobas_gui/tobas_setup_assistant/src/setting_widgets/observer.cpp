@@ -3,50 +3,66 @@
 
 #include "tobas_setup_assistant/setting_tabs/observer.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace tobas::gui::sa
 {
+namespace
+{
+constexpr char kAdaptiveGnssNoiseLabel[] = "Enable Adaptive GNSS Measurement Noise";
+constexpr char kAdaptiveGravityNoiseLabel[] = "Enable Adaptive Gravity Measurement Noise";
+constexpr char kAccelBiasEstimationLabel[] = "Estimate Accelerometer Bias";
+constexpr char kGyroBiasEstimationLabel[] = "Estimate Gyroscope Bias";
+constexpr char kMagHardBiasEstimationLabel[] = "Estimate Magnetometer Hard-Iron Bias";
+constexpr char kMagSoftBiasEstimationLabel[] = "Estimate Magnetometer Soft-Iron Bias";
+constexpr char kBaroAltitudeBiasEstimationLabel[] = "Estimate Barometric Altitude Bias";
+constexpr char kGravityEstimationLabel[] = "Estimate Gravity";
+}  // namespace
+
 ObserverWidget::ObserverWidget()
 {
+  const auto rows = new QVBoxLayout(this);
+
   use_magnetometer_ = new QCheckBox("Use Magnetometer");
-  addWidget(use_magnetometer_);
+  rows->addWidget(use_magnetometer_);
 
   use_barometer_ = new QCheckBox("Use Barometer");
-  addWidget(use_barometer_);
+  rows->addWidget(use_barometer_);
 
   use_gnss_ = new QCheckBox("Use GNSS");
-  addWidget(use_gnss_);
+  rows->addWidget(use_gnss_);
 
   use_ext_pose_ = new QCheckBox("Use External Pose");
-  addWidget(use_ext_pose_);
+  rows->addWidget(use_ext_pose_);
 
-  adaptive_gnss_noise_ = new QCheckBox("Adaptive GNSS Measurement Noise");
-  addWidget(adaptive_gnss_noise_);
+  adaptive_gnss_noise_ = new QCheckBox(kAdaptiveGnssNoiseLabel);
+  rows->addWidget(adaptive_gnss_noise_);
 
-  adaptive_grav_noise_ = new QCheckBox("Adaptive Gravity Measurement Noise");
-  addWidget(adaptive_grav_noise_);
+  adaptive_grav_noise_ = new QCheckBox(kAdaptiveGravityNoiseLabel);
+  rows->addWidget(adaptive_grav_noise_);
 
-  do_acc_bias_estimation_ = new QCheckBox("Do Accelerometer Bias Estimation");
-  addWidget(do_acc_bias_estimation_);
+  do_acc_bias_estimation_ = new QCheckBox(kAccelBiasEstimationLabel);
+  rows->addWidget(do_acc_bias_estimation_);
 
-  do_gyro_bias_estimation_ = new QCheckBox("Do Gyroscope Bias Estimation");
-  addWidget(do_gyro_bias_estimation_);
+  do_gyro_bias_estimation_ = new QCheckBox(kGyroBiasEstimationLabel);
+  rows->addWidget(do_gyro_bias_estimation_);
 
-  do_mag_hard_bias_estimation_ = new QCheckBox("Do Magnetometer Hard-Iron Bias Estimation");
-  addWidget(do_mag_hard_bias_estimation_);
+  do_mag_hard_bias_estimation_ = new QCheckBox(kMagHardBiasEstimationLabel);
+  rows->addWidget(do_mag_hard_bias_estimation_);
 
-  do_mag_soft_bias_estimation_ = new QCheckBox("Do Magnetometer Soft-Iron Bias Estimation");
-  addWidget(do_mag_soft_bias_estimation_);
+  do_mag_soft_bias_estimation_ = new QCheckBox(kMagSoftBiasEstimationLabel);
+  rows->addWidget(do_mag_soft_bias_estimation_);
 
-  do_baro_alt_bias_estimation_ = new QCheckBox("Do Barometer Altitude Bias Estimation");
-  addWidget(do_baro_alt_bias_estimation_);
+  do_baro_alt_bias_estimation_ = new QCheckBox(kBaroAltitudeBiasEstimationLabel);
+  rows->addWidget(do_baro_alt_bias_estimation_);
 
-  do_grav_estimation_ = new QCheckBox("Do Gravity Estimation");
-  addWidget(do_grav_estimation_);
+  do_grav_estimation_ = new QCheckBox(kGravityEstimationLabel);
+  rows->addWidget(do_grav_estimation_);
 
-  addStretch();
+  rows->addStretch(1);
 }
 
 const char* ObserverWidget::name() const
@@ -56,15 +72,14 @@ const char* ObserverWidget::name() const
 
 const char* ObserverWidget::title() const
 {
-  return "Set up State Estimator";
+  return "Configure State Estimator";
 }
 
 const char* ObserverWidget::description() const
 {
-  return "Configure the state estimator. "
-         "In most cases, the default values should be left unchanged. "
-         "Because modifications can cause the attitude solution to diverge, "
-         "make any changes only with appropriate safety precautions and a clear understanding of their impact.";
+  return "Select the measurement sources and online bias estimation used by the state estimator. "
+         "GNSS and external pose cannot be enabled at the same time. "
+         "Use the defaults unless your sensors or estimation requirements call for different settings.";
 }
 
 void ObserverWidget::updateInternalDataStructures()
@@ -106,14 +121,14 @@ YAML::Node ObserverWidget::dump() const
   node[use_barometer_->text()] = use_barometer_->isChecked();
   node[use_gnss_->text()] = use_gnss_->isChecked();
   node[use_ext_pose_->text()] = use_ext_pose_->isChecked();
-  node[adaptive_gnss_noise_->text()] = adaptive_gnss_noise_->isChecked();
-  node[adaptive_grav_noise_->text()] = adaptive_grav_noise_->isChecked();
-  node[do_acc_bias_estimation_->text()] = do_acc_bias_estimation_->isChecked();
-  node[do_gyro_bias_estimation_->text()] = do_gyro_bias_estimation_->isChecked();
-  node[do_mag_hard_bias_estimation_->text()] = do_mag_hard_bias_estimation_->isChecked();
-  node[do_mag_soft_bias_estimation_->text()] = do_mag_soft_bias_estimation_->isChecked();
-  node[do_baro_alt_bias_estimation_->text()] = do_baro_alt_bias_estimation_->isChecked();
-  node[do_grav_estimation_->text()] = do_grav_estimation_->isChecked();
+  node[kAdaptiveGnssNoiseLabel] = adaptive_gnss_noise_->isChecked();
+  node[kAdaptiveGravityNoiseLabel] = adaptive_grav_noise_->isChecked();
+  node[kAccelBiasEstimationLabel] = do_acc_bias_estimation_->isChecked();
+  node[kGyroBiasEstimationLabel] = do_gyro_bias_estimation_->isChecked();
+  node[kMagHardBiasEstimationLabel] = do_mag_hard_bias_estimation_->isChecked();
+  node[kMagSoftBiasEstimationLabel] = do_mag_soft_bias_estimation_->isChecked();
+  node[kBaroAltitudeBiasEstimationLabel] = do_baro_alt_bias_estimation_->isChecked();
+  node[kGravityEstimationLabel] = do_grav_estimation_->isChecked();
 
   return node;
 }
@@ -124,14 +139,14 @@ void ObserverWidget::load(const YAML::Node& _node)
   use_barometer_->setChecked(_node[use_barometer_->text()].as<bool>());
   use_gnss_->setChecked(_node[use_gnss_->text()].as<bool>());
   use_ext_pose_->setChecked(_node[use_ext_pose_->text()].as<bool>());
-  adaptive_gnss_noise_->setChecked(_node[adaptive_gnss_noise_->text()].as<bool>());
-  adaptive_grav_noise_->setChecked(_node[adaptive_grav_noise_->text()].as<bool>());
-  do_acc_bias_estimation_->setChecked(_node[do_acc_bias_estimation_->text()].as<bool>());
-  do_gyro_bias_estimation_->setChecked(_node[do_gyro_bias_estimation_->text()].as<bool>());
-  do_mag_hard_bias_estimation_->setChecked(_node[do_mag_hard_bias_estimation_->text()].as<bool>());
-  do_mag_soft_bias_estimation_->setChecked(_node[do_mag_soft_bias_estimation_->text()].as<bool>());
-  do_baro_alt_bias_estimation_->setChecked(_node[do_baro_alt_bias_estimation_->text()].as<bool>());
-  do_grav_estimation_->setChecked(_node[do_grav_estimation_->text()].as<bool>());
+  adaptive_gnss_noise_->setChecked(_node[kAdaptiveGnssNoiseLabel].as<bool>());
+  adaptive_grav_noise_->setChecked(_node[kAdaptiveGravityNoiseLabel].as<bool>());
+  do_acc_bias_estimation_->setChecked(_node[kAccelBiasEstimationLabel].as<bool>());
+  do_gyro_bias_estimation_->setChecked(_node[kGyroBiasEstimationLabel].as<bool>());
+  do_mag_hard_bias_estimation_->setChecked(_node[kMagHardBiasEstimationLabel].as<bool>());
+  do_mag_soft_bias_estimation_->setChecked(_node[kMagSoftBiasEstimationLabel].as<bool>());
+  do_baro_alt_bias_estimation_->setChecked(_node[kBaroAltitudeBiasEstimationLabel].as<bool>());
+  do_grav_estimation_->setChecked(_node[kGravityEstimationLabel].as<bool>());
 }
 
 bool ObserverWidget::useMagnetometer() const

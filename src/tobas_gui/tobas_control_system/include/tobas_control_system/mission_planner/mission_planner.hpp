@@ -3,11 +3,13 @@
 
 #pragma once
 
+#include <QPushButton>
 #include <QSettings>
 #include <rclcpp_action/client.hpp>
 
 #include <tobas_geographic/geography.hpp>
 #include <tobas_mission_items/mission.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
@@ -60,6 +62,9 @@ private:
   CommandButton* focus_button_;
 
   qt::ListWidget* command_list_;
+  QWidget* command_panel_;
+  qt::Label* command_title_;
+  QPushButton* delete_command_button_;
   qt::StackedWidget* commands_;
   std::set<std::pair<QListWidgetItem*, BaseCommandWidget*>> pairs_;
 
@@ -76,6 +81,9 @@ private:
 
   /** Add a mission command to the planner. */
   void addCommand(mission::Type _type, BaseCommandWidget* _widget);
+
+  /** Update the header for the selected command. */
+  void updateCommandHeader(int _index);
 
   /** Switch each widget to execute mode. */
   void setExecuteMode();
@@ -115,7 +123,7 @@ private Q_SLOTS:
   void onCancelButtonClicked();
   void onFocusButtonClicked();
 
-  void onDeleteButtonClicked(QListWidgetItem* _target_item, BaseCommandWidget* _target_widget);
+  void onDeleteButtonClicked();
   void onListItemChanged();
   void onMissionUpdated();
   void onWaypointMoved(int _index, double _latitude, double _longitude);

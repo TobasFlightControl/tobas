@@ -29,7 +29,8 @@ HealthViewerWidget::HealthViewerWidget(const rqt::RosQtBridge& _bridge)
   user_defined_status_ = new StatusWidget("User-Defined Condition");
 
   // Layout
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);  // Do not pass `this` to the layout constructor.
   rows->setContentsMargins(2, 2, 2, 2);
   rows->addWidget(rt_compliance_status_);
   rows->addWidget(battery_voltage_status_);

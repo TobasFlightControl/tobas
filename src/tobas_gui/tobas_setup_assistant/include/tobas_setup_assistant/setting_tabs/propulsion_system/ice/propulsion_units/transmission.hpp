@@ -4,7 +4,7 @@
 #pragma once
 
 #include "./base.hpp"
-#include "tobas_setup_assistant/param_getters/ratio.hpp"
+#include "tobas_setup_assistant/utils/ratio.hpp"
 
 namespace tobas::gui::sa::propulsion::ice
 {
@@ -26,6 +26,6 @@ public:
   double gearRatio() const;
 
 private:
-  ParamGetterWidget_Ratio* gear_ratio_;
+  RatioWidget* gear_ratio_;
 };
 }  // namespace tobas::gui::sa::propulsion::ice

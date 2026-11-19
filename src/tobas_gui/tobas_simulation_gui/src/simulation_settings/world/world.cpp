@@ -21,7 +21,7 @@ WorldWidget::WorldWidget()
 {
   const auto rows = new QVBoxLayout(this);
 
-  const auto label = new qt::Label("World", cmn::kLabelPSize, QFont::Bold);
+  const auto label = new qt::Label("World", cmn::kSubTitlePointSize, QFont::Bold);
   rows->addWidget(label);
 
   const auto form = new qt::FormLayout();
@@ -48,6 +48,8 @@ fs::path WorldWidget::worldPath() const
 void WorldWidget::addRow(qt::FormLayout* _form, QButtonGroup* _btn_group, BaseWorldWidget* _widget, const QString& _label)
 {
   const auto button = new QRadioButton(_label);
+  button->setToolTip(_widget->toolTip());
+
   _btn_group->addButton(button, rowCount());
   _form->addVAlignedRow(button, _widget);
 

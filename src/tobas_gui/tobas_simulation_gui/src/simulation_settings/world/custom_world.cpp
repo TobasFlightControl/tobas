@@ -14,6 +14,8 @@ namespace tobas::gui::sim
 {
 CustomWorldWidget::CustomWorldWidget()
 {
+  setToolTip("Select a Gazebo world file (.world) for the simulation using Browse.");
+
   const auto cols = new QHBoxLayout(this);
 
   file_text_ = new QLineEdit();

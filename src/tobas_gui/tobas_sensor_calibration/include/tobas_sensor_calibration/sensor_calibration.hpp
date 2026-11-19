@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
 
 #include "./accel_calibration/accel_calibration.hpp"
@@ -34,6 +36,8 @@ private:
 
   BaseWidget* getWidget(int _index);
   const BaseWidget* getWidget(int _index) const;
+
+  QWidget* createTabPage(BaseWidget* _content);
 
   void setTabsEnabled(bool _enabled);
 

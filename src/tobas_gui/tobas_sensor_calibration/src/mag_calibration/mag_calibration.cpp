@@ -4,6 +4,7 @@
 #include "tobas_sensor_calibration/mag_calibration/mag_calibration.hpp"
 
 #include <QRadioButton>
+#include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
 
@@ -30,8 +31,11 @@ MagCalibrationWidget::MagCalibrationWidget(const rqt::RosQtBridge& _bridge)
 
   setCurrentIndex(kDefaultIndex);
 
-  rows_->addSpacing(20);
-  rows_->addWidget(stack_);
+  const auto rows = new QVBoxLayout(this);
+  for (const auto button : btn_group_->buttons()) {
+    rows->addWidget(button);
+  }
+  rows->addWidget(stack_);
 
   connect(btn_group_, &QButtonGroup::idClicked, stack_, &qt::StackedWidget::setCurrentIndex);
 }
@@ -75,7 +79,6 @@ void MagCalibrationWidget::addMagCalibWidget(BaseMagCalibWidget* _widget, const 
 {
   const auto btn = new QRadioButton(_label);
   btn_group_->addButton(btn, _id++);
-  rows_->addWidget(btn);
   stack_->addWidget(_widget);
 }
 

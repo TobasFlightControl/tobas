@@ -117,7 +117,7 @@ RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::msg::R
 
   for (const auto& msg : _msgs) {
     if (msg.states.size() != num_rotors_) {
-      qWarning() << "The number of rotors mismatch.";
+      qWarning() << "Rotor count mismatch.";
       continue;
     }
 
@@ -161,7 +161,7 @@ RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::msg::Ro
 
   for (const auto& msg : _msgs) {
     if (msg.speeds.size() != num_rotors_) {
-      qWarning() << "The number of rotors mismatch.";
+      qWarning() << "Rotor count mismatch.";
       continue;
     }
 

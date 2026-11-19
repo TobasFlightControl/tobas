@@ -28,6 +28,7 @@ PlaybackControlWidget::PlaybackControlWidget()
 
   // Layout
   const auto cols = new QHBoxLayout(this);
+  cols->setContentsMargins(0, 0, 0, 0);
   cols->addWidget(play_button_);
   cols->addWidget(current_time_);
   cols->addWidget(slider_);

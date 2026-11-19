@@ -16,8 +16,9 @@ namespace tobas::gui::sim
 SimulationSettingsWidget::SimulationSettingsWidget()
 {
   const auto rows = new QVBoxLayout(this);
+  rows->setContentsMargins(0, 0, 0, 0);
 
-  const auto title = new qt::Label("Simulation Settings", cmn::kTitlePSize, QFont::Bold);
+  const auto title = new qt::Label("Simulation Settings", cmn::kTitlePointSize, QFont::Bold);
   qt::addWidgetCenter(title, rows);
 
   const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
@@ -34,7 +35,7 @@ SimulationSettingsWidget::SimulationSettingsWidget()
   debug_ = new DebugWidget();
   scroll_rows->addWidget(debug_);
 
-  scroll_rows->addStretch();
+  scroll_rows->addStretch(1);
 }
 
 fs::path SimulationSettingsWidget::worldPath() const

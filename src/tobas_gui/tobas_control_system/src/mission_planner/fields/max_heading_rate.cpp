@@ -11,6 +11,8 @@ namespace tobas::gui::ctrl::field
 {
 MaxHeadingRateWidget::MaxHeadingRateWidget()
 {
+  setToolTip("Maximum heading change rate in degrees per second.");
+
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_YAWRAUTO_MAX
   spin_box_ = new qt::SpinBox();
   spin_box_->setMinimum(5);

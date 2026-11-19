@@ -3,51 +3,75 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/other.hpp"
 
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
 namespace tobas::gui::sa::propulsion::electric
 {
+namespace
+{
+constexpr char kNominalVoltageLabel[] = "Nominal Voltage";
+constexpr char kMaxVoltageLabel[] = "Maximum Voltage";
+constexpr char kSagVoltageLabel[] = "Voltage Threshold";
+constexpr char kMaxCurrentLabel[] = "Maximum Current";
+constexpr char kCapacityLabel[] = "Battery Capacity";
+constexpr char kResistanceLabel[] = "Internal Resistance";
+}  // namespace
+
 BatteryWidget_Other::BatteryWidget_Other()
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto form = new qt::FormLayout();
+  setLayout(form);  // Do not pass `this` to the layout constructor.
 
-  nominal_voltage_ = new ParamGetterWidget_DoubleSpinBox("Nominal Voltage", "Nominal voltage of the battery.");
+  nominal_voltage_ = new qt::DoubleSpinBox();
+  nominal_voltage_->setToolTip("Nominal voltage of the complete battery pack in volts.");
   nominal_voltage_->setDecimals(1);
   nominal_voltage_->setMinimum(0.1);
   nominal_voltage_->setSuffix(" V");
-  rows->addWidget(nominal_voltage_);
+  form->addRow(kNominalVoltageLabel, nominal_voltage_);
+  form->labelForField(nominal_voltage_)->setToolTip(nominal_voltage_->toolTip());
 
-  max_voltage_ = new ParamGetterWidget_DoubleSpinBox("Maximum Voltage", "Maximum voltage of the battery.");
+  max_voltage_ = new qt::DoubleSpinBox();
+  max_voltage_->setToolTip(
+    "Voltage of the complete battery pack at full charge, in volts. Must exceed the voltage threshold.");
   max_voltage_->setDecimals(1);
   max_voltage_->setMinimum(0.1);
   max_voltage_->setSuffix(" V");
-  rows->addWidget(max_voltage_);
+  form->addRow(kMaxVoltageLabel, max_voltage_);
+  form->labelForField(max_voltage_)->setToolTip(max_voltage_->toolTip());
 
-  sag_voltage_ = new ParamGetterWidget_DoubleSpinBox(
-    "Voltage Threshold", "Voltage at which the discharge characteristics change abruptly.");
+  sag_voltage_ = new qt::DoubleSpinBox();
+  sag_voltage_->setToolTip(
+    "Pack voltage in volts at the knee of the discharge curve, "
+    "where the battery model changes its discharge characteristics.");
   sag_voltage_->setDecimals(1);
   sag_voltage_->setMinimum(0.1);
   sag_voltage_->setSuffix(" V");
-  rows->addWidget(sag_voltage_);
+  form->addRow(kSagVoltageLabel, sag_voltage_);
+  form->labelForField(sag_voltage_)->setToolTip(sag_voltage_->toolTip());
 
-  max_current_ = new ParamGetterWidget_SpinBox("Maximum Current", "Maximum current of the battery.");
+  max_current_ = new qt::SpinBox();
+  max_current_->setToolTip("Maximum continuous discharge current of the complete battery pack in amperes.");
   max_current_->setMinimum(1);
   max_current_->setSuffix(" A");
-  rows->addWidget(max_current_);
+  form->addRow(kMaxCurrentLabel, max_current_);
+  form->labelForField(max_current_)->setToolTip(max_current_->toolTip());
 
-  capacity_ = new ParamGetterWidget_SpinBox(
-    "Current Capacity", "The amount of electric charge that can be drawn from the battery.");
+  capacity_ = new qt::SpinBox();
+  capacity_->setToolTip("Rated charge capacity of the battery pack in milliampere-hours (mAh).");
   capacity_->setMinimum(1);
   capacity_->setSuffix(" mAh");
-  rows->addWidget(capacity_);
+  form->addRow(kCapacityLabel, capacity_);
+  form->labelForField(capacity_)->setToolTip(capacity_->toolTip());
 
-  registance_ = new ParamGetterWidget_SpinBox("Internal Registance", "Internal resistance value per cell.");
+  registance_ = new qt::SpinBox();
+  registance_->setToolTip(
+    "Total internal resistance of the complete battery pack in milliohms. Enter the pack value, not a per-cell value.");
   registance_->setMinimum(0);
   registance_->setSuffix(" mΩ");
-  rows->addWidget(registance_);
-
-  rows->addStretch();
+  form->addRow(kResistanceLabel, registance_);
+  form->labelForField(registance_)->setToolTip(registance_->toolTip());
 }
 
 const char* BatteryWidget_Other::name() const
@@ -67,7 +91,7 @@ void BatteryWidget_Other::setToDefaults()
 
 bool BatteryWidget_Other::isValid()
 {
-  if (max_voltage_->getValue() <= sag_voltage_->getValue()) {
+  if (max_voltage_->value() <= sag_voltage_->value()) {
     qt::qWarnBox(this, "Maximum voltage must be greater than voltage threshold.");
     return false;
   }
@@ -79,53 +103,53 @@ YAML::Node BatteryWidget_Other::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[nominal_voltage_->name()] = yaml::format(nominal_voltage_->getValue());
-  node[max_voltage_->name()] = yaml::format(max_voltage_->getValue());
-  node[sag_voltage_->name()] = yaml::format(sag_voltage_->getValue());
-  node[max_current_->name()] = max_current_->getValue();
-  node[capacity_->name()] = capacity_->getValue();
-  node[registance_->name()] = registance_->getValue();
+  node[kNominalVoltageLabel] = yaml::format(nominal_voltage_->value());
+  node[kMaxVoltageLabel] = yaml::format(max_voltage_->value());
+  node[kSagVoltageLabel] = yaml::format(sag_voltage_->value());
+  node[kMaxCurrentLabel] = max_current_->value();
+  node[kCapacityLabel] = capacity_->value();
+  node[kResistanceLabel] = registance_->value();
 
   return node;
 }
 
 void BatteryWidget_Other::load(const YAML::Node& _node)
 {
-  nominal_voltage_->setValue(_node[nominal_voltage_->name()].as<double>());
-  max_voltage_->setValue(_node[max_voltage_->name()].as<double>());
-  sag_voltage_->setValue(_node[sag_voltage_->name()].as<double>());
-  max_current_->setValue(_node[max_current_->name()].as<double>());
-  capacity_->setValue(_node[capacity_->name()].as<int>());
-  registance_->setValue(_node[registance_->name()].as<int>());
+  nominal_voltage_->setValue(_node[kNominalVoltageLabel].as<double>());
+  max_voltage_->setValue(_node[kMaxVoltageLabel].as<double>());
+  sag_voltage_->setValue(_node[kSagVoltageLabel].as<double>());
+  max_current_->setValue(_node[kMaxCurrentLabel].as<double>());
+  capacity_->setValue(_node[kCapacityLabel].as<int>());
+  registance_->setValue(_node[kResistanceLabel].as<int>());
 }
 
 double BatteryWidget_Other::nominalVoltage()
 {
-  return nominal_voltage_->getValue();
+  return nominal_voltage_->value();
 }
 
 double BatteryWidget_Other::maxVoltage()
 {
-  return max_voltage_->getValue();
+  return max_voltage_->value();
 }
 
 double BatteryWidget_Other::sagVoltage()
 {
-  return sag_voltage_->getValue();
+  return sag_voltage_->value();
 }
 
 double BatteryWidget_Other::maxCurrent()
 {
-  return static_cast<double>(max_current_->getValue());
+  return static_cast<double>(max_current_->value());
 }
 
 double BatteryWidget_Other::capacity()
 {
-  return static_cast<double>(capacity_->getValue() * 3600) * 1e-3;
+  return static_cast<double>(capacity_->value() * 3600) * 1e-3;
 }
 
 double BatteryWidget_Other::internalRegistance()
 {
-  return static_cast<double>(registance_->getValue()) * 1e-3;
+  return static_cast<double>(registance_->value()) * 1e-3;
 }
 }  // namespace tobas::gui::sa::propulsion::electric

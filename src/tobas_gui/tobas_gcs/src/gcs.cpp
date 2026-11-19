@@ -138,7 +138,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr _
   // Package manager
   proj_path_ = new QLineEdit();
   proj_path_->setReadOnly(true);
-  proj_path_->setMinimumWidth(250);
+  proj_path_->setFixedWidth(280);
   proj_path_->setPlaceholderText("Click to select a project...");
   proj_path_->setCursor(Qt::PointingHandCursor);
   proj_path_->installEventFilter(this);
@@ -146,9 +146,8 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr _
   // FC selection
   fc_scanner_ = new FlightControllerScanner(this);
   fc_selector_ = new QComboBox();
-  fc_selector_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-  write_id_ = new QSpinBox();
-  write_id_->setRange(0, INT32_MAX);
+  write_id_ = new qt::SpinBox();
+  write_id_->setRange(0, 255);  // Higher IDs are supported, but this limit keeps the widget compact.
   write_id_->setValue(0);
   connect_btn_ = new qt::ToggleButton("Connect", "Disconnect");
   write_btn_ = new QPushButton("Write");
@@ -176,7 +175,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr _
   header_cols->addWidget(flight_log_btn);
   header_cols->addWidget(fc_console_btn);
   header_cols->addWidget(simulation_btn);
-  header_cols->addStretch();
+  header_cols->addStretch(1);
   header_cols->addWidget(remote_conn_);
   header_cols->addLayout(configuration);
 
@@ -897,7 +896,7 @@ void GroundControlStationWidget::onWriteButtonClicked()
   progress.progressStep();
 
   progress.close();
-  qt::qInfoBox(this, "The current project has been flashed to the flight controller successfully.");
+  qt::qInfoBox(this, "The current project has been deployed to the flight controller successfully.");
 }
 
 void GroundControlStationWidget::onFlightControllerScanFinished(

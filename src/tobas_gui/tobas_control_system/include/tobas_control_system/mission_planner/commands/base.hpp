@@ -3,9 +3,7 @@
 
 #pragma once
 
-#include <QLabel>
 #include <QMap>
-#include <QPushButton>
 #include <QWidget>
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
@@ -23,7 +21,6 @@ class BaseCommandWidget : public QWidget
 
 Q_SIGNALS:
   void updated();
-  void deleteButtonClicked();
 
 public:
   explicit BaseCommandWidget();
@@ -42,16 +39,12 @@ protected:
   void setValueOrDefault(field::FieldWidget<double>* _widget, double _value);
 
 private:
-  QLabel* label_;
-  QPushButton* delete_button_;
   qt::FormLayout* form_;
   QMap<field::BaseFieldWidget*, qt::CheckBox*> checkboxes_;
 
   int row_ = 0;
 
 private Q_SLOTS:
-  void initialize();
   void onFieldUpdated();
-  void onDeleteButtonClicked();
 };
 }  // namespace tobas::gui::ctrl

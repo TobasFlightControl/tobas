@@ -15,6 +15,10 @@ constexpr char kStopAtWaypointLabel[] = "Stop at Waypoint";
 
 StopAtWaypointWidget::StopAtWaypointWidget()
 {
+  setToolTip(
+    "Stop at Waypoint brings the vehicle to a stop at this point. "
+    "Pass Through includes this point in a continuous spline trajectory.");
+
   combobox_ = new qt::ComboBox();
   combobox_->addItem(kPassThroughLabel);
   combobox_->addItem(kStopAtWaypointLabel);

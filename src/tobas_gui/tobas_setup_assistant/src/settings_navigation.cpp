@@ -30,9 +30,7 @@ SettingsNavigationWidget::SettingsNavigationWidget()
   setStyleSheet(R"(
     QListWidget#settingsNavigation {
       background-color: palette(base);
-      border: 1px solid palette(midlight);
-      outline: none;
-      padding: 6px 0;
+      padding: 4px 0;
     }
     QListWidget#settingsNavigation::item {
       border: none;
@@ -69,7 +67,7 @@ void SettingsNavigationWidget::addEntry(const QString& _title, int _id)
 {
   const auto item = new QListWidgetItem(_title, this);
   item->setData(Qt::UserRole, _id);
-  item->setSizeHint(QSize(0, 38));
+  item->setSizeHint(QSize(0, 40));
 }
 
 void SettingsNavigationWidget::setCurrentEntry(int _id)

@@ -4,8 +4,11 @@
 #include "tobas_setup_assistant/settings.hpp"
 
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/check.hpp>
 
@@ -13,9 +16,15 @@ namespace tobas::gui::sa
 {
 SettingsWidget::SettingsWidget(const uadf::Model& _uadf, const kdl::Tree& _tree, Signals& _sig) : uadf_(_uadf)
 {
+  title_ = new QLabel();
+  title_->setFont(qt::DefaultFont(cmn::kTitlePointSize, QFont::Bold));
+  title_->setAlignment(Qt::AlignTop);
+  description_ = new qt::DescriptionWidget();
+
   stack_ = new qt::StackedWidget();
   navigation_ = new SettingsNavigationWidget();
   connect(navigation_, &SettingsNavigationWidget::currentEntryChanged, stack_, &QStackedWidget::setCurrentIndex);
+  connect(stack_, &QStackedWidget::currentChanged, this, &self::updateHeader);
 
   // Pages
   propulsion_system = new propulsion::PropulsionSystemWidget(_uadf, _sig);
@@ -28,7 +37,7 @@ SettingsWidget::SettingsWidget(const uadf::Model& _uadf, const kdl::Tree& _tree,
   rc_input = new RcInputWidget();
   extra_joints = new ExtraJointsWidget(_uadf, _tree);
   failsafe = new FailsafeWidget();
-  author_info = new AuthorInformationWidget();
+  maintainer_info = new MaintainerInformationWidget();
 
   // Basic settings
   navigation_->addSection("BASIC SETTINGS");
@@ -45,7 +54,7 @@ SettingsWidget::SettingsWidget(const uadf::Model& _uadf, const kdl::Tree& _tree,
   addPage(rc_input);
   addPage(extra_joints);
   addPage(failsafe);
-  addPage(author_info);
+  addPage(maintainer_info);
 
   // Disable all pages.
   for (int i = 0; i < stack_->count(); ++i) {
@@ -53,11 +62,17 @@ SettingsWidget::SettingsWidget(const uadf::Model& _uadf, const kdl::Tree& _tree,
   }
 
   // Layout
+  const auto rows = new QVBoxLayout();
+  rows->addWidget(title_, 0);
+  rows->addWidget(description_, 0);
+  rows->addSpacing(16);
+  rows->addWidget(stack_, 1);
+
   const auto cols = new QHBoxLayout(this);
   cols->setContentsMargins(0, 0, 0, 0);
-  cols->setSpacing(12);
   cols->addWidget(navigation_, 0);
-  cols->addWidget(stack_, 1);
+  cols->addSpacing(16);
+  cols->addLayout(rows, 1);
 }
 
 void SettingsWidget::updateInternalDataStructures()
@@ -183,8 +198,28 @@ int SettingsWidget::getIndex(BaseSettingWidget* _page) const
 
 void SettingsWidget::addPage(BaseSettingWidget* _page)
 {
+  _page->layout()->setContentsMargins(0, 0, 0, 0);
+
   const auto idx = stack_->addWidget(_page);
   navigation_->addEntry(_page->name(), idx);
+}
+
+void SettingsWidget::updateHeader(int _idx)
+{
+  if (_idx < 0) {
+    title_->clear();
+    description_->clear();
+    return;
+  }
+
+  const auto page = qt::qPointerCast<BaseSettingWidget>(stack_->widget(_idx));
+
+  title_->setText(page->title());
+  description_->setText(page->description());
+
+  const auto enabled = page->isEnabled();
+  title_->setEnabled(enabled);
+  description_->setEnabled(enabled);
 }
 
 void SettingsWidget::setCurrentPage(int _idx)
@@ -201,6 +236,10 @@ void SettingsWidget::setPageEnabled(int _idx, bool _enabled, const QString& _dis
 {
   stack_->widget(_idx)->setEnabled(_enabled);
   navigation_->setEntryEnabled(_idx, _enabled, _disabled_reason);
+
+  if (_idx == stack_->currentIndex()) {
+    updateHeader(_idx);
+  }
 }
 
 void SettingsWidget::setPageEnabled(BaseSettingWidget* _page, bool _enabled, const QString& _disabled_reason)

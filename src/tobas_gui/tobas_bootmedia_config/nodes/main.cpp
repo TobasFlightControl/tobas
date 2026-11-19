@@ -20,7 +20,7 @@ int main(int _argc, char* _argv[])
   QApplication::setOrganizationName("tobas");
   QApplication::setApplicationName("bootmedia_config");
 
-  const auto title = "Tobas Bootmedia Config (" + tobas::gui::cmn::Version::Current().toString() + ")";
+  const auto title = "Tobas Boot Media Configuration (" + tobas::gui::cmn::Version::Current().toString() + ")";
   const auto icon_path = tobas::gui::bm::getPkgShareDir() / "resources/icon.png";
   const auto widget = new tobas::gui::bm::BootmediaConfigWidget();
   tobas::qt::MainWidget main(title, QString::fromStdString(icon_path), widget);

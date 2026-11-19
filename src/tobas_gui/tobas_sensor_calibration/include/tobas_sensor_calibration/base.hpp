@@ -5,8 +5,6 @@
 
 #include <string>
 
-#include <QLabel>
-#include <QVBoxLayout>
 #include <rclcpp/node.hpp>
 
 #include <tobas_qt_tools/widgets/widget.hpp>
@@ -18,8 +16,6 @@ class BaseWidget : public qt::Widget
   Q_OBJECT
 
 public:
-  explicit BaseWidget();
-
   /** Title displayed at the top of the page. */
   virtual const char* title() const = 0;
 
@@ -31,14 +27,5 @@ public:
   virtual void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns) = 0;
 
   virtual void clearRosInterfaces() = 0;
-
-protected:
-  QVBoxLayout* rows_;
-
-private:
-  QLabel* title_;
-
-private Q_SLOTS:
-  void initialize();
 };
 }  // namespace tobas::gui::sc

@@ -9,6 +9,10 @@ namespace tobas::gui::ctrl::field
 {
 RtlMinAltitudeWidget::RtlMinAltitudeWidget()
 {
+  setToolTip(
+    "Minimum return altitude in meters above the launch point. "
+    "The mission executor may reduce this height near the launch point.");
+
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(2);
   spin_box_->setMinimum(0.0);
@@ -24,7 +28,7 @@ RtlMinAltitudeWidget::RtlMinAltitudeWidget()
 
 const char* RtlMinAltitudeWidget::label() const
 {
-  return "Minimum Altitude (wrt. Launch Point)";
+  return "Minimum Altitude Above Launch Point";
 }
 
 double RtlMinAltitudeWidget::getValue() const

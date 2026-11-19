@@ -3,8 +3,9 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/vehicle.hpp"
 
-#include <QVBoxLayout>
+#include <QFrame>
 
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/range.hpp>
@@ -12,106 +13,133 @@
 
 namespace tobas::gui::sa::fw
 {
-VehicleParametersWidget::VehicleParametersWidget()
+namespace
 {
-  const auto rows = new QVBoxLayout(this);
+constexpr char kWingSurfaceLabel[] = "Wing Area";
+constexpr char kWingSpanLabel[] = "Wing Span";
+constexpr char kMacLabel[] = "Mean Aerodynamic Chord";
+constexpr char kAerodynamicCenterLabel[] = "Aerodynamic Center";
+constexpr char kAlphaLimitLabel[] = "Angle-of-Attack Limits";
+}  // namespace
 
-  wing_surface_ = new ParamGetterWidget_DoubleSpinBox("Wing Surface", "");
+VehicleWidget::VehicleWidget()
+{
+  setFrameShape(QFrame::NoFrame);
+
+  wing_surface_ = new qt::DoubleSpinBox();
+  wing_surface_->setToolTip("Reference wing area in square meters, used to scale aerodynamic forces and moments.");
   wing_surface_->setDecimals(3);
   wing_surface_->setMinimum(1e-3);
-  wing_surface_->setSuffix(" m^2");
-  rows->addWidget(wing_surface_);
+  wing_surface_->setSuffix(" m²");
 
-  wing_span_ = new ParamGetterWidget_DoubleSpinBox("Wing Span", "");
+  wing_span_ = new qt::DoubleSpinBox();
+  wing_span_->setToolTip("Reference wing span in meters, used to scale rolling and yawing moments.");
   wing_span_->setDecimals(3);
   wing_span_->setMinimum(1e-3);
   wing_span_->setSuffix(" m");
-  rows->addWidget(wing_span_);
 
-  mac_ = new ParamGetterWidget_DoubleSpinBox("Mean Aerodynamic Chord", "");
+  mac_ = new qt::DoubleSpinBox();
+  mac_->setToolTip("Mean aerodynamic chord in meters, used as the reference length for pitching moments.");
   mac_->setDecimals(3);
   mac_->setMinimum(1e-3);
   mac_->setSuffix(" m");
-  rows->addWidget(mac_);
 
-  aerodynamic_center_ = new ParamGetterWidget_Vector3d("Aerodynamic Center", "");
+  aerodynamic_center_ = new qt::Vector3dEditHorizontal();
+  aerodynamic_center_->setToolTip(
+    "Aerodynamic center position in meters relative to the airframe origin. "
+    "Coordinates use the forward-left-up (FLU) frame.");
   aerodynamic_center_->setDecimals(3);
   aerodynamic_center_->setSuffix(" m");
-  rows->addWidget(aerodynamic_center_);
 
-  alpha_limit_ = new ParamGetterWidget_DoubleRange("Limitation of Angle of Attack", "");
+  alpha_limit_ = new DoubleRangeWidget();
+  alpha_limit_->setToolTip(
+    "Lower and upper limits of the modeled angle of attack in radians, "
+    "bounded by the negative and positive stall angles. "
+    "The lower limit must not exceed the upper limit.");
   alpha_limit_->setDecimals(3);
   alpha_limit_->setSuffix(" rad");
-  rows->addWidget(alpha_limit_);
+
+  const auto form = new qt::FormLayout();
+  setLayout(form);  // Do not pass `this` to the layout constructor.
+  form->addRow(kWingSurfaceLabel, wing_surface_);
+  form->labelForField(wing_surface_)->setToolTip(wing_surface_->toolTip());
+  form->addRow(kWingSpanLabel, wing_span_);
+  form->labelForField(wing_span_)->setToolTip(wing_span_->toolTip());
+  form->addRow(kMacLabel, mac_);
+  form->labelForField(mac_)->setToolTip(mac_->toolTip());
+  form->addRow(kAerodynamicCenterLabel, aerodynamic_center_);
+  form->labelForField(aerodynamic_center_)->setToolTip(aerodynamic_center_->toolTip());
+  form->addRow(kAlphaLimitLabel, alpha_limit_);
+  form->labelForField(alpha_limit_)->setToolTip(alpha_limit_->toolTip());
 }
 
-void VehicleParametersWidget::updateInternalDataStructures()
+void VehicleWidget::updateInternalDataStructures()
 {
 }
 
-void VehicleParametersWidget::setToDefaults()
+void VehicleWidget::setToDefaults()
 {
   wing_surface_->setValue(0.47);
   wing_span_->setValue(2.59);
   mac_->setValue(0.18);
-  aerodynamic_center_->setValue({ 0.1, 0.0, 0.0 });
+  aerodynamic_center_->setVector({ 0.1, 0.0, 0.0 });
   alpha_limit_->setValue({ -0.27, 0.27 });
 }
 
-bool VehicleParametersWidget::isValid()
+bool VehicleWidget::isValid()
 {
   if (!alpha_limit_->isValid()) {
-    qt::qWarnBox(this, "Invalid limitation of angle of attack.");
+    qt::qWarnBox(this, "Invalid angle-of-attack limits.");
     return false;
   }
 
   return true;
 }
 
-YAML::Node VehicleParametersWidget::dump() const
+YAML::Node VehicleWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[wing_surface_->name()] = yaml::format(wing_surface_->getValue());
-  node[wing_span_->name()] = yaml::format(wing_span_->getValue());
-  node[mac_->name()] = yaml::format(mac_->getValue());
-  node[aerodynamic_center_->name()] = aerodynamic_center_->getValue();
-  node[alpha_limit_->name()] = alpha_limit_->getValue();
+  node[kWingSurfaceLabel] = yaml::format(wing_surface_->value());
+  node[kWingSpanLabel] = yaml::format(wing_span_->value());
+  node[kMacLabel] = yaml::format(mac_->value());
+  node[kAerodynamicCenterLabel] = aerodynamic_center_->vector();
+  node[kAlphaLimitLabel] = alpha_limit_->value();
 
   return node;
 }
 
-void VehicleParametersWidget::load(const YAML::Node& _node)
+void VehicleWidget::load(const YAML::Node& _node)
 {
-  wing_surface_->setValue(_node[wing_surface_->name()].as<double>());
-  wing_span_->setValue(_node[wing_span_->name()].as<double>());
-  mac_->setValue(_node[mac_->name()].as<double>());
-  aerodynamic_center_->setValue(_node[aerodynamic_center_->name()].as<Eigen::Vector3d>());
-  alpha_limit_->setValue(_node[alpha_limit_->name()].as<st::Range<double>>());
+  wing_surface_->setValue(_node[kWingSurfaceLabel].as<double>());
+  wing_span_->setValue(_node[kWingSpanLabel].as<double>());
+  mac_->setValue(_node[kMacLabel].as<double>());
+  aerodynamic_center_->setVector(_node[kAerodynamicCenterLabel].as<Eigen::Vector3d>());
+  alpha_limit_->setValue(_node[kAlphaLimitLabel].as<st::Range<double>>());
 }
 
-double VehicleParametersWidget::wingSurface() const
+double VehicleWidget::wingSurface() const
 {
-  return wing_surface_->getValue();
+  return wing_surface_->value();
 }
 
-double VehicleParametersWidget::wingSpan() const
+double VehicleWidget::wingSpan() const
 {
-  return wing_span_->getValue();
+  return wing_span_->value();
 }
 
-double VehicleParametersWidget::mac() const
+double VehicleWidget::mac() const
 {
-  return mac_->getValue();
+  return mac_->value();
 }
 
-Eigen::Vector3d VehicleParametersWidget::aerodynamicCenter() const
+Eigen::Vector3d VehicleWidget::aerodynamicCenter() const
 {
-  return aerodynamic_center_->getValue();
+  return aerodynamic_center_->vector();
 }
 
-st::Range<double> VehicleParametersWidget::alphaLimit() const
+st::Range<double> VehicleWidget::alphaLimit() const
 {
-  return alpha_limit_->getValue();
+  return alpha_limit_->value();
 }
 }  // namespace tobas::gui::sa::fw

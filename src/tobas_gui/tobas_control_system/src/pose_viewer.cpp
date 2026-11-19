@@ -24,7 +24,7 @@ constexpr int kAltitudeScaleInterval = 5;  // [m]
 constexpr int kAltitudeTickLength = 12;
 constexpr int kAltitudeTickX = 40;
 constexpr int kAltitudeTextY = kYawLineY + 40;
-constexpr int kAltitudeTickMaxY = kAltitudeTextY + 10;
+constexpr int kAltitudeTickMaxY = kAltitudeTextY + 12;
 }  // namespace
 
 PoseViewerWidget::PoseViewerWidget(const rqt::RosQtBridge& _bridge)
@@ -202,7 +202,7 @@ void PoseViewerWidget::drawSky(QPainter& _painter)
 void PoseViewerWidget::drawRoll(QPainter& _painter)
 {
   constexpr int kRollRadius = 200;  // Roll circle radius.
-  constexpr int kRollTickLength = 10;
+  constexpr int kRollTickLength = 12;
 
   _painter.save();
 
@@ -225,7 +225,7 @@ void PoseViewerWidget::drawRoll(QPainter& _painter)
     _painter.drawLine(0, -kRollRadius, 0, -outer_radius);
 
     // Draw numbers.
-    _painter.drawText(-10, -text_radius, std::format("{}°", math::wrap(deg, 180)).c_str());
+    _painter.drawText(-12, -text_radius, std::format("{}°", math::wrap(deg, 180)).c_str());
 
     // Advance by the tick interval.
     _painter.rotate(kScaleInterval);
@@ -266,8 +266,8 @@ void PoseViewerWidget::drawPitch(QPainter& _painter)
 
   // Draw each value.
   const auto line_half = kPitchLineLength / 2;
-  const auto text_x = -line_half - 30;
-  const auto text_y = 5;
+  const auto text_x = -line_half - 32;
+  const auto text_y = 4;
   const auto y_interval = pitchToHeight(st::deg2rad(kScaleInterval));
   _painter.setPen(QPen(Qt::white, kLineWidth));
   for (int deg = pitch_min; deg <= pitch_max; deg += kScaleInterval) {
@@ -295,7 +295,7 @@ void PoseViewerWidget::drawPitch(QPainter& _painter)
 
 void PoseViewerWidget::drawYaw(QPainter& _painter)
 {
-  constexpr int kYawTickLength = 10;
+  constexpr int kYawTickLength = 12;
 
   _painter.save();
 
@@ -319,7 +319,7 @@ void PoseViewerWidget::drawYaw(QPainter& _painter)
   _painter.translate(yawToWidth(st::deg2rad(yaw_deg - yaw_min)), 0);
 
   // Draw each value.
-  const auto text_x = -10;
+  const auto text_x = -12;
   const auto text_y = -kYawTickLength - 20;
   const auto x_interval = yawToWidth(st::deg2rad(kScaleInterval));
   for (int deg = yaw_min; deg <= yaw_max; deg += kScaleInterval) {
@@ -365,12 +365,12 @@ void PoseViewerWidget::drawRelativeAltitude(QPainter& _painter)
     }
 
     _painter.drawLine(x, y, x + kAltitudeTickLength, y);
-    _painter.drawText(x + kAltitudeTickLength + 10, y + 5, std::format("{}m", alt).c_str());
+    _painter.drawText(x + kAltitudeTickLength + 12, y + 4, std::format("{}m", alt).c_str());
   }
 
   _painter.setPen(QPen(Qt::red, kLineWidth));
   _painter.drawLine(x - kAltitudeTickLength, center_y, x + kAltitudeTickLength * 2, center_y);
-  _painter.drawText(x + kAltitudeTickLength + 10, center_y - 12, std::format("{:.1f}m", alt_rel_).c_str());
+  _painter.drawText(x + kAltitudeTickLength + 12, center_y - 12, std::format("{:.1f}m", alt_rel_).c_str());
 
   _painter.restore();
 }
@@ -387,7 +387,7 @@ void PoseViewerWidget::drawMslAltitude(QPainter& _painter)
   const auto x = kOriginalSize - kAltitudeTickX;
 
   _painter.setPen(QPen(Qt::white, kLineWidth));
-  _painter.drawText(x - 55, kAltitudeTextY, "MSL ALT");
+  _painter.drawText(x - 56, kAltitudeTextY, "MSL ALT");
 
   if (alt_msl_valid_) {
     for (int alt = alt_min; alt <= alt_max; alt += kAltitudeScaleInterval) {
@@ -397,7 +397,7 @@ void PoseViewerWidget::drawMslAltitude(QPainter& _painter)
       }
 
       _painter.drawLine(x, y, x - kAltitudeTickLength, y);
-      _painter.drawText(x - kAltitudeTickLength - 45, y + 5, std::format("{}m", alt).c_str());
+      _painter.drawText(x - kAltitudeTickLength - 44, y + 4, std::format("{}m", alt).c_str());
     }
   }
 
@@ -405,7 +405,7 @@ void PoseViewerWidget::drawMslAltitude(QPainter& _painter)
   _painter.drawLine(x + kAltitudeTickLength, center_y, x - kAltitudeTickLength * 2, center_y);
 
   const QString text = alt_msl_valid_ ? std::format("{:.1f}m", alt_msl_).c_str() : "---m";
-  _painter.drawText(x - kAltitudeTickLength - 45, center_y - 12, text);
+  _painter.drawText(x - kAltitudeTickLength - 44, center_y - 12, text);
 
   _painter.restore();
 }

@@ -42,7 +42,7 @@ void StatusWidget::setStatus(Status _status)
       setStatusText("OK", Qt::darkGreen);
       break;
     case FAILED:
-      setStatusText("NG", Qt::darkRed);
+      setStatusText("Fail", Qt::darkRed);
       break;
     case IGNORED:
       setStatusText("Skip", Qt::darkYellow);

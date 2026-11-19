@@ -9,6 +9,8 @@ namespace tobas::gui::ctrl::field
 {
 MaxVerticalVelocityWidget::MaxVerticalVelocityWidget()
 {
+  setToolTip("Maximum vertical speed in meters per second. The same limit applies to ascent and descent.");
+
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_Z_V_AUTO_DN
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_Z_V_AUTO_UP
   // TODO: Use separate settings for ascent and descent.

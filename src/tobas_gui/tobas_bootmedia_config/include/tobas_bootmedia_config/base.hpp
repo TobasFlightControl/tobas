@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include <QLabel>
-#include <QVBoxLayout>
+#include <QWidget>
 
 namespace tobas::gui::bm
 {
@@ -23,14 +22,5 @@ public:
 
   /** Method executed when a boot device is connected. */
   virtual bool onConnected() = 0;
-
-protected:
-  QVBoxLayout* rows_;
-
-private:
-  QLabel* title_;
-
-private Q_SLOTS:
-  void initialize();
 };
 }  // namespace tobas::gui::bm

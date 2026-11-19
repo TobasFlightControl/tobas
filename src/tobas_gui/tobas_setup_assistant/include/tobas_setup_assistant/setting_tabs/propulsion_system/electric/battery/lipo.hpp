@@ -3,8 +3,9 @@
 
 #pragma once
 
+#include <tobas_qt_tools/widgets/spin_box.hpp>
+
 #include "./base.hpp"
-#include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
 namespace tobas::gui::sa::propulsion::electric
 {
@@ -30,9 +31,9 @@ public:
   double internalRegistance() override;
 
 private:
-  ParamGetterWidget_SpinBox* num_cells_;
-  ParamGetterWidget_SpinBox* capacity_;
-  ParamGetterWidget_SpinBox* C_cont_;
-  ParamGetterWidget_SpinBox* registance_;
+  qt::SpinBox* num_cells_;
+  qt::SpinBox* capacity_;
+  qt::SpinBox* c_cont_;
+  qt::SpinBox* registance_;
 };
 }  // namespace tobas::gui::sa::propulsion::electric

@@ -6,6 +6,7 @@
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <ament_index_cpp/get_package_share_path.hpp>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_ros2_tools/parameter.hpp>
@@ -13,7 +14,6 @@
 #include <tobas_xml_tools/core.hpp>
 
 #include "tobas_setup_assistant/constants.hpp"
-#include "tobas_setup_assistant/util.hpp"
 
 namespace tobas::gui::sa
 {
@@ -29,7 +29,7 @@ RvizWidget::RvizWidget(const uadf::Model& _uadf, const kdl::Tree& _tree)
   ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionParam, kMinimulUrdf);
 
   // Initialize RViz.
-  const auto rviz_config_path = getPkgShareDir() / "config/setup_assistant.rviz";
+  const auto rviz_config_path = ament_index_cpp::get_package_share_path(kPackageName) / "config/setup_assistant.rviz";
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
   resetOrbitView();
 
@@ -48,23 +48,26 @@ RvizWidget::RvizWidget(const uadf::Model& _uadf, const kdl::Tree& _tree)
   enable_collision_->setBool(kDefaultCollisionEnabled);
   enable_inertia_->setBool(kDefaultInertiaEnabled);
 
-  // Visualization button.
-  const auto visual_box = new QCheckBox("Show Visual");
+  // Visualization button
+  const auto visual_box = new QCheckBox("Show Visual Geometry");
+  const auto collision_box = new QCheckBox("Show Collision Geometry");
+  const auto inertia_box = new QCheckBox("Show Inertia");
   visual_box->setChecked(kDefaultVisualEnabled);
-  const auto collision_box = new QCheckBox("Show Collision");
   collision_box->setChecked(kDefaultCollisionEnabled);
-  const auto inertia_box = new QCheckBox("Show Inertial");
   inertia_box->setChecked(kDefaultInertiaEnabled);
 
-  // Layout.
-  const auto rows = new QVBoxLayout(this);
-  const auto cols = new QHBoxLayout();
-  rows->addWidget(rviz_manager_.widget());
-  rows->addLayout(cols);
-  cols->addStretch();
-  cols->addWidget(visual_box);
-  cols->addWidget(collision_box);
-  cols->addWidget(inertia_box);
+  // Layout
+  const auto ctrl_cols = new QHBoxLayout();
+  ctrl_cols->setContentsMargins(0, 0, 0, 0);
+  ctrl_cols->addStretch(1);
+  ctrl_cols->addWidget(visual_box);
+  ctrl_cols->addWidget(collision_box);
+  ctrl_cols->addWidget(inertia_box);
+
+  const auto root_rows = new QVBoxLayout(this);
+  root_rows->setContentsMargins(0, 0, 0, 0);
+  root_rows->addWidget(rviz_manager_.widget());
+  root_rows->addLayout(ctrl_cols);
 
   // Connection
   connect(visual_box, &QCheckBox::toggled, this, &self::onVisualBoxToggled);

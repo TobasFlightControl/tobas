@@ -10,8 +10,8 @@ namespace
 constexpr char kUndefined[] = "Undefined";
 constexpr char kPlanarMulticopter[] = "Planar Multicopter";
 constexpr char kNonPlanarMulticopter[] = "Non-Planar Multicopter";
-constexpr char kYAxisTiltMulticopter[] = "Y Axis Tilt Multicopter";
-constexpr char kRandomAxisTiltMulticopter[] = "Random Axis Tilt Multicopter";
+constexpr char kYAxisTiltMulticopter[] = "Y-Axis Tilt Multicopter";
+constexpr char kRandomAxisTiltMulticopter[] = "Random Tilt Multicopter";
 constexpr char kFixedWing[] = "Fixed Wing";
 }  // namespace
 

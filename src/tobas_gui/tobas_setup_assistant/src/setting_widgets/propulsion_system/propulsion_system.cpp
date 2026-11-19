@@ -6,6 +6,7 @@
 #include <ranges>
 
 #include <QRadioButton>
+#include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -32,8 +33,12 @@ PropulsionSystemWidget::PropulsionSystemWidget(const uadf::Model& _uadf, Signals
   addPropulsionSystemWidget(new electric::PropulsionSystemWidget(_uadf), id++);
   addPropulsionSystemWidget(new ice::PropulsionSystemWidget(_uadf), id++);
 
-  addSpacing(50);
-  addWidget(propulsion_stack_);
+  const auto rows = new QVBoxLayout(this);
+  for (const auto button : type_btn_group_->buttons()) {
+    rows->addWidget(button);
+  }
+  rows->addSpacing(8);
+  rows->addWidget(propulsion_stack_);
 
   connect(type_btn_group_, &QButtonGroup::idClicked, this, &self::onPropulsionTypeClicked);
 }
@@ -45,7 +50,7 @@ const char* PropulsionSystemWidget::name() const
 
 const char* PropulsionSystemWidget::title() const
 {
-  return "Define Propulsion System";
+  return "Configure Propulsion System";
 }
 
 const char* PropulsionSystemWidget::description() const
@@ -156,9 +161,10 @@ const BasePropulsionSystemWidget* PropulsionSystemWidget::selected() const
 
 void PropulsionSystemWidget::addPropulsionSystemWidget(BasePropulsionSystemWidget* _widget, int _id)
 {
+  _widget->layout()->setContentsMargins(0, 0, 0, 0);
+
   const auto btn = new QRadioButton(_widget->name());
   type_btn_group_->addButton(btn, _id);
-  addWidget(btn);
   propulsion_stack_->addWidget(_widget);
 }
 

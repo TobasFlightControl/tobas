@@ -4,11 +4,12 @@
 #include "tobas_setup_assistant/setting_tabs/failsafe.hpp"
 
 #include <QFormLayout>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QVBoxLayout>
 
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace tobas::gui::sa
@@ -20,12 +21,12 @@ constexpr char kEscNoCommTimeoutKey[] = "esc_no_comm_timeout";
 
 FailsafeWidget::FailsafeWidget()
 {
-  items_[kRtComplianceIdx] = new qt::CheckBox("Check realtime compliance");
+  items_[kRtComplianceIdx] = new qt::CheckBox("Check real-time compliance");
   items_[kBatteryVoltageIdx] = new qt::CheckBox("Check battery voltage");
   items_[kCpuTempIdx] = new qt::CheckBox("Check CPU temperature");
   items_[kRadioLinkIdx] = new qt::CheckBox("Check radio link");
   items_[kRotorLinksIdx] = new qt::CheckBox("Check rotor links");
-  items_[kAttiLevelIdx] = new qt::CheckBox("Check attitude level");
+  items_[kAttiLevelIdx] = new qt::CheckBox("Check for a level attitude");
   items_[kGnssFixIdx] = new qt::CheckBox("Check GNSS fix");
   items_[kPosStabilityIdx] = new qt::CheckBox("Check position stability");
   items_[kHorPosAccuracyIdx] = new qt::CheckBox("Check horizontal position accuracy");
@@ -38,29 +39,38 @@ FailsafeWidget::FailsafeWidget()
   items_[kUserDefinedConditionIdx] = new qt::CheckBox("Check user-defined condition");
 
   esc_no_comm_timeout_ = new qt::SpinBox();
+  esc_no_comm_timeout_->setToolTip(
+    "Time in milliseconds that ESC communication may remain lost "
+    "before the rotor anomaly detector marks the rotor as unavailable.");
   esc_no_comm_timeout_->setSuffix(" ms");
 
   // Layout
   const auto checklist_rows = new QVBoxLayout();
-  checklist_rows->addWidget(new qt::Label("Checklist", cmn::kLabelPSize, QFont::Bold));
   for (const auto& item : items_) {
     checklist_rows->addWidget(item);
   }
-  checklist_rows->addStretch();
+  checklist_rows->addStretch(1);
+  const auto checklist_scroll = new qt::ScrollArea();
+  checklist_scroll->setLayout(checklist_rows);
 
   const auto form = new QFormLayout();
-  form->addRow("ESC no communication timeout", esc_no_comm_timeout_);
+  form->addRow("ESC Communication Timeout", esc_no_comm_timeout_);
+  form->labelForField(esc_no_comm_timeout_)->setToolTip(esc_no_comm_timeout_->toolTip());
 
   const auto detail_rows = new QVBoxLayout();
-  detail_rows->addWidget(new qt::Label("Details", cmn::kLabelPSize, QFont::Bold));
   detail_rows->addLayout(form);
-  detail_rows->addStretch();
+  detail_rows->addStretch(1);
+  const auto detail_scroll = new qt::ScrollArea();
+  detail_scroll->setLayout(detail_rows);
 
-  const auto cols = new QHBoxLayout();
-  cols->addLayout(checklist_rows, 1);
-  cols->addLayout(detail_rows, 1);
-
-  addLayout(cols);
+  const auto grid = new QGridLayout(this);
+  grid->setRowStretch(1, 1);
+  grid->setColumnStretch(0, 1);
+  grid->setColumnStretch(1, 1);
+  grid->addWidget(new qt::Label("Checklist", cmn::kSubTitlePointSize, QFont::Bold), 0, 0);
+  grid->addWidget(new qt::Label("Details", cmn::kSubTitlePointSize, QFont::Bold), 0, 1);
+  grid->addWidget(checklist_scroll, 1, 0);
+  grid->addWidget(detail_scroll, 1, 1);
 }
 
 const char* FailsafeWidget::name() const
@@ -70,14 +80,15 @@ const char* FailsafeWidget::name() const
 
 const char* FailsafeWidget::title() const
 {
-  return "Specify the Fail-Safe Check Items";
+  return "Configure Fail-Safe Checks";
 }
 
 const char* FailsafeWidget::description() const
 {
-  return "Specify the system checks that must pass before the motors are allowed to spin. "
-         "Enable a checkmark for each item to be verified. "
-         "For maximum safety, enabling all checks is strongly recommended.";
+  return "Select the health checks used for arming readiness and fail-safe monitoring, "
+         "and configure the ESC communication timeout. "
+         "Choose checks that match the installed sensors and operating conditions. "
+         "Unchecked items are excluded from health monitoring.";
 }
 
 void FailsafeWidget::updateInternalDataStructures()

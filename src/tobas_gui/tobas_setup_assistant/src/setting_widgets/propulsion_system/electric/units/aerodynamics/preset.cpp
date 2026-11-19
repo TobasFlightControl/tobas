@@ -5,13 +5,16 @@
 
 #include <rapidcsv.h>
 
+#include <QVBoxLayout>
+#include <ament_index_cpp/get_package_share_path.hpp>
+
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+#include "tobas_setup_assistant/constants.hpp"
 #include "tobas_setup_assistant/rapidcsv.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/util.hpp"
-#include "tobas_setup_assistant/util.hpp"
 
 namespace fs = std::filesystem;
 
@@ -25,6 +28,9 @@ constexpr char kPropellerNameKey[] = "propeller_name";
 AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* _propeller) : propeller_(_propeller)
 {
   data_name_ = new qt::ComboBox();
+  data_name_->setToolTip(
+    "Select the bundled propeller dataset used to estimate aerodynamic constants. "
+    "The dataset should match the propeller being configured.");
 
   // Add thrust data names.
   for (const auto& entry : fs::recursive_directory_iterator(thrustStandDataDir())) {
@@ -46,8 +52,9 @@ AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* _pro
   data_name_->sort();
 
   // Layout
-  rows_->addWidget(data_name_);
-  rows_->addStretch();
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(data_name_);
+  rows->addStretch(1);
 }
 
 void AerodynamicsWidget_Preset::setToDefaults()
@@ -62,8 +69,8 @@ const char* AerodynamicsWidget_Preset::name() const
 
 const char* AerodynamicsWidget_Preset::description() const
 {
-  return "If your propeller appears in the list, "
-         "just pick it and the correct aerodynamic parameters will be applied automatically.";
+  return "Select a bundled dataset that matches your propeller to estimate its aerodynamic constants. "
+         "Use a measurement-based method if no suitable dataset is available.";
 }
 
 bool AerodynamicsWidget_Preset::isValid()
@@ -186,7 +193,7 @@ AerodynamicsWidget_Preset::parseUiucData(const fs::path& _path) const
 
 fs::path AerodynamicsWidget_Preset::dataDir()
 {
-  return getPkgShareDir() / "data";
+  return ament_index_cpp::get_package_share_path(kPackageName) / "data";
 }
 
 fs::path AerodynamicsWidget_Preset::thrustStandDataDir()

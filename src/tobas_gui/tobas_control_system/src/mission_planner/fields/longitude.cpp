@@ -9,6 +9,8 @@ namespace tobas::gui::ctrl::field
 {
 LongitudeWidget::LongitudeWidget()
 {
+  setToolTip("Target geodetic longitude in degrees. Positive values are east of the prime meridian.");
+
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(9);
   spin_box_->setMinimum(-180.0);

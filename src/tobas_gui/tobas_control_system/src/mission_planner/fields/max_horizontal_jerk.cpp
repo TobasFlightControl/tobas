@@ -9,6 +9,10 @@ namespace tobas::gui::ctrl::field
 {
 MaxHorizontalJerkWidget::MaxHorizontalJerkWidget()
 {
+  setToolTip(
+    "Maximum rate of change of horizontal acceleration in meters per second cubed. "
+    "Lower values make acceleration changes more gradual.");
+
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_JERK_AUTO
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);

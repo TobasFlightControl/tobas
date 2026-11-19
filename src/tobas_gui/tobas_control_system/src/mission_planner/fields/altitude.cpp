@@ -9,6 +9,8 @@ namespace tobas::gui::ctrl::field
 {
 AltitudeWidget::AltitudeWidget()
 {
+  setToolTip("Target altitude in meters, measured relative to the reference selected in Altitude Frame.");
+
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(2);
   spin_box_->setValue(5.0);

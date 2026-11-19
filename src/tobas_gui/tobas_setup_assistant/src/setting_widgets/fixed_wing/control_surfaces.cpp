@@ -7,9 +7,7 @@
 #include <QHeaderView>
 #include <QLabel>
 
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
-#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/format.hpp>
@@ -34,12 +32,12 @@ constexpr int kNumCols = kYawCoefCol + 1;
 /* Labels */
 constexpr char kLinkNameLabel[] = "Link Name";
 constexpr char kJointNameLabel[] = "Joint Name";
-constexpr char kLiftCoefLabel[] = "Lift Coef";
-constexpr char kDragCoefLabel[] = "Drag Coef";
-constexpr char kSideCoefLabel[] = "Side Coef";
-constexpr char kRollCoefLabel[] = "Roll Coef";
-constexpr char kPitchCoefLabel[] = "Pitch Coef";
-constexpr char kYawCoefLabel[] = "Yaw Coef";
+constexpr char kLiftCoefLabel[] = "Lift Coef.";
+constexpr char kDragCoefLabel[] = "Drag Coef.";
+constexpr char kSideCoefLabel[] = "Side-Force Coef.";
+constexpr char kRollCoefLabel[] = "Roll-Moment Coef.";
+constexpr char kPitchCoefLabel[] = "Pitch-Moment Coef.";
+constexpr char kYawCoefLabel[] = "Yaw-Moment Coef.";
 }  // namespace
 
 ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& _uadf) : super(0, kNumCols), uadf_(_uadf)
@@ -55,11 +53,12 @@ ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& _uadf) : super(0
       kPitchCoefLabel,
       kYawCoefLabel,
     });
-  setColumnsWidth(120);
-  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
   setHeaderSectionsClickable(false);
-  horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+
+  const auto hor_header = horizontalHeader();
+  hor_header->setSectionResizeMode(QHeaderView::Fixed);
+  hor_header->setSectionResizeMode(QHeaderView::ResizeToContents);
+  hor_header->setMinimumSectionSize(160);
 }
 
 void ControlSurfacesWidget::updateInternalDataStructures()
@@ -158,41 +157,45 @@ void ControlSurfacesWidget::add(const QString& _link_name)
   insertRow(row);
 
   const auto link_name_label = new QLabel(_link_name);
-  link_name_label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   link_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kLinkNameCol, link_name_label);
 
   const auto joint_name_label = new QLabel(QString::fromStdString(joint->name));
-  joint_name_label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   joint_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kJointNameCol, joint_name_label);
 
   const auto c_lift_delta = new qt::DoubleSpinBox();
+  c_lift_delta->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_lift_delta->setDecimals(kStabilityCoefDecimals);
   c_lift_delta->setSuffix(" /rad");
   setCellWidget(row, kLiftCoefCol, c_lift_delta);
 
   const auto c_drag_delta = new qt::DoubleSpinBox();
+  c_drag_delta->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_drag_delta->setDecimals(kStabilityCoefDecimals);
   c_drag_delta->setSuffix(" /rad");
   setCellWidget(row, kDragCoefCol, c_drag_delta);
 
   const auto c_side_delta = new qt::DoubleSpinBox();
+  c_side_delta->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_side_delta->setDecimals(kStabilityCoefDecimals);
   c_side_delta->setSuffix(" /rad");
   setCellWidget(row, kSideCoefCol, c_side_delta);
 
   const auto c_roll_delta = new qt::DoubleSpinBox();
+  c_roll_delta->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_roll_delta->setDecimals(kStabilityCoefDecimals);
   c_roll_delta->setSuffix(" /rad");
   setCellWidget(row, kRollCoefCol, c_roll_delta);
 
   const auto c_pitch_delta = new qt::DoubleSpinBox();
+  c_pitch_delta->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_pitch_delta->setDecimals(kStabilityCoefDecimals);
   c_pitch_delta->setSuffix(" /rad");
   setCellWidget(row, kPitchCoefCol, c_pitch_delta);
 
   const auto c_yaw_delta = new qt::DoubleSpinBox();
+  c_yaw_delta->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_yaw_delta->setDecimals(kStabilityCoefDecimals);
   c_yaw_delta->setSuffix(" /rad");
   setCellWidget(row, kYawCoefCol, c_yaw_delta);

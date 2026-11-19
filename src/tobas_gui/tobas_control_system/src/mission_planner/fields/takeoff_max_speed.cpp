@@ -9,6 +9,8 @@ namespace tobas::gui::ctrl::field
 {
 TakeoffMaxSpeedWidget::TakeoffMaxSpeedWidget()
 {
+  setToolTip("Maximum vertical ascent speed during takeoff in meters per second.");
+
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_TKO_SPEED
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);

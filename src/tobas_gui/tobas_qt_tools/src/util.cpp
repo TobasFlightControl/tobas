@@ -97,10 +97,10 @@ void clearLayout(QLayout* _layout)
   }
 }
 
-QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* _parent)
+QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* _parent, int _stretch)
 {
   const auto scroll_area = new ScrollArea();
-  _parent->addWidget(scroll_area);
+  _parent->addWidget(scroll_area, _stretch);
 
   const auto content = new QWidget();
   const auto rows = new QVBoxLayout(content);

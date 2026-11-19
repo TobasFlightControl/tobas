@@ -27,7 +27,6 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& _bridge
   log_name_->setEnabled(false);
 
   start_stop_button_ = new qt::ToggleButton("▶ Start Recording", "■ Stop Recording");
-  start_stop_button_->setFixedSize(150, 60);
 
   duration_ = new QLCDNumber(8);
   duration_->setSegmentStyle(QLCDNumber::Flat);
@@ -47,7 +46,7 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& _bridge
 
   const auto ctrl_cols = new QHBoxLayout();
   ctrl_cols->addWidget(start_stop_button_);
-  ctrl_cols->addStretch();
+  ctrl_cols->addStretch(1);
   ctrl_cols->addWidget(duration_);
 
   const auto state_form = new qt::FormLayout();
@@ -55,6 +54,7 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(const rqt::RosQtBridge& _bridge
   state_form->addVAlignedRow(new QLabel("Message Count"), message_count_);
 
   const auto root_rows = new QVBoxLayout(this);
+  root_rows->setContentsMargins(0, 0, 0, 0);
   root_rows->addLayout(name_cols);
   root_rows->addLayout(ctrl_cols);
   root_rows->addLayout(state_form);

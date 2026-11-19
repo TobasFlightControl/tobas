@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/uiuc.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
@@ -12,20 +14,28 @@
 
 namespace tobas::gui::sa::propulsion::electric
 {
+namespace
+{
+constexpr char kDataLabel[] = "Static Test Data";
+}  // namespace
+
 AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(const PropellerWidget* _propeller) : propeller_(_propeller)
 {
-  data_ = new ParamGetterWidget_DoubleTable(
-    "Measurements in static condition", "Select UIUC Data", { kRpmColName, kUiucCtColName, kUiucCpColName });
+  data_ =
+    new ParamGetterWidget_DoubleTable(kDataLabel, "Select UIUC Data", { kRpmColName, kUiucCtColName, kUiucCpColName });
+  data_->setToolTip(
+    "Static propeller measurements: rotational speed in rpm, thrust coefficient CT, and power coefficient CP. "
+    "Use data for the selected propeller geometry.");
   data_->setDecimals({ 3, 6, 6 });
   data_->setMinimum({ 1e-3, 1e-6, 1e-6 });
-  data_->table()->setColumnsWidth(kDataTableColWidth);
 
-  rows_->addWidget(data_);
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(data_);
 }
 
 void AerodynamicsWidget_UIUC::setToDefaults()
 {
-  data_->table()->removeAll();
+  data_->clearData();
 }
 
 const char* AerodynamicsWidget_UIUC::name() const
@@ -37,13 +47,14 @@ const char* AerodynamicsWidget_UIUC::description() const
 {
   return "If the propeller is listed in the "
          "<a href='https://m-selig.ae.illinois.edu/props/propDB.html'>UIUC Propeller Data Site</a>, "
-         "aerodynamic constants measured by research institutions can be utilized.";
+         "use its static thrust and power coefficient data to estimate the aerodynamic constants. "
+         "The propeller diameter is taken from the Propeller tab.";
 }
 
 bool AerodynamicsWidget_UIUC::isValid()
 {
   if (data_->count() == 0) {
-    qt::qWarnBox(this, "Measurements in static condition is blank.");
+    qt::qWarnBox(this, "No static test data has been entered.");
     return false;
   }
 
@@ -53,26 +64,26 @@ bool AerodynamicsWidget_UIUC::isValid()
 void AerodynamicsWidget_UIUC::copyFrom(const AerodynamicsWidget_Base* _src)
 {
   const auto derived = qt::qConstPointerCast<AerodynamicsWidget_UIUC>(_src);
-  data_->setValue(derived->data_->getValue());
+  data_->setData(derived->data_->getData());
 }
 
 YAML::Node AerodynamicsWidget_UIUC::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[data_->name()] = data_->getValue();
+  node[kDataLabel] = data_->getData();
 
   return node;
 }
 
 void AerodynamicsWidget_UIUC::load(const YAML::Node& _node)
 {
-  data_->setValue(_node[data_->name()].as<Eigen::MatrixXd>());
+  data_->setData(_node[kDataLabel].as<Eigen::MatrixXd>());
 }
 
 double AerodynamicsWidget_UIUC::motorConst() const
 {
-  const auto data_mat = data_->getValue();
+  const auto data_mat = data_->getData();
   const auto ct = data_mat.col(1).eval();
   const auto d = propeller_->diameter();
   return motorConstFromUiuc(ct, d);
@@ -80,7 +91,7 @@ double AerodynamicsWidget_UIUC::motorConst() const
 
 double AerodynamicsWidget_UIUC::momentConst() const
 {
-  const auto data_mat = data_->getValue();
+  const auto data_mat = data_->getData();
   const auto ct = data_mat.col(1).eval();
   const auto cp = data_mat.col(2).eval();
   const auto d = propeller_->diameter();

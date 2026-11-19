@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/thrust_stand.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
@@ -12,20 +14,28 @@
 
 namespace tobas::gui::sa::propulsion::electric
 {
+namespace
+{
+constexpr char kDataLabel[] = "Thrust Stand Test Data";
+}  // namespace
+
 AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand()
 {
-  data_ = new ParamGetterWidget_DoubleTable(
-    "Data from thrust stand", "Select Test Data", { kRpmColName, kThrustColName, kTorqueColName });
+  data_ =
+    new ParamGetterWidget_DoubleTable(kDataLabel, "Select Test Data", { kRpmColName, kThrustColName, kTorqueColName });
+  data_->setToolTip(
+    "Measured propeller speed in rpm, thrust in newtons, and reaction torque in newton-meters. "
+    "Use measurements for the selected motor and propeller.");
   data_->setDecimals({ 0, 6, 6 });
   data_->setMinimum({ 1, 1e-6, 1e-6 });
-  data_->table()->setColumnsWidth(kDataTableColWidth);
 
-  rows_->addWidget(data_);
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(data_);
 }
 
 void AerodynamicsWidget_ThrustStand::setToDefaults()
 {
-  data_->table()->removeAll();
+  data_->clearData();
 }
 
 const char* AerodynamicsWidget_ThrustStand::name() const
@@ -36,9 +46,9 @@ const char* AerodynamicsWidget_ThrustStand::name() const
 const char* AerodynamicsWidget_ThrustStand::description() const
 {
   // Hyperlinks do not work if a newline is inserted in the text.
-  return "We estimate the aerodynamic constants from data obtained through Thrust Stand experiments. "
+  return "Estimate propeller aerodynamic constants from measured rotational speed, thrust, and torque. "
          "For example, see "
-         "<a href='https://www.tytorobotics.com/pages/series-1580-1585'>Tyto Rootics Series 1585 Thrust Stand</a>.";
+         "<a href='https://www.tytorobotics.com/pages/series-1580-1585'>Tyto Robotics Series 1585 Thrust Stand</a>.";
 }
 
 bool AerodynamicsWidget_ThrustStand::isValid()
@@ -54,28 +64,28 @@ bool AerodynamicsWidget_ThrustStand::isValid()
 void AerodynamicsWidget_ThrustStand::copyFrom(const AerodynamicsWidget_Base* _src)
 {
   const auto derived = qt::qConstPointerCast<AerodynamicsWidget_ThrustStand>(_src);
-  data_->setValue(derived->data_->getValue());
+  data_->setData(derived->data_->getData());
 }
 
 YAML::Node AerodynamicsWidget_ThrustStand::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[data_->name()] = data_->getValue();
+  node[kDataLabel] = data_->getData();
 
   return node;
 }
 
 void AerodynamicsWidget_ThrustStand::load(const YAML::Node& _node)
 {
-  data_->setValue(_node[data_->name()].as<Eigen::MatrixXd>());
+  data_->setData(_node[kDataLabel].as<Eigen::MatrixXd>());
 }
 
 double AerodynamicsWidget_ThrustStand::motorConst() const
 {
   // TODO: Remove outliers
   // TODO: Warn if the data is too far from the model (linear function).
-  const auto data_mat = data_->getValue();
+  const auto data_mat = data_->getData();
   const auto rpms = data_mat.col(0).eval();
   const auto thrusts = data_mat.col(1).eval();
   return motorConstFromThrustStand(rpms, thrusts);
@@ -85,7 +95,7 @@ double AerodynamicsWidget_ThrustStand::momentConst() const
 {
   // TODO: Remove outliers
   // TODO: Warn if the data is too far from the model (linear function).
-  const auto data_mat = data_->getValue();
+  const auto data_mat = data_->getData();
   const auto thrusts = data_mat.col(1).eval();
   const auto torques = data_mat.col(2).eval();
   return momentConstFromThrustStand(thrusts, torques);

@@ -5,6 +5,7 @@
 
 #include <QDebug>
 #include <QHeaderView>
+#include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_std_tools/check.hpp>
@@ -41,7 +42,9 @@ ExtraJointsWidget::ExtraJointsWidget(const uadf::Model& _uadf, const kdl::Tree& 
   table_->setHeaderSectionsClickable(false);
   table_->setHorizontalHeaderLabels({ kLinkNameLabel, kJointNameLabel, kCmdIfaceLabel, kHomePosLabel });
   table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  addWidget(table_);
+
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(table_);
 }
 
 const char* ExtraJointsWidget::name() const
@@ -56,8 +59,9 @@ const char* ExtraJointsWidget::title() const
 
 const char* ExtraJointsWidget::description() const
 {
-  return "Configure any joints that are not directly involved in flight control. "
-         "Complete every field in the table below with the appropriate values.";
+  return "Configure the command interface and home position for movable joints that are not used for flight control. "
+         "Joint and link names are taken from the robot model. "
+         "Select None for joints that do not need a command interface.";
 }
 
 void ExtraJointsWidget::updateInternalDataStructures()

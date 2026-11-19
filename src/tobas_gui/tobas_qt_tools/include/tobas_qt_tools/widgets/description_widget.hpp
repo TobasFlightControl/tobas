@@ -15,6 +15,6 @@ class DescriptionWidget : public QLabel
   using super = QLabel;
 
 public:
-  explicit DescriptionWidget(const QString& _text, int _point_size, QWidget* _parent = nullptr);
+  explicit DescriptionWidget(const QString& _text = "", int _point_size = -1, QWidget* _parent = nullptr);
 };
 }  // namespace tobas::qt

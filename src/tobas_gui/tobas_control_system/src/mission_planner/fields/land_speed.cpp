@@ -9,6 +9,8 @@ namespace tobas::gui::ctrl::field
 {
 LandSpeedWidget::LandSpeedWidget()
 {
+  setToolTip("Vertical descent speed during landing in meters per second. Enter a positive magnitude.");
+
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_LAND_SPEED
   spin_box_ = new qt::DoubleSpinBox();
   spin_box_->setDecimals(1);
@@ -25,7 +27,7 @@ LandSpeedWidget::LandSpeedWidget()
 
 const char* LandSpeedWidget::label() const
 {
-  return "Descending Speed";
+  return "Descent Speed";
 }
 
 double LandSpeedWidget::getValue() const

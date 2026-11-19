@@ -9,6 +9,8 @@
 #include <cstring>
 #include <filesystem>
 
+#include <QVBoxLayout>
+
 #include <tobas_path_tools/core.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ssh_authkey/export.hpp>
@@ -51,10 +53,11 @@ SshAuthorizedKeysWidget::SshAuthorizedKeysWidget()
   cols->addWidget(add_button_);
   cols->addWidget(remove_button_);
   cols->addWidget(clear_button_);
-  cols->addStretch();
+  cols->addStretch(1);
 
-  rows_->addLayout(cols);
-  rows_->addWidget(list_);
+  const auto rows = new QVBoxLayout(this);
+  rows->addLayout(cols);
+  rows->addWidget(list_);
 
   // Connection
   connect(add_button_, &QPushButton::clicked, this, &self::onAddButtonClicked);
@@ -186,7 +189,7 @@ bool SshAuthorizedKeysWidget::writeCurrentConfig()
     return false;
   }
 
-  qt::qInfoBox(this, "SSH authorized keys are updated successfully.");
+  qt::qInfoBox(this, "SSH authorized keys have been updated successfully.");
   return true;
 }
 

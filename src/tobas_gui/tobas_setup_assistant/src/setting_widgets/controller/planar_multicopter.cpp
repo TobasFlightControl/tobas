@@ -9,6 +9,12 @@
 
 namespace tobas::gui::sa::ctrl
 {
+namespace
+{
+constexpr char kTranslationDisturbanceCompensationLabel[] = "Enable Translational Disturbance Compensation";
+constexpr char kRotationDisturbanceCompensationLabel[] = "Enable Rotational Disturbance Compensation";
+}  // namespace
+
 PlanarMulticopterWidget::PlanarMulticopterWidget()
 {
   const auto rows = new QVBoxLayout(this);
@@ -16,13 +22,13 @@ PlanarMulticopterWidget::PlanarMulticopterWidget()
   use_additional_acceleration_ = new QCheckBox("Use Additional Acceleration");
   rows->addWidget(use_additional_acceleration_);
 
-  do_dist_comp_trans_ = new QCheckBox("Do Disturbance Compensation (Translation)");
+  do_dist_comp_trans_ = new QCheckBox(kTranslationDisturbanceCompensationLabel);
   rows->addWidget(do_dist_comp_trans_);
 
-  do_dist_comp_rot_ = new QCheckBox("Do Disturbance Compensation (Rotation)");
+  do_dist_comp_rot_ = new QCheckBox(kRotationDisturbanceCompensationLabel);
   rows->addWidget(do_dist_comp_rot_);
 
-  rows->addStretch();
+  rows->addStretch(1);
 }
 
 void PlanarMulticopterWidget::setToDefaults()
@@ -78,8 +84,8 @@ YAML::Node PlanarMulticopterWidget::dump() const
   YAML::Node node(YAML::NodeType::Map);
 
   node[use_additional_acceleration_->text()] = use_additional_acceleration_->isChecked();
-  node[do_dist_comp_trans_->text()] = do_dist_comp_trans_->isChecked();
-  node[do_dist_comp_rot_->text()] = do_dist_comp_rot_->isChecked();
+  node[kTranslationDisturbanceCompensationLabel] = do_dist_comp_trans_->isChecked();
+  node[kRotationDisturbanceCompensationLabel] = do_dist_comp_rot_->isChecked();
 
   return node;
 }
@@ -87,8 +93,8 @@ YAML::Node PlanarMulticopterWidget::dump() const
 void PlanarMulticopterWidget::load(const YAML::Node& _node)
 {
   use_additional_acceleration_->setChecked(_node[use_additional_acceleration_->text()].as<bool>());
-  do_dist_comp_trans_->setChecked(_node[do_dist_comp_trans_->text()].as<bool>());
-  do_dist_comp_rot_->setChecked(_node[do_dist_comp_rot_->text()].as<bool>());
+  do_dist_comp_trans_->setChecked(_node[kTranslationDisturbanceCompensationLabel].as<bool>());
+  do_dist_comp_rot_->setChecked(_node[kRotationDisturbanceCompensationLabel].as<bool>());
 }
 
 bool PlanarMulticopterWidget::isValid()

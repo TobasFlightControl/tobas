@@ -17,7 +17,7 @@ PoseWidget::PoseWidget()
 {
   const auto rows = new QVBoxLayout(this);
 
-  rows->addWidget(new qt::Label("Initial Pose", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new qt::Label("Initial Pose", cmn::kSubTitlePointSize, QFont::Bold));
 
   const auto cols = new QHBoxLayout();
   rows->addLayout(cols);
@@ -27,11 +27,13 @@ PoseWidget::PoseWidget()
   constexpr std::array kLabelsXYZ = { "X:", "Y:", "Z:" };
   for (size_t i = 0; i < 3; ++i) {
     xyz_[i] = new qt::DoubleSpinBox();
+    xyz_[i]->setToolTip("Initial position along this axis in meters in the Gazebo world frame.");
     xyz_[i]->setDecimals(1);
     xyz_[i]->setSingleStep(0.1);
     xyz_[i]->setSuffix(" m");
 
     xyz_form->addRow(kLabelsXYZ[i], xyz_[i]);
+    xyz_form->labelForField(xyz_[i])->setToolTip(xyz_[i]->toolTip());
   }
 
   const auto rpy_form = new qt::FormLayout();
@@ -39,11 +41,13 @@ PoseWidget::PoseWidget()
   constexpr std::array kLabelsRPY = { "Roll:", "Pitch:", "Yaw:" };
   for (size_t i = 0; i < 3; ++i) {
     rpy_[i] = new qt::SpinBox();
+    rpy_[i]->setToolTip("Initial roll, pitch, or yaw angle in degrees relative to the Gazebo world frame.");
     rpy_[i]->setSuffix(" deg");
     rpy_[i]->setMinimum(-180);
     rpy_[i]->setMaximum(+180);
 
     rpy_form->addRow(kLabelsRPY[i], rpy_[i]);
+    rpy_form->labelForField(rpy_[i])->setToolTip(rpy_[i]->toolTip());
   }
 
   reset();

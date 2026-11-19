@@ -4,12 +4,14 @@
 #include "tobas_qwt_wrapper/qwt_plot_curve.hpp"
 
 #include <qwt/qwt_plot_curve.h>
+#include <qwt/qwt_plot_item.h>
 
 namespace tobas::qwt
 {
 QwtPlotCurveWrapper::QwtPlotCurveWrapper(const QString& _title)
 {
   impl_ = std::make_shared<QwtPlotCurve>(_title);
+  impl_->setRenderHint(QwtPlotItem::RenderAntialiased, true);
 }
 
 QwtPlotCurveWrapper::QwtPlotCurveWrapper(const char* _title) : QwtPlotCurveWrapper(QString(_title))

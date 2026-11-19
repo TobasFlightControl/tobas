@@ -23,13 +23,17 @@ constexpr char kDirPath[] = "/dev/serial/by-id";
 SbusWidget::SbusWidget() : dir_(kDirPath)
 {
   device_names_ = new qt::ComboBox();
+  device_names_->setToolTip(
+    "Serial device providing S.BUS transmitter input to the simulation. "
+    "Select the empty entry to leave the S.BUS driver disabled.");
 
   // Layout
   const auto form = new QFormLayout();
   form->addRow("Device", device_names_);
+  form->labelForField(device_names_)->setToolTip(device_names_->toolTip());
 
   const auto rows = new QVBoxLayout(this);
-  rows->addWidget(new qt::Label("S.BUS", cmn::kLabelPSize, QFont::Bold));
+  rows->addWidget(new qt::Label("S.BUS", cmn::kSubTitlePointSize, QFont::Bold));
   rows->addLayout(form);
 
   // Connection

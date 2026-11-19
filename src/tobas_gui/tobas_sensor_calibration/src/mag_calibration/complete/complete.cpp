@@ -14,7 +14,6 @@
 #include <tobas_constants/ros.hpp>
 #include <tobas_eigen_conversions/eigen_msg.hpp>
 #include <tobas_eigen_tools/hash.hpp>
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -40,11 +39,10 @@ constexpr double kRvizPointScale = 10.0;
 CompleteMagCalibWidget::CompleteMagCalibWidget(const rqt::RosQtBridge& _bridge) : rviz_manager_("rviz_mag_calibration")
 {
   const auto instruction = new qt::DescriptionWidget(
-    "1. Click 'Start,' and the magnetic field points (white) will begin appearing in the view.\n\n"
-    "2. With each face up, rotate the FC around the gravity vector until each gauge is full and green.\n\n"
-    "3. When all six faces are green and the progress bar reaches 100%, click 'Finish.'\n\n"
-    "4. Confirm that the calibrated point cloud (green) draws a neat sphere around the origin.\n\n",
-    cmn::kBodyPSize);
+    "1. Click 'Start,' and the magnetic field points (white) will begin appearing in the view.\n"
+    "2. With each face up, rotate the FC around the gravity vector until each gauge is full and green.\n"
+    "3. When all six faces are green and the progress bar reaches 100%, click 'Finish.'\n"
+    "4. Confirm that the calibrated point cloud (green) draws a neat sphere around the origin.\n");
 
   start_button_ = new QPushButton("Start");
   finish_button_ = new QPushButton("Finish");
@@ -73,7 +71,7 @@ CompleteMagCalibWidget::CompleteMagCalibWidget(const rqt::RosQtBridge& _bridge) 
   button_cols->addWidget(start_button_);
   button_cols->addWidget(finish_button_);
   button_cols->addWidget(cancel_button_);
-  button_cols->addStretch();
+  button_cols->addStretch(1);
 
   const auto face_cols = new QHBoxLayout();
   for (const auto& face_circle : face_circles_) {
@@ -474,7 +472,7 @@ bool CompleteMagCalibWidget::updateRemoteParameters(const Eigen::Vector3d& _hard
 
   // Check the result.
   if (!res->success) {
-    qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
+    qt::qErrorBox(this, "Calibration results were rejected: " + QString::fromStdString(res->message));
     return false;
   }
 

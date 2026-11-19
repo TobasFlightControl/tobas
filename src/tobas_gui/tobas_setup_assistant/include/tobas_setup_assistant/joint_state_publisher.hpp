@@ -6,9 +6,9 @@
 #include <random>
 
 #include <QElapsedTimer>
+#include <QGridLayout>
 #include <QPushButton>
 #include <QTimer>
-#include <QVBoxLayout>
 
 #include <tobas_kdl/tree.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
@@ -54,9 +54,11 @@ private:
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
 
-  QVBoxLayout* slider_rows_;
+  QGridLayout* slider_grid_;
   QPushButton* zero_button_;
+  QPushButton* lower_button_;
   QPushButton* center_button_;
+  QPushButton* upper_button_;
   QPushButton* random_button_;
 
   sensor_msgs::msg::JointState js_;
@@ -76,7 +78,9 @@ private Q_SLOTS:
   void onValueChanged(int _value, const std::string& _jnt_name, double _position_per_step);
 
   void onZeroButtonClicked();
+  void onLowerButtonClicked();
   void onCenterButtonClicked();
+  void onUpperButtonClicked();
   void onRandomButtonClicked();
 };
 }  // namespace tobas::gui::sa

@@ -4,6 +4,7 @@
 #pragma once
 
 #include <qwt/qwt_plot.h>
+#include <qwt/qwt_plot_legenditem.h>
 
 namespace tobas::gui::log
 {
@@ -20,5 +21,8 @@ public:
   void setAxisLabelUnit(QwtPlot::Axis _axis, const QString& _unit);
 
   void setupIndexedLabelPlot(const QStringList& _labels);
+
+private:
+  QwtPlotLegendItem* legend_item_;
 };
 }  // namespace tobas::gui::log

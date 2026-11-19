@@ -45,6 +45,8 @@ mission::AltitudeFrame textToAltFrame(const char* _text)
 
 AltitudeFrameWidget::AltitudeFrameWidget()
 {
+  setToolTip("Altitude reference: height above the launch point, or altitude above mean sea level.");
+
   combobox_ = new qt::ComboBox();
   for (const auto alt_frame : magic_enum::enum_values<mission::AltitudeFrame>()) {
     combobox_->addItem(altFrameToText(alt_frame));

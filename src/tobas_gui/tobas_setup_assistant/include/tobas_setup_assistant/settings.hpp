@@ -3,14 +3,17 @@
 
 #pragma once
 
+#include <QLabel>
+
+#include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
-#include "./setting_tabs/author_information.hpp"
 #include "./setting_tabs/controller/controller.hpp"
 #include "./setting_tabs/extra_joints.hpp"
 #include "./setting_tabs/failsafe.hpp"
 #include "./setting_tabs/fixed_wing/fixed_wing.hpp"
 #include "./setting_tabs/hardware/hardware.hpp"
+#include "./setting_tabs/maintainer_information.hpp"
 #include "./setting_tabs/mission_executor/mission_executor.hpp"
 #include "./setting_tabs/network/network.hpp"
 #include "./setting_tabs/observer.hpp"
@@ -24,6 +27,8 @@ class SettingsWidget : public QWidget
 {
   Q_OBJECT
 
+  using self = SettingsWidget;
+
 public:
   propulsion::PropulsionSystemWidget* propulsion_system;
   fw::FixedWingWidget* fixed_wing;
@@ -35,7 +40,7 @@ public:
   RcInputWidget* rc_input;
   ExtraJointsWidget* extra_joints;
   FailsafeWidget* failsafe;
-  AuthorInformationWidget* author_info;
+  MaintainerInformationWidget* maintainer_info;
 
   explicit SettingsWidget(const uadf::Model& _uadf, const kdl::Tree& _tree, Signals& _sig);
 
@@ -52,10 +57,13 @@ private:
   const uadf::Model& uadf_;
 
   SettingsNavigationWidget* navigation_;
+  QLabel* title_;
+  qt::DescriptionWidget* description_;
   qt::StackedWidget* stack_;
 
   int getIndex(BaseSettingWidget* _page) const;
   void addPage(BaseSettingWidget* _page);
+  void updateHeader(int _idx);
   void setCurrentPage(int _idx);
   void setCurrentPage(BaseSettingWidget* _page);
   void setPageEnabled(int _idx, bool _enabled, const QString& _disabled_reason = {});

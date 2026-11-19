@@ -14,7 +14,6 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QSettings>
-#include <QSpinBox>
 #include <QWidget>
 #include <rclcpp/context.hpp>
 
@@ -28,6 +27,7 @@
 #include <tobas_gui_common/version.hpp>
 #include <tobas_kdl_parser/kdl_parser.hpp>
 #include <tobas_parameter_tuning/parameter_tuning.hpp>
+#include <tobas_qt_tools/widgets/spin_box.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_ros2_tools/async_node_manager.hpp>
@@ -79,7 +79,7 @@ private:
   FlightControllerScanner* fc_scanner_;
   QComboBox* fc_selector_;
   QLineEdit* proj_path_;
-  QSpinBox* write_id_;
+  qt::SpinBox* write_id_;
   qt::ToggleButton* connect_btn_;
   QPushButton* write_btn_;
 

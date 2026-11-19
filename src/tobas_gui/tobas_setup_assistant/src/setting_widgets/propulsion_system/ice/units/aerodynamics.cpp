@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/aerodynamics.hpp"
 
+#include <QVBoxLayout>
+
 #include <eigen3/Eigen/SVD>
 
 #include <tobas_eigen_tools/core.hpp>
@@ -16,15 +18,25 @@
 
 namespace tobas::gui::sa::propulsion::ice
 {
+namespace
+{
+constexpr char kDataLabel[] = "Single-Propeller Test Data";
+}  // namespace
+
 AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : propeller_(_propeller)
 {
+  setWidgetResizable(false);
+
   data_ = new ParamGetterWidget_DoubleTable(
-    "Propeller Single Test Data", "Select Test Data", { "RPM", "Pitch [deg]", "Thrust [N]", "Torque [Nm]" });
+    kDataLabel, "Select Test Data", { "RPM", "Pitch [deg]", "Thrust [N]", "Torque [Nm]" });
+  data_->setToolTip(
+    "Single-propeller test measurements: "
+    "rotational speed in rpm, variable-pitch angle in degrees, thrust in newtons, and torque in newton-meters. "
+    "Use the same pitch zero position as in the Propeller tab.");
   data_->setDecimals({ 0, 2, 6, 6 });
   data_->setMinimum({ 1, -90, 1e-6, 1e-6 });
   data_->setMaximum({ INFINITY, 90, INFINITY, INFINITY });
   data_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-  data_->table()->setColumnsWidth(kDataTableColWidth);
 
   // Layout
   const auto rows = new QVBoxLayout(this);
@@ -33,7 +45,7 @@ AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : prop
 
 void AerodynamicsWidget::setToDefaults()
 {
-  data_->table()->removeAll();
+  data_->clearData();
 }
 
 const char* AerodynamicsWidget::name() const
@@ -51,7 +63,7 @@ bool AerodynamicsWidget::isValid()
   if (const auto result = motorConst().validate(); !result) {
     qt::qWarnBox(
       this,
-      "Failed to estimate the motor constant of the variable pitch propeller:\n\n" +
+      "Failed to estimate thrust-model coefficients for the variable-pitch propeller:\n\n" +
         QString::fromStdString(result.error()));
     return false;
   }
@@ -78,21 +90,21 @@ bool AerodynamicsWidget::isValid()
 void AerodynamicsWidget::copyFrom(const BaseSelectedLinkSettingWidget* _src)
 {
   const auto derived = qt::qConstPointerCast<AerodynamicsWidget>(_src);
-  data_->setValue(derived->data_->getValue());
+  data_->setData(derived->data_->getData());
 }
 
 YAML::Node AerodynamicsWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[data_->name()] = data_->getValue();
+  node[kDataLabel] = data_->getData();
 
   return node;
 }
 
 void AerodynamicsWidget::load(const YAML::Node& _node)
 {
-  data_->setValue(_node[data_->name()].as<Eigen::MatrixXd>());
+  data_->setData(_node[kDataLabel].as<Eigen::MatrixXd>());
 }
 
 VppMotorConstant AerodynamicsWidget::motorConst() const
@@ -148,7 +160,7 @@ std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> A
   std::vector<double> speeds, pitches, thrusts, torques;
 
   const auto num_data = data_->count();
-  const auto data_mat = data_->getValue();
+  const auto data_mat = data_->getData();
 
   const auto pitch_limit = propeller_->pitchAngleLimit();
 

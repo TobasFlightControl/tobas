@@ -3,11 +3,6 @@
 
 #include "tobas_bootmedia_config/base.hpp"
 
-#include <QTimer>
-
-#include <tobas_gui_common/constants.hpp>
-#include <tobas_qt_tools/font.hpp>
-
 namespace tobas::gui::bm
 {
 BaseConfigWidget::BaseConfigWidget()
@@ -16,19 +11,5 @@ BaseConfigWidget::BaseConfigWidget()
   setAutoFillBackground(true);
   auto pal = palette();
   pal.setColor(QPalette::Window, pal.color(QPalette::Base));
-
-  title_ = new QLabel();
-  title_->setFont(qt::DefaultFont(gui::cmn::kTitlePSize, QFont::Bold));
-
-  rows_ = new QVBoxLayout(this);
-  rows_->addWidget(title_, 0, Qt::AlignTop);
-  rows_->addSpacing(30);
-
-  QTimer::singleShot(0, this, &BaseConfigWidget::initialize);
-}
-
-void BaseConfigWidget::initialize()
-{
-  title_->setText(title());
 }
 }  // namespace tobas::gui::bm

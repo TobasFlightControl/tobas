@@ -3,8 +3,9 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/fixed_wing.hpp"
 
-#include <tobas_gui_common/constants.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
+#include <QVBoxLayout>
+
+#include <tobas_qt_tools/widgets/tab_widget.hpp>
 
 namespace tobas::gui::sa::fw
 {
@@ -17,20 +18,20 @@ constexpr char kControlSurfacesLabel[] = "Control Surfaces";
 
 FixedWingWidget::FixedWingWidget(const uadf::Model& _uadf)
 {
-  // Vehicle
-  addWidget(new qt::Label(kVehicleLabel, cmn::kTitlePSize));
-  vehicle_ = new VehicleParametersWidget();
-  addWidget(vehicle_);
-
-  // Aerodynamic Coefficients
-  addWidget(new qt::Label(kAeroCoefsLabel, cmn::kTitlePSize));
+  vehicle_ = new VehicleWidget();
   aero_coefs_ = new AerodynamicsCoefficientsWidget();
-  addWidget(aero_coefs_);
-
-  // Control Surfaces
-  addWidget(new qt::Label(kControlSurfacesLabel, cmn::kTitlePSize));
   control_surfaces_ = new ControlSurfacesWidget(_uadf);
-  addWidget(control_surfaces_);
+
+  const auto tabs = new qt::TabWidget();
+  tabs->setTabWidth(200);
+  tabs->enableWheelEvent(false);
+
+  tabs->addTab(vehicle_, kVehicleLabel);
+  tabs->addTab(aero_coefs_, kAeroCoefsLabel);
+  tabs->addTab(control_surfaces_, kControlSurfacesLabel);
+
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(tabs);
 }
 
 const char* FixedWingWidget::name() const
@@ -40,18 +41,18 @@ const char* FixedWingWidget::name() const
 
 const char* FixedWingWidget::title() const
 {
-  return "Define Fixed Wing";
+  return "Configure Fixed-Wing Parameters";
 }
 
 const char* FixedWingWidget::description() const
 {
-  return "Build the mathematical model for the fixed wing and its control surfaces. "
-         "In addition to the general airframe specifications, "
-         "supply the stability derivatives for the main wing and each control surface. "
+  return "Configure the fixed-wing geometry, aerodynamic coefficients, and control-surface derivatives. "
+         "Use the same reference wing area, span, and mean aerodynamic chord as the aerodynamic data. "
+         "Moment coefficients are referenced to the aerodynamic center specified in Vehicle Parameters. "
          "<a href="
          "'https://vspu.larc.nasa.gov/training-content/chapter-3-model-analysis-in-openvsp/vspaero-basics'"
          ">VSPAERO</a> "
-         "analysis results can be imported for the main wing if available.";
+         "stability output files (.stab) can be imported in the Aerodynamic Coefficients tab.";
 }
 
 void FixedWingWidget::updateInternalDataStructures()
@@ -101,7 +102,7 @@ void FixedWingWidget::load(const YAML::Node& _node)
   control_surfaces_->load(_node[kControlSurfacesLabel]);
 }
 
-const VehicleParametersWidget* FixedWingWidget::vehicle() const
+const VehicleWidget* FixedWingWidget::vehicle() const
 {
   return vehicle_;
 }

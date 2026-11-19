@@ -3,11 +3,12 @@
 
 #include "tobas_setup_assistant/setting_tabs/mission_executor/multicopter.hpp"
 
+#include <QFrame>
+#include <QLayout>
 #include <QVBoxLayout>
 
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/format.hpp>
@@ -35,6 +36,7 @@ MulticopterWidget::MulticopterWidget()
 {
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_XY_CRUISE
   wp_max_hor_vel_ = new qt::DoubleSpinBox();
+  wp_max_hor_vel_->setToolTip("Maximum horizontal speed in meters per second for waypoint trajectories.");
   wp_max_hor_vel_->setDecimals(1);
   wp_max_hor_vel_->setMinimum(1.0);  // 3 m/s -> 1 m/s
   wp_max_hor_vel_->setMaximum(20.0);
@@ -42,6 +44,7 @@ MulticopterWidget::MulticopterWidget()
 
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_HOR_MAX
   wp_max_hor_acc_ = new qt::DoubleSpinBox();
+  wp_max_hor_acc_->setToolTip("Maximum horizontal acceleration in meters per second squared for waypoint trajectories.");
   wp_max_hor_acc_->setDecimals(1);
   wp_max_hor_acc_->setMinimum(2.0);
   wp_max_hor_acc_->setMaximum(15.0);
@@ -49,6 +52,9 @@ MulticopterWidget::MulticopterWidget()
 
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_JERK_AUTO
   wp_max_hor_jerk_ = new qt::DoubleSpinBox();
+  wp_max_hor_jerk_->setToolTip(
+    "Maximum rate of change of horizontal acceleration in meters per second cubed. "
+    "Lower values make acceleration changes more gradual.");
   wp_max_hor_jerk_->setDecimals(1);
   wp_max_hor_jerk_->setMinimum(1.0);
   wp_max_hor_jerk_->setMaximum(80.0);
@@ -58,6 +64,9 @@ MulticopterWidget::MulticopterWidget()
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_Z_V_AUTO_UP
   // TODO: Use separate settings for ascent and descent.
   wp_max_ver_vel_ = new qt::DoubleSpinBox();
+  wp_max_ver_vel_->setToolTip(
+    "Maximum vertical speed in meters per second for waypoint trajectories. "
+    "The same limit is used for ascent and descent.");
   wp_max_ver_vel_->setDecimals(1);
   wp_max_ver_vel_->setMinimum(0.5);
   wp_max_ver_vel_->setMaximum(4.0);
@@ -67,6 +76,9 @@ MulticopterWidget::MulticopterWidget()
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
   // TODO: Use separate settings for ascent and descent.
   wp_max_ver_acc_ = new qt::DoubleSpinBox();
+  wp_max_ver_acc_->setToolTip(
+    "Maximum vertical acceleration in meters per second squared for waypoint trajectories. "
+    "The same limit is used for ascent and descent.");
   wp_max_ver_acc_->setDecimals(1);
   wp_max_ver_acc_->setMinimum(2.0);
   wp_max_ver_acc_->setMaximum(15.0);
@@ -74,6 +86,8 @@ MulticopterWidget::MulticopterWidget()
 
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_JERK_AUTO
   wp_max_ver_jerk_ = new qt::DoubleSpinBox();
+  wp_max_ver_jerk_->setToolTip(
+    "Maximum rate of change of vertical acceleration in meters per second cubed for waypoint trajectories.");
   wp_max_ver_jerk_->setDecimals(1);
   wp_max_ver_jerk_->setMinimum(1.0);
   wp_max_ver_jerk_->setMaximum(80.0);
@@ -81,18 +95,22 @@ MulticopterWidget::MulticopterWidget()
 
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_YAWRAUTO_MAX
   wp_max_head_rate_ = new qt::SpinBox();
+  wp_max_head_rate_->setToolTip("Maximum heading change rate in degrees per second for waypoint trajectories.");
   wp_max_head_rate_->setMinimum(5);
   wp_max_head_rate_->setMaximum(360);
   wp_max_head_rate_->setSuffix(" deg/s");
 
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_YAWRAUTO_ACC
   wp_max_head_acc_ = new qt::SpinBox();
+  wp_max_head_acc_->setToolTip(
+    "Maximum rate of change of heading rate in degrees per second squared for waypoint trajectories.");
   wp_max_head_acc_->setMinimum(5);
   wp_max_head_acc_->setMaximum(360);
   wp_max_head_acc_->setSuffix(" deg/s²");
 
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_TKO_SPEED
   takeoff_max_speed_ = new qt::DoubleSpinBox();
+  takeoff_max_speed_->setToolTip("Maximum vertical ascent speed in meters per second during takeoff.");
   takeoff_max_speed_->setDecimals(1);
   takeoff_max_speed_->setMinimum(1.0);
   takeoff_max_speed_->setMaximum(5.0);
@@ -100,6 +118,7 @@ MulticopterWidget::MulticopterWidget()
 
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_ACC_UP_MAX
   takeoff_max_accel_ = new qt::DoubleSpinBox();
+  takeoff_max_accel_->setToolTip("Maximum vertical acceleration in meters per second squared during takeoff.");
   takeoff_max_accel_->setDecimals(1);
   takeoff_max_accel_->setMinimum(1.0);
   takeoff_max_accel_->setMaximum(15.0);
@@ -107,6 +126,8 @@ MulticopterWidget::MulticopterWidget()
 
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_JERK_AUTO
   takeoff_max_jerk_ = new qt::DoubleSpinBox();
+  takeoff_max_jerk_->setToolTip(
+    "Maximum rate of change of vertical acceleration in meters per second cubed during takeoff.");
   takeoff_max_jerk_->setDecimals(1);
   takeoff_max_jerk_->setMinimum(1.0);
   takeoff_max_jerk_->setMaximum(80.0);
@@ -114,6 +135,7 @@ MulticopterWidget::MulticopterWidget()
 
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#MPC_LAND_SPEED
   land_speed_ = new qt::DoubleSpinBox();
+  land_speed_->setToolTip("Vertical descent speed in meters per second during landing. Enter a positive magnitude.");
   land_speed_->setDecimals(1);
   land_speed_->setMinimum(0.6);
   land_speed_->setMaximum(2.0);
@@ -121,6 +143,8 @@ MulticopterWidget::MulticopterWidget()
 
   // Ref: https://docs.px4.io/main/en/advanced_config/parameter_reference#RTL_RETURN_ALT
   rtl_min_alt_ = new qt::DoubleSpinBox();
+  rtl_min_alt_->setToolTip(
+    "Minimum return altitude in meters above the launch point. This is relative height, not altitude above sea level.");
   rtl_min_alt_->setDecimals(2);
   rtl_min_alt_->setMinimum(0.0);
   rtl_min_alt_->setMaximum(150.0);  // Japanese prohibited airspace.
@@ -128,34 +152,55 @@ MulticopterWidget::MulticopterWidget()
 
   const auto wp_form = new qt::FormLayout();
   wp_form->addVAlignedRow("Maximum Horizontal Velocity", wp_max_hor_vel_);
+  wp_form->labelForField(wp_max_hor_vel_)->setToolTip(wp_max_hor_vel_->toolTip());
   wp_form->addVAlignedRow("Maximum Horizontal Acceleration", wp_max_hor_acc_);
+  wp_form->labelForField(wp_max_hor_acc_)->setToolTip(wp_max_hor_acc_->toolTip());
   wp_form->addVAlignedRow("Maximum Horizontal Jerk", wp_max_hor_jerk_);
+  wp_form->labelForField(wp_max_hor_jerk_)->setToolTip(wp_max_hor_jerk_->toolTip());
   wp_form->addVAlignedRow("Maximum Vertical Velocity", wp_max_ver_vel_);
+  wp_form->labelForField(wp_max_ver_vel_)->setToolTip(wp_max_ver_vel_->toolTip());
   wp_form->addVAlignedRow("Maximum Vertical Acceleration", wp_max_ver_acc_);
+  wp_form->labelForField(wp_max_ver_acc_)->setToolTip(wp_max_ver_acc_->toolTip());
   wp_form->addVAlignedRow("Maximum Vertical Jerk", wp_max_ver_jerk_);
+  wp_form->labelForField(wp_max_ver_jerk_)->setToolTip(wp_max_ver_jerk_->toolTip());
   wp_form->addVAlignedRow("Maximum Heading Rate", wp_max_head_rate_);
+  wp_form->labelForField(wp_max_head_rate_)->setToolTip(wp_max_head_rate_->toolTip());
   wp_form->addVAlignedRow("Maximum Heading Acceleration", wp_max_head_acc_);
+  wp_form->labelForField(wp_max_head_acc_)->setToolTip(wp_max_head_acc_->toolTip());
 
   const auto takeoff_form = new qt::FormLayout();
   takeoff_form->addVAlignedRow("Maximum Speed", takeoff_max_speed_);
+  takeoff_form->labelForField(takeoff_max_speed_)->setToolTip(takeoff_max_speed_->toolTip());
   takeoff_form->addVAlignedRow("Maximum Acceleration", takeoff_max_accel_);
+  takeoff_form->labelForField(takeoff_max_accel_)->setToolTip(takeoff_max_accel_->toolTip());
   takeoff_form->addVAlignedRow("Maximum Jerk", takeoff_max_jerk_);
+  takeoff_form->labelForField(takeoff_max_jerk_)->setToolTip(takeoff_max_jerk_->toolTip());
 
   const auto land_form = new qt::FormLayout();
   land_form->addVAlignedRow("Speed", land_speed_);
+  land_form->labelForField(land_speed_)->setToolTip(land_speed_->toolTip());
 
   const auto rtl_form = new qt::FormLayout();
-  rtl_form->addVAlignedRow("Minimum Altitude (wrt. Launch Point)", rtl_min_alt_);
+  rtl_form->addVAlignedRow("Minimum Altitude Above Launch Point", rtl_min_alt_);
+  rtl_form->labelForField(rtl_min_alt_)->setToolTip(rtl_min_alt_->toolTip());
 
-  const auto rows = new QVBoxLayout(this);
-  rows->addWidget(new qt::Label("Waypoint", cmn::kLabelPSize, QFont::Bold));
-  rows->addLayout(wp_form);
-  rows->addWidget(new qt::Label("Takeoff", cmn::kLabelPSize, QFont::Bold));
-  rows->addLayout(takeoff_form);
-  rows->addWidget(new qt::Label("Land", cmn::kLabelPSize, QFont::Bold));
-  rows->addLayout(land_form);
-  rows->addWidget(new qt::Label("Return-to-Launch", cmn::kLabelPSize, QFont::Bold));
-  rows->addLayout(rtl_form);
+  setTabWidth(160);
+  enableWheelEvent(false);
+
+  const auto add_tab = [this](QLayout* _form, const char* _name)
+  {
+    const auto content_rows = new QVBoxLayout();
+    content_rows->addLayout(_form);
+    content_rows->addStretch(1);
+    const auto scroll_area = new qt::ScrollArea();
+    scroll_area->setFrameShape(QFrame::NoFrame);
+    scroll_area->setLayout(content_rows);
+    addTab(scroll_area, _name);
+  };
+  add_tab(wp_form, "Waypoint");
+  add_tab(takeoff_form, "Takeoff");
+  add_tab(land_form, "Landing");
+  add_tab(rtl_form, "Return-to-Launch");
 }
 
 void MulticopterWidget::setToDefaults()

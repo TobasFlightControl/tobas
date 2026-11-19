@@ -28,7 +28,6 @@ constexpr char kBidirectionalLabel[] = "Bidirectional";
 
 DShotWidget::DShotWidget(const uadf::Model& _uadf, const Signals& _sig) : super(0, kNumCols), uadf_(_uadf)
 {
-  setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
   setHorizontalHeaderLabels({ kTargetNameLabel, kBidirectionalLabel });
   setHeaderSectionsClickable(false);
 
@@ -215,7 +214,7 @@ void DShotWidget::removeLastChannel()
   removeRow(row);
 
   if (!target_name.isEmpty()) {
-    qt::qWarnBox(this, "PWM configuration for '" + target_name + "' has been removed.");
+    qt::qWarnBox(this, "DShot configuration for '" + target_name + "' has been removed.");
   }
 }
 

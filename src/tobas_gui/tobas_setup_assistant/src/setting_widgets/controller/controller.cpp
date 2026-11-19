@@ -3,6 +3,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/controller/controller.hpp"
 
+#include <QVBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
 #include <tobas_qt_tools/cast.hpp>
@@ -21,21 +22,24 @@ namespace tobas::gui::sa::ctrl
 ControllerWidget::ControllerWidget()
 {
   dont_use_builtin_ctrl_ = new QCheckBox("Do not use the built-in controller");
+  dont_use_builtin_ctrl_->setToolTip(
+    "Use your own controller implementation and select the command type it expects in each flight mode.");
 
   stack_ = new qt::StackedWidget();
 
-  stack_->addWidget(new CustomFrameWidget());
-  stack_->addWidget(new PlanarMulticopterWidget());
-  stack_->addWidget(new NonPlanarMulticopterWidget());
-  stack_->addWidget(new YAxisTiltMulticopterWidget());
-  stack_->addWidget(new RandomAxisTiltMulticopterWidget());
-  stack_->addWidget(new FixedWingWidget());
+  addController(new CustomFrameWidget());
+  addController(new PlanarMulticopterWidget());
+  addController(new NonPlanarMulticopterWidget());
+  addController(new YAxisTiltMulticopterWidget());
+  addController(new RandomAxisTiltMulticopterWidget());
+  addController(new FixedWingWidget());
   TOBAS_CHECK(static_cast<size_t>(stack_->count()) == magic_enum::enum_count<FrameType>());
 
   // Layout
-  addWidget(stack_);
-  addStretch();
-  addWidget(dont_use_builtin_ctrl_);
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(stack_);
+  rows->addStretch(1);
+  rows->addWidget(dont_use_builtin_ctrl_);
 
   // Connection
   connect(dont_use_builtin_ctrl_, &QCheckBox::toggled, this, &self::onDontUseBuiltinCtrlCheckBoxToggled);
@@ -48,14 +52,15 @@ const char* ControllerWidget::name() const
 
 const char* ControllerWidget::title() const
 {
-  return "Set up Flight Controller";
+  return "Configure Flight Controller";
 }
 
 const char* ControllerWidget::description() const
 {
-  return "Configure the flight controller algorithm. "
-         "Setup Assistant analyzed your UADF, and a controller suited to the airframe has been assigned automatically. "
-         "The static parameters of the controller are listed below.";
+  return "Configure the controller for the airframe type detected from the UADF. "
+         "Adjust the available controller options, or disable the built-in controller "
+         "and configure the RC command type for each flight mode "
+         "when using your own controller.";
 }
 
 void ControllerWidget::updateInternalDataStructures()
@@ -154,6 +159,12 @@ RcCommand ControllerWidget::loiterModeCommand() const
 YAML::Node ControllerWidget::staticParams() const
 {
   return selected()->staticParams();
+}
+
+void ControllerWidget::addController(BaseControllerWidget* _widget)
+{
+  _widget->layout()->setContentsMargins(0, 0, 0, 0);
+  stack_->addWidget(_widget);
 }
 
 BaseControllerWidget* ControllerWidget::widget(int _index)

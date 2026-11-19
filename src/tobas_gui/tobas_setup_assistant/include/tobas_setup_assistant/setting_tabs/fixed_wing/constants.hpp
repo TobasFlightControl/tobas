@@ -5,5 +5,6 @@
 
 namespace tobas::gui::sa::fw
 {
-static constexpr int kStabilityCoefDecimals = 6;
+static constexpr int kStabilityCoefDecimals = 4;
+static constexpr double kMaxStabilityCoef = 1e+3;
 }  // namespace tobas::gui::sa::fw

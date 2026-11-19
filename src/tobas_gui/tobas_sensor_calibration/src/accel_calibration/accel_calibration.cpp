@@ -3,7 +3,8 @@
 
 #include "tobas_sensor_calibration/accel_calibration/accel_calibration.hpp"
 
-#include <tobas_gui_common/constants.hpp>
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
@@ -17,10 +18,9 @@ namespace tobas::gui::sc
 AccelCalibrationWidget::AccelCalibrationWidget(const rqt::RosQtBridge& _bridge) : thread_(_bridge)
 {
   const auto instruction = new qt::DescriptionWidget(
-    "1. Place the flight controller on a level surface. The yellow Raw marker is a rough guide before calibration.\n\n"
-    "2. Click 'Start'. Calibration will complete in a few seconds.\n\n"
-    "3. Confirm that the green Calibrated marker appears near the center.\n\n",
-    cmn::kBodyPSize);
+    "1. Place the flight controller on a level surface. The yellow Raw marker is a rough guide before calibration.\n"
+    "2. Click 'Start'. Calibration will complete in a few seconds.\n"
+    "3. Confirm that the green Calibrated marker appears near the center.\n");
 
   start_button_ = new QPushButton("Start");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -28,10 +28,10 @@ AccelCalibrationWidget::AccelCalibrationWidget(const rqt::RosQtBridge& _bridge) 
   level_indicator_ = new LevelIndicatorWidget();
 
   // Layout
-  rows_->addWidget(instruction);
-  rows_->addWidget(start_button_);
-  rows_->addWidget(level_indicator_, Qt::AlignLeft);
-  rows_->addStretch();
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(instruction, 0);
+  rows->addWidget(start_button_, 0);
+  rows->addWidget(level_indicator_, 1);
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);

@@ -6,8 +6,9 @@
 #include <memory>
 #include <ranges>
 
+#include <QVBoxLayout>
+
 #include <tobas_constants/ros.hpp>
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
@@ -31,27 +32,27 @@ std::string paramName(size_t _ch)
 RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& _bridge, const Drone& _drone)
   : bridge_(_bridge), drone_(_drone)
 {
+  const auto rows = new QVBoxLayout(this);
+
   registered_.fill(false);
 
-  const auto warning =
-    new qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n\n", cmn::kBodyPSize);
+  const auto warning = new qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n");
   warning->setStyleSheet("color: red; font-weight: bold;");
-  rows_->addWidget(warning);
+  rows->addWidget(warning);
 
   const auto instruction = new qt::DescriptionWidget(
-    "1. Connect the ESCs to the FC in the correct order.\n\n"
-    "2. Click 'Start' to enable motors.\n\n"
+    "1. Connect the ESCs to the FC in the correct order.\n"
+    "2. Click 'Start' to enable motors.\n"
     "3. For each channel, confirm the following:\n"
-    "   - The motor rotates in the correct direction. If not, swap any two of the three ESC-motor connections.\n"
-    "   - The motor does not rotate when the command RPM is 0.\n\n"
-    "4. Tune the control gain of each channel to the maximum value at which no vibrations or abnormal noise occur.\n\n"
-    "5. Click 'Save' to save the control gains.\n\n"
-    "6. Click 'Stop' to disable motors.\n\n",
-    cmn::kBodyPSize);
-  rows_->addWidget(instruction);
+    "   • The motor rotates in the correct direction. If not, swap any two of the three ESC-motor connections.\n"
+    "   • The motor does not rotate when the command RPM is 0.\n"
+    "4. Tune the control gain of each channel to the maximum value at which no vibrations or abnormal noise occur.\n"
+    "5. Click 'Save' to save the control gains.\n"
+    "6. Click 'Stop' to disable motors.\n");
+  rows->addWidget(instruction);
 
   const auto button_cols = new QHBoxLayout();
-  rows_->addLayout(button_cols);
+  rows->addLayout(button_cols);
 
   start_stop_button_ = new qt::ToggleButton("Start", "Stop");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -64,10 +65,10 @@ RotorTestWidget::RotorTestWidget(const rqt::RosQtBridge& _bridge, const Drone& _
   button_cols->addWidget(save_button_);
   connect(save_button_, &QPushButton::clicked, this, &self::onSaveButtonClicked);
 
-  button_cols->addStretch();
+  button_cols->addStretch(1);
 
   const auto rotor_cols = new QHBoxLayout();
-  rows_->addLayout(rotor_cols);
+  rows->addLayout(rotor_cols);
 
   for (size_t ch = 0; ch < kMaxDshotChannels; ++ch) {
     rotor_widgets_.at(ch) = new RotorWidget();
@@ -290,7 +291,7 @@ void RotorTestWidget::onSaveButtonClicked()
   qt::qInfoBox(
     this,
     "The RPM control gains have been saved to the local project. "
-    "Please click 'Write' button again to flash them to the FC.");
+    "Click the 'Write' button in the GCS to deploy the updated project to the flight controller.");
 }
 
 void RotorTestWidget::onTargetRPMChanged(int, size_t)

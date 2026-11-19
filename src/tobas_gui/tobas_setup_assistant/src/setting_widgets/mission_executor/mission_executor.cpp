@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/mission_executor/mission_executor.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
@@ -25,8 +27,8 @@ MissionExecutorWidget::MissionExecutorWidget()
   stack_->addWidget(none_);
   stack_->addWidget(multicopter_);
 
-  addWidget(stack_);
-  addStretch();
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(stack_);
 }
 
 const char* MissionExecutorWidget::name() const
@@ -89,7 +91,7 @@ void MissionExecutorWidget::setFrameType(FrameType _type)
     stack_->setCurrentWidget(multicopter_);
   }
   else {
-    qt::qWarnBox(this, "The Mission Planner does not support this frame type.");
+    qt::qWarnBox(this, "The Mission Executor does not support this frame type.");
     stack_->setCurrentWidget(none_);
   }
 }

@@ -3,25 +3,46 @@
 
 #include "tobas_actuator_test/actuator_test.hpp"
 
-#include <tobas_qt_tools/cast.hpp>
+#include <QLabel>
+#include <QVBoxLayout>
+
+#include <tobas_gui_common/constants.hpp>
+#include <tobas_qt_tools/font.hpp>
+#include <tobas_qt_tools/widgets/widget.hpp>
 
 namespace tobas::gui::at
 {
 ActuatorTestWidget::ActuatorTestWidget(const rqt::RosQtBridge& _bridge, const kdl::Tree& _tree, const Drone& _drone)
   : drone_(_drone)
 {
-  // Without at least this much height, the `TabBar` text is clipped horizontally for some reason.
-  setTabSize(35, 70);
+  setTabSize(32, 64);
+  enableWheelEvent(false);
 
   rotor_test_ = new RotorTestWidget(_bridge, _drone);
-  addTab(rotor_test_, "Rotor Test");
-  setTabEnabled(rotor_test_, false);
+  addTab(createTabPage(rotor_test_), "Rotor Test");
+  setTabEnabled(rotor_test_->parentWidget(), false);
 
   joint_test_ = new JointTestWidget(_bridge, _tree, _drone);
-  addTab(joint_test_, "Joint Test");
-  setTabEnabled(joint_test_, false);
+  addTab(createTabPage(joint_test_), "Joint Test");
+  setTabEnabled(joint_test_->parentWidget(), false);
+}
 
-  enableWheelEvent(false);
+QWidget* ActuatorTestWidget::createTabPage(BaseWidget* _content)
+{
+  const auto page = new qt::Widget();
+  page->setAutoFillBackground(true);
+
+  const auto title = new QLabel(_content->title());
+  title->setFont(qt::DefaultFont(cmn::kTitlePointSize, QFont::Bold));
+
+  _content->layout()->setContentsMargins(0, 0, 0, 0);
+
+  const auto rows = new QVBoxLayout(page);
+  rows->addWidget(title, 0, Qt::AlignTop);
+  rows->addSpacing(16);
+  rows->addWidget(_content, 1);
+
+  return page;
 }
 
 void ActuatorTestWidget::reset()
@@ -42,8 +63,8 @@ void ActuatorTestWidget::updateInternalDataStructures()
   joint_test_->updateInternalDataStructures();
 
   // Enable test functions only when at least one channel is registered.
-  setTabEnabled(rotor_test_, rotor_test_->numRegisteredChannels() > 0);
-  setTabEnabled(joint_test_, joint_test_->numRegisteredChannels() > 0);
+  setTabEnabled(rotor_test_->parentWidget(), rotor_test_->numRegisteredChannels() > 0);
+  setTabEnabled(joint_test_->parentWidget(), joint_test_->numRegisteredChannels() > 0);
 
   // Adjust distortion caused by showing or hiding tabs.
   update();
@@ -63,11 +84,11 @@ void ActuatorTestWidget::clearRosInterfaces()
 
 BaseWidget* ActuatorTestWidget::getWidget(int _index)
 {
-  return qt::qPointerCast<BaseWidget>(widget(_index));
+  return widget(_index)->findChild<BaseWidget*>({}, Qt::FindDirectChildrenOnly);
 }
 
 const BaseWidget* ActuatorTestWidget::getWidget(int _index) const
 {
-  return qt::qConstPointerCast<BaseWidget>(widget(_index));
+  return widget(_index)->findChild<BaseWidget*>({}, Qt::FindDirectChildrenOnly);
 }
 }  // namespace tobas::gui::at

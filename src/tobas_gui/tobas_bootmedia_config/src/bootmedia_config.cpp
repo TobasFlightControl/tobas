@@ -4,9 +4,11 @@
 #include "tobas_bootmedia_config/bootmedia_config.hpp"
 
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QVBoxLayout>
 
-#include <tobas_qt_tools/cast.hpp>
+#include <tobas_gui_common/constants.hpp>
+#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 
 #include "tobas_bootmedia_config/hostname/hostname.hpp"
@@ -24,14 +26,14 @@ BootmediaConfigWidget::BootmediaConfigWidget()
 
   tabs_ = new qt::VerticalTabWidget();
   tabs_->enableWheelEvent(false);
-  tabs_->setTabSize(70, 35);
+  tabs_->setTabSize(64, 32);
 
-  tabs_->addTab(new HostnameWidget(), "Hostname");
-  tabs_->addTab(new LoginPasswordWidget(), "Login Password");
-  tabs_->addTab(new SshAuthorizedKeysWidget(), "SSH Keys");
-  tabs_->addTab(new WifiClientWidget(), "Wi-Fi Client");
-  tabs_->addTab(new WifiHotspotWidget(), "Wi-Fi Hotspot");
-  tabs_->addTab(new IpAddressWidget(), "IP Address");
+  tabs_->addTab(createTabPage(new HostnameWidget()), "Hostname");
+  tabs_->addTab(createTabPage(new LoginPasswordWidget()), "Login Password");
+  tabs_->addTab(createTabPage(new SshAuthorizedKeysWidget()), "SSH Keys");
+  tabs_->addTab(createTabPage(new WifiClientWidget()), "Wi-Fi Client");
+  tabs_->addTab(createTabPage(new WifiHotspotWidget()), "Wi-Fi Hotspot");
+  tabs_->addTab(createTabPage(new IpAddressWidget()), "IP Address");
 
   reset();
   setTabsEnabled(false);
@@ -43,7 +45,7 @@ BootmediaConfigWidget::BootmediaConfigWidget()
 
   const auto root_rows = new QVBoxLayout(this);
   root_rows->addLayout(header_cols);
-  root_rows->addWidget(tabs_);
+  root_rows->addWidget(tabs_, 1);
 
   // Connection
   connect(media_manager_, &MediaManagerWidget::connected, this, &self::onMediaConnected);
@@ -53,7 +55,7 @@ BootmediaConfigWidget::BootmediaConfigWidget()
 void BootmediaConfigWidget::reset()
 {
   for (int i = 0; i < tabs_->count(); ++i) {
-    const auto widget = qt::qPointerCast<BaseConfigWidget>(tabs_->widget(i));
+    const auto widget = getWidget(i);
     widget->reset();
   }
 }
@@ -76,13 +78,31 @@ void BootmediaConfigWidget::closeEvent(QCloseEvent* _event)
 
 BaseConfigWidget* BootmediaConfigWidget::getWidget(int _index)
 {
-  return qt::qPointerCast<BaseConfigWidget>(tabs_->widget(_index));
+  return tabs_->widget(_index)->findChild<BaseConfigWidget*>({}, Qt::FindDirectChildrenOnly);
+}
+
+QWidget* BootmediaConfigWidget::createTabPage(BaseConfigWidget* _content)
+{
+  const auto page = new QWidget();
+  page->setAutoFillBackground(true);
+
+  const auto title = new QLabel(_content->title());
+  title->setFont(qt::DefaultFont(cmn::kTitlePointSize, QFont::Bold));
+
+  _content->layout()->setContentsMargins(0, 0, 0, 0);
+
+  const auto rows = new QVBoxLayout(page);
+  rows->addWidget(title, 0, Qt::AlignTop);
+  rows->addSpacing(32);
+  rows->addWidget(_content, 1);
+
+  return page;
 }
 
 void BootmediaConfigWidget::setTabsEnabled(bool _enabled)
 {
   for (int i = 0; i < tabs_->count(); ++i) {
-    getWidget(i)->setEnabled(_enabled);
+    tabs_->widget(i)->setEnabled(_enabled);
   }
 }
 
