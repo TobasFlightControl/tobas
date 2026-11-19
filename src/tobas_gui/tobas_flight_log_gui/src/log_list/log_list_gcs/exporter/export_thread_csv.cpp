@@ -290,8 +290,9 @@ const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedD
   res.clear();
   res.reserve(kInitialRowCapacity);
 
+  // Limit measurement precision to keep exported CSV files compact.
   const auto append_vector3 = [&res](const auto& _v)
-  { std::format_to(std::back_inserter(res), "{},{},{},", _v.x, _v.y, _v.z); };
+  { std::format_to(std::back_inserter(res), "{:.6g},{:.6g},{:.6g},", _v.x, _v.y, _v.z); };
 
   const auto append_odometry = [&res, &append_vector3](const auto& _odom)
   {
@@ -299,7 +300,8 @@ const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedD
     const auto [roll, pitch, yaw] = rot.getRPY();
 
     append_vector3(_odom.frame.trans);
-    std::format_to(std::back_inserter(res), "{},{},{},", st::rad2deg(roll), st::rad2deg(pitch), st::rad2deg(yaw));
+    std::format_to(
+      std::back_inserter(res), "{:.6g},{:.6g},{:.6g},", st::rad2deg(roll), st::rad2deg(pitch), st::rad2deg(yaw));
     append_vector3(_odom.twist.linear);
     append_vector3(_odom.twist.angular);
     append_vector3(_odom.accel.linear);
@@ -318,7 +320,7 @@ const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedD
   };
 
   // Time
-  std::format_to(std::back_inserter(res), "{},", _time * 1e-9);
+  std::format_to(std::back_inserter(res), "{:.6f},", _time * 1e-9);
 
   // Odometry
   append_message(topic::kOdometry, odom_cov_decoder_, 18, [&](const auto& _msg) { append_odometry(_msg.odom.odom); });
@@ -349,7 +351,7 @@ const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedD
     [&](const auto& _msg)
     {
       if (_msg.fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
-        std::format_to(std::back_inserter(res), "{},{},{},", _msg.latitude, _msg.longitude, _msg.height_msl);
+        std::format_to(std::back_inserter(res), "{:.8f},{:.8f},{:.6g},", _msg.latitude, _msg.longitude, _msg.height_msl);
         append_vector3(_msg.ground_speed);
       }
       else {
@@ -367,7 +369,7 @@ const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedD
       if (_msg.status == tobas_msgs::msg::RCInput::STATUS_OK) {
         std::format_to(
           std::back_inserter(res),
-          "{},{},{},{},{:d},{:d},{:d},{:d},",
+          "{:.6g},{:.6g},{:.6g},{:.6g},{:d},{:d},{:d},{:d},",
           _msg.roll,
           _msg.pitch,
           _msg.throttle,
@@ -387,14 +389,14 @@ const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedD
     topic::kBattery,
     battery_decoder_,
     2,
-    [&](const auto& _msg) { std::format_to(std::back_inserter(res), "{},{},", _msg.voltage, _msg.current); });
+    [&](const auto& _msg) { std::format_to(std::back_inserter(res), "{:.6g},{:.6g},", _msg.voltage, _msg.current); });
 
   // Engine
   append_message(
     topic::kIcePropulsionSystemCmd,
     ice_cmd_decoder_,
     1,
-    [&](const auto& _msg) { std::format_to(std::back_inserter(res), "{},", _msg.engine_throttle * 100); });
+    [&](const auto& _msg) { std::format_to(std::back_inserter(res), "{:.6g},", _msg.engine_throttle * 100); });
 
   // CPU
   append_message(
@@ -402,7 +404,9 @@ const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedD
     cpu_decoder_,
     3,
     [&](const auto& _msg)
-    { std::format_to(std::back_inserter(res), "{:d},{},{},", _msg.frequency, _msg.temperature, _msg.load * 100); });
+    {
+      std::format_to(std::back_inserter(res), "{:d},{:.6g},{:.6g},", _msg.frequency, _msg.temperature, _msg.load * 100);
+    });
 
   // Target Rotor Speeds
   append_message(
@@ -412,7 +416,7 @@ const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedD
     [&](const auto& _msg)
     {
       for (const auto& elem : _msg.speeds) {
-        std::format_to(std::back_inserter(res), "{},", st::rps2rpm(elem.speed));
+        std::format_to(std::back_inserter(res), "{:.6g},", st::rps2rpm(elem.speed));
       }
     });
 
@@ -424,7 +428,7 @@ const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedD
     [&](const auto& _msg)
     {
       for (const auto& elem : _msg.states) {
-        std::format_to(std::back_inserter(res), "{},", st::rps2rpm(elem.speed));
+        std::format_to(std::back_inserter(res), "{:.6g},", st::rps2rpm(elem.speed));
       }
       for (const auto& elem : _msg.states) {
         const auto comm_ok = (elem.status != tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE);
@@ -437,7 +441,7 @@ const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedD
     topic::kControlLatency,
     latency_decoder_,
     1,
-    [&](const auto& _msg) { std::format_to(std::back_inserter(res), "{},", ros2::microseconds(_msg.data)); });
+    [&](const auto& _msg) { std::format_to(std::back_inserter(res), "{:.6g},", ros2::microseconds(_msg.data)); });
 
   // Vibration Level
   append_message(topic::kVibrationLevel, vibe_decoder_, 3, [&](const auto& _msg) { append_vector3(_msg.data); });
@@ -468,12 +472,13 @@ const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedD
       const auto& gb = _msg.gyro_bias;
       const auto& mhb = _msg.mag_hard_bias;
       const auto& msb = _msg.mag_soft_bias;
-      std::format_to(std::back_inserter(res), "{},{},{},", ab.data[0], ab.data[1], ab.data[2]);
-      std::format_to(std::back_inserter(res), "{},{},{},", gb.data[0], gb.data[1], gb.data[2]);
-      std::format_to(std::back_inserter(res), "{},{},{},", mhb.data[0], mhb.data[1], mhb.data[2]);
-      std::format_to(std::back_inserter(res), "{},{},{},", msb.data[0], msb.data[4], msb.data[8]);
-      std::format_to(std::back_inserter(res), "{},{},{},", msb.data[1], msb.data[5], msb.data[2]);
-      std::format_to(std::back_inserter(res), "{},{},{},", _msg.baro_alt_bias, _msg.gravity, _msg.gnss_anomaly_score);
+      std::format_to(std::back_inserter(res), "{:.6g},{:.6g},{:.6g},", ab.data[0], ab.data[1], ab.data[2]);
+      std::format_to(std::back_inserter(res), "{:.6g},{:.6g},{:.6g},", gb.data[0], gb.data[1], gb.data[2]);
+      std::format_to(std::back_inserter(res), "{:.6g},{:.6g},{:.6g},", mhb.data[0], mhb.data[1], mhb.data[2]);
+      std::format_to(std::back_inserter(res), "{:.6g},{:.6g},{:.6g},", msb.data[0], msb.data[4], msb.data[8]);
+      std::format_to(std::back_inserter(res), "{:.6g},{:.6g},{:.6g},", msb.data[1], msb.data[5], msb.data[2]);
+      std::format_to(
+        std::back_inserter(res), "{:.6g},{:.6g},{:.6g},", _msg.baro_alt_bias, _msg.gravity, _msg.gnss_anomaly_score);
     });
 
   // Multirotor Controller Feedback
