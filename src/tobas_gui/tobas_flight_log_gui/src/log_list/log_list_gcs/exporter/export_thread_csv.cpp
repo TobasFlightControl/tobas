@@ -283,10 +283,11 @@ std::string ExportThreadCsv::makeCsvHeader() const
   return csv_header;
 }
 
-std::string ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedDataMap& _data)
+const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedDataMap& _data)
 {
   constexpr std::size_t kInitialRowCapacity = 2048;  // Estimated bytes for a typical row.
-  std::string res;
+  auto& res = csv_row_buffer_;
+  res.clear();
   res.reserve(kInitialRowCapacity);
 
   const auto append_vector3 = [&res](const auto& _v)
@@ -305,222 +306,188 @@ std::string ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedDataMap&
     append_vector3(_odom.accel.angular);
   };
 
+  const auto append_message =
+    [&_data, &res](const auto& _topic, auto& _decoder, std::size_t _column_count, const auto& _append)
+  {
+    const auto it = _data.find(_topic);
+    if (it == _data.end()) {
+      res.append(_column_count, ',');
+      return;
+    }
+    _append(_decoder.decode(it->second));
+  };
+
   // Time
   std::format_to(std::back_inserter(res), "{},", _time * 1e-9);
 
   // Odometry
-  const auto odom_it = _data.find(topic::kOdometry);
-  if (odom_it != _data.end()) {
-    const auto& msg = odom_cov_decoder_.decode(odom_it->second);
-    append_odometry(msg.odom.odom);
-  }
-  else {
-    res.append(18, ',');
-  }
+  append_message(topic::kOdometry, odom_cov_decoder_, 18, [&](const auto& _msg) { append_odometry(_msg.odom.odom); });
 
   // Target Odometry
-  const auto traj_setpoint_it = _data.find(topic::kTrajSetpoint);
-  if (traj_setpoint_it != _data.end()) {
-    const auto& msg = odom_decoder_.decode(traj_setpoint_it->second);
-    append_odometry(msg.odom);
-  }
-  else {
-    res.append(18, ',');
-  }
+  append_message(topic::kTrajSetpoint, odom_decoder_, 18, [&](const auto& _msg) { append_odometry(_msg.odom); });
 
   // IMU
-  const auto imu_raw_it = _data.find(topic::kImuRaw);
-  if (imu_raw_it != _data.end()) {
-    const auto& msg = imu_decoder_.decode(imu_raw_it->second);
-    append_vector3(msg.accel);
-    append_vector3(msg.gyro);
-    append_vector3(msg.dgyro);
-  }
-  else {
-    res.append(9, ',');
-  }
+  append_message(
+    topic::kImuRaw,
+    imu_decoder_,
+    9,
+    [&](const auto& _msg)
+    {
+      append_vector3(_msg.accel);
+      append_vector3(_msg.gyro);
+      append_vector3(_msg.dgyro);
+    });
 
   // Magnetic Field
-  const auto mag_it = _data.find(topic::kMagneticField);
-  if (mag_it != _data.end()) {
-    const auto& msg = mag_decoder_.decode(mag_it->second);
-    append_vector3(msg.mag);
-  }
-  else {
-    res.append(3, ',');
-  }
+  append_message(topic::kMagneticField, mag_decoder_, 3, [&](const auto& _msg) { append_vector3(_msg.mag); });
 
   // GNSS
-  const auto gnss_it = _data.find(topic::kGnss);
-  if (gnss_it != _data.end()) {
-    const auto& msg = gnss_decoder_.decode(gnss_it->second);
-    if (msg.fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
-      std::format_to(std::back_inserter(res), "{},{},{},", msg.latitude, msg.longitude, msg.height_msl);
-      append_vector3(msg.ground_speed);
-    }
-    else {
-      res.append(6, ',');
-    }
-  }
-  else {
-    res.append(6, ',');
-  }
+  append_message(
+    topic::kGnss,
+    gnss_decoder_,
+    6,
+    [&](const auto& _msg)
+    {
+      if (_msg.fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
+        std::format_to(std::back_inserter(res), "{},{},{},", _msg.latitude, _msg.longitude, _msg.height_msl);
+        append_vector3(_msg.ground_speed);
+      }
+      else {
+        res.append(6, ',');
+      }
+    });
 
   // RC Input
-  const auto rcin_it = _data.find(topic::kRcInput);
-  if (rcin_it != _data.end()) {
-    const auto& msg = rcin_decoder_.decode(rcin_it->second);
-    if (msg.status == tobas_msgs::msg::RCInput::STATUS_OK) {
-      std::format_to(
-        std::back_inserter(res),
-        "{},{},{},{},{:d},{:d},{:d},{:d},",
-        msg.roll,
-        msg.pitch,
-        msg.throttle,
-        msg.yaw,
-        msg.mode,
-        msg.sub_mode,
-        msg.enable,
-        msg.kill);
-    }
-    else {
-      res.append(8, ',');
-    }
-  }
-  else {
-    res.append(8, ',');
-  }
+  append_message(
+    topic::kRcInput,
+    rcin_decoder_,
+    8,
+    [&](const auto& _msg)
+    {
+      if (_msg.status == tobas_msgs::msg::RCInput::STATUS_OK) {
+        std::format_to(
+          std::back_inserter(res),
+          "{},{},{},{},{:d},{:d},{:d},{:d},",
+          _msg.roll,
+          _msg.pitch,
+          _msg.throttle,
+          _msg.yaw,
+          _msg.mode,
+          _msg.sub_mode,
+          _msg.enable,
+          _msg.kill);
+      }
+      else {
+        res.append(8, ',');
+      }
+    });
 
   // Battery
-  const auto batt_it = _data.find(topic::kBattery);
-  if (batt_it != _data.end()) {
-    const auto& msg = battery_decoder_.decode(batt_it->second);
-    std::format_to(std::back_inserter(res), "{},{},", msg.voltage, msg.current);
-  }
-  else {
-    res.append(2, ',');
-  }
+  append_message(
+    topic::kBattery,
+    battery_decoder_,
+    2,
+    [&](const auto& _msg) { std::format_to(std::back_inserter(res), "{},{},", _msg.voltage, _msg.current); });
 
   // Engine
-  const auto ice_cmd_it = _data.find(topic::kIcePropulsionSystemCmd);
-  if (ice_cmd_it != _data.end()) {
-    const auto& msg = ice_cmd_decoder_.decode(ice_cmd_it->second);
-    std::format_to(std::back_inserter(res), "{},", msg.engine_throttle * 100);
-  }
-  else {
-    res.append(1, ',');
-  }
+  append_message(
+    topic::kIcePropulsionSystemCmd,
+    ice_cmd_decoder_,
+    1,
+    [&](const auto& _msg) { std::format_to(std::back_inserter(res), "{},", _msg.engine_throttle * 100); });
 
   // CPU
-  const auto cpu_it = _data.find(topic::kCpu);
-  if (cpu_it != _data.end()) {
-    const auto& msg = cpu_decoder_.decode(cpu_it->second);
-    std::format_to(std::back_inserter(res), "{:d},{},{},", msg.frequency, msg.temperature, msg.load * 100);
-  }
-  else {
-    res.append(3, ',');
-  }
+  append_message(
+    topic::kCpu,
+    cpu_decoder_,
+    3,
+    [&](const auto& _msg)
+    { std::format_to(std::back_inserter(res), "{:d},{},{},", _msg.frequency, _msg.temperature, _msg.load * 100); });
 
   // Target Rotor Speeds
-  const auto rotor_speeds_cmd_it = _data.find(topic::kRotorSpeedsCmd);
-  if (rotor_speeds_cmd_it != _data.end()) {
-    const auto& msg = rotor_speeds_decoder_.decode(rotor_speeds_cmd_it->second);
-    for (const auto& elem : msg.speeds) {
-      std::format_to(std::back_inserter(res), "{},", st::rps2rpm(elem.speed));
-    }
-  }
-  else {
-    res.append(rotor_link_names_.size(), ',');
-  }
+  append_message(
+    topic::kRotorSpeedsCmd,
+    rotor_speeds_decoder_,
+    rotor_link_names_.size(),
+    [&](const auto& _msg)
+    {
+      for (const auto& elem : _msg.speeds) {
+        std::format_to(std::back_inserter(res), "{},", st::rps2rpm(elem.speed));
+      }
+    });
 
   // Rotor States
-  const auto rotor_states_it = _data.find(topic::kRotorStates);
-  if (rotor_states_it != _data.end()) {
-    const auto& msg = rotor_states_decoder_.decode(rotor_states_it->second);
-    for (const auto& elem : msg.states) {
-      std::format_to(std::back_inserter(res), "{},", st::rps2rpm(elem.speed));
-    }
-    for (const auto& elem : msg.states) {
-      const auto comm_ok = (elem.status != tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE);
-      std::format_to(std::back_inserter(res), "{:d},", comm_ok);
-    }
-  }
-  else {
-    res.append(rotor_link_names_.size() * 2, ',');
-  }
+  append_message(
+    topic::kRotorStates,
+    rotor_states_decoder_,
+    rotor_link_names_.size() * 2,
+    [&](const auto& _msg)
+    {
+      for (const auto& elem : _msg.states) {
+        std::format_to(std::back_inserter(res), "{},", st::rps2rpm(elem.speed));
+      }
+      for (const auto& elem : _msg.states) {
+        const auto comm_ok = (elem.status != tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE);
+        std::format_to(std::back_inserter(res), "{:d},", comm_ok);
+      }
+    });
 
   // Control Latency
-  const auto ctrl_latency_it = _data.find(topic::kControlLatency);
-  if (ctrl_latency_it != _data.end()) {
-    const auto& msg = latency_decoder_.decode(ctrl_latency_it->second);
-    std::format_to(std::back_inserter(res), "{},", ros2::microseconds(msg.data));
-  }
-  else {
-    res.append(1, ',');
-  }
+  append_message(
+    topic::kControlLatency,
+    latency_decoder_,
+    1,
+    [&](const auto& _msg) { std::format_to(std::back_inserter(res), "{},", ros2::microseconds(_msg.data)); });
 
   // Vibration Level
-  const auto vibe_it = _data.find(topic::kVibrationLevel);
-  if (vibe_it != _data.end()) {
-    const auto& msg = vibe_decoder_.decode(vibe_it->second);
-    append_vector3(msg.data);
-  }
-  else {
-    res.append(3, ',');
-  }
+  append_message(topic::kVibrationLevel, vibe_decoder_, 3, [&](const auto& _msg) { append_vector3(_msg.data); });
 
   // Additional Acceleration
-  const auto additional_accel_it = _data.find(topic::kAdditionalAccel);
-  if (additional_accel_it != _data.end()) {
-    const auto& msg = accel_decoder_.decode(additional_accel_it->second);
-    append_vector3(msg.accel.linear);
-  }
-  else {
-    res.append(3, ',');
-  }
+  append_message(
+    topic::kAdditionalAccel, accel_decoder_, 3, [&](const auto& _msg) { append_vector3(_msg.accel.linear); });
 
   // Disturbance Force
-  const auto dist_force_it = _data.find(topic::kDisturbanceForce);
-  if (dist_force_it != _data.end()) {
-    const auto& msg = wrench_decoder_.decode(dist_force_it->second);
-    append_vector3(msg.wrench.force);
-    append_vector3(msg.wrench.torque);
-  }
-  else {
-    res.append(6, ',');
-  }
+  append_message(
+    topic::kDisturbanceForce,
+    wrench_decoder_,
+    6,
+    [&](const auto& _msg)
+    {
+      append_vector3(_msg.wrench.force);
+      append_vector3(_msg.wrench.torque);
+    });
 
   // Observer Feedback
-  const auto obsv_fb_it = _data.find(topic::kObsvFeedback);
-  if (obsv_fb_it != _data.end()) {
-    const auto& msg = obsv_fb_decoder_.decode(obsv_fb_it->second);
-    const auto& ab = msg.accel_bias;
-    const auto& gb = msg.gyro_bias;
-    const auto& mhb = msg.mag_hard_bias;
-    const auto& msb = msg.mag_soft_bias;
-    std::format_to(std::back_inserter(res), "{},{},{},", ab.data[0], ab.data[1], ab.data[2]);
-    std::format_to(std::back_inserter(res), "{},{},{},", gb.data[0], gb.data[1], gb.data[2]);
-    std::format_to(std::back_inserter(res), "{},{},{},", mhb.data[0], mhb.data[1], mhb.data[2]);
-    std::format_to(std::back_inserter(res), "{},{},{},", msb.data[0], msb.data[4], msb.data[8]);
-    std::format_to(std::back_inserter(res), "{},{},{},", msb.data[1], msb.data[5], msb.data[2]);
-    std::format_to(std::back_inserter(res), "{},{},{},", msg.baro_alt_bias, msg.gravity, msg.gnss_anomaly_score);
-  }
-  else {
-    res.append(18, ',');
-  }
+  append_message(
+    topic::kObsvFeedback,
+    obsv_fb_decoder_,
+    18,
+    [&](const auto& _msg)
+    {
+      const auto& ab = _msg.accel_bias;
+      const auto& gb = _msg.gyro_bias;
+      const auto& mhb = _msg.mag_hard_bias;
+      const auto& msb = _msg.mag_soft_bias;
+      std::format_to(std::back_inserter(res), "{},{},{},", ab.data[0], ab.data[1], ab.data[2]);
+      std::format_to(std::back_inserter(res), "{},{},{},", gb.data[0], gb.data[1], gb.data[2]);
+      std::format_to(std::back_inserter(res), "{},{},{},", mhb.data[0], mhb.data[1], mhb.data[2]);
+      std::format_to(std::back_inserter(res), "{},{},{},", msb.data[0], msb.data[4], msb.data[8]);
+      std::format_to(std::back_inserter(res), "{},{},{},", msb.data[1], msb.data[5], msb.data[2]);
+      std::format_to(std::back_inserter(res), "{},{},{},", _msg.baro_alt_bias, _msg.gravity, _msg.gnss_anomaly_score);
+    });
 
   // Multirotor Controller Feedback
-  const auto mr_ctrl_fb_it = _data.find(topic::kMRCtrlFeedback);
-  if (mr_ctrl_fb_it != _data.end()) {
-    const auto& msg = mr_ctrl_fb_decoder_.decode(mr_ctrl_fb_it->second);
-    append_vector3(msg.position_integral_error);
-    const auto& rot_ie = msg.angle_integral_error;
-    std::format_to(std::back_inserter(res), "{},{},{}", rot_ie.x, rot_ie.y, rot_ie.z);  // End
-  }
-  else {
-    res.append(6 - 1, ',');
-  }
+  append_message(
+    topic::kMRCtrlFeedback,
+    mr_ctrl_fb_decoder_,
+    6,
+    [&](const auto& _msg)
+    {
+      append_vector3(_msg.position_integral_error);
+      append_vector3(_msg.angle_integral_error);
+    });
 
+  res.pop_back();  // Remove the final column separator.
   return res;
 }
 

@@ -4,6 +4,7 @@
 #pragma once
 
 #include <fstream>
+#include <string>
 
 #include <rosbag2_cpp/reader.hpp>
 
@@ -49,6 +50,7 @@ private:
 
   std::vector<std::string> rotor_link_names_;
   HistoryMap histmap_;
+  std::string csv_row_buffer_;
 
   rosbag2_cpp::Reader reader_;
 
@@ -76,7 +78,9 @@ private:
   bool rotorLinkNamesValid(const tobas_msgs::msg::RotorSpeedArray& _msg);
 
   std::string makeCsvHeader() const;
-  std::string makeCsvDataRow(Time _time, const SerializedDataMap& _data);
+
+  /** Returns the row buffer, which is overwritten by the next call. */
+  const std::string& makeCsvDataRow(Time _time, const SerializedDataMap& _data);
 
   bool exportOldestImuLine(std::ofstream& _file, Time _before_this_time = INT64_MAX);
 };
