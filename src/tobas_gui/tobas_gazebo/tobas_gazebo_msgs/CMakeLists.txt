@@ -1,15 +1,8 @@
 cmake_minimum_required(VERSION 3.31)
 project(tobas_gazebo_msgs)
 
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
-endif()
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+find_package(tobas_cmake REQUIRED)
+tobas_default_build_type()
 
 set(AMENT_DEPENDENCIES geometry_msgs)
 
@@ -22,6 +15,15 @@ endforeach()
 
 file(GLOB_RECURSE IFACE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} msg/*.msg srv/*.srv action/*.action)
 rosidl_generate_interfaces(${PROJECT_NAME} ${IFACE_TARGETS} DEPENDENCIES ${AMENT_DEPENDENCIES})
+
+# rosidl creates its compiled targets internally, alongside interface and utility targets.
+get_property(rosidl_targets DIRECTORY PROPERTY BUILDSYSTEM_TARGETS)
+foreach(rosidl_target IN LISTS rosidl_targets)
+  get_target_property(target_type ${rosidl_target} TYPE)
+  if(target_type MATCHES "^(STATIC|SHARED|MODULE|OBJECT)_LIBRARY$")
+    tobas_target_defaults(${rosidl_target})
+  endif()
+endforeach()
 
 ament_export_dependencies(rosidl_default_runtime ${AMENT_DEPENDENCIES})
 

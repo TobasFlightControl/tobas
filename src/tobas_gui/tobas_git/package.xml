@@ -7,6 +7,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>pkg-config</buildtool_depend>
+  <buildtool_depend>tobas_cmake</buildtool_depend>
 
   <depend>libgit2-dev</depend>
 

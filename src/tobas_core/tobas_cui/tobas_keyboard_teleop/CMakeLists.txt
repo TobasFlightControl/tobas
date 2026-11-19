@@ -1,15 +1,8 @@
 cmake_minimum_required(VERSION 3.31)
 project(tobas_keyboard_teleop)
 
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
-endif()
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+find_package(tobas_cmake REQUIRED)
+tobas_default_build_type()
 
 set(AMENT_DEPENDENCIES tobas_keyboard tobas_node tobas_msgs_adapter tobas_command_msgs_adapter tobas_mission_items
                        tobas_mission_msgs
@@ -27,6 +20,7 @@ set(TARGETS_TO_INSTALL "")
 foreach(file_path IN LISTS NODE_TARGETS)
   get_filename_component(NAME ${file_path} NAME_WE)
   add_executable(${NAME} ${file_path})
+  tobas_target_defaults(${NAME})
   target_link_libraries(
     ${NAME}
     tobas_keyboard::tobas_keyboard

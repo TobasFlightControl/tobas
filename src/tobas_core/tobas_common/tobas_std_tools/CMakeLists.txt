@@ -1,15 +1,8 @@
 cmake_minimum_required(VERSION 3.31)
 project(tobas_std_tools)
 
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
-endif()
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+find_package(tobas_cmake REQUIRED)
+tobas_default_build_type()
 
 set(AMENT_DEPENDENCIES tobas_algorithm tobas_math tobas_time_tools)
 
@@ -22,6 +15,7 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
+tobas_target_defaults(${PROJECT_NAME})
 target_link_libraries(
   ${PROJECT_NAME} tobas_algorithm::tobas_algorithm tobas_math::tobas_math tobas_time_tools::tobas_time_tools
 )
@@ -31,6 +25,7 @@ set(TARGETS_TO_INSTALL "")
 foreach(file_path IN LISTS EXEC_TARGETS)
   get_filename_component(NAME ${file_path} NAME_WE)
   add_executable(${NAME} ${file_path})
+  tobas_target_defaults(${NAME})
   target_link_libraries(${NAME} ${PROJECT_NAME})
   list(APPEND TARGETS_TO_INSTALL ${NAME})
 endforeach()

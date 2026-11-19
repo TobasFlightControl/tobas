@@ -1,15 +1,8 @@
 cmake_minimum_required(VERSION 3.31)
 project(tobas_fc1xx_test)
 
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
-endif()
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+find_package(tobas_cmake REQUIRED)
+tobas_default_build_type()
 
 set(AMENT_DEPENDENCIES tobas_ic_drivers tobas_sbus_driver tobas_fc1xx_core)
 
@@ -25,6 +18,7 @@ set(TARGETS_TO_INSTALL "")
 foreach(file_path IN LISTS TEST_TARGETS)
   get_filename_component(NAME ${file_path} NAME_WE)
   add_executable(${NAME} ${file_path})
+  tobas_target_defaults(${NAME})
   target_link_libraries(
     ${NAME} tobas_ic_drivers::tobas_ic_drivers tobas_sbus_driver::tobas_sbus_driver tobas_fc1xx_core::tobas_fc1xx_core
   )

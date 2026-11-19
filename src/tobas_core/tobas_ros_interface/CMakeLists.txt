@@ -1,15 +1,8 @@
 cmake_minimum_required(VERSION 3.31)
 project(tobas_ros_interface)
 
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
-endif()
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+find_package(tobas_cmake REQUIRED)
+tobas_default_build_type()
 
 set(AMENT_DEPENDENCIES
     std_srvs
@@ -30,6 +23,7 @@ endforeach()
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_executable(ros_interface ${NODE_TARGETS})
+tobas_target_defaults(ros_interface)
 target_link_libraries(
   ros_interface
   std_srvs::std_srvs

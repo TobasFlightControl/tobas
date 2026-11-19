@@ -6,6 +6,7 @@
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>tobas_cmake</buildtool_depend>
 
   <depend>tobas_std_tools</depend>
   <depend>tobas_yaml_tools</depend>

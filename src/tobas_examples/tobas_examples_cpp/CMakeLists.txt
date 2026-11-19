@@ -1,15 +1,8 @@
 cmake_minimum_required(VERSION 3.31)
 project(tobas_examples_cpp)
 
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
-endif()
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+find_package(tobas_cmake REQUIRED)
+tobas_default_build_type()
 
 set(AMENT_DEPENDENCIES tobas_node tobas_constants tobas_msgs_adapter tobas_command_msgs tobas_mission_items
                        tobas_mission_msgs
@@ -24,6 +17,7 @@ include_directories(include)
 
 file(GLOB_RECURSE COMPONENT_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} components/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${COMPONENT_TARGETS})
+tobas_target_defaults(${PROJECT_NAME}_node)
 target_link_libraries(
   ${PROJECT_NAME}_node
   tobas_node::tobas_node
@@ -35,12 +29,14 @@ target_link_libraries(
 )
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "GnssStateCheckerNode" EXECUTABLE gnss_state_checker)
+tobas_target_defaults(gnss_state_checker)
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 set(TARGETS_TO_INSTALL "")
 foreach(file_path IN LISTS NODE_TARGETS)
   get_filename_component(NAME ${file_path} NAME_WE)
   add_executable(${NAME} ${file_path})
+  tobas_target_defaults(${NAME})
   target_link_libraries(
     ${NAME}
     tobas_node::tobas_node

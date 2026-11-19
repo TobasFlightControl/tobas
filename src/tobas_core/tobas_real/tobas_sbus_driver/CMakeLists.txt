@@ -1,15 +1,8 @@
 cmake_minimum_required(VERSION 3.31)
 project(tobas_sbus_driver)
 
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
-endif()
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+find_package(tobas_cmake REQUIRED)
+tobas_default_build_type()
 
 set(AMENT_DEPENDENCIES Boost tobas_linux tobas_node tobas_msgs)
 
@@ -22,6 +15,7 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
+tobas_target_defaults(${PROJECT_NAME})
 target_link_libraries(
   ${PROJECT_NAME} Boost::headers tobas_linux::tobas_linux tobas_node::tobas_node tobas_msgs::tobas_msgs
 )
@@ -31,15 +25,18 @@ set(TARGETS_TO_INSTALL "")
 foreach(file_path IN LISTS EXEC_TARGETS)
   get_filename_component(NAME ${file_path} NAME_WE)
   add_executable(${NAME} ${file_path})
+  tobas_target_defaults(${NAME})
   target_link_libraries(${NAME} ${PROJECT_NAME})
   list(APPEND TARGETS_TO_INSTALL ${NAME})
 endforeach()
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_TARGETS})
+tobas_target_defaults(${PROJECT_NAME}_node)
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::SbusDriverNode" EXECUTABLE sbus_driver)
+tobas_target_defaults(sbus_driver)
 
 install(
   TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node

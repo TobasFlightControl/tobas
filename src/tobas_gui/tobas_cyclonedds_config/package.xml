@@ -6,6 +6,7 @@
   <license>GPL-3.0-or-later</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>tobas_cmake</buildtool_depend>
 
   <depend>tobas_string_tools</depend>
   <depend>tobas_xml_tools</depend>

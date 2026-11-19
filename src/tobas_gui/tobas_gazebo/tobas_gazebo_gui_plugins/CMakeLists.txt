@@ -1,15 +1,8 @@
 cmake_minimum_required(VERSION 3.31)
 project(tobas_gazebo_gui_plugins)
 
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
-endif()
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Wswitch-enum -Werror")
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+find_package(tobas_cmake REQUIRED)
+tobas_default_build_type()
 
 find_package(ament_cmake REQUIRED)
 find_package(gz_sim_vendor REQUIRED)
@@ -25,6 +18,7 @@ include_directories(include)
 # Build common library.
 file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
+tobas_target_defaults(${PROJECT_NAME})
 target_link_libraries(
   ${PROJECT_NAME} tobas_gazebo_common::tobas_gazebo_common tobas_gazebo_conversions::tobas_gazebo_conversions
   tobas_gazebo_tools::tobas_gazebo_tools
@@ -38,6 +32,7 @@ foreach(dir_path IN LISTS PLUGIN_DIR_PATHS)
   qt6_wrap_cpp(${PLUGIN_NAME}_MOC ${dir_path}/${PLUGIN_NAME}.hpp) # Variable names must be unique
   qt_add_resources(${PLUGIN_NAME}_RCC ${dir_path}/${PLUGIN_NAME}.qrc) # Variable names must be unique
   add_library(${PLUGIN_NAME} SHARED ${${PLUGIN_NAME}_MOC} ${${PLUGIN_NAME}_RCC} ${dir_path}/${PLUGIN_NAME}.cpp)
+  tobas_target_defaults(${PLUGIN_NAME})
   target_link_libraries(${PLUGIN_NAME} ${PROJECT_NAME} gz-sim::gz-sim gz-plugin::register)
   target_link_options(${PLUGIN_NAME} PRIVATE -Wl,--no-undefined)
   list(APPEND TARGETS_TO_INSTALL ${PLUGIN_NAME})
