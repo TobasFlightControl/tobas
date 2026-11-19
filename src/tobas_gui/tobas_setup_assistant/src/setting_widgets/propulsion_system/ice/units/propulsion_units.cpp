@@ -131,6 +131,14 @@ const PropulsionUnitWidget* PropulsionUnitsWidget::widget(const QString& _link_n
 
 void PropulsionUnitsWidget::onCopyToAllButtonClicked(const QString& _link_name)
 {
+  if (!qt::yesOrNo(
+        this,
+        "Copy the settings of '" + _link_name +
+          "' to all other propulsion units? This will overwrite their current settings.",
+        qt::WARN)) {
+    return;
+  }
+
   const auto src_idx = index(_link_name);
   const auto src_widget = widget(src_idx);
 
