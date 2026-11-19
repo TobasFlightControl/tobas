@@ -17,9 +17,9 @@ RobotPropertiesWidget::RobotPropertiesWidget(const uadf::Model& _uadf, const kdl
   const auto form = new qt::FormLayout();
   setLayout(form);  // Do not pass `this` to the layout constructor.
   form->setHorizontalSpacing(8);
-  form->addRow("Robot Name", robot_name_);
-  form->addRow("Frame Type", frame_type_);
-  form->addRow("Total Mass", mass_);
+  form->addRow("Name", robot_name_);
+  form->addRow("Frame", frame_type_);
+  form->addRow("Mass", mass_);
 }
 
 void RobotPropertiesWidget::updateInternalDataStructures()
@@ -27,7 +27,7 @@ void RobotPropertiesWidget::updateInternalDataStructures()
   robot_name_->setText(QString::fromStdString(uadf_.urdf->getName()));
 
   mass_holder_.updateInternalDataStructures();
-  mass_->setText(QString::number(mass_holder_.getMass()) + " kg");
+  mass_->setText(QString::number(mass_holder_.getMass(), 'f', 3) + " kg");
 }
 
 void RobotPropertiesWidget::setFrameType(FrameType _type)
