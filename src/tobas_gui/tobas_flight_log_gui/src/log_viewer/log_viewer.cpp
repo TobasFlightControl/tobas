@@ -3,6 +3,7 @@
 
 #include "tobas_flight_log_gui/log_viewer/log_viewer.hpp"
 
+#include <limits>
 #include <ranges>
 
 #include <QDebug>
@@ -14,6 +15,8 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/rosbag.hpp>
 #include <tobas_ros2_tools/util.hpp>
+
+#include <rosbag2_storage/storage_filter.hpp>
 
 namespace fs = std::filesystem;
 
@@ -132,9 +135,14 @@ void FlightLogViewerWidget::reset()
 {
   log_path_.clear();
   reader_.close();
+  topic_data_.clear();
   decode_fail_topics_.clear();
+  window_messages_.clear();
+  window_start_time_ = std::numeric_limits<Time>::max();
+  window_stop_time_ = 0;
 
   for (const auto& elem : data_) {
+    elem->clearValues();
     elem->clearCache();
   }
 
@@ -166,6 +174,19 @@ void FlightLogViewerWidget::setLogName(const QString& _log_name)
     }
   }
 
+  // Resolve full topic names once and skip unrelated messages at the storage layer.
+  rosbag2_storage::StorageFilter filter;
+  for (const auto& topic_info : reader_.get_all_topics_and_types()) {
+    for (const auto& elem : data_) {
+      if (topic_info.name.ends_with(elem->getTopic())) {
+        topic_data_.emplace(topic_info.name, elem.get());
+        filter.topics.push_back(topic_info.name);
+        break;
+      }
+    }
+  }
+  reader_.set_filter(filter);
+
   // Update the log length.
   const auto& metadata = reader_.get_metadata();
   const auto duration = metadata.duration.count() * 1e-9;  // [s]
@@ -189,6 +210,29 @@ bool FlightLogViewerWidget::open(const std::string& _rosbag_path)
   return true;
 }
 
+void FlightLogViewerWidget::readWindow(Time _start, Time _stop)
+{
+  // Reuse overlapping windows while playing forwards; seek for backwards or distant jumps.
+  if (_start < window_start_time_ || _start > window_stop_time_) {
+    reader_.seek(_start);
+    window_messages_.clear();
+  }
+
+  while (!window_messages_.empty() && window_messages_.front()->recv_timestamp < _start) {
+    window_messages_.pop_front();
+  }
+
+  if (!topic_data_.empty()) {
+    // Keep the first message beyond the window at the end of the buffer for the next update.
+    while ((window_messages_.empty() || window_messages_.back()->recv_timestamp <= _stop) && reader_.has_next()) {
+      window_messages_.push_back(reader_.read_next());
+    }
+  }
+
+  window_start_time_ = _start;
+  window_stop_time_ = _stop;
+}
+
 void FlightLogViewerWidget::setPlotData(double _time_from_start)
 {
   if (log_path_.empty()) {
@@ -206,25 +250,23 @@ void FlightLogViewerWidget::setPlotData(double _time_from_start)
   const auto window_start_time = record_start_time + static_cast<long>(_time_from_start * 1e+9);  // [ns]
   const auto window_stop_time = window_start_time + static_cast<long>(kWindowDuration * 1e+9);    // [ns]
 
-  // Move to the initial time.
-  reader_.seek(window_start_time);
+  readWindow(window_start_time, window_stop_time);
 
   // Initialize data.
   for (const auto& elem : data_) {
     elem->clearValues();
+    elem->retainWindow(window_start_time, window_stop_time);
   }
 
   // Classify data.
-  while (reader_.has_next()) {
-    const auto bag_msg = reader_.read_next();
-
+  std::vector<std::string> failed_topics;
+  for (const auto& bag_msg : window_messages_) {
     const auto& ser_data = bag_msg->serialized_data;
     const auto& cur_time = bag_msg->recv_timestamp;  // [ns]
-    const auto& topic = bag_msg->topic_name;
-
     if (cur_time > window_stop_time) {
       break;
     }
+    const auto& topic = bag_msg->topic_name;
 
     // Do not decode topics that failed once until the log is reset.
     if (decode_fail_topics_.contains(topic)) {
@@ -232,14 +274,10 @@ void FlightLogViewerWidget::setPlotData(double _time_from_start)
     }
 
     // Decode.
-    for (const auto& elem : data_) {
-      if (topic.ends_with(elem->getTopic())) {
-        if (!elem->decode(cur_time, ser_data)) {
-          qt::qErrorBox(this, "Failed to deserialize '" + QString::fromStdString(topic) + "'.");
-          decode_fail_topics_.insert(topic);
-        }
-        break;
-      }
+    const auto it = topic_data_.find(topic);
+    if (it != topic_data_.end() && !it->second->decode(cur_time, ser_data)) {
+      decode_fail_topics_.insert(topic);
+      failed_topics.push_back(topic);
     }
   }
 
@@ -248,6 +286,11 @@ void FlightLogViewerWidget::setPlotData(double _time_from_start)
     // The plot becomes slightly distorted unless the range is set before setting data.
     plot_panel->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
     plot_panel->plot();
+  }
+
+  // Modal dialogs can process playback events, so show errors after finishing the window iteration.
+  for (const auto& topic : failed_topics) {
+    qt::qErrorBox(this, "Failed to deserialize '" + QString::fromStdString(topic) + "'.");
   }
 }
 

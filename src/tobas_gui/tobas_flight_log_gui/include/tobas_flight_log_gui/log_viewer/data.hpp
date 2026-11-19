@@ -26,6 +26,7 @@ public:
 
   virtual void clearValues() = 0;
   virtual void clearCache() = 0;
+  virtual void retainWindow(rcutils_time_point_value_t _start, rcutils_time_point_value_t _stop) = 0;
   virtual bool decode(rcutils_time_point_value_t _cur_time, const std::shared_ptr<rcutils_uint8_array_t>& _ser_data) = 0;
 
 private:
@@ -48,16 +49,20 @@ public:
     decoder_.clearCache();
   }
 
+  void retainWindow(rcutils_time_point_value_t _start, rcutils_time_point_value_t _stop) override
+  {
+    decoder_.retainWindow(_start, _stop);
+  }
+
   bool decode(rcutils_time_point_value_t _cur_time, const std::shared_ptr<rcutils_uint8_array_t>& _ser_data) override
   {
-    try {
-      values_.append(decoder_.decode(_cur_time, _ser_data));
-    }
-    catch (const std::exception& e) {
-      qWarning() << e.what();
+    const auto decoded = decoder_.decode(_cur_time, _ser_data);
+    if (!decoded) {
+      qWarning() << decoded.error().c_str();
       return false;
     }
 
+    values_.append(**decoded);
     return true;
   }
 

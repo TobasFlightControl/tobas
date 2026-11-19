@@ -4,12 +4,19 @@
 #pragma once
 
 #include <array>
+#include <deque>
 #include <filesystem>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 #include <QFrame>
 #include <QGridLayout>
 
 #include <rosbag2_cpp/reader.hpp>
+#include <rosbag2_storage/serialized_bag_message.hpp>
 
 #include "./data.hpp"
 #include "./playback_control.hpp"
@@ -22,6 +29,8 @@ class FlightLogViewerWidget : public QWidget
   Q_OBJECT
 
   using self = FlightLogViewerWidget;
+  using Time = rcutils_time_point_value_t;
+  using BagMessagePtr = std::shared_ptr<rosbag2_storage::SerializedBagMessage>;
 
 public:
   explicit FlightLogViewerWidget();
@@ -32,9 +41,12 @@ public:
 
 private:
   std::filesystem::path log_path_;
-  std::unordered_set<std::string> decode_fail_topics_;
-  std::vector<std::shared_ptr<DataI>> data_;
   rosbag2_cpp::Reader reader_;
+  std::vector<std::shared_ptr<DataI>> data_;
+  std::unordered_map<std::string, DataI*> topic_data_;
+  std::unordered_set<std::string> decode_fail_topics_;
+  std::deque<BagMessagePtr> window_messages_;
+  Time window_start_time_, window_stop_time_;
 
   std::array<PlotPanelWidget*, 6> plot_panels_;
   std::array<QFrame*, 3> plot_separators_;
@@ -45,6 +57,8 @@ private:
   std::shared_ptr<Data<MsgType>> addData(const std::string& _topic);
 
   bool open(const std::string& _rosbag_path);
+
+  void readWindow(Time _start, Time _stop);
 
   void setPlotData(double _time_from_start);
 
