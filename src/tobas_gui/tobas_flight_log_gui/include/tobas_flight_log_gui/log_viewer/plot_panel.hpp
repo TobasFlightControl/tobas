@@ -112,7 +112,6 @@ private:
   qt::ComboBox* plot_selector_;
   QStackedWidget* plot_stack_;
   QToolButton* expand_button_;
-  double t_start_, t_stop_;
 
   PosePlotWidget* pose_plot_;
   TwistPlotWidget* twist_plot_;
@@ -139,6 +138,9 @@ private:
   DisturbanceForcePlotWidget* dist_force_plot_;
   ObserverFeedbackPlotWidget* obsv_fb_plot_;
   MRControllerFeedbackPlotWidget* mr_ctrl_fb_plot_;
+
+  double t_start_ = 0.0;
+  double t_stop_ = 1.0;
 
   void addPlot(BasePlotWidget* _plot, const QString& _name);
 

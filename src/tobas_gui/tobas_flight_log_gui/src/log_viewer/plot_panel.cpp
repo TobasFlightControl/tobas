@@ -64,8 +64,6 @@ PlotPanelWidget::PlotPanelWidget(
   , dist_force_data_(_dist_force_data)
   , obsv_fb_data_(_obsv_fb_data)
   , mr_ctrl_fb_data_(_mr_ctrl_fb_data)
-  , t_start_(0.0)
-  , t_stop_(1.0)
 {
   pose_plot_ = new PosePlotWidget();
   twist_plot_ = new TwistPlotWidget();
