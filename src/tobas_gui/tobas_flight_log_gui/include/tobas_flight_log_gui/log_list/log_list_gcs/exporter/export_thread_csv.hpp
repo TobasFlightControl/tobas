@@ -4,7 +4,11 @@
 #pragma once
 
 #include <fstream>
+#include <map>
+#include <memory>
 #include <string>
+#include <string_view>
+#include <vector>
 
 #include <rosbag2_cpp/reader.hpp>
 
@@ -36,7 +40,7 @@ class ExportThreadCsv : public ExportThread
   Q_OBJECT
 
   using Time = rcutils_time_point_value_t;
-  using SerializedDataMap = std::map<std::string, std::shared_ptr<rcutils_uint8_array_t>>;
+  using SerializedDataMap = std::map<std::string_view, std::shared_ptr<rcutils_uint8_array_t>>;
   using HistoryMap = std::map<Time, SerializedDataMap>;
 
 public:
