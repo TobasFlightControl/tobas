@@ -541,6 +541,7 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _ar
 
   arming_ = _arming;
 }
+
 void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& _rotor_liveliness)
 {
   if (!mixer_.isInitialized()) {
