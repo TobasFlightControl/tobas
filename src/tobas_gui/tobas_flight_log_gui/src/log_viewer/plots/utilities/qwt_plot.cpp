@@ -3,21 +3,50 @@
 
 #include "tobas_flight_log_gui/log_viewer/plots/utilities/qwt_plot.hpp"
 
+#include <algorithm>
+#include <cmath>
+
 #include <QFont>
 #include <QFontInfo>
 #include <QPen>
 
 #include <qwt/qwt_plot_legenditem.h>
+#include <qwt/qwt_scale_div.h>
 #include <qwt/qwt_scale_draw.h>
+#include <qwt/qwt_scale_engine.h>
 #include <qwt/qwt_text.h>
 
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/font.hpp>
 
+#include "tobas_flight_log_gui/log_viewer/plots/utilities/constants.hpp"
+
 namespace tobas::gui::log
 {
 namespace
 {
+class LimitedLabelScaleEngine : public QwtLinearScaleEngine
+{
+  using super = QwtLinearScaleEngine;
+
+public:
+  QwtScaleDiv divideScale(double _min, double _max, int _max_major, int _max_minor, double _step) const override
+  {
+    auto scale_div = super::divideScale(_min, _max, _max_major, _max_minor, _step);
+    auto ticks = scale_div.ticks(QwtScaleDiv::MajorTick);
+
+    // Explicit step sizes and aligned limits can exceed Qwt's major-interval setting.
+    while (ticks.size() > kMaxVerticalAxisLabels) {
+      const auto step = std::abs(ticks.at(1) - ticks.at(0));
+      const auto next_step = step > 0.0 ? step * 2.0 : std::abs(_max - _min);
+      scale_div = super::divideScale(_min, _max, _max_major, _max_minor, next_step);
+      ticks = scale_div.ticks(QwtScaleDiv::MajorTick);
+    }
+
+    return scale_div;
+  }
+};
+
 class NoLabelScaleDraw : public QwtScaleDraw
 {
 public:
@@ -79,6 +108,12 @@ QwtPlot2::QwtPlot2(QWidget* _parent) : super(_parent)
     setAxisFont(axis, axis_font);
   }
 
+  // Limit the number of major tick labels on both vertical axes.
+  for (const auto axis : { QwtPlot::yLeft, QwtPlot::yRight }) {
+    setAxisScaleEngine(axis, new LimitedLabelScaleEngine());
+    setAxisMaxMajor(axis, kMaxVerticalScaleSteps);
+  }
+
   // Place the legend inside.
   legend_item_ = new QwtPlotLegendItem();
   legend_item_->attach(this);
@@ -109,8 +144,11 @@ void QwtPlot2::setupIndexedLabelPlot(const QStringList& _labels)
   const QList<double> none;
 
   QList<double> majors;
-  for (int i = 0; i < size; ++i) {
-    majors.append(i);
+  const auto num_ticks = std::min<qsizetype>(size, kMaxVerticalAxisLabels);
+  for (int i = 0; i < num_ticks; ++i) {
+    // Retain the first and last states when thinning categorical labels.
+    const auto index = num_ticks > 1 ? i * (size - 1) / (num_ticks - 1) : 0;
+    majors.append(index);
   }
 
   const QwtScaleDiv ydiv(0, size - 1, none, none, majors);
