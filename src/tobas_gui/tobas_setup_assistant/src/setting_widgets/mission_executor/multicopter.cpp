@@ -186,7 +186,6 @@ MulticopterWidget::MulticopterWidget()
 
   setTabWidth(160);
   enableWheelEvent(false);
-  setTabPosition(QTabWidget::North);
 
   const auto add_tab = [this](QLayout* _form, const char* _name)
   {

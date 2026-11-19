@@ -25,7 +25,6 @@ FixedWingWidget::FixedWingWidget(const uadf::Model& _uadf)
   const auto tabs = new qt::TabWidget();
   tabs->setTabWidth(200);
   tabs->enableWheelEvent(false);
-  tabs->setTabPosition(QTabWidget::North);
 
   tabs->addTab(vehicle_, kVehicleLabel);
   tabs->addTab(aero_coefs_, kAeroCoefsLabel);
