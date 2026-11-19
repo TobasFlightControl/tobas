@@ -3,6 +3,7 @@
 
 #include "tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
 
+#include <algorithm>
 #include <cassert>
 
 #include <QDebug>
@@ -39,7 +40,7 @@ UrdfBuilderPanel::UrdfBuilderPanel(QWidget* _parent)
   link_dialog_->hide();
   ui_->scrollAreaWidgetContents->layout()->addWidget(link_dialog_);
 
-  // Recalculate the required width when the link editor or its fields become visible.
+  // Recalculate the required width when the link editor's layout changes.
   ui_->scrollAreaWidgetContents->installEventFilter(this);
 
   defineConnections();
@@ -82,7 +83,10 @@ bool UrdfBuilderPanel::eventFilter(QObject* _watched, QEvent* _event)
 {
   if (_watched == ui_->scrollAreaWidgetContents && _event->type() == QEvent::LayoutRequest) {
     // Keep every field visible horizontally, including when a vertical scrollbar takes up space.
-    const auto content_width = ui_->scrollAreaWidgetContents->minimumSizeHint().width();
+    // Reserve the editor's width even before a root link is created and the editor becomes visible.
+    const auto margins = ui_->scrollAreaWidgetContents->layout()->contentsMargins();
+    const auto editor_width = link_dialog_->minimumSizeHint().width() + margins.left() + margins.right();
+    const auto content_width = std::max(ui_->scrollAreaWidgetContents->minimumSizeHint().width(), editor_width);
     const auto scrollbar_width = ui_->ScrollArea->verticalScrollBar()->sizeHint().width();
     ui_->ScrollArea->setMinimumWidth(content_width + 2 * ui_->ScrollArea->frameWidth() + scrollbar_width);
   }
