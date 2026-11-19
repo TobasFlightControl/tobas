@@ -7,6 +7,7 @@
 #include <format>
 #include <iterator>
 #include <ranges>
+#include <utility>
 
 #include <QDebug>
 
@@ -48,7 +49,7 @@ void ExportThreadCsv::run()
     const auto bag_msg = reader_.read_next();
     if (bag_msg->topic_name.ends_with(str::concat('/', topic::kRotorStates).data())) {
       try {
-        const auto rotor_states = rotor_states_decoder_.decode(bag_msg->serialized_data);
+        const auto& rotor_states = rotor_states_decoder_.decode(bag_msg->serialized_data);
         for (const auto& elem : rotor_states.states) {
           rotor_link_names_.push_back(elem.link_name);
         }
@@ -81,44 +82,42 @@ void ExportThreadCsv::run()
     const auto& ser_data = bag_msg->serialized_data;
     const auto& topic = bag_msg->topic_name;
 
+    const auto save_message = [this, &ser_data](const auto& _topic, const auto& _msg)
+    {
+      const auto time = ros2::nanoseconds(_msg.header.stamp);
+      histmap_[time][_topic] = ser_data;
+      return time;
+    };
+
     // Save messages to the history map.
     try {
       if (topic.ends_with(str::concat('/', topic::kImuRaw).data())) {
-        const auto& msg = imu_decoder_.decode(ser_data);
-        const auto cur_time = ros2::nanoseconds(msg.header.stamp);
-        histmap_[cur_time][topic::kImuRaw] = ser_data;
+        const auto cur_time = save_message(topic::kImuRaw, imu_decoder_.decode(ser_data));
 
         // Write old data incrementally to prevent the history map from growing too large.
         constexpr rcutils_time_point_value_t kExpirationTime = 1'000'000'000;  // [ns]
         exportOldestImuLine(csv_file, cur_time - kExpirationTime);
       }
       else if (topic.ends_with(str::concat('/', topic::kOdometry).data())) {
-        const auto& msg = odom_cov_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kOdometry] = ser_data;
+        save_message(topic::kOdometry, odom_cov_decoder_.decode(ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kTrajSetpoint).data())) {
-        const auto& msg = odom_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kTrajSetpoint] = ser_data;
+        save_message(topic::kTrajSetpoint, odom_decoder_.decode(ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kMagneticField).data())) {
-        const auto& msg = mag_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kMagneticField] = ser_data;
+        save_message(topic::kMagneticField, mag_decoder_.decode(ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kGnss).data())) {
-        const auto& msg = gnss_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kGnss] = ser_data;
+        save_message(topic::kGnss, gnss_decoder_.decode(ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kRcInput).data())) {
-        const auto& msg = rcin_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kRcInput] = ser_data;
+        save_message(topic::kRcInput, rcin_decoder_.decode(ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kBattery).data())) {
-        const auto& msg = battery_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kBattery] = ser_data;
+        save_message(topic::kBattery, battery_decoder_.decode(ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kCpu).data())) {
-        const auto& msg = cpu_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kCpu] = ser_data;
+        save_message(topic::kCpu, cpu_decoder_.decode(ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kRotorStates).data())) {
         const auto& msg = rotor_states_decoder_.decode(ser_data);
@@ -127,7 +126,7 @@ void ExportThreadCsv::run()
           Q_EMIT finished(false, "Rotor link names mismatch.");
           return;
         }
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kRotorStates] = ser_data;
+        save_message(topic::kRotorStates, msg);
       }
       else if (topic.ends_with(str::concat('/', topic::kRotorSpeedsCmd).data())) {
         const auto& msg = rotor_speeds_decoder_.decode(ser_data);
@@ -136,35 +135,28 @@ void ExportThreadCsv::run()
           Q_EMIT finished(false, "Rotor link names mismatch.");
           return;
         }
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kRotorSpeedsCmd] = ser_data;
+        save_message(topic::kRotorSpeedsCmd, msg);
       }
       else if (topic.ends_with(str::concat('/', topic::kIcePropulsionSystemCmd).data())) {
-        const auto& msg = ice_cmd_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kIcePropulsionSystemCmd] = ser_data;
+        save_message(topic::kIcePropulsionSystemCmd, ice_cmd_decoder_.decode(ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kControlLatency).data())) {
-        const auto& msg = latency_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kControlLatency] = ser_data;
+        save_message(topic::kControlLatency, latency_decoder_.decode(ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kVibrationLevel).data())) {
-        const auto& msg = vibe_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kVibrationLevel] = ser_data;
+        save_message(topic::kVibrationLevel, vibe_decoder_.decode(ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kAdditionalAccel).data())) {
-        const auto& msg = accel_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kAdditionalAccel] = ser_data;
+        save_message(topic::kAdditionalAccel, accel_decoder_.decode(ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kDisturbanceForce).data())) {
-        const auto& msg = wrench_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kDisturbanceForce] = ser_data;
+        save_message(topic::kDisturbanceForce, wrench_decoder_.decode(ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kObsvFeedback).data())) {
-        const auto& msg = obsv_fb_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kObsvFeedback] = ser_data;
+        save_message(topic::kObsvFeedback, obsv_fb_decoder_.decode(ser_data));
       }
       else if (topic.ends_with(str::concat('/', topic::kMRCtrlFeedback).data())) {
-        const auto& msg = mr_ctrl_fb_decoder_.decode(ser_data);
-        histmap_[ros2::nanoseconds(msg.header.stamp)][topic::kMRCtrlFeedback] = ser_data;
+        save_message(topic::kMRCtrlFeedback, mr_ctrl_fb_decoder_.decode(ser_data));
       }
     }
     catch (const std::exception& e) {
