@@ -3,6 +3,9 @@
 
 #include "tobas_flight_log_gui/log_list/log_list_gcs/exporter/export_thread_csv.hpp"
 
+#include <cstddef>
+#include <format>
+#include <iterator>
 #include <ranges>
 
 #include <QDebug>
@@ -282,87 +285,69 @@ std::string ExportThreadCsv::makeCsvHeader() const
 
 std::string ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedDataMap& _data)
 {
+  constexpr std::size_t kInitialRowCapacity = 2048;  // Estimated bytes for a typical row.
   std::string res;
+  res.reserve(kInitialRowCapacity);
+
+  const auto append_vector3 = [&res](const auto& _v)
+  { std::format_to(std::back_inserter(res), "{},{},{},", _v.x, _v.y, _v.z); };
+
+  const auto append_odometry = [&res, &append_vector3](const auto& _odom)
+  {
+    const kdl::Rotation rot(_odom.frame.rot.data);
+    const auto [roll, pitch, yaw] = rot.getRPY();
+
+    append_vector3(_odom.frame.trans);
+    std::format_to(std::back_inserter(res), "{},{},{},", st::rad2deg(roll), st::rad2deg(pitch), st::rad2deg(yaw));
+    append_vector3(_odom.twist.linear);
+    append_vector3(_odom.twist.angular);
+    append_vector3(_odom.accel.linear);
+    append_vector3(_odom.accel.angular);
+  };
 
   // Time
-  res += std::to_string(_time * 1e-9) + ',';
+  std::format_to(std::back_inserter(res), "{},", _time * 1e-9);
 
   // Odometry
   const auto odom_it = _data.find(topic::kOdometry);
   if (odom_it != _data.end()) {
     const auto& msg = odom_cov_decoder_.decode(odom_it->second);
-
-    const auto& pos = msg.odom.odom.frame.trans;
-    const kdl::Rotation rot(msg.odom.odom.frame.rot.data);
-    const auto [roll, pitch, yaw] = rot.getRPY();
-    res += std::to_string(pos.x) + ',' + std::to_string(pos.y) + ',' + std::to_string(pos.z) + ',' +
-           std::to_string(st::rad2deg(roll)) + ',' + std::to_string(st::rad2deg(pitch)) + ',' +
-           std::to_string(st::rad2deg(yaw)) + ',';
-
-    const auto& lin_vel = msg.odom.odom.twist.linear;
-    const auto& ang_vel = msg.odom.odom.twist.angular;
-    res += std::to_string(lin_vel.x) + ',' + std::to_string(lin_vel.y) + ',' + std::to_string(lin_vel.z) + ',' +
-           std::to_string(ang_vel.x) + ',' + std::to_string(ang_vel.y) + ',' + std::to_string(ang_vel.z) + ',';
-
-    const auto& lin_acc = msg.odom.odom.accel.linear;
-    const auto& ang_acc = msg.odom.odom.accel.angular;
-    res += std::to_string(lin_acc.x) + ',' + std::to_string(lin_acc.y) + ',' + std::to_string(lin_acc.z) + ',' +
-           std::to_string(ang_acc.x) + ',' + std::to_string(ang_acc.y) + ',' + std::to_string(ang_acc.z) + ',';
+    append_odometry(msg.odom.odom);
   }
   else {
-    res += std::string(18, ',');
+    res.append(18, ',');
   }
 
   // Target Odometry
   const auto traj_setpoint_it = _data.find(topic::kTrajSetpoint);
   if (traj_setpoint_it != _data.end()) {
     const auto& msg = odom_decoder_.decode(traj_setpoint_it->second);
-
-    const auto& pos = msg.odom.frame.trans;
-    const kdl::Rotation rot(msg.odom.frame.rot.data);
-    const auto [roll, pitch, yaw] = rot.getRPY();
-    res += std::to_string(pos.x) + ',' + std::to_string(pos.y) + ',' + std::to_string(pos.z) + ',' +
-           std::to_string(st::rad2deg(roll)) + ',' + std::to_string(st::rad2deg(pitch)) + ',' +
-           std::to_string(st::rad2deg(yaw)) + ',';
-
-    const auto& lin_vel = msg.odom.twist.linear;
-    const auto& ang_vel = msg.odom.twist.angular;
-    res += std::to_string(lin_vel.x) + ',' + std::to_string(lin_vel.y) + ',' + std::to_string(lin_vel.z) + ',' +
-           std::to_string(ang_vel.x) + ',' + std::to_string(ang_vel.y) + ',' + std::to_string(ang_vel.z) + ',';
-
-    const auto& lin_acc = msg.odom.accel.linear;
-    const auto& ang_acc = msg.odom.accel.angular;
-    res += std::to_string(lin_acc.x) + ',' + std::to_string(lin_acc.y) + ',' + std::to_string(lin_acc.z) + ',' +
-           std::to_string(ang_acc.x) + ',' + std::to_string(ang_acc.y) + ',' + std::to_string(ang_acc.z) + ',';
+    append_odometry(msg.odom);
   }
   else {
-    res += std::string(18, ',');
+    res.append(18, ',');
   }
 
   // IMU
   const auto imu_raw_it = _data.find(topic::kImuRaw);
   if (imu_raw_it != _data.end()) {
     const auto& msg = imu_decoder_.decode(imu_raw_it->second);
-    const auto& accel = msg.accel;
-    const auto& gyro = msg.gyro;
-    const auto& dgyro = msg.dgyro;
-    res += std::to_string(accel.x) + ',' + std::to_string(accel.y) + ',' + std::to_string(accel.z) + ',' +
-           std::to_string(gyro.x) + ',' + std::to_string(gyro.y) + ',' + std::to_string(gyro.z) + ',' +
-           std::to_string(dgyro.x) + ',' + std::to_string(dgyro.y) + ',' + std::to_string(dgyro.z) + ',';
+    append_vector3(msg.accel);
+    append_vector3(msg.gyro);
+    append_vector3(msg.dgyro);
   }
   else {
-    res += std::string(9, ',');
+    res.append(9, ',');
   }
 
   // Magnetic Field
   const auto mag_it = _data.find(topic::kMagneticField);
   if (mag_it != _data.end()) {
     const auto& msg = mag_decoder_.decode(mag_it->second);
-    const auto& mag = msg.mag;
-    res += std::to_string(mag.x) + ',' + std::to_string(mag.y) + ',' + std::to_string(mag.z) + ',';
+    append_vector3(msg.mag);
   }
   else {
-    res += ",,,";
+    res.append(3, ',');
   }
 
   // GNSS
@@ -370,16 +355,15 @@ std::string ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedDataMap&
   if (gnss_it != _data.end()) {
     const auto& msg = gnss_decoder_.decode(gnss_it->second);
     if (msg.fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
-      res += std::to_string(msg.latitude) + ',' + std::to_string(msg.longitude) + ',' + std::to_string(msg.height_msl) +
-             ',' + std::to_string(msg.ground_speed.x) + ',' + std::to_string(msg.ground_speed.y) + ',' +
-             std::to_string(msg.ground_speed.z) + ',';
+      std::format_to(std::back_inserter(res), "{},{},{},", msg.latitude, msg.longitude, msg.height_msl);
+      append_vector3(msg.ground_speed);
     }
     else {
-      res += std::string(6, ',');
+      res.append(6, ',');
     }
   }
   else {
-    res += std::string(6, ',');
+    res.append(6, ',');
   }
 
   // RC Input
@@ -387,47 +371,54 @@ std::string ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedDataMap&
   if (rcin_it != _data.end()) {
     const auto& msg = rcin_decoder_.decode(rcin_it->second);
     if (msg.status == tobas_msgs::msg::RCInput::STATUS_OK) {
-      res += std::to_string(msg.roll) + ',' + std::to_string(msg.pitch) + ',' + std::to_string(msg.throttle) + ',' +
-             std::to_string(msg.yaw) + ',' + std::to_string(msg.mode) + ',' + std::to_string(msg.sub_mode) + ',' +
-             std::to_string(msg.enable) + ',' + std::to_string(msg.kill) + ',';
+      std::format_to(
+        std::back_inserter(res),
+        "{},{},{},{},{:d},{:d},{:d},{:d},",
+        msg.roll,
+        msg.pitch,
+        msg.throttle,
+        msg.yaw,
+        msg.mode,
+        msg.sub_mode,
+        msg.enable,
+        msg.kill);
     }
     else {
-      res += std::string(8, ',');
+      res.append(8, ',');
     }
   }
   else {
-    res += std::string(8, ',');
+    res.append(8, ',');
   }
 
   // Battery
   const auto batt_it = _data.find(topic::kBattery);
   if (batt_it != _data.end()) {
     const auto& msg = battery_decoder_.decode(batt_it->second);
-    res += std::to_string(msg.voltage) + ',' + std::to_string(msg.current) + ',';
+    std::format_to(std::back_inserter(res), "{},{},", msg.voltage, msg.current);
   }
   else {
-    res += ",,";
+    res.append(2, ',');
   }
 
   // Engine
   const auto ice_cmd_it = _data.find(topic::kIcePropulsionSystemCmd);
   if (ice_cmd_it != _data.end()) {
     const auto& msg = ice_cmd_decoder_.decode(ice_cmd_it->second);
-    res += std::to_string(msg.engine_throttle * 100) + ',';
+    std::format_to(std::back_inserter(res), "{},", msg.engine_throttle * 100);
   }
   else {
-    res += ",";
+    res.append(1, ',');
   }
 
   // CPU
   const auto cpu_it = _data.find(topic::kCpu);
   if (cpu_it != _data.end()) {
     const auto& msg = cpu_decoder_.decode(cpu_it->second);
-    res += std::to_string(msg.frequency) + ',' + std::to_string(msg.temperature) + ',' +
-           std::to_string(msg.load * 100) + ',';
+    std::format_to(std::back_inserter(res), "{:d},{},{},", msg.frequency, msg.temperature, msg.load * 100);
   }
   else {
-    res += ",,,";
+    res.append(3, ',');
   }
 
   // Target Rotor Speeds
@@ -435,11 +426,11 @@ std::string ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedDataMap&
   if (rotor_speeds_cmd_it != _data.end()) {
     const auto& msg = rotor_speeds_decoder_.decode(rotor_speeds_cmd_it->second);
     for (const auto& elem : msg.speeds) {
-      res += std::to_string(st::rps2rpm(elem.speed)) + ',';
+      std::format_to(std::back_inserter(res), "{},", st::rps2rpm(elem.speed));
     }
   }
   else {
-    res += std::string(rotor_link_names_.size(), ',');
+    res.append(rotor_link_names_.size(), ',');
   }
 
   // Rotor States
@@ -447,60 +438,56 @@ std::string ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedDataMap&
   if (rotor_states_it != _data.end()) {
     const auto& msg = rotor_states_decoder_.decode(rotor_states_it->second);
     for (const auto& elem : msg.states) {
-      res += std::to_string(st::rps2rpm(elem.speed)) + ',';
+      std::format_to(std::back_inserter(res), "{},", st::rps2rpm(elem.speed));
     }
     for (const auto& elem : msg.states) {
       const auto comm_ok = (elem.status != tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE);
-      res += std::to_string(static_cast<int>(comm_ok)) + ',';
+      std::format_to(std::back_inserter(res), "{:d},", comm_ok);
     }
   }
   else {
-    res += std::string(rotor_link_names_.size() * 2, ',');
+    res.append(rotor_link_names_.size() * 2, ',');
   }
 
   // Control Latency
   const auto ctrl_latency_it = _data.find(topic::kControlLatency);
   if (ctrl_latency_it != _data.end()) {
     const auto& msg = latency_decoder_.decode(ctrl_latency_it->second);
-    res += std::to_string(ros2::microseconds(msg.data)) + ',';
+    std::format_to(std::back_inserter(res), "{},", ros2::microseconds(msg.data));
   }
   else {
-    res += ",";
+    res.append(1, ',');
   }
 
   // Vibration Level
   const auto vibe_it = _data.find(topic::kVibrationLevel);
   if (vibe_it != _data.end()) {
     const auto& msg = vibe_decoder_.decode(vibe_it->second);
-    const auto& vibe = msg.data;
-    res += std::to_string(vibe.x) + ',' + std::to_string(vibe.y) + ',' + std::to_string(vibe.z) + ',';
+    append_vector3(msg.data);
   }
   else {
-    res += ",,,";
+    res.append(3, ',');
   }
 
   // Additional Acceleration
   const auto additional_accel_it = _data.find(topic::kAdditionalAccel);
   if (additional_accel_it != _data.end()) {
     const auto& msg = accel_decoder_.decode(additional_accel_it->second);
-    const auto& accel = msg.accel.linear;
-    res += std::to_string(accel.x) + ',' + std::to_string(accel.y) + ',' + std::to_string(accel.z) + ',';
+    append_vector3(msg.accel.linear);
   }
   else {
-    res += ",,,";
+    res.append(3, ',');
   }
 
   // Disturbance Force
   const auto dist_force_it = _data.find(topic::kDisturbanceForce);
   if (dist_force_it != _data.end()) {
     const auto& msg = wrench_decoder_.decode(dist_force_it->second);
-    const auto& force = msg.wrench.force;
-    const auto& torque = msg.wrench.torque;
-    res += std::to_string(force.x) + ',' + std::to_string(force.y) + ',' + std::to_string(force.z) + ',' +
-           std::to_string(torque.x) + ',' + std::to_string(torque.y) + ',' + std::to_string(torque.z) + ',';
+    append_vector3(msg.wrench.force);
+    append_vector3(msg.wrench.torque);
   }
   else {
-    res += std::string(6, ',');
+    res.append(6, ',');
   }
 
   // Observer Feedback
@@ -511,29 +498,27 @@ std::string ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedDataMap&
     const auto& gb = msg.gyro_bias;
     const auto& mhb = msg.mag_hard_bias;
     const auto& msb = msg.mag_soft_bias;
-    res += std::to_string(ab.data[0]) + ',' + std::to_string(ab.data[1]) + ',' + std::to_string(ab.data[2]) + ',' +
-           std::to_string(gb.data[0]) + ',' + std::to_string(gb.data[1]) + ',' + std::to_string(gb.data[2]) + ',' +
-           std::to_string(mhb.data[0]) + ',' + std::to_string(mhb.data[1]) + ',' + std::to_string(mhb.data[2]) + ',' +
-           std::to_string(msb.data[0]) + ',' + std::to_string(msb.data[4]) + ',' + std::to_string(msb.data[8]) + ',' +
-           std::to_string(msb.data[1]) + ',' + std::to_string(msb.data[5]) + ',' + std::to_string(msb.data[2]) + ',' +
-           std::to_string(msg.baro_alt_bias) + ',' + std::to_string(msg.gravity) + ',' +
-           std::to_string(msg.gnss_anomaly_score) + ',';
+    std::format_to(std::back_inserter(res), "{},{},{},", ab.data[0], ab.data[1], ab.data[2]);
+    std::format_to(std::back_inserter(res), "{},{},{},", gb.data[0], gb.data[1], gb.data[2]);
+    std::format_to(std::back_inserter(res), "{},{},{},", mhb.data[0], mhb.data[1], mhb.data[2]);
+    std::format_to(std::back_inserter(res), "{},{},{},", msb.data[0], msb.data[4], msb.data[8]);
+    std::format_to(std::back_inserter(res), "{},{},{},", msb.data[1], msb.data[5], msb.data[2]);
+    std::format_to(std::back_inserter(res), "{},{},{},", msg.baro_alt_bias, msg.gravity, msg.gnss_anomaly_score);
   }
   else {
-    res += std::string(18, ',');
+    res.append(18, ',');
   }
 
   // Multirotor Controller Feedback
   const auto mr_ctrl_fb_it = _data.find(topic::kMRCtrlFeedback);
   if (mr_ctrl_fb_it != _data.end()) {
     const auto& msg = mr_ctrl_fb_decoder_.decode(mr_ctrl_fb_it->second);
-    const auto& pos_ie = msg.position_integral_error;
+    append_vector3(msg.position_integral_error);
     const auto& rot_ie = msg.angle_integral_error;
-    res += std::to_string(pos_ie.x) + ',' + std::to_string(pos_ie.y) + ',' + std::to_string(pos_ie.z) + ',' +
-           std::to_string(rot_ie.x) + ',' + std::to_string(rot_ie.y) + ',' + std::to_string(rot_ie.z);  // End
+    std::format_to(std::back_inserter(res), "{},{},{}", rot_ie.x, rot_ie.y, rot_ie.z);  // End
   }
   else {
-    res += std::string(6 - 1, ',');
+    res.append(6 - 1, ',');
   }
 
   return res;
