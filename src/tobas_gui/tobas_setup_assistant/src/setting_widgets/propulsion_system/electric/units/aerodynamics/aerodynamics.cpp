@@ -35,6 +35,7 @@ AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : prop
   methods_->addWidget(preset);
   methods_->addWidget(thrust_stand);
   methods_->addWidget(uiuc);
+  updateDescription(methods_->currentIndex());
 
   for (int i = 0; i < methods_->count(); ++i) {
     const auto method = qt::qPointerCast<AerodynamicsWidget_Base>(methods_->widget(i));
