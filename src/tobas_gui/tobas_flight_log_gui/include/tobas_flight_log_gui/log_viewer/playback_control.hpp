@@ -6,7 +6,9 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QSlider>
+#include <QString>
 #include <QTimer>
+#include <QWidget>
 
 namespace tobas::gui::log
 {
@@ -36,21 +38,13 @@ private:
   QLabel* current_time_;
   QLabel* remaining_time_;
 
-  bool is_slider_held_;
-
   QTimer timer_;
 
-  QString formatTime(int _msec);
-
-  void updateCurrentTimeLabel(int _cur_msec);
-  void updateRemainingTimeLabel(int _cur_msec);
   void updateTimeLabels(int _cur_msec);
 
 private Q_SLOTS:
   void onPlayButtonToggled(bool _checked);
   void onSliderValueChanged(int _value);
-  void onSliderPressed();
-  void onSliderReleased();
   void onTimerTimeout();
 };
 }  // namespace tobas::gui::log

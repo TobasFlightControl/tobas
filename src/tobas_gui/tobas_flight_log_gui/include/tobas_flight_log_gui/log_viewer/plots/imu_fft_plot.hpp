@@ -4,7 +4,9 @@
 #pragma once
 
 #include <array>
+#include <complex>
 #include <cstddef>
+#include <vector>
 
 #include <eigen3/unsupported/Eigen/FFT>
 
@@ -26,6 +28,13 @@ class ImuFftPlotWidget : public BasePlotWidget
 
   using ValueRanges = std::array<VerticalScaleRange, kNumGroups>;
 
+  struct FftWorkspace
+  {
+    Eigen::FFT<double> fft;
+    std::vector<double> input;
+    std::vector<std::complex<double>> spectrum;
+  };
+
 public:
   explicit ImuFftPlotWidget();
 
@@ -35,7 +44,7 @@ public:
   void setData(const QVector<tobas_msgs::msg::Imu>& _raw_msgs, const QVector<tobas_msgs::msg::Imu>& _filt_msgs);
 
 private:
-  std::array<Eigen::FFT<double>, kNumAxes> ffts_;
+  std::array<FftWorkspace, kNumAxes> fft_workspaces_;
 
   std::array<QwtPlot2*, kNumAxes> plots_;
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> raw_curves_;

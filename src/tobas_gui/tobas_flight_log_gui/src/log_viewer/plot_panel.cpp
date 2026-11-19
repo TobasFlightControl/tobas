@@ -9,7 +9,32 @@
 #include <QStyle>
 #include <QVBoxLayout>
 
-#include <tobas_qt_tools/cast.hpp>
+#include "tobas_flight_log_gui/log_viewer/plots/accel_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/additional_accel_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/air_pressure_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/battery_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/cpu_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/dist_force_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/engine_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/gnss_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/imu_fft_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/imu_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/joint_effort_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/joint_position_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/joint_velocity_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/latency_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/mag_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/mr_controller_feedback_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/observer_feedback_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/pose_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/propeller_pitch_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/pwm_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/rc_input_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/rotor_link_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/rotor_speed_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/twist_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/utilities/base_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/vibration_level_plot.hpp"
 
 namespace tobas::gui::log
 {
@@ -39,58 +64,7 @@ PlotPanelWidget::PlotPanelWidget(
   const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _dist_force_data,
   const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _obsv_fb_data,
   const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& _mr_ctrl_fb_data)
-  : odom_data_(_odom_data)
-  , setpoint_data_(_setpoint_data)
-  , imu_raw_data_(_imu_raw_data)
-  , imu_filt_data_(_imu_filt_data)
-  , mag_data_(_mag_data)
-  , pressure_data_(_pressure_data)
-  , gnss_data_(_gnss_data)
-  , rcin_data_(_rcin_data)
-  , battery_data_(_battery_data)
-  , cpu_data_(_cpu_data)
-  , cur_rotor_states_data_(_cur_rotor_states_data)
-  , tar_rotor_speeds_data_(_tar_rotor_speeds_data)
-  , cur_joint_states_data_(_cur_joint_states_data)
-  , tar_joint_positions_data_(_tar_joint_positions_data)
-  , tar_joint_velocities_data_(_tar_joint_velocities_data)
-  , tar_joint_efforts_data_(_tar_joint_efforts_data)
-  , ice_cmd_data_(_ice_cmd_data)
-  , pwm_data_(_pwm_data)
-  , sampling_time_data_(_sampling_time_data)
-  , ctrl_latency_data_(_ctrl_latency_data)
-  , vibe_data_(_vibe_data)
-  , additional_accel_data_(_additional_accel_data)
-  , dist_force_data_(_dist_force_data)
-  , obsv_fb_data_(_obsv_fb_data)
-  , mr_ctrl_fb_data_(_mr_ctrl_fb_data)
 {
-  pose_plot_ = new PosePlotWidget();
-  twist_plot_ = new TwistPlotWidget();
-  accel_plot_ = new AccelPlotWidget();
-  imu_plot_ = new ImuPlotWidget();
-  imu_fft_plot_ = new ImuFftPlotWidget();
-  mag_plot_ = new MagPlotWidget();
-  pressure_plot_ = new AirPressurePlotWidget();
-  gnss_plot_ = new GnssPlotWidget();
-  rcin_plot_ = new RcInputPlotWidget();
-  battery_plot_ = new BatteryPlotWidget();
-  engine_plot_ = new EnginePlotWidget();
-  cpu_plot_ = new CpuPlotWidget();
-  rotor_speed_plot_ = new RotorSpeedPlotWidget();
-  rotor_link_plot_ = new RotorLinkPlotWidget();
-  propeller_pitch_plot_ = new PropellerPitchPlotWidget();
-  joint_pos_plot_ = new JointPositionPlotWidget();
-  joint_vel_plot_ = new JointVelocityPlotWidget();
-  joint_eff_plot_ = new JointEffortPlotWidget();
-  pwm_plot_ = new PwmPlotWidget();
-  latency_plot_ = new LatencyPlotWidget();
-  vibe_plot_ = new VibrationLevelPlotWidget();
-  additional_accel_plot_ = new AdditionalAccelPlotWidget();
-  dist_force_plot_ = new DisturbanceForcePlotWidget();
-  obsv_fb_plot_ = new ObserverFeedbackPlotWidget();
-  mr_ctrl_fb_plot_ = new MRControllerFeedbackPlotWidget();
-
   plot_selector_ = new qt::ComboBox();
   plot_stack_ = new QStackedWidget();
 
@@ -99,31 +73,31 @@ PlotPanelWidget::PlotPanelWidget(
   expand_button_->setIcon(style()->standardIcon(QStyle::SP_TitleBarMaxButton));
   expand_button_->setToolTip("Expand plot");
 
-  addPlot(pose_plot_, "Pose");
-  addPlot(twist_plot_, "Twist");
-  addPlot(accel_plot_, "Accel");
-  addPlot(imu_plot_, "IMU");
-  addPlot(imu_fft_plot_, "IMU FFT");
-  addPlot(mag_plot_, "Magnetic Field");
-  addPlot(pressure_plot_, "Air Pressure");
-  addPlot(gnss_plot_, "GNSS");
-  addPlot(rcin_plot_, "RC Input");
-  addPlot(battery_plot_, "Battery");
-  addPlot(engine_plot_, "Engine");
-  addPlot(cpu_plot_, "CPU");
-  addPlot(rotor_speed_plot_, "Rotor Speed");
-  addPlot(rotor_link_plot_, "Rotor Link");
-  addPlot(propeller_pitch_plot_, "VPP Pitch");
-  addPlot(joint_pos_plot_, "Joint Position");
-  addPlot(joint_vel_plot_, "Joint Velocity");
-  addPlot(joint_eff_plot_, "Joint Effort");
-  addPlot(pwm_plot_, "PWM");
-  addPlot(latency_plot_, "Latency");
-  addPlot(vibe_plot_, "Vibration Level");
-  addPlot(additional_accel_plot_, "Additional Accel");
-  addPlot(dist_force_plot_, "Disturbance Force");
-  addPlot(obsv_fb_plot_, "Observer");
-  addPlot(mr_ctrl_fb_plot_, "Multirotor Controller");
+  addPlot<PosePlotWidget>("Pose", _odom_data, _setpoint_data);
+  addPlot<TwistPlotWidget>("Twist", _odom_data, _setpoint_data);
+  addPlot<AccelPlotWidget>("Accel", _odom_data, _setpoint_data);
+  addPlot<ImuPlotWidget>("IMU", _imu_raw_data, _imu_filt_data);
+  addPlot<ImuFftPlotWidget>("IMU FFT", _imu_raw_data, _imu_filt_data);
+  addPlot<MagPlotWidget>("Magnetic Field", _mag_data);
+  addPlot<AirPressurePlotWidget>("Air Pressure", _pressure_data);
+  addPlot<GnssPlotWidget>("GNSS", _gnss_data);
+  addPlot<RcInputPlotWidget>("RC Input", _rcin_data);
+  addPlot<BatteryPlotWidget>("Battery", _battery_data);
+  addPlot<EnginePlotWidget>("Engine", _ice_cmd_data);
+  addPlot<CpuPlotWidget>("CPU", _cpu_data);
+  addPlot<RotorSpeedPlotWidget>("Rotor Speed", _cur_rotor_states_data, _tar_rotor_speeds_data);
+  addPlot<RotorLinkPlotWidget>("Rotor Link", _cur_rotor_states_data);
+  addPlot<PropellerPitchPlotWidget>("VPP Pitch", _ice_cmd_data);
+  addPlot<JointPositionPlotWidget>("Joint Position", _cur_joint_states_data, _tar_joint_positions_data);
+  addPlot<JointVelocityPlotWidget>("Joint Velocity", _cur_joint_states_data, _tar_joint_velocities_data);
+  addPlot<JointEffortPlotWidget>("Joint Effort", _cur_joint_states_data, _tar_joint_efforts_data);
+  addPlot<PwmPlotWidget>("PWM", _pwm_data);
+  addPlot<LatencyPlotWidget>("Latency", _sampling_time_data, _ctrl_latency_data);
+  addPlot<VibrationLevelPlotWidget>("Vibration Level", _vibe_data);
+  addPlot<AdditionalAccelPlotWidget>("Additional Accel", _additional_accel_data);
+  addPlot<DisturbanceForcePlotWidget>("Disturbance Force", _dist_force_data);
+  addPlot<ObserverFeedbackPlotWidget>("Observer", _obsv_fb_data);
+  addPlot<MRControllerFeedbackPlotWidget>("Multirotor Controller", _mr_ctrl_fb_data);
 
   const auto header = new QHBoxLayout();
   header->addWidget(plot_selector_, 0);
@@ -142,14 +116,20 @@ PlotPanelWidget::PlotPanelWidget(
 
 void PlotPanelWidget::setCurrentIndex(int _index)
 {
+  if (_index < 0 || _index >= static_cast<int>(plots_.size())) {
+    qWarning() << "Invalid index:" << _index;
+    return;
+  }
   plot_selector_->setCurrentIndex(_index);
+  currentPlot();
 }
 
 void PlotPanelWidget::clear()
 {
-  for (int i = 0; i < plot_stack_->count(); ++i) {
-    const auto plot = qt::qPointerCast<BasePlotWidget>(plot_stack_->widget(i));
-    plot->clear();
+  for (const auto& entry : plots_) {
+    if (entry.plot.widget) {
+      entry.plot.widget->clear();
+    }
   }
 }
 
@@ -158,114 +138,49 @@ void PlotPanelWidget::setTimeScale(double _t_start, double _t_stop)
   t_start_ = _t_start;
   t_stop_ = _t_stop;
 
-  const auto plot = qt::qPointerCast<BasePlotWidget>(plot_stack_->currentWidget());
-  plot->setTimeScale(_t_start, _t_stop);
+  currentPlot().widget->setTimeScale(_t_start, _t_stop);
 }
 
 void PlotPanelWidget::plot()
 {
-  plot(plot_stack_->currentIndex());
+  currentPlot().update();
 }
 
-void PlotPanelWidget::addPlot(BasePlotWidget* _plot, const QString& _name)
+template <typename PlotType, typename... MsgTypes>
+void PlotPanelWidget::addPlot(const QString& _name, const QVector<MsgTypes>&... _data)
 {
-  const auto plot_layout = _plot->layout();
-  plot_layout->setContentsMargins(0, 0, 0, 0);
-  plot_layout->setSpacing(0);
+  // The viewer owns the data vectors and keeps them alive for the lifetime of its panels.
+  const auto create = [&_data...]
+  {
+    const auto widget = new PlotType();
+    widget->layout()->setContentsMargins(0, 0, 0, 0);
+    widget->layout()->setSpacing(0);
+    widget->clear();
+    return Plot{ widget, [widget, &_data...] { widget->setData(_data...); } };
+  };
+  plots_.push_back({ {}, create });
 
   plot_selector_->addItem(_name);
-  plot_stack_->addWidget(_plot);
 }
 
-void PlotPanelWidget::plot(int _index)
+PlotPanelWidget::Plot& PlotPanelWidget::currentPlot()
 {
-  const auto cur_widget = plot_stack_->widget(_index);
-
-  if (cur_widget == pose_plot_) {
-    pose_plot_->setData(odom_data_, setpoint_data_);
+  const auto index = plot_selector_->currentIndex();
+  auto& entry = plots_[index];
+  if (!entry.plot.widget) {
+    entry.plot = entry.create();
+    entry.create = {};
+    plot_stack_->addWidget(entry.plot.widget);
   }
-  else if (cur_widget == twist_plot_) {
-    twist_plot_->setData(odom_data_, setpoint_data_);
-  }
-  else if (cur_widget == accel_plot_) {
-    accel_plot_->setData(odom_data_, setpoint_data_);
-  }
-  else if (cur_widget == imu_plot_) {
-    imu_plot_->setData(imu_raw_data_, imu_filt_data_);
-  }
-  else if (cur_widget == imu_fft_plot_) {
-    imu_fft_plot_->setData(imu_raw_data_, imu_filt_data_);
-  }
-  else if (cur_widget == mag_plot_) {
-    mag_plot_->setData(mag_data_);
-  }
-  else if (cur_widget == pressure_plot_) {
-    pressure_plot_->setData(pressure_data_);
-  }
-  else if (cur_widget == gnss_plot_) {
-    gnss_plot_->setData(gnss_data_);
-  }
-  else if (cur_widget == rcin_plot_) {
-    rcin_plot_->setData(rcin_data_);
-  }
-  else if (cur_widget == battery_plot_) {
-    battery_plot_->setData(battery_data_);
-  }
-  else if (cur_widget == engine_plot_) {
-    engine_plot_->setData(ice_cmd_data_);
-  }
-  else if (cur_widget == cpu_plot_) {
-    cpu_plot_->setData(cpu_data_);
-  }
-  else if (cur_widget == rotor_speed_plot_) {
-    rotor_speed_plot_->setData(cur_rotor_states_data_, tar_rotor_speeds_data_);
-  }
-  else if (cur_widget == rotor_link_plot_) {
-    rotor_link_plot_->setData(cur_rotor_states_data_);
-  }
-  else if (cur_widget == propeller_pitch_plot_) {
-    propeller_pitch_plot_->setData(ice_cmd_data_);
-  }
-  else if (cur_widget == joint_pos_plot_) {
-    joint_pos_plot_->setData(cur_joint_states_data_, tar_joint_positions_data_);
-  }
-  else if (cur_widget == joint_vel_plot_) {
-    joint_vel_plot_->setData(cur_joint_states_data_, tar_joint_velocities_data_);
-  }
-  else if (cur_widget == joint_eff_plot_) {
-    joint_eff_plot_->setData(cur_joint_states_data_, tar_joint_efforts_data_);
-  }
-  else if (cur_widget == pwm_plot_) {
-    pwm_plot_->setData(pwm_data_);
-  }
-  else if (cur_widget == latency_plot_) {
-    latency_plot_->setData(sampling_time_data_, ctrl_latency_data_);
-  }
-  else if (cur_widget == vibe_plot_) {
-    vibe_plot_->setData(vibe_data_);
-  }
-  else if (cur_widget == additional_accel_plot_) {
-    additional_accel_plot_->setData(additional_accel_data_);
-  }
-  else if (cur_widget == dist_force_plot_) {
-    dist_force_plot_->setData(dist_force_data_);
-  }
-  else if (cur_widget == obsv_fb_plot_) {
-    obsv_fb_plot_->setData(obsv_fb_data_);
-  }
-  else if (cur_widget == mr_ctrl_fb_plot_) {
-    mr_ctrl_fb_plot_->setData(mr_ctrl_fb_data_);
-  }
-  else {
-    qWarning() << "Invalid index:" << _index;
-  }
+  return entry.plot;
 }
 
-void PlotPanelWidget::onCurrentWidgetChanged(int _index)
+void PlotPanelWidget::onCurrentWidgetChanged()
 {
-  plot_stack_->setCurrentIndex(_index);
-  setTimeScale(t_start_, t_stop_);
-  plot(_index);
+  auto& plot = currentPlot();
+  plot_stack_->setCurrentWidget(plot.widget);
+  plot.widget->setTimeScale(t_start_, t_stop_);
+  plot.update();
 }
 
 void PlotPanelWidget::onExpandButtonToggled(bool _expanded)

@@ -39,42 +39,6 @@ void applyVerticalScale(QwtPlot2& _plot, const VerticalScale& _scale)
 }
 }  // namespace
 
-void VerticalScaleRange::include(double _value)
-{
-  if (std::isfinite(_value)) {
-    min_ = std::min(min_, _value);
-    max_ = std::max(max_, _value);
-  }
-}
-
-void VerticalScaleRange::include(const VerticalScaleRange& _other)
-{
-  if (!_other.empty()) {
-    include(_other.min_);
-    include(_other.max_);
-  }
-}
-
-bool VerticalScaleRange::empty() const
-{
-  return max_ < min_;
-}
-
-double VerticalScaleRange::min() const
-{
-  return min_;
-}
-
-double VerticalScaleRange::max() const
-{
-  return max_;
-}
-
-double VerticalScaleRange::center() const
-{
-  return empty() ? 0.0 : (max() + min()) / 2.0;
-}
-
 void setVerticalScale(QwtPlot2& _plot, const VerticalScaleRange& _range, double _minimum_half_range)
 {
   assert(_minimum_half_range >= 0.0);

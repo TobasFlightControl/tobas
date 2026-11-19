@@ -3,8 +3,6 @@
 
 #include "tobas_flight_log_gui/log_viewer/plots/imu_fft_plot.hpp"
 
-#include <vector>
-
 #include <QGridLayout>
 
 #include <tobas_constants/imu.hpp>
@@ -21,8 +19,8 @@ ImuFftPlotWidget::ImuFftPlotWidget()
   const auto grid = new QGridLayout(this);
 
   for (size_t i = 0; i < kNumAxes; ++i) {
-    // The imaginary part is unnecessary because the data is one-dimensional.
-    ffts_[i].SetFlag(Eigen::FFT<double>::HalfSpectrum);
+    // Real input only needs the nonnegative-frequency half of the spectrum.
+    fft_workspaces_[i].fft.SetFlag(Eigen::FFT<double>::HalfSpectrum);
 
     plots_[i] = new QwtPlot2();
     if (i % 3 == 2) {
@@ -87,20 +85,20 @@ ImuFftPlotWidget::ValueRanges ImuFftPlotWidget::updateSamples(
     return {};
   }
 
-  // Collect data.
-  std::array<std::vector<double>, kNumAxes> imu_data;
-  for (auto& axis_data : imu_data) {
-    axis_data.reserve(n);
+  // Reuse each axis's buffers across windows and between raw and filtered data.
+  for (auto& workspace : fft_workspaces_) {
+    workspace.input.clear();
+    workspace.input.reserve(n);
   }
   for (const auto& imu : _msgs) {
     const auto& accel = imu.accel;
     const auto& gyro = imu.gyro;
-    imu_data[0].push_back(accel.x);
-    imu_data[1].push_back(accel.y);
-    imu_data[2].push_back(accel.z);
-    imu_data[3].push_back(gyro.x);
-    imu_data[4].push_back(gyro.y);
-    imu_data[5].push_back(gyro.z);
+    fft_workspaces_[0].input.push_back(accel.x);
+    fft_workspaces_[1].input.push_back(accel.y);
+    fft_workspaces_[2].input.push_back(accel.z);
+    fft_workspaces_[3].input.push_back(gyro.x);
+    fft_workspaces_[4].input.push_back(gyro.y);
+    fft_workspaces_[5].input.push_back(gyro.z);
   }
 
   // All axes use the same frequency bins. Exclude the mean value (k = 0).
@@ -116,16 +114,17 @@ ImuFftPlotWidget::ValueRanges ImuFftPlotWidget::updateSamples(
   std::array<VerticalScaleRange, kNumAxes> axis_ranges;
 #pragma omp parallel for num_threads(kNumAxes)
   for (size_t i = 0; i < kNumAxes; ++i) {
-    std::vector<Eigen::dcomplex> spec;
-    ffts_[i].fwd(spec, imu_data[i]);
-    TOBAS_CHECK(spec.size() == num_bins + 1);
+    auto& workspace = fft_workspaces_[i];
+    auto& spectrum = workspace.spectrum;
+    workspace.fft.fwd(spectrum, workspace.input);
+    TOBAS_CHECK(spectrum.size() == num_bins + 1);
 
     auto& amps = amplitudes[i];
     amps.reserve(num_bins);
-    for (size_t k = 1; k < spec.size(); ++k) {
+    for (size_t k = 1; k < spectrum.size(); ++k) {
       const auto is_nyquist = n % 2 == 0 && k == num_bins;
       const auto scale = is_nyquist ? 1.0 : 2.0;
-      const auto amp = scale * std::abs(spec.at(k)) / n;
+      const auto amp = scale * std::abs(spectrum.at(k)) / n;
       amps.push_back(amp);
       axis_ranges[i].include(amp);
     }

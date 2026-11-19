@@ -52,16 +52,16 @@ void RotorLinkPlotWidget::setData(const QVector<tobas_msgs::msg::RotorStateArray
       continue;
     }
 
+    const auto time = ros2::seconds(msg.header.stamp);
     for (const auto& elem : msg.states) {
-      if (!name2idx_.contains(elem.link_name)) {
+      const auto it = name2idx_.find(elem.link_name);
+      if (it == name2idx_.end()) {
         qWarning() << "Rotor" << QString::fromStdString(elem.link_name) << "is not registered.";
         continue;
       }
 
-      const auto& idx = name2idx_.at(elem.link_name);
-
-      t_data[idx].push_back(ros2::seconds(msg.header.stamp));
-
+      const auto idx = it->second;
+      t_data[idx].push_back(time);
       value_data[idx].push_back(static_cast<int>(elem.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE));
     }
   }

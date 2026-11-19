@@ -19,14 +19,20 @@ public:
   {
   }
 
+  /** Ensure `std::unique_ptr<DataI>` invokes the derived destructor to release values and caches. */
+  virtual ~DataI() = default;
+
   const std::string& getTopic() const
   {
     return topic_;
   }
 
-  virtual void clearValues() = 0;
-  virtual void clearCache() = 0;
-  virtual void retainWindow(rcutils_time_point_value_t _start, rcutils_time_point_value_t _stop) = 0;
+  /** Clear plotted values and cached messages. */
+  virtual void clear() = 0;
+
+  /** Clear plotted values and keep cached messages within the new window. */
+  virtual void prepareWindow(rcutils_time_point_value_t _start, rcutils_time_point_value_t _stop) = 0;
+
   virtual bool decode(rcutils_time_point_value_t _cur_time, const std::shared_ptr<rcutils_uint8_array_t>& _ser_data) = 0;
 
 private:
@@ -39,18 +45,15 @@ class Data : public DataI
 public:
   using DataI::DataI;
 
-  void clearValues() override
+  void clear() override
   {
     values_.clear();
-  }
-
-  void clearCache() override
-  {
     decoder_.clearCache();
   }
 
-  void retainWindow(rcutils_time_point_value_t _start, rcutils_time_point_value_t _stop) override
+  void prepareWindow(rcutils_time_point_value_t _start, rcutils_time_point_value_t _stop) override
   {
+    values_.clear();
     decoder_.retainWindow(_start, _stop);
   }
 

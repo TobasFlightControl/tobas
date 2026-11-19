@@ -121,8 +121,10 @@ RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::msg::R
       continue;
     }
 
+    const auto time = ros2::seconds(msg.header.stamp);
     for (const auto& elem : msg.states) {
-      if (!name2idx_.contains(elem.link_name)) {
+      const auto it = name2idx_.find(elem.link_name);
+      if (it == name2idx_.end()) {
         qWarning() << "Rotor" << QString::fromStdString(elem.link_name) << "is not registered.";
         continue;
       }
@@ -131,10 +133,10 @@ RotorSpeedPlotWidget::updateCurrentSpeedSamples(const QVector<tobas_msgs::msg::R
         continue;
       }
 
-      const auto& idx = name2idx_.at(elem.link_name);
+      const auto idx = it->second;
       const auto speed = st::rps2rpm(elem.speed);
 
-      t_data[idx].push_back(ros2::seconds(msg.header.stamp));
+      t_data[idx].push_back(time);
       speed_data[idx].push_back(speed);
 
       if (std::isfinite(speed)) {
@@ -165,16 +167,18 @@ RotorSpeedPlotWidget::updateTargetSpeedSamples(const QVector<tobas_msgs::msg::Ro
       continue;
     }
 
+    const auto time = ros2::seconds(msg.header.stamp);
     for (const auto& elem : msg.speeds) {
-      if (!name2idx_.contains(elem.link_name)) {
+      const auto it = name2idx_.find(elem.link_name);
+      if (it == name2idx_.end()) {
         qWarning() << "Rotor" << QString::fromStdString(elem.link_name) << "is not registered.";
         continue;
       }
 
-      const auto& idx = name2idx_[elem.link_name];
+      const auto idx = it->second;
       const auto speed = st::rps2rpm(elem.speed);
 
-      t_data[idx].push_back(ros2::seconds(msg.header.stamp));
+      t_data[idx].push_back(time);
       speed_data[idx].push_back(speed);
 
       if (std::isfinite(speed)) {

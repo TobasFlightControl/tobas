@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <algorithm>
+#include <cmath>
 #include <limits>
 #include <span>
 
@@ -14,22 +16,46 @@ class VerticalScaleRange
 {
 public:
   /** Extend the range with a value, ignoring NaN and infinity. */
-  void include(double _value);
+  inline void include(double _value)
+  {
+    if (std::isfinite(_value)) {
+      min_ = std::min(min_, _value);
+      max_ = std::max(max_, _value);
+    }
+  }
 
   /** Merge another nonempty range into this range. */
-  void include(const VerticalScaleRange& _other);
+  inline void include(const VerticalScaleRange& _other)
+  {
+    if (!_other.empty()) {
+      include(_other.min_);
+      include(_other.max_);
+    }
+  }
 
   /** Check whether the range contains no finite values. */
-  bool empty() const;
+  inline bool empty() const
+  {
+    return max_ < min_;
+  }
 
   /** Get the minimum value from a nonempty range. */
-  double min() const;
+  inline double min() const
+  {
+    return min_;
+  }
 
   /** Get the maximum value from a nonempty range. */
-  double max() const;
+  inline double max() const
+  {
+    return max_;
+  }
 
   /** Get the range midpoint, or zero when the range is empty. */
-  double center() const;
+  inline double center() const
+  {
+    return empty() ? 0.0 : (max() + min()) / 2.0;
+  }
 
 private:
   double min_ = std::numeric_limits<double>::max();

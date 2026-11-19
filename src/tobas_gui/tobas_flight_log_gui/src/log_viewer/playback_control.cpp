@@ -4,6 +4,7 @@
 #include "tobas_flight_log_gui/log_viewer/playback_control.hpp"
 
 #include <QHBoxLayout>
+#include <QSignalBlocker>
 #include <QStyle>
 
 #include <tobas_std_tools/check.hpp>
@@ -13,6 +14,15 @@ namespace tobas::gui::log
 namespace
 {
 constexpr int kTimerInterval = 40;  // [ms]
+
+QString formatTime(int _msec)
+{
+  auto seconds = _msec / 1000;
+  const auto minutes = seconds / 60;
+  seconds %= 60;
+
+  return QString("%1:%2").arg(minutes, 2, 10, QLatin1Char('0')).arg(seconds, 2, 10, QLatin1Char('0'));
+}
 }  // namespace
 
 PlaybackControlWidget::PlaybackControlWidget()
@@ -37,8 +47,6 @@ PlaybackControlWidget::PlaybackControlWidget()
   // Connection
   connect(play_button_, &QPushButton::toggled, this, &self::onPlayButtonToggled);
   connect(slider_, &QSlider::valueChanged, this, &self::onSliderValueChanged);
-  connect(slider_, &QSlider::sliderPressed, this, &self::onSliderPressed);
-  connect(slider_, &QSlider::sliderReleased, this, &self::onSliderReleased);
   connect(&timer_, &QTimer::timeout, this, &self::onTimerTimeout);
 }
 
@@ -47,12 +55,13 @@ void PlaybackControlWidget::reset()
   play_button_->setChecked(false);
   play_button_->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
 
+  // The viewer clears its plots separately, so resetting the slider must not trigger a redraw.
+  const QSignalBlocker slider_blocker(slider_);
+  slider_->setSliderDown(false);
   slider_->setMaximum(0);
 
   current_time_->setText("00:00");
   remaining_time_->setText("00:00");
-
-  is_slider_held_ = false;
 
   timer_.stop();
 }
@@ -82,29 +91,10 @@ void PlaybackControlWidget::setCurrentTime(double _sec)
   slider_->setValue(_sec * 1e+3);
 }
 
-void PlaybackControlWidget::updateCurrentTimeLabel(int _cur_msec)
-{
-  current_time_->setText(formatTime(_cur_msec));
-}
-
-void PlaybackControlWidget::updateRemainingTimeLabel(int _cur_msec)
-{
-  remaining_time_->setText(formatTime(slider_->maximum() - _cur_msec));
-}
-
 void PlaybackControlWidget::updateTimeLabels(int _cur_msec)
 {
-  updateCurrentTimeLabel(_cur_msec);
-  updateRemainingTimeLabel(_cur_msec);
-}
-
-QString PlaybackControlWidget::formatTime(int _msec)
-{
-  auto seconds = _msec / 1000;
-  const auto minutes = seconds / 60;
-  seconds %= 60;
-
-  return QString("%1:%2").arg(minutes, 2, 10, QLatin1Char('0')).arg(seconds, 2, 10, QLatin1Char('0'));
+  current_time_->setText(formatTime(_cur_msec));
+  remaining_time_->setText(formatTime(slider_->maximum() - _cur_msec));
 }
 
 void PlaybackControlWidget::onPlayButtonToggled(bool _checked)
@@ -122,8 +112,6 @@ void PlaybackControlWidget::onPlayButtonToggled(bool _checked)
     play_button_->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
     timer_.stop();
   }
-
-  Q_EMIT timeChanged(getCurrentTime());
 }
 
 void PlaybackControlWidget::onSliderValueChanged(int _value)
@@ -132,19 +120,9 @@ void PlaybackControlWidget::onSliderValueChanged(int _value)
   Q_EMIT timeChanged(_value * 1e-3);
 }
 
-void PlaybackControlWidget::onSliderPressed()
-{
-  is_slider_held_ = true;
-}
-
-void PlaybackControlWidget::onSliderReleased()
-{
-  is_slider_held_ = false;
-}
-
 void PlaybackControlWidget::onTimerTimeout()
 {
-  if (is_slider_held_) {
+  if (slider_->isSliderDown()) {
     return;
   }
 

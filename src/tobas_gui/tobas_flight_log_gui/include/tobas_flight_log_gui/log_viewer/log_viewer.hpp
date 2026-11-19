@@ -9,11 +9,12 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include <QFrame>
 #include <QGridLayout>
+#include <QVector>
 
 #include <rosbag2_cpp/reader.hpp>
 #include <rosbag2_storage/serialized_bag_message.hpp>
@@ -42,9 +43,8 @@ public:
 private:
   std::filesystem::path log_path_;
   rosbag2_cpp::Reader reader_;
-  std::vector<std::shared_ptr<DataI>> data_;
-  std::unordered_map<std::string, DataI*> topic_data_;
-  std::unordered_set<std::string> decode_fail_topics_;
+  std::vector<std::unique_ptr<DataI>> data_;
+  std::unordered_map<std::string, DataI*> topic_data_;  ///< Failed topics map to `nullptr` until reset.
   std::deque<BagMessagePtr> window_messages_;
   Time window_start_time_, window_stop_time_;
 
@@ -53,14 +53,17 @@ private:
   QGridLayout* plot_grid_;
   PlaybackControlWidget* playback_ctrl_;
 
+  /** Register a stream and return its values, which remain valid for the viewer's lifetime. */
   template <typename MsgType>
-  std::shared_ptr<Data<MsgType>> addData(const std::string& _topic);
+  const QVector<MsgType>& addData(const std::string& _topic);
 
   bool open(const std::string& _rosbag_path);
 
   void readWindow(Time _start, Time _stop);
 
   void setPlotData(double _time_from_start);
+
+  void plotPanel(PlotPanelWidget* _panel);
 
   void setExpandedPanel(PlotPanelWidget* _expanded_panel);
 
@@ -69,10 +72,11 @@ private Q_SLOTS:
 };
 
 template <typename MsgType>
-std::shared_ptr<Data<MsgType>> FlightLogViewerWidget::addData(const std::string& _topic)
+const QVector<MsgType>& FlightLogViewerWidget::addData(const std::string& _topic)
 {
-  const auto res = std::make_shared<Data<MsgType>>(_topic);
-  data_.push_back(res);
-  return res;
+  auto stream = std::make_unique<Data<MsgType>>(_topic);
+  const auto& values = stream->getValues();
+  data_.push_back(std::move(stream));
+  return values;
 }
 }  // namespace tobas::gui::log

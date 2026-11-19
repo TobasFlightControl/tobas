@@ -3,39 +3,40 @@
 
 #pragma once
 
+#include <functional>
+#include <vector>
+
 #include <QStackedWidget>
 #include <QString>
 #include <QToolButton>
+#include <QVector>
 #include <QWidget>
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 
-#include "./plots/accel_plot.hpp"
-#include "./plots/additional_accel_plot.hpp"
-#include "./plots/air_pressure_plot.hpp"
-#include "./plots/battery_plot.hpp"
-#include "./plots/cpu_plot.hpp"
-#include "./plots/dist_force_plot.hpp"
-#include "./plots/engine_plot.hpp"
-#include "./plots/gnss_plot.hpp"
-#include "./plots/imu_fft_plot.hpp"
-#include "./plots/imu_plot.hpp"
-#include "./plots/joint_effort_plot.hpp"
-#include "./plots/joint_position_plot.hpp"
-#include "./plots/joint_velocity_plot.hpp"
-#include "./plots/latency_plot.hpp"
-#include "./plots/mag_plot.hpp"
-#include "./plots/mr_controller_feedback_plot.hpp"
-#include "./plots/observer_feedback_plot.hpp"
-#include "./plots/pose_plot.hpp"
-#include "./plots/propeller_pitch_plot.hpp"
-#include "./plots/pwm_plot.hpp"
-#include "./plots/rc_input_plot.hpp"
-#include "./plots/rotor_link_plot.hpp"
-#include "./plots/rotor_speed_plot.hpp"
-#include "./plots/twist_plot.hpp"
+#include <tobas_debug_msgs/msg/multicopter_controller_feedback.hpp>
+#include <tobas_debug_msgs/msg/observer_feedback.hpp>
+#include <tobas_kdl_msgs/msg/accel_stamped.hpp>
+#include <tobas_kdl_msgs/msg/wrench_stamped.hpp>
+#include <tobas_msgs/msg/battery.hpp>
+#include <tobas_msgs/msg/cpu.hpp>
+#include <tobas_msgs/msg/fluid_pressure.hpp>
+#include <tobas_msgs/msg/gnss.hpp>
+#include <tobas_msgs/msg/ice_propulsion_system_command.hpp>
+#include <tobas_msgs/msg/imu.hpp>
+#include <tobas_msgs/msg/joint_command_array.hpp>
+#include <tobas_msgs/msg/joint_state_array.hpp>
+#include <tobas_msgs/msg/latency.hpp>
+#include <tobas_msgs/msg/magnetic_field.hpp>
+#include <tobas_msgs/msg/odometry_stamped.hpp>
+#include <tobas_msgs/msg/odometry_with_covariance_stamped.hpp>
+#include <tobas_msgs/msg/pwm_array.hpp>
+#include <tobas_msgs/msg/rc_input.hpp>
+#include <tobas_msgs/msg/rotor_speed_array.hpp>
+#include <tobas_msgs/msg/rotor_state_array.hpp>
+#include <tobas_msgs/msg/vibration_level.hpp>
+
 #include "./plots/utilities/base_plot.hpp"
-#include "./plots/vibration_level_plot.hpp"
 
 namespace tobas::gui::log
 {
@@ -45,10 +46,28 @@ class PlotPanelWidget : public QWidget
 
   using self = PlotPanelWidget;
 
+  struct Plot
+  {
+    BasePlotWidget* widget = nullptr;
+    std::function<void()> update;
+  };
+
+  struct PlotEntry
+  {
+    Plot plot;
+    std::function<Plot()> create;
+  };
+
 Q_SIGNALS:
+  /** Request expansion when `_expanded` is true, or restoration when false. */
   void expandedChanged(bool _expanded);
 
 public:
+  /**
+   * Create the panel controls and register plots for lazy creation using the supplied data vectors.
+   *
+   * @note The data vectors are referenced and must remain valid while the panel is in use.
+   */
   explicit PlotPanelWidget(
     const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& _odom_data,
     const QVector<tobas_msgs::msg::OdometryStamped>& _setpoint_data,
@@ -76,78 +95,40 @@ public:
     const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _obsv_fb_data,
     const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& _mr_ctrl_fb_data);
 
+  /** Select a plot by registration index and create it on first use, warning on invalid indices. */
   void setCurrentIndex(int _index);
 
+  /** Clear all created plots and retain their widgets for reuse. */
   void clear();
+
+  /** Store the time range in seconds and pass it to the selected plot, creating the plot if needed. */
   void setTimeScale(double _t_start, double _t_stop);
+
+  /** Create the selected plot if needed and refresh it from the referenced data vectors. */
   void plot();
 
 private:
-  const QVector<tobas_msgs::msg::OdometryWithCovarianceStamped>& odom_data_;
-  const QVector<tobas_msgs::msg::OdometryStamped>& setpoint_data_;
-  const QVector<tobas_msgs::msg::Imu>& imu_raw_data_;
-  const QVector<tobas_msgs::msg::Imu>& imu_filt_data_;
-  const QVector<tobas_msgs::msg::MagneticField>& mag_data_;
-  const QVector<tobas_msgs::msg::FluidPressure>& pressure_data_;
-  const QVector<tobas_msgs::msg::Gnss>& gnss_data_;
-  const QVector<tobas_msgs::msg::RCInput>& rcin_data_;
-  const QVector<tobas_msgs::msg::Battery>& battery_data_;
-  const QVector<tobas_msgs::msg::Cpu>& cpu_data_;
-  const QVector<tobas_msgs::msg::RotorStateArray>& cur_rotor_states_data_;
-  const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_rotor_speeds_data_;
-  const QVector<tobas_msgs::msg::JointStateArray>& cur_joint_states_data_;
-  const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_positions_data_;
-  const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_velocities_data_;
-  const QVector<tobas_msgs::msg::JointCommandArray>& tar_joint_efforts_data_;
-  const QVector<tobas_msgs::msg::IcePropulsionSystemCommand>& ice_cmd_data_;
-  const QVector<tobas_msgs::msg::PwmArray>& pwm_data_;
-  const QVector<tobas_msgs::msg::Latency>& sampling_time_data_;
-  const QVector<tobas_msgs::msg::Latency>& ctrl_latency_data_;
-  const QVector<tobas_msgs::msg::VibrationLevel>& vibe_data_;
-  const QVector<tobas_kdl_msgs::msg::AccelStamped>& additional_accel_data_;
-  const QVector<tobas_kdl_msgs::msg::WrenchStamped>& dist_force_data_;
-  const QVector<tobas_debug_msgs::msg::ObserverFeedback>& obsv_fb_data_;
-  const QVector<tobas_debug_msgs::msg::MulticopterControllerFeedback>& mr_ctrl_fb_data_;
-
   qt::ComboBox* plot_selector_;
   QStackedWidget* plot_stack_;
   QToolButton* expand_button_;
 
-  PosePlotWidget* pose_plot_;
-  TwistPlotWidget* twist_plot_;
-  AccelPlotWidget* accel_plot_;
-  ImuPlotWidget* imu_plot_;
-  ImuFftPlotWidget* imu_fft_plot_;
-  MagPlotWidget* mag_plot_;
-  AirPressurePlotWidget* pressure_plot_;
-  GnssPlotWidget* gnss_plot_;
-  RcInputPlotWidget* rcin_plot_;
-  BatteryPlotWidget* battery_plot_;
-  EnginePlotWidget* engine_plot_;
-  CpuPlotWidget* cpu_plot_;
-  RotorSpeedPlotWidget* rotor_speed_plot_;
-  RotorLinkPlotWidget* rotor_link_plot_;
-  PropellerPitchPlotWidget* propeller_pitch_plot_;
-  JointPositionPlotWidget* joint_pos_plot_;
-  JointVelocityPlotWidget* joint_vel_plot_;
-  JointEffortPlotWidget* joint_eff_plot_;
-  PwmPlotWidget* pwm_plot_;
-  LatencyPlotWidget* latency_plot_;
-  VibrationLevelPlotWidget* vibe_plot_;
-  AdditionalAccelPlotWidget* additional_accel_plot_;
-  DisturbanceForcePlotWidget* dist_force_plot_;
-  ObserverFeedbackPlotWidget* obsv_fb_plot_;
-  MRControllerFeedbackPlotWidget* mr_ctrl_fb_plot_;
+  std::vector<PlotEntry> plots_;
 
   double t_start_ = 0.0;
   double t_stop_ = 1.0;
 
-  void addPlot(BasePlotWidget* _plot, const QString& _name);
+  /** Register a named plot with data references and defer widget creation until first use. */
+  template <typename PlotType, typename... MsgTypes>
+  void addPlot(const QString& _name, const QVector<MsgTypes>&... _data);
 
-  void plot(int _index);
+  /** Return the selected plot, creating it and adding its widget to the stack on first use. */
+  Plot& currentPlot();
 
 private Q_SLOTS:
-  void onCurrentWidgetChanged(int _index);
+  /** Show the selected plot, apply the stored time range, and refresh its data. */
+  void onCurrentWidgetChanged();
+
+  /** Update the expand button and emit `expandedChanged()` for the requested layout state. */
   void onExpandButtonToggled(bool _expanded);
 };
 }  // namespace tobas::gui::log

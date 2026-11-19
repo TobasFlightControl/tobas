@@ -32,31 +32,31 @@ constexpr double kWindowDuration = 5.0;  // [s]
 
 FlightLogViewerWidget::FlightLogViewerWidget()
 {
-  const auto odom = addData<tobas_msgs::msg::OdometryWithCovarianceStamped>(topic::kOdometry);
-  const auto setpoint = addData<tobas_msgs::msg::OdometryStamped>(topic::kTrajSetpoint);
-  const auto imu_raw = addData<tobas_msgs::msg::Imu>(topic::kImuRaw);
-  const auto imu_filt = addData<tobas_msgs::msg::Imu>(topic::kImuFilt);
-  const auto mag = addData<tobas_msgs::msg::MagneticField>(topic::kMagneticField);
-  const auto pressure = addData<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);
-  const auto gnss = addData<tobas_msgs::msg::Gnss>(topic::kGnss);
-  const auto rcin = addData<tobas_msgs::msg::RCInput>(topic::kRcInput);
-  const auto battery = addData<tobas_msgs::msg::Battery>(topic::kBattery);
-  const auto cpu = addData<tobas_msgs::msg::Cpu>(topic::kCpu);
-  const auto cur_rotor_states = addData<tobas_msgs::msg::RotorStateArray>(topic::kRotorStates);
-  const auto tar_rotor_speeds = addData<tobas_msgs::msg::RotorSpeedArray>(topic::kRotorSpeedsCmd);
-  const auto cur_joint_states = addData<tobas_msgs::msg::JointStateArray>(topic::kJointStates);
-  const auto tar_joint_positions = addData<tobas_msgs::msg::JointCommandArray>(topic::kJointPosCmd);
-  const auto tar_joint_velocities = addData<tobas_msgs::msg::JointCommandArray>(topic::kJointVelCmd);
-  const auto tar_joint_efforts = addData<tobas_msgs::msg::JointCommandArray>(topic::kJointEffCmd);
-  const auto ice_cmd = addData<tobas_msgs::msg::IcePropulsionSystemCommand>(topic::kIcePropulsionSystemCmd);
-  const auto pwm = addData<tobas_msgs::msg::PwmArray>(topic::kPwmCmd);
-  const auto sampling_time = addData<tobas_msgs::msg::Latency>(topic::kImuSamplingTime);
-  const auto ctrl_latency = addData<tobas_msgs::msg::Latency>(topic::kControlLatency);
-  const auto vibe = addData<tobas_msgs::msg::VibrationLevel>(topic::kVibrationLevel);
-  const auto additional_accel = addData<tobas_kdl_msgs::msg::AccelStamped>(topic::kAdditionalAccel);
-  const auto dist_force = addData<tobas_kdl_msgs::msg::WrenchStamped>(topic::kDisturbanceForce);
-  const auto obsv_fb = addData<tobas_debug_msgs::msg::ObserverFeedback>(topic::kObsvFeedback);
-  const auto mr_ctrl_fb = addData<tobas_debug_msgs::msg::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
+  const auto& odom = addData<tobas_msgs::msg::OdometryWithCovarianceStamped>(topic::kOdometry);
+  const auto& setpoint = addData<tobas_msgs::msg::OdometryStamped>(topic::kTrajSetpoint);
+  const auto& imu_raw = addData<tobas_msgs::msg::Imu>(topic::kImuRaw);
+  const auto& imu_filt = addData<tobas_msgs::msg::Imu>(topic::kImuFilt);
+  const auto& mag = addData<tobas_msgs::msg::MagneticField>(topic::kMagneticField);
+  const auto& pressure = addData<tobas_msgs::msg::FluidPressure>(topic::kAirPressure);
+  const auto& gnss = addData<tobas_msgs::msg::Gnss>(topic::kGnss);
+  const auto& rcin = addData<tobas_msgs::msg::RCInput>(topic::kRcInput);
+  const auto& battery = addData<tobas_msgs::msg::Battery>(topic::kBattery);
+  const auto& cpu = addData<tobas_msgs::msg::Cpu>(topic::kCpu);
+  const auto& cur_rotor_states = addData<tobas_msgs::msg::RotorStateArray>(topic::kRotorStates);
+  const auto& tar_rotor_speeds = addData<tobas_msgs::msg::RotorSpeedArray>(topic::kRotorSpeedsCmd);
+  const auto& cur_joint_states = addData<tobas_msgs::msg::JointStateArray>(topic::kJointStates);
+  const auto& tar_joint_positions = addData<tobas_msgs::msg::JointCommandArray>(topic::kJointPosCmd);
+  const auto& tar_joint_velocities = addData<tobas_msgs::msg::JointCommandArray>(topic::kJointVelCmd);
+  const auto& tar_joint_efforts = addData<tobas_msgs::msg::JointCommandArray>(topic::kJointEffCmd);
+  const auto& ice_cmd = addData<tobas_msgs::msg::IcePropulsionSystemCommand>(topic::kIcePropulsionSystemCmd);
+  const auto& pwm = addData<tobas_msgs::msg::PwmArray>(topic::kPwmCmd);
+  const auto& sampling_time = addData<tobas_msgs::msg::Latency>(topic::kImuSamplingTime);
+  const auto& ctrl_latency = addData<tobas_msgs::msg::Latency>(topic::kControlLatency);
+  const auto& vibe = addData<tobas_msgs::msg::VibrationLevel>(topic::kVibrationLevel);
+  const auto& additional_accel = addData<tobas_kdl_msgs::msg::AccelStamped>(topic::kAdditionalAccel);
+  const auto& dist_force = addData<tobas_kdl_msgs::msg::WrenchStamped>(topic::kDisturbanceForce);
+  const auto& obsv_fb = addData<tobas_debug_msgs::msg::ObserverFeedback>(topic::kObsvFeedback);
+  const auto& mr_ctrl_fb = addData<tobas_debug_msgs::msg::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
 
   const auto rows = new QVBoxLayout(this);
   rows->setContentsMargins(0, 0, 0, 0);
@@ -69,31 +69,31 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   // Place plot panels in even grid rows and columns, reserving the gaps for separators.
   for (const auto& [idx, plot_panel] : std::views::enumerate(plot_panels_)) {
     plot_panel = new PlotPanelWidget(
-      odom->getValues(),
-      setpoint->getValues(),
-      imu_raw->getValues(),
-      imu_filt->getValues(),
-      mag->getValues(),
-      pressure->getValues(),
-      gnss->getValues(),
-      rcin->getValues(),
-      battery->getValues(),
-      cpu->getValues(),
-      cur_rotor_states->getValues(),
-      tar_rotor_speeds->getValues(),
-      cur_joint_states->getValues(),
-      tar_joint_positions->getValues(),
-      tar_joint_velocities->getValues(),
-      tar_joint_efforts->getValues(),
-      ice_cmd->getValues(),
-      pwm->getValues(),
-      sampling_time->getValues(),
-      ctrl_latency->getValues(),
-      vibe->getValues(),
-      additional_accel->getValues(),
-      dist_force->getValues(),
-      obsv_fb->getValues(),
-      mr_ctrl_fb->getValues());
+      odom,
+      setpoint,
+      imu_raw,
+      imu_filt,
+      mag,
+      pressure,
+      gnss,
+      rcin,
+      battery,
+      cpu,
+      cur_rotor_states,
+      tar_rotor_speeds,
+      cur_joint_states,
+      tar_joint_positions,
+      tar_joint_velocities,
+      tar_joint_efforts,
+      ice_cmd,
+      pwm,
+      sampling_time,
+      ctrl_latency,
+      vibe,
+      additional_accel,
+      dist_force,
+      obsv_fb,
+      mr_ctrl_fb);
 
     plot_panel->setCurrentIndex(idx);
 
@@ -136,14 +136,12 @@ void FlightLogViewerWidget::reset()
   log_path_.clear();
   reader_.close();
   topic_data_.clear();
-  decode_fail_topics_.clear();
   window_messages_.clear();
   window_start_time_ = std::numeric_limits<Time>::max();
   window_stop_time_ = 0;
 
   for (const auto& elem : data_) {
-    elem->clearValues();
-    elem->clearCache();
+    elem->clear();
   }
 
   for (const auto& plot_panel : plot_panels_) {
@@ -254,8 +252,7 @@ void FlightLogViewerWidget::setPlotData(double _time_from_start)
 
   // Initialize data.
   for (const auto& elem : data_) {
-    elem->clearValues();
-    elem->retainWindow(window_start_time, window_stop_time);
+    elem->prepareWindow(window_start_time, window_stop_time);
   }
 
   // Classify data.
@@ -268,24 +265,23 @@ void FlightLogViewerWidget::setPlotData(double _time_from_start)
     }
     const auto& topic = bag_msg->topic_name;
 
-    // Do not decode topics that failed once until the log is reset.
-    if (decode_fail_topics_.contains(topic)) {
+    const auto it = topic_data_.find(topic);
+    if (it == topic_data_.end() || !it->second) {
       continue;
     }
 
-    // Decode.
-    const auto it = topic_data_.find(topic);
-    if (it != topic_data_.end() && !it->second->decode(cur_time, ser_data)) {
-      decode_fail_topics_.insert(topic);
+    if (!it->second->decode(cur_time, ser_data)) {
+      // Disable this topic until reset, without a separate failed-topic lookup on every message.
+      it->second = nullptr;
       failed_topics.push_back(topic);
     }
   }
 
   // Plot data.
   for (const auto& plot_panel : plot_panels_) {
-    // The plot becomes slightly distorted unless the range is set before setting data.
-    plot_panel->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
-    plot_panel->plot();
+    if (!plot_panel->isHidden()) {
+      plotPanel(plot_panel);
+    }
   }
 
   // Modal dialogs can process playback events, so show errors after finishing the window iteration.
@@ -294,9 +290,18 @@ void FlightLogViewerWidget::setPlotData(double _time_from_start)
   }
 }
 
+void FlightLogViewerWidget::plotPanel(PlotPanelWidget* _panel)
+{
+  // The plot becomes slightly distorted unless the range is set before setting data.
+  _panel->setTimeScale(window_start_time_ * 1e-9, window_stop_time_ * 1e-9);
+  _panel->plot();
+}
+
 void FlightLogViewerWidget::setExpandedPanel(PlotPanelWidget* _expanded_panel)
 {
   for (const auto& [idx, plot_panel] : std::views::enumerate(plot_panels_)) {
+    const auto was_hidden = plot_panel->isHidden();
+
     plot_grid_->removeWidget(plot_panel);
     if (plot_panel == _expanded_panel) {
       plot_grid_->addWidget(plot_panel, 0, 0, 2 * kPlotRows - 1, 2 * kPlotColumns - 1);
@@ -304,7 +309,12 @@ void FlightLogViewerWidget::setExpandedPanel(PlotPanelWidget* _expanded_panel)
     else {
       plot_grid_->addWidget(plot_panel, 2 * (idx % kPlotRows), 2 * (idx / kPlotRows), 1, 1);
     }
-    plot_panel->setVisible(!_expanded_panel || plot_panel == _expanded_panel);
+
+    const auto visible = !_expanded_panel || plot_panel == _expanded_panel;
+    plot_panel->setVisible(visible);
+    if (was_hidden && visible) {
+      plotPanel(plot_panel);
+    }
   }
 
   for (const auto& separator : plot_separators_) {

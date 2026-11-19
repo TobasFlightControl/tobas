@@ -85,16 +85,15 @@ void JointPositionPlotWidget::updateCurrentSamples(const QVector<tobas_msgs::msg
   QVector<QVector<double>> values(numJoints());
 
   for (const auto& msg : _msgs) {
+    const auto time = ros2::seconds(msg.header.stamp);
     for (const auto& elem : msg.states) {
       if (!name2idx_.contains(elem.name)) {
         addJoint(elem.name);
         times.append(QVector<double>{});
         values.append(QVector<double>{});
       }
-
       const auto& idx = name2idx_.at(elem.name);
-
-      times[idx].append(ros2::seconds(msg.header.stamp));
+      times[idx].append(time);
       values[idx].append(elem.position);
     }
   }
@@ -110,16 +109,15 @@ void JointPositionPlotWidget::updateTargetSamples(const QVector<tobas_msgs::msg:
   QVector<QVector<double>> values(numJoints());
 
   for (const auto& msg : _msgs) {
+    const auto time = ros2::seconds(msg.header.stamp);
     for (const auto& elem : msg.commands) {
       if (!name2idx_.contains(elem.name)) {
         addJoint(elem.name);
         times.append(QVector<double>{});
         values.append(QVector<double>{});
       }
-
       const auto& idx = name2idx_[elem.name];
-
-      times[idx].append(ros2::seconds(msg.header.stamp));
+      times[idx].append(time);
       values[idx].append(elem.data);
     }
   }
