@@ -6,9 +6,9 @@
 #include <random>
 
 #include <QElapsedTimer>
+#include <QGridLayout>
 #include <QPushButton>
 #include <QTimer>
-#include <QVBoxLayout>
 
 #include <tobas_kdl/tree.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
@@ -54,7 +54,7 @@ private:
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
 
-  QVBoxLayout* slider_rows_;
+  QGridLayout* slider_grid_;
   QPushButton* zero_button_;
   QPushButton* lower_button_;
   QPushButton* center_button_;

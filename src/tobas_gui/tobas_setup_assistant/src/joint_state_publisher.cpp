@@ -9,6 +9,7 @@
 
 #include <QDebug>
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 
 #include <tobas_math/definitions.hpp>
 #include <tobas_qt_tools/util.hpp>
@@ -25,7 +26,10 @@ JointStatePublisherWidget::JointStatePublisherWidget(
   : node_(_node), uadf_(_uadf), tree_(_tree), rnd_gen_(rnd_dev_())
 {
   const auto content = new QWidget();
-  slider_rows_ = new QVBoxLayout(content);
+  slider_grid_ = new QGridLayout(content);
+  slider_grid_->setAlignment(Qt::AlignTop);
+  slider_grid_->setColumnStretch(0, 1);
+  slider_grid_->setColumnStretch(1, 1);
 
   const auto scroll_area = new qt::ScrollArea();
   scroll_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
@@ -72,7 +76,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
   js_.position.clear();
   sliders_.clear();
   thrust_joints_.clear();
-  qt::clearLayout(slider_rows_);
+  qt::clearLayout(slider_grid_);
 
   for (const auto& [_, elem] : tree_.getSegments()) {
     const auto& joint = elem.segment.joint();
@@ -113,14 +117,13 @@ void JointStatePublisherWidget::updateInternalDataStructures()
         this,
         std::bind(&self::onValueChanged, this, std::placeholders::_1, joint.name, position_per_step));
 
+      const auto index = static_cast<int>(sliders_.size());
+      slider_grid_->addWidget(slider, index / 2, index % 2);
       sliders_.push_back(slider);
-      slider_rows_->addWidget(slider);
 
       qDebug() << QString::fromStdString(joint.name) << "was added to the JSP slider.";
     }
   }
-
-  slider_rows_->addStretch(1);
 
   // Enable the control buttons only when controllable joints exist.
   setControlButtonsEnabled(!sliders_.empty());
