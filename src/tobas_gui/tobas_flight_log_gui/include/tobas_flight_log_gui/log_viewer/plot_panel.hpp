@@ -112,6 +112,7 @@ private:
   qt::ComboBox* plot_selector_;
   QStackedWidget* plot_stack_;
   QToolButton* expand_button_;
+  double t_start_, t_stop_;
 
   PosePlotWidget* pose_plot_;
   TwistPlotWidget* twist_plot_;

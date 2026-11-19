@@ -3,12 +3,12 @@
 
 #include "tobas_flight_log_gui/log_viewer/plots/imu_fft_plot.hpp"
 
-#include <future>
+#include <vector>
 
 #include <QGridLayout>
 
 #include <tobas_constants/imu.hpp>
-#include <tobas_ros2_tools/time.hpp>
+#include <tobas_std_tools/check.hpp>
 
 namespace tobas::gui::log
 {
@@ -22,8 +22,7 @@ ImuFftPlotWidget::ImuFftPlotWidget()
 
   for (size_t i = 0; i < kNumAxes; ++i) {
     // The imaginary part is unnecessary because the data is one-dimensional.
-    raw_ffts_[i].SetFlag(Eigen::FFT<double>::HalfSpectrum);
-    filt_ffts_[i].SetFlag(Eigen::FFT<double>::HalfSpectrum);
+    ffts_[i].SetFlag(Eigen::FFT<double>::HalfSpectrum);
 
     plots_[i] = new QwtPlot2();
     if (i % 3 == 2) {
@@ -59,13 +58,11 @@ void ImuFftPlotWidget::setData(
   const QVector<tobas_msgs::msg::Imu>& _raw_msgs,
   const QVector<tobas_msgs::msg::Imu>& _filt_msgs)
 {
-  // Calculate raw and filtered spectra in parallel.
-  auto f1 =
-    std::async(std::launch::async, [this, _raw_msgs] { return updateSamples(_raw_msgs, raw_ffts_, raw_curves_); });
-  auto f2 =
-    std::async(std::launch::async, [this, _filt_msgs] { return updateSamples(_filt_msgs, filt_ffts_, filt_curves_); });
-  auto ranges = f1.get();
-  const auto filt_ranges = f2.get();
+  // Keep these calls on the GUI thread: `updateSamples` also updates Qwt curves.
+  // Each call already parallelizes its FFT axes with OpenMP; wrapping both in `std::async`
+  // would create two worker teams and add thread startup and synchronization overhead.
+  auto ranges = updateSamples(_raw_msgs, raw_curves_);
+  const auto filt_ranges = updateSamples(_filt_msgs, filt_curves_);
 
   for (size_t group = 0; group < kNumGroups; ++group) {
     ranges[group].include(filt_ranges[group]);
@@ -79,7 +76,6 @@ void ImuFftPlotWidget::setData(
 
 ImuFftPlotWidget::ValueRanges ImuFftPlotWidget::updateSamples(
   const QVector<tobas_msgs::msg::Imu>& _msgs,
-  std::array<Eigen::FFT<double>, kNumAxes>& _ffts,
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& _curves)
 {
   const auto n = static_cast<size_t>(_msgs.size());
@@ -93,42 +89,54 @@ ImuFftPlotWidget::ValueRanges ImuFftPlotWidget::updateSamples(
 
   // Collect data.
   std::array<std::vector<double>, kNumAxes> imu_data;
+  for (auto& axis_data : imu_data) {
+    axis_data.reserve(n);
+  }
   for (const auto& imu : _msgs) {
     const auto& accel = imu.accel;
+    const auto& gyro = imu.gyro;
     imu_data[0].push_back(accel.x);
     imu_data[1].push_back(accel.y);
     imu_data[2].push_back(accel.z);
-
-    const auto& gyro = imu.gyro;
     imu_data[3].push_back(gyro.x);
     imu_data[4].push_back(gyro.y);
     imu_data[5].push_back(gyro.z);
   }
 
-  // Transform each axis to the frequency domain.
-  ValueRanges ranges;
+  // All axes use the same frequency bins. Exclude the mean value (k = 0).
+  const auto num_bins = n / 2;
+  QVector<double> freqs;
+  freqs.reserve(num_bins);
+  for (size_t k = 1; k <= num_bins; ++k) {
+    freqs.push_back(static_cast<double>(kImuSamplingRate) * k / n);
+  }
+
+  // Compute each axis's amplitude spectrum and value range in parallel.
+  std::array<QVector<double>, kNumAxes> amplitudes;
+  std::array<VerticalScaleRange, kNumAxes> axis_ranges;
 #pragma omp parallel for num_threads(kNumAxes)
   for (size_t i = 0; i < kNumAxes; ++i) {
-    // Fourier transform.
     std::vector<Eigen::dcomplex> spec;
-    _ffts[i].fwd(spec, imu_data.at(i));
-    assert(spec.size() == n / 2 + 1);
+    ffts_[i].fwd(spec, imu_data[i]);
+    TOBAS_CHECK(spec.size() == num_bins + 1);
 
-    // Calculate frequency and amplitude from the FFT result.
-    // Exclude the mean value (k = 0).
-    QVector<double> freqs, amps;
+    auto& amps = amplitudes[i];
+    amps.reserve(num_bins);
     for (size_t k = 1; k < spec.size(); ++k) {
-      const auto freq = static_cast<double>(kImuSamplingRate) * k / n;  // [Hz]
-      freqs.push_back(freq);
-
-      const auto is_edge = (n % 2 == 0 && k == n / 2);
-      const auto scale = is_edge ? 1.0 : 2.0;
+      const auto is_nyquist = n % 2 == 0 && k == num_bins;
+      const auto scale = is_nyquist ? 1.0 : 2.0;
       const auto amp = scale * std::abs(spec.at(k)) / n;
       amps.push_back(amp);
-      ranges[i / kNumAxesPerGroup].include(amp);
+      axis_ranges[i].include(amp);
     }
+  }
 
-    _curves[i].setSamples(freqs, amps);
+  // Update curves on the GUI thread after all FFT workers finish.
+  // Merge per-axis ranges serially to avoid concurrent writes to the shared group ranges.
+  ValueRanges ranges;
+  for (size_t i = 0; i < kNumAxes; ++i) {
+    _curves[i].setSamples(freqs, amplitudes[i]);
+    ranges[i / kNumAxesPerGroup].include(axis_ranges[i]);
   }
 
   return ranges;

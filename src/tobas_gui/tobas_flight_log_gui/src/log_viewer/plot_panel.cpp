@@ -64,6 +64,8 @@ PlotPanelWidget::PlotPanelWidget(
   , dist_force_data_(_dist_force_data)
   , obsv_fb_data_(_obsv_fb_data)
   , mr_ctrl_fb_data_(_mr_ctrl_fb_data)
+  , t_start_(0.0)
+  , t_stop_(1.0)
 {
   pose_plot_ = new PosePlotWidget();
   twist_plot_ = new TwistPlotWidget();
@@ -155,10 +157,11 @@ void PlotPanelWidget::clear()
 
 void PlotPanelWidget::setTimeScale(double _t_start, double _t_stop)
 {
-  for (int i = 0; i < plot_stack_->count(); ++i) {
-    const auto plot = qt::qPointerCast<BasePlotWidget>(plot_stack_->widget(i));
-    plot->setTimeScale(_t_start, _t_stop);
-  }
+  t_start_ = _t_start;
+  t_stop_ = _t_stop;
+
+  const auto plot = qt::qPointerCast<BasePlotWidget>(plot_stack_->currentWidget());
+  plot->setTimeScale(_t_start, _t_stop);
 }
 
 void PlotPanelWidget::plot()
@@ -263,6 +266,7 @@ void PlotPanelWidget::plot(int _index)
 void PlotPanelWidget::onCurrentWidgetChanged(int _index)
 {
   plot_stack_->setCurrentIndex(_index);
+  setTimeScale(t_start_, t_stop_);
   plot(_index);
 }
 

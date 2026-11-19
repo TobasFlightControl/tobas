@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <array>
+#include <cstddef>
+
 #include <eigen3/unsupported/Eigen/FFT>
 
 #include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
@@ -32,15 +35,13 @@ public:
   void setData(const QVector<tobas_msgs::msg::Imu>& _raw_msgs, const QVector<tobas_msgs::msg::Imu>& _filt_msgs);
 
 private:
-  std::array<Eigen::FFT<double>, kNumAxes> raw_ffts_, filt_ffts_;
+  std::array<Eigen::FFT<double>, kNumAxes> ffts_;
 
   std::array<QwtPlot2*, kNumAxes> plots_;
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> raw_curves_;
   std::array<qwt::QwtPlotCurveWrapper, kNumAxes> filt_curves_;
 
-  static ValueRanges updateSamples(
-    const QVector<tobas_msgs::msg::Imu>& _msgs,
-    std::array<Eigen::FFT<double>, kNumAxes>& _ffts,
-    std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& _curves);
+  ValueRanges
+  updateSamples(const QVector<tobas_msgs::msg::Imu>& _msgs, std::array<qwt::QwtPlotCurveWrapper, kNumAxes>& _curves);
 };
 }  // namespace tobas::gui::log
