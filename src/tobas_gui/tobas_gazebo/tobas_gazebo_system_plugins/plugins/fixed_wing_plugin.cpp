@@ -89,7 +89,8 @@ private:
 
   double liftCoefficient(const gz::sim::EntityComponentManager& _ecm, double _alpha) const;
   double dragCoefficient(const gz::sim::EntityComponentManager& _ecm, double _alpha) const;
-  double sideCoefficient(const gz::sim::EntityComponentManager& _ecm, double _beta) const;
+  double
+  sideCoefficient(const gz::sim::EntityComponentManager& _ecm, double _beta, double _p, double _r, double _v) const;
   double
   rollCoefficient(const gz::sim::EntityComponentManager& _ecm, double _beta, double _p, double _r, double _v) const;
   double pitchCoefficient(
@@ -102,13 +103,21 @@ private:
   double
   yawCoefficient(const gz::sim::EntityComponentManager& _ecm, double _beta, double _p, double _r, double _v) const;
 
-  gz::math::Vector3d
-  nonDimentionalAeroCoefs_Force(const gz::sim::EntityComponentManager& _ecm, double _alpha, double _beta) const;
+  gz::math::Vector3d nonDimentionalAeroCoefs_Force(
+    const gz::sim::EntityComponentManager& _ecm,
+    double _alpha,
+    double _beta,
+    double _p,
+    double _r,
+    double _V) const;
   gz::math::Vector3d nonDimentionalAeroCoefs_Moment(
     const gz::sim::EntityComponentManager& _ecm,
     double _alpha,
     double _beta,
     double _alpha_rate,
+    double _p,
+    double _q,
+    double _r,
     double _v) const;
 
   void windSpeedCb(const tobas_msgs::Wind::ConstSharedPtr& _wind);
@@ -225,8 +234,8 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& _info, gz::sim:
   const auto V = std::max(vel_B.Length(), kMinAirSpeedThresh);  // Ensure `V > 0`.
 
   // Angle of attack and sideslip angle.
-  const auto alpha = angleOfAttack(u, w);      // Angle of attack [rad].
-  const auto beta = angleOfSideSlip(u, v, w);  // Sideslip angle [rad].
+  auto alpha = angleOfAttack(u, w);      // Angle of attack [rad].
+  auto beta = angleOfSideSlip(u, v, w);  // Sideslip angle [rad].
 
   // Check the angle-of-attack range.
   if (!vehicle_params_.alpha_limit.inRange(alpha)) {
@@ -238,6 +247,10 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& _info, gz::sim:
       vehicle_params_.alpha_limit,
       ". The accuracy of the physics simulation may be compromised.");
   }
+
+  // clip alpha and beta to reproduce the effects of stall
+  alpha = vehicle_params_.alpha_limit.clamp(alpha);
+  beta = vehicle_params_.alpha_limit.clamp(beta);
 
   // On the first update, only initialize variables and return.
   if (!is_initialized_) {
@@ -251,9 +264,16 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& _info, gz::sim:
   const auto alpha_rate = (alpha - prev_alpha_) / dt;  // [rad/s]
   prev_alpha_ = alpha;
 
+  // Angular velocity.
+  auto gyro_B = gyro_B_->Data();
+  FLU2FRD(gyro_B);
+  const auto p = gyro_B.X();
+  const auto q = gyro_B.Y();
+  const auto r = gyro_B.Z();
+
   // Dimensionless aerodynamic coefficients.
-  const auto force_coefs = nonDimentionalAeroCoefs_Force(_ecm, alpha, beta);
-  const auto moment_coefs = nonDimentionalAeroCoefs_Moment(_ecm, alpha, beta, alpha_rate, V);
+  const auto force_coefs = nonDimentionalAeroCoefs_Force(_ecm, alpha, beta, p, r, V);
+  const auto moment_coefs = nonDimentionalAeroCoefs_Moment(_ecm, alpha, beta, alpha_rate, p, q, r, V);
 
   // Precompute constant parts.
   const auto altitude = alt_0_ + P_W_B.Z();
@@ -317,11 +337,14 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& _sdf)
   }
 
   // Aerodynamics
-  aero_coefs_.c_lift_0 = getSdfParam<double>(_sdf, "cLift0", kPositive);
+  aero_coefs_.c_lift_0 = getSdfParam<double>(_sdf, "cLift0");
   aero_coefs_.c_lift_alpha = getSdfParam<double>(_sdf, "cLiftAlpha", kPositive);
   aero_coefs_.c_drag_0 = getSdfParam<double>(_sdf, "cDrag0", kPositive);
-  aero_coefs_.c_drag_alpha = getSdfParam<double>(_sdf, "cDragAlpha", kPositive);
+  aero_coefs_.c_drag_alpha = getSdfParam<double>(_sdf, "cDragAlpha");
+  aero_coefs_.c_drag_alpha2 = getSdfParam<double>(_sdf, "cDragAlpha2", kPositive);
   aero_coefs_.c_side_beta = getSdfParam<double>(_sdf, "cSideBeta", kNegative);
+  aero_coefs_.c_side_p = getSdfParam<double>(_sdf, "cSideP");
+  aero_coefs_.c_side_r = getSdfParam<double>(_sdf, "cSideR");
 
   aero_coefs_.c_roll_beta = getSdfParam<double>(_sdf, "cRollBeta", kNegative);
   aero_coefs_.c_roll_p = getSdfParam<double>(_sdf, "cRollP", kNegative);
@@ -333,7 +356,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& _sdf)
   aero_coefs_.c_pitch_alpha_rate = getSdfParam<double>(_sdf, "cPitchAlphaRate");
   aero_coefs_.c_pitch_q = getSdfParam<double>(_sdf, "cPitchQ", kNegative);
 
-  aero_coefs_.c_yaw_beta = getSdfParam<double>(_sdf, "cYawBeta");
+  aero_coefs_.c_yaw_beta = getSdfParam<double>(_sdf, "cYawBeta", kPositive);
   aero_coefs_.c_yaw_p = getSdfParam<double>(_sdf, "cYawP");
   aero_coefs_.c_yaw_r = getSdfParam<double>(_sdf, "cYawR", kNegative);
 
@@ -396,10 +419,19 @@ double GazeboFixedWingPlugin::dragCoefficient(const gz::sim::EntityComponentMana
   return C_D;
 }
 
-double GazeboFixedWingPlugin::sideCoefficient(const gz::sim::EntityComponentManager& _ecm, double _beta) const
+double GazeboFixedWingPlugin::sideCoefficient(
+  const gz::sim::EntityComponentManager& _ecm,
+  double _beta,
+  double _p,
+  double _r,
+  double _V) const
 {
   // Sideslip angle.
   auto C_S = aero_coefs_.c_side_beta * _beta;
+
+  // Angular velocity.
+  const auto& b = vehicle_params_.wing_span;
+  C_S += b / (2 * _V) * (aero_coefs_.c_side_p * _p + aero_coefs_.c_side_r * _r);
 
   // Control surfaces.
   for (const auto& [link_name, _] : control_surfaces_) {
@@ -480,11 +512,14 @@ double GazeboFixedWingPlugin::yawCoefficient(
 gz::math::Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Force(
   const gz::sim::EntityComponentManager& _ecm,
   double _alpha,
-  double _beta) const
+  double _beta,
+  double _p,
+  double _r,
+  double _V) const
 {
-  const auto C_L = liftCoefficient(_ecm, _alpha);  // Lift coefficient (1.8-3)
-  const auto C_D = dragCoefficient(_ecm, _alpha);  // Drag coefficient (1.8-3)
-  const auto C_S = sideCoefficient(_ecm, _beta);   // Side-force coefficient (1.8-5)
+  const auto C_L = liftCoefficient(_ecm, _alpha);             // Lift coefficient (1.8-3)
+  const auto C_D = dragCoefficient(_ecm, _alpha);             // Drag coefficient (1.8-3)
+  const auto C_S = sideCoefficient(_ecm, _beta, _p, _r, _V);  // Side-force coefficient (1.8-5)
 
   const auto cos_alpha = std::cos(_alpha);
   const auto sin_alpha = std::sin(_alpha);
@@ -501,19 +536,15 @@ gz::math::Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Moment(
   double _alpha,
   double _beta,
   double _alpha_rate,
+  double _p,
+  double _q,
+  double _r,
   double _v) const
 {
-  // Angular velocity.
-  auto gyro_B = gyro_B_->Data();
-  FLU2FRD(gyro_B);
-  const auto p = gyro_B.X();
-  const auto q = gyro_B.Y();
-  const auto r = gyro_B.Z();
-
   // (1.8-9): No moment correction term because force is applied at the center of lift.
-  const auto C_l = rollCoefficient(_ecm, _beta, p, r, _v);
-  const auto C_m = pitchCoefficient(_ecm, _alpha, _beta, _alpha_rate, q, _v);
-  const auto C_n = yawCoefficient(_ecm, _beta, p, r, _v);
+  const auto C_l = rollCoefficient(_ecm, _beta, _p, _r, _v);
+  const auto C_m = pitchCoefficient(_ecm, _alpha, _beta, _alpha_rate, _q, _v);
+  const auto C_n = yawCoefficient(_ecm, _beta, _p, _r, _v);
 
   return gz::math::Vector3d(C_l, C_m, C_n);
 }
