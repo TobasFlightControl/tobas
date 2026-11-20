@@ -32,14 +32,14 @@ public:
   double wingSurface() const;
   double wingSpan() const;
   double mac() const;
-  Eigen::Vector3d aerodynamicCenter() const;
+  Eigen::Vector3d momentReferencePoint() const;
   st::Range<double> alphaLimit() const;
 
 private:
   qt::DoubleSpinBox* wing_surface_;
   qt::DoubleSpinBox* wing_span_;
   qt::DoubleSpinBox* mac_;
-  qt::Vector3dEditHorizontal* aerodynamic_center_;
+  qt::Vector3dEditHorizontal* moment_reference_point_;
   DoubleRangeWidget* alpha_limit_;
 };
 }  // namespace tobas::gui::sa::fw

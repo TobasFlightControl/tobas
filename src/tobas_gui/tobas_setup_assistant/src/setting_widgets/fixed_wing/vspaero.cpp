@@ -53,6 +53,8 @@ std::expected<VspaeroData, std::string> parseVspaero(const std::string& _stab_pa
       else if (name == CS) {
         line_found.at(CS) = true;
         data.c_side_beta = std::stod(beta);
+        data.c_side_p = std::stod(p);
+        data.c_side_r = std::stod(r);
       }
       else if (name == CMl) {
         line_found.at(CMl) = true;

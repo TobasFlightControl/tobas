@@ -18,7 +18,7 @@ namespace
 constexpr char kWingSurfaceLabel[] = "Wing Area";
 constexpr char kWingSpanLabel[] = "Wing Span";
 constexpr char kMacLabel[] = "Mean Aerodynamic Chord";
-constexpr char kAerodynamicCenterLabel[] = "Aerodynamic Center";
+constexpr char kMomentReferencePointLabel[] = "Moment Reference Point";
 constexpr char kAlphaLimitLabel[] = "Angle-of-Attack Limits";
 }  // namespace
 
@@ -44,12 +44,12 @@ VehicleWidget::VehicleWidget()
   mac_->setMinimum(1e-3);
   mac_->setSuffix(" m");
 
-  aerodynamic_center_ = new qt::Vector3dEditHorizontal();
-  aerodynamic_center_->setToolTip(
-    "Aerodynamic center position in meters relative to the airframe origin. "
+  moment_reference_point_ = new qt::Vector3dEditHorizontal();
+  moment_reference_point_->setToolTip(
+    "Moment reference point position in meters relative to the airframe origin. "
     "Coordinates use the forward-left-up (FLU) frame.");
-  aerodynamic_center_->setDecimals(3);
-  aerodynamic_center_->setSuffix(" m");
+  moment_reference_point_->setDecimals(3);
+  moment_reference_point_->setSuffix(" m");
 
   alpha_limit_ = new DoubleRangeWidget();
   alpha_limit_->setToolTip(
@@ -67,8 +67,8 @@ VehicleWidget::VehicleWidget()
   form->labelForField(wing_span_)->setToolTip(wing_span_->toolTip());
   form->addRow(kMacLabel, mac_);
   form->labelForField(mac_)->setToolTip(mac_->toolTip());
-  form->addRow(kAerodynamicCenterLabel, aerodynamic_center_);
-  form->labelForField(aerodynamic_center_)->setToolTip(aerodynamic_center_->toolTip());
+  form->addRow(kMomentReferencePointLabel, moment_reference_point_);
+  form->labelForField(moment_reference_point_)->setToolTip(moment_reference_point_->toolTip());
   form->addRow(kAlphaLimitLabel, alpha_limit_);
   form->labelForField(alpha_limit_)->setToolTip(alpha_limit_->toolTip());
 }
@@ -82,7 +82,7 @@ void VehicleWidget::setToDefaults()
   wing_surface_->setValue(0.47);
   wing_span_->setValue(2.59);
   mac_->setValue(0.18);
-  aerodynamic_center_->setVector({ 0.1, 0.0, 0.0 });
+  moment_reference_point_->setVector({ 0.1, 0.0, 0.0 });
   alpha_limit_->setValue({ -0.27, 0.27 });
 }
 
@@ -103,7 +103,7 @@ YAML::Node VehicleWidget::dump() const
   node[kWingSurfaceLabel] = yaml::format(wing_surface_->value());
   node[kWingSpanLabel] = yaml::format(wing_span_->value());
   node[kMacLabel] = yaml::format(mac_->value());
-  node[kAerodynamicCenterLabel] = aerodynamic_center_->vector();
+  node[kMomentReferencePointLabel] = moment_reference_point_->vector();
   node[kAlphaLimitLabel] = alpha_limit_->value();
 
   return node;
@@ -114,7 +114,7 @@ void VehicleWidget::load(const YAML::Node& _node)
   wing_surface_->setValue(_node[kWingSurfaceLabel].as<double>());
   wing_span_->setValue(_node[kWingSpanLabel].as<double>());
   mac_->setValue(_node[kMacLabel].as<double>());
-  aerodynamic_center_->setVector(_node[kAerodynamicCenterLabel].as<Eigen::Vector3d>());
+  moment_reference_point_->setVector(_node[kMomentReferencePointLabel].as<Eigen::Vector3d>());
   alpha_limit_->setValue(_node[kAlphaLimitLabel].as<st::Range<double>>());
 }
 
@@ -133,9 +133,9 @@ double VehicleWidget::mac() const
   return mac_->value();
 }
 
-Eigen::Vector3d VehicleWidget::aerodynamicCenter() const
+Eigen::Vector3d VehicleWidget::momentReferencePoint() const
 {
-  return aerodynamic_center_->vector();
+  return moment_reference_point_->vector();
 }
 
 st::Range<double> VehicleWidget::alphaLimit() const

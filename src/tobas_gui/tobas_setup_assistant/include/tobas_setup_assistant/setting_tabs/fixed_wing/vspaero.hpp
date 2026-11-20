@@ -16,7 +16,10 @@ struct VspaeroData
   double c_lift_alpha = {};
   double c_drag_0 = {};
   double c_drag_alpha = {};
+  double c_drag_alpha2 = {};
   double c_side_beta = {};
+  double c_side_p = {};
+  double c_side_r = {};
   double c_roll_beta = {};
   double c_roll_p = {};
   double c_roll_r = {};

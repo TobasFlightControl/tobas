@@ -54,11 +54,30 @@ AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget()
   c_drag_alpha_->setDecimals(kStabilityCoefDecimals);
   c_drag_alpha_->setSuffix(" [/rad]");
 
+  c_drag_alpha2_ = new qt::DoubleSpinBox();
+  c_drag_alpha2_->setToolTip(
+    "Second derivative of drag coefficient with respect to angle of attack in the linear drag model.");
+  c_drag_alpha2_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
+  c_drag_alpha2_->setDecimals(kStabilityCoefDecimals);
+  c_drag_alpha2_->setSuffix(" [/rad^2]");
+
   c_side_beta_ = new qt::DoubleSpinBox();
   c_side_beta_->setToolTip("Change in side-force coefficient per radian of sideslip angle.");
   c_side_beta_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
   c_side_beta_->setDecimals(kStabilityCoefDecimals);
   c_side_beta_->setSuffix(" [/rad]");
+
+  c_side_p_ = new qt::DoubleSpinBox();
+  c_side_p_->setToolTip("Change in side-force coefficient with respect to roll rate p.");
+  c_side_p_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
+  c_side_p_->setDecimals(kStabilityCoefDecimals);
+  c_side_p_->setSuffix(" [/rad]");
+
+  c_side_r_ = new qt::DoubleSpinBox();
+  c_side_r_->setToolTip("Change in side-force coefficient with respect to yaw rate r.");
+  c_side_r_->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
+  c_side_r_->setDecimals(kStabilityCoefDecimals);
+  c_side_r_->setSuffix(" [/rad]");
 
   c_roll_beta_ = new qt::DoubleSpinBox();
   c_roll_beta_->setToolTip("Change in rolling-moment coefficient per radian of sideslip angle.");
@@ -148,8 +167,14 @@ AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget()
   form_->labelForField(c_drag_0_)->setToolTip(c_drag_0_->toolTip());
   form_->addRow("c_drag_alpha", c_drag_alpha_);
   form_->labelForField(c_drag_alpha_)->setToolTip(c_drag_alpha_->toolTip());
+  form_->addRow("c_drag_alpha2", c_drag_alpha2_);
+  form_->labelForField(c_drag_alpha_)->setToolTip(c_drag_alpha2_->toolTip());
   form_->addRow("c_side_beta", c_side_beta_);
   form_->labelForField(c_side_beta_)->setToolTip(c_side_beta_->toolTip());
+  form_->addRow("c_side_p", c_side_p_);
+  form_->labelForField(c_side_p_)->setToolTip(c_side_p_->toolTip());
+  form_->addRow("c_side_r", c_side_r_);
+  form_->labelForField(c_side_r_)->setToolTip(c_side_r_->toolTip());
   form_->addRow("c_roll_beta", c_roll_beta_);
   form_->labelForField(c_roll_beta_)->setToolTip(c_roll_beta_->toolTip());
   form_->addRow("c_roll_p", c_roll_p_);
@@ -193,7 +218,10 @@ void AerodynamicsCoefficientsWidget::setToDefaults()
   c_lift_alpha_->setValue(10.806);
   c_drag_0_->setValue(0.136);
   c_drag_alpha_->setValue(0.6737);
+  c_drag_alpha2_->setValue(1.6);
   c_side_beta_->setValue(-0.3073);
+  c_side_p_->setValue(0.0);
+  c_side_r_->setValue(0.0);
   c_roll_beta_->setValue(-0.0154);
   c_roll_p_->setValue(-0.1647);
   c_roll_r_->setValue(0.0117);
@@ -254,9 +282,24 @@ double AerodynamicsCoefficientsWidget::c_drag_alpha() const
   return c_drag_alpha_->value();
 }
 
+double AerodynamicsCoefficientsWidget::c_drag_alpha2() const
+{
+  return c_drag_alpha2_->value();
+}
+
 double AerodynamicsCoefficientsWidget::c_side_beta() const
 {
   return c_side_beta_->value();
+}
+
+double AerodynamicsCoefficientsWidget::c_side_p() const
+{
+  return c_side_p_->value();
+}
+
+double AerodynamicsCoefficientsWidget::c_side_r() const
+{
+  return c_side_r_->value();
 }
 
 double AerodynamicsCoefficientsWidget::c_roll_beta() const
@@ -350,7 +393,10 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
   c_lift_alpha_->setValue(coefs->c_lift_alpha);
   c_drag_0_->setValue(coefs->c_drag_0);
   c_drag_alpha_->setValue(coefs->c_drag_alpha);
+  c_drag_alpha2_->setValue(coefs->c_drag_alpha2);
   c_side_beta_->setValue(coefs->c_side_beta);
+  c_side_p_->setValue(coefs->c_side_p);
+  c_side_r_->setValue(coefs->c_side_r);
   c_roll_beta_->setValue(coefs->c_roll_beta);
   c_roll_p_->setValue(coefs->c_roll_p);
   c_roll_r_->setValue(coefs->c_roll_r);

@@ -8,6 +8,7 @@
 #include <QLabel>
 
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/widgets/combo_box.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/format.hpp>
@@ -21,7 +22,8 @@ namespace
 /* Columns */
 constexpr int kLinkNameCol = 0;
 constexpr int kJointNameCol = kLinkNameCol + 1;
-constexpr int kLiftCoefCol = kJointNameCol + 1;
+constexpr int kTypeCol = kJointNameCol + 1;
+constexpr int kLiftCoefCol = kTypeCol + 1;
 constexpr int kDragCoefCol = kLiftCoefCol + 1;
 constexpr int kSideCoefCol = kDragCoefCol + 1;
 constexpr int kRollCoefCol = kSideCoefCol + 1;
@@ -32,6 +34,7 @@ constexpr int kNumCols = kYawCoefCol + 1;
 /* Labels */
 constexpr char kLinkNameLabel[] = "Link Name";
 constexpr char kJointNameLabel[] = "Joint Name";
+constexpr char kTypeLabel[] = "Type";
 constexpr char kLiftCoefLabel[] = "Lift Coef.";
 constexpr char kDragCoefLabel[] = "Drag Coef.";
 constexpr char kSideCoefLabel[] = "Side-Force Coef.";
@@ -46,6 +49,7 @@ ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& _uadf) : super(0
     {
       kLinkNameLabel,
       kJointNameLabel,
+      kTypeLabel,
       kLiftCoefLabel,
       kDragCoefLabel,
       kSideCoefLabel,
@@ -90,6 +94,7 @@ YAML::Node ControlSurfacesWidget::dump() const
   for (int row = 0; row < rowCount(); ++row) {
     YAML::Node sub_node(YAML::NodeType::Map);
     sub_node[kJointNameLabel] = jointName(row);
+    sub_node[kTypeLabel] = static_cast<int>(type(row));
     sub_node[kLiftCoefLabel] = yaml::format(liftCoef(row));
     sub_node[kDragCoefLabel] = yaml::format(dragCoef(row));
     sub_node[kSideCoefLabel] = yaml::format(sideCoef(row));
@@ -117,6 +122,7 @@ void ControlSurfacesWidget::load(const YAML::Node& _node)
 
     linkName(row, link_name);
     jointName(row, sub_node[kJointNameLabel].as<QString>());
+    type(row, static_cast<ControlSurfaceType>(sub_node[kTypeLabel].as<int>()));
     liftCoef(row, sub_node[kLiftCoefLabel].as<double>());
     dragCoef(row, sub_node[kDragCoefLabel].as<double>());
     sideCoef(row, sub_node[kSideCoefLabel].as<double>());
@@ -163,6 +169,13 @@ void ControlSurfacesWidget::add(const QString& _link_name)
   const auto joint_name_label = new QLabel(QString::fromStdString(joint->name));
   joint_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kJointNameCol, joint_name_label);
+
+  const auto type = new qt::ComboBox();
+  type->insertItem(static_cast<uint8_t>(ControlSurfaceType::kAileron), "Aileron");
+  type->insertItem(static_cast<uint8_t>(ControlSurfaceType::kElevator), "Elevator");
+  type->insertItem(static_cast<uint8_t>(ControlSurfaceType::kRudder), "Rudder");
+  type->insertItem(static_cast<uint8_t>(ControlSurfaceType::kOther), "Other");
+  setCellWidget(row, kTypeCol, type);
 
   const auto c_lift_delta = new qt::DoubleSpinBox();
   c_lift_delta->setRange(-kMaxStabilityCoef, kMaxStabilityCoef);
@@ -221,6 +234,12 @@ QString ControlSurfacesWidget::jointName(int _row) const
   return cell->text();
 }
 
+ControlSurfaceType ControlSurfacesWidget::type(int row) const
+{
+  const auto cell = qt::qConstPointerCast<qt::ComboBox>(cellWidget(row, kTypeCol));
+  return static_cast<ControlSurfaceType>(cell->currentIndex());
+}
+
 double ControlSurfacesWidget::liftCoef(int _row) const
 {
   const auto cell = qt::qConstPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kLiftCoefCol));
@@ -269,6 +288,12 @@ void ControlSurfacesWidget::jointName(int _row, const QString& _text)
   return cell->setText(_text);
 }
 
+void ControlSurfacesWidget::type(int row, const ControlSurfaceType& type)
+{
+  const auto cell = qt::qPointerCast<qt::ComboBox>(cellWidget(row, kTypeCol));
+  return cell->setCurrentIndex(static_cast<uint8_t>(type));
+}
+
 void ControlSurfacesWidget::liftCoef(int _row, double _value)
 {
   const auto cell = qt::qPointerCast<qt::DoubleSpinBox>(cellWidget(_row, kLiftCoefCol));
@@ -307,6 +332,7 @@ void ControlSurfacesWidget::yawCoef(int _row, double _value)
 
 void ControlSurfacesWidget::setToDefault(int _row)
 {
+  type(_row, ControlSurfaceType::kOther);
   liftCoef(_row, 0.0);
   dragCoef(_row, 0.0);
   sideCoef(_row, 0.0);

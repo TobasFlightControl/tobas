@@ -5,6 +5,7 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include <tobas_drone_core/fixed_wing/control_surface_type.hpp>
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_uadf/model.hpp>
 
@@ -41,6 +42,7 @@ public:
   // Getters
   QString linkName(int _row) const;
   QString jointName(int _row) const;
+  ControlSurfaceType type(int row) const;
   double liftCoef(int _row) const;
   double dragCoef(int _row) const;
   double sideCoef(int _row) const;
@@ -51,6 +53,7 @@ public:
   // Setters
   void linkName(int _row, const QString& _text);
   void jointName(int _row, const QString& _text);
+  void type(int _row, const ControlSurfaceType& _index);
   void liftCoef(int _row, double _value);
   void dragCoef(int _row, double _value);
   void sideCoef(int _row, double _value);

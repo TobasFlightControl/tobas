@@ -409,7 +409,7 @@ double GazeboFixedWingPlugin::liftCoefficient(const gz::sim::EntityComponentMana
 double GazeboFixedWingPlugin::dragCoefficient(const gz::sim::EntityComponentManager& _ecm, double _alpha) const
 {
   // Angle of attack.
-  auto C_D = aero_coefs_.c_drag_0 + aero_coefs_.c_drag_alpha * _alpha;
+  auto C_D = aero_coefs_.c_drag_0 + aero_coefs_.c_drag_alpha * _alpha + aero_coefs_.c_drag_alpha2 * math::sqr(_alpha);
 
   // Control surfaces.
   for (const auto& [link_name, _] : control_surfaces_) {

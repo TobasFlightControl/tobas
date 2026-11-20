@@ -287,7 +287,7 @@ void addFixedWingPlugin(
   plugin->InsertNewChildElement("wingSurface")->SetText(toString(vehicle.wing_surface).c_str());
   plugin->InsertNewChildElement("wingSpan")->SetText(toString(vehicle.wing_span).c_str());
   plugin->InsertNewChildElement("meanAerodynamicChord")->SetText(toString(vehicle.mac).c_str());
-  plugin->InsertNewChildElement("aerodynamicCenter")->SetText(toString(vehicle.ref.data).c_str());
+  plugin->InsertNewChildElement("momentReferencePoint")->SetText(toString(vehicle.ref.data).c_str());
   plugin->InsertNewChildElement("lowerStallAngle")->SetText(toString(vehicle.alpha_limit.lower).c_str());
   plugin->InsertNewChildElement("upperStallAngle")->SetText(toString(vehicle.alpha_limit.upper).c_str());
 
