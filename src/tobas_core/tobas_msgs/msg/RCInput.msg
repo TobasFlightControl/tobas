@@ -14,7 +14,8 @@ float64 pitch     # CH2: [-1, 1]
 float64 throttle  # CH3: [-1, 1]
 float64 yaw       # CH4: [-1, 1]
 uint8 mode        # CH5: Flight Mode
-bool sub_mode     # CH6: Sub Flight Mode
+bool sub_mode     # CH6: Sub Flight Mode (Dual-use)
+float64 vr        # CH6: VR Rotary Switch (Dual-use) [-1, 1]
 bool enable       # CH7: Enable Radio Control
 bool kill         # CH8: Kill Switch
 bool[8] gpsw      # CH9-16: General Purpose Switch

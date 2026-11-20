@@ -21,6 +21,7 @@ struct RCInput
   double yaw;
   tobas::FlightMode mode;
   bool sub_mode;
+  double vr;
   bool enable;
   bool kill;
   std::array<bool, 8> gpsw;
@@ -49,6 +50,7 @@ struct rclcpp::TypeAdapter<tobas_msgs::RCInput, tobas_msgs::msg::RCInput>
     _dst.yaw = _src.yaw;
     _dst.mode = static_cast<uint8_t>(_src.mode);
     _dst.sub_mode = _src.sub_mode;
+    _dst.vr = _src.vr;
     _dst.enable = _src.enable;
     _dst.kill = _src.kill;
     _dst.gpsw = _src.gpsw;
@@ -64,6 +66,7 @@ struct rclcpp::TypeAdapter<tobas_msgs::RCInput, tobas_msgs::msg::RCInput>
     _dst.yaw = _src.yaw;
     _dst.mode = static_cast<tobas::FlightMode>(_src.mode);
     _dst.sub_mode = _src.sub_mode;
+    _dst.vr = _src.vr;
     _dst.enable = _src.enable;
     _dst.kill = _src.kill;
     _dst.gpsw = _src.gpsw;

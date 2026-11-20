@@ -42,6 +42,7 @@ private:
   st::Range<uint16_t> throt_;
   std::map<FlightMode, uint16_t> modes_;
   uint16_t sub_mode_on_, sub_mode_off_;
+  st::Range<uint16_t> vr_;
   uint16_t enable_on_, enable_off_;
   uint16_t kill_on_, kill_off_;
   std::array<uint16_t, kMaxNumOfGpsw> gpsw_on_, gpsw_off_;
@@ -141,6 +142,7 @@ bool RCInputHandlerNode::getCalibrationResults()
   if (!pt_.get(section_, handler::rcin::kSubModeOffKey, sub_mode_off_)) {
     return false;
   }
+  vr_.set(sub_mode_off_, sub_mode_on_);
 
   if (!pt_.get(section_, handler::rcin::kEnableOnKey, enable_on_)) {
     return false;
@@ -214,6 +216,7 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& _sb
     const auto& yaw = _sbus->periods[kRcChannelYaw];
     const auto& mode = _sbus->periods[kRcChannelMode];
     const auto& sub_mode = _sbus->periods[kRcChannelSubMode];
+    const auto& vr = _sbus->periods[kRcChannelVr];
     const auto& enable = _sbus->periods[kRcChannelEnable];
     const auto& kill = _sbus->periods[kRcChannelKill];
 
@@ -224,6 +227,7 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& _sb
 
     rcin_msg->mode = getClosestFlightMode(mode);
     rcin_msg->sub_mode = std::abs(sub_mode - sub_mode_on_) < std::abs(sub_mode - sub_mode_off_);
+    rcin_msg->vr = math::remap<double>(vr, vr_.lower, vr_.upper, kRcInputMin, kRcInputMax);
     rcin_msg->enable = std::abs(enable - enable_on_) < std::abs(enable - enable_off_);
     rcin_msg->kill = std::abs(kill - kill_on_) < std::abs(kill - kill_off_);
 
@@ -264,6 +268,7 @@ void RCInputHandlerNode::setParamsCb(
   modes_.at(FlightMode::kLoiter) = _req->mode_loiter;
   sub_mode_on_ = _req->sub_mode_on;
   sub_mode_off_ = _req->sub_mode_off;
+  vr_.set(sub_mode_off_, sub_mode_on_);
   enable_on_ = _req->enable_on;
   enable_off_ = _req->enable_off;
   kill_on_ = _req->kill_on;

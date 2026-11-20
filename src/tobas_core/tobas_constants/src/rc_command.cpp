@@ -19,6 +19,8 @@ constexpr char kAccelRateText[] = "accel_rate";
 constexpr char kAccelAngleText[] = "accel_angle";
 constexpr char kPosVelAccAngleText[] = "pos_vel_acc_angle";
 constexpr char kSpeedRollDPitchText[] = "speed_roll_dpitch";
+constexpr char kAileElevRudThrottleText[] = "aile_elev_rud_throttle";
+constexpr char kAngleSideSlipThrottleVectorText[] = "angle_side_slip_throttle_vector";
 }  // namespace
 
 std::string textFromEnum(RcCommand _cmd)
@@ -48,6 +50,10 @@ std::string textFromEnum(RcCommand _cmd)
       return kPosVelAccAngleText;
     case RcCommand::kSpeedRollDPitch:
       return kSpeedRollDPitchText;
+    case RcCommand::kAileElevRudThrottle:
+      return kAileElevRudThrottleText;
+    case RcCommand::kAngleSideSlipThrottleVector:
+      return kAngleSideSlipThrottleVectorText;
     default:
       throw;
   }
@@ -101,6 +107,14 @@ bool enumFromText(const std::string& _text, RcCommand& _dst)
   }
   else if (_text == kSpeedRollDPitchText) {
     _dst = RcCommand::kSpeedRollDPitch;
+    return true;
+  }
+  else if (_text == kAileElevRudThrottleText) {
+    _dst = RcCommand::kAileElevRudThrottle;
+    return true;
+  }
+  else if (_text == kAngleSideSlipThrottleVectorText) {
+    _dst = RcCommand::kAngleSideSlipThrottleVector;
     return true;
   }
   else {
