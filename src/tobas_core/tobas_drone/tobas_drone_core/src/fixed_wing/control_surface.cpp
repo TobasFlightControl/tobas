@@ -12,6 +12,7 @@ namespace tobas
 namespace
 {
 constexpr char kLinkNameKey[] = "link_name";
+constexpr char kTypeKey[] = "type";
 constexpr char kCLiftDeltaKey[] = "c_lift_delta";
 constexpr char kCDragAbsDeltaKey[] = "c_drag_abs_delta";
 constexpr char kCSideDeltaKey[] = "c_side_delta";
@@ -39,6 +40,10 @@ std::expected<void, std::string> ControlSurface::load(const YAML::Node& _node)
   }
 
   if (const auto result = yaml::load(kLinkNameKey, _node, link_name); !result) {
+    return result;
+  }
+
+  if (const auto result = yaml::load(kTypeKey, _node, type); !result) {
     return result;
   }
 
@@ -75,6 +80,7 @@ YAML::Node ControlSurface::dump() const
 
   node[kLinkNameKey] = link_name;
   node[kCLiftDeltaKey] = yaml::format(c_lift_delta);
+  node[kTypeKey] = type;
   node[kCDragAbsDeltaKey] = yaml::format(c_drag_abs_delta);
   node[kCSideDeltaKey] = yaml::format(c_side_delta);
   node[kCRollDeltaKey] = yaml::format(c_roll_delta);

@@ -335,7 +335,7 @@ Drone ProjectGenerator::createDrone() const
     drone.fixed_wing->vehicle.wing_surface = vehicle->wingSurface();
     drone.fixed_wing->vehicle.wing_span = vehicle->wingSpan();
     drone.fixed_wing->vehicle.mac = vehicle->mac();
-    drone.fixed_wing->vehicle.ac.data = vehicle->aerodynamicCenter();
+    drone.fixed_wing->vehicle.ref.data = vehicle->aerodynamicCenter();
     drone.fixed_wing->vehicle.alpha_limit = vehicle->alphaLimit();
 
     // Aerodynamic Coefficients
@@ -344,7 +344,7 @@ Drone ProjectGenerator::createDrone() const
     drone.fixed_wing->aerodynamics.c_lift_alpha = aero_coefs->c_lift_alpha();
     drone.fixed_wing->aerodynamics.c_drag_0 = aero_coefs->c_drag_0();
     drone.fixed_wing->aerodynamics.c_drag_alpha = aero_coefs->c_drag_alpha();
-    drone.fixed_wing->aerodynamics.c_side_beta = aero_coefs->c_side_beta();
+    drone.fixed_wing->aerodynamics.c_side_beta = aero_coefs->c_side_beta();  // TODO : add c_side_p, c_side_r
     drone.fixed_wing->aerodynamics.c_roll_beta = aero_coefs->c_roll_beta();
     drone.fixed_wing->aerodynamics.c_roll_p = aero_coefs->c_roll_p();
     drone.fixed_wing->aerodynamics.c_roll_r = aero_coefs->c_roll_r();
@@ -367,7 +367,7 @@ Drone ProjectGenerator::createDrone() const
       const auto& cur_jnt = cur_seg.joint();
 
       ControlSurface cs;
-      cs.link_name = link_name;
+      cs.link_name = link_name;  // TODO: add type
       cs.c_lift_delta = css->liftCoef(i);
       cs.c_drag_abs_delta = css->dragCoef(i);  // TODO: Do the signs need to be checked?
       cs.c_side_delta = css->sideCoef(i);

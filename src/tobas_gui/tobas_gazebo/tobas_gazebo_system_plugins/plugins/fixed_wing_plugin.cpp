@@ -282,7 +282,7 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& _info, gz::sim:
 
   // Apply aerodynamic force.
   gz::math::Vector3d B_Pos_BC;
-  vectorKDLToGazebo(vehicle_params_.ac, B_Pos_BC);
+  vectorKDLToGazebo(vehicle_params_.ref, B_Pos_BC);
   base_link_.AddWorldWrench(_ecm, force_W, torque_W, B_Pos_BC);
 
   // Publish debug messages.
@@ -307,8 +307,8 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& _sdf)
   vehicle_params_.wing_span = getSdfParam<double>(_sdf, "wingSpan", kPositive);
   vehicle_params_.mac = getSdfParam<double>(_sdf, "meanAerodynamicChord", kPositive);
 
-  const auto ac = getSdfParam<gz::math::Vector3d>(_sdf, "aerodynamicCenter");
-  vectorGazeboToKDL(ac, vehicle_params_.ac);
+  const auto ref = getSdfParam<gz::math::Vector3d>(_sdf, "momentReferencePoint");
+  vectorGazeboToKDL(ref, vehicle_params_.ref);
 
   vehicle_params_.alpha_limit.lower = getSdfParam<double>(_sdf, "lowerStallAngle");
   vehicle_params_.alpha_limit.upper = getSdfParam<double>(_sdf, "upperStallAngle");

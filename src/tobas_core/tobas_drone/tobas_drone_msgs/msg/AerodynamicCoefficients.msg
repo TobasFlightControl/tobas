@@ -8,9 +8,12 @@ float64 c_lift_alpha
 # Drag force
 float64 c_drag_0
 float64 c_drag_alpha
+float64 c_drag_alpha2
 
 # Side force
 float64 c_side_beta
+float64 c_side_p
+float64 c_side_r
 
 # Roll moment
 float64 c_roll_beta

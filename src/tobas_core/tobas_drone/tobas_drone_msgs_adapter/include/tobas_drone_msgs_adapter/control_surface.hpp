@@ -19,6 +19,7 @@ struct rclcpp::TypeAdapter<tobas::ControlSurface, tobas_drone_msgs::msg::Control
   static void convert_to_ros_message(const custom_type& _src, ros_message_type& _dst)
   {
     _dst.link_name = _src.link_name;
+    _dst.type = static_cast<uint8_t>(_src.type);
 
     _dst.c_lift_delta = _src.c_lift_delta;
     _dst.c_drag_abs_delta = _src.c_drag_abs_delta;
@@ -31,6 +32,7 @@ struct rclcpp::TypeAdapter<tobas::ControlSurface, tobas_drone_msgs::msg::Control
   static void convert_to_custom(const ros_message_type& _src, custom_type& _dst)
   {
     _dst.link_name = _src.link_name;
+    _dst.type = static_cast<tobas::ControlSurfaceType>(_src.type);
 
     _dst.c_lift_delta = _src.c_lift_delta;
     _dst.c_drag_abs_delta = _src.c_drag_abs_delta;

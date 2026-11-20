@@ -2,6 +2,7 @@
 # Copyright (C) 2026 Tobas, Inc.
 
 string link_name
+uint8 type
 
 float64 c_lift_delta
 float64 c_drag_abs_delta

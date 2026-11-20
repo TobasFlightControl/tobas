@@ -14,7 +14,10 @@ constexpr char kCLift0Key[] = "c_lift_0";
 constexpr char kCLiftAlphaKey[] = "c_lift_alpha";
 constexpr char kCDrag0Key[] = "c_drag_0";
 constexpr char kCDragAlphaKey[] = "c_drag_alpha";
+constexpr char kCDragAlpha2Key[] = "c_drag_alpha2";
 constexpr char kCSideBetaKey[] = "c_side_beta";
+constexpr char kCSidePKey[] = "c_side_p";
+constexpr char kCSideRKey[] = "c_side_r";
 constexpr char kCRollBetaKey[] = "c_roll_beta";
 constexpr char kCRollPKey[] = "c_roll_p";
 constexpr char kCRollRKey[] = "c_roll_r";
@@ -30,10 +33,6 @@ constexpr char kCYawRKey[] = "c_yaw_r";
 
 std::expected<void, std::string> AerodynamicCoefficients::validate() const
 {
-  if (c_lift_0 <= 0) {
-    return std::unexpected("c_lift_0 must be positive.");
-  }
-
   if (c_lift_alpha <= 0) {
     return std::unexpected("c_lift_alpha must be positive.");
   }
@@ -42,8 +41,8 @@ std::expected<void, std::string> AerodynamicCoefficients::validate() const
     return std::unexpected("c_drag_0 must be positive.");
   }
 
-  if (c_drag_alpha <= 0) {
-    return std::unexpected("c_drag_alpha must be positive.");
+  if (c_drag_alpha2 <= 0) {
+    return std::unexpected("c_drag_alpha2 must be positive.");
   }
 
   if (c_side_beta >= 0) {
@@ -95,7 +94,19 @@ std::expected<void, std::string> AerodynamicCoefficients::load(const YAML::Node&
     return result;
   }
 
+  if (const auto result = yaml::load(kCDragAlpha2Key, _node, c_drag_alpha2); !result) {
+    return result;
+  }
+
   if (const auto result = yaml::load(kCSideBetaKey, _node, c_side_beta); !result) {
+    return result;
+  }
+
+  if (const auto result = yaml::load(kCSidePKey, _node, c_side_p); !result) {
+    return result;
+  }
+
+  if (const auto result = yaml::load(kCSideRKey, _node, c_side_r); !result) {
     return result;
   }
 
@@ -154,7 +165,10 @@ YAML::Node AerodynamicCoefficients::dump() const
   node[kCLiftAlphaKey] = yaml::format(c_lift_alpha);
   node[kCDrag0Key] = yaml::format(c_drag_0);
   node[kCDragAlphaKey] = yaml::format(c_drag_alpha);
+  node[kCDragAlpha2Key] = yaml::format(c_drag_alpha2);
   node[kCSideBetaKey] = yaml::format(c_side_beta);
+  node[kCSidePKey] = yaml::format(c_side_p);
+  node[kCSideRKey] = yaml::format(c_side_r);
   node[kCRollBetaKey] = yaml::format(c_roll_beta);
   node[kCRollPKey] = yaml::format(c_roll_p);
   node[kCRollRKey] = yaml::format(c_roll_r);

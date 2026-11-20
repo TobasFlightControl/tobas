@@ -9,6 +9,8 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include "./control_surface_type.hpp"
+
 namespace tobas
 {
 class ControlSurface;
@@ -23,6 +25,7 @@ class ControlSurface
 {
 public:
   std::string link_name = "";
+  ControlSurfaceType type = ControlSurfaceType::kOther;
 
   double c_lift_delta = 0.0;      ///< [/rad]
   double c_drag_abs_delta = 0.0;  ///< [/rad]

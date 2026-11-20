@@ -15,7 +15,7 @@ namespace
 constexpr char kWingSurfaceKey[] = "wing_surface";
 constexpr char kWingSpanKey[] = "wing_span";
 constexpr char kMACKey[] = "mean_aerodynamic_chord";
-constexpr char kAeroCenterKey[] = "aerodynamic_center";
+constexpr char kMomentRefPointKey[] = "moment_reference_point";
 constexpr char kAlphaLimitLKey[] = "alpha_limit";
 }  // namespace
 
@@ -58,7 +58,7 @@ std::expected<void, std::string> VehicleParameters::load(const YAML::Node& _node
     return result;
   }
 
-  if (const auto result = yaml::load(kAeroCenterKey, _node, ac.data); !result) {
+  if (const auto result = yaml::load(kMomentRefPointKey, _node, ref.data); !result) {
     return result;
   }
 
@@ -76,7 +76,7 @@ YAML::Node VehicleParameters::dump() const
   node[kWingSurfaceKey] = yaml::format(wing_surface);
   node[kWingSpanKey] = yaml::format(wing_span);
   node[kMACKey] = yaml::format(mac);
-  node[kAeroCenterKey] = ac.data;
+  node[kMomentRefPointKey] = ref.data;
   node[kAlphaLimitLKey] = alpha_limit;
 
   return node;

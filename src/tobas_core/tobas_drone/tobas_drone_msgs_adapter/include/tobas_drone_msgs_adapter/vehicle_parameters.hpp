@@ -22,7 +22,7 @@ struct rclcpp::TypeAdapter<tobas::VehicleParameters, tobas_drone_msgs::msg::Vehi
     _dst.wing_surface = _src.wing_surface;
     _dst.wing_span = _src.wing_span;
     _dst.mac = _src.mac;
-    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.ac, _dst.ac);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(_src.ref, _dst.ref);
     _dst.alpha_limit.lower = _src.alpha_limit.lower;
     _dst.alpha_limit.upper = _src.alpha_limit.upper;
   }
@@ -32,7 +32,7 @@ struct rclcpp::TypeAdapter<tobas::VehicleParameters, tobas_drone_msgs::msg::Vehi
     _dst.wing_surface = _src.wing_surface;
     _dst.wing_span = _src.wing_span;
     _dst.mac = _src.mac;
-    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.ac, _dst.ac);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(_src.ref, _dst.ref);
     _dst.alpha_limit.lower = _src.alpha_limit.lower;
     _dst.alpha_limit.upper = _src.alpha_limit.upper;
   }
