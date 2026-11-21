@@ -5,7 +5,7 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include "tobas_setup_assistant/param_getters/double_table.hpp"
+#include "tobas_setup_assistant/utils/double_table.hpp"
 
 namespace tobas
 {
@@ -32,7 +32,7 @@ public:
   std::pair<double, double> engineConstant() const;
 
 private:
-  ParamGetterWidget_DoubleTable* data_;
+  DoubleTableWidget* data_;
 };
 }  // namespace ice
 }  // namespace propulsion

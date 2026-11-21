@@ -1,15 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_setup_assistant/param_getters/double_table.hpp"
+#include "tobas_setup_assistant/utils/double_table.hpp"
 
 #include <filesystem>
 
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QLabel>
 #include <QPushButton>
+#include <QVBoxLayout>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_ros2_tools/util.hpp>
@@ -26,14 +30,13 @@ namespace gui
 {
 namespace sa
 {
-ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
+DoubleTableWidget::DoubleTableWidget(
   rclcpp::Node::SharedPtr node,
   const QString& param_name,
   const QString& title,
   const QStringList& labels,
   const QString& description_text)
-  : super(param_name, description_text)
-  , node_(node)
+  : node_(node)
   , last_opend_dir_key_("last_opened_dir/" + str::replace(param_name.toStdString(), " ", "_"))
   , title_(title)
   , labels_(labels)
@@ -42,19 +45,12 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
 {
   TOBAS_CHECK(num_entry_ > 0);
 
-  // Table editors retain a heading above their controls rather than a side label.
-  const auto field = rows_->parentWidget();
-  const auto form = layout();
-  form->removeWidget(label_);
-  form->removeWidget(field);
-  delete form;
-  label_->setObjectName("tableParameterLabel");
-  label_->setFont(qt::DefaultFont(cmn::kBodyPSize, QFont::Bold));
-  const auto root_rows = new QVBoxLayout(this);
-  root_rows->setContentsMargins(0, 0, 0, 0);
-  root_rows->setSpacing(4);
-  root_rows->addWidget(label_, 0);
-  root_rows->addWidget(field, 1);
+  const auto label = new QLabel(param_name);
+  label->setFont(qt::DefaultFont(cmn::kBodyPSize, QFont::Bold));
+  label->setAlignment(Qt::AlignTop);
+  label->setToolTip(description_text);
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(label);
 
   minimum_.fill(std::numeric_limits<double>::lowest(), num_entry_);
   maximum_.fill(std::numeric_limits<double>::max(), num_entry_);
@@ -62,7 +58,7 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   decimals_.fill(kDefaultDecimals, num_entry_);
 
   const auto cols = new QHBoxLayout();
-  rows_->addLayout(cols);
+  rows->addLayout(cols);
 
   const auto add_row_btn = new QPushButton("Add Row");
   add_row_btn->setFixedWidth(kButtonWidth);
@@ -87,7 +83,7 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   table_->setHorizontalHeaderLabels(labels);
   table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
   table_->horizontalHeader()->setMinimumSectionSize(160);
-  rows_->addWidget(table_);
+  rows->addWidget(table_);
 
   // Connection
   connect(add_row_btn, &QPushButton::clicked, this, &self::addRow);
@@ -96,7 +92,7 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   connect(load_csv_btn, &QPushButton::clicked, this, &self::loadCsv);
 }
 
-Eigen::MatrixXd ParamGetterWidget_DoubleTable::getValue() const
+Eigen::MatrixXd DoubleTableWidget::getData() const
 {
   const auto rows = count();
 
@@ -111,7 +107,7 @@ Eigen::MatrixXd ParamGetterWidget_DoubleTable::getValue() const
   return res;
 }
 
-bool ParamGetterWidget_DoubleTable::setValue(const Eigen::MatrixXd& src)
+bool DoubleTableWidget::setData(const Eigen::MatrixXd& src)
 {
   if (!isValidData(src)) {
     return false;
@@ -130,41 +126,41 @@ bool ParamGetterWidget_DoubleTable::setValue(const Eigen::MatrixXd& src)
   return true;
 }
 
-qt::TableWidget* ParamGetterWidget_DoubleTable::table()
+qt::TableWidget* DoubleTableWidget::table()
 {
   return table_;
 }
 
-void ParamGetterWidget_DoubleTable::setDecimals(const QVector<int>& decimals)
+void DoubleTableWidget::setDecimals(const QVector<int>& decimals)
 {
   TOBAS_CHECK(decimals.size() == num_entry_);
   decimals_ = decimals;
 }
 
-void ParamGetterWidget_DoubleTable::setMinimum(const QVector<double>& minimum)
+void DoubleTableWidget::setMinimum(const QVector<double>& minimum)
 {
   TOBAS_CHECK(minimum.size() == num_entry_);
   minimum_ = minimum;
 }
 
-void ParamGetterWidget_DoubleTable::setMaximum(const QVector<double>& maximum)
+void DoubleTableWidget::setMaximum(const QVector<double>& maximum)
 {
   TOBAS_CHECK(maximum.size() == num_entry_);
   maximum_ = maximum;
 }
 
-void ParamGetterWidget_DoubleTable::setDefault(const QVector<double>& _default)
+void DoubleTableWidget::setDefault(const QVector<double>& _default)
 {
   TOBAS_CHECK(default_.size() == num_entry_);
   default_ = _default;
 }
 
-int ParamGetterWidget_DoubleTable::count() const
+int DoubleTableWidget::count() const
 {
   return table_->rowCount();
 }
 
-void ParamGetterWidget_DoubleTable::addRow()
+void DoubleTableWidget::addRow()
 {
   const auto rows = count();
   table_->insertRow(rows);
@@ -181,7 +177,7 @@ void ParamGetterWidget_DoubleTable::addRow()
   }
 }
 
-void ParamGetterWidget_DoubleTable::deleteRow()
+void DoubleTableWidget::deleteRow()
 {
   const auto row = table_->currentRow();
   if (row < 0) {
@@ -190,7 +186,7 @@ void ParamGetterWidget_DoubleTable::deleteRow()
   table_->removeRow(row);
 }
 
-void ParamGetterWidget_DoubleTable::loadCsv()
+void DoubleTableWidget::loadCsv()
 {
   // Get CSV file path.
   const auto file_path = getCsvPath();
@@ -225,19 +221,19 @@ void ParamGetterWidget_DoubleTable::loadCsv()
   }
 
   // Set data.
-  if (!setValue(data_array)) {
+  if (!setData(data_array)) {
     return;
   }
 
   qt::qInfoBox(this, "Data is loaded successfully.");
 }
 
-void ParamGetterWidget_DoubleTable::onCellValueChanged()
+void DoubleTableWidget::onCellValueChanged()
 {
   Q_EMIT dataChanged();
 }
 
-QString ParamGetterWidget_DoubleTable::getCsvPath()
+QString DoubleTableWidget::getCsvPath()
 {
   std::string last_opened_dir;
   if (property_client_.get(last_opend_dir_key_, last_opened_dir) < 0) {
@@ -257,7 +253,7 @@ QString ParamGetterWidget_DoubleTable::getCsvPath()
   return file_path;
 }
 
-bool ParamGetterWidget_DoubleTable::isValidData(const Eigen::MatrixXd& src)
+bool DoubleTableWidget::isValidData(const Eigen::MatrixXd& src)
 {
   if (src.cols() != num_entry_) {
     qt::qErrorBox(this, "Column size mismatch.");
@@ -275,7 +271,7 @@ bool ParamGetterWidget_DoubleTable::isValidData(const Eigen::MatrixXd& src)
   return true;
 }
 
-void ParamGetterWidget_DoubleTable::saveLastOpenedDir(const std::string& dir)
+void DoubleTableWidget::saveLastOpenedDir(const std::string& dir)
 {
   if (property_client_.set(last_opend_dir_key_, dir) < 0) {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());

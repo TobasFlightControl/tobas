@@ -152,7 +152,8 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       });
     const auto header = new QHBoxLayout();
     header->setContentsMargins(0, 0, 0, 0);
-    header->addWidget(selector, 1);
+    header->addWidget(selector, 0);
+    header->addStretch(1);
     header->addWidget(expand, 0);
     const auto panel_rows = new QVBoxLayout(panel);
     panel_rows->setContentsMargins(0, 0, 0, 0);

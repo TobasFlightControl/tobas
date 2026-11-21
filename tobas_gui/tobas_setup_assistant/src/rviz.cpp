@@ -58,8 +58,10 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
 
   // Layout.
   const auto rows = new QVBoxLayout();
+  rows->setContentsMargins(0, 0, 0, 0);
   setLayout(rows);
   const auto cols = new QHBoxLayout();
+  cols->setContentsMargins(0, 0, 0, 0);
   rows->addWidget(rviz_manager_.widget());
   rows->addLayout(cols);
   cols->addStretch();

@@ -10,8 +10,6 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
-#include "../param_getters/base.hpp"
-
 namespace tobas
 {
 namespace gui

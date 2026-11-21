@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/preset.hpp"
 
+#include <QVBoxLayout>
+
 #include <rapidcsv.h>
 
 #include <tobas_eigen_tools/core.hpp>
@@ -53,8 +55,9 @@ AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* prop
   data_name_->setCurrentText("dji_9450");
 
   // Layout
-  rows_->addWidget(data_name_);
-  rows_->addStretch();
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(data_name_);
+  rows->addStretch();
 }
 
 const char* AerodynamicsWidget_Preset::name() const

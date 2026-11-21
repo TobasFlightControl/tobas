@@ -40,6 +40,10 @@ ControllerWidget::ControllerWidget()
   stack_->addWidget(new FixedWingWidget());
   TOBAS_CHECK(static_cast<size_t>(stack_->count()) == magic_enum::enum_count<FrameType>());
 
+  for (int i = 0; i < stack_->count(); ++i) {
+    stack_->widget(i)->layout()->setContentsMargins(0, 0, 0, 0);
+  }
+
   // Layout
   addWidget(stack_);
   addStretch();

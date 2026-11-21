@@ -6,6 +6,7 @@
 #include <rclcpp/node.hpp>
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
+#include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "../base.hpp"
@@ -50,8 +51,11 @@ public:
 private:
   const PropellerWidget* const propeller_;
 
+  qt::DescriptionWidget* description_;
   qt::ComboBox* method_name_;
   qt::StackedWidget* methods_;
+
+  void updateDescription(int index);
 
   AerodynamicsWidget_Base* selected();
   const AerodynamicsWidget_Base* selected() const;

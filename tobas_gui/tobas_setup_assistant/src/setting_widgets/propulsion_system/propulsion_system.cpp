@@ -33,6 +33,7 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
 
   setCurrentIndex(0);  // Default
 
+  addSpacing(8);
   addWidget(propulsion_stack_);
 
   connect(type_btn_group_, &QButtonGroup::idClicked, this, &self::onPropulsionTypeClicked);
@@ -145,6 +146,8 @@ const BasePropulsionSystemWidget* PropulsionSystemWidget::selected() const
 
 void PropulsionSystemWidget::addPropulsionSystemWidget(BasePropulsionSystemWidget* widget, int id)
 {
+  widget->layout()->setContentsMargins(0, 0, 0, 0);
+
   const auto btn = new QRadioButton(widget->name());
   type_btn_group_->addButton(btn, id);
   addWidget(btn);
