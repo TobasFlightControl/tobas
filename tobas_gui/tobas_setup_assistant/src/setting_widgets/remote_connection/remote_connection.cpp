@@ -21,12 +21,12 @@ RemoteConnectionWidget::RemoteConnectionWidget()
   nic_ = new NetworkIfaceWidget();
 
   addWidget(new qt::Label(kNetworkIfaceLabel, cmn::kLabelPSize, QFont::Bold));
-  addWidget(new qt::DescriptionWidget("Specify the network interface used by the flight controller.", cmn::kBodyPSize));
+  addWidget(new qt::DescriptionWidget("Specify the network interface used by the flight controller."));
   addWidget(nic_);
 
   addWidget(new qt::Label(kHostLabel, cmn::kLabelPSize, QFont::Bold));
-  addWidget(new qt::DescriptionWidget(
-    "Specify the target FC host as either a hostname, an IPv4 address, or an IPv6 address.", cmn::kBodyPSize));
+  addWidget(
+    new qt::DescriptionWidget("Specify the target FC host as either a hostname, an IPv4 address, or an IPv6 address."));
   addWidget(host_);
 
   addStretch();

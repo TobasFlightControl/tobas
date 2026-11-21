@@ -8,7 +8,6 @@
 
 #include <tobas_constants/node.hpp>
 #include <tobas_constants/ros_interface.hpp>
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
@@ -36,8 +35,7 @@ std::string paramName(size_t ch)
 RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone)
   : node_(node), bridge_(bridge), drone_(drone)
 {
-  const auto warning =
-    new qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n", cmn::kBodyPSize);
+  const auto warning = new qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n");
   warning->setStyleSheet("color: red; font-weight: bold;");
   rows_->addWidget(warning);
 
@@ -49,8 +47,7 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
     "   - The motor does not rotate when the command RPM is 0.\n"
     "4. Tune the control gain of each channel to the maximum value at which no vibrations or abnormal noise occur.\n"
     "5. Click \"Save\" to save the control gains.\n"
-    "6. Click \"Stop\" to disable motors.\n",
-    cmn::kBodyPSize);
+    "6. Click \"Stop\" to disable motors.\n");
   rows_->addWidget(instruction);
 
   const auto button_cols = new QHBoxLayout();
