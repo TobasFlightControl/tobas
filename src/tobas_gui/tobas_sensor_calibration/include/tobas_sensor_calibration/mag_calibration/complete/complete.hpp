@@ -45,13 +45,15 @@ public:
   explicit CompleteMagCalibWidget(const rqt::RosQtBridge& _bridge);
 
   void reset() override;
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns) override;
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns, bool _simulation) override;
   void clearRosInterfaces() override;
 
 protected:
   void paintEvent(QPaintEvent* _event) override;
 
 private:
+  bool simulation_ = false;
+
   rclcpp::Node::SharedPtr node_;
 
   std::optional<rqt::SyncServiceClientWrapper<tobas_real_msgs::srv::SetMagnetometerParams>> set_params_sc_;

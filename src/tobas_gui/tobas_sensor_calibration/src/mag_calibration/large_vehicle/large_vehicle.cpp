@@ -46,9 +46,13 @@ void LargeVehicleMagCalibWidget::reset()
   arming_.reset();
 }
 
-void LargeVehicleMagCalibWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
+void LargeVehicleMagCalibWidget::initializeRosInterfaces(
+  rclcpp::Node::SharedPtr _node,
+  const std::string& _ns,
+  bool _simulation)
 {
   thread_.initializeRosInterfaces(std::move(_node), _ns);
+  start_button_->setEnabled(!_simulation);
 }
 
 void LargeVehicleMagCalibWidget::clearRosInterfaces()

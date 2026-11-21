@@ -22,7 +22,7 @@ public:
   explicit LargeVehicleMagCalibWidget(const rqt::RosQtBridge& _bridge);
 
   void reset() override;
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns) override;
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns, bool _simulation) override;
   void clearRosInterfaces() override;
 
 private:

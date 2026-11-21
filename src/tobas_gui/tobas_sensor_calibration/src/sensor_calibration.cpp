@@ -26,6 +26,8 @@ SensorCalibrationWidget::SensorCalibrationWidget(const rqt::RosQtBridge& _bridge
   rcin_calib_ = new RCInputCalibrationWidget(_bridge, _drone);
   addTab(createTabPage(rcin_calib_), "Radio Control");
 
+  setTabsEnabled(false);
+
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::imuReceived, this, &self::imuCb, Qt::QueuedConnection);
   connect(&_bridge, &rqt::RosQtBridge::magReceived, this, &self::magCb, Qt::QueuedConnection);
