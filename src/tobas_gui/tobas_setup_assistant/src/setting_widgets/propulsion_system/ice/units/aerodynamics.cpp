@@ -31,7 +31,7 @@ AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : prop
   setWidgetResizable(false);
 
   const auto title = new QLabel(kDataLabel);
-  title->setFont(qt::DefaultFont(cmn::kBodyPointSize, QFont::Bold));
+  title->setFont(qt::makeFont(cmn::kBodyPointSize, QFont::Bold));
 
   data_ = new DoubleMatrixEdit(kDataLabel, "Select Test Data", { "RPM", "Pitch [deg]", "Thrust [N]", "Torque [Nm]" });
   data_->setToolTip(

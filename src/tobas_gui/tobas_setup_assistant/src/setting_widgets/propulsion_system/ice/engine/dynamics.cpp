@@ -26,7 +26,7 @@ constexpr char kDataLabel[] = "Engine Torque Test Data";
 EngineDynamicsWidget::EngineDynamicsWidget()
 {
   const auto title = new QLabel(kDataLabel);
-  title->setFont(qt::DefaultFont(cmn::kBodyPointSize, QFont::Bold));
+  title->setFont(qt::makeFont(cmn::kBodyPointSize, QFont::Bold));
 
   data_ = new DoubleMatrixEdit(kDataLabel, "Select Test Data", { "Throttle [%]", "RPM", "Torque [Nm]" });
   data_->setToolTip(

@@ -25,7 +25,7 @@ QString toCssColor(Qt::GlobalColor _c)
 Label::Label(const QString& _text, int _point_size, QFont::Weight _weight, bool _italic, QWidget* _parent)
   : super(_text, _parent)
 {
-  setFont(DefaultFont(_point_size, _weight, _italic));
+  setFont(makeFont(_point_size, _weight, _italic));
 }
 
 void Label::setTextColor(const QString& _color)

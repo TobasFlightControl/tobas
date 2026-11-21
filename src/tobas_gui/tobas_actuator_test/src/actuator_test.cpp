@@ -33,7 +33,7 @@ QWidget* ActuatorTestWidget::createTabPage(BaseWidget* _content)
   page->setAutoFillBackground(true);
 
   const auto title = new QLabel(_content->title());
-  title->setFont(qt::DefaultFont(cmn::kTitlePointSize, QFont::Bold));
+  title->setFont(qt::makeFont(cmn::kTitlePointSize, QFont::Bold));
 
   _content->layout()->setContentsMargins(0, 0, 0, 0);
 

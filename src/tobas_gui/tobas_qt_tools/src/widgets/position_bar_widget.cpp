@@ -289,7 +289,7 @@ void HPositionBarWidget::drawUpperText(QPainter& _painter, const QString& _text)
 void HPositionBarWidget::drawTextCommon(QPainter& _painter)
 {
   _painter.setPen(Qt::gray);
-  _painter.setFont(DefaultFont(getTextPSize()));
+  _painter.setFont(makeFont(getTextPSize()));
 }
 
 void VPositionBarWidget::drawRange(QPainter& _painter, double _lower, double _upper)
@@ -343,7 +343,7 @@ void VPositionBarWidget::drawTextCommon(QPainter& _painter)
 {
   // Set the font.
   _painter.setPen(Qt::gray);
-  _painter.setFont(DefaultFont(getTextPSize()));
+  _painter.setFont(makeFont(getTextPSize()));
 
   // Set painter rotation and translation.
   _painter.translate(width() / 2, height() / 2);

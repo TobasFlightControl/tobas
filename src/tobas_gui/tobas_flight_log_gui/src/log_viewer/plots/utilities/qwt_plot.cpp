@@ -120,7 +120,7 @@ QwtPlot2::QwtPlot2(QWidget* _parent) : super(_parent)
   legend_item_->setAlignmentInCanvas(Qt::AlignTop | Qt::AlignRight);  // Place it at the upper right.
   legend_item_->setMaxColumns(1);                                     // Arrange in one column.
   legend_item_->setBorderPen(QPen(Qt::black, 0.5));                   // Draw a thin black border.
-  legend_item_->setFont(qt::DefaultFont(cmn::kAuxiliaryPointSize));   // Auxiliary font size.
+  legend_item_->setFont(qt::makeFont(cmn::kAuxiliaryPointSize));      // Auxiliary font size.
   legend_item_->setMargin(1);                                         // 1-pixel outer margin.
   legend_item_->setItemMargin(1);                                     // 1-pixel margin around each item.
   legend_item_->setItemSpacing(1);                                    // 1-pixel gap between icon and label.

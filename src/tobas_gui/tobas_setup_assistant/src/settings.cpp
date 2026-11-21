@@ -17,7 +17,7 @@ namespace tobas::gui::sa
 SettingsWidget::SettingsWidget(const uadf::Model& _uadf, const kdl::Tree& _tree, Signals& _sig) : uadf_(_uadf)
 {
   title_ = new QLabel();
-  title_->setFont(qt::DefaultFont(cmn::kTitlePointSize, QFont::Bold));
+  title_->setFont(qt::makeFont(cmn::kTitlePointSize, QFont::Bold));
   title_->setAlignment(Qt::AlignTop);
   description_ = new qt::DescriptionWidget();
 

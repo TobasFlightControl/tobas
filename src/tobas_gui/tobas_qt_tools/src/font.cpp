@@ -5,16 +5,19 @@
 
 namespace tobas::qt
 {
-DefaultFont::DefaultFont(int _point_size, QFont::Weight _weight, bool _italic)
+QFont makeFont(int _point_size, QFont::Weight _weight, bool _italic)
 {
+  QFont font;
   if (_point_size > 0) {
-    setPointSize(_point_size);
+    font.setPointSize(_point_size);
   }
 
   if (_weight >= 0) {
-    setWeight(_weight);
+    font.setWeight(_weight);
   }
 
-  setItalic(_italic);
+  font.setItalic(_italic);
+
+  return font;
 }
 }  // namespace tobas::qt

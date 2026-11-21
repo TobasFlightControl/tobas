@@ -9,7 +9,7 @@ namespace tobas::qt
 {
 DescriptionWidget::DescriptionWidget(const QString& _text, int _point_size, QWidget* _parent) : super(_text, _parent)
 {
-  setFont(DefaultFont(_point_size));
+  setFont(makeFont(_point_size));
   setAlignment(Qt::AlignTop);
   setWordWrap(true);
   setOpenExternalLinks(true);
