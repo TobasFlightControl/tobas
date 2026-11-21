@@ -23,6 +23,7 @@ enum class RcCommand
   kSpeedRollDPitch,
   kAileElevRudThrottle,
   kAngleSideSlipThrottleVector,
+  kPosVelAccPitchYawRollSideSlipMode,
 };
 
 std::string textFromEnum(RcCommand _cmd);

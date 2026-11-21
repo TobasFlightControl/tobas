@@ -27,6 +27,7 @@
 #include "tobas_rc_teleop/angle_throttle_vector.hpp"
 #include "tobas_rc_teleop/pos_vel_acc_angle.hpp"
 #include "tobas_rc_teleop/pos_vel_acc_pitch_yaw.hpp"
+#include "tobas_rc_teleop/pos_vel_acc_pitch_yaw_roll_side_slip_mode.hpp"
 #include "tobas_rc_teleop/pos_vel_acc_yaw.hpp"
 #include "tobas_rc_teleop/rate_throttle.hpp"
 #include "tobas_rc_teleop/rate_throttle_vector.hpp"
@@ -200,6 +201,9 @@ void RCTeleopNode::initializeControllers()
         break;
       case RcCommand::kAngleSideSlipThrottleVector:
         controllers_[mode] = std::make_unique<AngleSideSlipThrottleVectorController>();
+        break;
+      case RcCommand::kPosVelAccPitchYawRollSideSlipMode:
+        controllers_[mode] = std::make_unique<PosVelAccPitchYawRollSideSlipModeController>();
         break;
       default:
         TOBAS_EXIT("Invalid flight mode: ", (int)mode);

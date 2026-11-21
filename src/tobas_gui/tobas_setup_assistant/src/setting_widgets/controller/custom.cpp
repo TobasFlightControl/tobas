@@ -34,6 +34,8 @@ constexpr char kPosVelAccAngleLabel[] = "Position + Velocity + Acceleration + Eu
 constexpr char kSpeedRollDeltaPitchLabel[] = "Speed + Roll + Pitch";
 constexpr char kAileElevRudThrottleLabel[] = "Aileron + Elevator + Rudder + Throttle";
 constexpr char kAngleSideSlipThrottleVectorLabel[] = "Euler Angle + SideSlip + Throttle + Thrust Direction";
+constexpr char kPosVelAccPitchYawRollSideSlipModeLabel[] =
+  "Position + Velocity + Accel + Pitch + Yaw or Roll + SideSlip + Mode";
 
 const std::map<QString, RcCommand> kCommandMap{
   { kRateThrottleLabel, RcCommand::kRateThrottle },
@@ -50,6 +52,7 @@ const std::map<QString, RcCommand> kCommandMap{
   { kSpeedRollDeltaPitchLabel, RcCommand::kSpeedRollDPitch },
   { kAileElevRudThrottleLabel, RcCommand::kAileElevRudThrottle },
   { kAngleSideSlipThrottleVectorLabel, RcCommand::kAngleSideSlipThrottleVector },
+  { kPosVelAccPitchYawRollSideSlipModeLabel, RcCommand::kPosVelAccPitchYawRollSideSlipMode },
 };
 }  // namespace
 
