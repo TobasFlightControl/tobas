@@ -145,7 +145,8 @@ markdown_extensions:
   - toc: # Required for adding links for each heading
       permalink: true
   - pymdownx.superfences # Required for highlighting code blocks
-
+  - pymdownx.details
+  - attr_list
 extra:
   social: # https://squidfunk.github.io/mkdocs-material/setup/setting-up-the-footer/#social-links
     - icon: fontawesome/brands/x-twitter

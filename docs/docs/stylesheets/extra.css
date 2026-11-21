@@ -27,3 +27,10 @@
 .md-banner .twemoji svg {
   fill: currentColor;
 }
+
+.md-typeset pre,
+.md-typeset pre code {
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere;
+}
+
