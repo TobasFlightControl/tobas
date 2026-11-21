@@ -81,7 +81,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
 
   // Package manager
   proj_path_ = new QLineEdit();
-  proj_path_->setMaximumWidth(kPathMaxWidth);
+  proj_path_->setFixedWidth(kPathWidth);
   proj_path_->setReadOnly(true);
   proj_path_->setFocusPolicy(Qt::NoFocus);
 

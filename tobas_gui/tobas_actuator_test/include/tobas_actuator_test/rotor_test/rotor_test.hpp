@@ -6,6 +6,8 @@
 #include <QPushButton>
 #include <QTimer>
 
+#include <tobas_constants/hardware.hpp>
+#include <tobas_dparam_client/dparam_client.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
 #include <tobas_gui_common/project_paths.hpp>
@@ -13,9 +15,6 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
-
-#include <tobas_constants/hardware.hpp>
-#include <tobas_dparam_client/dparam_client.hpp>
 
 #include <tobas_dparam_msgs/srv/get_params.hpp>
 #include <tobas_msgs/msg/arming.hpp>

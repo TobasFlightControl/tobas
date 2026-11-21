@@ -5,11 +5,10 @@
 
 #include <QVBoxLayout>
 
-#include <tobas_qt_tools/widgets/scroll_area.hpp>
-#include <tobas_qt_tools/widgets/tab_widget.hpp>
-
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
+#include <tobas_qt_tools/widgets/tab_widget.hpp>
 
 namespace tobas
 {

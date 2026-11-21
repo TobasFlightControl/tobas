@@ -4,6 +4,7 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
+
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
 namespace tobas

@@ -3,15 +3,13 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/aero_coefs.hpp"
 
-#include <QHBoxLayout>
-
-#include <QVBoxLayout>
-
 #include <filesystem>
 
 #include <QFileDialog>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>

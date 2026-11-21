@@ -4,8 +4,8 @@
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/aerodynamics.hpp"
 
 #include <QVBoxLayout>
-
 #include <eigen3/Eigen/SVD>
+
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>

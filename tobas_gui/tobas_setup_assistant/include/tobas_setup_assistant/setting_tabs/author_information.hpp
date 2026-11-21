@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QLineEdit>
+
 #include "./base_setting.hpp"
 
 namespace tobas

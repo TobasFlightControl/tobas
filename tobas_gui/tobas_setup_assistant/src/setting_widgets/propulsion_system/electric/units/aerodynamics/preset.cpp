@@ -3,9 +3,9 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/preset.hpp"
 
-#include <QVBoxLayout>
-
 #include <rapidcsv.h>
+
+#include <QVBoxLayout>
 
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>

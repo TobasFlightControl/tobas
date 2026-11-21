@@ -3,13 +3,12 @@
 
 #pragma once
 
-#include <tobas_qt_tools/widgets/scroll_area.hpp>
-
 #include <yaml-cpp/yaml.h>
 
 #include <tobas_property_client/property_client.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 
 namespace tobas
 {

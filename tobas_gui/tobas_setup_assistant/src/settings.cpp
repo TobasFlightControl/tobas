@@ -7,9 +7,8 @@
 #include <QVBoxLayout>
 
 #include <tobas_gui_common/constants.hpp>
-#include <tobas_qt_tools/font.hpp>
-
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/check.hpp>
 
@@ -39,6 +38,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   toolbox_ = new QToolBox();
   title_ = new QLabel();
   title_->setFont(qt::DefaultFont(cmn::kTitlePSize, QFont::Bold));
+  title_->setAlignment(Qt::AlignTop);
   description_ = new qt::DescriptionWidget();
   stack_ = new qt::StackedWidget();
   connect(stack_, &QStackedWidget::currentChanged, this, &self::updateHeader);

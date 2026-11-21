@@ -6,13 +6,12 @@
 #include <QDebug>
 #include <QVBoxLayout>
 
-#include <tobas_qt_tools/widgets/scroll_area.hpp>
-#include <tobas_qt_tools/widgets/tab_widget.hpp>
-
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
+#include <tobas_qt_tools/widgets/tab_widget.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/format.hpp>

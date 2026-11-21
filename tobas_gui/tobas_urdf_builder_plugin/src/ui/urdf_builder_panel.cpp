@@ -16,13 +16,12 @@
 
 #include <tobas_ros2_tools/util.hpp>
 
-#include "ui_urdf_builder_panel.h"
-
 #include "tobas_urdf_builder_plugin/ogre_helpers/static_link_updater.hpp"
 #include "tobas_urdf_builder_plugin/ui/add_link_dialog.hpp"
 #include "tobas_urdf_builder_plugin/ui/save_urdf_dialog.hpp"
 #include "tobas_urdf_builder_plugin/ui/update_link_dialog.hpp"
 #include "tobas_urdf_builder_plugin/utils/widget_item.hpp"
+#include "ui_urdf_builder_panel.h"
 
 #define ROBOT_MODEL_UPDATE_INTERVAL 10  // [ms]
 #define INVALID_CHARS " '\"#$%&()^~|,.<>/\\!?"

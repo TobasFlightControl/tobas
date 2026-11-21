@@ -8,8 +8,9 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-#include <tobas_qt_tools/validator/int_validator.hpp>
 #include <tobas_std_tools/check.hpp>
+
+#include "tobas_qt_tools/validator/int_validator.hpp"
 
 namespace tobas
 {

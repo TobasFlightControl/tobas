@@ -7,7 +7,6 @@
 
 #include <QFrame>
 #include <QGridLayout>
-
 #include <rosbag2_cpp/reader.hpp>
 
 #include "./data.hpp"
