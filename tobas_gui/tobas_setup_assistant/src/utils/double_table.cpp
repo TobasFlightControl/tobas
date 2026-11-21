@@ -46,7 +46,7 @@ DoubleTableWidget::DoubleTableWidget(
   TOBAS_CHECK(num_entry_ > 0);
 
   const auto label = new QLabel(param_name);
-  label->setFont(qt::DefaultFont(cmn::kBodyPSize, QFont::Bold));
+  label->setFont(qt::DefaultFont(cmn::kBodyPointSize, QFont::Bold));
   label->setAlignment(Qt::AlignTop);
   label->setToolTip(description_text);
   const auto rows = new QVBoxLayout(this);
