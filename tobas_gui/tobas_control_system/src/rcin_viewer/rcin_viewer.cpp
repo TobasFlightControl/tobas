@@ -107,12 +107,14 @@ void RCInputViewerWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& r
   yaw_pitch_->setValues(-rcin->yaw, rcin->pitch, true, rcin->enable);
   roll_throttle_->setValues(rcin->roll, rcin->throttle, true, rcin->enable);
   setBadge(
-    kill_, QString("Kill: ") + (rcin->kill ? "ON" : "OFF"), rcin->kill ? qt::color::lightRed() : qt::color::gray90());
+    kill_,
+    QString("Kill: ") + (rcin->kill ? "ON" : "OFF"),
+    rcin->enable && rcin->kill ? qt::color::lightRed() : qt::color::gray90());
   setBadge(
     sub_mode_,
     QString("Sub: ") + (rcin->sub_mode ? "ON" : "OFF"),
-    rcin->sub_mode ? qt::color::lightBlue() : qt::color::gray90());
-  setMode(rcin->mode);
+    rcin->enable && rcin->sub_mode ? qt::color::lightBlue() : qt::color::gray90());
+  setMode(rcin->enable ? rcin->mode : static_cast<FlightMode>(-1));
 }
 }  // namespace rcin
 }  // namespace ctrl
