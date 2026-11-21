@@ -10,6 +10,7 @@
 #include <utility>
 
 #include <QCollator>
+#include <QDebug>
 #include <QGridLayout>
 #include <QMap>
 #include <QRadioButton>
@@ -140,8 +141,6 @@ void AerodynamicsWidget_Preset::addCategories(const fs::path& _directory, DataTy
   }
   std::ranges::sort(directories);
 
-  QCollator collator;
-  collator.setNumericMode(true);
   for (const auto& directory : directories) {
     // Collect CSV datasets and omit categories that have no selectable models.
     std::vector<fs::path> paths;
@@ -155,6 +154,8 @@ void AerodynamicsWidget_Preset::addCategories(const fs::path& _directory, DataTy
     }
 
     // Sort model names naturally, comparing embedded numbers by their numeric values.
+    QCollator collator;
+    collator.setNumericMode(true);
     std::ranges::sort(
       paths,
       [&collator](const auto& _lhs, const auto& _rhs)
@@ -180,9 +181,19 @@ void AerodynamicsWidget_Preset::addCategories(const fs::path& _directory, DataTy
     scroll->setLayout(grid);
     scroll->setBackgroundTransparent();
 
-    // Find the alphabetical position among all categories, including other data sources.
+    // Resolve the manufacturer's display name from the directory name.
+    // Warn and use the directory name as-is if no display name is registered.
     const auto manufacturer = QString::fromStdString(directory.filename());
-    const auto category_name = manufacturer_names.value(manufacturer, manufacturer);
+    QString category_name;
+    if (const auto it = manufacturer_names.find(manufacturer); it != manufacturer_names.end()) {
+      category_name = it.value();
+    }
+    else {
+      qWarning() << "No display name is defined for propeller manufacturer" << manufacturer;
+      category_name = manufacturer;
+    }
+
+    // Find the alphabetical position among all categories, including other data sources.
     int category_idx = 0;
     while (category_idx < category_name_->count() &&
            QString::compare(category_name_->itemText(category_idx), category_name, Qt::CaseInsensitive) < 0) {
