@@ -19,7 +19,7 @@ namespace ctrl
 SpeedmeterWidget::SpeedmeterWidget()
 {
   // Set the size policy and resize mode; otherwise the widget collapses.
-  setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
   setResizeMode(QQuickWidget::SizeRootObjectToView);
 
   // Load QML.
@@ -90,11 +90,13 @@ void SpeedmeterWidget::setValue(double value)
 void SpeedmeterWidget::setTopText(const QString& text)
 {
   QMetaObject::invokeMethod(rootObject(), "setTopText", Q_ARG(QString, text));
+  setToolTip(text + '\n' + getBottomText());
 }
 
 void SpeedmeterWidget::setBottomText(const QString& text)
 {
   QMetaObject::invokeMethod(rootObject(), "setBottomText", Q_ARG(QString, text));
+  setToolTip(getTopText() + '\n' + text);
 }
 
 QObject* SpeedmeterWidget::getRectangleObject() const

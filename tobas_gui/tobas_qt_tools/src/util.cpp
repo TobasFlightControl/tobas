@@ -9,6 +9,11 @@ namespace tobas
 {
 namespace qt
 {
+QGroupBox* makeGroup(QWidget* widget, const QString& title, int margin)
+{
+  return makeGroup(title, widget, margin);
+}
+
 void blockSignalsRec(QObject* obj, bool block)
 {
   obj->blockSignals(block);
@@ -20,6 +25,7 @@ void blockSignalsRec(QObject* obj, bool block)
 void addWidgetCenter(QWidget* widget, QVBoxLayout* rows, int stretch)
 {
   const auto cols = new QHBoxLayout();
+  cols->setContentsMargins(0, 0, 0, 0);
   cols->addWidget(widget);
   cols->setAlignment(widget, Qt::AlignHCenter);
   rows->addLayout(cols, stretch);
@@ -28,6 +34,7 @@ void addWidgetCenter(QWidget* widget, QVBoxLayout* rows, int stretch)
 void addWidgetCenter(QWidget* widget, QHBoxLayout* cols, int stretch)
 {
   const auto rows = new QVBoxLayout();
+  rows->setContentsMargins(0, 0, 0, 0);
   rows->addWidget(widget);
   rows->setAlignment(widget, Qt::AlignVCenter);
   cols->addLayout(rows, stretch);
@@ -102,8 +109,13 @@ void clearLayout(QLayout* layout)
 
 QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* parent)
 {
+  return createScrollableQVBoxLayout(parent, 0);
+}
+
+QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* parent, int stretch)
+{
   const auto scroll_area = new ScrollArea();
-  parent->addWidget(scroll_area);
+  parent->addWidget(scroll_area, stretch);
 
   const auto rows = new QVBoxLayout();
   scroll_area->setLayout(rows);

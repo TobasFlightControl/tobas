@@ -15,7 +15,6 @@
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 
-#include "tobas_flight_log_gui/constants.hpp"
 #include "tobas_flight_log_gui/logs_gcs/exporter/export_thread_csv.hpp"
 #include "tobas_flight_log_gui/logs_gcs/exporter/export_thread_rosbag.hpp"
 #include "tobas_flight_log_gui/logs_gcs/log_item.hpp"
@@ -34,8 +33,8 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS(rclcpp::Node::SharedPtr node)
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
 
-  read_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  clean_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  read_button_->setFixedWidth(80);
+  clean_button_->setFixedWidth(80);
 
   read_button_->setEnabled(true);
   clean_button_->setEnabled(false);
@@ -45,12 +44,13 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS(rclcpp::Node::SharedPtr node)
 
   // Layout
   const auto cols = new QHBoxLayout();
-  cols->addWidget(new qt::Label("Ground Station", kPSize1, QFont::Bold));
+  cols->addWidget(new qt::Label("Ground Station", 12, QFont::Bold));
   cols->addStretch();
   cols->addWidget(read_button_);
   cols->addWidget(clean_button_);
 
   const auto rows = new QVBoxLayout();
+  rows->setContentsMargins(0, 0, 0, 0);
   rows->addLayout(cols);
   rows->addWidget(log_list_);
 
@@ -70,6 +70,19 @@ void FlightLogsWidgetGCS::addLog(const QString& log_name)
   log_list_->addItem(list_item);
 
   const auto widget = new FlightLogItemWidgetGCS(log_name);
+  connect(
+    widget,
+    &FlightLogItemWidgetGCS::showButtonClicked,
+    this,
+    [this, list_item, log_name]()
+    {
+      if (log_list_->currentItem() == list_item) {
+        Q_EMIT logSelected(log_name);
+      }
+      else {
+        log_list_->setCurrentItem(list_item);
+      }
+    });
   connect(widget, &FlightLogItemWidgetGCS::exportButtonClicked, this, &self::onExportButtonClicked);
   connect(widget, &FlightLogItemWidgetGCS::deleteButtonClicked, this, &self::onDeleteButtonClicked);
   log_list_->setItemWidget(list_item, widget);

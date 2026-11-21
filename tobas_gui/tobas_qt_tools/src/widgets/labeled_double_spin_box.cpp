@@ -12,15 +12,14 @@ namespace qt
 {
 LabeledDoubleSpinBox::LabeledDoubleSpinBox(const QString& label_text)
 {
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
-
-  const auto label = new QLabel(label_text + ":");
-  cols->addWidget(label);
-
   data_ = new qt::DoubleSpinBox();
   data_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+  const auto cols = new QHBoxLayout();
+  cols->setContentsMargins(0, 0, 0, 0);
+  cols->addWidget(new QLabel(label_text + ":"));
   cols->addWidget(data_);
+  setLayout(cols);
 
   connect(data_, qOverload<double>(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
 }

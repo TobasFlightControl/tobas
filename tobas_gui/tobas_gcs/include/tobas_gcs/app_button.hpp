@@ -18,8 +18,8 @@ class AppButton : public QToolButton
   using self = AppButton;
   using super = QToolButton;
 
-  static constexpr int kIconHeight = 40;
-  static constexpr int kButtonWidth = 120;
+  static constexpr int kIconHeight = 32;
+  static constexpr int kButtonWidth = 112;
 
 public:
   explicit AppButton(const QString& text, const QString& icon_path);

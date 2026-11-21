@@ -31,29 +31,30 @@ ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const Ros
 
   // Layout
   const auto cols3 = new QHBoxLayout();
-  cols3->addWidget(qt::makeGroup("Power", power_source_viewer_), 1);
-  cols3->addWidget(qt::makeGroup("CPU", cpu_viewer_), 1);
-  cols3->addWidget(qt::makeGroup("GNSS", gnss_viewer_), 0);
+  cols3->addWidget(qt::makeGroup(power_source_viewer_), 1);
+  cols3->addWidget(qt::makeGroup(cpu_viewer_), 1);
+  cols3->addWidget(qt::makeGroup(gnss_viewer_), 0);
 
   const auto rows2 = new QVBoxLayout();
   rows2->addLayout(cols3, 0);
-  rows2->addWidget(qt::makeGroup("RC Input", rcin_viewer_), 2);
-  rows2->addWidget(qt::makeGroup("Rotors", rotors_viewer_), 2);
-  rows2->addWidget(qt::makeGroup("Console", console_), 3);
+  rows2->addWidget(qt::makeGroup(rcin_viewer_), 2);
+  rows2->addWidget(qt::makeGroup(rotors_viewer_), 2);
+  rows2->addWidget(console_, 3);
 
   const auto cols2 = new QHBoxLayout();
-  cols2->addLayout(rows2, 3);
-  cols2->addWidget(qt::makeGroup("Vehicle Health", health_viewer_), 1);
+  cols2->addLayout(rows2, 1);
+  cols2->addWidget(health_viewer_, 0);
 
   const auto rows1 = new QVBoxLayout();
-  rows1->addWidget(qt::makeGroup("Pose", pose_viewer_), 2);
-  rows1->addLayout(cols2, 3);
+  rows1->addWidget(pose_viewer_, 5);
+  rows1->addLayout(cols2, 8);
 
   const auto cols1 = new QHBoxLayout();
-  cols1->addLayout(rows1, 2);
-  cols1->addWidget(qt::makeGroup("Mission Planner", mission_planner_), 3);
+  cols1->addLayout(rows1, 5);
+  cols1->addWidget(mission_planner_, 8);
 
   const auto rows0 = new QVBoxLayout();
+  rows0->setContentsMargins(0, 0, 0, 0);
   rows0->addWidget(arm_state_banner_, 0);
   rows0->addLayout(cols1, 1);
   setLayout(rows0);

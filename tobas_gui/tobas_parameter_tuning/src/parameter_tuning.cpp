@@ -44,6 +44,7 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
 
   // Layout
   const auto root_rows = new QVBoxLayout();
+  root_rows->setContentsMargins(0, 0, 0, 0);
   setLayout(root_rows);
 
   const auto button_cols = new QHBoxLayout();

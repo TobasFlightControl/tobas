@@ -81,10 +81,10 @@ private:
   double min_trail_opacity_ = M_PI;
   double trail_fade_perc_ = 80.0;
   double revolutions_per_sec_ = M_PI_2;
+  int line_length_ = 12;   // [px]
+  int line_width_ = 2;     // [px]
+  int inner_radius_ = 12;  // [px]
   int num_lines_ = 20;
-  int line_length_ = 10;
-  int line_width_ = 2;
-  int inner_radius_ = 10;
   int cur_counter_ = 0;
   bool is_spinning_ = false;
 

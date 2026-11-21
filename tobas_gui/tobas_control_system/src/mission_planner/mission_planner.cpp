@@ -18,6 +18,7 @@
 #include <tobas_path_tools/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>
 #include <tobas_qt_tools/util.hpp>
@@ -40,6 +41,13 @@ namespace gui
 {
 namespace ctrl
 {
+void MissionPlannerWidget::updateCommandHeader(int index)
+{
+  const auto current = qobject_cast<BaseCommandWidget*>(commands_->widget(index));
+  command_title_->setText(current ? current->name() : "");
+  delete_command_button_->setEnabled(current != nullptr);
+}
+
 namespace
 {
 using MapSplinePath = traj::CatmullRomPath<Eigen::Vector2d>;
@@ -86,6 +94,11 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const R
   command_list_->setDragDropMode(QListWidget::InternalMove);
 
   commands_ = new qt::StackedWidget();
+  command_panel_ = new QWidget();
+  command_title_ = new QLabel();
+  command_title_->setFont(qt::DefaultFont(cmn::kLabelPSize, QFont::Bold));
+  delete_command_button_ = new QPushButton("Delete");
+  delete_command_button_->setEnabled(false);
 
   reset();
 
@@ -101,18 +114,43 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node, const R
   button_cols->addWidget(cancel_button_, 1);
   button_cols->addWidget(focus_button_, 1);
 
+  const auto command_header = new QHBoxLayout();
+  command_header->addWidget(command_title_);
+  command_header->addStretch(1);
+  command_header->addWidget(delete_command_button_);
+  const auto command_rows = new QVBoxLayout(command_panel_);
+  command_rows->setContentsMargins(-1, 0, -1, 0);
+  command_rows->addLayout(command_header);
+  command_rows->addWidget(commands_, 1);
+
   const auto mission_cols = new QHBoxLayout();
-  mission_cols->addWidget(qt::makeGroup("Commands", command_list_), 1);
-  mission_cols->addWidget(qt::makeGroup("Command Details", commands_), 3);
+  mission_cols->addWidget(command_list_, 1);
+  mission_cols->addWidget(qt::makeGroup(command_panel_), 3);
+
+  const auto plan_rows = new QVBoxLayout();
+  plan_rows->setContentsMargins(0, 0, 0, 0);
+  plan_rows->addLayout(button_cols, 0);
+  plan_rows->addLayout(mission_cols, 1);
 
   const auto rows = new QVBoxLayout();
-  rows->addWidget(map_, 2);
-  rows->addLayout(button_cols, 0);
-  rows->addLayout(mission_cols, 1);
+  rows->setContentsMargins(0, 0, 0, 0);
+  rows->addWidget(map_, 8);
+  rows->addLayout(plan_rows, 5);
 
   setLayout(rows);
 
   // Connection
+  connect(commands_, &QStackedWidget::currentChanged, this, &self::updateCommandHeader);
+  connect(
+    delete_command_button_,
+    &QPushButton::clicked,
+    this,
+    [this]()
+    {
+      if (const auto current = qobject_cast<BaseCommandWidget*>(commands_->currentWidget())) {
+        Q_EMIT current->deleteButtonClicked();
+      }
+    });
   connect(map_, &MapWidget::waypointMoved, this, &self::onWaypointMoved);
   connect(load_button_, &CommandButton::clicked, this, &self::onLoadButtonClicked);
   connect(save_button_, &CommandButton::clicked, this, &self::onSaveButtonClicked);
@@ -187,6 +225,9 @@ void MissionPlannerWidget::clearMission()
 
 void MissionPlannerWidget::addCommand(mission::Type type, BaseCommandWidget* widget)
 {
+  widget->label_->hide();
+  widget->delete_button_->hide();
+  widget->layout()->setContentsMargins(0, 0, 0, 0);
   const auto item = new QListWidgetItem(commandToText(type));
   command_list_->addItem(item);
 
@@ -207,7 +248,7 @@ void MissionPlannerWidget::setExecuteMode()
   cancel_button_->setEnabled(true);
 
   command_list_->setDragDropMode(QListWidget::NoDragDrop);
-  commands_->setEnabled(false);
+  command_panel_->setEnabled(false);
 }
 
 void MissionPlannerWidget::setEditMode()
@@ -220,7 +261,7 @@ void MissionPlannerWidget::setEditMode()
   cancel_button_->setEnabled(false);
 
   command_list_->setDragDropMode(QListWidget::InternalMove);
-  commands_->setEnabled(true);
+  command_panel_->setEnabled(true);
 }
 
 void MissionPlannerWidget::listToCommands()

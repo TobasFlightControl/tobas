@@ -5,8 +5,13 @@
 
 #include <ranges>
 
+#include <QComboBox>
 #include <QDebug>
 #include <QGridLayout>
+#include <QHBoxLayout>
+#include <QStyle>
+#include <QTabBar>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 #include <tobas_constants/path.hpp>
@@ -24,6 +29,24 @@ namespace gui
 {
 namespace log
 {
+void FlightLogViewerWidget::setExpandedPanel(QWidget* panel)
+{
+  for (size_t i = 0; i < plot_panels_.size(); ++i) {
+    const auto current = plot_panels_[i];
+    plot_grid_->removeWidget(current);
+    if (current == panel) {
+      plot_grid_->addWidget(current, 0, 0, 5, 3);
+    }
+    else {
+      plot_grid_->addWidget(current, 2 * (i % 3), 2 * (i / 3));
+    }
+    current->setVisible(!panel || current == panel);
+  }
+  for (const auto separator : plot_separators_) {
+    separator->setVisible(!panel);
+  }
+}
+
 FlightLogViewerWidget::FlightLogViewerWidget()
 {
   const auto odom = addData<tobas_msgs::msg::OdometryWithCovarianceStamped>(topic::kOdometry);
@@ -55,8 +78,11 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  const auto grid = new QGridLayout();
-  rows->addLayout(grid);
+  rows->setContentsMargins(0, 0, 0, 0);
+  plot_grid_ = new QGridLayout();
+  plot_grid_->setContentsMargins(0, 0, 0, 0);
+  plot_grid_->setSpacing(4);
+  rows->addLayout(plot_grid_, 1);
 
   for (const auto& [idx, plot_tab] : std::views::enumerate(plot_tabs_)) {
     plot_tab = new PlotTabWidget(
@@ -88,11 +114,70 @@ FlightLogViewerWidget::FlightLogViewerWidget()
 
     plot_tab->setCurrentIndex(idx);
 
-    const auto row = idx % 3;
-    const auto col = idx / 3;
-    grid->addWidget(plot_tab, row, col, 1, 1);
-    grid->setRowStretch(row, 1);
-    grid->setColumnStretch(col, 1);
+    const auto panel = new QWidget();
+    plot_panels_[idx] = panel;
+    const auto selector = new QComboBox();
+    selector->setObjectName("plotSelector");
+    selector->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    selector->setMinimumContentsLength(1);
+    for (int i = 0; i < plot_tab->count(); ++i) {
+      auto name = plot_tab->tabText(i);
+      name.replace('\n', ' ');
+      selector->addItem(name);
+      const auto plot_layout = plot_tab->widget(i)->layout();
+      plot_layout->setContentsMargins(0, 0, 0, 0);
+      plot_layout->setSpacing(0);
+    }
+    selector->setCurrentIndex(idx);
+    plot_tab->findChild<QTabBar*>()->hide();
+    plot_tab->setDocumentMode(true);
+    connect(selector, qOverload<int>(&QComboBox::currentIndexChanged), plot_tab, &QTabWidget::setCurrentIndex);
+    connect(plot_tab, &QTabWidget::currentChanged, selector, &QComboBox::setCurrentIndex);
+
+    const auto expand = new QToolButton();
+    expand->setObjectName("expandPlotButton");
+    expand->setCheckable(true);
+    expand->setIcon(style()->standardIcon(QStyle::SP_TitleBarMaxButton));
+    expand->setToolTip("Expand plot");
+    connect(
+      expand,
+      &QToolButton::toggled,
+      this,
+      [this, panel, expand](bool expanded)
+      {
+        expand->setIcon(
+          style()->standardIcon(expanded ? QStyle::SP_TitleBarNormalButton : QStyle::SP_TitleBarMaxButton));
+        expand->setToolTip(expanded ? "Restore layout" : "Expand plot");
+        setExpandedPanel(expanded ? panel : nullptr);
+      });
+    const auto header = new QHBoxLayout();
+    header->setContentsMargins(0, 0, 0, 0);
+    header->addWidget(selector, 1);
+    header->addWidget(expand, 0);
+    const auto panel_rows = new QVBoxLayout(panel);
+    panel_rows->setContentsMargins(0, 0, 0, 0);
+    panel_rows->setSpacing(4);
+    panel_rows->addLayout(header, 0);
+    panel_rows->addWidget(plot_tab, 1);
+
+    const auto row = 2 * (idx % 3);
+    const auto col = 2 * (idx / 3);
+    plot_grid_->addWidget(panel, row, col);
+    plot_grid_->setRowStretch(row, 1);
+    plot_grid_->setColumnStretch(col, 1);
+  }
+
+  for (size_t i = 0; i < plot_separators_.size(); ++i) {
+    const auto separator = new QFrame();
+    plot_separators_[i] = separator;
+    separator->setFrameShadow(QFrame::Sunken);
+    separator->setFrameShape(i == 0 ? QFrame::VLine : QFrame::HLine);
+    if (i == 0) {
+      plot_grid_->addWidget(separator, 0, 1, 5, 1);
+    }
+    else {
+      plot_grid_->addWidget(separator, 2 * i - 1, 0, 1, 3);
+    }
   }
 
   playback_ctrl_ = new PlaybackControlWidget();

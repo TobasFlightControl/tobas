@@ -9,6 +9,7 @@
 #include <QColorDialog>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QTabBar>
 #include <rclcpp/rclcpp.hpp>
 
 #include <tobas_ros2_tools/util.hpp>
@@ -41,6 +42,11 @@ UpdateLinkDialog::UpdateLinkDialog(rclcpp::Node::SharedPtr node, UrdfBuilderPane
   , link_vm_(new view_model::LinkViewModel())
 {
   ui_->setupUi(this);
+
+  // Keep all five tabs at a fixed width regardless of the dock width.
+  const auto tab_bar = ui_->TabWidget->tabBar();
+  tab_bar->setExpanding(false);
+  tab_bar->setStyleSheet("QTabBar::tab { width: 96px; }");
 
   // Hide unnecessary items.
   ui_->JointSafetyGroupBox->hide();

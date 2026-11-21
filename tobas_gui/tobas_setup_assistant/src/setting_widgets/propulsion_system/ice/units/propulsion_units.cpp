@@ -3,6 +3,10 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/propulsion_units.hpp"
 
+#include <algorithm>
+
+#include <QFontMetrics>
+
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/stream.hpp>
@@ -27,10 +31,13 @@ PropulsionUnitsWidget::PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const
 void PropulsionUnitsWidget::updateInternalDataStructures()
 {
   removeAllTabs();
+  const auto metrics = tabBar()->fontMetrics();
+  int max_text_width = 0;
 
   for (const auto& [joint_name, _] : uadf_.thrusts) {
     // Get propeller link names.
     const auto link_name = QString::fromStdString(uadf_.urdf->getJoint(joint_name)->child_link_name);
+    max_text_width = std::max(max_text_width, metrics.horizontalAdvance(link_name));
 
     // Add the tab.
     const auto link_widget = new PropulsionUnitWidget(node_);
@@ -43,6 +50,8 @@ void PropulsionUnitsWidget::updateInternalDataStructures()
       this,
       std::bind(&self::onCopyToAllButtonClicked, this, link_name));
   }
+  const auto tab_width = max_text_width + 32;
+  setTabWidth((tab_width + 7) / 8 * 8);
 }
 
 bool PropulsionUnitsWidget::isValid()

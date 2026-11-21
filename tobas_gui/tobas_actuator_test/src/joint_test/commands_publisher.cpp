@@ -106,6 +106,8 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
     commanders_[jnt_name] = commander;
   }
 
+  rows_->addStretch(1);
+
   // Update topics.
   const auto ns = '/' + drone_.name;
   const auto pos_topic = path::join(ns, kRemoteIfaceNS, topic::kJointPosCmd);

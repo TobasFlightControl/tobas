@@ -20,6 +20,7 @@ namespace sa
 {
 class BaseSettingWidget : public qt::ScrollArea
 {
+  friend class SettingsWidget;
   Q_OBJECT
 
   using self = BaseSettingWidget;

@@ -6,24 +6,16 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include "tobas_qt_tools/font.hpp"
-
-#define TEXT_PSIZE 9
-
 namespace tobas
 {
 namespace qt
 {
 IntSliderDisplay::IntSliderDisplay(QWidget* parent) : super(parent)
 {
-  const DefaultFont font(TEXT_PSIZE, QFont::Bold);
-
   text_ = new QLabel();
-  text_->setFont(font);
 
   value_ = new QLineEdit();
   value_->setAlignment(Qt::AlignRight);
-  value_->setFont(font);
   value_->setReadOnly(true);
   value_->setFocusPolicy(Qt::NoFocus);
 
@@ -121,14 +113,10 @@ void IntSliderDisplay::onSliderValueChanged(int value)
 
 DoubleSliderDisplay::DoubleSliderDisplay(QWidget* parent) : super(parent)
 {
-  const DefaultFont font(TEXT_PSIZE, QFont::Bold);
-
   text_ = new QLabel();
-  text_->setFont(font);
 
   value_ = new QLineEdit();
   value_->setAlignment(Qt::AlignRight);
-  value_->setFont(font);
   value_->setReadOnly(true);
   value_->setFocusPolicy(Qt::NoFocus);
 

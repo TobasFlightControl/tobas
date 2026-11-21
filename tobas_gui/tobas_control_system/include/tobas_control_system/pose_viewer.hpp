@@ -24,19 +24,19 @@ class PoseViewerWidget : public qt::Widget
   static constexpr int kLineWidth = 3;       // Gauge line width.
   static constexpr int kScaleInterval = 10;  // [deg]
   static constexpr int kRollRadius = 200;    // Roll circle radius.
-  static constexpr int kRollTickLength = 10;
+  static constexpr int kRollTickLength = 12;
   static constexpr double kPitchAngleOfView = st::deg2rad(120);  // [rad] Approximately the human field of view.
   static constexpr int kPitchVisualRange = 25;                   // [deg] Pitch angle range to draw.
   static constexpr int kPitchLineLength = 100;
   static constexpr double kYawAngleOfView = st::deg2rad(120);  // [rad]
   static constexpr int kYawLineY = 60;
-  static constexpr int kYawTickLength = 10;
+  static constexpr int kYawTickLength = 12;
   static constexpr int kAltitudeVisualRange = 25;   // [m]
   static constexpr int kAltitudeScaleInterval = 5;  // [m]
   static constexpr int kAltitudeTickLength = 12;
   static constexpr int kAltitudeTickX = 40;
   static constexpr int kAltitudeTextY = kYawLineY + 40;
-  static constexpr int kAltitudeTickMaxY = kAltitudeTextY + 10;
+  static constexpr int kAltitudeTickMaxY = kAltitudeTextY + 12;
 
 public:
   explicit PoseViewerWidget(const RosQtBridge& bridge);

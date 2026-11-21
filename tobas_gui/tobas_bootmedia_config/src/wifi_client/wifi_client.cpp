@@ -5,6 +5,7 @@
 
 #include <QDebug>
 #include <QEvent>
+#include <QHeaderView>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -40,7 +41,7 @@ WifiClientWidget::WifiClientWidget()
 
   table_ = new qt::TableWidget(0, kNumCols);
   table_->setHorizontalHeaderLabels({ "AKM", "SSID", "PSK", "Priority", "Hidden" });
-  table_->setColumnsWidth(kColWidth);
+  table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
   table_->setEditTriggers(QAbstractItemView::NoEditTriggers);    // Disable editing.
   table_->setSelectionBehavior(QAbstractItemView::SelectRows);   // Select by row.
   table_->setSelectionMode(QAbstractItemView::SingleSelection);  // Select only one row.

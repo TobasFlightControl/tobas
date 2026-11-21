@@ -33,7 +33,6 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
 
   setCurrentIndex(0);  // Default
 
-  addSpacing(50);
   addWidget(propulsion_stack_);
 
   connect(type_btn_group_, &QButtonGroup::idClicked, this, &self::onPropulsionTypeClicked);

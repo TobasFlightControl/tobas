@@ -18,6 +18,7 @@ namespace qt
 IPv4Edit::IPv4Edit(QWidget* parent) : super(parent)
 {
   const auto cols = new QHBoxLayout();
+  cols->setContentsMargins(0, 0, 0, 0);
   setLayout(cols);
 
   for (int i = kNumFields - 1; i >= 0; --i) {

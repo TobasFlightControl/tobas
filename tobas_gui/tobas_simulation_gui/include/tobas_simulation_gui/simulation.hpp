@@ -36,7 +36,7 @@ class SimulationWidget : public QWidget
   using self = SimulationWidget;
   using super = QWidget;
 
-  static constexpr int kButtonWidth = 100;
+  static constexpr int kButtonWidth = 120;
   static constexpr int kButtonHeight = 40;
 
   static constexpr auto kWaitForServerTimeout = std::chrono::seconds(3);

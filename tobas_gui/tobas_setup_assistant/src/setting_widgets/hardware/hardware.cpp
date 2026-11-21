@@ -3,6 +3,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/hardware/hardware.hpp"
 
+#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
@@ -41,22 +42,18 @@ HardwareWidget::HardwareWidget(const uadf::Model& uadf, const Signals& sig)
   setCurrentHardware(0);
 
   // Layout
-  const auto pwm_rows = new QVBoxLayout();
-  pwm_rows->addWidget(new qt::Label(kPwmLabel, cmn::kLabelPSize, QFont::Bold));
-  pwm_rows->addWidget(pwm_);
-
-  const auto dshot_rows = new QVBoxLayout();
-  dshot_rows->addWidget(new qt::Label(kDShotLabel, cmn::kLabelPSize, QFont::Bold));
-  dshot_rows->addWidget(dshot_);
-
-  const auto rcout_cols = new QHBoxLayout();
-  rcout_cols->addLayout(pwm_rows, 1);
-  rcout_cols->addLayout(dshot_rows, 1);
-
+  const auto grid = new QGridLayout();
+  grid->setRowStretch(1, 1);
+  grid->setColumnStretch(0, 1);
+  grid->setColumnStretch(1, 1);
+  grid->addWidget(new qt::Label(kPwmLabel, cmn::kLabelPSize, QFont::Bold), 0, 0);
+  grid->addWidget(new qt::Label(kDShotLabel, cmn::kLabelPSize, QFont::Bold), 0, 1);
+  grid->addWidget(pwm_, 1, 0);
+  grid->addWidget(dshot_, 1, 1);
   addWidget(type_);
-  addSpacing(50);
+  addSpacing(16);
   addWidget(hardwares_, 0);
-  addLayout(rcout_cols, 1);
+  addLayout(grid, 1);
 
   // Connection
   connect(type_, qOverload<int>(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentHardware);

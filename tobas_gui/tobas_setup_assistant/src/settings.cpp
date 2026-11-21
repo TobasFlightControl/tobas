@@ -4,6 +4,10 @@
 #include "tobas_setup_assistant/settings.hpp"
 
 #include <QHBoxLayout>
+#include <QVBoxLayout>
+
+#include <tobas_gui_common/constants.hpp>
+#include <tobas_qt_tools/font.hpp>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -15,11 +19,29 @@ namespace gui
 {
 namespace sa
 {
+void SettingsWidget::updateHeader(int idx)
+{
+  if (idx < 0) {
+    title_->clear();
+    description_->clear();
+    return;
+  }
+  const auto page = qt::qPointerCast<BaseSettingWidget>(stack_->widget(idx));
+  title_->setText(page->title());
+  description_->setText(page->description());
+  title_->setEnabled(page->isEnabled());
+  description_->setEnabled(page->isEnabled());
+}
+
 SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf, const kdl::Tree& tree, Signals& sig)
   : uadf_(uadf)
 {
   toolbox_ = new QToolBox();
+  title_ = new QLabel();
+  title_->setFont(qt::DefaultFont(cmn::kTitlePSize, QFont::Bold));
+  description_ = new qt::DescriptionWidget();
   stack_ = new qt::StackedWidget();
+  connect(stack_, &QStackedWidget::currentChanged, this, &self::updateHeader);
 
   // Pages
   propulsion_system = new propulsion::PropulsionSystemWidget(node, uadf, sig);
@@ -67,8 +89,15 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   // Layout
   const auto cols = new QHBoxLayout();
   setLayout(cols);
+  cols->setContentsMargins(0, 0, 0, 0);
   cols->addWidget(toolbox_, 0);
-  cols->addWidget(stack_, 1);
+  cols->addSpacing(16);
+  const auto rows = new QVBoxLayout();
+  rows->addWidget(title_, 0);
+  rows->addWidget(description_, 0);
+  rows->addSpacing(16);
+  rows->addWidget(stack_, 1);
+  cols->addLayout(rows, 1);
 }
 
 void SettingsWidget::updateInternalDataStructures()
@@ -185,9 +214,17 @@ int SettingsWidget::getIndex(BaseSettingWidget* page) const
 
 void SettingsWidget::addEntry(QListWidget* list, BaseSettingWidget* page)
 {
+  page->title_->hide();
+  page->description_->hide();
+  const auto content_layout = page->widget()->layout();
+  content_layout->setContentsMargins(0, 0, 0, 0);
+  content_layout->itemAt(1)->spacerItem()->changeSize(0, 0, QSizePolicy::Minimum, QSizePolicy::Minimum);
+  page->setFrameShape(QFrame::NoFrame);
+
   const auto idx = stack_->addWidget(page);
   const auto item = new QListWidgetItem(page->name(), list);
   item->setData(Qt::UserRole, idx);
+  item->setSizeHint(QSize(0, 40));
 }
 
 void SettingsWidget::setCurrentPage(int idx)
@@ -211,6 +248,9 @@ void SettingsWidget::setPageEnabled(int idx, bool enabled)
 {
   const auto page = stack_->widget(idx);
   page->setEnabled(enabled);
+  if (idx == stack_->currentIndex()) {
+    updateHeader(idx);
+  }
 
   if (idx < basic_list_->count()) {
     const auto item = basic_list_->item(idx);

@@ -15,6 +15,9 @@ namespace ctrl
 RotorsViewerWiddget::RotorsViewerWiddget(const RosQtBridge& bridge, const Drone& drone) : drone_(drone)
 {
   cols_ = new QHBoxLayout();
+  cols_->setContentsMargins(2, 0, 2, 0);
+  cols_->setSpacing(0);
+  cols_->setSizeConstraint(QLayout::SetNoConstraint);
   setLayout(cols_);
 
   connect(&bridge, &RosQtBridge::rotorStatesReceived, this, &self::rotorStatesCb, Qt::QueuedConnection);
@@ -40,7 +43,7 @@ void RotorsViewerWiddget::updateInternalDataStructures()
     meter->setTopText(QString::fromStdString(link_name));
 
     meters_[link_name] = meter;
-    cols_->addWidget(meter);
+    cols_->addWidget(meter, 1);
   }
 
   reset();

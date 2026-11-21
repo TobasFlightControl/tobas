@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <QEvent>
+
 #include <urdf/model.h>
 #include <QTimer>
 #include <QTreeWidgetItem>
@@ -51,6 +53,9 @@ public:
 
   QStringList linkNames() const;
   QStringList jointNames() const;
+
+protected:
+  bool eventFilter(QObject* watched, QEvent* event) override;
 
 private Q_SLOTS:
   void onRobotNameTextChanged(const QString& name);

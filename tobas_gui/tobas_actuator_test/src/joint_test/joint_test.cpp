@@ -23,10 +23,10 @@ JointTestWidget::JointTestWidget(
   : node_(node), tree_(tree), drone_(drone)
 {
   const auto instruction = new qt::DescriptionWidget(
-    "1. Click \"Start\" to start joint test.\n\n"
-    "2. For each channel, confirm that the position, velocity, or effort is correctly following the command.\n\n"
-    "3. If any joint does not behave as expected, please review the UADF or Setup Assistant settings.\n\n"
-    "4. Click \"Stop\" to stop joint test.\n\n",
+    "1. Click \"Start\" to start joint test.\n"
+    "2. For each channel, confirm that the position, velocity, or effort is correctly following the command.\n"
+    "3. If any joint does not behave as expected, please review the UADF or Setup Assistant settings.\n"
+    "4. Click \"Stop\" to stop joint test.\n",
     cmn::kBodyPSize);
 
   start_button_ = new QPushButton("Start");
@@ -58,7 +58,6 @@ JointTestWidget::JointTestWidget(
   rows_->addWidget(instruction);
   rows_->addLayout(cols);
   rows_->addWidget(commands_publisher_);
-  rows_->addStretch();
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);

@@ -45,6 +45,7 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node, const RosQtBrid
   qt::addWidgetCenter(start_stop_button_, config_rows);
 
   const auto cols = new QHBoxLayout();
+  cols->setContentsMargins(0, 0, 0, 0);
   cols->addLayout(config_rows, 1);
   cols->addWidget(dynamic_config_, 1);
   cols->addWidget(commanders_, 1);

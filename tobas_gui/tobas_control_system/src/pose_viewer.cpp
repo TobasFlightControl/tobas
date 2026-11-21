@@ -209,7 +209,7 @@ void PoseViewerWidget::drawRoll(QPainter& painter)
     painter.drawLine(0, -kRollRadius, 0, -outer_radius);
 
     // Draw numbers.
-    painter.drawText(-10, -text_radius, std::format("{}°", math::wrap(deg, 180)).c_str());
+    painter.drawText(-12, -text_radius, std::format("{}°", math::wrap(deg, 180)).c_str());
 
     // Advance by the tick interval.
     painter.rotate(kScaleInterval);
@@ -247,8 +247,8 @@ void PoseViewerWidget::drawPitch(QPainter& painter)
 
   // Draw each value.
   const auto line_half = kPitchLineLength / 2;
-  const auto text_x = -line_half - 30;
-  const auto text_y = 5;
+  const auto text_x = -line_half - 32;
+  const auto text_y = 4;
   const auto y_interval = pitchToHeight(st::deg2rad(kScaleInterval));
   painter.setPen(QPen(Qt::white, kLineWidth));
   for (int deg = pitch_min; deg <= pitch_max; deg += kScaleInterval) {
@@ -298,7 +298,7 @@ void PoseViewerWidget::drawYaw(QPainter& painter)
   painter.translate(yawToWidth(st::deg2rad(yaw_deg - yaw_min)), 0);
 
   // Draw each value.
-  const auto text_x = -10;
+  const auto text_x = -12;
   const auto text_y = -kYawTickLength - 20;
   const auto x_interval = yawToWidth(st::deg2rad(kScaleInterval));
   for (int deg = yaw_min; deg <= yaw_max; deg += kScaleInterval) {
@@ -344,12 +344,12 @@ void PoseViewerWidget::drawRelativeAltitude(QPainter& painter)
     }
 
     painter.drawLine(x, y, x + kAltitudeTickLength, y);
-    painter.drawText(x + kAltitudeTickLength + 10, y + 5, std::format("{}m", alt).c_str());
+    painter.drawText(x + kAltitudeTickLength + 12, y + 4, std::format("{}m", alt).c_str());
   }
 
   painter.setPen(QPen(Qt::red, kLineWidth));
   painter.drawLine(x - kAltitudeTickLength, center_y, x + kAltitudeTickLength * 2, center_y);
-  painter.drawText(x + kAltitudeTickLength + 10, center_y - 12, std::format("{:.1f}m", alt_rel_).c_str());
+  painter.drawText(x + kAltitudeTickLength + 12, center_y - 12, std::format("{:.1f}m", alt_rel_).c_str());
 
   painter.restore();
 }
@@ -366,7 +366,7 @@ void PoseViewerWidget::drawMslAltitude(QPainter& painter)
   const auto x = kOriginalSize - kAltitudeTickX;
 
   painter.setPen(QPen(Qt::white, kLineWidth));
-  painter.drawText(x - 55, kAltitudeTextY, "MSL ALT");
+  painter.drawText(x - 56, kAltitudeTextY, "MSL ALT");
 
   if (alt_msl_valid_) {
     for (int alt = alt_min; alt <= alt_max; alt += kAltitudeScaleInterval) {
@@ -376,7 +376,7 @@ void PoseViewerWidget::drawMslAltitude(QPainter& painter)
       }
 
       painter.drawLine(x, y, x - kAltitudeTickLength, y);
-      painter.drawText(x - kAltitudeTickLength - 45, y + 5, std::format("{}m", alt).c_str());
+      painter.drawText(x - kAltitudeTickLength - 44, y + 4, std::format("{}m", alt).c_str());
     }
   }
 
@@ -384,7 +384,7 @@ void PoseViewerWidget::drawMslAltitude(QPainter& painter)
   painter.drawLine(x + kAltitudeTickLength, center_y, x - kAltitudeTickLength * 2, center_y);
 
   const QString text = alt_msl_valid_ ? std::format("{:.1f}m", alt_msl_).c_str() : "---m";
-  painter.drawText(x - kAltitudeTickLength - 45, center_y - 12, text);
+  painter.drawText(x - kAltitudeTickLength - 44, center_y - 12, text);
 
   painter.restore();
 }

@@ -31,6 +31,9 @@ void addSpacing(QHBoxLayout* cols, int width, QSizePolicy::Policy h_policy);
 /* Create a titled group box containing the widget. */
 QGroupBox* makeGroup(const QString& title, QWidget* widget, int margin = 0);
 
+/* Create a group box with an optional title. */
+QGroupBox* makeGroup(QWidget* widget, const QString& title = "", int margin = 0);
+
 /* Create a fixed-width `QVBoxLayout`. */
 QVBoxLayout* createFixedWidthQVBoxLayout(int width, QBoxLayout* parent);
 
@@ -42,5 +45,6 @@ void clearLayout(QLayout* layout);
 
 /* Create a `QVBoxLayout` with a `ScrollWidget` between them. */
 QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* parent);
+QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* parent, int stretch);
 }  // namespace qt
 }  // namespace tobas

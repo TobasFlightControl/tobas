@@ -11,7 +11,7 @@ namespace gui
 {
 namespace sim
 {
-static constexpr int kHeaderButtonWidth = 100;
+static constexpr int kHeaderButtonWidth = 120;
 static constexpr int kHeaderButtonHeight = 40;
 }  // namespace sim
 }  // namespace gui

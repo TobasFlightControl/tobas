@@ -3,6 +3,8 @@
 
 #include "tobas_control_system/console.hpp"
 
+#include <algorithm>
+
 #include <QDebug>
 #include <QHeaderView>
 #include <QScrollBar>
@@ -14,9 +16,29 @@ namespace gui
 {
 namespace ctrl
 {
+namespace
+{
+class ConsoleTable : public qt::TableWidget
+{
+public:
+  using qt::TableWidget::TableWidget;
+
+protected:
+  int sizeHintForColumn(int column) const override
+  {
+    const auto width = qt::TableWidget::sizeHintForColumn(column);
+    if (column != 1) {
+      return width;
+    }
+    const auto max_width = std::max(120, static_cast<int>(viewport()->width() * 0.2));
+    return std::min(width, max_width);
+  }
+};
+}  // namespace
+
 ConsoleWidget::ConsoleWidget(const RosQtBridge& bridge)
 {
-  table_ = new qt::TableWidget(0, kNumCols);
+  table_ = new ConsoleTable(0, kNumCols);
   table_->setHorizontalHeaderLabels({ "Stamp", "Name", "Level", "Message" });
   table_->setEditTriggers(QAbstractItemView::NoEditTriggers);  // Disable editing.
   table_->setSelectionMode(QAbstractItemView::NoSelection);    // Disable selection.
@@ -33,6 +55,7 @@ ConsoleWidget::ConsoleWidget(const RosQtBridge& bridge)
   ver_header->setVisible(false);
 
   const auto rows = new QVBoxLayout();
+  rows->setContentsMargins(0, 0, 0, 0);
   rows->addWidget(table_);
   setLayout(rows);
 
@@ -63,6 +86,7 @@ void ConsoleWidget::messageCb(const tobas_msgs::msg::Message::ConstSharedPtr& ms
 
   const auto name = QString::fromStdString(msg->name);
   const auto name_item = new QTableWidgetItem(name);
+  name_item->setToolTip(name);
   table_->setItem(0, kNameCol, name_item);
 
   const auto level_item = new QTableWidgetItem();

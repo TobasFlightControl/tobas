@@ -76,18 +76,18 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   pkg_cols->addWidget(proj_path_);
 
   const auto info_rows = new QVBoxLayout();
-  info_rows->addWidget(frame_tree_, 1);
-  info_rows->addWidget(properties_, 1);
+  info_rows->addWidget(frame_tree_, 8);
+  info_rows->addWidget(properties_, 5);
 
   const auto viewer_cols = new QHBoxLayout();
-  viewer_cols->addLayout(info_rows, 1);
-  viewer_cols->addWidget(rviz_, 2);
-  viewer_cols->addWidget(jsp_, 1);
+  viewer_cols->addLayout(info_rows, 0);
+  viewer_cols->addWidget(rviz_, 8);
+  viewer_cols->addWidget(jsp_, 5);
 
   const auto root_rows = new QVBoxLayout();
   root_rows->addLayout(pkg_cols, 0);
-  root_rows->addLayout(viewer_cols, 2);
-  root_rows->addWidget(settings_, 5);
+  root_rows->addLayout(viewer_cols, 5);
+  root_rows->addWidget(settings_, 8);
 
   setLayout(root_rows);
 

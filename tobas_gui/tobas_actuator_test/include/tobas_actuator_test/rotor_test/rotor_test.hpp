@@ -38,7 +38,7 @@ class RotorTestWidget : public BaseWidget
   using self = RotorTestWidget;
   using super = BaseWidget;
 
-  static constexpr int kButtonWidth = 100;
+  static constexpr int kButtonWidth = 120;
   static constexpr int kButtonHeight = 40;
   static constexpr int kUpdatePeriod = 10;  // [ms]
   static constexpr auto kWaitForService = std::chrono::seconds(3);

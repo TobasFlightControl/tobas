@@ -29,7 +29,7 @@ IpAddressWidget::IpAddressWidget()
 
   // Layout
   rows_->addWidget(tabs_);
-  rows_->addSpacing(30);
+  rows_->addSpacing(32);
   qt::addWidgetCenter(write_button_, rows_);
   rows_->addStretch();
 

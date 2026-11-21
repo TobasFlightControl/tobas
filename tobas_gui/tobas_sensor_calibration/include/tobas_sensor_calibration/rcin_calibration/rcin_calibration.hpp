@@ -40,9 +40,9 @@ class RCInputCalibrationWidget : public BaseWidget
   static constexpr char kOnText[] = "ON";
   static constexpr char kOffText[] = "OFF";
 
-  static constexpr int kButtonWidth = 100;
+  static constexpr int kButtonWidth = 120;
   static constexpr int kButtonHeight = 40;
-  static constexpr int kRangeSideShort = 50;
+  static constexpr int kRangeSideShort = 48;
 
 public:
   explicit RCInputCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);

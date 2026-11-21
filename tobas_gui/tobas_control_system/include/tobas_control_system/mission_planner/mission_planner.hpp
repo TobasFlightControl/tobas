@@ -74,6 +74,11 @@ private:
 
   qt::ListWidget* command_list_;
   qt::StackedWidget* commands_;
+  QWidget* command_panel_;
+  QLabel* command_title_;
+  QPushButton* delete_command_button_;
+
+  void updateCommandHeader(int index);
   std::set<std::pair<QListWidgetItem*, BaseCommandWidget*>> pairs_;
 
   qt::WaitSpinnerWidget spinner_;

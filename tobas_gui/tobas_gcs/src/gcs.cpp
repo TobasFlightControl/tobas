@@ -78,7 +78,6 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
 
   // Connection checker
   remote_conn_ = new RemoteConnectionWidget(bridge_);
-  remote_conn_->setMaximumHeight(sensor_calib_btn->height());
 
   // Package manager
   proj_path_ = new QLineEdit();
@@ -102,10 +101,13 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   pkg_btn_cols->addWidget(write_btn_);
 
   const auto pkg_rows = new QVBoxLayout();
+  pkg_rows->setContentsMargins(0, 0, 0, 0);
+  pkg_rows->setSpacing(4);
   pkg_rows->addWidget(proj_path_);
   pkg_rows->addLayout(pkg_btn_cols);
 
   const auto header_cols = new QHBoxLayout();
+  header_cols->setSpacing(0);
   header_cols->addWidget(sensor_calib_btn, 1);
   header_cols->addWidget(actuator_test_btn, 1);
   header_cols->addWidget(control_system_btn, 1);
@@ -115,13 +117,14 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   header_cols->addStretch();
   header_cols->addWidget(remote_conn_);
   header_cols->addLayout(pkg_rows);
-  qt::addSpacing(header_cols, 30, QSizePolicy::Preferred);  // Collapse this when there is not enough space.
+  qt::addSpacing(header_cols, 32, QSizePolicy::Preferred);  // Collapse this when there is not enough space.
   header_cols->addWidget(restart_btn_);
   header_cols->addWidget(shutdown_btn_);
 
   const auto rows = new QVBoxLayout();
-  rows->addLayout(header_cols);
-  rows->addWidget(app_sw);
+  rows->setContentsMargins(0, 0, 0, 0);
+  rows->addLayout(header_cols, 0);
+  rows->addWidget(app_sw, 1);
 
   setLayout(rows);
 

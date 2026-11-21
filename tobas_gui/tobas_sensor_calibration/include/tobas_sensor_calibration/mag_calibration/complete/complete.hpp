@@ -41,7 +41,7 @@ class CompleteMagCalibWidget : public BaseMagCalibWidget
   static constexpr char kEllipsoidTopic[] = "rviz/mag_calibration/ellipsoid";
   static constexpr int kMinDataSize = 500;
   static constexpr int kMaxDataSize = 10000;  // RViz limits the maximum to 100000.
-  static constexpr int kButtonWidth = 100;
+  static constexpr int kButtonWidth = 120;
   static constexpr int kButtonHeight = 40;
   static constexpr double kRvizPointScale = 10.0;
   static constexpr double kMinYawRate = M_PI / 30;     // [rad/s]

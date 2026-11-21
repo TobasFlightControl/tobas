@@ -18,8 +18,8 @@ AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node, con
   : spinner_(Qt::WindowModal, this), thread_(node, bridge)
 {
   const auto instruction = new qt::DescriptionWidget(
-    "1. Place the flight controller on a level surface.\n\n"
-    "2. Click \"Start\". Calibration will complete in a few seconds.\n\n",
+    "1. Place the flight controller on a level surface.\n"
+    "2. Click \"Start\". Calibration will complete in a few seconds.\n",
     cmn::kBodyPSize);
 
   start_button_ = new QPushButton("Start");

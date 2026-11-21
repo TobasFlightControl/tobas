@@ -24,6 +24,7 @@ CommandersWidget::CommandersWidget(
   const Drone& drone)
 {
   const auto rows = new QVBoxLayout();
+  rows->setContentsMargins(0, 0, 0, 0);
   setLayout(rows);
 
   const auto title = new qt::Label("Commanders", cmn::kTitlePSize, QFont::Bold);

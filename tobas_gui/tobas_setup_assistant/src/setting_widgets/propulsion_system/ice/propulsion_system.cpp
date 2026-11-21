@@ -3,7 +3,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_system.hpp"
 
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QVBoxLayout>
 
 #include <tobas_gui_common/constants.hpp>
@@ -26,19 +26,15 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
   units = new PropulsionUnitsWidget(node, uadf);
 
   // Layout
-  const auto battery_rows = new QVBoxLayout();
-  qt::addWidgetCenter(new qt::Label("Engine", cmn::kTitlePSize, QFont::Bold), battery_rows);
-  battery_rows->addWidget(engine);
-
-  const auto units_rows = new QVBoxLayout();
-  qt::addWidgetCenter(new qt::Label("Propulsion Units", cmn::kTitlePSize, QFont::Bold), units_rows);
-  units_rows->addWidget(units);
-
-  const auto cols = new QHBoxLayout();
-  cols->addLayout(battery_rows, 1);
-  cols->addLayout(units_rows, 1);
-
-  setLayout(cols);
+  const auto grid = new QGridLayout();
+  grid->setRowStretch(1, 1);
+  grid->setColumnStretch(0, 1);
+  grid->setColumnStretch(1, 1);
+  grid->addWidget(new qt::Label(kEngineTitle, cmn::kLabelPSize, QFont::Bold), 0, 0);
+  grid->addWidget(new qt::Label(kPropulsionUnitTitle, cmn::kLabelPSize, QFont::Bold), 0, 1);
+  grid->addWidget(engine, 1, 0);
+  grid->addWidget(units, 1, 1);
+  setLayout(grid);
 }
 
 const char* PropulsionSystemWidget::name() const

@@ -9,6 +9,14 @@ namespace tobas
 {
 namespace qt
 {
+QSize StackedWidget::sizeHint() const
+{
+  auto hint = super::sizeHint();
+  // Let scrollable pages shrink without squeezing sibling widgets.
+  hint.setHeight(minimumSizeHint().height());
+  return hint;
+}
+
 void StackedWidget::clear()
 {
   while (count() > 0) {

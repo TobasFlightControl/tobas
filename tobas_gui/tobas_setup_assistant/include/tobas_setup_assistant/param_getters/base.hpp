@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QFormLayout>
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -40,17 +41,20 @@ template <typename T>
 ParamGetterWidget<T>::ParamGetterWidget(const QString& param_name, const QString& description_text)
 {
   rows_ = new QVBoxLayout();
-  setLayout(rows_);
+  rows_->setContentsMargins(0, 0, 0, 0);
+  rows_->setSpacing(4);
 
   label_ = new QLabel(param_name);
-  label_->setFont(qt::DefaultFont(cmn::kLabelPSize, QFont::Bold));
-  label_->setAlignment(Qt::AlignTop);
-  rows_->addWidget(label_);
+  label_->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  label_->setToolTip(description_text);
+  setToolTip(description_text);
 
-  if (!description_text.isEmpty()) {
-    const auto description = new qt::DescriptionWidget(description_text, cmn::kBodyPSize);
-    rows_->addWidget(description);
-  }
+  const auto field = new QWidget();
+  field->setLayout(rows_);
+  const auto form = new QFormLayout(this);
+  form->setContentsMargins(0, 0, 0, 0);
+  form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  form->addRow(label_, field);
 }
 
 template <typename T>

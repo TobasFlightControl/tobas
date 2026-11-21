@@ -23,6 +23,7 @@ namespace ctrl
 {
 class BaseCommandWidget : public QWidget
 {
+  friend class MissionPlannerWidget;
   Q_OBJECT
 
   using self = BaseCommandWidget;

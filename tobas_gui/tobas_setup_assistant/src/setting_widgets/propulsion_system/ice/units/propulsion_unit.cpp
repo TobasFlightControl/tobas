@@ -21,16 +21,15 @@ PropulsionUnitWidget::PropulsionUnitWidget(rclcpp::Node::SharedPtr node)
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  const auto button_cols = new QHBoxLayout();
-  rows->addLayout(button_cols);
-
   copy_to_all_btn_ = new QPushButton("Copy To All");
-  copy_to_all_btn_->setFixedSize(kButtonWidth, kButtonHeight);
-  qt::addWidgetCenter(copy_to_all_btn_, rows);
-
-  button_cols->addStretch();
+  copy_to_all_btn_->setFixedWidth(120);
+  const auto corner_widget = new QWidget();
+  const auto corner_cols = new QHBoxLayout(corner_widget);
+  corner_cols->setContentsMargins(0, 0, 0, 0);
+  corner_cols->addWidget(copy_to_all_btn_);
 
   tabs_ = new qt::TabWidget();
+  tabs_->setCornerWidget(corner_widget, Qt::TopRightCorner);
   tabs_->enableWheelEvent(false);
   tabs_->setTabSize(kTabWidth, kTabHeight);
   rows->addWidget(tabs_);

@@ -22,7 +22,7 @@ class RotorWidget : public QWidget
   using self = RotorWidget;
   using super = QWidget;
 
-  static constexpr int kPipeWidth = 50;
+  static constexpr int kPipeWidth = 48;
   static constexpr int kMinRotorCtrlGain = 0;
   static constexpr int kMaxRotorCtrlGain = 30;
 

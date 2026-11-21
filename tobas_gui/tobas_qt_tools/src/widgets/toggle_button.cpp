@@ -12,7 +12,11 @@ namespace qt
 ToggleButton::ToggleButton(const QString& off_text, const QString& on_text, QWidget* parent)
   : super(parent), off_text_(off_text), on_text_(on_text)
 {
-  setText(off_text);
+  // Reserve space for both labels so toggling does not resize the button or shift the surrounding layout.
+  setText(on_text_);
+  const auto on_size = sizeHint();
+  setText(off_text_);
+  setMinimumSize(sizeHint().expandedTo(on_size));
 
   connect(this, &super::clicked, this, &self::onClicked);
 }

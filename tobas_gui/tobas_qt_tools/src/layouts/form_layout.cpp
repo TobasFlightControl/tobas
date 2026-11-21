@@ -14,9 +14,11 @@ namespace qt
 void FormLayout::addVAlignedRow(QWidget* label, QWidget* field)
 {
   const auto label_layout = new QHBoxLayout();
+  label_layout->setContentsMargins(0, 0, 0, 0);
   label_layout->addWidget(label, 0, Qt::AlignLeft | Qt::AlignVCenter);
 
   const auto label_widget = new QWidget();
+  label_widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   label_widget->setLayout(label_layout);
 
   addRow(label_widget, field);

@@ -23,11 +23,13 @@ StatusWidget::StatusWidget(const QString& text)
   status_->setAlignment(Qt::AlignCenter);
   status_->setFixedWidth(kStatusWidth);
 
-  label_ = new qt::Label(text, kTextPSize);
+  label_ = new qt::Label(text);
 
   reset();
 
   const auto cols = new QHBoxLayout();
+  cols->setContentsMargins(0, 0, 0, 0);
+  cols->setSpacing(4);
   cols->addWidget(status_);
   cols->addWidget(label_);
   setLayout(cols);

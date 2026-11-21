@@ -24,7 +24,7 @@ class LargeVehicleMagCalibWidget : public BaseMagCalibWidget
   using self = LargeVehicleMagCalibWidget;
   using super = BaseMagCalibWidget;
 
-  static constexpr int kButtonWidth = 100;
+  static constexpr int kButtonWidth = 120;
   static constexpr int kButtonHeight = 40;
 
 public:

@@ -4,6 +4,7 @@
 #include "tobas_qwt_wrapper/qwt_plot_curve.hpp"
 
 #include <qwt/qwt_plot_curve.h>  // <= C++17
+#include <qwt/qwt_plot_item.h>
 
 namespace tobas
 {
@@ -12,6 +13,7 @@ namespace qwt
 QwtPlotCurveWrapper::QwtPlotCurveWrapper(const QString& title)
 {
   impl_ = std::make_shared<QwtPlotCurve>(title);
+  impl_->setRenderHint(QwtPlotItem::RenderAntialiased, true);
 }
 
 QwtPlotCurveWrapper::QwtPlotCurveWrapper(const char* title) : QwtPlotCurveWrapper(QString(title))

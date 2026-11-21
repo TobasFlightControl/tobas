@@ -23,8 +23,8 @@ class SensorCalibrationWidget : public qt::VerticalTabWidget
   using super = qt::VerticalTabWidget;
 
   // Without at least this much height, the `TabBar` text is clipped horizontally for some reason.
-  static constexpr int kTabHeight = 35;
-  static constexpr int kTabWidth = 70;
+  static constexpr int kTabHeight = 32;
+  static constexpr int kTabWidth = 64;
 
 public:
   explicit SensorCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge, const Drone& drone);

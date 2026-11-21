@@ -14,7 +14,6 @@
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/check.hpp>
 
-#include "tobas_flight_log_gui/constants.hpp"
 #include "tobas_flight_log_gui/logs_fc/log_item.hpp"
 
 namespace fs = std::filesystem;
@@ -31,8 +30,8 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
   read_button_ = new QPushButton("Read");
   clean_button_ = new QPushButton("Clean");
 
-  read_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  clean_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  read_button_->setFixedWidth(80);
+  clean_button_->setFixedWidth(80);
 
   // Disable this until TBS is loaded because SSH cannot connect until the host is known.
   read_button_->setEnabled(false);
@@ -43,12 +42,13 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
 
   // Layout
   const auto cols = new QHBoxLayout();
-  cols->addWidget(new qt::Label("Flight Controller", kPSize1, QFont::Bold));
+  cols->addWidget(new qt::Label("Flight Controller", 12, QFont::Bold));
   cols->addStretch();
   cols->addWidget(read_button_);
   cols->addWidget(clean_button_);
 
   const auto rows = new QVBoxLayout();
+  rows->setContentsMargins(0, 0, 0, 0);
   rows->addLayout(cols);
   rows->addWidget(log_list_);
 

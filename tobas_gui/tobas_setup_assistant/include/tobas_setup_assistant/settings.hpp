@@ -61,6 +61,10 @@ private:
   const uadf::Model& uadf_;
 
   QToolBox* toolbox_;
+  QLabel* title_;
+  qt::DescriptionWidget* description_;
+
+  void updateHeader(int idx);
   qt::StackedWidget* stack_;
   qt::ListWidget* basic_list_;
   qt::ListWidget* additional_list_;

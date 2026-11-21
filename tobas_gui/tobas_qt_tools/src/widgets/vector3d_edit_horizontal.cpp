@@ -11,17 +11,16 @@ namespace qt
 {
 Vector3dEditHorizontal::Vector3dEditHorizontal(QWidget* parent) : super(parent)
 {
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
-
   x_ = new LabeledDoubleSpinBox("X");
-  cols->addWidget(x_);
-
   y_ = new LabeledDoubleSpinBox("Y");
-  cols->addWidget(y_);
-
   z_ = new LabeledDoubleSpinBox("Z");
+
+  const auto cols = new QHBoxLayout();
+  cols->setContentsMargins(0, 0, 0, 0);
+  cols->addWidget(x_);
+  cols->addWidget(y_);
   cols->addWidget(z_);
+  setLayout(cols);
 
   connect(x_, &LabeledDoubleSpinBox::valueChanged, this, &self::onValueChanged);
   connect(y_, &LabeledDoubleSpinBox::valueChanged, this, &self::onValueChanged);

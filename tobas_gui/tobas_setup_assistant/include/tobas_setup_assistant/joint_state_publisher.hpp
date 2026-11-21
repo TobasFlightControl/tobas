@@ -8,6 +8,7 @@
 #include <random>
 
 #include <QElapsedTimer>
+#include <QGridLayout>
 #include <QTimer>
 #include <QVBoxLayout>
 
@@ -56,7 +57,7 @@ private:
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
 
-  QVBoxLayout* slider_rows_;
+  QGridLayout* slider_rows_;
 
   sensor_msgs::msg::JointState js_;
   std::vector<qt::DoubleSliderDisplay*> sliders_;

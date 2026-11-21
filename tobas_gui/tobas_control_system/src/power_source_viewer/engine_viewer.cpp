@@ -7,11 +7,12 @@
 #include <format>
 #include <memory>
 
+#include <QFormLayout>
+
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
 
 #define MAX_FUEL_QUANTITY 100.0  // TODO: Include fuel capacity in `EngineConfig`.
 
@@ -26,13 +27,13 @@ EngineViewerWidget::EngineViewerWidget(const RosQtBridge& bridge, const Drone& d
   fuel_quantity_ = new qt::ProgressBar();
   oil_temp_ = new qt::ProgressBar();
 
-  fuel_quantity_->setFixedHeight(kBarHeight);
-  oil_temp_->setFixedHeight(kBarHeight);
-
   // Layout
-  const auto form = new qt::FormLayout();
-  form->addVAlignedRow(new qt::Label("Fuel QTY", kLabelPSize), fuel_quantity_);
-  form->addVAlignedRow(new qt::Label("Oil Temp", kLabelPSize), oil_temp_);
+  const auto form = new QFormLayout();
+  form->setContentsMargins(2, 0, 2, 0);
+  form->setSpacing(2);
+  form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  form->addRow("Fuel QTY", fuel_quantity_);
+  form->addRow("Oil Temp", oil_temp_);
   setLayout(form);
 
   // Connection

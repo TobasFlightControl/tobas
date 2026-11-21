@@ -4,9 +4,9 @@
 #include "tobas_control_system/gnss_viewer.hpp"
 
 #include <QDebug>
+#include <QFormLayout>
 
-#include <tobas_qt_tools/layouts/form_layout.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/widgets/progress_bar.hpp>
 
 namespace tobas
 {
@@ -19,13 +19,17 @@ GnssViewerWidget::GnssViewerWidget(const RosQtBridge& bridge)
   status_ = new qt::FramedLabel();
   nsats_ = new qt::FramedLabel();
 
-  status_->setMinimumWidth(kLabelMinWidth);
-  nsats_->setMinimumWidth(kLabelMinWidth);
+  const auto row_height = qt::ProgressBar().sizeHint().height();
+  status_->setMinimumSize(48, row_height);
+  nsats_->setMinimumSize(48, row_height);
 
   // Layout
-  const auto form = new qt::FormLayout();
-  form->addVAlignedRow(new qt::Label("Status", kLabelPSize), status_);
-  form->addVAlignedRow(new qt::Label("NSats", kLabelPSize), nsats_);
+  const auto form = new QFormLayout();
+  form->setContentsMargins(2, 0, 2, 0);
+  form->setSpacing(2);
+  form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  form->addRow("GNSS Status", status_);
+  form->addRow("GNSS NSats", nsats_);
   setLayout(form);
 
   // Connection

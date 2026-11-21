@@ -6,7 +6,6 @@
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/event.hpp>
-#include <tobas_qt_tools/util.hpp>
 
 #include "tobas_gcs/util.hpp"
 
@@ -24,17 +23,20 @@ RemoteConnectionWidget::RemoteConnectionWidget(const RosQtBridge& bridge) : brid
   unknown_ = QPixmap(QString::fromStdString(rsrc_dir / "unknown.png"));
 
   icon_ = new QLabel();
-  icon_->setFixedSize(120, 40);          // Fix the size so the pixmap is not displayed too large.
-  icon_->setAlignment(Qt::AlignCenter);  // Place the `QPixmap` at the center of the `QLabel`.
+  icon_->setAlignment(Qt::AlignCenter);
 
   label_ = new QLabel();
+  label_->setAlignment(Qt::AlignCenter);
 
   timeout_timer_.setInterval(kTimeout);
 
   // Layout
   const auto rows = new QVBoxLayout();
-  qt::addWidgetCenter(icon_, rows);
-  qt::addWidgetCenter(label_, rows);
+  constexpr int kHorizontalMargin = 12;
+  constexpr int kVerticalMargin = 6;
+  rows->setContentsMargins(kHorizontalMargin, kVerticalMargin, kHorizontalMargin, kVerticalMargin);
+  rows->addWidget(icon_, 1);
+  rows->addWidget(label_, 0);
   setLayout(rows);
 
   // Connection

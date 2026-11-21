@@ -7,6 +7,8 @@
 #include <format>
 #include <memory>
 
+#include <QFormLayout>
+
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
@@ -24,13 +26,13 @@ BatteryViewerWidget::BatteryViewerWidget(const RosQtBridge& bridge, const Drone&
   voltage_ = new qt::ProgressBar();
   current_ = new qt::ProgressBar();
 
-  voltage_->setFixedHeight(kBarHeight);
-  current_->setFixedHeight(kBarHeight);
-
   // Layout
-  const auto form = new qt::FormLayout();
-  form->addVAlignedRow(new qt::Label("Volt", kLabelPSize), voltage_);
-  form->addVAlignedRow(new qt::Label("Curr", kLabelPSize), current_);
+  const auto form = new QFormLayout();
+  form->setContentsMargins(2, 0, 2, 0);
+  form->setSpacing(2);
+  form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  form->addRow("Voltage", voltage_);
+  form->addRow("Current", current_);
   setLayout(form);
 
   // Connection

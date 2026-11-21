@@ -3,8 +3,11 @@
 
 #pragma once
 
+#include <QEvent>
 #include <QLabel>
-#include <QPushButton>
+#include <QMenu>
+#include <QPaintEvent>
+#include <QWidget>
 
 namespace tobas
 {
@@ -16,12 +19,10 @@ class FlightLogItemWidgetGCS : public QWidget
 {
   Q_OBJECT
 
-  using self = FlightLogItemWidgetGCS;
   using super = QWidget;
 
-  static constexpr int kButtonWidth = 80;
-
 Q_SIGNALS:
+  void showButtonClicked(const QString& log_name);
   void exportButtonClicked(const QString& log_name);
   void deleteButtonClicked(const QString& log_name);
 
@@ -32,12 +33,18 @@ public:
 
 private:
   QLabel* log_name_;
-  QPushButton* export_button_;
-  QPushButton* delete_button_;
+  QMenu* actions_menu_;
 
 private Q_SLOTS:
   void onExportButtonClicked();
   void onDeleteButtonClicked();
+
+private:
+  bool eventFilter(QObject* watched, QEvent* event) override;
+  void paintEvent(QPaintEvent* event) override;
+
+  bool isCursorOverActions() const;
+  void showActionsMenu();
 };
 }  // namespace log
 }  // namespace gui

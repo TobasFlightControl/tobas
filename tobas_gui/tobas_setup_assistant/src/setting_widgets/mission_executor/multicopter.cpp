@@ -6,6 +6,9 @@
 #include <QDebug>
 #include <QVBoxLayout>
 
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
+#include <tobas_qt_tools/widgets/tab_widget.hpp>
+
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -151,16 +154,26 @@ MulticopterWidget::MulticopterWidget()
   const auto rtl_form = new qt::FormLayout();
   rtl_form->addVAlignedRow("Minimum Altitude (wrt. Launch Point)", rtl_min_alt_);
 
+  const auto tabs = new qt::TabWidget();
+  tabs->setTabWidth(160);
+  tabs->enableWheelEvent(false);
+  const auto add_tab = [tabs](QLayout* form, const char* name)
+  {
+    const auto content_rows = new QVBoxLayout();
+    content_rows->addLayout(form);
+    content_rows->addStretch(1);
+    const auto scroll = new qt::ScrollArea();
+    scroll->setFrameShape(QFrame::NoFrame);
+    scroll->setLayout(content_rows);
+    tabs->addTab(scroll, name);
+  };
+  add_tab(wp_form, "Waypoint");
+  add_tab(takeoff_form, "Takeoff");
+  add_tab(land_form, "Landing");
+  add_tab(rtl_form, "Return-to-Launch");
   const auto rows = new QVBoxLayout();
-  rows->addWidget(new qt::Label("Waypoint", cmn::kLabelPSize, QFont::Bold));
-  rows->addLayout(wp_form);
-  rows->addWidget(new qt::Label("Takeoff", cmn::kLabelPSize, QFont::Bold));
-  rows->addLayout(takeoff_form);
-  rows->addWidget(new qt::Label("Land", cmn::kLabelPSize, QFont::Bold));
-  rows->addLayout(land_form);
-  rows->addWidget(new qt::Label("Return-to-Launch", cmn::kLabelPSize, QFont::Bold));
-  rows->addLayout(rtl_form);
-
+  rows->setContentsMargins(0, 0, 0, 0);
+  rows->addWidget(tabs);
   setLayout(rows);
 }
 

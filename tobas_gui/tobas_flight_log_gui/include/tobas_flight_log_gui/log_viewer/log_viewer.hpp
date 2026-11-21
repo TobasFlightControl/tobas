@@ -5,6 +5,9 @@
 
 #include <filesystem>
 
+#include <QFrame>
+#include <QGridLayout>
+
 #include <rosbag2_cpp/reader.hpp>
 
 #include "./data.hpp"
@@ -40,6 +43,11 @@ private:
   rosbag2_cpp::Reader reader_;
 
   std::array<PlotTabWidget*, 6> plot_tabs_;
+  std::array<QWidget*, 6> plot_panels_;
+  std::array<QFrame*, 3> plot_separators_;
+  QGridLayout* plot_grid_;
+
+  void setExpandedPanel(QWidget* panel);
   PlaybackControlWidget* playback_ctrl_;
 
   template <typename MsgType>

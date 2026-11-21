@@ -25,6 +25,8 @@ public:
 
   void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override
   {
+    constexpr int kHorizontalPadding = 8;
+
     QStyleOptionViewItem opt(option);
     initStyleOption(&opt, index);
 
@@ -43,7 +45,7 @@ public:
     const auto nrows = index.model() ? index.model()->rowCount() : 0;
     const auto digits = QString::number(nrows).size();
     const QString max_no_text(digits, QLatin1Char('9'));
-    const auto no_width = fm.horizontalAdvance(max_no_text) + 12;
+    const auto no_width = fm.horizontalAdvance(max_no_text) + 2 * kHorizontalPadding;
 
     if (opt.state & QStyle::State_Selected) {
       painter->setPen(opt.palette.color(QPalette::HighlightedText));
@@ -52,11 +54,11 @@ public:
       painter->setPen(opt.palette.color(QPalette::Text));
     }
 
-    const auto no_rect = opt.rect.adjusted(6, 0, -(opt.rect.width() - no_width), 0);
+    const auto no_rect = opt.rect.adjusted(kHorizontalPadding, 0, -(opt.rect.width() - no_width), 0);
     const auto no_text = QString::number(index.row() + 1);
     painter->drawText(no_rect, Qt::AlignVCenter | Qt::AlignLeft, no_text);
 
-    const auto text_rect = opt.rect.adjusted(no_width + 6, 0, -6, 0);
+    const auto text_rect = opt.rect.adjusted(no_width + kHorizontalPadding, 0, -kHorizontalPadding, 0);
     const auto text_width = text_rect.width();
     painter->drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, fm.elidedText(text, Qt::ElideRight, text_width));
 

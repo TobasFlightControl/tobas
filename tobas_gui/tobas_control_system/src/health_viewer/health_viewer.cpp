@@ -15,6 +15,8 @@ namespace ctrl
 {
 HealthViewerWidget::HealthViewerWidget(const RosQtBridge& bridge)
 {
+  setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+
   rt_compliance_status_ = new StatusWidget("Realtime Compliance");
   battery_voltage_status_ = new StatusWidget("Battery Voltage");
   cpu_temp_status_ = new StatusWidget("CPU Temperature");
@@ -33,6 +35,7 @@ HealthViewerWidget::HealthViewerWidget(const RosQtBridge& bridge)
 
   // Layout
   const auto rows = new QVBoxLayout();
+  rows->setContentsMargins(2, 2, 2, 2);
   rows->addWidget(rt_compliance_status_);
   rows->addWidget(battery_voltage_status_);
   rows->addWidget(cpu_temp_status_);
@@ -48,7 +51,6 @@ HealthViewerWidget::HealthViewerWidget(const RosQtBridge& bridge)
   rows->addWidget(mag_alignment_status_);
   rows->addWidget(vibration_level_status_);
   rows->addWidget(user_defined_status_);
-  rows->addStretch();
   setLayout(rows);
 
   // Connection

@@ -23,6 +23,8 @@ class StackedWidget : public QStackedWidget
 public:
   using super::QStackedWidget;
 
+  QSize sizeHint() const override;
+
   /* Delete all widgets and free memory. */
   void clear();
 

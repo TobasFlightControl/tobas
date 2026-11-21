@@ -24,7 +24,7 @@ class AccelCalibrationWidget : public BaseWidget
   using self = AccelCalibrationWidget;
   using super = BaseWidget;
 
-  static constexpr int kButtonWidth = 100;
+  static constexpr int kButtonWidth = 120;
   static constexpr int kButtonHeight = 40;
 
 public:

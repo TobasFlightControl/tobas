@@ -20,6 +20,7 @@ namespace sim
 DynamicConfigWidget::DynamicConfigWidget(rclcpp::Node::SharedPtr node)
 {
   const auto rows = new QVBoxLayout();
+  rows->setContentsMargins(0, 0, 0, 0);
   setLayout(rows);
 
   const auto title = new qt::Label("Dynamic Configurations", cmn::kTitlePSize, QFont::Bold);
