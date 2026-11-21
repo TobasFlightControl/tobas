@@ -64,8 +64,8 @@ The following factors, which can have a major impact on flight, can be simulated
 
 ### Tobas FC201
 
-<img src="../assets/introduction/fc201_1.jpg" alt="fc201_1" width="49%">
-<img src="../assets/introduction/fc201_2.jpg" alt="fc201_2" width="49%">
+<img src="assets/introduction/fc201_1.jpg" alt="fc201_1" width="49%">
+<img src="assets/introduction/fc201_2.jpg" alt="fc201_2" width="49%">
 
 #### Sensors & Processors
 

@@ -10,8 +10,8 @@ Assemble the vehicle as configured in Setup Assistant.
 <!-- cf. https://docs.emlid.com/navio2/hardware-setup/ -->
 <!-- cf. https://docs.emlid.com/navio2/ardupilot/typical-setup-schemes/ -->
 
-<img src="../../../assets/hardware_setup/f450_1.png" alt="f450_1" width="49%"/>
-<img src="../../../assets/hardware_setup/f450_2.png" alt="f450_2" width="49%"/>
+<img src="../../assets/hardware_setup/f450_1.png" alt="f450_1" width="49%"/>
+<img src="../../assets/hardware_setup/f450_2.png" alt="f450_2" width="49%"/>
 
 <!-- prettier-ignore-start -->
 !!! note
@@ -116,8 +116,8 @@ It is also best to perform it away from magnetic materials such as steel reinfor
 1. When finished, click `Finish`. The estimated ellipsoid appears in blue, and the distortion-corrected point cloud appears in green.
    Calibration is successful if the blue ellipsoid overlaps the white point cloud and the green point cloud forms a sphere around the origin.
 
-<img src="../../../assets/hardware_setup/mag_calibration_1.png" alt="mag_calibration_1" width="49%"/>
-<img src="../../../assets/hardware_setup/mag_calibration_2.png" alt="mag_calibration_2" width="49%"/>
+<img src="../../assets/hardware_setup/mag_calibration_1.png" alt="mag_calibration_1" width="49%"/>
+<img src="../../assets/hardware_setup/mag_calibration_2.png" alt="mag_calibration_2" width="49%"/>
 
 ### Radio Calibration
 

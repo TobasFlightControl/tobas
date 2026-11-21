@@ -75,8 +75,8 @@ In the next dialog, click `OK` to generate an SSH public and private key pair. Y
 Then click `OpenSSH keys` and confirm that the generated key is displayed.
 Double-click the key, make a note of `Public key` in the dialog that appears, then close `Passwords and Keys`.
 
-<img src="../../../assets/bootmedia_config/ssh_key_1.png" alt="ssh_key_1" width="49%"/>
-<img src="../../../assets/bootmedia_config/ssh_key_2.png" alt="ssh_key_2" width="49%"/>
+<img src="../../assets/bootmedia_config/ssh_key_1.png" alt="ssh_key_1" width="49%"/>
+<img src="../../assets/bootmedia_config/ssh_key_2.png" alt="ssh_key_2" width="49%"/>
 
 Return to `Tobas Bootmedia Config`, click `Add`, then copy and paste the public key you noted earlier into the dialog that appears.
 Click `OK` to add the public key to the list and write it to the SD card.
