@@ -39,8 +39,6 @@ private:
 
   QWidget* createTabPage(BaseWidget* _content);
 
-  void setTabsEnabled(bool _enabled);
-
   void setCompleted(int _index);
   void setCompleted(BaseWidget* _widget);
   void setIncompleted(int _index);

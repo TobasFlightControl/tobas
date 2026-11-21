@@ -32,8 +32,6 @@ private:
 
   QWidget* createTabPage(BaseConfigWidget* _content);
 
-  void setTabsEnabled(bool _enabled);
-
 private Q_SLOTS:
   void onMediaConnected();
   void onMediaDisconnected();

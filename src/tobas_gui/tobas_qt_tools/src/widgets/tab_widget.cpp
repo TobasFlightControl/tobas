@@ -98,6 +98,20 @@ void TabWidget::setTabEnabled(QWidget* _tab, bool _enabled)
   tabBar()->setTabEnabled(idx, _enabled);
 }
 
+void TabWidget::setTabsEnabled(bool _enabled)
+{
+  for (int i = 0; i < count(); ++i) {
+    setTabEnabled(widget(i), _enabled);
+  }
+}
+
+void TabWidget::setTabWidgetsEnabled(bool _enabled)
+{
+  for (int i = 0; i < count(); ++i) {
+    widget(i)->setEnabled(_enabled);
+  }
+}
+
 void TabWidget::setTabVisible(QWidget* _tab, bool _visible)
 {
   const auto idx = indexOf(_tab);

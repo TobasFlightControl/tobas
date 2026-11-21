@@ -26,7 +26,7 @@ SensorCalibrationWidget::SensorCalibrationWidget(const rqt::RosQtBridge& _bridge
   rcin_calib_ = new RCInputCalibrationWidget(_bridge, _drone);
   addTab(createTabPage(rcin_calib_), "Radio Control");
 
-  setTabsEnabled(false);
+  setTabWidgetsEnabled(false);
 
   // Connection
   connect(&_bridge, &rqt::RosQtBridge::imuReceived, this, &self::imuCb, Qt::QueuedConnection);
@@ -55,7 +55,7 @@ void SensorCalibrationWidget::clearRosInterfaces()
     getWidget(i)->clearRosInterfaces();
   }
 
-  setTabsEnabled(false);
+  setTabWidgetsEnabled(false);
 }
 
 void SensorCalibrationWidget::initializeRosInterfaces(
@@ -67,7 +67,7 @@ void SensorCalibrationWidget::initializeRosInterfaces(
     getWidget(i)->initializeRosInterfaces(_node, _ns, _simulation);
   }
 
-  setTabsEnabled(true);
+  setTabWidgetsEnabled(true);
 }
 
 BaseWidget* SensorCalibrationWidget::getWidget(int _index)
@@ -96,13 +96,6 @@ QWidget* SensorCalibrationWidget::createTabPage(BaseWidget* _content)
   rows->addWidget(_content, 1);
 
   return page;
-}
-
-void SensorCalibrationWidget::setTabsEnabled(bool _enabled)
-{
-  for (int i = 0; i < count(); ++i) {
-    widget(i)->setEnabled(_enabled);
-  }
 }
 
 void SensorCalibrationWidget::setCompleted(int _index)

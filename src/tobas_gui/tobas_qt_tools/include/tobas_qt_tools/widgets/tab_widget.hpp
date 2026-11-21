@@ -56,7 +56,16 @@ public:
   virtual void setTabBackgroundColor(int _index, const QColor& _color);
   virtual void clearTabBackgroundColor(int _index);
 
+  /** Enable or disable the page `_tab` and its tab bar entry. */
   void setTabEnabled(QWidget* _tab, bool _enabled);
+
+  /** Enable or disable all tab pages and their tab bar entries. */
+  void setTabsEnabled(bool _enabled);
+
+  /** Enable or disable all tab page widgets without changing the tab bar entries. */
+  void setTabWidgetsEnabled(bool _enabled);
+
+  /** Show or hide the tab associated with the page `_tab`. */
   void setTabVisible(QWidget* _tab, bool _visible);
 
   void setTabWidth(int _width);
