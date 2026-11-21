@@ -47,7 +47,7 @@ class GroundControlStationWidget : public QWidget
 
   static constexpr char kLastOpenedDirKey[] = "last_opened_dir";
 
-  static constexpr int kPathWidth = 280;
+  static constexpr int kPathWidth = 400;
   static constexpr int kPowerButtonRadius = 40;
 
 public:
