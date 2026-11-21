@@ -2,8 +2,8 @@
 Changelog for package tobas_urdf_builder
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.10 (2026-11-21)
+--------------------
 * modify: Backport adaptive GUI layouts to Jazzy
   Backport layout changes from e61bc6fe1 and 740d47e35 to the Qt 5 GUI.
   Preserve existing APIs, parameter keys, value ranges, and ROS behavior.

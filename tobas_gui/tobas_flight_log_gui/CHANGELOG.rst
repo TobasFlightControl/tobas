@@ -2,8 +2,8 @@
 Changelog for package tobas_flight_log_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.10 (2026-11-21)
+--------------------
 * Merge branch 'feature/refine-gui-layout' into jazzy
 * fix: Complete panel scrolling and GUI sizing
   Scroll joint commands independently and remove redundant outer scrolling

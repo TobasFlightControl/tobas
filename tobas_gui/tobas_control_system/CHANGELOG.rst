@@ -2,8 +2,8 @@
 Changelog for package tobas_control_system
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.10 (2026-11-21)
+--------------------
 * Merge branch 'feature/refine-gui-layout' into jazzy
 * modify: Align GUI meter and typography with rolling
 * fix: Dim RC input badges when disabled

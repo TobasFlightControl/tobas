@@ -2,8 +2,8 @@
 Changelog for package tobas_random_axis_tilt_multi_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.10 (2026-11-21)
+--------------------
 * add: Limit tilt controller angular acceleration
   Add attitude and heading acceleration limits as dynamic parameters.
   Clamp each target angular acceleration axis before mixing.

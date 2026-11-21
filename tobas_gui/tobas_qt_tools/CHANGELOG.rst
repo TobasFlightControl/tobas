@@ -2,8 +2,8 @@
 Changelog for package tobas_qt_tools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.10 (2026-11-21)
+--------------------
 * Merge branch 'feature/refine-gui-layout' into jazzy
 * fix: Align backported GUI layouts and includes
   Match the source layouts for robot property spacing, flight log panel

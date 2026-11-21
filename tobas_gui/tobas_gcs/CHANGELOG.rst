@@ -2,8 +2,8 @@
 Changelog for package tobas_gcs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.10 (2026-11-21)
+--------------------
 * Merge branch 'feature/refine-gui-layout' into jazzy
 * remove: Drop GCS restart and shutdown buttons
 * modify: Widen the GCS project path field

@@ -2,8 +2,8 @@
 Changelog for package tobas_gui_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.16.10 (2026-11-21)
+--------------------
 * Merge branch 'feature/refine-gui-layout' into jazzy
 * remove: Drop the legacy body font size constant
 * modify: Align GUI meter and typography with rolling
