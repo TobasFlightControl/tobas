@@ -7,7 +7,7 @@
 
 #include <tobas_drone_core/propulsion_system/ice_propulsion_system/aerodynamics.hpp>
 
-#include "tobas_setup_assistant/utils/double_table.hpp"
+#include "tobas_setup_assistant/utils/double_matrix_edit.hpp"
 
 #include "./base.hpp"
 #include "./propeller.hpp"
@@ -36,7 +36,7 @@ public:
 private:
   const PropellerWidget* const propeller_;
 
-  ParamGetterWidget_DoubleTable* data_;
+  DoubleMatrixEdit* data_;
 
   std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> getData() const;
 };

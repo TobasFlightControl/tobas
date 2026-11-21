@@ -3,12 +3,15 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/aerodynamics.hpp"
 
+#include <QLabel>
 #include <QVBoxLayout>
 
 #include <eigen3/Eigen/SVD>
 
 #include <tobas_eigen_tools/core.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
@@ -27,8 +30,10 @@ AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : prop
 {
   setWidgetResizable(false);
 
-  data_ = new ParamGetterWidget_DoubleTable(
-    kDataLabel, "Select Test Data", { "RPM", "Pitch [deg]", "Thrust [N]", "Torque [Nm]" });
+  const auto title = new QLabel(kDataLabel);
+  title->setFont(qt::DefaultFont(cmn::kBodyPointSize, QFont::Bold));
+
+  data_ = new DoubleMatrixEdit(kDataLabel, "Select Test Data", { "RPM", "Pitch [deg]", "Thrust [N]", "Torque [Nm]" });
   data_->setToolTip(
     "Single-propeller test measurements: "
     "rotational speed in rpm, variable-pitch angle in degrees, thrust in newtons, and torque in newton-meters. "
@@ -40,7 +45,8 @@ AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : prop
 
   // Layout
   const auto rows = new QVBoxLayout(this);
-  rows->addWidget(data_);
+  rows->addWidget(title, 0);
+  rows->addWidget(data_, 1);
 }
 
 void AerodynamicsWidget::setToDefaults()

@@ -21,8 +21,7 @@ constexpr char kDataLabel[] = "Static Test Data";
 
 AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(const PropellerWidget* _propeller) : propeller_(_propeller)
 {
-  data_ =
-    new ParamGetterWidget_DoubleTable(kDataLabel, "Select UIUC Data", { kRpmColName, kUiucCtColName, kUiucCpColName });
+  data_ = new DoubleMatrixEdit(kDataLabel, "Select UIUC Data", { kRpmColName, kUiucCtColName, kUiucCpColName });
   data_->setToolTip(
     "Static propeller measurements: rotational speed in rpm, thrust coefficient CT, and power coefficient CP. "
     "Use data for the selected propeller geometry.");

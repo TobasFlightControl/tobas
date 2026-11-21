@@ -11,17 +11,17 @@
 
 namespace tobas::gui::sa
 {
-class ParamGetterWidget_DoubleTable : public QWidget
+class DoubleMatrixEdit : public QWidget
 {
   Q_OBJECT
 
-  using self = ParamGetterWidget_DoubleTable;
+  using self = DoubleMatrixEdit;
 
 Q_SIGNALS:
   void dataChanged();
 
 public:
-  explicit ParamGetterWidget_DoubleTable(const QString& _param_name, const QString& _title, const QStringList& _labels);
+  explicit DoubleMatrixEdit(const QString& _settings_key, const QString& _csv_dialog_title, const QStringList& _labels);
 
   Eigen::MatrixXd getData() const;
   bool setData(const Eigen::MatrixXd& _src);
@@ -37,7 +37,7 @@ public:
 
 private:
   const QString last_opened_dir_key_;
-  const QString title_;
+  const QString csv_dialog_title_;
   const QStringList labels_;
   const int num_entry_;
 

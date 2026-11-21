@@ -4,7 +4,7 @@
 #pragma once
 
 #include "./base.hpp"
-#include "tobas_setup_assistant/utils/double_table.hpp"
+#include "tobas_setup_assistant/utils/double_matrix_edit.hpp"
 
 namespace tobas::gui::sa::propulsion::electric
 {
@@ -33,6 +33,6 @@ public:
   double momentConst() const override;
 
 private:
-  ParamGetterWidget_DoubleTable* data_;
+  DoubleMatrixEdit* data_;
 };
 }  // namespace tobas::gui::sa::propulsion::electric

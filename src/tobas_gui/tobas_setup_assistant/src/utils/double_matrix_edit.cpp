@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_setup_assistant/utils/double_table.hpp"
+#include "tobas_setup_assistant/utils/double_matrix_edit.hpp"
 
 #include <limits>
 #include <utility>
@@ -11,13 +11,10 @@
 #include <QFileInfo>
 #include <QHBoxLayout>
 #include <QHeaderView>
-#include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
-#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_std_tools/check.hpp>
@@ -26,12 +23,12 @@
 
 namespace tobas::gui::sa
 {
-ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
-  const QString& _param_name,
-  const QString& _title,
+DoubleMatrixEdit::DoubleMatrixEdit(
+  const QString& _settings_key,
+  const QString& _csv_dialog_title,
   const QStringList& _labels)
-  : last_opened_dir_key_("double_table/last_opened_dir/" + QString(_param_name).replace(' ', '_'))
-  , title_(_title)
+  : last_opened_dir_key_("double_matrix_edit/last_opened_dir/" + QString(_settings_key).replace(' ', '_'))
+  , csv_dialog_title_(_csv_dialog_title)
   , labels_(_labels)
   , num_entry_(_labels.size())
 {
@@ -41,10 +38,6 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   maximum_.fill(std::numeric_limits<double>::max(), num_entry_);
   default_.fill(0.0, num_entry_);
   decimals_.fill(2, num_entry_);
-
-  const auto label = new QLabel(_param_name);
-  label->setFont(qt::DefaultFont(cmn::kBodyPointSize, QFont::Bold));
-  label->setAlignment(Qt::AlignTop);
 
   const auto add_row_btn = new QPushButton("Add Row");
   const auto delete_row_btn = new QPushButton("Delete Row");
@@ -74,10 +67,10 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   cols->addWidget(delete_row_btn);
   cols->addWidget(clear_btn);
   cols->addWidget(load_csv_btn);
-  cols->addStretch(1);  // Left-align the button.
+  cols->addStretch(1);  // Left-align the buttons.
 
   const auto rows = new QVBoxLayout(this);
-  rows->addWidget(label);
+  rows->setContentsMargins(0, 0, 0, 0);
   rows->addLayout(cols);
   rows->addWidget(table_);
 
@@ -88,7 +81,7 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   connect(load_csv_btn, &QPushButton::clicked, this, &self::loadCsv);
 }
 
-Eigen::MatrixXd ParamGetterWidget_DoubleTable::getData() const
+Eigen::MatrixXd DoubleMatrixEdit::getData() const
 {
   const auto rows = count();
 
@@ -103,7 +96,7 @@ Eigen::MatrixXd ParamGetterWidget_DoubleTable::getData() const
   return res;
 }
 
-bool ParamGetterWidget_DoubleTable::setData(const Eigen::MatrixXd& _src)
+bool DoubleMatrixEdit::setData(const Eigen::MatrixXd& _src)
 {
   if (!isValidData(_src)) {
     return false;
@@ -122,46 +115,46 @@ bool ParamGetterWidget_DoubleTable::setData(const Eigen::MatrixXd& _src)
   return true;
 }
 
-void ParamGetterWidget_DoubleTable::clearData()
+void DoubleMatrixEdit::clearData()
 {
   table_->removeAll();
 }
 
-void ParamGetterWidget_DoubleTable::setDecimals(const QVector<int>& _decimals)
+void DoubleMatrixEdit::setDecimals(const QVector<int>& _decimals)
 {
   TOBAS_CHECK(_decimals.size() == num_entry_);
   decimals_ = _decimals;
 }
 
-void ParamGetterWidget_DoubleTable::setMinimum(const QVector<double>& _minimum)
+void DoubleMatrixEdit::setMinimum(const QVector<double>& _minimum)
 {
   TOBAS_CHECK(_minimum.size() == num_entry_);
   minimum_ = _minimum;
 }
 
-void ParamGetterWidget_DoubleTable::setMaximum(const QVector<double>& _maximum)
+void DoubleMatrixEdit::setMaximum(const QVector<double>& _maximum)
 {
   TOBAS_CHECK(_maximum.size() == num_entry_);
   maximum_ = _maximum;
 }
 
-void ParamGetterWidget_DoubleTable::setDefault(const QVector<double>& _default)
+void DoubleMatrixEdit::setDefault(const QVector<double>& _default)
 {
   TOBAS_CHECK(default_.size() == num_entry_);
   default_ = _default;
 }
 
-int ParamGetterWidget_DoubleTable::count() const
+int DoubleMatrixEdit::count() const
 {
   return table_->rowCount();
 }
 
-QString ParamGetterWidget_DoubleTable::getCsvPath()
+QString DoubleMatrixEdit::getCsvPath()
 {
   const auto last_opened_dir = settings_store_.value(last_opened_dir_key_, QDir::homePath()).toString();
 
   const auto file_path = QFileDialog::getOpenFileName(
-    this, title_, last_opened_dir, "CSV File (*.csv)", nullptr, QFileDialog::DontUseNativeDialog);
+    this, csv_dialog_title_, last_opened_dir, "CSV File (*.csv)", nullptr, QFileDialog::DontUseNativeDialog);
 
   // Save the last opened path.
   if (!file_path.isEmpty()) {
@@ -172,7 +165,7 @@ QString ParamGetterWidget_DoubleTable::getCsvPath()
   return file_path;
 }
 
-bool ParamGetterWidget_DoubleTable::isValidData(const Eigen::MatrixXd& _src)
+bool DoubleMatrixEdit::isValidData(const Eigen::MatrixXd& _src)
 {
   if (_src.cols() != num_entry_) {
     qt::qErrorBox(this, "Column count mismatch.");
@@ -190,7 +183,7 @@ bool ParamGetterWidget_DoubleTable::isValidData(const Eigen::MatrixXd& _src)
   return true;
 }
 
-void ParamGetterWidget_DoubleTable::addRow()
+void DoubleMatrixEdit::addRow()
 {
   const auto rows = count();
   table_->insertRow(rows);
@@ -207,7 +200,7 @@ void ParamGetterWidget_DoubleTable::addRow()
   }
 }
 
-void ParamGetterWidget_DoubleTable::deleteRow()
+void DoubleMatrixEdit::deleteRow()
 {
   const auto row = table_->currentRow();
   if (row < 0) {
@@ -216,7 +209,7 @@ void ParamGetterWidget_DoubleTable::deleteRow()
   table_->removeRow(row);
 }
 
-void ParamGetterWidget_DoubleTable::loadCsv()
+void DoubleMatrixEdit::loadCsv()
 {
   // Get CSV file path.
   const auto file_path = getCsvPath();
@@ -260,7 +253,7 @@ void ParamGetterWidget_DoubleTable::loadCsv()
   qt::qInfoBox(this, "Data loaded successfully.");
 }
 
-void ParamGetterWidget_DoubleTable::onCellValueChanged()
+void DoubleMatrixEdit::onCellValueChanged()
 {
   Q_EMIT dataChanged();
 }

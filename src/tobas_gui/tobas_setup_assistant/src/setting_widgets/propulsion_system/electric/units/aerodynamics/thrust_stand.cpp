@@ -21,8 +21,7 @@ constexpr char kDataLabel[] = "Thrust Stand Test Data";
 
 AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand()
 {
-  data_ =
-    new ParamGetterWidget_DoubleTable(kDataLabel, "Select Test Data", { kRpmColName, kThrustColName, kTorqueColName });
+  data_ = new DoubleMatrixEdit(kDataLabel, "Select Test Data", { kRpmColName, kThrustColName, kTorqueColName });
   data_->setToolTip(
     "Measured propeller speed in rpm, thrust in newtons, and reaction torque in newton-meters. "
     "Use measurements for the selected motor and propeller.");
