@@ -3,11 +3,6 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/fixed_wing.hpp"
 
-#include <QVBoxLayout>
-
-#include <tobas_gui_common/constants.hpp>
-#include <tobas_qt_tools/widgets/label.hpp>
-#include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
 namespace tobas
@@ -27,16 +22,9 @@ FixedWingWidget::FixedWingWidget(rclcpp::Node::SharedPtr node, const uadf::Model
   const auto tabs = new qt::TabWidget();
   tabs->setTabWidth(200);
   tabs->enableWheelEvent(false);
-  const auto add_tab = [tabs](QWidget* content, const char* label)
-  {
-    const auto scroll = new qt::ScrollArea();
-    scroll->setFrameShape(QFrame::NoFrame);
-    scroll->setWidget(content);
-    tabs->addTab(scroll, label);
-  };
-  add_tab(vehicle_, kVehicleLabel);
-  add_tab(aero_coefs_, kAeroCoefsLabel);
-  add_tab(control_surfaces_, kControlSurfacesLabel);
+  tabs->addTab(vehicle_, kVehicleLabel);
+  tabs->addTab(aero_coefs_, kAeroCoefsLabel);
+  tabs->addTab(control_surfaces_, kControlSurfacesLabel);
   addWidget(tabs, 1);
 }
 
