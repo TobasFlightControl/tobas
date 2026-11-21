@@ -16,6 +16,7 @@
 #include "tobas_setup_assistant/setting_tabs/controller/planar_multicopter.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/random_axis_tilt_multicopter.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/y_axis_tilt_multicopter.hpp"
+#include "tobas_setup_assistant/setting_tabs/controller/y_axis_tilt_vtol.hpp"
 
 namespace tobas::gui::sa::ctrl
 {
@@ -33,6 +34,7 @@ ControllerWidget::ControllerWidget()
   addController(new YAxisTiltMulticopterWidget());
   addController(new RandomAxisTiltMulticopterWidget());
   addController(new FixedWingWidget());
+  addController(new YAxisTiltVtolWidget());
   TOBAS_CHECK(static_cast<size_t>(stack_->count()) == magic_enum::enum_count<FrameType>());
 
   // Layout

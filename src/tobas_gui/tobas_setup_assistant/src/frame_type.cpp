@@ -13,6 +13,7 @@ constexpr char kNonPlanarMulticopter[] = "Non-Planar Multicopter";
 constexpr char kYAxisTiltMulticopter[] = "Y-Axis Tilt Multicopter";
 constexpr char kRandomAxisTiltMulticopter[] = "Random Tilt Multicopter";
 constexpr char kFixedWing[] = "Fixed Wing";
+constexpr char kYAxisTiltVtol[] = "Y Axis Tilt VTOL";
 }  // namespace
 
 std::string textFromEnum(FrameType _arg)
@@ -30,6 +31,8 @@ std::string textFromEnum(FrameType _arg)
       return kRandomAxisTiltMulticopter;
     case FrameType::kFixedWing:
       return kFixedWing;
+    case FrameType::kYAxisTiltVtol:
+      return kYAxisTiltVtol;
     default:
       throw;
   }
@@ -59,6 +62,10 @@ bool enumFromText(const std::string& _text, FrameType& _dst)
   }
   else if (_text == kFixedWing) {
     _dst = FrameType::kFixedWing;
+    return true;
+  }
+  else if (_text == kYAxisTiltVtol) {
+    _dst = FrameType::kYAxisTiltVtol;
     return true;
   }
   else {
