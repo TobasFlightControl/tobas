@@ -6,7 +6,7 @@
 #include <expected>
 #include <string>
 
-namespace tobas::gui::sa::fw
+namespace tobas::gui::sa::fw::mn
 {
 /** Aerodynamic coefficients read from VSPAERO stability output. */
 struct VspaeroData
@@ -35,4 +35,4 @@ struct VspaeroData
 
 /** Return parsed coefficients or a diagnostic describing the failure. */
 std::expected<VspaeroData, std::string> parseVspaero(const std::string& _stab_path);
-}  // namespace tobas::gui::sa::fw
+}  // namespace tobas::gui::sa::fw::mn

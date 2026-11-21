@@ -13,7 +13,7 @@
 
 #include "tobas_setup_assistant/utils/double_range.hpp"
 
-namespace tobas::gui::sa::fw
+namespace tobas::gui::sa::fw::mn
 {
 class VehicleWidget : public qt::ScrollArea
 {
@@ -29,11 +29,18 @@ public:
   YAML::Node dump() const;
   void load(const YAML::Node& _node);
 
+  // getters
   double wingSurface() const;
   double wingSpan() const;
   double mac() const;
   Eigen::Vector3d momentReferencePoint() const;
   st::Range<double> alphaLimit() const;
+  // setters
+  void wingSurface(const double& value);
+  void wingSpan(const double& value);
+  void mac(const double& value);
+  void momentReferencePoint(const Eigen::Vector3d& value);
+  void alphaLimit(const st::Range<double>& value);
 
 private:
   qt::DoubleSpinBox* wing_surface_;
@@ -42,4 +49,4 @@ private:
   qt::Vector3dEditHorizontal* moment_reference_point_;
   DoubleRangeWidget* alpha_limit_;
 };
-}  // namespace tobas::gui::sa::fw
+}  // namespace tobas::gui::sa::fw::mn

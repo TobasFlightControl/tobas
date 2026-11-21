@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/manual/vspaero.hpp"
 
 #include <fstream>
 #include <map>
 #include <sstream>
 #include <stdexcept>
 
-namespace tobas::gui::sa::fw
+namespace tobas::gui::sa::fw::mn
 {
 std::expected<VspaeroData, std::string> parseVspaero(const std::string& _stab_path)
 {
@@ -97,4 +97,4 @@ std::expected<VspaeroData, std::string> parseVspaero(const std::string& _stab_pa
 
   return data;
 }
-}  // namespace tobas::gui::sa::fw
+}  // namespace tobas::gui::sa::fw::mn

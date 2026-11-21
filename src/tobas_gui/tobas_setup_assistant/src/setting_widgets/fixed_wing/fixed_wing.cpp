@@ -3,35 +3,58 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/fixed_wing.hpp"
 
-#include <QVBoxLayout>
+#include <ranges>
+
+#include <QDebug>
+#include <QRadioButton>
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
+#include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace tobas::gui::sa::fw
 {
 namespace
 {
-constexpr char kVehicleLabel[] = "Vehicle Parameters";
-constexpr char kAeroCoefsLabel[] = "Aerodynamic Coefficients";
-constexpr char kControlSurfacesLabel[] = "Control Surfaces";
+using self = FixedWingWidget;
+using super = BaseSettingWidget;
+
+constexpr char kTypeKey[] = "setting_type";
+constexpr char kGeometryBasedLabel[] = "Geometry-Based";
+constexpr char kManualLabel[] = "Manual";
+constexpr int kDefaultIndex = 0;
+constexpr int kTabWidth = 120;
+constexpr int kTabHeight = 40;
 }  // namespace
 
-FixedWingWidget::FixedWingWidget(const uadf::Model& _uadf)
+FixedWingWidget::FixedWingWidget(const uadf::Model& _uadf, const kdl::Tree& _tree)
 {
-  vehicle_ = new VehicleWidget();
-  aero_coefs_ = new AerodynamicsCoefficientsWidget();
-  control_surfaces_ = new ControlSurfacesWidget(_uadf);
+  type_btn_group_ = new QButtonGroup(this);
+  type_btn_group_->setExclusive(true);
 
-  const auto tabs = new qt::TabWidget();
-  tabs->setTabWidth(200);
-  tabs->enableWheelEvent(false);
+  stack_ = new qt::StackedWidget();
+  int id = 0;
 
-  tabs->addTab(vehicle_, kVehicleLabel);
-  tabs->addTab(aero_coefs_, kAeroCoefsLabel);
-  tabs->addTab(control_surfaces_, kControlSurfacesLabel);
+  // widgets in stack
+  manual_ = new mn::ManualWidget(_uadf);
+  geometry_based_ = new gb::GeometryBasedWidget(_uadf, _tree, manual_);
+
+  // helper button
+  const auto helper_btn = new QRadioButton(geometry_based_->name());
+  type_btn_group_->addButton(helper_btn, id++);
+  // coefs button
+  const auto coefs_btn = new QRadioButton(manual_->name());
+  type_btn_group_->addButton(coefs_btn, id++);
+
+  // stack
+  stack_->addWidget(geometry_based_);  // geometry basedが先
+  stack_->addWidget(manual_);
 
   const auto rows = new QVBoxLayout(this);
-  rows->addWidget(tabs);
+  rows->addWidget(helper_btn);
+  rows->addWidget(coefs_btn);
+  rows->addWidget(stack_);
+
+  connect(type_btn_group_, &QButtonGroup::idClicked, this, &self::onSettingTypeClicked);
 }
 
 const char* FixedWingWidget::name() const
@@ -46,38 +69,37 @@ const char* FixedWingWidget::title() const
 
 const char* FixedWingWidget::description() const
 {
-  return "Configure the fixed-wing geometry, aerodynamic coefficients, and control-surface derivatives. "
-         "Use the same reference wing area, span, and mean aerodynamic chord as the aerodynamic data. "
-         "Moment coefficients are referenced to the aerodynamic center specified in Vehicle Parameters. "
-         "<a href="
-         "'https://vspu.larc.nasa.gov/training-content/chapter-3-model-analysis-in-openvsp/vspaero-basics'"
-         ">VSPAERO</a> "
-         "stability output files (.stab) can be imported in the Aerodynamic Coefficients tab.";
+  return "Build the mathematical model for the fixed wing and its control surfaces.<br>"
+         "Choose one of the following methods for defining the aircraft stability derivatives:<br>"
+         "1. Geometry-Based: Estimate the stability derivatives from the specified wing geometry.<br>"
+         "2. Manual: Enter the stability derivatives directly.<br>"
+         "When using the Manual method, "
+         "<a href=\"https://vspu.larc.nasa.gov/training-content/chapter-3-model-analysis-in-openvsp/vspaero-basics\">"
+         "VSPAERO"
+         "</a> "
+         "analysis results can be imported to provide the stability derivatives.";
 }
 
 void FixedWingWidget::updateInternalDataStructures()
 {
-  vehicle_->updateInternalDataStructures();
-  aero_coefs_->updateInternalDataStructures();
-  control_surfaces_->updateInternalDataStructures();
+  geometry_based_->updateInternalDataStructures();
+  manual_->updateInternalDataStructures();
 }
 
 void FixedWingWidget::setToDefaults()
 {
-  vehicle_->setToDefaults();
-  aero_coefs_->setToDefaults();
-  control_surfaces_->setToDefaults();
+  geometry_based_->setToDefaults();
+  manual_->setToDefaults();
+
+  setCurrentIndex(kDefaultIndex);
 }
 
 bool FixedWingWidget::isValid()
 {
-  if (!vehicle_->isValid()) {
+  if (!geometry_based_->isValid()) {
     return false;
   }
-  if (!aero_coefs_->isValid()) {
-    return false;
-  }
-  if (!control_surfaces_->isValid()) {
+  if (!manual_->isValid()) {
     return false;
   }
 
@@ -88,32 +110,95 @@ YAML::Node FixedWingWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kVehicleLabel] = vehicle_->dump();
-  node[kAeroCoefsLabel] = aero_coefs_->dump();
-  node[kControlSurfacesLabel] = control_surfaces_->dump();
+  const auto type_btn = type_btn_group_->checkedButton();
+  node[kTypeKey] = type_btn->text();
+  node[kGeometryBasedLabel] = geometry_based_->dump();
+  node[kManualLabel] = manual_->dump();
 
   return node;
 }
 
 void FixedWingWidget::load(const YAML::Node& _node)
 {
-  vehicle_->load(_node[kVehicleLabel]);
-  aero_coefs_->load(_node[kAeroCoefsLabel]);
-  control_surfaces_->load(_node[kControlSurfacesLabel]);
+  const auto type_text = _node[kTypeKey].as<QString>();
+  for (const auto& [idx, button] : std::views::enumerate(type_btn_group_->buttons())) {
+    if (button->text() == type_text) {
+      setCurrentIndex(idx);
+      break;
+    }
+  }
+
+  geometry_based_->load(_node[kGeometryBasedLabel]);
+  manual_->load(_node[kManualLabel]);
 }
 
-const VehicleWidget* FixedWingWidget::vehicle() const
+gb::Calculator* FixedWingWidget::calculator() const
 {
-  return vehicle_;
+  return geometry_based_->calculator();
 }
 
-const AerodynamicsCoefficientsWidget* FixedWingWidget::aeroCoefs() const
+const mn::VehicleWidget* FixedWingWidget::vehicle() const
 {
-  return aero_coefs_;
+  return manual_->vehicle();
 }
 
-const ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
+const mn::AerodynamicsCoefficientsWidget* FixedWingWidget::aeroCoefs() const
 {
-  return control_surfaces_;
+  return manual_->aeroCoefs();
+}
+
+const mn::ControlSurfacesWidget* FixedWingWidget::controlSurfaces() const
+{
+  return manual_->controlSurfaces();
+}
+
+FixedWingWidget::Type FixedWingWidget::type() const
+{
+  if (cur_idx_ == 0) {
+    return kGEOMETRY_BASED;
+  }
+  else {
+    return kMANUAL;
+  }
+}
+
+void FixedWingWidget::setCurrentButtonIndex(int index)
+{
+  // Do nothing if the checked button does not change.
+  if (type_btn_group_->checkedId() == index) {
+    return;
+  }
+
+  // Get the buttons before and after switching.
+  const auto old_btn = type_btn_group_->checkedButton();
+  const auto new_btn = type_btn_group_->button(index);
+
+  // Block all signals; passing nullptr is okay.
+  const QSignalBlocker block_group(type_btn_group_);
+  const QSignalBlocker block_old_btn(old_btn);
+  const QSignalBlocker block_new_btn(new_btn);
+
+  // Check the new button; `old_btn` is unchecked automatically because the group is exclusive.
+  new_btn->setChecked(true);
+}
+
+void FixedWingWidget::setCurrentIndex(int index)
+{
+  setCurrentButtonIndex(index);
+  stack_->setCurrentIndex(index);
+  cur_idx_ = index;
+}
+
+void FixedWingWidget::onSettingTypeClicked(int new_idx)
+{
+  qDebug().nospace() << "FixedWingWidget::onSettingTypeChanged(" << new_idx << ")";
+
+  if (new_idx == cur_idx_) {
+    return;
+  }
+
+  // Switch propulsion-system widgets.
+  stack_->setCurrentIndex(new_idx);
+  cur_idx_ = new_idx;
 }
 }  // namespace tobas::gui::sa::fw

@@ -1,0 +1,76 @@
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/geometry_based.hpp"
+
+#include <QVBoxLayout>
+
+#include <tobas_gui_common/constants.hpp>
+#include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
+
+#include <tobas_setup_assistant/setting_tabs/fixed_wing/geometry_based/calculator.hpp>
+
+namespace tobas::gui::sa::fw::gb
+{
+GeometryBasedWidget::GeometryBasedWidget(const uadf::Model& uadf, const kdl::Tree& tree, mn::ManualWidget* manual)
+{
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
+
+  // Aerodynamic Coefficients
+  rows->addWidget(new qt::Label(kWingsLabel, cmn::kTitlePointSize));
+  wings_ = new WingsWidget();
+  rows->addWidget(wings_);
+
+  // Control Surfaces
+  rows->addWidget(new qt::Label(kControlSurfacesLabel, cmn::kTitlePointSize));
+  control_surfaces_ = new ControlSurfacesWidget(uadf, wings_);
+  rows->addWidget(control_surfaces_);
+
+  // calculate button
+  calculator_ = new Calculator(uadf, tree, manual, wings_, control_surfaces_);
+  qt::addWidgetCenter(calculator_, rows);
+}
+
+const char* GeometryBasedWidget::name() const
+{
+  return "Geometry-Based";
+}
+
+void GeometryBasedWidget::updateInternalDataStructures()
+{
+  wings_->updateInternalDataStructures();
+  control_surfaces_->updateInternalDataStructures();
+  calculator_->updateInternalDataStructures();
+}
+
+void GeometryBasedWidget::setToDefaults()
+{
+  wings_->setToDefaults();
+  control_surfaces_->setToDefaults();
+}
+
+bool GeometryBasedWidget::isValid()
+{
+  return wings_->isValid() && control_surfaces_->isValid();
+}
+
+Calculator* GeometryBasedWidget::calculator()
+{
+  return calculator_;
+}
+
+YAML::Node GeometryBasedWidget::dump() const
+{
+  YAML::Node node(YAML::NodeType::Map);
+
+  node[kWingsLabel] = wings_->dump();
+  node[kControlSurfacesLabel] = control_surfaces_->dump();
+
+  return node;
+}
+
+void GeometryBasedWidget::load(const YAML::Node& node)
+{
+  wings_->load(node[kWingsLabel]);
+  control_surfaces_->load(node[kControlSurfacesLabel]);
+}
+}  // namespace tobas::gui::sa::fw::gb

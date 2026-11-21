@@ -26,6 +26,7 @@
   <depend>tobas_ros2_tools</depend>
   <depend>tobas_rviz_wrapper</depend>
   <depend>tobas_string_tools</depend>
+  <depend>tobas_tools</depend>
   <depend>tobas_uadf</depend>
   <depend>tobas_urdf</depend>
   <depend>tobas_visualization_msgs</depend>

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/vehicle.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/manual/vehicle.hpp"
 
 #include <QFrame>
 
@@ -11,7 +11,7 @@
 #include <tobas_yaml_tools/convert/range.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
-namespace tobas::gui::sa::fw
+namespace tobas::gui::sa::fw::mn
 {
 namespace
 {
@@ -142,4 +142,29 @@ st::Range<double> VehicleWidget::alphaLimit() const
 {
   return alpha_limit_->value();
 }
-}  // namespace tobas::gui::sa::fw
+
+void VehicleWidget::wingSurface(const double& value)
+{
+  wing_surface_->setValue(value);
+}
+
+void VehicleWidget::wingSpan(const double& value)
+{
+  wing_span_->setValue(value);
+}
+
+void VehicleWidget::mac(const double& value)
+{
+  mac_->setValue(value);
+}
+
+void VehicleWidget::momentReferencePoint(const Eigen::Vector3d& value)
+{
+  moment_reference_point_->setVector(value);
+}
+
+void VehicleWidget::alphaLimit(const st::Range<double>& value)
+{
+  alpha_limit_->setValue(value);
+}
+}  // namespace tobas::gui::sa::fw::mn

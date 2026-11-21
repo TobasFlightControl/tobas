@@ -9,7 +9,7 @@
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_uadf/model.hpp>
 
-namespace tobas::gui::sa::fw
+namespace tobas::gui::sa::fw::mn
 {
 class ControlSurfacesWidget : public qt::TableWidget
 {
@@ -66,4 +66,4 @@ private:
 
   void setToDefault(int _row);
 };
-}  // namespace tobas::gui::sa::fw
+}  // namespace tobas::gui::sa::fw::mn

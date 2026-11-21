@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/aero_coefs.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/manual/aero_coefs.hpp"
 
 #include <QDir>
 #include <QFileDialog>
@@ -17,9 +17,9 @@
 #include <tobas_yaml_tools/format.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/constants.hpp"
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/vspaero.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/manual/vspaero.hpp"
 
-namespace tobas::gui::sa::fw
+namespace tobas::gui::sa::fw::mn
 {
 AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget()
 {
@@ -357,6 +357,101 @@ double AerodynamicsCoefficientsWidget::c_yaw_r() const
   return c_yaw_r_->value();
 }
 
+void AerodynamicsCoefficientsWidget::c_lift_0(const double& value)
+{
+  return c_lift_0_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_lift_alpha(const double& value)
+{
+  return c_lift_alpha_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_drag_0(const double& value)
+{
+  return c_drag_0_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_drag_alpha(const double& value)
+{
+  return c_drag_alpha_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_drag_alpha2(const double& value)
+{
+  return c_drag_alpha2_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_side_beta(const double& value)
+{
+  return c_side_beta_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_side_p(const double& value)
+{
+  return c_side_p_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_side_r(const double& value)
+{
+  return c_side_r_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_roll_beta(const double& value)
+{
+  return c_roll_beta_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_roll_p(const double& value)
+{
+  return c_roll_p_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_roll_r(const double& value)
+{
+  return c_roll_r_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_pitch_0(const double& value)
+{
+  return c_pitch_0_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_pitch_alpha(const double& value)
+{
+  return c_pitch_alpha_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_pitch_abs_beta(const double& value)
+{
+  return c_pitch_abs_beta_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_pitch_alpha_rate(const double& value)
+{
+  return c_pitch_alpha_rate_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_pitch_q(const double& value)
+{
+  return c_pitch_q_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_yaw_beta(const double& value)
+{
+  return c_yaw_beta_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_yaw_p(const double& value)
+{
+  return c_yaw_p_->setValue(value);
+}
+
+void AerodynamicsCoefficientsWidget::c_yaw_r(const double& value)
+{
+  return c_yaw_r_->setValue(value);
+}
+
 void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
 {
   // Get the previously opened path.
@@ -411,4 +506,4 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
 
   qt::qInfoBox(this, "Coefficients have been loaded successfully.");
 }
-}  // namespace tobas::gui::sa::fw
+}  // namespace tobas::gui::sa::fw::mn
