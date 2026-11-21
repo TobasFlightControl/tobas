@@ -11,7 +11,6 @@ namespace sa
 {
 namespace propulsion
 {
-static constexpr int kDataTableColWidth = 180;
 static constexpr int kCopyToAllButtonWidth = 128;
 static constexpr int kConfigurationTabWidth = 120;
 static constexpr int kLinkNameTabHorizontalPadding = 16;
