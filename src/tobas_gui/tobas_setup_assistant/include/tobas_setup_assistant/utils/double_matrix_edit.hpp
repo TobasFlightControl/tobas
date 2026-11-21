@@ -21,7 +21,7 @@ Q_SIGNALS:
   void dataChanged();
 
 public:
-  explicit DoubleMatrixEdit(const QString& _settings_key, const QString& _csv_dialog_title, const QStringList& _labels);
+  explicit DoubleMatrixEdit(const QString& _title, const QString& _csv_dialog_title, const QStringList& _column_labels);
 
   Eigen::MatrixXd getData() const;
   bool setData(const Eigen::MatrixXd& _src);

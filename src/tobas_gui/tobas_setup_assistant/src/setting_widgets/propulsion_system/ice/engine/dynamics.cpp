@@ -3,13 +3,10 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/engine/dynamics.hpp"
 
-#include <QLabel>
 #include <QVBoxLayout>
 
 #include <eigen3/Eigen/SVD>
 
-#include <tobas_gui_common/constants.hpp>
-#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
@@ -25,9 +22,6 @@ constexpr char kDataLabel[] = "Engine Torque Test Data";
 
 EngineDynamicsWidget::EngineDynamicsWidget()
 {
-  const auto title = new QLabel(kDataLabel);
-  title->setFont(qt::makeFont(cmn::kBodyPointSize, QFont::Bold));
-
   data_ = new DoubleMatrixEdit(kDataLabel, "Select Test Data", { "Throttle [%]", "RPM", "Torque [Nm]" });
   data_->setToolTip(
     "Engine test measurements: throttle in percent, rotational speed in rpm, and torque in newton-meters. "
@@ -38,7 +32,6 @@ EngineDynamicsWidget::EngineDynamicsWidget()
 
   // Layout
   const auto rows = new QVBoxLayout(this);
-  rows->addWidget(title, 0);
   rows->addWidget(data_, 1);
 }
 

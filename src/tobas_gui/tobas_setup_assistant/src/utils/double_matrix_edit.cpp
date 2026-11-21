@@ -11,10 +11,13 @@
 #include <QFileInfo>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
 
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_std_tools/check.hpp>
@@ -24,13 +27,13 @@
 namespace tobas::gui::sa
 {
 DoubleMatrixEdit::DoubleMatrixEdit(
-  const QString& _settings_key,
+  const QString& _title,
   const QString& _csv_dialog_title,
-  const QStringList& _labels)
-  : last_opened_dir_key_("double_matrix_edit/last_opened_dir/" + QString(_settings_key).replace(' ', '_'))
+  const QStringList& _column_labels)
+  : last_opened_dir_key_("double_matrix_edit/last_opened_dir/" + QString(_title).replace(' ', '_'))
   , csv_dialog_title_(_csv_dialog_title)
-  , labels_(_labels)
-  , num_entry_(_labels.size())
+  , labels_(_column_labels)
+  , num_entry_(_column_labels.size())
 {
   TOBAS_CHECK(num_entry_ > 0);
 
@@ -38,6 +41,9 @@ DoubleMatrixEdit::DoubleMatrixEdit(
   maximum_.fill(std::numeric_limits<double>::max(), num_entry_);
   default_.fill(0.0, num_entry_);
   decimals_.fill(2, num_entry_);
+
+  const auto title = new QLabel(_title);
+  title->setFont(qt::makeFont(cmn::kBodyPointSize, QFont::Bold));
 
   const auto add_row_btn = new QPushButton("Add Row");
   const auto delete_row_btn = new QPushButton("Delete Row");
@@ -51,7 +57,7 @@ DoubleMatrixEdit::DoubleMatrixEdit(
   load_csv_btn->setFixedWidth(kButtonWidth);
 
   table_ = new qt::TableWidget(0, num_entry_);
-  table_->setHorizontalHeaderLabels(_labels);
+  table_->setHorizontalHeaderLabels(_column_labels);
 
   const auto ver_header = table_->verticalHeader();
   ver_header->setVisible(true);  // Show row numbers.
@@ -63,16 +69,17 @@ DoubleMatrixEdit::DoubleMatrixEdit(
 
   // Layout
   const auto cols = new QHBoxLayout();
+  cols->addWidget(title);
+  cols->addStretch(1);
   cols->addWidget(add_row_btn);
   cols->addWidget(delete_row_btn);
   cols->addWidget(clear_btn);
   cols->addWidget(load_csv_btn);
-  cols->addStretch(1);  // Left-align the buttons.
 
   const auto rows = new QVBoxLayout(this);
   rows->setContentsMargins(0, 0, 0, 0);
-  rows->addLayout(cols);
-  rows->addWidget(table_);
+  rows->addLayout(cols, 0);
+  rows->addWidget(table_, 1);
 
   // Connection
   connect(add_row_btn, &QPushButton::clicked, this, &self::addRow);
