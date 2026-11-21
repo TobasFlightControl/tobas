@@ -128,6 +128,7 @@ QwtPlot2::QwtPlot2(QWidget* parent) : super(parent)
   legend_item->setMargin(1);                                 // 1-pixel outer margin.
   legend_item->setItemMargin(1);                             // 1-pixel margin around each item.
   legend_item->setItemSpacing(1);                            // 1-pixel gap between icon and label.
+  legend_item->setBorderDistance(2);                         // Qwt 6.1 equivalent of the canvas offset.
 }
 
 void QwtPlot2::setAxisNoLabel(const QwtPlot::Axis& axis)

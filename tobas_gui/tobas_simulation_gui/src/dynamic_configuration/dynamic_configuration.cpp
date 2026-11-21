@@ -34,7 +34,7 @@ DynamicConfigWidget::DynamicConfigWidget(rclcpp::Node::SharedPtr node)
   suspended_load_ = new SuspendedLoadWidget(node);
   scroll_rows->addWidget(suspended_load_);
 
-  scroll_rows->addStretch();
+  scroll_rows->addStretch(1);
 }
 
 void DynamicConfigWidget::updateNamespace(const std::string& ns)

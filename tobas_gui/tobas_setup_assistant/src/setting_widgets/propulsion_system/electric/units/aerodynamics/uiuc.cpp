@@ -35,7 +35,6 @@ AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(rclcpp::Node::SharedPtr node, c
     node, "Measurements in static condition", "Select UIUC Data", { kRpmColName, kUiucCtColName, kUiucCpColName });
   data_->setDecimals({ 3, 6, 6 });
   data_->setMinimum({ 1e-3, 1e-6, 1e-6 });
-  data_->table()->setColumnsWidth(kDataTableColWidth);
 
   const auto rows = new QVBoxLayout(this);
   rows->addWidget(data_);

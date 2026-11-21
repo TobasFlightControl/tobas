@@ -50,7 +50,7 @@ CustomFrameWidget::CustomFrameWidget()
   const auto rows = new QVBoxLayout();
   rows->addWidget(new qt::Label("RC Command", cmn::kLabelPSize, QFont::Bold));
   rows->addLayout(form);
-  rows->addStretch();
+  rows->addStretch(1);
 
   setLayout(rows);
 }

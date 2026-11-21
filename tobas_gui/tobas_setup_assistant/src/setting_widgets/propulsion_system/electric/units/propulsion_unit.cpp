@@ -33,7 +33,7 @@ PropulsionUnitWidget::PropulsionUnitWidget(rclcpp::Node::SharedPtr node)
   tabs_ = new qt::TabWidget();
   tabs_->setCornerWidget(corner_widget, Qt::TopRightCorner);
   tabs_->enableWheelEvent(false);
-  tabs_->setTabSize(kConfigurationTabWidth, kTabHeight);
+  tabs_->setTabWidth(kConfigurationTabWidth);
   rows->addWidget(tabs_);
 
   esc_ = new ESCWidget();

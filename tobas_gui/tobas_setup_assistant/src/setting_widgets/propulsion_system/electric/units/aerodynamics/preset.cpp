@@ -57,7 +57,7 @@ AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* prop
   // Layout
   const auto rows = new QVBoxLayout(this);
   rows->addWidget(data_name_);
-  rows->addStretch();
+  rows->addStretch(1);
 }
 
 const char* AerodynamicsWidget_Preset::name() const

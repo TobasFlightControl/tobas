@@ -38,7 +38,7 @@ CommandersWidget::CommandersWidget(
   joint_commander_ = new JointCommanderWidget(node, tree, drone);
   scroll_rows->addWidget(joint_commander_);
 
-  scroll_rows->addStretch();
+  scroll_rows->addStretch(1);
 }
 
 void CommandersWidget::updateInternalDataStructures()

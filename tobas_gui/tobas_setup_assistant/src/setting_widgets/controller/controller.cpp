@@ -46,7 +46,7 @@ ControllerWidget::ControllerWidget()
 
   // Layout
   addWidget(stack_);
-  addStretch();
+  addStretch(1);
   addWidget(dont_use_builtin_ctrl_);
 
   // Connection

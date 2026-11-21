@@ -27,7 +27,6 @@ namespace electric
 PropulsionUnitsWidget::PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf)
   : node_(node), uadf_(uadf)
 {
-  setTabSize(kTabWidth, kTabHeight);
 }
 
 void PropulsionUnitsWidget::updateInternalDataStructures()

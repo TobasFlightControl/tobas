@@ -42,7 +42,6 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const Prope
   data_->setMinimum({ 1, -90, 1e-6, 1e-6 });
   data_->setMaximum({ INFINITY, 90, INFINITY, INFINITY });
   data_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-  data_->table()->setColumnsWidth(kDataTableColWidth);
 
   // Layout
   const auto rows = new QVBoxLayout();

@@ -114,7 +114,7 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   header_cols->addWidget(param_tuning_btn, 1);
   header_cols->addWidget(flight_log_btn, 1);
   header_cols->addWidget(simulation_btn, 1);
-  header_cols->addStretch();
+  header_cols->addStretch(1);
   header_cols->addWidget(remote_conn_);
   header_cols->addLayout(pkg_rows);
   qt::addSpacing(header_cols, 32, QSizePolicy::Preferred);  // Collapse this when there is not enough space.

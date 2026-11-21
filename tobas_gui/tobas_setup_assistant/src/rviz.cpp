@@ -64,7 +64,7 @@ RvizWidget::RvizWidget(const uadf::Model& uadf, const kdl::Tree& tree)
   cols->setContentsMargins(0, 0, 0, 0);
   rows->addWidget(rviz_manager_.widget());
   rows->addLayout(cols);
-  cols->addStretch();
+  cols->addStretch(1);
   cols->addWidget(visual_box);
   cols->addWidget(collision_box);
   cols->addWidget(inertia_box);

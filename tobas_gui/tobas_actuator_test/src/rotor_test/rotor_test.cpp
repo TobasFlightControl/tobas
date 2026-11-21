@@ -74,7 +74,7 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const RosQtBridge
   button_cols->addWidget(save_button_);
   connect(save_button_, &QPushButton::clicked, this, &self::onSaveButtonClicked);
 
-  button_cols->addStretch();
+  button_cols->addStretch(1);
 
   const auto rotor_cols = new QHBoxLayout();
   rows_->addLayout(rotor_cols);

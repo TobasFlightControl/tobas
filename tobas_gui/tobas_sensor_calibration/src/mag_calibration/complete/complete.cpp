@@ -104,7 +104,7 @@ CompleteMagCalibWidget::CompleteMagCalibWidget(rclcpp::Node::SharedPtr node, con
   button_cols->addWidget(start_button_);
   button_cols->addWidget(finish_button_);
   button_cols->addWidget(cancel_button_);
-  button_cols->addStretch();
+  button_cols->addStretch(1);
 
   const auto face_cols = new QHBoxLayout();
   for (const auto& face_circle : face_circles_) {

@@ -43,7 +43,7 @@ SimulationSettingsWidget::SimulationSettingsWidget(rclcpp::Node::SharedPtr node)
   debug_ = new DebugWidget();
   scroll_rows->addWidget(debug_);
 
-  scroll_rows->addStretch();
+  scroll_rows->addStretch(1);
 }
 
 LoopType SimulationSettingsWidget::loopType() const

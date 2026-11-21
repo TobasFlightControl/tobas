@@ -35,7 +35,6 @@ class JointStatePublisherWidget : public QWidget
   using self = JointStatePublisherWidget;
   using super = QWidget;
 
-  static constexpr int kButtonHeight = 40;
   static constexpr double kThrustJointAngularVelocity = M_PI / 6;  // [rad/s]
 
 public:

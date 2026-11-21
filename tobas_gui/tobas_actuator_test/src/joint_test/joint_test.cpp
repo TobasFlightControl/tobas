@@ -7,6 +7,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_ros2_tools/register.hpp>
 
 namespace tobas
@@ -51,13 +52,15 @@ JointTestWidget::JointTestWidget(
   const auto cols = new QHBoxLayout();
   cols->addWidget(start_button_);
   cols->addWidget(stop_button_);
-  cols->addStretch();
+  cols->addStretch(1);
   cols->addWidget(zero_button_);
   cols->addWidget(home_button_);
 
   rows_->addWidget(instruction);
   rows_->addLayout(cols);
-  rows_->addWidget(commands_publisher_);
+  const auto commands_scroll = new qt::ScrollArea();
+  commands_scroll->setWidget(commands_publisher_);
+  rows_->addWidget(commands_scroll, 1);
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);

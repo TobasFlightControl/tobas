@@ -76,7 +76,7 @@ DoubleTableWidget::DoubleTableWidget(
   load_csv_btn->setFixedWidth(kButtonWidth);
   cols->addWidget(load_csv_btn);
 
-  cols->addStretch();  // Left-align the button.
+  cols->addStretch(1);  // Left-align the button.
 
   table_ = new qt::TableWidget(0, num_entry_);
   table_->verticalHeader()->setVisible(true);  // Show row numbers.

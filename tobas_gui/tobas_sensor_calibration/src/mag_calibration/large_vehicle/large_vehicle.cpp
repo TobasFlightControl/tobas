@@ -36,7 +36,7 @@ LargeVehicleMagCalibWidget::LargeVehicleMagCalibWidget(rclcpp::Node::SharedPtr n
   setLayout(rows);
   rows->addWidget(instruction);
   rows->addWidget(start_button_);
-  rows->addStretch();
+  rows->addStretch(1);
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);

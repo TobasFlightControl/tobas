@@ -46,14 +46,14 @@ FailsafeWidget::FailsafeWidget()
   for (const auto& item : items_) {
     checklist_rows->addWidget(item);
   }
-  checklist_rows->addStretch();
+  checklist_rows->addStretch(1);
 
   const auto form = new QFormLayout();
   form->addRow("ESC no communication timeout", esc_no_comm_timeout_);
 
   const auto detail_rows = new QVBoxLayout();
   detail_rows->addLayout(form);
-  detail_rows->addStretch();
+  detail_rows->addStretch(1);
 
   const auto checklist_scroll = new qt::ScrollArea();
   checklist_scroll->setLayout(checklist_rows);
