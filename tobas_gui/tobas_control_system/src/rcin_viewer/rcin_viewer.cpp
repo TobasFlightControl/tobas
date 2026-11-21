@@ -24,7 +24,6 @@ RCInputViewerWidget::RCInputViewerWidget(const RosQtBridge& bridge)
   yaw_pitch_ = new StickPanel("Yaw / Pitch", "Yaw", "Pitch");
   roll_throttle_ = new StickPanel("Roll / Throttle", "Roll", "Throttle");
 
-  enable_ = makeBadge("---");
   kill_ = makeBadge("Kill: ---");
   sub_mode_ = makeBadge("Sub: ---");
   acrobat_ = makeBadge("Acro");
@@ -47,7 +46,6 @@ RCInputViewerWidget::RCInputViewerWidget(const RosQtBridge& bridge)
 
   const auto status_rows = new QVBoxLayout();
   status_rows->setSpacing(0);
-  status_rows->addWidget(enable_);
   status_rows->addLayout(switch_cols, 5);
   status_rows->addLayout(mode_cols, 8);
 
@@ -67,7 +65,6 @@ void RCInputViewerWidget::reset()
 {
   yaw_pitch_->reset();
   roll_throttle_->reset();
-  setBadge(enable_, "---", qt::color::gray90());
   setBadge(kill_, "Kill: ---", qt::color::gray90());
   setBadge(sub_mode_, "Sub: ---", qt::color::gray90());
   setMode(static_cast<FlightMode>(-1));
@@ -109,7 +106,6 @@ void RCInputViewerWidget::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& r
 
   yaw_pitch_->setValues(-rcin->yaw, rcin->pitch, true, rcin->enable);
   roll_throttle_->setValues(rcin->roll, rcin->throttle, true, rcin->enable);
-  setBadge(enable_, rcin->enable ? "Enabled" : "Disabled", rcin->enable ? qt::color::lightBlue() : qt::color::gray90());
   setBadge(
     kill_, QString("Kill: ") + (rcin->kill ? "ON" : "OFF"), rcin->kill ? qt::color::lightRed() : qt::color::gray90());
   setBadge(
