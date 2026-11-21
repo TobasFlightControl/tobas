@@ -83,7 +83,7 @@ Check the specifications of each component and enter the appropriate values for 
 
 Configure the propeller's aerodynamic properties under `Aerodynamics`.
 You can choose from several configuration methods. Because a model is already available for the DJI 9450 propeller used in this tutorial, use that model.
-Select `Select Propeller Model` from the first list, then select `dji_9450` from the list below it.
+Select `Select Propeller Model` from the first list, choose `DJI` under `Category`, then select the `9450` radio button.
 
 ![propulsion/aerodynamics](../../assets/airframe_config/propulsion/aerodynamics.png)
 

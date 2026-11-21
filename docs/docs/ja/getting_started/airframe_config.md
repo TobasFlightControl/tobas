@@ -83,7 +83,7 @@ $ ros2 launch tobas_setup_assistant setup_assistant.launch.py
 
 `Aerodynamics`ではプロペラの空力特性の設定を行います．
 複数の設定方法から選ぶことができますが，今回使用するプロペラである DJI 9450 は予めモデルが用意されているので，それを使います．
-最初の選択リストから`Select Propeller Model`を選択し，その下の選択リストで`dji_9450`を選択してください．
+最初の選択リストから`Select Propeller Model`を選択し，`Category`で`DJI`を選んでから，ラジオボタンで`9450`を選択してください．
 
 ![propulsion/aerodynamics](../../assets/airframe_config/propulsion/aerodynamics.png)
 

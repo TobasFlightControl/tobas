@@ -4,10 +4,14 @@
 #pragma once
 
 #include <filesystem>
+#include <string>
+#include <vector>
 
+#include <QButtonGroup>
 #include <eigen3/Eigen/Core>
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
+#include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "../propeller.hpp"
 #include "./base.hpp"
@@ -22,6 +26,13 @@ class AerodynamicsWidget_Preset : public AerodynamicsWidget_Base
   {
     kThrustStand,
     kUiuc,
+  };
+
+  struct DataCategory
+  {
+    DataType type;
+    std::vector<std::filesystem::path> paths;
+    QButtonGroup* buttons;
   };
 
 public:
@@ -43,7 +54,12 @@ public:
 private:
   const PropellerWidget* const propeller_;
 
-  qt::ComboBox* data_name_;
+  qt::ComboBox* category_name_;
+  qt::StackedWidget* data_lists_;
+  std::vector<DataCategory> data_categories_;
+
+  void addCategories(const std::filesystem::path& _directory, DataType _type);
+  void selectData(const std::string& _name);
 
   std::filesystem::path getCurrentDataPath() const;
   DataType getCurrentDataType() const;
@@ -51,9 +67,5 @@ private:
   std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd>
   parseThrustStandData(const std::filesystem::path& _path) const;
   std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> parseUiucData(const std::filesystem::path& _path) const;
-
-  static std::filesystem::path dataDir();
-  static std::filesystem::path thrustStandDataDir();
-  static std::filesystem::path uiucDataDir();
 };
 }  // namespace tobas::gui::sa::propulsion::electric
