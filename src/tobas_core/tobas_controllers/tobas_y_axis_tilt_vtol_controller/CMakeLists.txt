@@ -32,7 +32,7 @@ tobas_target_defaults(${PROJECT_NAME}_node)
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
 target_link_options(${PROJECT_NAME}_node PRIVATE -Wl,--no-undefined)
 rclcpp_components_register_node(
-  ${PROJECT_NAME}_node PLUGIN "tobas::y_axis_tilt_vtol_controller::ControllerNode" EXECUTABLE controller
+  ${PROJECT_NAME}_node PLUGIN "tobas::y_axis_tilt_vtol::ControllerNode" EXECUTABLE controller
 )
 tobas_target_defaults(controller)
 

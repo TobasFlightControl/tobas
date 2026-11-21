@@ -368,7 +368,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& _sdf)
     while (cs_elem) {
       ControlSurface cs;
 
-      cs.link_name = getSdfParam<std::string>(cs_elem, "jointName");
+      cs.link_name = getSdfParam<std::string>(cs_elem, "linkName");
       if (joint_names.contains(cs.link_name)) {
         TOBAS_EXIT("The joint names of each control surface must be unique.");
       }
