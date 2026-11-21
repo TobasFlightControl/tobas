@@ -57,12 +57,12 @@ void MagCalibrationWidget::updateInternalDataStructures()
 {
 }
 
-void MagCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
+void MagCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns, bool _simulation)
 {
   for (int i = 0; i < stack_->count(); ++i) {
     const auto widget = getWidget(i);
     widget->reset();
-    widget->initializeRosInterfaces(_node, _ns);
+    widget->initializeRosInterfaces(_node, _ns, _simulation);
   }
 
   setCurrentIndex(kDefaultIndex);

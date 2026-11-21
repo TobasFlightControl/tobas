@@ -105,10 +105,14 @@ void CompleteMagCalibWidget::reset()
   odom_.reset();
 }
 
-void CompleteMagCalibWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
+void CompleteMagCalibWidget::initializeRosInterfaces(
+  rclcpp::Node::SharedPtr _node,
+  const std::string& _ns,
+  bool _simulation)
 {
-  node_ = std::move(_node);
+  simulation_ = _simulation;
 
+  node_ = std::move(_node);
   set_params_sc_.emplace(node_, path::join(_ns, kRemoteIfaceNS, real::handler::mag::kSetParamSrv));
 }
 
@@ -179,7 +183,7 @@ void CompleteMagCalibWidget::paintEvent(QPaintEvent*)
 
 void CompleteMagCalibWidget::resetToPreStart()
 {
-  start_button_->setEnabled(true);
+  start_button_->setEnabled(!simulation_);
   finish_button_->setEnabled(false);
   cancel_button_->setEnabled(false);
 

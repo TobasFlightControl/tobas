@@ -59,9 +59,13 @@ void AccelCalibrationWidget::updateInternalDataStructures()
 {
 }
 
-void AccelCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
+void AccelCalibrationWidget::initializeRosInterfaces(
+  rclcpp::Node::SharedPtr _node,
+  const std::string& _ns,
+  bool _simulation)
 {
   thread_.initializeRosInterfaces(std::move(_node), _ns);
+  start_button_->setEnabled(!_simulation);
 }
 
 void AccelCalibrationWidget::clearRosInterfaces()

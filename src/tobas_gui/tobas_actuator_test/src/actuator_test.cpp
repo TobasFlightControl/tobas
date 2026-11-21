@@ -20,11 +20,11 @@ ActuatorTestWidget::ActuatorTestWidget(const rqt::RosQtBridge& _bridge, const kd
 
   rotor_test_ = new RotorTestWidget(_bridge, _drone);
   addTab(createTabPage(rotor_test_), "Rotor Test");
-  setTabEnabled(rotor_test_->parentWidget(), false);
 
   joint_test_ = new JointTestWidget(_bridge, _tree, _drone);
   addTab(createTabPage(joint_test_), "Joint Test");
-  setTabEnabled(joint_test_->parentWidget(), false);
+
+  setTabWidgetsEnabled(false);
 }
 
 QWidget* ActuatorTestWidget::createTabPage(BaseWidget* _content)

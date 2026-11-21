@@ -36,7 +36,7 @@ BootmediaConfigWidget::BootmediaConfigWidget()
   tabs_->addTab(createTabPage(new IpAddressWidget()), "IP Address");
 
   reset();
-  setTabsEnabled(false);
+  tabs_->setTabWidgetsEnabled(false);
 
   // Layout
   const auto header_cols = new QHBoxLayout();
@@ -99,25 +99,18 @@ QWidget* BootmediaConfigWidget::createTabPage(BaseConfigWidget* _content)
   return page;
 }
 
-void BootmediaConfigWidget::setTabsEnabled(bool _enabled)
-{
-  for (int i = 0; i < tabs_->count(); ++i) {
-    tabs_->widget(i)->setEnabled(_enabled);
-  }
-}
-
 void BootmediaConfigWidget::onMediaConnected()
 {
   for (int i = 0; i < tabs_->count(); ++i) {
     getWidget(i)->onConnected();
   }
 
-  setTabsEnabled(true);
+  tabs_->setTabWidgetsEnabled(true);
 }
 
 void BootmediaConfigWidget::onMediaDisconnected()
 {
   reset();
-  setTabsEnabled(false);
+  tabs_->setTabWidgetsEnabled(false);
 }
 }  // namespace tobas::gui::bm

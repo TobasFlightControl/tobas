@@ -301,7 +301,7 @@ std::expected<void, QString> GroundControlStationWidget::connectToVehicle(const 
   control_system_->updateInternalDataStructures();
 
   bridge_.initializeRosInterfaces(remote_node, ns);
-  sensor_calib_->initializeRosInterfaces(remote_node, ns);
+  sensor_calib_->initializeRosInterfaces(remote_node, ns, simulation_->isRunning());
   actuator_test_->initializeRosInterfaces(remote_node, ns);
   control_system_->initializeRosInterfaces(remote_node, ns);
   param_tuning_->initializeRosInterfaces(remote_node, ns);
@@ -355,8 +355,6 @@ void GroundControlStationWidget::updateWidgetEnabledStates()
   connect_btn_->setEnabled((connection_ready_ || (host_ready && vehicle_configured)));
   write_btn_->setEnabled(!sim_running && project_loaded && host_ready && write_id_->hasAcceptableInput() && disarmed);
 
-  sensor_calib_->setEnabled(!sim_running);
-  actuator_test_->setEnabled(!sim_running);
   simulation_->setEnabled(project_loaded && (!connection_ready_ || sim_running));
 }
 

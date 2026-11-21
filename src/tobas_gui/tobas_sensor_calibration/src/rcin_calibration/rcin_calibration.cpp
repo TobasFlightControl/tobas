@@ -209,11 +209,17 @@ void RCInputCalibrationWidget::clearRosInterfaces()
   ros_initialized_ = false;
 }
 
-void RCInputCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
+void RCInputCalibrationWidget::initializeRosInterfaces(
+  rclcpp::Node::SharedPtr _node,
+  const std::string& _ns,
+  bool _simulation)
 {
-  const auto set_params_srv = path::join(_ns, kRemoteIfaceNS, real::handler::rcin::kSetParamSrv);
-  set_params_sc_.emplace(std::move(_node), set_params_srv);
+  if (!_simulation) {
+    const auto set_params_srv = path::join(_ns, kRemoteIfaceNS, real::handler::rcin::kSetParamSrv);
+    set_params_sc_.emplace(std::move(_node), set_params_srv);
+  }
 
+  simulation_ = _simulation;
   ros_initialized_ = true;
 }
 
@@ -424,7 +430,7 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
   if (!saveParamsToGcs()) {
     return;
   }
-  if (!saveParamsToFc()) {
+  if (!simulation_ && !saveParamsToFc()) {
     return;
   }
 
