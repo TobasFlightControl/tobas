@@ -7,6 +7,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 
 namespace tobas::gui::at
 {
@@ -37,7 +38,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
     }
 
     const auto commander = new qt::DoubleSliderDisplay();
-    commander->setDecimals(3);
+    commander->setDecimals(1);
     commander->setText(QString::fromStdString(jnt_name));
     commander->setEnabled(false);
 
@@ -50,10 +51,10 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
           continue;
         }
 
-        commander->setMinimum(min_pos);
-        commander->setMaximum(max_pos);
+        commander->setMinimum(st::rad2deg(min_pos));
+        commander->setMaximum(st::rad2deg(max_pos));
         commander->setValue(0.0, true);
-        commander->setSuffix(" rad");
+        commander->setSuffix(" deg");
 
         break;
       }
@@ -64,10 +65,10 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
           max_vel = kDefaultMaxVel;
         }
 
-        commander->setMinimum(-max_vel);
-        commander->setMaximum(max_vel);
+        commander->setMinimum(st::rad2deg(-max_vel));
+        commander->setMaximum(st::rad2deg(max_vel));
         commander->setValue(0.0, true);
-        commander->setSuffix(" rad/s");
+        commander->setSuffix(" deg/s");
 
         break;
       }
@@ -131,7 +132,7 @@ void JointCommandsPublisherWidget::start()
     const auto& joint = drone_.joints.at(jnt_name);
     switch (joint.cmd_iface) {
       case JointCommandInterface::kPosition:
-        commander->setValue(joint.home_pos, true);
+        commander->setValue(st::rad2deg(joint.home_pos), true);
         break;
       case JointCommandInterface::kVelocity:
         commander->setValue(0.0, true);
@@ -179,7 +180,7 @@ void JointCommandsPublisherWidget::setHome()
     const auto& joint = drone_.joints.at(jnt_name);
     switch (joint.cmd_iface) {
       case JointCommandInterface::kPosition:
-        commander->setValue(joint.home_pos, true);
+        commander->setValue(st::rad2deg(joint.home_pos), true);
         break;
       case JointCommandInterface::kVelocity:
         commander->setValue(0.0, true);
@@ -219,12 +220,12 @@ void JointCommandsPublisherWidget::publishCurrentValues()
       case JointCommandInterface::kPosition:
         tar_pos->commands.emplace_back();
         tar_pos->commands.back().name = jnt_name;
-        tar_pos->commands.back().data = commander->getValue();
+        tar_pos->commands.back().data = st::deg2rad(commander->getValue());
         break;
       case JointCommandInterface::kVelocity:
         tar_vel->commands.emplace_back();
         tar_vel->commands.back().name = jnt_name;
-        tar_vel->commands.back().data = commander->getValue();
+        tar_vel->commands.back().data = st::deg2rad(commander->getValue());
         break;
       case JointCommandInterface::kEffort:
         tar_eff->commands.emplace_back();
