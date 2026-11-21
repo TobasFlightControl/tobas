@@ -2,6 +2,35 @@
 Changelog for package tobas_control_system
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'feature/refine-gui-layout' into jazzy
+* modify: Align GUI meter and typography with rolling
+* fix: Dim RC input badges when disabled
+* remove: Drop the RC input enable badge
+* fix: Align backported GUI layouts and includes
+  Match the source layouts for robot property spacing, flight log panel
+  proportions, command margins, project path width, and settings titles.
+  Size plot selectors to their contents to avoid clipped text.
+  Group and alphabetize includes according to the C++ coding rules.
+  Validation: 14 GUI package builds and pre-commit passed. Normal and
+  high-DPI GUI checks passed; 168 saved-setting entries matched the
+  baseline.
+* fix: Complete GUI layout backport
+  Preserve legacy RPM bounds and step rounding with Qt's range model.
+  Align parameter rows and restore table editor headings and sizing.
+  Apply missing table and copy-button dimensions while preserving
+  parameter keys, numeric precision, input ranges, and ROS callbacks.
+  Remove five unused internal Setup Assistant widget pairs.
+  Validate 14 packages, pre-commit checks, 205 gauge comparisons,
+  46 saved settings, the legacy table API, and GUI checks at 1x and 2x.
+* modify: Backport adaptive GUI layouts to Jazzy
+  Backport layout changes from e61bc6fe1 and 740d47e35 to the Qt 5 GUI.
+  Preserve existing APIs, parameter keys, value ranges, and ROS behavior.
+  Validate all 14 affected packages, pre-commit checks, settings round
+  trips against the previous version, and GUI checks at 1x and 2x scale.
+* Contributors: Masayoshi Dohi
+
 2.16.9 (2026-10-19)
 -------------------
 

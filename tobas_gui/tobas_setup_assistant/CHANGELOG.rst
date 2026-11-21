@@ -2,6 +2,55 @@
 Changelog for package tobas_setup_assistant
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'feature/refine-gui-layout' into jazzy
+* remove: Drop the legacy body font size constant
+* modify: Align GUI meter and typography with rolling
+* fix: Restore Aerodynamics page contents
+* fix: Avoid nested scrolling in fixed-wing settings
+* fix: Remove remaining legacy layout constraints
+* fix: Complete panel scrolling and GUI sizing
+  Scroll joint commands independently and remove redundant outer scrolling
+  from settings and battery selection. Let tab and button heights follow
+  the font, keep table columns automatic, and match legend inset and
+  navigation padding to the source layouts.
+  Apply the source stretch factors while preserving saved-setting keys,
+  numeric precision, validation, and communication behavior.
+  Validation: 14 GUI packages built, pre-commit and normal/high-DPI GUI
+  checks passed, and 168 saved-setting entries matched the baseline.
+* fix: Align backported GUI layouts and includes
+  Match the source layouts for robot property spacing, flight log panel
+  proportions, command margins, project path width, and settings titles.
+  Size plot selectors to their contents to avoid clipped text.
+  Group and alphabetize includes according to the C++ coding rules.
+  Validation: 14 GUI package builds and pre-commit passed. Normal and
+  high-DPI GUI checks passed; 168 saved-setting entries matched the
+  baseline.
+* modify: Finish remaining GUI layout backport
+  Replace legacy parameter getters with shared forms and standalone
+  compound editors. Add individual scrolling, align descriptions and
+  controls, and apply the remaining spacing and calibration drawing changes.
+  Keep existing saved-setting keys and numeric precision. Use standard Qt
+  setters for numeric inputs.
+  Validation: GUI package builds and pre-commit passed. Saved-setting
+  snapshots matched 168 baseline entries; normal and high-DPI GUI checks
+  passed.
+* fix: Complete GUI layout backport
+  Preserve legacy RPM bounds and step rounding with Qt's range model.
+  Align parameter rows and restore table editor headings and sizing.
+  Apply missing table and copy-button dimensions while preserving
+  parameter keys, numeric precision, input ranges, and ROS callbacks.
+  Remove five unused internal Setup Assistant widget pairs.
+  Validate 14 packages, pre-commit checks, 205 gauge comparisons,
+  46 saved settings, the legacy table API, and GUI checks at 1x and 2x.
+* modify: Backport adaptive GUI layouts to Jazzy
+  Backport layout changes from e61bc6fe1 and 740d47e35 to the Qt 5 GUI.
+  Preserve existing APIs, parameter keys, value ranges, and ROS behavior.
+  Validate all 14 affected packages, pre-commit checks, settings round
+  trips against the previous version, and GUI checks at 1x and 2x scale.
+* Contributors: Masayoshi Dohi
+
 2.16.9 (2026-10-19)
 -------------------
 

@@ -2,6 +2,9 @@
 Changelog for package tobas_gazebo_system_plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.9 (2026-10-19)
 -------------------
 

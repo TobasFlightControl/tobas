@@ -2,6 +2,9 @@
 Changelog for package tobas_drone_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.16.9 (2026-10-19)
 -------------------
 

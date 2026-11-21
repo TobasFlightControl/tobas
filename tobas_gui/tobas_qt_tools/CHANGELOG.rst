@@ -2,6 +2,24 @@
 Changelog for package tobas_qt_tools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'feature/refine-gui-layout' into jazzy
+* fix: Align backported GUI layouts and includes
+  Match the source layouts for robot property spacing, flight log panel
+  proportions, command margins, project path width, and settings titles.
+  Size plot selectors to their contents to avoid clipped text.
+  Group and alphabetize includes according to the C++ coding rules.
+  Validation: 14 GUI package builds and pre-commit passed. Normal and
+  high-DPI GUI checks passed; 168 saved-setting entries matched the
+  baseline.
+* modify: Backport adaptive GUI layouts to Jazzy
+  Backport layout changes from e61bc6fe1 and 740d47e35 to the Qt 5 GUI.
+  Preserve existing APIs, parameter keys, value ranges, and ROS behavior.
+  Validate all 14 affected packages, pre-commit checks, settings round
+  trips against the previous version, and GUI checks at 1x and 2x scale.
+* Contributors: Masayoshi Dohi
+
 2.16.9 (2026-10-19)
 -------------------
 

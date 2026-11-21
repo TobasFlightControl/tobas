@@ -2,6 +2,18 @@
 Changelog for package tobas_gui_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'feature/refine-gui-layout' into jazzy
+* remove: Drop the legacy body font size constant
+* modify: Align GUI meter and typography with rolling
+* modify: Backport adaptive GUI layouts to Jazzy
+  Backport layout changes from e61bc6fe1 and 740d47e35 to the Qt 5 GUI.
+  Preserve existing APIs, parameter keys, value ranges, and ROS behavior.
+  Validate all 14 affected packages, pre-commit checks, settings round
+  trips against the previous version, and GUI checks at 1x and 2x scale.
+* Contributors: Masayoshi Dohi
+
 2.16.9 (2026-10-19)
 -------------------
 

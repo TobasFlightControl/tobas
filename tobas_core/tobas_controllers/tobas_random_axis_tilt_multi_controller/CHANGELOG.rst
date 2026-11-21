@@ -2,6 +2,16 @@
 Changelog for package tobas_random_axis_tilt_multi_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add: Limit tilt controller angular acceleration
+  Add attitude and heading acceleration limits as dynamic parameters.
+  Clamp each target angular acceleration axis before mixing.
+* fix: Limit tilt mixer thrust with QP
+  Use a QP mixer with per-rotor thrust limits for arbitrary tilt axes.
+  Rename the mixer to QpMixer and update the controller to use it.
+* Contributors: Masayoshi Dohi
+
 2.16.9 (2026-10-19)
 -------------------
 

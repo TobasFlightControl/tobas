@@ -2,6 +2,25 @@
 Changelog for package tobas_simulation_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'feature/refine-gui-layout' into jazzy
+* fix: Complete panel scrolling and GUI sizing
+  Scroll joint commands independently and remove redundant outer scrolling
+  from settings and battery selection. Let tab and button heights follow
+  the font, keep table columns automatic, and match legend inset and
+  navigation padding to the source layouts.
+  Apply the source stretch factors while preserving saved-setting keys,
+  numeric precision, validation, and communication behavior.
+  Validation: 14 GUI packages built, pre-commit and normal/high-DPI GUI
+  checks passed, and 168 saved-setting entries matched the baseline.
+* modify: Backport adaptive GUI layouts to Jazzy
+  Backport layout changes from e61bc6fe1 and 740d47e35 to the Qt 5 GUI.
+  Preserve existing APIs, parameter keys, value ranges, and ROS behavior.
+  Validate all 14 affected packages, pre-commit checks, settings round
+  trips against the previous version, and GUI checks at 1x and 2x scale.
+* Contributors: Masayoshi Dohi
+
 2.16.9 (2026-10-19)
 -------------------
 
