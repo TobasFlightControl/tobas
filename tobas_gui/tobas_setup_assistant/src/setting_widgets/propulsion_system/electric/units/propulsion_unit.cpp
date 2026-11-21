@@ -6,6 +6,8 @@
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/util.hpp>
 
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
+
 namespace tobas
 {
 namespace gui
@@ -22,7 +24,7 @@ PropulsionUnitWidget::PropulsionUnitWidget(rclcpp::Node::SharedPtr node)
   setLayout(rows);
 
   copy_to_all_btn_ = new QPushButton("Copy To All");
-  copy_to_all_btn_->setFixedWidth(120);
+  copy_to_all_btn_->setFixedWidth(kCopyToAllButtonWidth);
   const auto corner_widget = new QWidget();
   const auto corner_cols = new QHBoxLayout(corner_widget);
   corner_cols->setContentsMargins(0, 0, 0, 0);
@@ -31,7 +33,7 @@ PropulsionUnitWidget::PropulsionUnitWidget(rclcpp::Node::SharedPtr node)
   tabs_ = new qt::TabWidget();
   tabs_->setCornerWidget(corner_widget, Qt::TopRightCorner);
   tabs_->enableWheelEvent(false);
-  tabs_->setTabSize(kTabWidth, kTabHeight);
+  tabs_->setTabSize(kConfigurationTabWidth, kTabHeight);
   rows->addWidget(tabs_);
 
   esc_ = new ESCWidget();

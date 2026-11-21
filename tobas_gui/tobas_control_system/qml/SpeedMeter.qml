@@ -1,4 +1,7 @@
 import QtQuick 2.15
+// Qt 5 registers RangeModel when the public Controls module is loaded.
+import QtQuick.Controls 1.4
+import QtQuick.Controls.Private 1.0 as ControlsPrivate
 
 Rectangle {
   id: rectangle
@@ -50,6 +53,14 @@ Rectangle {
     setBottomText.connect(onSetBottomText);
   }
 
+  // Preserve CircularGauge's clamping and step rounding while changing its layout.
+  ControlsPrivate.RangeModel {
+    id: range
+    maximumValue: 100
+    minimumValue: 0
+    stepSize: 0
+    value: minimumValue
+  }
   TextMetrics {
     id: topMetrics
     font: topText.font
@@ -77,10 +88,10 @@ Rectangle {
     id: gauge
 
     property real fraction: maximumValue > minimumValue ? Math.max(0, Math.min(1, (value - minimumValue) / (maximumValue - minimumValue))) : 0
-    property real maximumValue: 100
-    property real minimumValue: 0
-    property real stepSize: 1
-    property real value: 0
+    property alias maximumValue: range.maximumValue
+    property alias minimumValue: range.minimumValue
+    property alias stepSize: range.stepSize
+    property alias value: range.value
 
     anchors.bottom: bottomText.visible ? bottomText.top : parent.bottom
     anchors.horizontalCenter: parent.horizontalCenter

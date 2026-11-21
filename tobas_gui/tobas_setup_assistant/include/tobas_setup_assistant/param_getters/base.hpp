@@ -3,8 +3,11 @@
 
 #pragma once
 
+#include <algorithm>
+
 #include <QFormLayout>
 #include <QLabel>
+#include <QTimer>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -45,6 +48,7 @@ ParamGetterWidget<T>::ParamGetterWidget(const QString& param_name, const QString
   rows_->setSpacing(4);
 
   label_ = new QLabel(param_name);
+  label_->setObjectName("parameterLabel");
   label_->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
   label_->setToolTip(description_text);
   setToolTip(description_text);
@@ -55,6 +59,28 @@ ParamGetterWidget<T>::ParamGetterWidget(const QString& param_name, const QString
   form->setContentsMargins(0, 0, 0, 0);
   form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
   form->addRow(label_, field);
+
+  // Each legacy getter owns its form; align sibling labels like a shared form.
+  QTimer::singleShot(
+    0,
+    this,
+    [this]()
+    {
+      if (!parentWidget()) {
+        return;
+      }
+      QList<QLabel*> labels;
+      int width = 0;
+      for (const auto sibling : parentWidget()->findChildren<QWidget*>(QString(), Qt::FindDirectChildrenOnly)) {
+        if (const auto label = sibling->findChild<QLabel*>("parameterLabel", Qt::FindDirectChildrenOnly)) {
+          labels.append(label);
+          width = std::max(width, label->sizeHint().width());
+        }
+      }
+      for (const auto label : labels) {
+        label->setMinimumWidth(width);
+      }
+    });
 }
 
 template <typename T>

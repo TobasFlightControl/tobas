@@ -11,7 +11,7 @@ namespace sa
 {
 namespace hw
 {
-static constexpr int kTableHeaderSectionSize = 150;
+static constexpr int kTableHeaderSectionSize = 160;
 }  // namespace hw
 }  // namespace sa
 }  // namespace gui

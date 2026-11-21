@@ -40,9 +40,9 @@ ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& uadf) : super(0,
     kPitchCoefLabel,
     kYawCoefLabel,
   });
-  setColumnsWidth(kColWidth);
   setHeaderSectionsClickable(false);
-  horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+  horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  horizontalHeader()->setMinimumSectionSize(160);
 }
 
 void ControlSurfacesWidget::updateInternalDataStructures()

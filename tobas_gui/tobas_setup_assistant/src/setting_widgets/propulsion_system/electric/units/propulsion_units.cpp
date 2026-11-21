@@ -12,6 +12,8 @@
 #include <tobas_qt_tools/stream.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
+
 namespace tobas
 {
 namespace gui
@@ -50,8 +52,8 @@ void PropulsionUnitsWidget::updateInternalDataStructures()
       this,
       std::bind(&self::onCopyToAllButtonClicked, this, link_name));
   }
-  const auto tab_width = max_text_width + 32;
-  setTabWidth((tab_width + 7) / 8 * 8);
+  const auto tab_width = max_text_width + 2 * kLinkNameTabHorizontalPadding;
+  setTabWidth((tab_width + kLinkNameTabWidthStep - 1) / kLinkNameTabWidthStep * kLinkNameTabWidthStep);
 }
 
 bool PropulsionUnitsWidget::isValid()

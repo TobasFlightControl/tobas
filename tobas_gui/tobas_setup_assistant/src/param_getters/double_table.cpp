@@ -42,6 +42,20 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
 {
   TOBAS_CHECK(num_entry_ > 0);
 
+  // Table editors retain a heading above their controls rather than a side label.
+  const auto field = rows_->parentWidget();
+  const auto form = layout();
+  form->removeWidget(label_);
+  form->removeWidget(field);
+  delete form;
+  label_->setObjectName("tableParameterLabel");
+  label_->setFont(qt::DefaultFont(cmn::kBodyPSize, QFont::Bold));
+  const auto root_rows = new QVBoxLayout(this);
+  root_rows->setContentsMargins(0, 0, 0, 0);
+  root_rows->setSpacing(4);
+  root_rows->addWidget(label_, 0);
+  root_rows->addWidget(field, 1);
+
   minimum_.fill(std::numeric_limits<double>::lowest(), num_entry_);
   maximum_.fill(std::numeric_limits<double>::max(), num_entry_);
   default_.fill(kDefaultValue, num_entry_);
@@ -51,19 +65,19 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   rows_->addLayout(cols);
 
   const auto add_row_btn = new QPushButton("Add Row");
-  add_row_btn->setFixedSize(kButtonWidth, kButtonHeight);
+  add_row_btn->setFixedWidth(kButtonWidth);
   cols->addWidget(add_row_btn);
 
   const auto delete_row_btn = new QPushButton("Delete Row");
-  delete_row_btn->setFixedSize(kButtonWidth, kButtonHeight);
+  delete_row_btn->setFixedWidth(kButtonWidth);
   cols->addWidget(delete_row_btn);
 
   const auto clear_btn = new QPushButton("Clear");
-  clear_btn->setFixedSize(kButtonWidth, kButtonHeight);
+  clear_btn->setFixedWidth(kButtonWidth);
   cols->addWidget(clear_btn);
 
   const auto load_csv_btn = new QPushButton("Load CSV");
-  load_csv_btn->setFixedSize(kButtonWidth, kButtonHeight);
+  load_csv_btn->setFixedWidth(kButtonWidth);
   cols->addWidget(load_csv_btn);
 
   cols->addStretch();  // Left-align the button.
@@ -71,6 +85,8 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   table_ = new qt::TableWidget(0, num_entry_);
   table_->verticalHeader()->setVisible(true);  // Show row numbers.
   table_->setHorizontalHeaderLabels(labels);
+  table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  table_->horizontalHeader()->setMinimumSectionSize(160);
   rows_->addWidget(table_);
 
   // Connection

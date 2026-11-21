@@ -27,11 +27,11 @@ RCInputViewerWidget::RCInputViewerWidget(const RosQtBridge& bridge)
   enable_ = makeBadge("---");
   kill_ = makeBadge("Kill: ---");
   sub_mode_ = makeBadge("Sub: ---");
-  acrobat_ = makeBadge("Acrobat");
+  acrobat_ = makeBadge("Acro");
   acrobat_->setToolTip("Acrobat");
-  stabilize_ = makeBadge("Stabilize");
+  stabilize_ = makeBadge("Stab");
   stabilize_->setToolTip("Stabilize");
-  loiter_ = makeBadge("Loiter");
+  loiter_ = makeBadge("Loit");
   loiter_->setToolTip("Loiter");
 
   // Layout
