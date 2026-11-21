@@ -126,8 +126,8 @@ void AerodynamicsWidget_Preset::addCategories(const fs::path& _directory, DataTy
 {
   // Use familiar manufacturer labels, falling back to the directory name for unknown manufacturers.
   static const QMap<QString, QString> manufacturer_names{
-    { "aeronaut", "Aeronaut" }, { "apc", "APC" },     { "dji", "DJI" },        { "gemfan", "Gemfan" },
-    { "hqprop", "HQProp" },     { "tarot", "Tarot" }, { "thobby", "T-Hobby" }, { "tmotor", "T-Motor" },
+    { "aeronaut", "Aeronaut" }, { "apc", "APC" },     { "dji", "DJI" },         { "gemfan", "Gemfan" },
+    { "hqprop", "HQProp" },     { "tarot", "Tarot" }, { "t_hobby", "T-Hobby" }, { "t_motor", "T-Motor" },
   };
 
   // Each manufacturer directory under this data source becomes a category.
