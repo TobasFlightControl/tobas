@@ -25,7 +25,7 @@ public:
   void reset();
   void updateInternalDataStructures();
   void clearRosInterfaces();
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns);
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns, bool _simulation = false);
 
 private:
   const Drone& drone_;

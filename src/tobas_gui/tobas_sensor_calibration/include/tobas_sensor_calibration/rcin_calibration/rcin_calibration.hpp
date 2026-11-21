@@ -32,7 +32,7 @@ public:
   const char* title() const override;
   void reset() override;
   void updateInternalDataStructures() override;
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns) override;
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns, bool _simulation) override;
   void clearRosInterfaces() override;
 
 private:
@@ -41,6 +41,7 @@ private:
   std::optional<rqt::SyncServiceClientWrapper<tobas_real_msgs::srv::SetRcInputParams>> set_params_sc_;
 
   bool ros_initialized_ = false;
+  bool simulation_ = false;
   bool running_ = false;
   tobas_msgs::msg::Sbus::ConstSharedPtr sbus_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;

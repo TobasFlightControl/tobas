@@ -56,10 +56,13 @@ void SensorCalibrationWidget::clearRosInterfaces()
   setTabsEnabled(false);
 }
 
-void SensorCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
+void SensorCalibrationWidget::initializeRosInterfaces(
+  rclcpp::Node::SharedPtr _node,
+  const std::string& _ns,
+  bool _simulation)
 {
   for (int i = 0; i < count(); ++i) {
-    getWidget(i)->initializeRosInterfaces(_node, _ns);
+    getWidget(i)->initializeRosInterfaces(_node, _ns, _simulation);
   }
 
   setTabsEnabled(true);

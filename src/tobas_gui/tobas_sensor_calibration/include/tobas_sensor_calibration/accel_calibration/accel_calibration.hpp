@@ -25,7 +25,7 @@ public:
   const char* title() const override;
   void reset() override;
   void updateInternalDataStructures() override;
-  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns) override;
+  void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns, bool _simulation) override;
   void clearRosInterfaces() override;
 
 private:

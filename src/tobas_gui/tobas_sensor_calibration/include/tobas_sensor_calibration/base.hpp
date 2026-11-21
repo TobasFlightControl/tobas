@@ -24,7 +24,7 @@ public:
 
   virtual void updateInternalDataStructures() = 0;
 
-  virtual void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns) = 0;
+  virtual void initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns, bool _simulation) = 0;
 
   virtual void clearRosInterfaces() = 0;
 };
