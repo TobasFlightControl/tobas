@@ -26,8 +26,6 @@ namespace electric
 AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller)
   : propeller_(propeller)
 {
-  setWidgetResizable(false);
-
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 

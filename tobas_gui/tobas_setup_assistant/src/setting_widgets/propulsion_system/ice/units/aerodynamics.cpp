@@ -34,8 +34,6 @@ constexpr char kDataKey[] = "Propeller Single Test Data";
 AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller)
   : propeller_(propeller)
 {
-  setWidgetResizable(false);
-
   data_ = new DoubleTableWidget(
     node, "Propeller Single Test Data", "Select Test Data", { "RPM", "Pitch [deg]", "Thrust [N]", "Torque [Nm]" });
   data_->setDecimals({ 0, 2, 6, 6 });
