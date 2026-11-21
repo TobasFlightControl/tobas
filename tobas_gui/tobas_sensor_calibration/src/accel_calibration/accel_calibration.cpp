@@ -3,7 +3,6 @@
 
 #include "tobas_sensor_calibration/accel_calibration/accel_calibration.hpp"
 
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/thread.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
@@ -17,10 +16,9 @@ namespace sc
 AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node, const RosQtBridge& bridge)
   : spinner_(Qt::WindowModal, this), thread_(node, bridge)
 {
-  const auto instruction = new qt::DescriptionWidget(
-    "1. Place the flight controller on a level surface.\n"
-    "2. Click \"Start\". Calibration will complete in a few seconds.\n",
-    cmn::kBodyPSize);
+  const auto instruction =
+    new qt::DescriptionWidget("1. Place the flight controller on a level surface.\n"
+                              "2. Click \"Start\". Calibration will complete in a few seconds.\n");
 
   start_button_ = new QPushButton("Start");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);

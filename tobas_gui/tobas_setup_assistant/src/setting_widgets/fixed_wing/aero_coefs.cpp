@@ -6,7 +6,10 @@
 #include <filesystem>
 
 #include <QFileDialog>
+#include <QHBoxLayout>
+#include <QLabel>
 #include <QPushButton>
+#include <QVBoxLayout>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -30,21 +33,22 @@ namespace fw
 AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget(rclcpp::Node::SharedPtr node)
   : node_(node), property_client_(node, "tobas_setup_assistant/fixed_wing/aero_coefs")
 {
+  setFrameShape(QFrame::NoFrame);
+
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  const auto cols = new QHBoxLayout();
-  rows->addLayout(cols);
-
   const auto load_button = new QPushButton("Load VSPAERO Output");
-  load_button->setFixedSize(kButtonWidth, kButtonHeight);
+  load_button->setFixedWidth(200);
   connect(load_button, &QPushButton::clicked, this, &self::onLoadButtonClicked);
-  rows->addWidget(load_button);
-
-  cols->addStretch();
+  const auto button_cols = new QHBoxLayout();
+  button_cols->addWidget(load_button);
+  button_cols->addStretch(1);
+  rows->addLayout(button_cols, 0);
+  rows->addSpacing(16);
 
   form_ = new qt::FormLayout();
-  rows->addLayout(form_);
+  rows->addLayout(form_, 1);
 
   c_lift_0_ = new qt::DoubleSpinBox();
   c_lift_0_->setDecimals(kStabilityCoefDecimals);

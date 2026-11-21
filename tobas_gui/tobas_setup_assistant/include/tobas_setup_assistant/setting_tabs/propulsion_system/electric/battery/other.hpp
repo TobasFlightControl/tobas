@@ -3,9 +3,10 @@
 
 #pragma once
 
+#include <tobas_qt_tools/widgets/double_spin_box.hpp>
+#include <tobas_qt_tools/widgets/spin_box.hpp>
+
 #include "./base.hpp"
-#include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
-#include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
 namespace tobas
 {
@@ -42,12 +43,12 @@ public:
   double internalRegistance() override;
 
 private:
-  ParamGetterWidget_DoubleSpinBox* nominal_voltage_;
-  ParamGetterWidget_DoubleSpinBox* max_voltage_;
-  ParamGetterWidget_DoubleSpinBox* sag_voltage_;
-  ParamGetterWidget_SpinBox* max_current_;
-  ParamGetterWidget_SpinBox* capacity_;
-  ParamGetterWidget_SpinBox* registance_;
+  qt::DoubleSpinBox* nominal_voltage_;
+  qt::DoubleSpinBox* max_voltage_;
+  qt::DoubleSpinBox* sag_voltage_;
+  qt::SpinBox* max_current_;
+  qt::SpinBox* capacity_;
+  qt::SpinBox* registance_;
 };
 }  // namespace electric
 }  // namespace propulsion

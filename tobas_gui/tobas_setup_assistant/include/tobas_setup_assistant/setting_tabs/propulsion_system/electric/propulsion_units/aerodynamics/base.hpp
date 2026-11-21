@@ -4,9 +4,8 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
-#include <QVBoxLayout>
 
-#include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <QWidget>
 
 namespace tobas
 {
@@ -23,8 +22,6 @@ class AerodynamicsWidget_Base : public QWidget
   Q_OBJECT
 
 public:
-  explicit AerodynamicsWidget_Base();
-
   virtual const char* name() const = 0;
   virtual const char* description() const = 0;
 
@@ -39,15 +36,6 @@ public:
 
   /* [m] */
   virtual double momentConst() const = 0;
-
-protected:
-  QVBoxLayout* rows_;
-
-private:
-  qt::DescriptionWidget* description_;
-
-private Q_SLOTS:
-  void initialize();
 };
 }  // namespace electric
 }  // namespace propulsion

@@ -25,9 +25,6 @@ class EngineWidget : public qt::TabWidget
   using self = EngineWidget;
   using super = qt::TabWidget;
 
-  static constexpr int kTabWidth = 135;
-  static constexpr int kTabHeight = 45;
-
   static constexpr char kDynamicsLabel[] = "Dynamics";
   static constexpr char kResponseLabel[] = "Response";
 

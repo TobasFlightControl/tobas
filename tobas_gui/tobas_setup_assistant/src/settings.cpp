@@ -7,9 +7,8 @@
 #include <QVBoxLayout>
 
 #include <tobas_gui_common/constants.hpp>
-#include <tobas_qt_tools/font.hpp>
-
 #include <tobas_qt_tools/cast.hpp>
+#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/check.hpp>
 
@@ -39,6 +38,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   toolbox_ = new QToolBox();
   title_ = new QLabel();
   title_->setFont(qt::DefaultFont(cmn::kTitlePSize, QFont::Bold));
+  title_->setAlignment(Qt::AlignTop);
   description_ = new qt::DescriptionWidget();
   stack_ = new qt::StackedWidget();
   connect(stack_, &QStackedWidget::currentChanged, this, &self::updateHeader);
@@ -76,6 +76,23 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& 
   addEntry(additional_list_, extra_joints);
   addEntry(additional_list_, failsafe);
   addEntry(additional_list_, author_info);
+
+  for (const auto list : { basic_list_, additional_list_ }) {
+    list->setStyleSheet(R"(
+      QListWidget {
+        background-color: palette(base);
+        padding: 4px 0;
+      }
+      QListWidget::item {
+        border: none;
+        padding: 0 12px;
+      }
+      QListWidget::item:selected {
+        background-color: palette(highlight);
+        color: palette(highlighted-text);
+      }
+    )");
+  }
 
   // Make mutually exclusive.
   connect(basic_list_, &QListWidget::currentRowChanged, additional_list_, &qt::ListWidget::deselect);
@@ -214,12 +231,7 @@ int SettingsWidget::getIndex(BaseSettingWidget* page) const
 
 void SettingsWidget::addEntry(QListWidget* list, BaseSettingWidget* page)
 {
-  page->title_->hide();
-  page->description_->hide();
-  const auto content_layout = page->widget()->layout();
-  content_layout->setContentsMargins(0, 0, 0, 0);
-  content_layout->itemAt(1)->spacerItem()->changeSize(0, 0, QSizePolicy::Minimum, QSizePolicy::Minimum);
-  page->setFrameShape(QFrame::NoFrame);
+  page->layout()->setContentsMargins(0, 0, 0, 0);
 
   const auto idx = stack_->addWidget(page);
   const auto item = new QListWidgetItem(page->name(), list);

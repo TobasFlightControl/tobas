@@ -9,14 +9,15 @@
 
 #include <tobas_eigen_tools/ellipsoid.hpp>
 #include <tobas_ros2_tools/register.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_rqt_bridge/bridge.hpp>
 #include <tobas_rviz_wrapper/rviz.hpp>
 
 #include <geometry_msgs/msg/point_stamped.hpp>
 #include <sensor_msgs/msg/point_cloud.hpp>
-#include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
+
+#include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
 #include "../base.hpp"
 #include "./face_circle.hpp"

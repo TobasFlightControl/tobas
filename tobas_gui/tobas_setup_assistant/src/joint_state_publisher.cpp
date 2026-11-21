@@ -38,10 +38,6 @@ JointStatePublisherWidget::JointStatePublisherWidget(
   const auto center_button = new QPushButton("Center");
   const auto random_button = new QPushButton("Random");
 
-  zero_button->setFixedHeight(kButtonHeight);
-  center_button->setFixedHeight(kButtonHeight);
-  random_button->setFixedHeight(kButtonHeight);
-
   // Layout
   const auto button_cols = new QHBoxLayout();
   button_cols->addWidget(zero_button);

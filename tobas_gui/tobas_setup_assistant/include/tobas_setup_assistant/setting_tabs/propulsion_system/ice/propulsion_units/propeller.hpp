@@ -3,10 +3,11 @@
 
 #pragma once
 
+#include <tobas_qt_tools/widgets/double_spin_box.hpp>
+#include <tobas_qt_tools/widgets/spin_box.hpp>
+
 #include "./base.hpp"
-#include "tobas_setup_assistant/param_getters/double_range.hpp"
-#include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
-#include "tobas_setup_assistant/param_getters/spin_box.hpp"
+#include "tobas_setup_assistant/utils/double_range.hpp"
 
 namespace tobas
 {
@@ -66,14 +67,14 @@ public:
   double meanChord() const;
 
 private:
-  ParamGetterWidget_SpinBox* num_blades_;
-  ParamGetterWidget_SpinBox* diameter_;
-  ParamGetterWidget_DoubleSpinBox* pitch_length_neutoral_;
-  ParamGetterWidget_DoubleRange* pitch_angle_limit_;
-  ParamGetterWidget_DoubleSpinBox* center_pitch_angle_;
-  ParamGetterWidget_SpinBox* max_pitch_angle_rate_;
-  ParamGetterWidget_SpinBox* min_chord_;
-  ParamGetterWidget_SpinBox* max_chord_;
+  qt::SpinBox* num_blades_;
+  qt::SpinBox* diameter_;
+  qt::DoubleSpinBox* pitch_length_neutoral_;
+  DoubleRangeWidget* pitch_angle_limit_;
+  qt::DoubleSpinBox* center_pitch_angle_;
+  qt::SpinBox* max_pitch_angle_rate_;
+  qt::SpinBox* min_chord_;
+  qt::SpinBox* max_chord_;
 };
 }  // namespace ice
 }  // namespace propulsion

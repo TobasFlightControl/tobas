@@ -4,12 +4,11 @@
 #pragma once
 
 #include <QFileDialog>
+#include <QWidget>
 #include <eigen3/Eigen/Core>
 
 #include <tobas_property_client/property_client.hpp>
 #include <tobas_qt_tools/widgets/table_widget.hpp>
-
-#include "./base.hpp"
 
 namespace tobas
 {
@@ -17,15 +16,13 @@ namespace gui
 {
 namespace sa
 {
-class ParamGetterWidget_DoubleTable : public ParamGetterWidget<Eigen::MatrixXd>
+class DoubleTableWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = ParamGetterWidget_DoubleTable;
-  using super = ParamGetterWidget<Eigen::MatrixXd>;
+  using self = DoubleTableWidget;
 
-  static constexpr int kButtonWidth = 90;
-  static constexpr int kButtonHeight = 36;
+  static constexpr int kButtonWidth = 96;
   static constexpr double kDefaultValue = 0.0;
   static constexpr int kDefaultDecimals = 2;
 
@@ -33,15 +30,15 @@ Q_SIGNALS:
   void dataChanged();
 
 public:
-  explicit ParamGetterWidget_DoubleTable(
+  explicit DoubleTableWidget(
     rclcpp::Node::SharedPtr node,
     const QString& param_name,
     const QString& title,
     const QStringList& labels,
     const QString& description_text = "");
 
-  Eigen::MatrixXd getValue() const override;
-  bool setValue(const Eigen::MatrixXd& src) override;
+  Eigen::MatrixXd getData() const;
+  bool setData(const Eigen::MatrixXd& src);
 
   qt::TableWidget* table();
 

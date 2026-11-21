@@ -50,7 +50,7 @@ int FaceCircleWidget::calcMaxTextPointSize() const
     QFontMetrics fm(font);
 
     const auto text_width = fm.horizontalAdvance(text_);
-    if (text_width > 0.9 * diameter) {
+    if (text_width > 0.8 * diameter) {
       break;
     }
   }

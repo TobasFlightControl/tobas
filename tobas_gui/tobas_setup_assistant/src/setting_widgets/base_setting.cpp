@@ -3,10 +3,6 @@
 
 #include "tobas_setup_assistant/setting_tabs/base_setting.hpp"
 
-#include <QTimer>
-
-#include <tobas_gui_common/constants.hpp>
-#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/util.hpp>
 
 namespace tobas
@@ -17,27 +13,7 @@ namespace sa
 {
 BaseSettingWidget::BaseSettingWidget()
 {
-  title_ = new QLabel();
-  title_->setFont(qt::DefaultFont(cmn::kTitlePSize, QFont::Bold));
-  title_->setAlignment(Qt::AlignTop);
-
-  description_ = new qt::DescriptionWidget("", cmn::kBodyPSize);
-
-  // Layout
-  header_rows_ = new QVBoxLayout();
-  header_rows_->addWidget(title_);
-  header_rows_->addWidget(description_);
-
-  content_rows_ = new QVBoxLayout();
-
-  const auto rows = new QVBoxLayout();
-  rows->addLayout(header_rows_);
-  rows->addSpacing(16);
-  rows->addLayout(content_rows_, 1);
-
-  setLayout(rows);
-
-  QTimer::singleShot(0, this, &self::initialize);
+  content_rows_ = new QVBoxLayout(this);
 }
 
 void BaseSettingWidget::addWidget(QWidget* widget, int stretch)
@@ -65,11 +41,6 @@ void BaseSettingWidget::addSpacing(int size)
   content_rows_->addSpacing(size);
 }
 
-void BaseSettingWidget::initialize()
-{
-  title_->setText(title());
-  description_->setText(description());
-}
 }  // namespace sa
 }  // namespace gui
 }  // namespace tobas

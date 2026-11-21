@@ -18,7 +18,7 @@ FixedWingWidget::FixedWingWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  rows->addStretch();
+  rows->addStretch(1);
 }
 
 FrameType FixedWingWidget::frameType() const

@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/engine/engine.hpp"
 
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/constants.hpp"
+
 namespace tobas
 {
 namespace gui
@@ -16,7 +18,7 @@ namespace ice
 EngineWidget::EngineWidget(rclcpp::Node::SharedPtr node)
 {
   enableWheelEvent(false);
-  setTabSize(kTabWidth, kTabHeight);
+  setTabWidth(kConfigurationTabWidth);
 
   dynamics_ = new EngineDynamicsWidget(node);
   response_ = new EngineResponseWidget();

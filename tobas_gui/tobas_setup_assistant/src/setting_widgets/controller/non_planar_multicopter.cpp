@@ -29,7 +29,7 @@ NonPlanarMulticopterWidget::NonPlanarMulticopterWidget()
   do_dist_comp_rot_->setChecked(false);
   rows->addWidget(do_dist_comp_rot_);
 
-  rows->addStretch();
+  rows->addStretch(1);
 }
 
 FrameType NonPlanarMulticopterWidget::frameType() const

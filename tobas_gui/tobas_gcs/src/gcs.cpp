@@ -15,8 +15,6 @@
 #include <tobas_qt_tools/event.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/path.hpp>
-#include <tobas_qt_tools/thread.hpp>
-#include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_ros2_tools/util.hpp>
@@ -25,7 +23,6 @@
 #include "tobas_gcs/app_button.hpp"
 #include "tobas_gcs/util.hpp"
 
-using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 
 namespace tobas
@@ -40,7 +37,6 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   , property_client_(node, "tobas_gcs/gcs")
   , ssh_client_(node)
   , remote_proj_builder_(node)
-  , spinner_(Qt::WindowModal, this)
 {
   // Applications
   sensor_calib_ = new sc::SensorCalibrationWidget(node, bridge_, drone_);
@@ -81,19 +77,13 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
 
   // Package manager
   proj_path_ = new QLineEdit();
-  proj_path_->setMaximumWidth(kPathMaxWidth);
+  proj_path_->setFixedWidth(kPathWidth);
   proj_path_->setReadOnly(true);
   proj_path_->setFocusPolicy(Qt::NoFocus);
 
   load_btn_ = new QPushButton("Load Project");
   write_btn_ = new QPushButton("Write Project");
   write_btn_->setEnabled(false);
-
-  // Power control buttons
-  restart_btn_ = new RestartButton(kPowerButtonRadius);
-  shutdown_btn_ = new ShutdownButton(kPowerButtonRadius);
-  restart_btn_->setEnabled(false);
-  shutdown_btn_->setEnabled(false);
 
   // Layout
   const auto pkg_btn_cols = new QHBoxLayout();
@@ -114,12 +104,9 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   header_cols->addWidget(param_tuning_btn, 1);
   header_cols->addWidget(flight_log_btn, 1);
   header_cols->addWidget(simulation_btn, 1);
-  header_cols->addStretch();
+  header_cols->addStretch(1);
   header_cols->addWidget(remote_conn_);
   header_cols->addLayout(pkg_rows);
-  qt::addSpacing(header_cols, 32, QSizePolicy::Preferred);  // Collapse this when there is not enough space.
-  header_cols->addWidget(restart_btn_);
-  header_cols->addWidget(shutdown_btn_);
 
   const auto rows = new QVBoxLayout();
   rows->setContentsMargins(0, 0, 0, 0);
@@ -132,8 +119,6 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr n
   connect(btn_group, &QButtonGroup::idClicked, app_sw, &QStackedWidget::setCurrentIndex);
   connect(load_btn_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
   connect(write_btn_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
-  connect(restart_btn_, &QPushButton::clicked, this, &self::onRestartButtonClicked);
-  connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
   connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimRealStateChanged);
   connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimRealStateChanged);
   connect(simulation_, &sim::SimulationWidget::telemetryLossExpected, this, &self::expectTelemetryLoss);
@@ -215,31 +200,6 @@ void GroundControlStationWidget::expectTelemetryLoss()
 void GroundControlStationWidget::clearExpectedTelemetryLoss()
 {
   telemetry_loss_expected_ = false;
-}
-
-std::expected<void, QString> GroundControlStationWidget::restartInBackground()
-{
-  // Run the command.
-  const auto res = ssh_client_.execute("systemctl restart tobas_real.target", true);
-  if (res != ssh::SshClient::kNoError) {
-    return std::unexpected("Failed to restart the flight controller:\n\n" + QString(ssh_client_.errorMessage()));
-  }
-
-  return {};
-}
-
-std::expected<void, QString> GroundControlStationWidget::shutdownInBackground()
-{
-  // Run the command.
-  const auto res = ssh_client_.execute("poweroff", true, true);
-  if (res != ssh::SshClient::kNoError) {
-    return std::unexpected("Failed to shutdown the flight controller:\n\n" + QString(ssh_client_.errorMessage()));
-  }
-
-  // Wait long enough for the Raspberry Pi to shut down reliably.
-  qt::spinFor(5s);
-
-  return {};
 }
 
 void GroundControlStationWidget::onLoadButtonClicked()
@@ -338,10 +298,8 @@ void GroundControlStationWidget::onLoadButtonClicked()
   // Update the internal state.
   updateInternalDataStructures();
 
-  // Enable control buttons.
+  // Enable project writing.
   write_btn_->setEnabled(true);
-  restart_btn_->setEnabled(true);
-  shutdown_btn_->setEnabled(true);
 
   // Show a dialog indicating that the project was loaded successfully.
   qt::qInfoBox(this, "Tobas project is loaded successfully.");
@@ -540,86 +498,6 @@ void GroundControlStationWidget::onWriteButtonClicked()
 
   progress.close();
   qt::qInfoBox(this, "Tobas project is installed successfully.");
-}
-
-void GroundControlStationWidget::onRestartButtonClicked(bool checked)
-{
-  qDebug() << "GroundControlStationWidget::onRestartButtonClicked";
-
-  if (!checked) {
-    return;
-  }
-
-  // Confirm that the vehicle is not armed.
-  if (arming_ && arming_->data) {
-    qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
-    restart_btn_->setChecked(false);
-    return;
-  }
-
-  // Confirm before restarting.
-  if (!qt::yesOrNo(this, "Are you sure you want to restart the flight controller?", qt::WARN)) {
-    restart_btn_->setChecked(false);
-    return;
-  }
-
-  // Restart the systemd service.
-  expectTelemetryLoss();
-  spinner_.start();
-  const auto res = restartInBackground();
-  spinner_.stop();
-
-  if (res) {
-    qt::qInfoBox(this, "The flight controller has been restarted successfully.");
-    reset();
-  }
-  else {
-    clearExpectedTelemetryLoss();
-    qt::qErrorBox(this, res.error());
-  }
-
-  // Return the button to the state before it was pressed.
-  restart_btn_->setChecked(false);
-}
-
-void GroundControlStationWidget::onShutdownButtonClicked(bool checked)
-{
-  qDebug() << "GroundControlStationWidget::onShutdownButtonClicked";
-
-  if (!checked) {
-    return;
-  }
-
-  // Confirm that the vehicle is not armed.
-  if (arming_ && arming_->data) {
-    qt::qWarnBox(this, "This operation cannot be performed while the vehicle is armed.");
-    shutdown_btn_->setChecked(false);
-    return;
-  }
-
-  // Confirm before shutting down.
-  if (!qt::yesOrNo(this, "Are you sure you want to shut down the FC?", qt::WARN)) {
-    shutdown_btn_->setChecked(false);
-    return;
-  }
-
-  // Shut down the OS.
-  expectTelemetryLoss();
-  spinner_.start();
-  const auto res = shutdownInBackground();
-  spinner_.stop();
-
-  if (res) {
-    qt::qInfoBox(this, "The flight controller has been shut down successfully.");
-    reset();  // Call `reset()` last so ROS messages and other state held by widgets are reliably reset.
-  }
-  else {
-    clearExpectedTelemetryLoss();
-    qt::qErrorBox(this, res.error());
-  }
-
-  // Return the button to the state before it was pressed.
-  shutdown_btn_->setChecked(false);
 }
 
 void GroundControlStationWidget::onSimRealStateChanged()

@@ -29,7 +29,6 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node, const R
 
   setCurrentIndex(kDefaultIndex);
 
-  rows_->addSpacing(20);
   rows_->addWidget(stack_);
 
   connect(btn_group_, &QButtonGroup::idClicked, stack_, &qt::StackedWidget::setCurrentIndex);

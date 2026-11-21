@@ -5,6 +5,8 @@
 
 #include <rapidcsv.h>
 
+#include <QVBoxLayout>
+
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -53,8 +55,9 @@ AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* prop
   data_name_->setCurrentText("dji_9450");
 
   // Layout
-  rows_->addWidget(data_name_);
-  rows_->addStretch();
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(data_name_);
+  rows->addStretch(1);
 }
 
 const char* AerodynamicsWidget_Preset::name() const

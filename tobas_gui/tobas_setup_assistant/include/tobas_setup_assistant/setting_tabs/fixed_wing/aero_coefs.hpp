@@ -7,8 +7,8 @@
 
 #include <tobas_property_client/property_client.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
-
-#include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
+#include <tobas_qt_tools/widgets/double_spin_box.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 
 namespace tobas
 {
@@ -18,15 +18,13 @@ namespace sa
 {
 namespace fw
 {
-class AerodynamicsCoefficientsWidget : public QWidget
+class AerodynamicsCoefficientsWidget : public qt::ScrollArea
 {
   Q_OBJECT
 
   using self = AerodynamicsCoefficientsWidget;
-  using super = QWidget;
+  using super = qt::ScrollArea;
 
-  static constexpr int kButtonWidth = 180;
-  static constexpr int kButtonHeight = 60;
   static constexpr char kLastOpenedDirKey[] = "last_opened_dir";
 
 public:

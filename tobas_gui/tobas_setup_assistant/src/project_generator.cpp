@@ -8,6 +8,7 @@
 #include <tobas_constants/pwm_key.hpp>
 #include <tobas_constants/throttle.hpp>
 #include <tobas_gui_common/command.hpp>
+#include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/network_config.hpp>
 #include <tobas_gui_common/project_paths.hpp>
 #include <tobas_gui_common/ssh_config.hpp>

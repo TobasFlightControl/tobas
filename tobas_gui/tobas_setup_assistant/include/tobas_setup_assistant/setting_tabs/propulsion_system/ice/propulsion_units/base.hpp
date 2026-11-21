@@ -4,7 +4,8 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
-#include <QWidget>
+
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 
 namespace tobas
 {
@@ -16,11 +17,16 @@ namespace propulsion
 {
 namespace ice
 {
-class BaseSelectedLinkSettingWidget : public QWidget
+class BaseSelectedLinkSettingWidget : public qt::ScrollArea
 {
   Q_OBJECT
 
 public:
+  explicit BaseSelectedLinkSettingWidget()
+  {
+    setFrameShape(QFrame::NoFrame);
+  }
+
   virtual const char* name() const = 0;
   virtual bool isValid() = 0;
   virtual void copyFrom(const BaseSelectedLinkSettingWidget* src) = 0;

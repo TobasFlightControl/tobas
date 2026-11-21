@@ -46,7 +46,7 @@ LoginPasswordWidget::LoginPasswordWidget()
   rows_->addWidget(warn_text_);
   rows_->addSpacing(32);
   qt::addWidgetCenter(write_button_, rows_);
-  rows_->addStretch();
+  rows_->addStretch(1);
 
   // Connection
   connect(pswd1_, &QLineEdit::textChanged, this, &self::onTextChanged);

@@ -118,8 +118,7 @@ FlightLogViewerWidget::FlightLogViewerWidget()
     plot_panels_[idx] = panel;
     const auto selector = new QComboBox();
     selector->setObjectName("plotSelector");
-    selector->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
-    selector->setMinimumContentsLength(1);
+    selector->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     for (int i = 0; i < plot_tab->count(); ++i) {
       auto name = plot_tab->tabText(i);
       name.replace('\n', ' ');
@@ -152,7 +151,8 @@ FlightLogViewerWidget::FlightLogViewerWidget()
       });
     const auto header = new QHBoxLayout();
     header->setContentsMargins(0, 0, 0, 0);
-    header->addWidget(selector, 1);
+    header->addWidget(selector, 0);
+    header->addStretch(1);
     header->addWidget(expand, 0);
     const auto panel_rows = new QVBoxLayout(panel);
     panel_rows->setContentsMargins(0, 0, 0, 0);

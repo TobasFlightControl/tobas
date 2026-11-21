@@ -3,6 +3,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/engine/dynamics.hpp"
 
+#include <QVBoxLayout>
 #include <eigen3/Eigen/SVD>
 
 #include <tobas_qt_tools/message.hpp>
@@ -21,14 +22,19 @@ namespace propulsion
 {
 namespace ice
 {
+namespace
+{
+// Keep the existing serialized keys independent of the form labels.
+constexpr char kDataKey[] = "Engine Torque Test Data";
+}  // namespace
+
 EngineDynamicsWidget::EngineDynamicsWidget(rclcpp::Node::SharedPtr node)
 {
-  data_ = new ParamGetterWidget_DoubleTable(
+  data_ = new DoubleTableWidget(
     node, "Engine Torque Test Data", "Select Test Data", { "Throttle [%]", "RPM", "Torque [Nm]" });
   data_->setDecimals({ 2, 0, 6 });
   data_->setMinimum({ 1e-2, 1, 1e-6 });
   data_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-  data_->table()->setColumnsWidth(kDataTableColWidth);
 
   // Layout
   const auto rows = new QVBoxLayout();
@@ -50,20 +56,20 @@ YAML::Node EngineDynamicsWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[data_->name()] = data_->getValue();
+  node[kDataKey] = data_->getData();
 
   return node;
 }
 
 void EngineDynamicsWidget::load(const YAML::Node& node)
 {
-  data_->setValue(node[data_->name()].as<Eigen::MatrixXd>());
+  data_->setData(node[kDataKey].as<Eigen::MatrixXd>());
 }
 
 std::pair<double, double> EngineDynamicsWidget::engineConstant() const
 {
   const auto num_data = data_->count();
-  const auto data_mat = data_->getValue();
+  const auto data_mat = data_->getData();
 
   // Extract the data.
   const auto throttles = data_mat.col(0) / 100.0;       // [-]

@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <QEvent>
-
 #include <urdf/model.h>
+
+#include <QEvent>
 #include <QTimer>
 #include <QTreeWidgetItem>
 #include <rviz_common/panel.hpp>

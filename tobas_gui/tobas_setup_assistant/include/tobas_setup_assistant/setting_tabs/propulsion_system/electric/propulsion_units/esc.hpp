@@ -3,8 +3,9 @@
 
 #pragma once
 
+#include <tobas_qt_tools/widgets/spin_box.hpp>
+
 #include "./base.hpp"
-#include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
 namespace tobas
 {
@@ -33,7 +34,7 @@ public:
   double maxCurrent() const;
 
 private:
-  ParamGetterWidget_SpinBox* max_current_;
+  qt::SpinBox* max_current_;
 };
 }  // namespace electric
 }  // namespace propulsion

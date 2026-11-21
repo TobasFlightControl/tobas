@@ -15,13 +15,12 @@
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_std_tools/console.hpp>
 
-#include "ui_update_link_dialog.h"
-
 #include "tobas_urdf_builder_plugin/ui/double_map_input_dialog.hpp"
 #include "tobas_urdf_builder_plugin/ui/string_input_dialog.hpp"
 #include "tobas_urdf_builder_plugin/ui/urdf_builder_panel.hpp"
 #include "tobas_urdf_builder_plugin/utils/constants.hpp"
 #include "tobas_urdf_builder_plugin/utils/widget_item.hpp"
+#include "ui_update_link_dialog.h"
 
 namespace fs = std::filesystem;
 

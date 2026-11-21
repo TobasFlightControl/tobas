@@ -3,9 +3,10 @@
 
 #pragma once
 
+#include <tobas_qt_tools/widgets/double_spin_box.hpp>
+#include <tobas_qt_tools/widgets/spin_box.hpp>
+
 #include "./base.hpp"
-#include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
-#include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
 namespace tobas
 {
@@ -56,11 +57,11 @@ public:
   double meanChord() const;
 
 private:
-  ParamGetterWidget_SpinBox* num_blades_;
-  ParamGetterWidget_SpinBox* diameter_;
-  ParamGetterWidget_DoubleSpinBox* pitch_;
-  ParamGetterWidget_SpinBox* min_chord_;
-  ParamGetterWidget_SpinBox* max_chord_;
+  qt::SpinBox* num_blades_;
+  qt::SpinBox* diameter_;
+  qt::DoubleSpinBox* pitch_;
+  qt::SpinBox* min_chord_;
+  qt::SpinBox* max_chord_;
 };
 }  // namespace electric
 }  // namespace propulsion

@@ -11,7 +11,7 @@ namespace cmn
 {
 static constexpr int kTitlePSize = 16;
 static constexpr int kLabelPSize = 13;
-static constexpr int kBodyPSize = -1;
+static constexpr int kBodyPointSize = 11;
 
 static constexpr int kSaveLogTextSizeThresh = 1000;
 

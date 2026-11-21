@@ -25,9 +25,6 @@ class PropulsionUnitsWidget : public qt::TabWidget
   using self = PropulsionUnitsWidget;
   using super = qt::TabWidget;
 
-  static constexpr int kTabWidth = 150;
-  static constexpr int kTabHeight = 48;
-
 public:
   explicit PropulsionUnitsWidget(rclcpp::Node::SharedPtr node, const uadf::Model& uadf);
 

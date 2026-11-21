@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/battery.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
@@ -33,6 +35,7 @@ BatteryWidget::BatteryWidget()
   }
 
   const auto rows = new QVBoxLayout();
+  rows->setContentsMargins(0, 0, 0, 0);
   rows->addWidget(type_);
   rows->addWidget(batteries_);
   setLayout(rows);

@@ -69,7 +69,7 @@ See the [Material for MkDocs versioning guide](https://squidfunk.github.io/mkdoc
 for background.
 
 ```bash
-$ mike deploy --push --update-aliases vx.x latest
+$ mike deploy --push --update-aliases jazzy latest
 $ mike set-default --push latest
 ```
 
@@ -77,5 +77,5 @@ To delete a specific version:
 
 ```bash
 $ mike list
-$ mike delete vx.x --push
+$ mike delete <target> --push
 ```

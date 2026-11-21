@@ -23,19 +23,19 @@ The left column shows results with only a 40 Hz cutoff LPF applied, while the ri
 Although the LPF suppresses high frequencies, strong vibration at the motor's rotational frequency remains.
 In contrast, the RPM filter also significantly suppresses vibration at the motor's rotational frequency and its second and third harmonics.
 
-<img src="../../../assets/rpm_filter/lpf_imu.png" alt="lpf_imu" width="49%"/>
-<img src="../../../assets/rpm_filter/notch_imu.png" alt="notch_imu" width="49%"/>
+<img src="../../assets/rpm_filter/lpf_imu.png" alt="lpf_imu" width="49%"/>
+<img src="../../assets/rpm_filter/notch_imu.png" alt="notch_imu" width="49%"/>
 
-<img src="../../../assets/rpm_filter/lpf_imu_fft.png" alt="lpf_imu_fft" width="49%"/>
-<img src="../../../assets/rpm_filter/notch_imu_fft.png" alt="notch_imu_fft" width="49%"/>
+<img src="../../assets/rpm_filter/lpf_imu_fft.png" alt="lpf_imu_fft" width="49%"/>
+<img src="../../assets/rpm_filter/notch_imu_fft.png" alt="notch_imu_fft" width="49%"/>
 
 Reducing IMU vibration, particularly gyroscope vibration, also reduces fluctuations in motor speed.
 In the images below, blue represents the measured RPM and red represents the target RPM. The RPM fluctuates less when the notch filter is used.
 This not only improves attitude-control stability by preventing unwanted forces,
 but also reduces motor heat and produces a smoother propeller sound.
 
-<img src="../../../assets/rpm_filter/lpf_rpm.png" alt="lpf_rpm" width="49%"/>
-<img src="../../../assets/rpm_filter/notch_rpm.png" alt="notch_rpm" width="49%"/>
+<img src="../../assets/rpm_filter/lpf_rpm.png" alt="lpf_rpm" width="49%"/>
+<img src="../../assets/rpm_filter/notch_rpm.png" alt="notch_rpm" width="49%"/>
 
 ## Supported FMUs
 

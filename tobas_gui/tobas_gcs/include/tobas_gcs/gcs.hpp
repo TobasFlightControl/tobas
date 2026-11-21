@@ -29,8 +29,6 @@
 #include "./network_checker.hpp"
 #include "./project_env_parser.hpp"
 #include "./remote_connection.hpp"
-#include "./restart_button.hpp"
-#include "./shutdown_button.hpp"
 
 namespace tobas
 {
@@ -47,8 +45,7 @@ class GroundControlStationWidget : public QWidget
 
   static constexpr char kLastOpenedDirKey[] = "last_opened_dir";
 
-  static constexpr int kPathMaxWidth = 400;
-  static constexpr int kPowerButtonRadius = 40;
+  static constexpr int kPathWidth = 400;
 
 public:
   explicit GroundControlStationWidget(rclcpp::Node::SharedPtr node);
@@ -84,11 +81,6 @@ private:
   QPushButton* load_btn_;
   QPushButton* write_btn_;
 
-  RestartButton* restart_btn_;
-  ShutdownButton* shutdown_btn_;
-
-  qt::WaitSpinnerWidget spinner_;
-
   sc::SensorCalibrationWidget* sensor_calib_;
   at::ActuatorTestWidget* actuator_test_;
   ctrl::ControlSystemWidget* control_system_;
@@ -104,15 +96,9 @@ private:
   void expectTelemetryLoss();
   void clearExpectedTelemetryLoss();
 
-  std::expected<void, QString> restartInBackground();
-  std::expected<void, QString> shutdownInBackground();
-
 private Q_SLOTS:
   void onLoadButtonClicked();
   void onWriteButtonClicked();
-
-  void onRestartButtonClicked(bool checked);
-  void onShutdownButtonClicked(bool checked);
 
   void onSimRealStateChanged();
   void onRemoteConnectionDisconnected();

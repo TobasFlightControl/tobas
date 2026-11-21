@@ -4,7 +4,8 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
-#include <QWidget>
+
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 
 namespace tobas
 {
@@ -16,14 +17,19 @@ namespace propulsion
 {
 namespace electric
 {
-class BatteryWidget_Base : public QWidget
+class BatteryWidget_Base : public qt::ScrollArea
 {
   Q_OBJECT
 
   using self = BatteryWidget_Base;
-  using super = QWidget;
+  using super = qt::ScrollArea;
 
 public:
+  explicit BatteryWidget_Base()
+  {
+    setFrameShape(QFrame::NoFrame);
+  }
+
   virtual const char* name() const = 0;
 
   virtual bool isValid() = 0;

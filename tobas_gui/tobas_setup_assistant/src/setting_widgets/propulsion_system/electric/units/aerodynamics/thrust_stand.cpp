@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/aerodynamics/thrust_stand.hpp"
 
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
@@ -20,15 +22,21 @@ namespace propulsion
 {
 namespace electric
 {
+namespace
+{
+// Keep the existing serialized keys independent of the form labels.
+constexpr char kDataKey[] = "Data from thrust stand";
+}  // namespace
+
 AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand(rclcpp::Node::SharedPtr node)
 {
-  data_ = new ParamGetterWidget_DoubleTable(
+  data_ = new DoubleTableWidget(
     node, "Data from thrust stand", "Select Test Data", { kRpmColName, kThrustColName, kTorqueColName });
   data_->setDecimals({ 0, 6, 6 });
   data_->setMinimum({ 1, 1e-6, 1e-6 });
-  data_->table()->setColumnsWidth(kDataTableColWidth);
 
-  rows_->addWidget(data_);
+  const auto rows = new QVBoxLayout(this);
+  rows->addWidget(data_);
 }
 
 const char* AerodynamicsWidget_ThrustStand::name() const
@@ -57,28 +65,28 @@ bool AerodynamicsWidget_ThrustStand::isValid()
 void AerodynamicsWidget_ThrustStand::copyFrom(const AerodynamicsWidget_Base* src)
 {
   const auto derived = qt::qConstPointerCast<AerodynamicsWidget_ThrustStand>(src);
-  data_->setValue(derived->data_->getValue());
+  data_->setData(derived->data_->getData());
 }
 
 YAML::Node AerodynamicsWidget_ThrustStand::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[data_->name()] = data_->getValue();
+  node[kDataKey] = data_->getData();
 
   return node;
 }
 
 void AerodynamicsWidget_ThrustStand::load(const YAML::Node& node)
 {
-  data_->setValue(node[data_->name()].as<Eigen::MatrixXd>());
+  data_->setData(node[kDataKey].as<Eigen::MatrixXd>());
 }
 
 double AerodynamicsWidget_ThrustStand::motorConst() const
 {
   // TODO: Remove outliers
   // TODO: Warn if the data is too far from the model (linear function).
-  const auto data_mat = data_->getValue();
+  const auto data_mat = data_->getData();
   const auto rpms = data_mat.col(0).eval();
   const auto thrusts = data_mat.col(1).eval();
   return motorConstFromThrustStand(rpms, thrusts);
@@ -88,7 +96,7 @@ double AerodynamicsWidget_ThrustStand::momentConst() const
 {
   // TODO: Remove outliers
   // TODO: Warn if the data is too far from the model (linear function).
-  const auto data_mat = data_->getValue();
+  const auto data_mat = data_->getData();
   const auto thrusts = data_mat.col(1).eval();
   const auto torques = data_mat.col(2).eval();
   return momentConstFromThrustStand(thrusts, torques);

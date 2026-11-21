@@ -3,8 +3,9 @@
 
 #pragma once
 
+#include <tobas_qt_tools/widgets/spin_box.hpp>
+
 #include "./base.hpp"
-#include "tobas_setup_assistant/param_getters/spin_box.hpp"
 
 namespace tobas
 {
@@ -43,10 +44,10 @@ public:
   double minimumSpeed() const;
 
 private:
-  ParamGetterWidget_SpinBox* num_poles_;
-  ParamGetterWidget_SpinBox* kv_;
-  ParamGetterWidget_SpinBox* resistance_;
-  ParamGetterWidget_SpinBox* min_speed_;
+  qt::SpinBox* num_poles_;
+  qt::SpinBox* kv_;
+  qt::SpinBox* resistance_;
+  qt::SpinBox* min_speed_;
 };
 }  // namespace electric
 }  // namespace propulsion

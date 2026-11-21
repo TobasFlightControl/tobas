@@ -6,11 +6,8 @@
 #include <QDebug>
 #include <QHeaderView>
 #include <QLabel>
-#include <QVBoxLayout>
 
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/cast.hpp>
-#include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/widgets/double_spin_box.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_yaml_tools/format.hpp>
@@ -27,9 +24,6 @@ namespace fw
 {
 ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& uadf) : super(0, kNumCols), uadf_(uadf)
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
-
   setHorizontalHeaderLabels({
     kLinkNameLabel,
     kJointNameLabel,
@@ -40,9 +34,9 @@ ControlSurfacesWidget::ControlSurfacesWidget(const uadf::Model& uadf) : super(0,
     kPitchCoefLabel,
     kYawCoefLabel,
   });
-  setColumnsWidth(kColWidth);
   setHeaderSectionsClickable(false);
-  horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+  horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  horizontalHeader()->setMinimumSectionSize(160);
 }
 
 void ControlSurfacesWidget::updateInternalDataStructures()
@@ -134,12 +128,10 @@ void ControlSurfacesWidget::add(const QString& link_name)
   insertRow(row);
 
   const auto link_name_label = new QLabel(link_name);
-  link_name_label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   link_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kLinkNameCol, link_name_label);
 
   const auto joint_name_label = new QLabel(QString::fromStdString(joint->name));
-  joint_name_label->setFont(qt::DefaultFont(cmn::kBodyPSize));
   joint_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kJointNameCol, joint_name_label);
 

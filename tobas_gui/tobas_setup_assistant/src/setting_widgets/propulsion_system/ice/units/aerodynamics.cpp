@@ -3,6 +3,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/aerodynamics.hpp"
 
+#include <QVBoxLayout>
 #include <eigen3/Eigen/SVD>
 
 #include <tobas_eigen_tools/core.hpp>
@@ -24,16 +25,21 @@ namespace propulsion
 {
 namespace ice
 {
+namespace
+{
+// Keep the existing serialized keys independent of the form labels.
+constexpr char kDataKey[] = "Propeller Single Test Data";
+}  // namespace
+
 AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, const PropellerWidget* propeller)
   : propeller_(propeller)
 {
-  data_ = new ParamGetterWidget_DoubleTable(
+  data_ = new DoubleTableWidget(
     node, "Propeller Single Test Data", "Select Test Data", { "RPM", "Pitch [deg]", "Thrust [N]", "Torque [Nm]" });
   data_->setDecimals({ 0, 2, 6, 6 });
   data_->setMinimum({ 1, -90, 1e-6, 1e-6 });
   data_->setMaximum({ INFINITY, 90, INFINITY, INFINITY });
   data_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-  data_->table()->setColumnsWidth(kDataTableColWidth);
 
   // Layout
   const auto rows = new QVBoxLayout();
@@ -74,21 +80,21 @@ bool AerodynamicsWidget::isValid()
 void AerodynamicsWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
   const auto derived = qt::qConstPointerCast<AerodynamicsWidget>(src);
-  data_->setValue(derived->data_->getValue());
+  data_->setData(derived->data_->getData());
 }
 
 YAML::Node AerodynamicsWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[data_->name()] = data_->getValue();
+  node[kDataKey] = data_->getData();
 
   return node;
 }
 
 void AerodynamicsWidget::load(const YAML::Node& node)
 {
-  data_->setValue(node[data_->name()].as<Eigen::MatrixXd>());
+  data_->setData(node[kDataKey].as<Eigen::MatrixXd>());
 }
 
 VppMotorConstant AerodynamicsWidget::motorConst() const
@@ -144,7 +150,7 @@ std::tuple<Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd, Eigen::VectorXd> A
   std::vector<double> speeds, pitches, thrusts, torques;
 
   const auto num_data = data_->count();
-  const auto data_mat = data_->getValue();
+  const auto data_mat = data_->getData();
 
   const auto pitch_limit = propeller_->pitchAngleLimit();
 

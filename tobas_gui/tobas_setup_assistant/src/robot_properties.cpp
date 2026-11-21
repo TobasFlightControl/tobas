@@ -20,7 +20,7 @@ RobotPropertiesWidget::RobotPropertiesWidget(const uadf::Model& uadf, const kdl:
   mass_ = new qt::FramedLabel();
 
   const auto form = new qt::FormLayout();
-  form->setHorizontalSpacing(30);
+  form->setHorizontalSpacing(8);
   setLayout(form);
   form->addRow("Robot Name", robot_name_);
   form->addRow("Frame Type", frame_type_);

@@ -23,7 +23,7 @@ namespace ctrl
 BaseCommandWidget::BaseCommandWidget()
 {
   const auto root_rows = new QVBoxLayout();
-  root_rows->setContentsMargins(-1, 0, -1, 0);
+  root_rows->setContentsMargins(0, 0, 0, 0);
   setLayout(root_rows);
 
   const auto header_cols = new QHBoxLayout();

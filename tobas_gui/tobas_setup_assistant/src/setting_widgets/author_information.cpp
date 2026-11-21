@@ -4,6 +4,7 @@
 #include "tobas_setup_assistant/setting_tabs/author_information.hpp"
 
 #include <tobas_git/core.hpp>
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_string_tools/core.hpp>
@@ -15,15 +16,27 @@ namespace gui
 {
 namespace sa
 {
+namespace
+{
+// Keep the existing serialized keys independent of the form labels.
+constexpr char kNameKey[] = "Name of the Maintainer";
+constexpr char kEmailKey[] = "Email of the Maintainer";
+}  // namespace
+
 AuthorInformationWidget::AuthorInformationWidget()
 {
-  name_ = new ParamGetterWidget_LineEdit("Name of the Maintainer", "");
-  name_->setValue(getDefaultName());
-  addWidget(name_);
+  const auto form = new qt::FormLayout();
+  addLayout(form);
 
-  email_ = new ParamGetterWidget_LineEdit("Email of the Maintainer", "");
-  email_->setValue(getDefaultEmail());
-  addWidget(email_);
+  name_ = new QLineEdit();
+  name_->setText(getDefaultName());
+  form->addRow(kNameKey, name_);
+  form->labelForField(name_)->setToolTip(name_->toolTip());
+
+  email_ = new QLineEdit();
+  email_->setText(getDefaultEmail());
+  form->addRow(kEmailKey, email_);
+  form->labelForField(email_)->setToolTip(email_->toolTip());
 
   addStretch();
 }
@@ -52,13 +65,13 @@ void AuthorInformationWidget::updateInternalDataStructures()
 
 bool AuthorInformationWidget::isValid()
 {
-  const auto author_name = name_->getValue();
+  const auto author_name = name_->text();
   if (author_name.isEmpty()) {
     qt::qWarnBox(this, "Please specify author name.");
     return false;
   }
 
-  const auto author_email = email_->getValue();
+  const auto author_email = email_->text();
   if (author_email.isEmpty()) {
     qt::qWarnBox(this, "Please specify author email address.");
     return false;
@@ -75,26 +88,26 @@ YAML::Node AuthorInformationWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[name_->name()] = name_->getValue();
-  node[email_->name()] = email_->getValue();
+  node[kNameKey] = name_->text();
+  node[kEmailKey] = email_->text();
 
   return node;
 }
 
 void AuthorInformationWidget::load(const YAML::Node& node)
 {
-  name_->setValue(node[name_->name()].as<QString>());
-  email_->setValue(node[email_->name()].as<QString>());
+  name_->setText(node[kNameKey].as<QString>());
+  email_->setText(node[kEmailKey].as<QString>());
 }
 
 QString AuthorInformationWidget::authorName() const
 {
-  return name_->getValue();
+  return name_->text();
 }
 
 QString AuthorInformationWidget::authorEmail() const
 {
-  return email_->getValue();
+  return email_->text();
 }
 
 QString AuthorInformationWidget::getDefaultName()

@@ -14,7 +14,6 @@
 #include <tobas_constants/ros_interface.hpp>
 #include <tobas_geographic/geography.hpp>
 #include <tobas_gui_common/constants.hpp>
-#include <tobas_mission_msgs_adapter/mission.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/cast.hpp>
@@ -27,6 +26,8 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_trajectory_generation/offline/catmull_rom.hpp>
 #include <tobas_yaml_tools/core.hpp>
+
+#include <tobas_mission_msgs_adapter/mission.hpp>
 
 #include "tobas_control_system/mission_planner/command_type.hpp"
 #include "tobas_control_system/mission_planner/save_mission_dialog.hpp"
@@ -227,6 +228,7 @@ void MissionPlannerWidget::addCommand(mission::Type type, BaseCommandWidget* wid
 {
   widget->label_->hide();
   widget->delete_button_->hide();
+  widget->layout()->setSpacing(0);
   widget->layout()->setContentsMargins(0, 0, 0, 0);
   const auto item = new QListWidgetItem(commandToText(type));
   command_list_->addItem(item);

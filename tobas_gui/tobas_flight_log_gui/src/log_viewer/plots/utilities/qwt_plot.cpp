@@ -3,18 +3,18 @@
 
 #include "tobas_flight_log_gui/log_viewer/plots/utilities/qwt_plot.hpp"
 
+#include <qwt/qwt_plot_legenditem.h>
+#include <qwt/qwt_scale_div.h>
+#include <qwt/qwt_scale_draw.h>
+#include <qwt/qwt_scale_engine.h>
+#include <qwt/qwt_text.h>
+
 #include <algorithm>
 #include <cmath>
 
 #include <QFont>
 #include <QFontInfo>
 #include <QPen>
-
-#include <qwt/qwt_plot_legenditem.h>
-#include <qwt/qwt_scale_div.h>
-#include <qwt/qwt_scale_draw.h>
-#include <qwt/qwt_scale_engine.h>
-#include <qwt/qwt_text.h>
 
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_qt_tools/font.hpp>
@@ -128,6 +128,7 @@ QwtPlot2::QwtPlot2(QWidget* parent) : super(parent)
   legend_item->setMargin(1);                                 // 1-pixel outer margin.
   legend_item->setItemMargin(1);                             // 1-pixel margin around each item.
   legend_item->setItemSpacing(1);                            // 1-pixel gap between icon and label.
+  legend_item->setBorderDistance(2);                         // Qwt 6.1 equivalent of the canvas offset.
 }
 
 void QwtPlot2::setAxisNoLabel(const QwtPlot::Axis& axis)

@@ -66,7 +66,7 @@ SuspendedLoadWidget::SuspendedLoadWidget(rclcpp::Node::SharedPtr node) : node_(n
   // Layout
   const auto header_cols = new QHBoxLayout();
   header_cols->addWidget(title);
-  header_cols->addStretch();
+  header_cols->addStretch(1);
   header_cols->addWidget(attach_detach_btn_);
 
   const auto form = new qt::FormLayout();

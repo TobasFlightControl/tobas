@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include "../param_getters/double_spin_box.hpp"
-#include "../param_getters/spin_box.hpp"
+#include <tobas_qt_tools/widgets/double_spin_box.hpp>
+#include <tobas_qt_tools/widgets/spin_box.hpp>
+
 #include "./base_setting.hpp"
 
 namespace tobas
@@ -38,9 +39,9 @@ public:
   double disarmDuration() const;
 
 private:
-  ParamGetterWidget_SpinBox* num_sbus_channels_;
-  ParamGetterWidget_DoubleSpinBox* arm_duration_;
-  ParamGetterWidget_DoubleSpinBox* disarm_duration_;
+  qt::SpinBox* num_sbus_channels_;
+  qt::DoubleSpinBox* arm_duration_;
+  qt::DoubleSpinBox* disarm_duration_;
 };
 }  // namespace sa
 }  // namespace gui
