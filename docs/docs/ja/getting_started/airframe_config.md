@@ -35,6 +35,7 @@ UADF の詳細については[What is UADF](../additional_information/what_is_ua
 ターミナルで以下を実行し，Tobas Setup Assistant を起動します．
 
 ```bash
+$ source /opt/ros/jazzy/setup.bash
 $ ros2 launch tobas_setup_assistant setup_assistant.launch.py
 ```
 
@@ -47,7 +48,7 @@ $ ros2 launch tobas_setup_assistant setup_assistant.launch.py
 `New`をクリックし，ファイルダイアログで`/opt/ros/jazzy/share/tobas_description/urdf/f450.uadf`を選択して`Open`をクリックします．
 すると，モデルビューに機体が表示され，各設定ページが有効になります．
 
-![load](../../assets/airframe_config/load.png)
+![new](../../assets/airframe_config/new.png)
 
 ## Propulsion System
 
@@ -90,6 +91,8 @@ $ ros2 launch tobas_setup_assistant setup_assistant.launch.py
 
 この機体の 4 つの推進ユニットは全て同一なため，`Copy To All`をクリックし，`propeller_0`の設定を他の 3 つにコピーします．
 `propeller_0`の設定が他のタブにも反映されていることを確認してください．
+
+![propulsion/copy_to_all](../../assets/airframe_config/propulsion/copy_to_all.png)
 
 ## Hardware Interface
 
