@@ -81,6 +81,7 @@ GPSw (General Purpose Switch) はユーザが自由に使えるスイッチで�
 ターミナルで以下を実行し，Tobas GCS を起動します．
 
 ```bash
+$ source /opt/ros/jazzy/setup.bash
 $ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
 ```
 
