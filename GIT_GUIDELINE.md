@@ -7,17 +7,13 @@
 - `feature/`:
   Branch for feature development.
   Branch from `${ros-distribution}` and delete after merging.
-- `release/`:
-  Branch for each release with backward compatibility guarantees.
-  Branch from `${ros-distribution}` and create release `vx.x.x` from here.
 - `hotfix/`:
-  Branch for urgent bug fixes. Branch from `${ros-distribution}` or a release branch and delete after merging.
+  Branch for urgent bug fixes. Branch from `${ros-distribution}` and delete after merging.
 
 ### Example Branch Names
 
 - `rolling`
 - `feature/nonlinear-mpc`
-- `release/v2.5`
 - `hotfix/mag-drivers`
 
 ## Commit Message
