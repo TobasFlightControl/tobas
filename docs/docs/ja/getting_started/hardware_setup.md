@@ -80,6 +80,7 @@ GPSw (General Purpose Switch) はユーザが自由に使えるスイッチで�
 ターミナルで以下を実行し，Cyclone DDS を指定して Tobas GCS を起動します．
 
 ```bash
+$ source /opt/ros/lyrical/setup.bash
 $ ros2 launch tobas_gcs gcs.launch.py
 ```
 
@@ -158,7 +159,7 @@ $ ros2 launch tobas_gcs gcs.launch.py
 
 ### Joint Test
 
-機体がチルトロータや固定翼機の操舵面のような PWM 駆動関節を持つ場合は，それぞれの関節の位置指令テストを行うことができます．
+機体がチルトロータや固定翼機の操舵面のような駆動関節を持つ場合は，それぞれの関節の位置指令テストを行うことができます．
 今回の機体はプロペラ以外の可動関節をもたないためスキップします．
 
 ## FC の電源を切る
@@ -175,4 +176,5 @@ $ ros2 launch tobas_gcs gcs.launch.py
 ---
 
 これで作業は完了です．
+Tobas GCS を閉じ，機体の電源を落としてください．
 次のステップではいよいよ機体を飛ばしてみます．

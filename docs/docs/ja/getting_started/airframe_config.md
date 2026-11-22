@@ -35,6 +35,7 @@ UADF の詳細については[What Is UADF?](../additional_information/what_is_u
 ターミナルで以下を実行し，Tobas Setup Assistant を起動します．
 
 ```bash
+$ source /opt/ros/lyrical/setup.bash
 $ ros2 launch tobas_setup_assistant setup_assistant.launch.py
 ```
 

@@ -9,9 +9,9 @@ Setup Assistant で作成した Tobas プロジェクト (例: tobas_f450.TBS) �
 ユーザ C++ パッケージ (例: tobas_f450_user_cpp) はユーザが自由に編集できる C++ パッケージです．
 以下の 5 つの launch ファイルが含まれます．
 
-- `common_(interface/realtime).launch.py`: 実機とシミュレーションの両方で起動されます．
-- `real_(interface/realtime).launch.py`: 実機でのみ起動されます．
-- `gazebo.launch.py`: シミュレーション時のみ起動されます．
+- `common_(interface/realtime).launch.py`: 実機とシミュレーションの両方で起動します．
+- `real_(interface/realtime).launch.py`: 実機でのみ起動します．
+- `gazebo.launch.py`: シミュレーション時のみ起動します．
 
 `common`と`real`にはそれぞれ`interface`と`realtime`の 2 種類の launch ファイルがありますが，
 前者で立ち上げたノードはネットワーク間の ROS 通信ができるのに対し，後者で立ち上げたノードはできません．
@@ -128,7 +128,7 @@ ament_package()
 このノードが自動で起動するよう設定します．
 通常の ROS ノードを立ち上げてもよいのですが，今回はトピック通信のコピーをなくすためにコンポーネントとして立ち上げます．
 
-Tobas では 3 つのコンポーネントマネージャー (`component_manager_x (x = 1, 2, 3)`) がそれぞれ別々の CPU で動作し，
+Tobas では 3 つのコンポーネントマネージャー (`component_manager_x (x=1,2,3)`) がそれぞれ別々の CPU で動作し，
 それぞれのコンポーネント間のトピック通信もゼロコピーで行われるようになっています．
 番号が若いほど遅延が許されない高速な処理を担当しており，それぞれの大まかな役割は以下のとおりです．
 

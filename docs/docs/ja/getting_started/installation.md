@@ -26,13 +26,12 @@ $ sudo apt install -y ros-lyrical-tobas
 ### 必要なもの
 
 - <a href=https://www.raspberrypi.com/products/raspberry-pi-5/ target="_blank">Raspberry Pi 5 (2 GB 以上)</a>
-- Tobas HAT <!-- TODO: URL -->
 - 16 GB 以上のマイクロ SD カード (例: <a href=https://www.sandisk.com/products/memory-cards/microsd-cards/sandisk-extreme-uhs-i-microsd target="_blank">SanDisk Extreme microSDXC™ UHS-I CARD - 32GB</a>)
 - SD カードリーダー (例: <a href=https://www.sandisk.com/products/accessories/memory-card-readers/sandisk-quickflow-microsd-memory-card-reader-usb-c target="_blank">SANDISK QuickFlow microSD Card Reader with USB-C</a>)
 
 ### 手順
 
-<a href=https://drive.google.com/file/d/1B80llkgNSvuoI6HSFZNbjZA3OYDf1oZ2/view target="_blank">tobas_2.16.0_arm64.img.gz</a>
+<a href=https://drive.google.com/file/d/1B80llkgNSvuoI6HSFZNbjZA3OYDf1oZ2/view target="_blank">Tobas のイメージファイル</a>
 をダウンロードしてください．
 
 適当なイメージフラッシャーをインストールしてください．例えば以下が使用可能です．
