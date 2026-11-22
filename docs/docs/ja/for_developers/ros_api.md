@@ -4,14 +4,14 @@
 詳しくは実行時に`$ ros2 topic list`等でご確認ください．
 `remote_interface`名前空間内の API を使うと，外部端末から FC と通信することもできます．
 
-## トピック
+## **トピック**
 
 <!-- tobas_constants/ros_interfaces.hppの内容 -->
 <!-- tobas_gazebo_common/constants.hppの内容 -->
 
 ---
 
-### Common
+### **Common**
 
 実機，シミュレーション両方で使用できるトピックです．
 
@@ -351,7 +351,7 @@ std_msgs/Header header
 bool data
 ```
 
-### Command
+### **Command**
 
 ユーザは FC 内部からこれらのトピックを発行することでドローンを操作することができます．
 受け付けるコマンドは機体フレームの型と飛行モードによって決まるため，ROS 2 の CLI でご確認ください．
@@ -696,7 +696,7 @@ tobas_msgs/JointCommand[] commands
 	float64 data
 ```
 
-### Gazebo
+### **Gazebo**
 
 Gazeboシミュレーション時にのみ使用されるトピックです．
 
@@ -777,11 +777,11 @@ tobas_kdl_msgs/Vector vel  # [m/s]
 	float64 z
 ```
 
-## サービス
+## **サービス**
 
 ---
 
-### Common
+### **Common**
 
 実機，シミュレーション両方で使用できるサービスです．
 
@@ -796,7 +796,7 @@ bool success
 string message
 ```
 
-### Gazebo
+### **Gazebo**
 
 Gazeboシミュレーション時にのみ使用されるサービスです．
 
@@ -910,11 +910,11 @@ bool success   # indicate successful run of triggered service
 string message # informational, e.g. for error messages
 ```
 
-## アクション
+## **アクション**
 
 ---
 
-### Common
+### **Common**
 
 実機，シミュレーション両方で使用できるアクションです．
 

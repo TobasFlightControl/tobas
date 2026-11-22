@@ -1,16 +1,16 @@
-# Configuring the Boot Device
+# Boot Device Configuration
 
-First, edit the boot device directly to configure the initial communication settings.
-Prepare a microSD card containing the Tobas image.
+First, configure the initial communication settings by editing the boot device directly.
+Prepare the microSD card containing the Tobas image.
 
-## Preparation
+## **Preparation**
 
 ---
 
-### Launching the Configuration GUI
+### **Launching the Configuration GUI**
 
 Run the following command in a terminal to launch Tobas Bootmedia Config.
-Root privileges are required because this tool accesses external volumes.
+Root privileges are required to work with external volumes.
 
 ```bash
 $ sudo bash -c 'source /opt/ros/jazzy/setup.bash && ros2 run tobas_bootmedia_config TobasBootmediaConfig'
@@ -18,112 +18,114 @@ $ sudo bash -c 'source /opt/ros/jazzy/setup.bash && ros2 run tobas_bootmedia_con
 
 ![start](../../assets/bootmedia_config/start.png)
 
-### Connecting to the Boot Device
+### **Connecting to the Boot Device**
 
-Insert the SD card into the PC using a suitable USB card reader.
-If the Tobas image has been written correctly, the SD card will appear in the selection list at the top of the GUI.
+Insert the SD card into your PC using a suitable USB card reader.
+If the Tobas image was flashed correctly, the SD card will be available in the selection list at the top of the GUI.
 
-Make sure that the correct SD card is selected, then click `Connect`.
-The SD card will be mounted on the PC, and its current settings will be loaded.
+Make sure the correct SD card is selected, then click `Connect`.
+The SD card will be mounted on your PC and the current settings will be loaded.
 
 ![connect](../../assets/bootmedia_config/connect.png)
 
-## Settings
+## **Configuration**
 
 ---
 
-### Hostname
+### **Hostname**
 
 Edit the Linux hostname.
 
-By default, Tobas uses hostnames to identify devices on the network, so each hostname must be unique within the intended subnet.
-Devices can also be identified using static IP addresses, but when using multiple units simultaneously, we recommend assigning each one a unique hostname to avoid conflicts.
+By default, Tobas uses hostnames to identify devices on the network,
+so the hostname must be unique within the subnet you plan to use.
+You can also use a static IP address, but keeping hostnames unique is a good precaution when operating multiple aircraft at once.
 
 Edit the hostname and click `Write` to write the new hostname to the SD card.
 
 ![hostname](../../assets/bootmedia_config/hostname.png)
 
-### Login Password
+### **Login Password**
 
 Edit the login password.
 
-The default password, `tobas`, will work, but changing it is recommended for security reasons.
+The default password, `tobas`, will work,
+but changing it is recommended for security.
 
-Enter the login password in `New Password`, then enter the same password in `Confirm Password` for confirmation.
-If the passwords match and are valid, the `Write` button will be enabled.
+Enter the login password in `New Password`, then enter it again in `Confirm Password`.
+The `Write` button becomes available when both entries match and the password is valid.
 Click `Write` to write the password to the SD card.
 
 ![login_password](../../assets/bootmedia_config/login_password.png)
 
-### SSH Keys
+### **SSH Keys**
 
 Configure SSH key authentication.
 
-Tobas uses SSH key authentication for some operations performed on the flight controller (FC) from the ground station.
-You must therefore register the public key of the PC used as the ground station with the FC.
+Tobas uses SSH key authentication for some operations from the ground station to the flight controller (FC),
+so you need to register the public key of your ground station PC on the FC.
 
-First, create an SSH key.
+First, create an SSH key pair.
 Run the following command in a terminal to launch `Passwords and Keys`.
 
 ```bash
 $ seahorse
 ```
 
-From the `+` button in the upper-left corner, select `Secure Shell key`.
-In the dialog that appears, enter an identifier such as `<username>@<hostname>` in `Description`, then click `Generate`.
-In the next dialog, click `OK` to generate an SSH public and private key pair. You can leave the password blank.
-Then click `OpenSSH keys` and confirm that the generated key is displayed.
-Double-click the key, make a note of `Public key` in the dialog that appears, then close `Passwords and Keys`.
+Click the `+` button in the upper left and select `Secure Shell key`.
+In the dialog, enter an identifier such as `<username>@<hostname>` in `Description`, then click `Generate`.
+Click `OK` in the next dialog to generate the SSH public and private keys. You can leave the password blank.
+Click `OpenSSH keys` to confirm that the newly created key is listed.
+Double-click the key, copy the `Public key` from the dialog, then close `Passwords and Keys`.
 
-<img src="../../assets/bootmedia_config/ssh_key_1.png" alt="ssh_key_1" width="49%"/>
-<img src="../../assets/bootmedia_config/ssh_key_2.png" alt="ssh_key_2" width="49%"/>
+![ssh_key_1](../../assets/bootmedia_config/ssh_key_1.png){ width="49%" }
+![ssh_key_2](../../assets/bootmedia_config/ssh_key_2.png){ width="49%" }
 
-Return to `Tobas Bootmedia Config`, click `Add`, then copy and paste the public key you noted earlier into the dialog that appears.
+Return to `Tobas Bootmedia Config`, click `Add`, and paste the public key into the dialog.
 Click `OK` to add the public key to the list and write it to the SD card.
 
 ![ssh_keys](../../assets/bootmedia_config/ssh_keys.png)
 
-### Wi-Fi Client
+### **Wi-Fi Client**
 
 Configure the FC to operate as a Wi-Fi client.
 
-Tobas uses ROS 2 (DDS) for remote communication.
-The FC and all devices that need to communicate with it, such as the ground station, must belong to the same subnet.
+Tobas uses ROS 2 (DDS) for remote communication,
+so all devices that need to communicate, including the FC and ground station, must be on the same subnet.
 You can skip this section if you only use Ethernet or operate the FC as an access point.
 
-Click `Add` and enter the SSID and PSK of the access point you want to connect to in the dialog that appears.
-`Priority` specifies the connection priority. If multiple networks are available, networks with higher values are given priority.
+Click `Add` and enter the SSID and PSK of the access point you want to connect to in the dialog.
+`Priority` determines the connection priority. When multiple networks are available, higher values take precedence.
 Click `OK` to add the access point to the table and write it to the SD card.
 
 ![wifi_client](../../assets/bootmedia_config/wifi_client.png)
 
-### Wi-Fi Hotspot
+### **Wi-Fi Hotspot**
 
 Configure the FC to operate as a Wi-Fi access point.
 
-As described above, the FC and ground station must belong to the same subnet to communicate.
-Configuring the FC itself as an access point is convenient for outdoor test flights because no external router is required.
+As described above, the FC and ground station must be on the same subnet to communicate.
+Using the FC itself as an access point is convenient for outdoor flight tests because it eliminates the need for an external router.
 You can skip this section if the FC will only operate as a Wi-Fi client.
 
-Enter the desired SSID and PSK in `New SSID` and `New PSK`, respectively.
-If both values are valid, the `Write` button will be enabled.
+Enter your chosen SSID and PSK in `New SSID` and `New PSK`, respectively.
+The `Write` button becomes available when both values are valid.
 Click `Write` to write the SSID and PSK to the SD card.
 
 ![wifi_hotspot](../../assets/bootmedia_config/wifi_hotspot.png)
 
-## Finishing Up
+## **Finishing Up**
 
 ---
 
-Once you have completed the settings above, click `Disconnect`.
-The boot device will be unmounted and can then be safely removed.
-Close the GUI and remove the SD card from the PC.
+Once configuration is complete, click `Disconnect`.
+The boot device will be unmounted and can be safely removed.
+Close the GUI and remove the SD card from your PC.
 
 ![disconnect](../../assets/bootmedia_config/disconnect.png)
 
-## Next Steps
+## **Next Steps**
 
 ---
 
-The configuration is now complete.
+Configuration is now complete.
 Next, use Tobas Setup Assistant to create your first project.

@@ -9,9 +9,9 @@ Setup Assistant で作成した Tobas プロジェクト (例: tobas_f450.TBS) �
 ユーザ Python パッケージ (例: tobas_f450_user_py) はユーザが自由に編集できる Python パッケージです．
 以下の 3 つの launch ファイルが含まれます．
 
-- `common.launch.py`: 実機とシミュレーションの両方で起動されます．
-- `real.launch.py`: 実機でのみ起動されます．
-- `gazebo.launch.py`: シミュレーション時のみ起動されます．
+- `common.launch.py`: 実機とシミュレーションの両方で起動します．
+- `real.launch.py`: 実機でのみ起動します．
+- `gazebo.launch.py`: シミュレーション時のみ起動します．
 
 試しに GNSS の状態を確認し，3 次元測位できている場合にメッセージを発する Python ノードを作成してみます．
 `tobas_f450_user_py/tobas_f450_user_py/user_node.py`を以下のように編集してください．

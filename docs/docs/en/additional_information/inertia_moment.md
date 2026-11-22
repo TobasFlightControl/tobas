@@ -1,9 +1,9 @@
-# Common Moments of Inertia
+# Moments of Inertia for Common Shapes
 
-The following formulas calculate the moments of inertia about the center of mass for uniform-density objects of mass $m$.
-Use them when creating URDF files.
+This page explains how to calculate the moment of inertia about the center of mass of a body with mass $m$ and uniform density.
+Use these formulas when creating a URDF.
 
-## Rectangular Cuboid with Side Lengths $x$, $y$, and $z$
+## **Rectangular Box with Side Lengths $x$, $y$, and $z$**
 
 ---
 
@@ -22,7 +22,7 @@ $$
 </xacro:macro>
 ```
 
-## Cylinder with Radius $r$ and Height $h$
+## **Cylinder with Radius $r$ and Height $h$**
 
 ---
 
@@ -40,7 +40,7 @@ $$
 </xacro:macro>
 ```
 
-## Sphere with Radius $r$
+## **Sphere with Radius $r$**
 
 ---
 

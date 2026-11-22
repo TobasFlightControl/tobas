@@ -1,18 +1,19 @@
 # User Code (Python)
 
-This section assumes that you have a basic understanding of Python and ROS 2.
-To learn ROS 2, refer to
-<a href=https://docs.ros.org/en/jazzy/Tutorials.html target="_blank">Tutorials | ROS 2 Documentation</a>.
+This section assumes you know the basics of Python and ROS 2.
+To learn ROS 2, see
+<a href=https://docs.ros.org/en/jazzy/Tutorials.html target="_blank">Tutorials | ROS 2 Documentation</a>
+for tutorials.
 
-Among the ROS packages included in a Tobas project created with Setup Assistant (e.g., tobas_f450.TBS),
-the user Python package (e.g., tobas_f450_user_py) can be edited freely by the user.
-It includes the following three launch files:
+Among the ROS packages in a Tobas project created with Setup Assistant (e.g., tobas_f450.TBS),
+the user Python package (e.g., tobas_f450_user_py) is a Python package you can freely edit.
+It contains the following three launch files:
 
-- `common.launch.py`: Launched for both real hardware and simulation.
-- `real.launch.py`: Launched only on real hardware.
-- `gazebo.launch.py`: Launched only during simulation.
+- `common.launch.py`: Runs on both real hardware and in simulation.
+- `real.launch.py`: Runs only on real hardware.
+- `gazebo.launch.py`: Runs only in simulation.
 
-As an example, let's create a Python node that checks the GNSS status and outputs a message when a 3D fix is available.
+As an example, create a Python node that checks GNSS status and publishes a message when a 3D fix is available.
 Edit `tobas_f450_user_py/tobas_f450_user_py/user_node.py` as follows.
 
 ```python
@@ -56,7 +57,7 @@ if __name__ == "__main__":
     main()
 ```
 
-Configure this node to launch automatically.
+Configure the node to start automatically.
 Uncomment the `add_action` section in `tobas_f450_user_py/launch/common.launch.py`.
 
 ```python
@@ -81,8 +82,8 @@ def generate_launch_description():
     return ld
 ```
 
-When you start the simulation from the GCS, a message appears in the `Control System` console.
+When you start the simulation from the GCS, messages appear in the `Control System` console.
 
 ![console](../../assets/user_code_py/console.png)
 
-For details about the API, see the [ROS API](./ros_api.md).
+See [ROS API](./ros_api.md) for API details.

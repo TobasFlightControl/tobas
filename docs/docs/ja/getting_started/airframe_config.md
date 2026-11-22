@@ -9,7 +9,7 @@ Tobas Setup Assistant は，Tobas を用いてドローンを飛ばすのに必�
 Tobas Setup Assistant を使用するためには，ユーザの機体を表現した Universal Aircraft Description Format (UADF) ファイルが必要です．
 UADF の詳細については[What is UADF](../additional_information/what_is_uadf.md)をご参照ください．
 
-## 準備
+## **準備**
 
 ---
 
@@ -28,42 +28,43 @@ UADF の詳細については[What is UADF](../additional_information/what_is_ua
 
 機体の UADF を作る必要がありますが，今回は既に用意してあるものを使用します．
 
-## 起動
+## **起動**
 
 ---
 
 ターミナルで以下を実行し，Tobas Setup Assistant を起動します．
 
 ```bash
+$ source /opt/ros/jazzy/setup.bash
 $ ros2 launch tobas_setup_assistant setup_assistant.launch.py
 ```
 
 ![start](../../assets/airframe_config/start.png)
 
-## UADF の読み込み
+## **UADF の読み込み**
 
 ---
 
 `New`をクリックし，ファイルダイアログで`/opt/ros/jazzy/share/tobas_description/urdf/f450.uadf`を選択して`Open`をクリックします．
 すると，モデルビューに機体が表示され，各設定ページが有効になります．
 
-![load](../../assets/airframe_config/load.png)
+![new](../../assets/airframe_config/new.png)
 
-## Propulsion System
+## **Propulsion System**
 
 ---
 
 推進系の設定を行います．
 今回は電動機のため`Electric Propulsion System`にチェックを入れたままにします．
 
-### Battery
+### **Battery**
 
 バッテリーの設定を行います．
 バッテリーの仕様を確認し，各項目に適切な値を入力してください．
 
 ![battery](../../assets/airframe_config/propulsion/battery.png)
 
-### Propulsion Units
+### **Propulsion Units**
 
 各推進ユニットの設定を行います．
 
@@ -91,7 +92,9 @@ $ ros2 launch tobas_setup_assistant setup_assistant.launch.py
 この機体の 4 つの推進ユニットは全て同一なため，`Copy To All`をクリックし，`propeller_0`の設定を他の 3 つにコピーします．
 `propeller_0`の設定が他のタブにも反映されていることを確認してください．
 
-## Hardware Interface
+![propulsion/copy_to_all](../../assets/airframe_config/propulsion/copy_to_all.png)
+
+## **Hardware Interface**
 
 ---
 
@@ -108,13 +111,13 @@ $ ros2 launch tobas_setup_assistant setup_assistant.launch.py
     ハードウェアと Tobas ソフトウェアを繋ぐ ROS ノードを自作する必要があります．
 <!-- prettier-ignore-end -->
 
-## Remote Connection
+## **Remote Connection**
 
 ---
 
 地上局から FC に遠隔で接続するための設定を行います．
 
-### Network Interface
+### **Network Interface**
 
 FC が外部と通信する際に使用するネットワークインターフェースを指定します．
 今回は FC と GCS の通信にポケット Wi-Fi を使うため，`Wireless`を選択します．
@@ -122,7 +125,7 @@ FC が外部と通信する際に使用するネットワークインターフ�
 外部の通信モジュールを使わずラズパイ内蔵のアクセスポイントを使用する場合は`Access Point`を選択してください．
 これら以外の構成の場合，例えば VPN のインターフェース`tun0`を使う場合などは，`Other`を選択し直接インターフェース名を指定してください．
 
-### Host
+### **Host**
 
 GCS が LAN 内で FC を識別するためのアドレスの設定を行います．
 FC の IP を固定していればそれを直接使用することもできますが，今回は手軽なホスト名を使用することにします．
@@ -130,13 +133,13 @@ FC の IP を固定していればそれを直接使用することもできま�
 
 ![remote_connection](../../assets/airframe_config/remote_connection.png)
 
-## プロジェクトの保存
+## **プロジェクトの保存**
 
 `Save`をクリックし，ファイルダイアログで`~/.local/share/tobas/colcon_ws/src/`以下に`tobas_f450.TBS`として保存します．
 
 ![save](../../assets/airframe_config/save.png)
 
-## 次の手順へ
+## **次の手順へ**
 
 ---
 

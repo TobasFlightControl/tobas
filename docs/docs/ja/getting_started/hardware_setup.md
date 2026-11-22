@@ -1,6 +1,6 @@
 # 実機のセットアップ
 
-## 実機の作成
+## **実機の作成**
 
 ---
 
@@ -10,8 +10,8 @@ Setup Assistant で設定したとおりに実機を作成します．
 <!-- cf. https://docs.emlid.com/navio2/hardware-setup/ -->
 <!-- cf. https://docs.emlid.com/navio2/ardupilot/typical-setup-schemes/ -->
 
-<img src="../../../assets/hardware_setup/f450_1.png" alt="f450_1" width="49%"/>
-<img src="../../../assets/hardware_setup/f450_2.png" alt="f450_2" width="49%"/>
+![f450_1](../../assets/hardware_setup/f450_1.png){ width="49%" }
+![f450_2](../../assets/hardware_setup/f450_2.png){ width="49%" }
 
 <!-- prettier-ignore-start -->
 !!! note
@@ -23,7 +23,7 @@ Setup Assistant で設定したとおりに実機を作成します．
     <a href=https://rc.kyosho.com/ja/z8006b.html target="_blank">京商 Z8006B</a>がおすすめです．
 <!-- prettier-ignore-end -->
 
-## プロポの設定
+## **プロポの設定**
 
 ---
 
@@ -70,7 +70,7 @@ GPSw (General Purpose Switch) はユーザが自由に使えるスイッチで�
 プロポの`+`ボタンを長押しでメニュー画面に入り，`リバース`を選択してください．
 スロットルレバー (`THR`) のみをリバース (`REV`) に設定してください．
 
-## Tobas プロジェクトの読み込みと書き込み
+## **Tobas プロジェクトの読み込みと書き込み**
 
 ---
 
@@ -81,22 +81,28 @@ GPSw (General Purpose Switch) はユーザが自由に使えるスイッチで�
 ターミナルで以下を実行し，Tobas GCS を起動します．
 
 ```bash
+$ source /opt/ros/jazzy/setup.bash
 $ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
 ```
 
+![start](../../assets/hardware_setup/start.png)
+
 `Load Project`をクリックし，Setup Assistant で作成した`tobas_f450.TBS`をダブルクリックして読み込みます．
+
+![load_project](../../assets/hardware_setup/load_project.png)
+
 `Write Project`をクリックすると，プロジェクトが FC に送信された後にビルドされます．これには数分かかります．
 
-![load_and_write](../../assets/hardware_setup/load_and_write.png)
+![write_project](../../assets/hardware_setup/write_project.png)
 
-## Sensor Calibration
+## **Sensor Calibration**
 
 各センサのキャリブレーションを行います．
 画面上部のツールボタンの中にある`Sensor Calib`をクリックしてください．
 
 ---
 
-### Accelerometer Calibration
+### **Accelerometer Calibration**
 
 加速度センサのキャリブレーションを行います．
 機体を水平面上に置き，`Start`をクリックしてください．
@@ -104,7 +110,7 @@ $ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
 
 ![accel_calibration](../../assets/hardware_setup/accel_calibration.png)
 
-### Magnetometer Calibration
+### **Magnetometer Calibration**
 
 地磁気センサのキャリブレーションを行います．
 地磁気センサは周囲の環境の影響を強く受けるため，FC を機体に取り付けた状態で実行してください．
@@ -116,10 +122,10 @@ $ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
 1. 完了したら`Finish`をクリックしてください．推定された楕円体が青色，歪み補正後の点群が緑色で表示されます．
    青色の楕円体が白色の点群に重なっており，緑色の点群が原点周りに球を描いていれば成功です．
 
-<img src="../../../assets/hardware_setup/mag_calibration_1.png" alt="mag_calibration_1" width="49%"/>
-<img src="../../../assets/hardware_setup/mag_calibration_2.png" alt="mag_calibration_2" width="49%"/>
+![mag_calibration_1](../../assets/hardware_setup/mag_calibration_1.png)
+![mag_calibration_2](../../assets/hardware_setup/mag_calibration_2.png)
 
-### Radio Calibration
+### **Radio Calibration**
 
 ラジオ入力 (S.BUS) のキャリブレーションを行います．
 
@@ -130,14 +136,14 @@ $ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
 
 ![radio_calibration](../../assets/hardware_setup/radio_calibration.png)
 
-## Actuator Test
+## **Actuator Test**
 
 各アクチュエータの動作テストを行います．
 画面上部のツールボタンの中にある`Actuator Test`をクリックしてください．
 
 ---
 
-### Rotor Test
+### **Rotor Test**
 
 <span style="color: red;"><strong>警告: この操作ではモータが回転します．プロペラを取り付けて実行する場合は十分に注意してください．</strong></span>
 
@@ -158,23 +164,15 @@ $ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
     点灯している場合は，一度電源を切ってから再び給電してみてください．
 <!-- prettier-ignore-end -->
 
-### Joint Test
+### **Joint Test**
 
-機体がチルトロータや固定翼機の操舵面のような PWM 駆動関節を持つ場合は，それぞれの関節の位置指令テストを行うことができます．
+機体がチルトロータや固定翼機の操舵面のような駆動関節を持つ場合は，それぞれの関節の位置指令テストを行うことができます．
 今回の機体はプロペラ以外の可動関節をもたないためスキップします．
 
-## FC の電源を切る
-
----
-
-1. 画面右上にある赤色の電源ボタンを押すと FC がシャットダウンされます．
-1. ラズパイの電源ボタンが緑色から赤色に変化したことを確認して電源を抜いてください．
-
-![power_off](../../assets/hardware_setup/power_off.png)
-
-## 次の手順へ
+## **次の手順へ**
 
 ---
 
 これで作業は完了です．
+Tobas GCS を閉じ，機体の電源を落としてください．
 次のステップではいよいよ機体を飛ばしてみます．

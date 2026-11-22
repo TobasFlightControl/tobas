@@ -4,7 +4,7 @@ Tobasは，モデルベース設計とLinuxを基盤とした，ドローン・�
 従来のフライトコントローラと異なり，個々の機体の構造を詳細に考慮して制御系を設計するため，
 従来のフライトコントローラでは難しい機体でも精度良く飛ばすことができます．
 
-## 特徴
+## **特徴**
 
 ---
 
@@ -15,11 +15,11 @@ Tobasは，モデルベース設計とLinuxを基盤とした，ドローン・�
 - GUI 上で機体構成や制御パラメータを設定可能
 - ROS 2 に対応し，シミュレーションと実機で同じインターフェースを提供
 
-## 何ができるか
+## **何ができるか**
 
 ---
 
-### 制御性能の向上
+### **制御性能の向上**
 
 Tobas はユーザの機体の物理特性を正しく利用して制御を行うため，
 従来のフライトコントローラよりも優れた制御性能を発揮できます．
@@ -30,7 +30,7 @@ Tobas はユーザの機体の物理特性を正しく利用して制御を行�
 - モータのスペック: KV 値，内部抵抗，磁極数
 - プロペラのスペック: 直径，ピッチ，推力定数，反トルク定数
 
-### 機体設計の幅を拡大
+### **機体設計の幅を拡大**
 
 Tobas では機体の構造は[UADF (Universal Aircraft Description Format)](./additional_information/what_is_uadf.md)で定義され，
 従来のフライトコントローラでは難しかった様々な機体を飛ばすことができます．
@@ -41,13 +41,13 @@ Tobas では機体の構造は[UADF (Universal Aircraft Description Format)](./a
 - ロボットアームを搭載した機体
 - チルトロータを搭載した機体
 
-### ゲイン調整の手間を削減
+### **ゲイン調整の手間を削減**
 
 機体を正しくモデル化することで，並進系と回転系のダイナミクスを機体に非依存の形で取り出せ，事前に解析することができます．
 それにより Tobas では予め無難なゲインが設定されており，ユーザは基本的にゲイン調整をすることなく機体を飛ばすことができます．
 また，必要であれば全てのパラメータを飛行中にオンラインで調整することができます．
 
-### 現実に即したシミュレーション
+### **現実に即したシミュレーション**
 
 機体の質量特性や推進系の空力特性を考慮しているため，現実に即した物理シミュレーションが可能です．
 それにより，実機試験のコストを大幅に削減することができます．
@@ -60,12 +60,12 @@ Tobas では機体の構造は[UADF (Universal Aircraft Description Format)](./a
 - センサの遅延，ノイズ
 - 吊り下げ荷物
 
-## Flight Management Unit (FMU)
+## **Flight Management Unit (FMU)**
 
-### Tobas FC201
+### **Tobas FC201**
 
-<img src="../assets/introduction/fc201_1.jpg" alt="fc201_1" width="49%">
-<img src="../assets/introduction/fc201_2.jpg" alt="fc201_2" width="49%">
+![fc201_1](../assets/introduction/fc201_1.jpg){ width="49%" }
+![fc201_2](../assets/introduction/fc201_2.jpg){ width="49%" }
 
 #### Sensors & Processors
 
@@ -83,11 +83,11 @@ Tobas では機体の構造は[UADF (Universal Aircraft Description Format)](./a
 - Power Module: Molex 2.0mm 6pin
 - UART, I2C Interface: JST-GH 4pin
 
-## 使用例
+## **使用例**
 
 ---
 
-### クアッドコプター
+### **クアッドコプター**
 
 典型的なクアッドコプターです．
 DJI F450 のフレームキットを使用しています．
@@ -95,7 +95,7 @@ DJI F450 のフレームキットを使用しています．
 <iframe width="560" height="315" src="https://www.youtube.com/embed/sHoA8yKJPs4?si=CCOEPsu6z9hd7zOb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 <br>
 
-### 非平面ロータ配置ヘキサコプター
+### **非平面ロータ配置ヘキサコプター**
 
 全てのプロペラが水平面から 30 度傾いているヘキサコプターです．
 平面ロータ配置のマルチコプターは位置を変化させるために姿勢を変化させる必要があるのに対し，
@@ -106,7 +106,7 @@ DJI F450 のフレームキットを使用しています．
 <iframe width="560" height="315" src="https://www.youtube.com/embed/1RIXLGmx1RA?si=ADkOlZsAMb1tHyNr" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 <br>
 
-### アクティブチルトヘキサコプター
+### **アクティブチルトヘキサコプター**
 
 全てのアームを両方向に 120 度ずつ回転させられるヘキサコプターです．
 ホバリングした状態で姿勢を大きく変化させられるのが特徴です．
@@ -115,7 +115,7 @@ DJI F450 のフレームキットを使用しています．
 <iframe width="560" height="315" src="https://www.youtube.com/embed/UYwoFjf6ubc?si=RsDKgr98DVvdhaWB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 <br>
 
-### ロボットアームドローン
+### **ロボットアームドローン**
 
 チルトヘキサコプターに 4 軸のロボットアームを搭載した機体です．
 アームにより発生する反力や重心の変化を動的に補償することで，
@@ -123,11 +123,11 @@ DJI F450 のフレームキットを使用しています．
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/3peWIltNV3o?si=OLdfuQGEHEI1L_N-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-## システム要件
+## **システム要件**
 
 ---
 
-### PC <!-- cf. https://www.solidworks.com/ja/support/system-requirements -->
+### **PC** <!-- cf. https://www.solidworks.com/ja/support/system-requirements -->
 
 以下の要件を満たす必要があります．
 
@@ -137,11 +137,11 @@ DJI F450 のフレームキットを使用しています．
 | RAM                | 8GB                            | 16GB               |                    |
 | CPU                | AMD64 (x86-64)                 |                    |                    |
 | GPU                |                                | NVIDIA GeForce RTX |                    |
-| ディスプレイ解像度 | 2K/FHD                         | 4K/UHD             |                    |
+| ディスプレイ解像度 | FHD (1080p)                    | 4K UHD (2160p)     |                    |
 
 <br>
 
-### ESC
+### **ESC**
 
 Bidirectional DShot プロトコルに対応している必要があります．
 例えば以下のファームウェアは対応しています．
@@ -150,10 +150,10 @@ Bidirectional DShot プロトコルに対応している必要があります．
 - <a href=https://github.com/AlkaMotors/AM32-MultiRotor-ESC-firmware target="_blank">AM32</a>
 - <a href=https://github.com/bird-sanctuary/bluejay target="_blank">bluejay</a>
 
-### GNSS アンテナ
+### **GNSS アンテナ**
 
 FMU に搭載されている GNSS 受信機の周波数帯域とコネクタに対応している必要があります．
 
-### RC 受信機
+### **RC 受信機**
 
 8 チャンネル以上の S.BUS に対応している必要があります．

@@ -2,7 +2,7 @@
 
 Tobas の大まかなシステム構成について，ハードウェアとソフトウェアに分けて説明します．
 
-## ハードウェア構成
+## **ハードウェア構成**
 
 ---
 
@@ -17,7 +17,7 @@ CPU0 では遠隔通信のためのインターフェースノードがフライ
 
 ![hardware_architecture](../../assets/system_architecture/hardware_architecture.png)
 
-## ソフトウェア構成
+## **ソフトウェア構成**
 
 ---
 

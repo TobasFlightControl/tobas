@@ -1,25 +1,25 @@
 # User Code (C++)
 
-This section assumes that you have a basic understanding of C++ and ROS 2.
+This section assumes you know the basics of C++ and ROS 2.
 To learn ROS 2, see
 <a href=https://docs.ros.org/en/jazzy/Tutorials.html target="_blank">Tutorials | ROS 2 Documentation</a>
-.
+for tutorials.
 
 Among the ROS packages in a Tobas project created with Setup Assistant (e.g., tobas_f450.TBS),
-the user C++ package (e.g., tobas_f450_user_cpp) is a C++ package that users can edit freely.
-It contains the following five launch files.
+the user C++ package (e.g., tobas_f450_user_cpp) is a C++ package you can freely edit.
+It contains the following five launch files:
 
-- `common_(interface/realtime).launch.py`: Launched on both real hardware and in simulation.
-- `real_(interface/realtime).launch.py`: Launched only on real hardware.
-- `gazebo.launch.py`: Launched only in simulation.
+- `common_(interface/realtime).launch.py`: Runs on both real hardware and in simulation.
+- `real_(interface/realtime).launch.py`: Runs only on real hardware.
+- `gazebo.launch.py`: Runs only in simulation.
 
-`common` and `real` each contain two types of launch files: `interface` and `realtime`.
-Nodes launched with the former can perform ROS communication across networks, whereas nodes launched with the latter cannot.
-Therefore, for a node launched with `*_realtime.launch` to communicate across networks,
-it must go through an interface node launched with `*_interface.launch`.
-This design prevents the node discovery algorithm used by DDS, the ROS 2 backend, from adversely affecting real-time performance.
+Both `common` and `real` have `interface` and `realtime` launch files.
+Nodes started by the former can communicate over the network via ROS, while nodes started by the latter cannot.
+For nodes started by `*_realtime.launch` to communicate over the network,
+they must go through an interface node started by `*_interface.launch`.
+This arrangement prevents the node discovery algorithm in DDS, the ROS 2 backend, from adversely affecting real-time performance.
 
-As an example, let's create a C++ node that checks the GNSS status and outputs a message every second when a 3D fix is available.
+As an example, create a C++ node that checks GNSS status and publishes a message once per second when a 3D fix is available.
 Edit `tobas_f450_user_cpp/nodes/user_node.cpp` as follows.
 
 ```cpp
@@ -58,7 +58,7 @@ void UserNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 RCLCPP_COMPONENTS_REGISTER_NODE(UserNode)
 ```
 
-Add the dependency packages used by this node to `tobas_f450_user_cpp/package.xml`.
+Add the dependencies used by this node to `tobas_f450_user_cpp/package.xml`.
 
 ```xml
 <depend>tobas_constants</depend>
@@ -66,8 +66,8 @@ Add the dependency packages used by this node to `tobas_f450_user_cpp/package.xm
 <depend>tobas_msgs_adapter</depend>
 ```
 
-Add this node as a build target.
-Add the dependency packages to `tobas_f450_user_cpp/CMakeLists.txt` and uncomment the build instructions.
+Add the node to the build targets.
+Add the dependencies to `tobas_f450_user_cpp/CMakeLists.txt` and uncomment the build instructions.
 
 ```cmake
 cmake_minimum_required(VERSION 3.25)
@@ -119,18 +119,18 @@ install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 ament_package()
 ```
 
-Configure this node to start automatically.
-Although it could be launched as a regular ROS node, this time we will launch it as a component to eliminate copying in topic communication.
+Configure the node to start automatically.
+You can start it as a regular ROS node, but here we load it as a component to eliminate copying in topic communication.
 
-In Tobas, three component managers (`component_manager_x (x = 1, 2, 3)`) run on separate CPUs,
-and topic communication between their components is also zero-copy.
-Lower-numbered managers handle faster processes that are less tolerant of latency. Their general roles are as follows.
+Tobas runs three component managers (`component_manager_x (x=1,2,3)`), each on a separate CPU.
+Topic communication between their components also uses zero-copy transport.
+Lower-numbered managers handle faster, more latency-sensitive processing. Their approximate roles are:
 
-- `component_manager_1`: IMU filtering, state estimation, attitude/position control, etc. (400-800Hz)
-- `component_manager_2`: Path planning, mission execution, etc. (30-100Hz)
-- `component_manager_3`: Parameter server, logging, failsafe, etc. (1-10Hz)
+- `component_manager_1`: IMU filtering, state estimation, attitude/position control, etc. (400-800 Hz)
+- `component_manager_2`: Path planning, mission execution, etc. (30-100 Hz)
+- `component_manager_3`: Parameter server, logging, fail-safe processing, etc. (1-10 Hz)
 
-Because the processing performed by this node is not time-critical, plug it into `component_manager_3`, which handles the slowest processes.
+The example node has no strict real-time requirements, so load it into `component_manager_3`, which handles the slowest processing.
 Uncomment the `add_action` section in `tobas_f450_user_cpp/launch/common_realtime.launch.py`.
 
 ```python
@@ -162,8 +162,8 @@ def generate_launch_description():
     return ld
 ```
 
-When you start the simulation from the GCS, a message appears in the `Control System` console.
+When you start the simulation from the GCS, messages appear in the `Control System` console.
 
 ![console](../../assets/user_code_cpp/console.png)
 
-For details about the API, see [ROS API](./ros_api.md).
+See [ROS API](./ros_api.md) for API details.

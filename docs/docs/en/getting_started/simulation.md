@@ -1,63 +1,62 @@
 # Simulation
 
-## Starting and Stopping the Simulation
+## **Starting and Stopping**
 
 ---
 
-Launch Tobas GCS, load `tobas_f450.TBS`, and open `Simulation` from the toolbar.
+Launch Tobas GCS, load `tobas_f450.TBS`, and open `Simulation` from the tool buttons.
 
 ![simulation_settings](../../assets/simulation/simulation_settings.png)
 
-Click `Start` to build the project and start the simulation.
-The first launch may take some time because the environment data must be downloaded.
-Although this depends on the environment complexity and network conditions, the simulation usually starts within 10 minutes.
+Click `Start` to build the project and launch the simulation.
+The first launch takes longer because environment data needs to be downloaded.
+Startup time depends on the complexity of the environment and your network connection, but it usually takes no more than 10 minutes.
 
 ![launch_gazebo](../../assets/simulation/launch_gazebo.png)
 
-You can configure environmental settings such as wind speed from `Dynamic Configurations` and send commands to the aircraft from `Commanders`.
-Mission planning and parameter tuning introduced in [Flight Test](./flight_test.md) can also be performed in the same way as with an actual aircraft.
+Use `Dynamic Configurations` to adjust environmental settings such as wind speed, and `Commanders` to send commands to the aircraft.
+You can also use mission planning, parameter tuning, and the other features introduced in [Flight Test](./flight_test.md), just as with real hardware.
 
 ![send_command](../../assets/simulation/send_command.png)
 
 Click `Terminate` to stop the simulation.
 
-## Control via an RC Transmitter
+## **Control with an RC Transmitter**
 
 ---
 
-You can control the aircraft in the simulation using an RC transmitter.
-Because the RC calibration results stored on the PC are used,
-complete the calibration on your PC before proceeding with the following steps.
+You can control the simulated aircraft with an RC transmitter.
+The simulation uses the RC calibration results saved on your PC,
+so complete calibration on that PC before proceeding.
 
-### Preparing a USB-to-Serial Converter
+### **Preparing a USB-to-Serial Module**
 
-Prepare a USB-to-serial converter such as the
 <a href=https://akizukidenshi.com/catalog/g/g108461/ target="_blank">FTDI FT234X</a>
-and configure it to invert High and Low.
+is one example of a suitable USB-to-serial module. Configure the module to invert the signal's high and low levels.
 
-### Adding the User to the `dialout` Group
+### **Joining the `dialout` Group**
 
-To access USB serial devices, add the current user to the `dialout` group using the following command.
+To access USB serial devices, add your current user to the `dialout` group with the following command.
 
 ```bash
-sudo usermod -aG dialout "${USER}"
+$ sudo usermod -aG dialout "${USER}"
 ```
 
-Restart the PC after running the command to apply the change.
-This is required only the first time and does not need to be repeated.
+Restart your PC after running the command for the change to take effect.
+You only need to do this once.
 
-### Steps Required Each Time You Run the Simulation
+### **Steps for Each Simulation Run**
 
-1. Connect the USB-to-serial converter to the PC and RC receiver.
-1. Select the device you are using in the `S.BUS/Device` field under `Simulation Settings`.
-1. Start the simulation. If the RC transmitter signals appear in `Control System`, the setup is successful. You can then control the aircraft in the same way as an actual aircraft.
+1. Connect the USB-to-serial module to your PC and RC receiver.
+1. Select your device in the `S.BUS/Device` field under `Simulation Settings`.
+1. Start the simulation. If transmitter signals appear in `Control System`, setup is successful and you can control the aircraft just as you would with real hardware.
 
 ![rc_teleop_setting](../../assets/simulation/rc_teleop_setting.png)
 
-## Control via ROS
+## **Control via ROS**
 
 ---
 
-All communication between the components of the flight controller is handled through ROS,
-allowing users to control the aircraft from their own programs.
-For details, see [User Code (Python)](../for_developers/user_code_py.md) and [User Code (C++)](../for_developers/user_code_cpp.md).
+All communication between the flight controller's components uses ROS,
+so you can control the aircraft from your own programs.
+See [User Code (Python)](../for_developers/user_code_py.md) and [User Code (C++)](../for_developers/user_code_cpp.md) for details.

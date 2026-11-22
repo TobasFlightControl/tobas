@@ -1,59 +1,59 @@
 # Hardware Setup
 
-## Assembling the Vehicle
+## **Assembling the Aircraft**
 
 ---
 
-Assemble the vehicle as configured in Setup Assistant.
+Assemble the aircraft according to the configuration you created in Setup Assistant.
 
-<!-- TODO: Navio2のような詳細な手順 -->
+<!-- TODO: Add detailed instructions like the Navio2 guide. -->
 <!-- cf. https://docs.emlid.com/navio2/hardware-setup/ -->
 <!-- cf. https://docs.emlid.com/navio2/ardupilot/typical-setup-schemes/ -->
 
-<img src="../../assets/hardware_setup/f450_1.png" alt="f450_1" width="49%"/>
-<img src="../../assets/hardware_setup/f450_2.png" alt="f450_2" width="49%"/>
+![f450_1](../../assets/hardware_setup/f450_1.png){ width="49%" }
+![f450_2](../../assets/hardware_setup/f450_2.png){ width="49%" }
 
 <!-- prettier-ignore-start -->
 !!! note
-    When mounting the flight controller on the vehicle, be sure to provide at least basic vibration isolation.
-    If the mounting is too rigid, vibrations from the motors and propellers may make acceleration readings noisy and reduce attitude estimation accuracy.
-    Conversely, if it is too soft, delayed gyro measurements may cause oscillations in angular velocity control.
-    For readily available options, we recommend
+    Always provide at least basic vibration isolation when mounting the flight controller on the aircraft.
+    An overly rigid mount can transmit motor and propeller vibrations to the accelerometer, reducing attitude estimation accuracy.
+    An overly soft mount can delay the gyro response and cause oscillations in angular velocity control.
+    For easy-to-use mounting materials, we recommend
     <a href=https://holybro.com/products/foam-pads-20pcs target="_blank">Holybro Foam Pads</a> or
     <a href=https://rc.kyosho.com/ja/z8006b.html target="_blank">Kyosho Z8006B</a>.
 <!-- prettier-ignore-end -->
 
-## Transmitter Setup
+## **RC Transmitter Configuration**
 
 ---
 
 The S.BUS signal is expected to provide at least eight channels.
-In Tobas, each RC input channel has the following role:
+Tobas assigns the following roles to the RC input channels:
 
-| Channel | Function        | Interface         |
-| :------ | :-------------- | :---------------- |
-| CH1     | Roll            | Stick             |
-| CH2     | Pitch           | Stick             |
-| CH3     | Throttle        | Stick             |
-| CH4     | Yaw             | Stick             |
-| CH5     | Flight mode     | 3-position switch |
-| CH6     | Sub-flight mode | 2-position switch |
-| CH7     | Enable/Disable  | 2-position switch |
-| CH8     | Kill            | 2-position switch |
-| CH9-16  | GPSw            | 2-position switch |
+| Channel | Role            | Interface             |
+| :------ | :-------------- | :-------------------- |
+| CH1     | Roll            | Stick                 |
+| CH2     | Pitch           | Stick                 |
+| CH3     | Throttle        | Stick                 |
+| CH4     | Yaw             | Stick                 |
+| CH5     | Flight mode     | Three-position switch |
+| CH6     | Sub-flight mode | Two-position switch   |
+| CH7     | Enable/disable  | Two-position switch   |
+| CH8     | Kill            | Two-position switch   |
+| CH9-16  | GPSw            | Two-position switch   |
 
 <br>
 
-The sub-flight mode switch provides finer mode selection within specific flight modes.
-It is used when the four primary stick axes do not provide enough command degrees of freedom, such as when changing modes on a vehicle capable of controlling five or more axes simultaneously.
-GPSw (General Purpose Switch) is a switch that users can assign freely.
-You can configure the number of switches in Setup Assistant according to the transmitter, receiver, and intended use.
+The sub-flight mode switch selects more specific modes within certain flight modes.
+It is used when the four basic stick axes do not provide enough command degrees of freedom, such as when switching modes on aircraft capable of controlling five or more axes simultaneously.
+GPSw (General Purpose Switch) channels are freely available for user-defined purposes.
+You can set their number in Setup Assistant to suit your transmitter, receiver, and application.
 
-The <a href=https://www.rc.futaba.co.jp/products/detail/I00000006 target="_blank">Futaba T10J</a>
+<a href=https://www.rc.futaba.co.jp/products/detail/I00000006 target="_blank">Futaba T10J</a>
 has fixed assignments for channels 1 through 4 as shown in the table above,
-while switches can be assigned freely to channels 5 and above.
-Press and hold the `+` button on the transmitter to open the menu, then select `AUX Channel`.
-For this example, the channels were configured as follows.
+while switches can be freely assigned to channels 5 and above.
+Hold the transmitter's `+` button to open the menu, then select `AUX Channel`.
+The following assignments are used in this tutorial.
 
 | Channel | Switch |
 | :------ | :----- |
@@ -66,115 +66,113 @@ For this example, the channels were configured as follows.
 
 <br>
 
-When using a Futaba transmitter, you must also reverse the throttle stick.
-Press and hold the `+` button on the transmitter to open the menu, then select `Reverse`.
+When using a Futaba transmitter, you also need to reverse the throttle stick.
+Hold the transmitter's `+` button to open the menu, then select `Reverse`.
 Set only the throttle stick (`THR`) to reverse (`REV`).
 
-## Loading and Writing a Tobas Project
+## **Loading and Writing the Tobas Project**
 
 ---
 
-Connect the ground station PC to the same network as the FC.
+Connect your ground station PC to the same network as the FC.
 If you configured multiple networks in [Boot Device Configuration](./bootmedia_config.md),
-note that the highest-priority available network will be selected.
+remember that the available network with the highest priority is selected.
 
-Run the following command in a terminal to launch Tobas GCS.
+Run the following commands in a terminal to launch Tobas GCS.
 
 ```bash
+$ source /opt/ros/jazzy/setup.bash
 $ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
 ```
 
-Click `Load Project`, then double-click `tobas_f450.TBS` created in Setup Assistant to load it.
-Clicking `Write Project` sends the project to the FC and then builds it. This takes several minutes.
+![start](../../assets/hardware_setup/start.png)
 
-![load_and_write](../../assets/hardware_setup/load_and_write.png)
+Click `Load Project`, then double-click the `tobas_f450.TBS` project created in Setup Assistant to load it.
 
-## Sensor Calibration
+![load_project](../../assets/hardware_setup/load_project.png)
+
+Click `Write Project` to send the project to the FC and build it there. This takes a few minutes.
+
+![write_project](../../assets/hardware_setup/write_project.png)
+
+## **Sensor Calibration**
 
 Calibrate each sensor.
-Click `Sensor Calib` in the toolbar at the top of the screen.
+Click `Sensor Calib` among the tool buttons at the top of the window.
 
 ---
 
-### Accelerometer Calibration
+### **Accelerometer Calibration**
 
 Calibrate the accelerometer.
-Place the vehicle on a level surface and click `Start`.
+Place the aircraft on a level surface and click `Start`.
 Calibration completes in a few seconds, and the tab changes from red to green shortly afterward.
 
 ![accel_calibration](../../assets/hardware_setup/accel_calibration.png)
 
-### Magnetometer Calibration
+### **Magnetometer Calibration**
 
 Calibrate the magnetometer.
-Because the magnetometer is highly affected by its surroundings, perform the calibration with the FC mounted on the vehicle.
-It is also best to perform it away from magnetic materials such as steel reinforcement.
+The magnetometer is strongly affected by its surroundings, so perform calibration with the FC mounted on the aircraft.
+Preferably, choose an area free of magnetic materials such as steel reinforcement.
 
-1. Click `Start`. The magnetometer readings will begin to appear as a white point cloud.
-1. For each of the FC's six faces, orient the face upward and slowly rotate the vehicle about the vertical axis.
-   This step is complete when the progress bar reaches 100%.
-1. When finished, click `Finish`. The estimated ellipsoid appears in blue, and the distortion-corrected point cloud appears in green.
+1. Click `Start` to begin displaying magnetometer readings as a white point cloud.
+1. For each of the FC's six faces, hold that face upward and slowly rotate the aircraft about the vertical axis.
+   Calibration is complete when the progress bar reaches 100%.
+1. Click `Finish` when done. The estimated ellipsoid is shown in blue, and the corrected point cloud is shown in green.
    Calibration is successful if the blue ellipsoid overlaps the white point cloud and the green point cloud forms a sphere around the origin.
 
-<img src="../../assets/hardware_setup/mag_calibration_1.png" alt="mag_calibration_1" width="49%"/>
-<img src="../../assets/hardware_setup/mag_calibration_2.png" alt="mag_calibration_2" width="49%"/>
+![mag_calibration_1](../../assets/hardware_setup/mag_calibration_1.png)
+![mag_calibration_2](../../assets/hardware_setup/mag_calibration_2.png)
 
-### Radio Calibration
+### **Radio Calibration**
 
 Calibrate the radio input (S.BUS).
 
-1. Click `Start`. The value of each S.BUS channel will begin to appear.
-1. For each channel, move the stick or switch through its full range.
-   If the stick and GUI bar move in opposite directions, adjust the transmitter settings accordingly.
-1. When finished, click `Finish`.
+1. Click `Start` to begin displaying the values of each S.BUS channel.
+1. Move each stick or switch through its full operating range.
+   If a stick and its GUI bar move in opposite directions, adjust the transmitter settings accordingly.
+1. Click `Finish` when done.
 
 ![radio_calibration](../../assets/hardware_setup/radio_calibration.png)
 
-## Actuator Test
+## **Actuator Test**
 
 Test each actuator.
-Click `Actuator Test` in the toolbar at the top of the screen.
+Click `Actuator Test` among the tool buttons at the top of the window.
 
 ---
 
-### Rotor Test
+### **Rotor Test**
 
-<span style="color: red;"><strong>Warning: This operation spins the motors. Exercise extreme caution if performing it with the propellers installed.</strong></span>
+<span style="color: red;"><strong>Warning: This operation spins the motors. Use extreme caution if you perform it with propellers attached.</strong></span>
 
 ![rotor_test](../../assets/hardware_setup/rotor_test.png)
 
-1. Click `Start` to enable all motors.
-1. For each motor, move the slider to command its speed, then verify that it is connected correctly and rotates in the correct direction.
-1. Adjust the control gain for each motor.
-   Increase the gains one at a time while changing the target speed and checking that no oscillation occurs.
-   In this example, all gains were set to 17.
-1. Click `Save` to save the control gains to the project on the PC.
+1. Click `Start` to enable all motors to spin.
+1. For each motor, move the slider to command its speed and verify that the connection and rotation direction are correct.
+1. Tune each motor's control gain.
+   Increase the gains one at a time while changing the target speed and checking that no oscillations occur.
+   In this example, all gains are set to 17.
+1. Click `Save` to save the control gains to the project on your PC.
 1. Click `Stop` to end the test.
 1. Click `Write Project` to flash the saved control gains to the FC.
 
 <!-- prettier-ignore-start -->
 !!! note
-    If the motors do not spin, check whether the `ERR` indicator on top of the FC is lit.
-    If it is lit, turn the power off and then power the FC on again.
+    If the motors do not spin, check whether the `ERR` indicator on the top of the FC is lit.
+    If it is lit, try turning the power off and then back on.
 <!-- prettier-ignore-end -->
 
-### Joint Test
+### **Joint Test**
 
-If the vehicle has PWM-driven joints, such as tilt-rotor mechanisms or fixed-wing control surfaces, you can test the position commands for each joint.
-This vehicle has no movable joints other than the propellers, so this test is skipped.
+If your aircraft has actuated joints, such as tilt rotors or fixed-wing control surfaces, you can test position commands for each joint.
+The aircraft in this tutorial has no movable joints other than the propellers, so skip this step.
 
-## Powering Off the FC
-
----
-
-1. Press the red power button in the upper-right corner of the screen to shut down the FC.
-1. Confirm that the Raspberry Pi power button has changed from green to red before disconnecting the power.
-
-![power_off](../../assets/hardware_setup/power_off.png)
-
-## Next Step
+## **Next Steps**
 
 ---
 
-This completes the setup.
-In the next step, you will finally fly the vehicle.
+Hardware setup is now complete.
+Close Tobas GCS and turn off the aircraft.
+In the next step, you will fly the aircraft.

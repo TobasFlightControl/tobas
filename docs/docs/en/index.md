@@ -1,71 +1,71 @@
 # Tobas User Guide
 
 Tobas is a flight controller for drones and robotic aircraft, built on model-based design and Linux.
-Unlike conventional flight controllers, it designs the control system with detailed consideration of each aircraft's structure,
-enabling even aircraft that are difficult for conventional flight controllers to fly with high precision.
+Its control system is designed with detailed consideration of each aircraft's structure,
+enabling precise flight even for aircraft that are difficult to control with conventional flight controllers.
 
-## Features
-
----
-
-- Defines the aircraft structure in a proprietary format and accurately reflects it in the controller
-- Improves responsiveness and tracking accuracy through motor speed control
-- Compensates for gravity and reaction forces caused by changes in movable joint angles
-- Compensates for disturbances such as gusts and ground effect
-- Allows aircraft configurations and control parameters to be set through a GUI
-- Supports ROS 2 and provides the same interface for simulation and real hardware
-
-## What Tobas Can Do
+## **Features**
 
 ---
 
-### Improved Control Performance
+- Define the aircraft structure in a dedicated format so the controller accurately accounts for it
+- Improve responsiveness and tracking accuracy through motor speed control
+- Compensate for gravity loads and reaction forces as movable joint angles change
+- Compensate for disturbances such as gusts and ground effect
+- Configure the aircraft and control parameters through a GUI
+- Support ROS 2 with the same interface for simulation and real hardware
 
-Tobas accurately uses the physical characteristics of the user's aircraft for control,
-providing better control performance than conventional flight controllers.
-For example, it considers the following information:
+## **Capabilities**
 
-- Dynamic parameters of each rigid-body link: mass, center of mass, and inertia tensor
+---
+
+### **Improved Control Performance**
+
+Tobas makes accurate use of your aircraft's physical properties in its control system,
+allowing it to deliver better control performance than conventional flight controllers.
+For example, it takes the following information into account:
+
+- Mechanical parameters of each rigid link in the aircraft: mass, center of mass, and inertia tensor
 - Battery specifications: cell count, discharge capacity, and discharge rate
-- Motor specifications: KV rating, internal resistance, and pole count
-- Propeller specifications: diameter, pitch, thrust constant, and reaction torque constant
+- Motor specifications: KV rating, internal resistance, and number of magnetic poles
+- Propeller specifications: diameter, pitch, thrust coefficient, and reaction torque coefficient
 
-### Greater Aircraft Design Freedom
+### **More Aircraft Design Options**
 
-In Tobas, the aircraft structure is defined using [UADF (Universal Aircraft Description Format)](./additional_information/what_is_uadf.md),
-enabling a wide range of aircraft that are difficult to fly with conventional flight controllers.
-For example, Tobas supports unconventional aircraft such as:
+Tobas defines aircraft structures using [UADF (Universal Aircraft Description Format)](./additional_information/what_is_uadf.md),
+allowing a wide range of aircraft that are difficult to fly with conventional flight controllers.
+For example, Tobas supports unconventional configurations such as:
 
-- Aircraft with a center of mass significantly offset from the center due to the payload
-- Aircraft with asymmetric propeller placement to ensure a clear camera field of view
-- Aircraft equipped with a robotic arm
+- Aircraft with a center of mass significantly offset by a payload
+- Aircraft with asymmetrically arranged propellers to keep the camera's field of view clear
+- Aircraft equipped with robotic arms
 - Aircraft equipped with tilt rotors
 
-### Reduced Gain-Tuning Effort
+### **Less Gain Tuning**
 
-Accurate aircraft modeling allows the translational and rotational dynamics to be extracted in an aircraft-independent form and analyzed in advance.
-Tobas therefore comes with stable default gains, allowing users to fly their aircraft without gain tuning in most cases.
-If necessary, all parameters can also be adjusted online during flight.
+Accurate aircraft modeling allows the translational and rotational dynamics to be expressed in an aircraft-independent form and analyzed in advance.
+This allows Tobas to provide conservative default gains, so users can generally fly without tuning gains themselves.
+All parameters can also be adjusted online during flight if necessary.
 
-### Realistic Simulation
+### **Realistic Simulation**
 
-By considering the aircraft's mass properties and the aerodynamic characteristics of its propulsion system, Tobas enables realistic physics simulation.
-This can significantly reduce the cost of real-world testing.
+Accounting for aircraft mass properties and propulsion aerodynamics enables realistic physics simulation.
+This can significantly reduce the cost of testing with real hardware.
 
-The following factors, which can have a major impact on flight, can be simulated easily:
+You can easily simulate factors that strongly affect flight, such as:
 
 - Wind (steady wind, turbulence, and gusts)
 - Battery voltage drop
-- ESC maximum current
-- Sensor latency and noise
+- ESC current limits
+- Sensor delays and noise
 - Suspended payloads
 
-## Flight Management Unit (FMU)
+## **Flight Management Unit (FMU)**
 
-### Tobas FC201
+### **Tobas FC201**
 
-<img src="assets/introduction/fc201_1.jpg" alt="fc201_1" width="49%">
-<img src="assets/introduction/fc201_2.jpg" alt="fc201_2" width="49%">
+![fc201_1](../assets/introduction/fc201_1.jpg){ width="49%" }
+![fc201_2](../assets/introduction/fc201_2.jpg){ width="49%" }
 
 #### Sensors & Processors
 
@@ -83,51 +83,51 @@ The following factors, which can have a major impact on flight, can be simulated
 - Power Module: Molex 2.0mm 6pin
 - UART, I2C Interface: JST-GH 4pin
 
-## Examples
+## **Examples**
 
 ---
 
-### Quadcopter
+### **Quadcopter**
 
-A typical quadcopter.
-It uses a DJI F450 frame kit.
+A conventional quadcopter
+built with a DJI F450 frame kit.
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/sHoA8yKJPs4?si=CCOEPsu6z9hd7zOb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 <br>
 
-### Hexacopter with a Non-Planar Rotor Layout
+### **Hexacopter with Noncoplanar Rotors**
 
 A hexacopter with all propellers tilted 30 degrees from the horizontal plane.
-While multicopters with a planar rotor layout must change their attitude to change position,
-multicopters with a non-planar rotor layout can control position and attitude independently.
-This allows them to translate while remaining level or change attitude while hovering.
-They can also generate thrust directly in the horizontal direction, providing high positioning accuracy and excellent wind resistance.
+While multicopters with coplanar rotors must change attitude to change position,
+multicopters with noncoplanar rotors can control position and attitude independently.
+They can therefore translate while remaining level, or change attitude while hovering.
+They can also generate horizontal thrust directly, providing high positioning accuracy and strong wind resistance.
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/1RIXLGmx1RA?si=ADkOlZsAMb1tHyNr" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 <br>
 
-### Active-Tilt Hexacopter
+### **Active-Tilt Hexacopter**
 
 A hexacopter whose arms can each rotate 120 degrees in either direction.
-Its key feature is the ability to make large attitude changes while hovering.
-Because attached inspection equipment can be held at any orientation, potential applications include nondestructive inspection of inclined walls.
+It can make large attitude changes while hovering.
+Mounted equipment can be held at any attitude, making it a promising platform for applications such as nondestructive inspection of inclined walls.
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/UYwoFjf6ubc?si=RsDKgr98DVvdhaWB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 <br>
 
-### Robotic Arm Drone
+### **Drone with a Robotic Arm**
 
-An aircraft based on a tilt hexacopter and equipped with a 4-axis robotic arm.
+A tilt hexacopter equipped with a four-axis robotic arm.
 By dynamically compensating for reaction forces and changes in the center of mass caused by the arm,
-the aircraft can keep its position and attitude within a limited range even when the arm moves vigorously.
+it keeps its position and attitude within a limited range even during large arm movements.
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/3peWIltNV3o?si=OLdfuQGEHEI1L_N-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-## System Requirements
+## **System Requirements**
 
 ---
 
-### PC <!-- cf. https://www.solidworks.com/ja/support/system-requirements -->
+### **PC** <!-- cf. https://www.solidworks.com/ja/support/system-requirements -->
 
 The following requirements must be met.
 
@@ -137,23 +137,23 @@ The following requirements must be met.
 | RAM                | 8GB                            | 16GB               |                                 |
 | CPU                | AMD64 (x86-64)                 |                    |                                 |
 | GPU                |                                | NVIDIA GeForce RTX |                                 |
-| Display Resolution | 2K/FHD                         | 4K/UHD             |                                 |
+| Display resolution | FHD (1080p)                    | 4K UHD (2160p)     |                                 |
 
 <br>
 
-### ESC
+### **ESC**
 
 The ESC must support the Bidirectional DShot protocol.
-For example, the following firmware supports it:
+Examples of compatible firmware include:
 
 - <a href=https://github.com/bitdump/BLHeli/tree/master/BLHeli_32%20ARM target="_blank">BLHeli_32</a> (support ended in June 2024)
 - <a href=https://github.com/AlkaMotors/AM32-MultiRotor-ESC-firmware target="_blank">AM32</a>
 - <a href=https://github.com/bird-sanctuary/bluejay target="_blank">bluejay</a>
 
-### GNSS Antenna
+### **GNSS Antenna**
 
-The antenna must support the frequency bands and connector of the GNSS receiver installed in the FMU.
+The antenna must match the frequency bands and connector of the GNSS receiver on the FMU.
 
-### RC Receiver
+### **RC Receiver**
 
-The receiver must support S.BUS with at least 8 channels.
+The receiver must support S.BUS with at least eight channels.
