@@ -4,6 +4,7 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
+#include <QString>
 
 namespace tobas::gui::sa
 {
@@ -17,8 +18,8 @@ enum class FrameType
   kFixedWing,
 };
 
-std::string textFromEnum(FrameType _arg);
-bool enumFromText(const std::string& _text, FrameType& _dst);
+QString textFromEnum(FrameType _arg);
+bool enumFromText(const QString& _text, FrameType& _dst);
 }  // namespace tobas::gui::sa
 
 namespace YAML

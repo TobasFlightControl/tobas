@@ -3,6 +3,8 @@
 
 #include "tobas_setup_assistant/frame_type.hpp"
 
+#include <tobas_yaml_tools/convert/qstring.hpp>
+
 namespace tobas::gui::sa
 {
 namespace
@@ -15,7 +17,7 @@ constexpr char kRandomAxisTiltMulticopter[] = "Random Tilt Multicopter";
 constexpr char kFixedWing[] = "Fixed Wing";
 }  // namespace
 
-std::string textFromEnum(FrameType _arg)
+QString textFromEnum(FrameType _arg)
 {
   switch (_arg) {
     case FrameType::kUndefined:
@@ -35,7 +37,7 @@ std::string textFromEnum(FrameType _arg)
   }
 }
 
-bool enumFromText(const std::string& _text, FrameType& _dst)
+bool enumFromText(const QString& _text, FrameType& _dst)
 {
   if (_text == kUndefined) {
     _dst = FrameType::kUndefined;
@@ -71,8 +73,6 @@ namespace YAML
 {
 Node convert<tobas::gui::sa::FrameType>::encode(tobas::gui::sa::FrameType _rhs)
 {
-  Node node;
-  node = tobas::gui::sa::textFromEnum(_rhs);
   return Node(tobas::gui::sa::textFromEnum(_rhs));
 }
 
@@ -82,6 +82,6 @@ bool convert<tobas::gui::sa::FrameType>::decode(const Node& _node, tobas::gui::s
     return false;
   }
 
-  return tobas::gui::sa::enumFromText(_node.as<std::string>(), _rhs);
+  return tobas::gui::sa::enumFromText(_node.as<QString>(), _rhs);
 }
 }  // namespace YAML

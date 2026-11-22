@@ -3,6 +3,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/controller/controller.hpp"
 
+#include <QString>
 #include <QVBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
@@ -196,7 +197,7 @@ void ControllerWidget::showCtrlWidgetWithFrameType(FrameType _type)
     }
   }
 
-  throw std::runtime_error("Controller widget not found for frame type: " + textFromEnum(_type));
+  throw std::runtime_error("Controller widget not found for frame type: " + textFromEnum(_type).toStdString());
 }
 
 void ControllerWidget::onDontUseBuiltinCtrlCheckBoxToggled(bool _checked)

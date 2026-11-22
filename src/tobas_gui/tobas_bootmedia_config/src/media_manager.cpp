@@ -57,27 +57,27 @@ const BootMedia& MediaManagerWidget::currentBootMedia() const
   return medias_.at(media_name);
 }
 
-std::pair<std::string, std::string> MediaManagerWidget::getVendorAndModel(udev_device* _dev)
+std::pair<QString, QString> MediaManagerWidget::getVendorAndModel(udev_device* _dev)
 {
-  auto vendor = udv::getPropertyValue(_dev, "ID_VENDOR");
-  auto model = udv::getPropertyValue(_dev, "ID_MODEL");
+  auto vendor = QString::fromStdString(udv::getPropertyValue(_dev, "ID_VENDOR"));
+  auto model = QString::fromStdString(udv::getPropertyValue(_dev, "ID_MODEL"));
 
   // If this cannot be obtained, fill it from the USB device.
-  if (vendor.empty() || model.empty()) {
+  if (vendor.isEmpty() || model.isEmpty()) {
     const auto usb = udev_device_get_parent_with_subsystem_devtype(_dev, "usb", "usb_device");
     if (!usb) {
       return {};
     }
 
-    if (vendor.empty()) {
-      vendor = udv::getSysAttrValue(usb, "manufacturer");
-      if (vendor.empty()) {
+    if (vendor.isEmpty()) {
+      vendor = QString::fromStdString(udv::getSysAttrValue(usb, "manufacturer"));
+      if (vendor.isEmpty()) {
         return {};
       }
     }
-    if (model.empty()) {
-      model = udv::getSysAttrValue(usb, "product");
-      if (model.empty()) {
+    if (model.isEmpty()) {
+      model = QString::fromStdString(udv::getSysAttrValue(usb, "product"));
+      if (model.isEmpty()) {
         return {};
       }
     }
@@ -212,7 +212,7 @@ void MediaManagerWidget::onScanTimerTimeout()
 
     // Get the vendor and model.
     const auto [vendor, model] = getVendorAndModel(disk);
-    if (vendor.empty() || model.empty()) {
+    if (vendor.isEmpty() || model.isEmpty()) {
       udev_device_unref(disk);
       continue;
     }
@@ -221,7 +221,7 @@ void MediaManagerWidget::onScanTimerTimeout()
     udev_device_unref(disk);
 
     // Add the media.
-    const BootMedia media(vendor.c_str(), model.c_str(), devnode.c_str());
+    const BootMedia media(vendor, model, QString::fromStdString(devnode));
     new_medias[media.string()] = media;
   }
 

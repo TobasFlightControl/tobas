@@ -32,7 +32,6 @@ void RobotPropertiesWidget::updateInternalDataStructures()
 
 void RobotPropertiesWidget::setFrameType(FrameType _type)
 {
-  const auto text = QString::fromStdString(textFromEnum(_type));
-  frame_type_->setText(text);
+  frame_type_->setText(textFromEnum(_type));
 }
 }  // namespace tobas::gui::sa

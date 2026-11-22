@@ -78,7 +78,7 @@ void GeometryViewModel::sync()
     }
     case GeometryType::MESH: {
       auto mesh = new ::urdf::Mesh();
-      mesh->filename = filepath_;
+      mesh->filename = filepath_.toStdString();
       mesh->scale = scale_;
       model_.reset(mesh);
       break;
@@ -152,12 +152,12 @@ void GeometryViewModel::radius(double _radius)
 
 QString GeometryViewModel::filePath() const
 {
-  return QString::fromStdString(filepath_);
+  return filepath_;
 }
 
 void GeometryViewModel::filePath(const QString& _filepath)
 {
-  filepath_ = _filepath.toStdString();
+  filepath_ = _filepath;
 }
 
 const ::urdf::Vector3& GeometryViewModel::scale() const
@@ -206,7 +206,7 @@ void GeometryViewModel::load()
     }
     case GeometryType::MESH: {
       auto mesh = ::urdf::dynamic_pointer_cast<::urdf::Mesh>(model_);
-      filepath_ = mesh->filename;
+      filepath_ = QString::fromStdString(mesh->filename);
       scale_ = mesh->scale;
       break;
     }

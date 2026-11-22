@@ -50,7 +50,7 @@ private:
   double length_;
   double width_;
   double height_;
-  std::string filepath_;
+  QString filepath_;
   ::urdf::Vector3 scale_;
 
   void load();

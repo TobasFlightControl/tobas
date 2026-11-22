@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <utility>
+
+#include <QString>
 #include <QTimer>
 
 #include <tobas_qt_tools/widgets/combo_box.hpp>
@@ -38,7 +41,7 @@ private:
 
   const BootMedia& currentBootMedia() const;
 
-  static std::pair<std::string, std::string> getVendorAndModel(udev_device* _dev);
+  static std::pair<QString, QString> getVendorAndModel(udev_device* _dev);
 
 private Q_SLOTS:
   void onConnectButtonClicked();
