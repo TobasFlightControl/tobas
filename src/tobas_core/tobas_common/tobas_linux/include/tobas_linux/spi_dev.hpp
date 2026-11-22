@@ -13,6 +13,12 @@ class SPIdev
 {
 public:
   explicit SPIdev() noexcept;
+
+  SPIdev(SPIdev&& _other) = delete;
+  SPIdev& operator=(SPIdev&& _other) = delete;
+  SPIdev(const SPIdev& _other) = delete;
+  SPIdev& operator=(const SPIdev& _other) = delete;
+
   ~SPIdev() noexcept;
 
   bool
