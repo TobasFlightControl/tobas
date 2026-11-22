@@ -6,7 +6,7 @@ If you want to install or use Tobas, start from the published guide:
 
 - https://tobasflightcontrol.github.io/tobas/latest/
 
-## Structure
+## **Structure**
 
 - `docs/ja`: Japanese source documentation.
 - `docs/en`: English documentation generated or maintained from the Japanese source.
@@ -17,7 +17,7 @@ If you want to install or use Tobas, start from the published guide:
 Use `docs/ja` as the source language when adding or restructuring user-guide content.
 Keep `README.md` files as local maintainer notes; they are not translation targets.
 
-## Setup
+## **Setup**
 
 Use Python 3 on Ubuntu 24.04 LTS or a compatible environment.
 
@@ -28,7 +28,7 @@ $ pip install --upgrade pip
 $ pip install -r requirements.txt
 ```
 
-## Preview Locally
+## **Preview Locally**
 
 ```bash
 $ mkdocs serve --livereload
@@ -36,7 +36,7 @@ $ mkdocs serve --livereload
 
 Then open http://127.0.0.1:8000/ in your browser.
 
-## Translate Japanese to English
+## **Translate Japanese to English**
 
 The translation helper uses the OpenAI API.
 
@@ -62,7 +62,7 @@ If an existing English file cannot be aligned safely with its Japanese source, i
 use `--allow-full-fallback` only when replacing the entire English file is intended.
 Deleted Japanese files are reported as warnings so that their English counterparts can be reviewed before removal.
 
-## Deploy
+## **Deploy**
 
 Documentation versions are managed with `mike`.
 See the [Material for MkDocs versioning guide](https://squidfunk.github.io/mkdocs-material/setup/setting-up-versioning/#usage)

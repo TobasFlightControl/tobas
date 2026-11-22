@@ -3,11 +3,11 @@
 まずは，ブートデバイスを直接編集して通信関連の初期設定を行います．
 Tobas のイメージが書き込まれたマイクロ SD カードを用意してください．
 
-## 準備
+## **準備**
 
 ---
 
-### 設定用 GUI の起動
+### **設定用 GUI の起動**
 
 ターミナルで以下を実行し，Tobas Bootmedia Config を起動してください．
 ここでは外部ボリュームを扱うためにルート権限が必要です．
@@ -18,7 +18,7 @@ $ sudo bash -c 'source /opt/ros/jazzy/setup.bash && ros2 run tobas_bootmedia_con
 
 ![start](../../assets/bootmedia_config/start.png)
 
-### ブートデバイスに接続
+### **ブートデバイスに接続**
 
 適当な USB カードリーダを介して，SD カードを PC に挿入してください．
 Tobas イメージが正しく書き込まれていれば，GUI 上部の選択リストで SD カードが選択できるようになります．
@@ -28,11 +28,11 @@ Tobas イメージが正しく書き込まれていれば，GUI 上部の選択�
 
 ![connect](../../assets/bootmedia_config/connect.png)
 
-## 各種設定
+## **各種設定**
 
 ---
 
-### Hostname
+### **Hostname**
 
 Linux のホスト名を編集します．
 
@@ -44,7 +44,7 @@ Tobas では，デフォルトだとネットワーク上の端末を識別す�
 
 ![hostname](../../assets/bootmedia_config/hostname.png)
 
-### Login Password
+### **Login Password**
 
 ログインパスワードを編集します．
 
@@ -57,7 +57,7 @@ Tobas では，デフォルトだとネットワーク上の端末を識別す�
 
 ![login_password](../../assets/bootmedia_config/login_password.png)
 
-### SSH Keys
+### **SSH Keys**
 
 SSH 鍵認証の設定を行います．
 
@@ -85,7 +85,7 @@ $ seahorse
 
 ![ssh_keys](../../assets/bootmedia_config/ssh_keys.png)
 
-### Wi-Fi Client
+### **Wi-Fi Client**
 
 FC を Wi-Fi クライアントとして運用するための設定を行います．
 
@@ -99,7 +99,7 @@ FC と地上局などの通信すべき端末は全て同じサブネットに�
 
 ![wifi_client](../../assets/bootmedia_config/wifi_client.png)
 
-### Wi-Fi Hotspot
+### **Wi-Fi Hotspot**
 
 FC を Wi-Fi アクセスポイントとして運用するための設定を行います．
 
@@ -113,7 +113,7 @@ FC を Wi-Fi クライアントとしてのみ運用する場合は，この項�
 
 ![wifi_hotspot](../../assets/bootmedia_config/wifi_hotspot.png)
 
-## 終了
+## **終了**
 
 ---
 
@@ -123,7 +123,7 @@ GUI を閉じ，SD カードを PC から取り外してください．
 
 ![disconnect](../../assets/bootmedia_config/disconnect.png)
 
-## 次の手順へ
+## **次の手順へ**
 
 ---
 

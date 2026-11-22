@@ -1,16 +1,16 @@
 # インストール
 
-## PC への Tobas のインストール
+## **PC への Tobas のインストール**
 
 ---
 
-### ROS 2 Jazzy のインストール
+### **ROS 2 Jazzy のインストール**
 
 <a href=https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html target="_blank">ROS 2 Jazzy の公式手順</a>
 に従って ROS 2 をインストールしてください．
 このドキュメントでは`ros-jazzy-desktop`を使用します．
 
-### Tobas のインストール
+### **Tobas のインストール**
 
 ROS 2 の apt リポジトリから Tobas をインストールします．
 
@@ -19,17 +19,17 @@ $ sudo apt update
 $ sudo apt install ros-jazzy-tobas
 ```
 
-## フライトコントローラのイメージ書き込み
+## **フライトコントローラのイメージ書き込み**
 
 ---
 
-### 必要なもの
+### **必要なもの**
 
 - <a href=https://www.raspberrypi.com/products/raspberry-pi-5/ target="_blank">Raspberry Pi 5 (2 GB以上)</a>
 - 16 GB 以上のマイクロ SD カード (例: <a href=https://www.sandisk.com/products/memory-cards/microsd-cards/sandisk-extreme-uhs-i-microsd target="_blank">SanDisk Extreme microSDXC™ UHS-I CARD - 32GB</a>)
 - SD カードリーダー (例: <a href=https://www.sandisk.com/products/accessories/memory-card-readers/sandisk-quickflow-microsd-memory-card-reader-usb-c target="_blank">SANDISK QuickFlow microSD Card Reader with USB-C</a>)
 
-### 手順
+### **手順**
 
 <a href=https://drive.google.com/file/d/1z0_PBSmW7GaoakMl81ZoP50CtI2rSmT-/view target="_blank">Tobas のイメージファイル</a>
 をダウンロードしてください．
@@ -48,7 +48,7 @@ SD カードを，カードリーダーを介して PC に接続してくださ�
 
 正常に終了したら SD カードを PC から取り外してください．
 
-## 次の手順へ
+## **次の手順へ**
 
 ---
 

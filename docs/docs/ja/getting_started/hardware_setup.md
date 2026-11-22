@@ -1,6 +1,6 @@
 # 実機のセットアップ
 
-## 実機の作成
+## **実機の作成**
 
 ---
 
@@ -23,7 +23,7 @@ Setup Assistant で設定したとおりに実機を作成します．
     <a href=https://rc.kyosho.com/ja/z8006b.html target="_blank">京商 Z8006B</a>がおすすめです．
 <!-- prettier-ignore-end -->
 
-## プロポの設定
+## **プロポの設定**
 
 ---
 
@@ -70,7 +70,7 @@ GPSw (General Purpose Switch) はユーザが自由に使えるスイッチで�
 プロポの`+`ボタンを長押しでメニュー画面に入り，`リバース`を選択してください．
 スロットルレバー (`THR`) のみをリバース (`REV`) に設定してください．
 
-## Tobas プロジェクトの読み込みと書き込み
+## **Tobas プロジェクトの読み込みと書き込み**
 
 ---
 
@@ -95,14 +95,14 @@ $ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
 
 ![write_project](../../assets/hardware_setup/write_project.png)
 
-## Sensor Calibration
+## **Sensor Calibration**
 
 各センサのキャリブレーションを行います．
 画面上部のツールボタンの中にある`Sensor Calib`をクリックしてください．
 
 ---
 
-### Accelerometer Calibration
+### **Accelerometer Calibration**
 
 加速度センサのキャリブレーションを行います．
 機体を水平面上に置き，`Start`をクリックしてください．
@@ -110,7 +110,7 @@ $ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
 
 ![accel_calibration](../../assets/hardware_setup/accel_calibration.png)
 
-### Magnetometer Calibration
+### **Magnetometer Calibration**
 
 地磁気センサのキャリブレーションを行います．
 地磁気センサは周囲の環境の影響を強く受けるため，FC を機体に取り付けた状態で実行してください．
@@ -125,7 +125,7 @@ $ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
 ![mag_calibration_1](../../assets/hardware_setup/mag_calibration_1.png)
 ![mag_calibration_2](../../assets/hardware_setup/mag_calibration_2.png)
 
-### Radio Calibration
+### **Radio Calibration**
 
 ラジオ入力 (S.BUS) のキャリブレーションを行います．
 
@@ -136,14 +136,14 @@ $ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
 
 ![radio_calibration](../../assets/hardware_setup/radio_calibration.png)
 
-## Actuator Test
+## **Actuator Test**
 
 各アクチュエータの動作テストを行います．
 画面上部のツールボタンの中にある`Actuator Test`をクリックしてください．
 
 ---
 
-### Rotor Test
+### **Rotor Test**
 
 <span style="color: red;"><strong>警告: この操作ではモータが回転します．プロペラを取り付けて実行する場合は十分に注意してください．</strong></span>
 
@@ -164,12 +164,12 @@ $ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 launch tobas_gcs gcs.launch.py
     点灯している場合は，一度電源を切ってから再び給電してみてください．
 <!-- prettier-ignore-end -->
 
-### Joint Test
+### **Joint Test**
 
 機体がチルトロータや固定翼機の操舵面のような駆動関節を持つ場合は，それぞれの関節の位置指令テストを行うことができます．
 今回の機体はプロペラ以外の可動関節をもたないためスキップします．
 
-## 次の手順へ
+## **次の手順へ**
 
 ---
 
