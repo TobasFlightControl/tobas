@@ -10,8 +10,8 @@ Setup Assistant で設定したとおりに実機を作成します．
 <!-- cf. https://docs.emlid.com/navio2/hardware-setup/ -->
 <!-- cf. https://docs.emlid.com/navio2/ardupilot/typical-setup-schemes/ -->
 
-<img src="../../../assets/hardware_setup/f450_1.png" alt="f450_1" width="49%"/>
-<img src="../../../assets/hardware_setup/f450_2.png" alt="f450_2" width="49%"/>
+![f450_1](../../assets/hardware_setup/f450_1.png){ width="49%" }
+![f450_2](../../assets/hardware_setup/f450_2.png){ width="49%" }
 
 <!-- prettier-ignore-start -->
 !!! note

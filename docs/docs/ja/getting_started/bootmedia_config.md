@@ -77,8 +77,8 @@ $ seahorse
 その後`OpenSSH keys`をクリックすると作成された鍵が表示されていることが確認できます．
 鍵をダブルクリックし，出てきたダイアログで`Public key`をメモしたら`Passwords and Keys`を閉じてください．
 
-<img src="../../../assets/bootmedia_config/ssh_key_1.png" alt="ssh_key_1" width="49%"/>
-<img src="../../../assets/bootmedia_config/ssh_key_2.png" alt="ssh_key_2" width="49%"/>
+![ssh_key_1](../../assets/bootmedia_config/ssh_key_1.png){ width="49%" }
+![ssh_key_2](../../assets/bootmedia_config/ssh_key_2.png){ width="49%" }
 
 `Tobas Bootmedia Config`に戻って`Add`をクリックし，出現するダイアログに先程メモした公開鍵をコピー＆ペーストしてください．
 `OK`をクリックすると，公開鍵がリストに追加されると同時に SD カードにも書き込まれます．
