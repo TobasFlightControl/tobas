@@ -36,32 +36,6 @@ $ mkdocs serve --livereload
 
 Then open http://127.0.0.1:8000/ in your browser.
 
-## **Translate Japanese to English**
-
-The translation helper uses the OpenAI API.
-
-```bash
-$ pip install openai
-$ export OPENAI_API_KEY="your_api_key_here"
-$ python translate_docs.py --help
-```
-
-Translate only changed Japanese Markdown files when updating existing English pages:
-
-Choose a model and one of its supported reasoning levels from the
-[OpenAI models documentation](https://developers.openai.com/api/docs/models),
-then specify them with `--model` and `--reasoning-effort`.
-
-```bash
-$ python translate_docs.py --changed-only --src docs/ja --dst docs/en --base-ref HEAD --model gpt-5.6-sol --reasoning-effort max --dry-run
-```
-
-Review the generated diff, then run the same command without `--dry-run` to update the files.
-The helper rejects translations that change protected code, links, URLs, HTML, or Markdown structure.
-If an existing English file cannot be aligned safely with its Japanese source, inspect the files first and
-use `--allow-full-fallback` only when replacing the entire English file is intended.
-Deleted Japanese files are reported as warnings so that their English counterparts can be reviewed before removal.
-
 ## **Deploy**
 
 Documentation versions are managed with `mike`.
