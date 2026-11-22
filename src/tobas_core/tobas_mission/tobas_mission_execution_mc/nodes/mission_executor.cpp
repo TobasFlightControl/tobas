@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <limits>
 #include <optional>
 #include <ranges>
@@ -363,7 +364,7 @@ void MulticopterMissionExecutorNode::publishCommand(const rclcpp::Time& _stamp)
       cmd_priority = tobas_command_msgs::msg::Priority::DEFENSIVE;
       break;
     default:
-      TOBAS_ERROR("Invalid mission priority: ", (int)mission_priority_);
+      TOBAS_ERROR("Invalid mission priority: ", static_cast<int>(mission_priority_));
       return;
   }
 
@@ -515,7 +516,7 @@ bool MulticopterMissionExecutorNode::handleExternalRequest(const GoalHandlePtr& 
       return false;
     default:
       _res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-      _res->error_message = "Invalid status: " + std::to_string((int)status_);
+      _res->error_message = "Invalid status: " + std::to_string(static_cast<int>(status_));
       _gh->abort(_res);
       return false;
   }
@@ -1108,7 +1109,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
   // Check mission priority.
   const auto& new_priority = _goal->priority.data;
   if (new_priority > tobas_mission_msgs::msg::Priority::DEFENSIVE) {
-    TOBAS_WARN("Invalid mission priority: ", (int)new_priority);
+    TOBAS_WARN("Invalid mission priority: ", static_cast<int>(new_priority));
     return rclcpp_action::GoalResponse::REJECT;
   }
   if (is_executing_) {
@@ -1280,7 +1281,7 @@ MulticopterMissionExecutorNode::handleGoal(const rclcpp_action::GoalUUID&, const
         break;
       }
       default: {
-        TOBAS_ERROR("Invalid mission type: ", (int)item.type);
+        TOBAS_ERROR("Invalid mission type: ", static_cast<int>(item.type));
         return rclcpp_action::GoalResponse::REJECT;
       }
     }

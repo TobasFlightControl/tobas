@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
@@ -8,7 +9,7 @@
 
 #include <tobas_ic_drivers/bmm350.hpp>
 
-using namespace std;
+using namespace std::chrono_literals;
 
 int main()
 {
@@ -22,12 +23,11 @@ int main()
 
   while (true) {
     if (!mag.readMag(mx, my, mz)) {
-      cerr << "Failed to read magnetic field.\n";
+      std::cerr << "Failed to read magnetic field.\n";
       return EXIT_FAILURE;
     }
     const double norm = std::sqrt(mx * mx + my * my + mz * mz);
-    cout << "Magnetic Field [μT]: " << mx << ", " << my << ", " << mz << "| norm=" << norm << '\n';
-
-    this_thread::sleep_for(1s);
+    std::cout << "Magnetic Field [μT]: " << mx << ", " << my << ", " << mz << "| norm=" << norm << '\n';
+    std::this_thread::sleep_for(1s);
   }
 }

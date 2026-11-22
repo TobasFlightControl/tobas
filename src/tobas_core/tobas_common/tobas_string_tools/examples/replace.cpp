@@ -2,16 +2,15 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <iostream>
+#include <string>
 
 #include <tobas_string_tools/core.hpp>
 
-using namespace std;
-
 int main()
 {
-  const string input = "This is a test. Testing is fun.";
+  const std::string input = "This is a test. Testing is fun.";
   const auto output = tobas::str::replace(input, "is", "was");
 
-  cout << "Input : " << input << '\n';
-  cout << "Output: " << output << '\n';
+  std::cout << "Input : " << input << '\n';
+  std::cout << "Output: " << output << '\n';
 }

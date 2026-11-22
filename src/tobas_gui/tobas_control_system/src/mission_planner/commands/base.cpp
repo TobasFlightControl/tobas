@@ -4,10 +4,10 @@
 #include "tobas_control_system/mission_planner/commands/base.hpp"
 
 #include <cmath>
+#include <functional>
 
 #include <QLabel>
 #include <QLayout>
-#include <QStackedWidget>
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
@@ -63,7 +63,7 @@ void BaseCommandWidget::addField(field::BaseFieldWidget* _widget, bool _overrida
   _widget->layout()->setContentsMargins(-1, 0, -1, 0);
   form_->addVAlignedRow(checkbox, stacked);
 
-  connect(checkbox, &QCheckBox::toggled, [stacked](bool _checked) { stacked->setCurrentIndex((int)_checked); });
+  connect(checkbox, &QCheckBox::toggled, std::bind(&self::onCheckBoxToggled, this, std::placeholders::_1, stacked));
   connect(_widget, &field::BaseFieldWidget::updated, this, &self::onFieldUpdated);
 
   ++row_;
@@ -93,6 +93,12 @@ void BaseCommandWidget::setValueOrDefault(field::FieldWidget<double>* _widget, d
   else {
     setChecked(_widget, false);
   }
+}
+
+void BaseCommandWidget::onCheckBoxToggled(bool _checked, QStackedWidget* _stack)
+{
+  const auto index = static_cast<int>(_checked);
+  _stack->setCurrentIndex(index);
 }
 
 void BaseCommandWidget::onFieldUpdated()

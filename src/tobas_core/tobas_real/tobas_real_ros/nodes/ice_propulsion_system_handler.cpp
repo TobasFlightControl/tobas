@@ -74,7 +74,7 @@ void IcePropulsionSystemHandlerNode::stopActuator()
       break;
     }
     default: {
-      TOBAS_ERROR("The hardware interface of engine throttle is invalid: ", (int)iprop_->engine.hw_iface);
+      TOBAS_ERROR("The hardware interface of engine throttle is invalid: ", static_cast<int>(iprop_->engine.hw_iface));
       break;
     }
   }
@@ -103,7 +103,7 @@ void IcePropulsionSystemHandlerNode::stopActuator()
           "The hardware interface of variable pitch propeller '",
           irotor->link_name,
           "' is invalid: ",
-          (int)irotor->hw_iface);
+          static_cast<int>(irotor->hw_iface));
         break;
       }
     }
@@ -185,7 +185,7 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
       break;
     }
     default: {
-      TOBAS_ERROR("The hardware interface of engine throttle is invalid: ", (int)iprop_->engine.hw_iface);
+      TOBAS_ERROR("The hardware interface of engine throttle is invalid: ", static_cast<int>(iprop_->engine.hw_iface));
       break;
     }
   }
@@ -233,7 +233,10 @@ void IcePropulsionSystemHandlerNode::iceCommandCb(
       }
       default: {
         TOBAS_ERROR(
-          "The hardware interface of variable pitch propeller '", link_name, "' is invalid: ", (int)irotor->hw_iface);
+          "The hardware interface of variable pitch propeller '",
+          link_name,
+          "' is invalid: ",
+          static_cast<int>(irotor->hw_iface));
         break;
       }
     }

@@ -44,7 +44,7 @@ int g_global_variable;
 template <typename TypeTemplateParameter>
 bool internalMethod(const TypeTemplateParameter& _x)
 {
-  (void)_x;
+  static_cast<void>(_x);
   return true;
 }
 }  // namespace
@@ -70,9 +70,9 @@ bool MyClass::initialize()
 
 MyClass::ErrorCode MyClass::longMethod(int _primitive_input, const std::string& _non_primitive_input, double& _output)
 {
-  (void)_primitive_input;
-  (void)_non_primitive_input;
-  (void)_output;
+  static_cast<void>(_primitive_input);
+  static_cast<void>(_non_primitive_input);
+  static_cast<void>(_output);
 
   // Put `const` everywhere it can be applied.
   const int local_variable = _primitive_input;

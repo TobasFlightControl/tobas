@@ -129,7 +129,8 @@ void JointCommanderWidget::updateInternalDataStructures()
             break;
           case kdl::Joint::kFixed:
           default:
-            throw std::runtime_error("Unexpected joint command interface type: " + std::to_string((int)joint.cmd_iface));
+            throw std::runtime_error(
+              "Unexpected joint command interface type: " + std::to_string(static_cast<int>(joint.cmd_iface)));
         }
 
         tobas_msgs::msg::JointCommand cmd;
@@ -152,7 +153,8 @@ void JointCommanderWidget::updateInternalDataStructures()
             break;
           case kdl::Joint::kFixed:
           default:
-            throw std::runtime_error("Unexpected joint command interface type: " + std::to_string((int)joint.cmd_iface));
+            throw std::runtime_error(
+              "Unexpected joint command interface type: " + std::to_string(static_cast<int>(joint.cmd_iface)));
         }
 
         tobas_msgs::msg::JointCommand cmd;
@@ -175,7 +177,8 @@ void JointCommanderWidget::updateInternalDataStructures()
             break;
           case kdl::Joint::kFixed:
           default:
-            throw std::runtime_error("Unexpected joint command interface type: " + std::to_string((int)joint.cmd_iface));
+            throw std::runtime_error(
+              "Unexpected joint command interface type: " + std::to_string(static_cast<int>(joint.cmd_iface)));
         }
 
         tobas_msgs::msg::JointCommand cmd;

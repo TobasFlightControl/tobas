@@ -5,6 +5,7 @@
 
 #include <QDebug>
 #include <QFormLayout>
+#include <cstdint>
 
 #include <tobas_qt_tools/widgets/progress_bar.hpp>
 
@@ -60,7 +61,7 @@ void GnssViewerWidget::setStatus(uint8_t _status)
       status_->setText("Time-Only Fix");
       break;
     default:
-      qWarning() << "Unknown status:" << (int)_status;
+      qWarning() << "Unknown status:" << static_cast<int>(_status);
       status_->setText("Unknown");
       break;
   }

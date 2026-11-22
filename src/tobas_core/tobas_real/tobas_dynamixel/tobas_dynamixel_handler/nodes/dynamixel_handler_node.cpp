@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <optional>
@@ -568,7 +569,7 @@ void DynamixelHandlerNode::positionsCmdCb(const tobas_dynamixel_msgs::msg::Motor
       continue;
     }
 
-    if (!pos_sync_write_->addParam(cfg.id, (uint8_t*)&goal_positions_[i])) {
+    if (!pos_sync_write_->addParam(cfg.id, reinterpret_cast<uint8_t*>(&goal_positions_[i]))) {
       TOBAS_ERROR("Failed to set goal position of joint '", jnt_name, "'.");
     }
   }
@@ -610,7 +611,7 @@ void DynamixelHandlerNode::velocitiesCmdCb(
     }
 
     goal_velocities_[i] = tar_vel / scale_factor::kVelocity;
-    if (!vel_sync_write_->addParam(cfg.id, (uint8_t*)&goal_velocities_[i])) {
+    if (!vel_sync_write_->addParam(cfg.id, reinterpret_cast<uint8_t*>(&goal_velocities_[i]))) {
       TOBAS_ERROR("Failed to set goal velocity of joint '", jnt_name, "'.");
       continue;
     }

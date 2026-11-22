@@ -8,22 +8,23 @@
  *      1 <= x0, x1, x2, x3 <= 5
  */
 
+#include <cstdlib>
 #include <iostream>
 
+#include <eigen3/Eigen/Core>
+
+#include <tobas_eigen_tools/tensor.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_nlp/sqp.hpp>
 
-using namespace std;
-using namespace Eigen;
-
-double f(const VectorXd& _x)
+double f(const Eigen::VectorXd& _x)
 {
   return _x(0) * _x(3) * (_x(0) + _x(1) + _x(2)) + _x(2);
 }
 
-VectorXd g(const VectorXd& _x)
+Eigen::VectorXd g(const Eigen::VectorXd& _x)
 {
-  VectorXd res(9);
+  Eigen::VectorXd res(9);
   res(0) = 25 - _x(0) * _x(1) * _x(2) * _x(3);
   res(1) = -_x(0) - 1;
   res(2) = -_x(1) - 1;
@@ -36,16 +37,16 @@ VectorXd g(const VectorXd& _x)
   return res;
 }
 
-VectorXd h(const VectorXd& _x)
+Eigen::VectorXd h(const Eigen::VectorXd& _x)
 {
-  VectorXd res(1);
+  Eigen::VectorXd res(1);
   res(0) = tobas::math::sqr(_x(0)) + tobas::math::sqr(_x(1)) + tobas::math::sqr(_x(2)) + tobas::math::sqr(_x(3)) - 40;
   return res;
 }
 
-RowVectorXd dfdx(const VectorXd& _x)
+Eigen::RowVectorXd dfdx(const Eigen::VectorXd& _x)
 {
-  RowVectorXd res(4);
+  Eigen::RowVectorXd res(4);
   res(0) = _x(3) * (2 * _x(0) + _x(1) + _x(2));
   res(1) = _x(0) * _x(3);
   res(2) = _x(0) * _x(3) + 1;
@@ -53,9 +54,9 @@ RowVectorXd dfdx(const VectorXd& _x)
   return res;
 }
 
-MatrixXd dgdx(const VectorXd& _x)
+Eigen::MatrixXd dgdx(const Eigen::VectorXd& _x)
 {
-  MatrixXd res(9, 4);
+  Eigen::MatrixXd res(9, 4);
 
   res(0, 0) = -_x(1) * _x(2) * _x(3);
   res(0, 1) = -_x(0) * _x(2) * _x(3);
@@ -70,9 +71,9 @@ MatrixXd dgdx(const VectorXd& _x)
   return res;
 }
 
-MatrixXd dhdx(const VectorXd& _x)
+Eigen::MatrixXd dhdx(const Eigen::VectorXd& _x)
 {
-  MatrixXd res(1, 4);
+  Eigen::MatrixXd res(1, 4);
   res(0, 0) = 2 * _x(0);
   res(0, 1) = 2 * _x(1);
   res(0, 2) = 2 * _x(2);
@@ -80,9 +81,9 @@ MatrixXd dhdx(const VectorXd& _x)
   return res;
 }
 
-MatrixXd dFdx(const VectorXd& _x)
+Eigen::MatrixXd dFdx(const Eigen::VectorXd& _x)
 {
-  MatrixXd res(4, 4);
+  Eigen::MatrixXd res(4, 4);
   res(0, 0) = 2 * _x(3);
   res(0, 1) = _x(3);
   res(0, 2) = _x(3);
@@ -102,9 +103,9 @@ MatrixXd dFdx(const VectorXd& _x)
   return res;
 }
 
-Tensor3Xd dGdx(const VectorXd& _x)
+Eigen::Tensor3Xd dGdx(const Eigen::VectorXd& _x)
 {
-  Tensor3Xd res(9, 4, 4);
+  Eigen::Tensor3Xd res(9, 4, 4);
   res.setZero();
 
   res(0, 0, 0) = 0;
@@ -130,9 +131,9 @@ Tensor3Xd dGdx(const VectorXd& _x)
   return res;
 }
 
-Tensor3Xd dHdx(const VectorXd&)
+Eigen::Tensor3Xd dHdx(const Eigen::VectorXd&)
 {
-  Tensor3Xd res(1, 4, 4);
+  Eigen::Tensor3Xd res(1, 4, 4);
   res.setZero();
 
   res(0, 0, 0) = 2;
@@ -147,23 +148,23 @@ int main()
 {
   tobas::nlp::SQP sqp;
 
-  VectorXd x0(4);
+  Eigen::VectorXd x0(4);
   x0 << 1, 5, 5, 1;
 
   sqp.initialize(x0, f, g, h, dfdx, dgdx, dhdx, dFdx, dGdx, dHdx);
 
   const auto x_opt = sqp.solve();
   if (!x_opt) {
-    cerr << x_opt.error() << '\n';
+    std::cerr << x_opt.error() << '\n';
     return EXIT_FAILURE;
   }
 
-  cout << "Optimal solution: " << x_opt->transpose() << '\n';
-  cout << "Number of iterations: " << sqp.iterations() << '\n';  // 5 with scipy.optimize.minimize.
-  cout << "----------\n";
-  cout << "f(x*) = " << f(*x_opt) << '\n';  // 17.014017247073575 with scipy.optimize.minimize.
-  cout << "g(x*) = " << g(*x_opt).transpose() << '\n';
-  cout << "h(x*) = " << h(*x_opt).transpose() << '\n';
+  std::cout << "Optimal solution: " << x_opt->transpose() << '\n';
+  std::cout << "Number of iterations: " << sqp.iterations() << '\n';  // 5 with scipy.optimize.minimize.
+  std::cout << "----------\n";
+  std::cout << "f(x*) = " << f(*x_opt) << '\n';  // 17.014017247073575 with scipy.optimize.minimize.
+  std::cout << "g(x*) = " << g(*x_opt).transpose() << '\n';
+  std::cout << "h(x*) = " << h(*x_opt).transpose() << '\n';
 
   return EXIT_SUCCESS;
 }

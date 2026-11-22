@@ -1,17 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
+#include <cstdlib>
 #include <iostream>
 #include <thread>
 
 #include <tobas_ic_drivers/stmicro/ism330dlc.hpp>
 
-using namespace std;
+using namespace std::chrono_literals;
 
 int main(int _argc, char* _argv[])
 {
   if (_argc != 2) {
-    cerr << "Usage: " << _argv[0] << " <SPI Device>\n";
+    std::cerr << "Usage: " << _argv[0] << " <SPI Device>\n";
     return EXIT_FAILURE;
   }
   const auto device = _argv[1];
@@ -20,29 +22,29 @@ int main(int _argc, char* _argv[])
   double ax, ay, az, gx, gy, gz;
 
   if (!imu.initialize(device)) {
-    cerr << "Failed to initialize IMU.\n";
+    std::cerr << "Failed to initialize IMU.\n";
     return EXIT_FAILURE;
   }
 
   if (!imu.setAccelOutputDataRate(tobas::stm::ISM330DLC::odr_xl_t::ODR_XL_6664HZ)) {
-    cerr << "Failed to set accelerometer output data rate.\n";
+    std::cerr << "Failed to set accelerometer output data rate.\n";
     return EXIT_FAILURE;
   }
   if (!imu.setGyroOutputDataRate(tobas::stm::ISM330DLC::odr_g_t::ODR_G_6664HZ)) {
-    cerr << "Failed to set gyroscope output data rate.\n";
+    std::cerr << "Failed to set gyroscope output data rate.\n";
     return EXIT_FAILURE;
   }
 
   while (true) {
     if (!imu.readImu(ax, ay, az, gx, gy, gz)) {
-      cerr << "Failed to read IMU.\n";
+      std::cerr << "Failed to read IMU.\n";
       return EXIT_FAILURE;
     }
 
-    cout << "Accel [m/s^2]: " << ax << ", " << ay << ", " << az << '\n';
-    cout << "Gyro [rad/s] : " << gx << ", " << gy << ", " << gz << '\n';
+    std::cout << "Accel [m/s^2]: " << ax << ", " << ay << ", " << az << '\n';
+    std::cout << "Gyro [rad/s] : " << gx << ", " << gy << ", " << gz << '\n';
 
-    this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(100ms);
   }
 
   return EXIT_SUCCESS;

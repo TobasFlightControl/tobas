@@ -7,6 +7,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include <cstdint>
 #include <cstring>
 
 namespace tobas::linux
@@ -35,8 +36,8 @@ bool SPIdev::initialize(
   }
 
   std::memset(&spi_transfer_, 0, sizeof(spi_ioc_transfer));
-  spi_transfer_.tx_buf = (uint64_t)_tx_buf;
-  spi_transfer_.rx_buf = (uint64_t)_rx_buf;
+  spi_transfer_.tx_buf = reinterpret_cast<std::uintptr_t>(_tx_buf);
+  spi_transfer_.rx_buf = reinterpret_cast<std::uintptr_t>(_rx_buf);
   spi_transfer_.speed_hz = _speed_hz;
   spi_transfer_.bits_per_word = _bits_per_word;
   spi_transfer_.delay_usecs = 0;

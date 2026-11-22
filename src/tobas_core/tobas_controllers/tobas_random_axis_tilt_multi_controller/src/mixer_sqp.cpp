@@ -338,7 +338,7 @@ const Eigen::MatrixXd& SqpMixer::calc_N(const Eigen::VectorXd& _theta)
 
 const Eigen::Tensor3Xd& SqpMixer::calc_dN_dtheta(const Eigen::VectorXd& _theta)
 {
-  for (const auto& [i, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [i, rotor_it] : std::views::zip(std::views::iota(0), drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     const auto& elem = tree_.getSegment(rotor->link_name)->second;
 
@@ -351,7 +351,7 @@ const Eigen::Tensor3Xd& SqpMixer::calc_dN_dtheta(const Eigen::VectorXd& _theta)
       const auto& axis_par = cur_seg.joint().axis().data;
       const auto& R_base2gpar = frames_->at(gpar_seg.name()).M.data;
       const Eigen::Vector3d dn_dtheta = R_base2gpar * par_seg.rotGrad(_theta(i)) * axis_par;
-      eigen::setVectorX(dN_dtheta_, dn_dtheta, { 3 * (int)i, (int)i, (int)i });
+      eigen::setVectorX(dN_dtheta_, dn_dtheta, { 3 * i, i, i });
     }
   }
 
@@ -360,7 +360,7 @@ const Eigen::Tensor3Xd& SqpMixer::calc_dN_dtheta(const Eigen::VectorXd& _theta)
 
 const Eigen::Tensor4Xd& SqpMixer::calc_dN_dtheta_2(const Eigen::VectorXd& _theta)
 {
-  for (const auto& [i, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+  for (const auto& [i, rotor_it] : std::views::zip(std::views::iota(0), drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     const auto& elem = tree_.getSegment(rotor->link_name)->second;
 
@@ -373,7 +373,7 @@ const Eigen::Tensor4Xd& SqpMixer::calc_dN_dtheta_2(const Eigen::VectorXd& _theta
       const auto& axis_par = cur_seg.joint().axis().data;
       const auto& R_base2gpar = frames_->at(gpar_seg.name()).M.data;
       const Eigen::Vector3d dn_dtheta_2 = R_base2gpar * par_seg.rotGrad2(_theta(i)) * axis_par;
-      eigen::setVectorX(dN_dtheta_2_, dn_dtheta_2, { 3 * (int)i, (int)i, (int)i, (int)i });
+      eigen::setVectorX(dN_dtheta_2_, dn_dtheta_2, { 3 * i, i, i, i });
     }
   }
 

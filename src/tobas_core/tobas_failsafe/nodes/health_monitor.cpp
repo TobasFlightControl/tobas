@@ -231,13 +231,10 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
       // Ignore unused item.
       health->battery_voltage = tobas_msgs::msg::VehicleHealth::IGNORED;
 
-      const auto iprop = std::static_pointer_cast<IcePropulsionSystemConfig>(drone_->prop);
-      (void)iprop;  // TODO
-
       break;
     }
     default: {
-      TOBAS_ERROR("Invalid propulsion system type: ", (int)drone_->prop->type());
+      TOBAS_ERROR("Invalid propulsion system type: ", static_cast<int>(drone_->prop->type()));
       break;
     }
   }
@@ -281,7 +278,7 @@ std::unique_ptr<tobas_msgs::msg::VehicleHealth> HealthMonitorNode::createHealthM
           break;
         }
         default: {
-          TOBAS_WARN("Invalid RC status: ", (int)rcin_->status);
+          TOBAS_WARN("Invalid RC status: ", static_cast<int>(rcin_->status));
           break;
         }
       }

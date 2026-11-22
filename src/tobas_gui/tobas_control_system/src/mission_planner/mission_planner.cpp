@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <cstdint>
 #include <rclcpp_action/create_client.hpp>
 
 #include <tobas_constants/path.hpp>
@@ -866,9 +867,8 @@ void MissionPlannerWidget::actionGoalResponseCb(bool _ok)
   setExecuteMode();
 }
 
-void MissionPlannerWidget::actionFeedbackCb(uint32_t _cur_cmd_idx)
+void MissionPlannerWidget::actionFeedbackCb(uint32_t)
 {
-  (void)_cur_cmd_idx;
   // TODO
 }
 
@@ -890,7 +890,7 @@ void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode _code, const
         "The mission was aborted while executing command No. " + QString::number(_last_cmd_idx) + ":\n\n" + _message);
       break;
     default:
-      qt::qErrorBox(this, "Invalid action result code: " + QString::number((int)_code));
+      qt::qErrorBox(this, "Invalid action result code: " + QString::number(static_cast<int>(_code)));
       break;
   }
 

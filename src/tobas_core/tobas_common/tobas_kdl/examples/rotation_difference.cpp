@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <tobas_kdl/euler.hpp>
+#include <iostream>
+#include <numbers>
 
-using namespace std;
+#include <tobas_kdl/angle_axis.hpp>
+#include <tobas_kdl/euler.hpp>
 
 int main()
 {
-  const tobas::kdl::Euler O_Rot_A(M_PI_2, 0, 0);
-  const tobas::kdl::Euler O_Rot_B(M_PI_2, 0, M_PI_2);
-  const tobas::kdl::AngleAxis O_AngleAxis_AB = O_Rot_B - O_Rot_A;
-  cout << "Angle-Axis wrt. O: " << O_AngleAxis_AB << '\n';
+  using std::numbers::pi;
+
+  const tobas::kdl::Euler o_rot_a(pi / 2.0, 0, 0);
+  const tobas::kdl::Euler o_rot_b(pi / 2.0, 0, pi / 2.0);
+  const tobas::kdl::AngleAxis o_angle_axis_ab = o_rot_b - o_rot_a;
+
+  std::cout << "Angle-Axis wrt. O: " << o_angle_axis_ab << '\n';
 }

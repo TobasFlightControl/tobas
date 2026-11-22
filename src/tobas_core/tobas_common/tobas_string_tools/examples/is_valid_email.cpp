@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <ios>
 #include <iostream>
+#include <string>
 
 #include <tobas_string_tools/core.hpp>
 
-using namespace std;
-
 int main()
 {
-  const string valid_email = "example@example.com";
-  const string invalid_email = "invalid@.com";
+  const std::string valid_email = "example@example.com";
+  const std::string invalid_email = "invalid@.com";
 
-  cout << boolalpha;
-  cout << valid_email << ": " << tobas::str::isValidEmail(valid_email) << '\n';
-  cout << invalid_email << ": " << tobas::str::isValidEmail(invalid_email) << '\n';
-  cout << noboolalpha;
+  std::cout << std::boolalpha;
+  std::cout << valid_email << ": " << tobas::str::isValidEmail(valid_email) << '\n';
+  std::cout << invalid_email << ": " << tobas::str::isValidEmail(invalid_email) << '\n';
+  std::cout << std::noboolalpha;
 }

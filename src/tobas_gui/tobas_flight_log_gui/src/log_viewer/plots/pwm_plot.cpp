@@ -64,7 +64,7 @@ void PwmPlotWidget::setData(const QVector<tobas_msgs::msg::PwmArray>& _msgs)
   for (const auto& msg : _msgs) {
     for (const auto& elem : msg.pwms) {
       if (elem.channel >= kPwmChannels) {
-        qWarning() << "PWM channel" << (int)elem.channel << "is out of range.";
+        qWarning() << "PWM channel" << static_cast<int>(elem.channel) << "is out of range.";
         continue;
       }
       times[elem.channel].append(ros2::seconds(msg.header.stamp));

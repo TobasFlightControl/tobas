@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QMap>
+#include <QStackedWidget>
 #include <QWidget>
 
 #include <tobas_qt_tools/layouts/form_layout.hpp>
@@ -45,6 +46,7 @@ private:
   int row_ = 0;
 
 private Q_SLOTS:
+  void onCheckBoxToggled(bool _checked, QStackedWidget* _stack);
   void onFieldUpdated();
 };
 }  // namespace tobas::gui::ctrl

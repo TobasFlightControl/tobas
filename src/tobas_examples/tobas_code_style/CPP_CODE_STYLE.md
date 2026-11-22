@@ -76,7 +76,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 ## Namespaces
 
-- Put every symbol in the `tobas` namespace.
+- Put every symbol in the `tobas` namespace, except `main` and example functions.
 - Put symbols that may be included from another `.cpp` file in an appropriate namespace under `tobas`.
 - `using namespace`: Do not use it in header files, and avoid it in source files whenever possible.
 - If a symbol is defined in a `.cpp` file and used only with internal linkage,
