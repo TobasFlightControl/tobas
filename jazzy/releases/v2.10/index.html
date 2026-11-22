@@ -1181,10 +1181,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#operating-environment" class="md-nav__link">
+  <a href="#environment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Operating Environment
+        Environment
       
     </span>
   </a>
@@ -1215,10 +1215,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#failsafe" class="md-nav__link">
+  <a href="#fail-safe" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Failsafe
+        Fail-Safe
       
     </span>
   </a>
@@ -1303,39 +1303,39 @@
 
 
 <h1 id="release-v210">Release v2.10<a class="headerlink" href="#release-v210" title="Permanent link">&para;</a></h1>
-<h2 id="operating-environment">Operating Environment<a class="headerlink" href="#operating-environment" title="Permanent link">&para;</a></h2>
+<h2 id="environment"><strong>Environment</strong><a class="headerlink" href="#environment" title="Permanent link">&para;</a></h2>
 <hr />
 <p>ROS 2 Jazzy</p>
-<h2 id="changes">Changes<a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
+<h2 id="changes"><strong>Changes</strong><a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="state-estimation">State Estimation<a class="headerlink" href="#state-estimation" title="Permanent link">&para;</a></h3>
+<h3 id="state-estimation"><strong>State Estimation</strong><a class="headerlink" href="#state-estimation" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Sensors used by ESKF can now be selected in Setup Assistant</li>
-<li>External pose input can now be provided to ESKF</li>
-<li>Changed the takeoff and landing detection conditions</li>
+<li>Added sensor selection for the ESKF in Setup Assistant</li>
+<li>Added external pose input to the ESKF</li>
+<li>Changed the conditions for takeoff and landing detection</li>
 </ul>
-<h3 id="failsafe">Failsafe<a class="headerlink" href="#failsafe" title="Permanent link">&para;</a></h3>
+<h3 id="fail-safe"><strong>Fail-Safe</strong><a class="headerlink" href="#fail-safe" title="Permanent link">&para;</a></h3>
 <ul>
-<li>The ESC communication loss detection threshold can now be configured</li>
-<li>Once target thrust begins to be output, disarm after a 500 ms communication loss instead of waiting 10 s</li>
+<li>Made the ESC communication loss threshold configurable</li>
+<li>Once target thrust is being generated, disarm after 500 ms of communication loss instead of waiting 10 s</li>
 </ul>
-<h3 id="communication">Communication<a class="headerlink" href="#communication" title="Permanent link">&para;</a></h3>
+<h3 id="communication"><strong>Communication</strong><a class="headerlink" href="#communication" title="Permanent link">&para;</a></h3>
 <ul>
-<li>The network interface can now be specified with <code>CYCLONEDDS_URI</code></li>
+<li>Added network interface selection through <code>CYCLONEDDS_URI</code></li>
 </ul>
-<h3 id="flight-logs">Flight Logs<a class="headerlink" href="#flight-logs" title="Permanent link">&para;</a></h3>
+<h3 id="flight-logs"><strong>Flight Logs</strong><a class="headerlink" href="#flight-logs" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added an RC Input tab</li>
 </ul>
-<h3 id="simulation">Simulation<a class="headerlink" href="#simulation" title="Permanent link">&para;</a></h3>
+<h3 id="simulation"><strong>Simulation</strong><a class="headerlink" href="#simulation" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added a suspended payload plugin</li>
 </ul>
-<h3 id="other">Other<a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
+<h3 id="other"><strong>Other</strong><a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Run time-consuming processes, such as transmission and builds, in separate threads</li>
-<li>Write long build error messages to a file</li>
-<li>Round decimal values in YAML to a reasonable precision</li>
+<li>Moved time-consuming operations such as transfers and builds to separate threads</li>
+<li>Added file output for long build error messages</li>
+<li>Rounded decimal values in YAML output to a reasonable precision</li>
 </ul>
 
 

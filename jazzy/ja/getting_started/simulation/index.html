@@ -1451,7 +1451,7 @@
 
 
 <h1 id="_1">シミュレーション<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
-<h2 id="_2">開始・終了の手順<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h2 id="_2"><strong>開始・終了の手順</strong><a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <hr />
 <p>Tobas GCS を起動して<code>tobas_f450.TBS</code>を読み込み，ツールボタンから<code>Simulation</code>を開きます．</p>
 <p><img alt="simulation_settings" src="../../../assets/simulation/simulation_settings.png" /></p>
@@ -1463,28 +1463,28 @@
 <a href="../flight_test/">Flight Test</a>で紹介したミッション計画やパラメータチューニングなども実機と同様に行うことができます．</p>
 <p><img alt="send_command" src="../../../assets/simulation/send_command.png" /></p>
 <p><code>Terminate</code>をクリックするとシミュレーションが終了します．</p>
-<h2 id="_3">プロポでの操作<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h2 id="_3"><strong>プロポでの操作</strong><a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <hr />
 <p>シミュレーション中の機体をプロポから操作することができます．
 PC 内に保存された RC キャリブレーションの結果を使用するため，
 ご使用の PC でキャリブレーションを済ませてから以下の手順に進んでください．</p>
-<h3 id="usb">USB シリアル変換モジュールの用意<a class="headerlink" href="#usb" title="Permanent link">&para;</a></h3>
+<h3 id="usb"><strong>USB シリアル変換モジュールの用意</strong><a class="headerlink" href="#usb" title="Permanent link">&para;</a></h3>
 <p><a href=https://akizukidenshi.com/catalog/g/g108461/ target="_blank">FTDI FT234X</a>
 のような USB シリアル変換モジュールを用意し，High-Low を反転するよう設定してください．</p>
-<h3 id="dialout"><code>dialout</code>グループへの追加<a class="headerlink" href="#dialout" title="Permanent link">&para;</a></h3>
+<h3 id="dialout"><strong><code>dialout</code>グループへの追加</strong><a class="headerlink" href="#dialout" title="Permanent link">&para;</a></h3>
 <p>USB シリアルデバイスにアクセスするため，次のコマンドで現在のユーザを<code>dialout</code>グループに追加してください．</p>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>dialout<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">USER</span><span class="si">}</span><span class="s2">"</span>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>dialout<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">USER</span><span class="si">}</span><span class="s2">"</span>
 </code></pre></div>
 <p>設定を反映するため，コマンドの実行後に PC を再起動してください．
 この操作が必要なのは初回のみで，2 回目以降は実行する必要はありません．</p>
-<h3 id="_4">シミュレーションを実行するたびに行う操作<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<h3 id="_4"><strong>シミュレーションを実行するたびに行う操作</strong><a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
 <ol>
 <li>USB シリアル変換モジュールを PC と RC 受信機に接続します．</li>
 <li><code>Simulation Settings</code>の<code>S.BUS/Device</code>の欄から使用しているデバイスを選択します．</li>
 <li>シミュレーションを起動し，プロポの信号が<code>Control System</code>に表示されれば成功です．実機と同様に操作できます．</li>
 </ol>
 <p><img alt="rc_teleop_setting" src="../../../assets/simulation/rc_teleop_setting.png" /></p>
-<h2 id="ros">ROS を介した操作<a class="headerlink" href="#ros" title="Permanent link">&para;</a></h2>
+<h2 id="ros"><strong>ROS を介した操作</strong><a class="headerlink" href="#ros" title="Permanent link">&para;</a></h2>
 <hr />
 <p>フライトコントローラを構成する各コンポーネント間の通信は全て ROS で行われているため，
 ユーザは自分のプログラムから機体を操作することができます．

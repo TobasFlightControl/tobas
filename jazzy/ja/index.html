@@ -1763,7 +1763,7 @@
 <p>Tobasは，モデルベース設計とLinuxを基盤とした，ドローン・ロボット航空機向けフライトコントローラです．
 従来のフライトコントローラと異なり，個々の機体の構造を詳細に考慮して制御系を設計するため，
 従来のフライトコントローラでは難しい機体でも精度良く飛ばすことができます．</p>
-<h2 id="_1">特徴<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h2 id="_1"><strong>特徴</strong><a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <hr />
 <ul>
 <li>独自のフォーマットで機体構造を定義し，機体の構造を正しく制御器に反映</li>
@@ -1773,9 +1773,9 @@
 <li>GUI 上で機体構成や制御パラメータを設定可能</li>
 <li>ROS 2 に対応し，シミュレーションと実機で同じインターフェースを提供</li>
 </ul>
-<h2 id="_2">何ができるか<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h2 id="_2"><strong>何ができるか</strong><a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="_3">制御性能の向上<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<h3 id="_3"><strong>制御性能の向上</strong><a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
 <p>Tobas はユーザの機体の物理特性を正しく利用して制御を行うため，
 従来のフライトコントローラよりも優れた制御性能を発揮できます．
 例えば以下のような情報を考慮しています．</p>
@@ -1785,7 +1785,7 @@
 <li>モータのスペック: KV 値，内部抵抗，磁極数</li>
 <li>プロペラのスペック: 直径，ピッチ，推力定数，反トルク定数</li>
 </ul>
-<h3 id="_4">機体設計の幅を拡大<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<h3 id="_4"><strong>機体設計の幅を拡大</strong><a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
 <p>Tobas では機体の構造は<a href="additional_information/what_is_uadf/">UADF (Universal Aircraft Description Format)</a>で定義され，
 従来のフライトコントローラでは難しかった様々な機体を飛ばすことができます．
 例えば，Tobas は以下のような変則的な機体にも対応しています．</p>
@@ -1795,11 +1795,11 @@
 <li>ロボットアームを搭載した機体</li>
 <li>チルトロータを搭載した機体</li>
 </ul>
-<h3 id="_5">ゲイン調整の手間を削減<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<h3 id="_5"><strong>ゲイン調整の手間を削減</strong><a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
 <p>機体を正しくモデル化することで，並進系と回転系のダイナミクスを機体に非依存の形で取り出せ，事前に解析することができます．
 それにより Tobas では予め無難なゲインが設定されており，ユーザは基本的にゲイン調整をすることなく機体を飛ばすことができます．
 また，必要であれば全てのパラメータを飛行中にオンラインで調整することができます．</p>
-<h3 id="_6">現実に即したシミュレーション<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<h3 id="_6"><strong>現実に即したシミュレーション</strong><a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
 <p>機体の質量特性や推進系の空力特性を考慮しているため，現実に即した物理シミュレーションが可能です．
 それにより，実機試験のコストを大幅に削減することができます．</p>
 <p>以下のような，飛行に大きな影響を与える要素を簡単にシミュレーションできます：</p>
@@ -1810,10 +1810,10 @@
 <li>センサの遅延，ノイズ</li>
 <li>吊り下げ荷物</li>
 </ul>
-<h2 id="flight-management-unit-fmu">Flight Management Unit (FMU)<a class="headerlink" href="#flight-management-unit-fmu" title="Permanent link">&para;</a></h2>
-<h3 id="tobas-fc201">Tobas FC201<a class="headerlink" href="#tobas-fc201" title="Permanent link">&para;</a></h3>
-<p><img src="../assets/introduction/fc201_1.jpg" alt="fc201_1" width="49%">
-<img src="../assets/introduction/fc201_2.jpg" alt="fc201_2" width="49%"></p>
+<h2 id="flight-management-unit-fmu"><strong>Flight Management Unit (FMU)</strong><a class="headerlink" href="#flight-management-unit-fmu" title="Permanent link">&para;</a></h2>
+<h3 id="tobas-fc201"><strong>Tobas FC201</strong><a class="headerlink" href="#tobas-fc201" title="Permanent link">&para;</a></h3>
+<p><img alt="fc201_1" src="../assets/introduction/fc201_1.jpg" width="49%" />
+<img alt="fc201_2" src="../assets/introduction/fc201_2.jpg" width="49%" /></p>
 <h4 id="sensors-processors">Sensors &amp; Processors<a class="headerlink" href="#sensors-processors" title="Permanent link">&para;</a></h4>
 <ul>
 <li>6-axis IMU: <a href=https://www.st.com/ja/mems-and-sensors/ism330dlc.html target="_blank">ISM330DLC | STMicroelectronics</a></li>
@@ -1830,14 +1830,14 @@
 <li>Power Module: Molex 2.0mm 6pin</li>
 <li>UART, I2C Interface: JST-GH 4pin</li>
 </ul>
-<h2 id="_7">使用例<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<h2 id="_7"><strong>使用例</strong><a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="_8">クアッドコプター<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<h3 id="_8"><strong>クアッドコプター</strong><a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
 <p>典型的なクアッドコプターです．
 DJI F450 のフレームキットを使用しています．</p>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/sHoA8yKJPs4?si=CCOEPsu6z9hd7zOb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 <p><br></p>
-<h3 id="_9">非平面ロータ配置ヘキサコプター<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<h3 id="_9"><strong>非平面ロータ配置ヘキサコプター</strong><a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
 <p>全てのプロペラが水平面から 30 度傾いているヘキサコプターです．
 平面ロータ配置のマルチコプターは位置を変化させるために姿勢を変化させる必要があるのに対し，
 非平面ロータ配置マルチコプターは位置と姿勢を独立に制御することができます．
@@ -1845,21 +1845,21 @@ DJI F450 のフレームキットを使用しています．</p>
 また，直接水平方向に推力を発生させられるため位置決め精度が高く，耐風性能にも優れています．</p>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/1RIXLGmx1RA?si=ADkOlZsAMb1tHyNr" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 <p><br></p>
-<h3 id="_10">アクティブチルトヘキサコプター<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<h3 id="_10"><strong>アクティブチルトヘキサコプター</strong><a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
 <p>全てのアームを両方向に 120 度ずつ回転させられるヘキサコプターです．
 ホバリングした状態で姿勢を大きく変化させられるのが特徴です．
 取り付けた検査機器等を任意の姿勢で保持することができるため，例えば傾いた壁面に対する非破壊検査への応用が期待されます．</p>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/UYwoFjf6ubc?si=RsDKgr98DVvdhaWB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 <p><br></p>
-<h3 id="_11">ロボットアームドローン<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<h3 id="_11"><strong>ロボットアームドローン</strong><a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
 <p>チルトヘキサコプターに 4 軸のロボットアームを搭載した機体です．
 アームにより発生する反力や重心の変化を動的に補償することで，
 アームを大きく振り回しても位置姿勢を一定範囲内に留めることができています．</p>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/3peWIltNV3o?si=OLdfuQGEHEI1L_N-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-<h2 id="_12">システム要件<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h2>
+<h2 id="_12"><strong>システム要件</strong><a class="headerlink" href="#_12" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="pc">PC <!-- cf. https://www.solidworks.com/ja/support/system-requirements --><a class="headerlink" href="#pc" title="Permanent link">&para;</a></h3>
+<h3 id="pc"><strong>PC</strong> <!-- cf. https://www.solidworks.com/ja/support/system-requirements --><a class="headerlink" href="#pc" title="Permanent link">&para;</a></h3>
 <p>以下の要件を満たす必要があります．</p>
 <table>
 <thead>
@@ -1897,14 +1897,14 @@ DJI F450 のフレームキットを使用しています．</p>
 </tr>
 <tr>
 <td style="text-align: left;">ディスプレイ解像度</td>
-<td style="text-align: left;">2K/FHD</td>
-<td>4K/UHD</td>
+<td style="text-align: left;">FHD (1080p)</td>
+<td>4K UHD (2160p)</td>
 <td></td>
 </tr>
 </tbody>
 </table>
 <p><br></p>
-<h3 id="esc">ESC<a class="headerlink" href="#esc" title="Permanent link">&para;</a></h3>
+<h3 id="esc"><strong>ESC</strong><a class="headerlink" href="#esc" title="Permanent link">&para;</a></h3>
 <p>Bidirectional DShot プロトコルに対応している必要があります．
 例えば以下のファームウェアは対応しています．</p>
 <ul>
@@ -1912,9 +1912,9 @@ DJI F450 のフレームキットを使用しています．</p>
 <li><a href=https://github.com/AlkaMotors/AM32-MultiRotor-ESC-firmware target="_blank">AM32</a></li>
 <li><a href=https://github.com/bird-sanctuary/bluejay target="_blank">bluejay</a></li>
 </ul>
-<h3 id="gnss">GNSS アンテナ<a class="headerlink" href="#gnss" title="Permanent link">&para;</a></h3>
+<h3 id="gnss"><strong>GNSS アンテナ</strong><a class="headerlink" href="#gnss" title="Permanent link">&para;</a></h3>
 <p>FMU に搭載されている GNSS 受信機の周波数帯域とコネクタに対応している必要があります．</p>
-<h3 id="rc">RC 受信機<a class="headerlink" href="#rc" title="Permanent link">&para;</a></h3>
+<h3 id="rc"><strong>RC 受信機</strong><a class="headerlink" href="#rc" title="Permanent link">&para;</a></h3>
 <p>8 チャンネル以上の S.BUS に対応している必要があります．</p>
 
 

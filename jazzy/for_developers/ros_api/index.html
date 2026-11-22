@@ -2581,16 +2581,16 @@
 
 
 <h1 id="ros-api">ROS API<a class="headerlink" href="#ros-api" title="Permanent link">&para;</a></h1>
-<p>This page covers only the main APIs, not every available API.
-For details, check at runtime using <code>$ ros2 topic list</code> or a similar tool.
-Using the APIs in the <code>remote_interface</code> namespace also allows communication with the FC from an external terminal.</p>
-<h2 id="topics">Topics<a class="headerlink" href="#topics" title="Permanent link">&para;</a></h2>
-<!-- tobas_constants/ros_interfaces.hppの内容 -->
-<!-- tobas_gazebo_common/constants.hppの内容 -->
+<p>This page covers only the main APIs, rather than every available API.
+For details, inspect the running system with commands such as <code>$ ros2 topic list</code>.
+Use the APIs in the <code>remote_interface</code> namespace to communicate with the FC from an external device.</p>
+<h2 id="topics"><strong>Topics</strong><a class="headerlink" href="#topics" title="Permanent link">&para;</a></h2>
+<!-- Contents of tobas_constants/ros_interfaces.hpp -->
+<!-- Contents of tobas_gazebo_common/constants.hpp -->
 
 <hr />
-<h3 id="common">Common<a class="headerlink" href="#common" title="Permanent link">&para;</a></h3>
-<p>These topics are available both on real hardware and in simulation.</p>
+<h3 id="common"><strong>Common</strong><a class="headerlink" href="#common" title="Permanent link">&para;</a></h3>
+<p>These topics are available on both real hardware and in simulation.</p>
 <h4 id="battery-tobas_msgsbattery">battery (tobas_msgs/Battery)<a class="headerlink" href="#battery-tobas_msgsbattery" title="Permanent link">&para;</a></h4>
 <p>Battery status.</p>
 <div class="highlight"><pre><span></span><code>std_msgs/Header header
@@ -2624,7 +2624,7 @@ float64 temperature  # [degC]
 float64 load         # [-]
 </code></pre></div>
 <h4 id="sbus-tobas_msgssbus">sbus (tobas_msgs/Sbus)<a class="headerlink" href="#sbus-tobas_msgssbus" title="Permanent link">&para;</a></h4>
-<p>Raw S.BUS messages received from the RC receiver.</p>
+<p>Raw S.BUS messages from the RC receiver.</p>
 <div class="highlight"><pre><span></span><code>std_msgs/Header header
     builtin_interfaces/Time stamp
         int32 sec
@@ -2637,7 +2637,7 @@ bool frame_lost
 bool failsafe
 </code></pre></div>
 <h4 id="rc_input-tobas_msgsrcinput">rc_input (tobas_msgs/RCInput)<a class="headerlink" href="#rc_input-tobas_msgsrcinput" title="Permanent link">&para;</a></h4>
-<p>S.BUS messages converted into a more convenient format.</p>
+<p>S.BUS data converted into a more convenient message format.</p>
 <div class="highlight"><pre><span></span><code>std_msgs/Header header
     builtin_interfaces/Time stamp
         int32 sec
@@ -2656,7 +2656,7 @@ bool kill         # CH8: Kill Switch
 bool[8] gpsw      # CH9-16: General Purpose Switch
 </code></pre></div>
 <h4 id="imu_raw-tobas_msgsimu">imu_raw (tobas_msgs/Imu)<a class="headerlink" href="#imu_raw-tobas_msgsimu" title="Permanent link">&para;</a></h4>
-<p>IMU data before filtering.</p>
+<p>Unfiltered IMU data.</p>
 <div class="highlight"><pre><span></span><code>std_msgs/Header header
     builtin_interfaces/Time stamp
         int32 sec
@@ -2676,7 +2676,7 @@ tobas_kdl_msgs/Vector dgyro  # [rad/s^2]
     float64 z
 </code></pre></div>
 <h4 id="imu_filtered-tobas_msgsimu">imu_filtered (tobas_msgs/Imu)<a class="headerlink" href="#imu_filtered-tobas_msgsimu" title="Permanent link">&para;</a></h4>
-<p>IMU data after filtering.</p>
+<p>Filtered IMU data.</p>
 <div class="highlight"><pre><span></span><code>std_msgs/Header header
     builtin_interfaces/Time stamp
         int32 sec
@@ -2696,7 +2696,7 @@ tobas_kdl_msgs/Vector dgyro  # [rad/s^2]
     float64 z
 </code></pre></div>
 <h4 id="magnetic_field-tobas_msgsmagneticfield">magnetic_field (tobas_msgs/MagneticField)<a class="headerlink" href="#magnetic_field-tobas_msgsmagneticfield" title="Permanent link">&para;</a></h4>
-<p>Three-axis geomagnetic field.</p>
+<p>Three-axis magnetic field.</p>
 <div class="highlight"><pre><span></span><code>std_msgs/Header header
     builtin_interfaces/Time stamp
         int32 sec
@@ -2717,7 +2717,7 @@ tobas_kdl_msgs/Vector mag  # [-]
 float64 pressure  # [Pa]
 </code></pre></div>
 <h4 id="gnss-tobas_msgsgnss">gnss (tobas_msgs/Gnss)<a class="headerlink" href="#gnss-tobas_msgsgnss" title="Permanent link">&para;</a></h4>
-<p>Position and velocity obtained from GNSS.</p>
+<p>Position and velocity from GNSS.</p>
 <div class="highlight"><pre><span></span><code>std_msgs/Header header
     builtin_interfaces/Time stamp
         int32 sec
@@ -2753,7 +2753,7 @@ tobas_eigen_msgs/Matrix3d velocity_covariance  # Ground-velocity covariance [m^2
 uint8 num_satellites_used  # Satellites used in the navigation solution
 </code></pre></div>
 <h4 id="rotor_states-tobas_msgsrotorstatearray">rotor_states (tobas_msgs/RotorStateArray)<a class="headerlink" href="#rotor_states-tobas_msgsrotorstatearray" title="Permanent link">&para;</a></h4>
-<p>State of each rotor.</p>
+<p>Status of each rotor.</p>
 <div class="highlight"><pre><span></span><code>std_msgs/Header header
     builtin_interfaces/Time stamp
         int32 sec
@@ -2768,7 +2768,7 @@ tobas_msgs/RotorState[] states
     uint8 COMMUNICATION_FAILURE = 1
 </code></pre></div>
 <h4 id="joint_states_2-tobas_msgsjointstatearray">joint_states_2 (tobas_msgs/JointStateArray)<a class="headerlink" href="#joint_states_2-tobas_msgsjointstatearray" title="Permanent link">&para;</a></h4>
-<p>States of the movable joints.</p>
+<p>State of movable joints.</p>
 <div class="highlight"><pre><span></span><code>std_msgs/Header header
     builtin_interfaces/Time stamp
         int32 sec
@@ -2825,7 +2825,7 @@ tobas_msgs/OdometryWithCovariance odom
 </code></pre></div>
 <h4 id="trajectory_setpoint-tobas_msgsodometrystamped">trajectory_setpoint (tobas_msgs/OdometryStamped)<a class="headerlink" href="#trajectory_setpoint-tobas_msgsodometrystamped" title="Permanent link">&para;</a></h4>
 <p>Current controller setpoints.
-Values that are not controlled (e.g., position and velocity in attitude control mode) are set to NaN.</p>
+Values that are not being controlled (e.g., position and velocity in attitude control mode) contain NaN.</p>
 <div class="highlight"><pre><span></span><code>std_msgs/Header header
     builtin_interfaces/Time stamp
         int32 sec
@@ -2867,9 +2867,9 @@ tobas_msgs/Odometry odom
     string frame_id
 bool data
 </code></pre></div>
-<h3 id="command">Command<a class="headerlink" href="#command" title="Permanent link">&para;</a></h3>
-<p>Users can control the drone by publishing these topics from within the FC.
-The accepted commands depend on the airframe type and flight mode, so check them using the ROS 2 CLI.</p>
+<h3 id="command"><strong>Command</strong><a class="headerlink" href="#command" title="Permanent link">&para;</a></h3>
+<p>You can control the drone by publishing these topics from within the FC.
+Accepted commands depend on the airframe type and flight mode; check them using the ROS 2 CLI.</p>
 <h4 id="commandrate-tobas_command_msgsrate">command/rate (tobas_command_msgs/Rate)<a class="headerlink" href="#commandrate-tobas_command_msgsrate" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code>std_msgs/Header header
     builtin_interfaces/Time stamp
@@ -3127,7 +3127,7 @@ float64 roll         # [rad]
 float64 delta_pitch  # [rad]
 </code></pre></div>
 <h4 id="commandjoint_positions-tobas_msgsjointcommandarray">command/joint_positions (tobas_msgs/JointCommandArray)<a class="headerlink" href="#commandjoint_positions-tobas_msgsjointcommandarray" title="Permanent link">&para;</a></h4>
-<p>Position commands for the joints.</p>
+<p>Joint position commands.</p>
 <div class="highlight"><pre><span></span><code>std_msgs/Header header
     builtin_interfaces/Time stamp
         int32 sec
@@ -3138,7 +3138,7 @@ tobas_msgs/JointCommand[] commands
     float64 data
 </code></pre></div>
 <h4 id="commandjoint_velocities-tobas_msgsjointcommandarray">command/joint_velocities (tobas_msgs/JointCommandArray)<a class="headerlink" href="#commandjoint_velocities-tobas_msgsjointcommandarray" title="Permanent link">&para;</a></h4>
-<p>Velocity commands for the joints.</p>
+<p>Joint velocity commands.</p>
 <div class="highlight"><pre><span></span><code>std_msgs/Header header
     builtin_interfaces/Time stamp
         int32 sec
@@ -3149,7 +3149,7 @@ tobas_msgs/JointCommand[] commands
     float64 data
 </code></pre></div>
 <h4 id="commandjoint_efforts-tobas_msgsjointcommandarray">command/joint_efforts (tobas_msgs/JointCommandArray)<a class="headerlink" href="#commandjoint_efforts-tobas_msgsjointcommandarray" title="Permanent link">&para;</a></h4>
-<p>Effort commands for the joints.</p>
+<p>Joint effort commands.</p>
 <div class="highlight"><pre><span></span><code>std_msgs/Header header
     builtin_interfaces/Time stamp
         int32 sec
@@ -3159,10 +3159,10 @@ tobas_msgs/JointCommand[] commands
     string name
     float64 data
 </code></pre></div>
-<h3 id="gazebo">Gazebo<a class="headerlink" href="#gazebo" title="Permanent link">&para;</a></h3>
+<h3 id="gazebo"><strong>Gazebo</strong><a class="headerlink" href="#gazebo" title="Permanent link">&para;</a></h3>
 <p>These topics are used only in Gazebo simulation.</p>
 <h4 id="gazeboground_truthbattery-tobas_msgsbattery">gazebo/ground_truth/battery (tobas_msgs/Battery)<a class="headerlink" href="#gazeboground_truthbattery-tobas_msgsbattery" title="Permanent link">&para;</a></h4>
-<p>Ground-truth battery status.</p>
+<p>Ground-truth battery state.</p>
 <div class="highlight"><pre><span></span><code>std_msgs/Header header
     builtin_interfaces/Time stamp
         int32 sec
@@ -3226,25 +3226,25 @@ tobas_kdl_msgs/Vector vel  # [m/s]
     float64 y
     float64 z
 </code></pre></div>
-<h2 id="services">Services<a class="headerlink" href="#services" title="Permanent link">&para;</a></h2>
+<h2 id="services"><strong>Services</strong><a class="headerlink" href="#services" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="common_1">Common<a class="headerlink" href="#common_1" title="Permanent link">&para;</a></h3>
-<p>These services are available both on real hardware and in simulation.</p>
+<h3 id="common_1"><strong>Common</strong><a class="headerlink" href="#common_1" title="Permanent link">&para;</a></h3>
+<p>These services are available on both real hardware and in simulation.</p>
 <h4 id="set_arm-tobas_msgssetarm">set_arm (tobas_msgs/SetArm)<a class="headerlink" href="#set_arm-tobas_msgssetarm" title="Permanent link">&para;</a></h4>
-<p>Changes the arm state of all rotors.</p>
+<p>Change the armed state of all rotors.</p>
 <div class="highlight"><pre><span></span><code>bool arming
 ---
 bool success
 string message
 </code></pre></div>
-<h3 id="gazebo_1">Gazebo<a class="headerlink" href="#gazebo_1" title="Permanent link">&para;</a></h3>
+<h3 id="gazebo_1"><strong>Gazebo</strong><a class="headerlink" href="#gazebo_1" title="Permanent link">&para;</a></h3>
 <p>These services are used only in Gazebo simulation.</p>
 <h4 id="gazebocharge_battery-std_srvsempty">gazebo/charge_battery (std_srvs/Empty)<a class="headerlink" href="#gazebocharge_battery-std_srvsempty" title="Permanent link">&para;</a></h4>
-<p>Fully charges the battery.</p>
+<p>Fully charge the battery.</p>
 <div class="highlight"><pre><span></span><code>---
 </code></pre></div>
 <h4 id="gazeboget_wind_parameters-tobas_gazebo_msgsgetwindparams">gazebo/get_wind_parameters (tobas_gazebo_msgs/GetWindParams)<a class="headerlink" href="#gazeboget_wind_parameters-tobas_gazebo_msgsgetwindparams" title="Permanent link">&para;</a></h4>
-<p>Gets the parameters used to generate wind in the simulation.</p>
+<p>Get the parameters used to generate wind in the simulation.</p>
 <div class="highlight"><pre><span></span><code>---
 tobas_gazebo_msgs/WindParams params
     float64 mean_speed         # [m/s]
@@ -3254,7 +3254,7 @@ tobas_gazebo_msgs/WindParams params
     float64 gust_interval      # [s]
 </code></pre></div>
 <h4 id="gazeboset_wind_parameters-tobas_gazebo_msgssetwindparams">gazebo/set_wind_parameters (tobas_gazebo_msgs/SetWindParams)<a class="headerlink" href="#gazeboset_wind_parameters-tobas_gazebo_msgssetwindparams" title="Permanent link">&para;</a></h4>
-<p>Sets the parameters used to generate wind in the simulation.</p>
+<p>Set the parameters used to generate wind in the simulation.</p>
 <div class="highlight"><pre><span></span><code>tobas_gazebo_msgs/WindParams params
     float64 mean_speed         # [m/s]
     float64 direction          # [rad]
@@ -3271,14 +3271,14 @@ tobas_gazebo_msgs/WindParams params
     float64 gust_interval      # [s]
 </code></pre></div>
 <h4 id="gazeboget_tether_parameters-tobas_gazebo_msgsgettetherparams">gazebo/get_tether_parameters (tobas_gazebo_msgs/GetTetherParams)<a class="headerlink" href="#gazeboget_tether_parameters-tobas_gazebo_msgsgettetherparams" title="Permanent link">&para;</a></h4>
-<p>Gets the parameters for the tether station.</p>
+<p>Get tether station parameters.</p>
 <div class="highlight"><pre><span></span><code>---
 tobas_gazebo_msgs/TetherParams params
     float64 tension         # [N]
     float64 maximum_length  # [m]
 </code></pre></div>
 <h4 id="gazeboset_tether_parameters-tobas_gazebo_msgssettetherparams">gazebo/set_tether_parameters (tobas_gazebo_msgs/SetTetherParams)<a class="headerlink" href="#gazeboset_tether_parameters-tobas_gazebo_msgssettetherparams" title="Permanent link">&para;</a></h4>
-<p>Sets the parameters for the tether station.</p>
+<p>Set tether station parameters.</p>
 <div class="highlight"><pre><span></span><code>tobas_gazebo_msgs/TetherParams params
     float64 tension         # [N]
     float64 maximum_length  # [m]
@@ -3289,7 +3289,7 @@ tobas_gazebo_msgs/TetherParams params
     float64 maximum_length  # [m]
 </code></pre></div>
 <h4 id="gazeboattach_suspended_load-tobas_gazebo_msgsattachsuspendedload">gazebo/attach_suspended_load (tobas_gazebo_msgs/AttachSuspendedLoad)<a class="headerlink" href="#gazeboattach_suspended_load-tobas_gazebo_msgsattachsuspendedload" title="Permanent link">&para;</a></h4>
-<p>Attaches a suspended load.</p>
+<p>Attach a suspended payload.</p>
 <div class="highlight"><pre><span></span><code>geometry_msgs/Vector3 attachment_point  # [m] Attachment point on the aircraft wrt. the local frame
     float64 x
     float64 y
@@ -3306,24 +3306,24 @@ bool success
 string message
 </code></pre></div>
 <h4 id="gazebodetach_suspended_load-tobas_gazebo_msgsdetachsuspendedload">gazebo/detach_suspended_load (tobas_gazebo_msgs/DetachSuspendedLoad)<a class="headerlink" href="#gazebodetach_suspended_load-tobas_gazebo_msgsdetachsuspendedload" title="Permanent link">&para;</a></h4>
-<p>Detaches a suspended load.</p>
+<p>Detach a suspended payload.</p>
 <div class="highlight"><pre><span></span><code>---
 bool success
 string message
 </code></pre></div>
 <h4 id="gazebobreak_rotorrotor_link_name-std_srvstrigger">gazebo/break_rotor/${rotor_link_name} (std_srvs/Trigger)<a class="headerlink" href="#gazebobreak_rotorrotor_link_name-std_srvstrigger" title="Permanent link">&para;</a></h4>
-<p>Forcibly stops the motor.</p>
+<p>Force the motors to stop.</p>
 <div class="highlight"><pre><span></span><code>---
 bool success   # indicate successful run of triggered service
 string message # informational, e.g. for error messages
 </code></pre></div>
-<h2 id="actions">Actions<a class="headerlink" href="#actions" title="Permanent link">&para;</a></h2>
+<h2 id="actions"><strong>Actions</strong><a class="headerlink" href="#actions" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="common_2">Common<a class="headerlink" href="#common_2" title="Permanent link">&para;</a></h3>
-<p>These actions are available both on real hardware and in simulation.</p>
+<h3 id="common_2"><strong>Common</strong><a class="headerlink" href="#common_2" title="Permanent link">&para;</a></h3>
+<p>These actions are available on both real hardware and in simulation.</p>
 <h4 id="execute_mission-tobas_mission_msgsexecutemission">execute_mission (tobas_mission_msgs/ExecuteMission)<a class="headerlink" href="#execute_mission-tobas_mission_msgsexecutemission" title="Permanent link">&para;</a></h4>
-<p>Executes a sequence of missions.
-See <code>tobas_mission_items</code> for details on each command.</p>
+<p>Execute a sequence of missions.
+See <code>tobas_mission_items</code> for details of each command.</p>
 <div class="highlight"><pre><span></span><code># Goal
 tobas_mission_msgs/Mission mission
     tobas_mission_msgs/MissionItem[] items
@@ -3352,7 +3352,7 @@ uint32 last_command_index
 # Feedback
 uint32 current_command_index
 </code></pre></div>
-<!-- TODO: ミッションコマンドの詳細 -->
+<!-- TODO: Mission command details -->
 
 
 

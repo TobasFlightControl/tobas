@@ -1181,10 +1181,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#operating-environment" class="md-nav__link">
+  <a href="#environment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Operating Environment
+        Environment
       
     </span>
   </a>
@@ -1292,35 +1292,35 @@
 
 
 <h1 id="release-v27">Release v2.7<a class="headerlink" href="#release-v27" title="Permanent link">&para;</a></h1>
-<h2 id="operating-environment">Operating Environment<a class="headerlink" href="#operating-environment" title="Permanent link">&para;</a></h2>
+<h2 id="environment"><strong>Environment</strong><a class="headerlink" href="#environment" title="Permanent link">&para;</a></h2>
 <hr />
 <p>ROS 2 Jazzy</p>
-<h2 id="changes">Changes<a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
+<h2 id="changes"><strong>Changes</strong><a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="sensor-processing">Sensor Processing<a class="headerlink" href="#sensor-processing" title="Permanent link">&para;</a></h3>
+<h3 id="sensor-processing"><strong>Sensor Processing</strong><a class="headerlink" href="#sensor-processing" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Changed the compass calibration method from min-max to ellipsoid fitting</li>
+<li>Changed compass calibration from the min/max method to ellipsoid fitting</li>
 </ul>
-<h3 id="modeling">Modeling<a class="headerlink" href="#modeling" title="Permanent link">&para;</a></h3>
+<h3 id="modeling"><strong>Modeling</strong><a class="headerlink" href="#modeling" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added support for estimating engine dynamics</li>
-<li>Added support for estimating the aerodynamic characteristics of variable-pitch propellers</li>
+<li>Added engine dynamics estimation</li>
+<li>Added aerodynamic parameter estimation for variable-pitch propellers</li>
 </ul>
-<h3 id="control">Control<a class="headerlink" href="#control" title="Permanent link">&para;</a></h3>
+<h3 id="control"><strong>Control</strong><a class="headerlink" href="#control" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added support for multicopters that tilt only about the Y-axis</li>
-<li>Improved the mixer for multicopters with non-coplanar rotor configurations</li>
-<li>Added support for configuring multicopter gains using either the standard second-order form or a two-stage cascade</li>
+<li>Added support for multicopters that tilt only about the Y axis</li>
+<li>Improved the mixer for multicopters with noncoplanar rotors</li>
+<li>Added the option to configure multicopter gains using a two-stage cascade as well as the standard second-order form</li>
 </ul>
-<h3 id="communication">Communication<a class="headerlink" href="#communication" title="Permanent link">&para;</a></h3>
+<h3 id="communication"><strong>Communication</strong><a class="headerlink" href="#communication" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Changed GCS-to-FC authentication from login passwords to SSH keys</li>
-<li>Fixed a bug that prevented ROS communication when restarting a simulation immediately after it ended</li>
+<li>Fixed a ROS communication failure when restarting a simulation immediately after stopping it</li>
 </ul>
-<h3 id="other">Other<a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
+<h3 id="other"><strong>Other</strong><a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added tab color indicators for the completion of sensor calibrations</li>
-<li>Added support for directly editing configuration files on the boot device</li>
+<li>Added tab colors to indicate completion of each sensor calibration</li>
+<li>Added direct editing of configuration files on the boot device</li>
 <li>Added support for relative paths in UADF</li>
 <li>Added a remote interface for RC commands</li>
 </ul>

@@ -1610,15 +1610,15 @@
 <p>Tobas が定義している Universal Aircraft Description Format (UADF) とは，
 ロボットを表現する一般的なフォーマットである Universal Robot Description Format (URDF) に，
 飛翔体特有の要素を追加したフォーマットです．</p>
-<h2 id="urdf">URDF とは<a class="headerlink" href="#urdf" title="Permanent link">&para;</a></h2>
+<h2 id="urdf"><strong>URDF とは</strong><a class="headerlink" href="#urdf" title="Permanent link">&para;</a></h2>
 <hr />
 <p>剛体リンク系で表現されるあらゆるロボットを記述するためのフォーマットです．
 ロボットに含まれる各リンクの質量情報，接触情報，視覚情報に加え，それらをつなぐジョイントが定義されます．
 詳しくは<a href=https://wiki.ros.org/urdf target="_blank">urdf | ROS.org</a>をご参照ください．</p>
-<h2 id="uadf-urdf">UADF と URDF の違い<a class="headerlink" href="#uadf-urdf" title="Permanent link">&para;</a></h2>
+<h2 id="uadf-urdf"><strong>UADF と URDF の違い</strong><a class="headerlink" href="#uadf-urdf" title="Permanent link">&para;</a></h2>
 <hr />
 <p>UADF では，URDF のジョイント型に加えて，飛翔体特有の以下のジョイント型が追加されています．</p>
-<h3 id="thrust">thrust<a class="headerlink" href="#thrust" title="Permanent link">&para;</a></h3>
+<h3 id="thrust"><strong>thrust</strong><a class="headerlink" href="#thrust" title="Permanent link">&para;</a></h3>
 <p>モータ，プロペラを合わせた推進ユニットを表すジョイントです．
 URDF の<code>continuous</code>がベースですが，以下の点が異なります．</p>
 <ul>
@@ -1632,7 +1632,7 @@ URDF の<code>continuous</code>がベースですが，以下の点が異なり�
 </div>
 <!-- prettier-ignore-end -->
 
-<h3 id="cs">cs<a class="headerlink" href="#cs" title="Permanent link">&para;</a></h3>
+<h3 id="cs"><strong>cs</strong><a class="headerlink" href="#cs" title="Permanent link">&para;</a></h3>
 <p>固定翼機の操舵面 (Control Surface) を表すジョイントです．
 URDF の<code>revolute</code>がベースになっています．</p>
 <!-- prettier-ignore-start -->
@@ -1642,7 +1642,7 @@ URDF の<code>revolute</code>がベースになっています．</p>
 </div>
 <!-- prettier-ignore-end -->
 
-<h3 id="tilt">tilt<a class="headerlink" href="#tilt" title="Permanent link">&para;</a></h3>
+<h3 id="tilt"><strong>tilt</strong><a class="headerlink" href="#tilt" title="Permanent link">&para;</a></h3>
 <p>アクティブチルトロータのチルトジョイントを表します．
 URDF の<code>revolute</code>がベースになっています．</p>
 <!-- prettier-ignore-start -->
@@ -1652,7 +1652,7 @@ URDF の<code>revolute</code>がベースになっています．</p>
 </div>
 <!-- prettier-ignore-end -->
 
-<h2 id="uadf_1">UADF の作成方法<a class="headerlink" href="#uadf_1" title="Permanent link">&para;</a></h2>
+<h2 id="uadf_1"><strong>UADF の作成方法</strong><a class="headerlink" href="#uadf_1" title="Permanent link">&para;</a></h2>
 <hr />
 <p>ここでは，チュートリアルで用いた典型的なクアッドコプターである DJI F450 の UADF を作成します．</p>
 <p><img alt="f450" src="../../../assets/what_is_uadf/f450.png" /></p>
@@ -1662,7 +1662,7 @@ URDF そのものに加えてそれらのファイルも一緒に配布される
 今回は <code>~/colcon_ws/src/</code> 直下に<code>tobas_f450_description</code> というパッケージを作成し，その中に必要な全てのファイルを含めることにします．
 <a href=https://github.com/TobasFlightControl/tobas_f450_description target="_blank">TobasFlightControl/tobas_f450_description</a>
 に完成したパッケージを公開しています．</p>
-<h3 id="ros">ROS パッケージの構成と必須ファイル<a class="headerlink" href="#ros" title="Permanent link">&para;</a></h3>
+<h3 id="ros"><strong>ROS パッケージの構成と必須ファイル</strong><a class="headerlink" href="#ros" title="Permanent link">&para;</a></h3>
 <p><code>tobas_f450_description</code>は以下のような構成になっています．</p>
 <div class="highlight"><pre><span></span><code>tobas_f450_description/
 ├── meshes
@@ -1698,7 +1698,7 @@ URDF そのものに加えてそれらのファイルも一緒に配布される
 <span class="nb">install</span><span class="p">(</span><span class="s">DIRECTORY</span><span class="w"> </span><span class="s">meshes</span><span class="w"> </span><span class="s">urdf</span><span class="w"> </span><span class="s">DESTINATION</span><span class="w"> </span><span class="s">share/</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span><span class="p">)</span>
 <span class="nb">ament_package</span><span class="p">()</span>
 </code></pre></div>
-<h3 id="uadf_2">UADF の書き方<a class="headerlink" href="#uadf_2" title="Permanent link">&para;</a></h3>
+<h3 id="uadf_2"><strong>UADF の書き方</strong><a class="headerlink" href="#uadf_2" title="Permanent link">&para;</a></h3>
 <p>今回作成する F450 の UADF は以下のような構成要素から成ります．</p>
 <ul>
 <li>空のルートリンク (必須)</li>
@@ -2084,7 +2084,7 @@ URDF のルート要素は<code>robot</code>でなければならず，<code>nam
 
 <span class="nt">&lt;/robot&gt;</span>
 </code></pre></div>
-<h2 id="uadf_3">UADF の作成例<a class="headerlink" href="#uadf_3" title="Permanent link">&para;</a></h2>
+<h2 id="uadf_3"><strong>UADF の作成例</strong><a class="headerlink" href="#uadf_3" title="Permanent link">&para;</a></h2>
 <hr />
 <p>上では単純なクアッドコプターの UADF を作成しましたが，UADF では他にも様々な機体を表現することができます．
 ここでは他の UADF の作成例をいくつか紹介します．</p>
@@ -2096,7 +2096,7 @@ URDF のルート要素は<code>robot</code>でなければならず，<code>nam
 <li>繰り返し処理を関数化</li>
 </ul>
 <p>XACRO を用いることで XML をより短く，わかりやすく書くことができます．</p>
-<h3 id="non-planar-octacopter-toc8">Non-Planar Octacopter (TOC8)<a class="headerlink" href="#non-planar-octacopter-toc8" title="Permanent link">&para;</a></h3>
+<h3 id="non-planar-octacopter-toc8"><strong>Non-Planar Octacopter (TOC8)</strong><a class="headerlink" href="#non-planar-octacopter-toc8" title="Permanent link">&para;</a></h3>
 <p>8 つの<code>thrust</code>ジョイントをもつオクタコプターです．
 ただし，それぞれのプロペラは立方体の頂点から外側を向くように配置されています．</p>
 <p><img alt="toc8_pt001" src="../../../assets/what_is_uadf/toc8_pt001.png" /></p>
@@ -2775,7 +2775,7 @@ URDF のルート要素は<code>robot</code>でなければならず，<code>nam
 
 </details>
 <p><br></p>
-<h3 id="active-tilt-hexacopter-voliro-like">Active Tilt Hexacopter (Voliro Like)<a class="headerlink" href="#active-tilt-hexacopter-voliro-like" title="Permanent link">&para;</a></h3>
+<h3 id="active-tilt-hexacopter-voliro-like"><strong>Active Tilt Hexacopter (Voliro Like)</strong><a class="headerlink" href="#active-tilt-hexacopter-voliro-like" title="Permanent link">&para;</a></h3>
 <p><code>thrust</code>ジョイントと<code>tilt</code>ジョイントのペアを 6 つもつヘキサコプターです．</p>
 <p><img alt="voliro_like_pt003" src="../../../assets/what_is_uadf/voliro_like_pt003.png" /></p>
 <details><summary>XACRO 展開前</summary>
@@ -3504,7 +3504,7 @@ URDF のルート要素は<code>robot</code>でなければならず，<code>nam
 
 </details>
 <p><br></p>
-<h3 id="transformable-multicopter-jsk-hydrus">Transformable Multicopter (JSK Hydrus)<a class="headerlink" href="#transformable-multicopter-jsk-hydrus" title="Permanent link">&para;</a></h3>
+<h3 id="transformable-multicopter-jsk-hydrus"><strong>Transformable Multicopter (JSK Hydrus)</strong><a class="headerlink" href="#transformable-multicopter-jsk-hydrus" title="Permanent link">&para;</a></h3>
 <p>4 つの<code>thrust</code>ジョイントに加え，3 つの<code>revolute</code>ジョイントをもつクアッドコプターです．
 <code>revolute</code>ジョイントへの指令値はユーザが自由に与えることができます．</p>
 <p><img alt="hydrus" src="../../../assets/what_is_uadf/hydrus.png" /></p>

@@ -690,22 +690,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#startup-and-shutdown-procedures" class="md-nav__link">
+  <a href="#starting-and-stopping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Startup and Shutdown Procedures
+        Starting and Stopping
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Startup and Shutdown Procedures">
+    <nav class="md-nav" aria-label="Starting and Stopping">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#startup-procedure" class="md-nav__link">
+  <a href="#starting" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Startup Procedure
+        Starting
       
     </span>
   </a>
@@ -713,10 +713,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#shutdown-procedure" class="md-nav__link">
+  <a href="#stopping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Shutdown Procedure
+        Stopping
       
     </span>
   </a>
@@ -1456,22 +1456,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#startup-and-shutdown-procedures" class="md-nav__link">
+  <a href="#starting-and-stopping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Startup and Shutdown Procedures
+        Starting and Stopping
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Startup and Shutdown Procedures">
+    <nav class="md-nav" aria-label="Starting and Stopping">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#startup-procedure" class="md-nav__link">
+  <a href="#starting" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Startup Procedure
+        Starting
       
     </span>
   </a>
@@ -1479,10 +1479,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#shutdown-procedure" class="md-nav__link">
+  <a href="#stopping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Shutdown Procedure
+        Stopping
       
     </span>
   </a>
@@ -1741,20 +1741,19 @@
 
 
 <h1 id="flight-test">Flight Test<a class="headerlink" href="#flight-test" title="Permanent link">&para;</a></h1>
-<h2 id="startup-and-shutdown-procedures">Startup and Shutdown Procedures<a class="headerlink" href="#startup-and-shutdown-procedures" title="Permanent link">&para;</a></h2>
+<h2 id="starting-and-stopping"><strong>Starting and Stopping</strong><a class="headerlink" href="#starting-and-stopping" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="startup-procedure">Startup Procedure<a class="headerlink" href="#startup-procedure" title="Permanent link">&para;</a></h3>
+<h3 id="starting"><strong>Starting</strong><a class="headerlink" href="#starting" title="Permanent link">&para;</a></h3>
 <ol>
-<li>Connect the battery to the drone.</li>
-<li>Connect the PC to the same network as the FC.</li>
+<li>Connect power to the aircraft.</li>
 <li>Launch Tobas GCS.</li>
 <li>Click <code>Load Project</code> and load <code>tobas_f450.TBS</code>.</li>
-<li>Click <code>Control System</code> in the toolbar to open it.</li>
-<li>Pass the pre-arm safety checks and confirm that <code>Ready to Arm</code> is lit green.</li>
-<li>Turn on the RC transmitter, turn on the <code>Enable</code> switch, and turn off the <code>Kill</code> switch.</li>
-<li>Select the flight mode using the switch on the RC transmitter. <code>Stabilize</code> (attitude control mode) is the safest mode to start with.</li>
-<li>To arm the drone, hold the throttle stick down and the yaw stick to the right for one second.</li>
-<li>Once armed, return the yaw stick to the center and gradually raise the throttle stick.</li>
+<li>Click the <code>Control System</code> tool button to open it.</li>
+<li>Make sure the pre-arm safety checks pass and <code>Ready to Arm</code> appears at the top of the window.</li>
+<li>Turn on the RC transmitter, turn the <code>Enable</code> switch on, and turn the <code>Kill</code> switch off.</li>
+<li>Select the flight mode using the transmitter switch. <code>Stabilize</code> (attitude control mode) is a safe choice to start with.</li>
+<li>Hold the throttle stick down and the yaw stick to the right for one second to arm.</li>
+<li>Once armed, center the yaw stick and gradually raise the throttle stick.</li>
 </ol>
 <p><img alt="start" src="../../assets/flight_test/start.png" /></p>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/sHoA8yKJPs4?si=CCOEPsu6z9hd7zOb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
@@ -1763,115 +1762,114 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>In environments where GNSS is unavailable, such as indoors, the position and velocity checks cannot pass.
-These checks must be disabled from the Fail-Safe tab in Setup Assistant.</p>
+You need to disable those checks in the Fail-Safe tab of Setup Assistant.</p>
 </div>
 <!-- prettier-ignore-end -->
 
-<h3 id="shutdown-procedure">Shutdown Procedure<a class="headerlink" href="#shutdown-procedure" title="Permanent link">&para;</a></h3>
+<h3 id="stopping"><strong>Stopping</strong><a class="headerlink" href="#stopping" title="Permanent link">&para;</a></h3>
 <ol>
-<li>To disarm the drone, hold the throttle stick down and the yaw stick to the left for one second.
-   Alternatively, turn on the <code>Kill</code> switch to disarm it immediately.</li>
-<li>Click the GCS power button (red) to shut down the FC.</li>
-<li>Exercise extreme caution and disconnect power from the FC and ESC.</li>
+<li>Hold the throttle stick down and the yaw stick to the left for one second to disarm.
+   Alternatively, turn the <code>Kill</code> switch on to disarm immediately.</li>
+<li>Turn off power to the aircraft, taking all necessary safety precautions.</li>
 </ol>
 <p>The following sections describe the ground station's features.</p>
-<h2 id="control-system">Control System<a class="headerlink" href="#control-system" title="Permanent link">&para;</a></h2>
+<h2 id="control-system"><strong>Control System</strong><a class="headerlink" href="#control-system" title="Permanent link">&para;</a></h2>
 <hr />
-<p><code>Control System</code> is a tool for monitoring the drone's status and planning missions.</p>
+<p><code>Control System</code> is a tool for monitoring drone status and planning missions.</p>
 <p><img alt="control_system" src="../../assets/flight_test/control_system.png" /></p>
-<h3 id="status-monitoring">Status Monitoring<a class="headerlink" href="#status-monitoring" title="Permanent link">&para;</a></h3>
-<p>The left side of the screen displays the following status information:</p>
+<h3 id="status-monitoring"><strong>Status Monitoring</strong><a class="headerlink" href="#status-monitoring" title="Permanent link">&para;</a></h3>
+<p>The left side of the window displays the following status information:</p>
 <ul>
-<li>Attitude: roll, pitch, yaw</li>
-<li>Battery status: voltage, current</li>
-<li>CPU status: temperature, load</li>
-<li>GNSS status: status, number of satellites</li>
-<li>RC input: sticks, kill switch, flight mode, other switches</li>
-<li>Motor status: speed, communication status</li>
-<li>Status: Pre-Arm Check, Post-Arm Check, and others</li>
+<li>Position and attitude: roll, pitch, yaw, and altitude</li>
+<li>Battery status: voltage and current</li>
+<li>CPU status: temperature and load</li>
+<li>GNSS status: receiver status and satellite count</li>
+<li>RC input: sticks, kill switch, flight mode, and other switches</li>
+<li>Motor status: speed and communication status for each motor</li>
+<li>Pre-Arm Check: battery voltage, state estimation accuracy, and other checks</li>
 <li>Messages from each node</li>
 </ul>
 <p><img alt="state_viewer" src="../../assets/flight_test/state_viewer.png" /></p>
-<h3 id="mission-planning">Mission Planning<a class="headerlink" href="#mission-planning" title="Permanent link">&para;</a></h3>
-<p>The right side of the screen provides mission planning features for creating and executing flight missions.</p>
+<h3 id="mission-planning"><strong>Mission Planning</strong><a class="headerlink" href="#mission-planning" title="Permanent link">&para;</a></h3>
+<p>The right side of the window lets you plan and execute flight missions.</p>
 <ol>
-<li>Click <code>Add</code> to add a command.
-   The figure below shows a mission consisting of <code>Takeoff</code>, nine <code>Waypoint</code> commands, <code>Return to Home</code>, and finally <code>Land</code>.</li>
-<li>Set the parameters for each command in the dialog at the bottom right of the screen.
-   Waypoint coordinates can also be adjusted by dragging and dropping their icons on the map.</li>
-<li>Click the <code>Execute</code> button to execute the mission.</li>
+<li>Click <code>Add</code> to add commands.
+   The example below plans a mission that takes off, visits eight waypoints, returns to the takeoff point, and lands.</li>
+<li>Set the parameters for each command in the dialog at the lower right.
+   You can also change waypoint coordinates by dragging their icons on the map.</li>
+<li>Click <code>Execute</code> to run the mission.</li>
 </ol>
 <!-- prettier-ignore-start -->
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If the <code>Enable</code> switch on the RC transmitter is on, commands from the transmitter take priority. Always turn it off before executing a mission.</p>
+<p>Always turn the transmitter's <code>Enable</code> switch off before executing a mission, because transmitter commands take priority when it is on.</p>
 </div>
 <!-- prettier-ignore-end -->
 
 <p><img alt="mission_planner" src="../../assets/flight_test/mission_planner.png" /></p>
-<h2 id="param-tuning">Param Tuning<a class="headerlink" href="#param-tuning" title="Permanent link">&para;</a></h2>
+<h2 id="param-tuning"><strong>Param Tuning</strong><a class="headerlink" href="#param-tuning" title="Permanent link">&para;</a></h2>
 <hr />
-<p><code>Param Tuning</code> is a tool for tuning flight parameters online.</p>
+<p><code>Param Tuning</code> is a tool for adjusting flight parameters online.</p>
 <p><img alt="param_tuning" src="../../assets/flight_test/param_tuning.png" /></p>
-<h3 id="procedure">Procedure<a class="headerlink" href="#procedure" title="Permanent link">&para;</a></h3>
+<h3 id="procedure"><strong>Procedure</strong><a class="headerlink" href="#procedure" title="Permanent link">&para;</a></h3>
 <ol>
-<li>Click <code>Load</code> to load the current parameters from the FC.</li>
-<li>Adjust the parameters online using the increment/decrement buttons or sliders.</li>
-<li>Click <code>Save</code> to save the current parameters to the project folder on the local PC.</li>
-<li>After the flight, click <code>Write</code> to flash the saved parameters to the FC.</li>
+<li>Click <code>Load</code> to read the current parameters from the FC.</li>
+<li>Adjust parameters online using the increment/decrement buttons or sliders.</li>
+<li>Click <code>Save</code> to save the current parameters to the project folder on your local PC.</li>
+<li>After the flight, click <code>Write Project</code> to flash the saved parameters to the FC.</li>
 </ol>
-<h3 id="main-parameters">Main Parameters<a class="headerlink" href="#main-parameters" title="Permanent link">&para;</a></h3>
+<h3 id="main-parameters"><strong>Main Parameters</strong><a class="headerlink" href="#main-parameters" title="Permanent link">&para;</a></h3>
 <h4 id="attitude_natural_frequency">attitude_natural_frequency<a class="headerlink" href="#attitude_natural_frequency" title="Permanent link">&para;</a></h4>
 <p>This parameter controls the responsiveness of attitude control.
-A higher value provides a faster response to the target attitude, but an excessively high value makes attitude control unstable.
-Gradually increase the value while ensuring that no oscillation occurs.
+Higher values produce a faster response to the target attitude, but excessively high values make attitude control unstable.
+Increase the value gradually while checking that no oscillations occur.
 For this aircraft, the value could be increased to 25 rad/s.</p>
 <h4 id="heading_natural_frequency">heading_natural_frequency<a class="headerlink" href="#heading_natural_frequency" title="Permanent link">&para;</a></h4>
 <p>This parameter controls the responsiveness of heading control.
-A higher value provides a faster response to the target heading, but an excessively high value makes heading control unstable.
-Gradually increase the value while ensuring that no oscillation occurs.
-The default value was used in this case.</p>
+Higher values produce a faster response to the target heading, but excessively high values make heading control unstable.
+Increase the value gradually while checking that no oscillations occur.
+The default value is used in this example.</p>
 <h4 id="horizontal_natural_frequency">horizontal_natural_frequency<a class="headerlink" href="#horizontal_natural_frequency" title="Permanent link">&para;</a></h4>
 <p>This parameter controls the responsiveness of horizontal position control.
-A higher value provides a faster response to the target position, but an excessively high value makes position control unstable.
-Gradually increase the value while ensuring that no oscillation occurs.
-The default value was used in this case.</p>
+Higher values produce a faster response to the target position, but excessively high values make position control unstable.
+Increase the value gradually while checking that no oscillations occur.
+The default value is used in this example.</p>
 <h4 id="vertical_natural_frequency">vertical_natural_frequency<a class="headerlink" href="#vertical_natural_frequency" title="Permanent link">&para;</a></h4>
 <p>This parameter controls the responsiveness of vertical position control.
-A higher value provides a faster response to the target altitude, but an excessively high value makes altitude control unstable.
-Gradually increase the value while ensuring that no oscillation occurs.
-The default value was used in this case.</p>
+Higher values produce a faster response to the target altitude, but excessively high values make altitude control unstable.
+Increase the value gradually while checking that no oscillations occur.
+The default value is used in this example.</p>
 <h4 id="lowpass_filtergyro_cutoff">lowpass_filter/gyro_cutoff<a class="headerlink" href="#lowpass_filtergyro_cutoff" title="Permanent link">&para;</a></h4>
-<p>This is the cutoff frequency of the gyroscope's low-pass filter.
-A lower value suppresses more gyroscope noise, but an excessively low value introduces signal delay that can make angular velocity control unstable.
-Check the flight log (described below), and
-if <strong>the target motor speed oscillates with an amplitude of 10% or more of the hovering speed</strong>, consider the filtered angular velocity oscillation excessive and reduce the value.
-The default value was used in this case.</p>
+<p>This is the cutoff frequency of the gyro sensor's low-pass filter.
+Lower values suppress gyro noise more strongly, but excessively low values introduce signal delay that makes angular velocity control unstable.
+Check the flight log (described below).
+If <strong>the target motor speed oscillates with an amplitude of 10% or more of the hovering speed</strong>, the filtered angular velocity oscillations are too large; reduce this value.
+The default value is used in this example.</p>
 <!-- prettier-ignore-start -->
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Some FMUs support an <a href="../../additional_information/rpm_filter/">RPM filter</a> that efficiently attenuates propeller vibration.
-It can be configured here in the same way as the parameters above.
+<p>Some FMUs support an <a href="../../additional_information/rpm_filter/">RPM filter</a> that efficiently attenuates propeller vibrations.
+You can configure it here in the same way as the parameters above.
 We recommend enabling this powerful feature.</p>
 </div>
 <!-- prettier-ignore-end -->
 
-<h2 id="flight-log">Flight Log<a class="headerlink" href="#flight-log" title="Permanent link">&para;</a></h2>
+<h2 id="flight-log"><strong>Flight Log</strong><a class="headerlink" href="#flight-log" title="Permanent link">&para;</a></h2>
 <hr />
-<p><code>Flight Log</code> is a tool for recording and replaying the drone's status during flight.</p>
+<p><code>Flight Log</code> is a tool for recording and replaying aircraft state data during flight.</p>
 <p><img alt="flight_log" src="../../assets/flight_test/flight_log.png" /></p>
-<h3 id="recording-a-flight-log">Recording a Flight Log<a class="headerlink" href="#recording-a-flight-log" title="Permanent link">&para;</a></h3>
+<h3 id="recording-a-flight-log"><strong>Recording a Flight Log</strong><a class="headerlink" href="#recording-a-flight-log" title="Permanent link">&para;</a></h3>
 <ol>
-<li>Enter a log name (e.g., 20260101_f450_hover) in <code>Log Name</code>.</li>
-<li>Click the <code>Start Recording</code> button to start recording the log.</li>
-<li>Click the <code>Stop Recording</code> button to stop recording.</li>
+<li>Enter a log name in <code>Log Name</code> (e.g., 20260101_f450_hover).</li>
+<li>Click <code>Start Recording</code> to start recording the log.</li>
+<li>Click <code>Stop Recording</code> to stop recording.</li>
 </ol>
-<h3 id="viewing-a-flight-log">Viewing a Flight Log<a class="headerlink" href="#viewing-a-flight-log" title="Permanent link">&para;</a></h3>
+<h3 id="viewing-a-flight-log"><strong>Viewing a Flight Log</strong><a class="headerlink" href="#viewing-a-flight-log" title="Permanent link">&para;</a></h3>
 <ol>
-<li>Click the <code>Read</code> buttons on the FC and PC sides to display the lists of logs stored on each.</li>
-<li>Click the <code>Download</code> button to the right of a log name in the FC-side list to download the corresponding log to the PC.</li>
-<li>Click a log name in the PC-side list to plot the stored data on the right.</li>
-<li>Use the play/stop buttons and slider at the bottom right to control the displayed time in the log.</li>
+<li>Click the <code>Read</code> buttons on the FC and PC sides to display the logs stored on each.</li>
+<li>Click <code>Download</code> to the right of a log name in the FC list to download that log to your PC.</li>
+<li>Click a log name in the PC list to plot the recorded data on the right.</li>
+<li>Use the play/stop buttons and slider at the lower right to change the displayed log time.</li>
 </ol>
 
 

@@ -1181,10 +1181,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#operating-environment" class="md-nav__link">
+  <a href="#environment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Operating Environment
+        Environment
       
     </span>
   </a>
@@ -1215,10 +1215,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ground-station" class="md-nav__link">
+  <a href="#ground-control-station" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Ground Station
+        Ground Control Station
       
     </span>
   </a>
@@ -1287,30 +1287,30 @@
 
 
 <h1 id="release-v212">Release v2.12<a class="headerlink" href="#release-v212" title="Permanent link">&para;</a></h1>
-<h2 id="operating-environment">Operating Environment<a class="headerlink" href="#operating-environment" title="Permanent link">&para;</a></h2>
+<h2 id="environment"><strong>Environment</strong><a class="headerlink" href="#environment" title="Permanent link">&para;</a></h2>
 <hr />
 <p>ROS 2 Jazzy</p>
-<h2 id="changes">Changes<a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
+<h2 id="changes"><strong>Changes</strong><a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="missions">Missions<a class="headerlink" href="#missions" title="Permanent link">&para;</a></h3>
+<h3 id="missions"><strong>Missions</strong><a class="headerlink" href="#missions" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added support for specifying default values for mission parameters</li>
-<li>Added support for overriding default parameters on the mission planning screen</li>
-<li>RTL now executes through Land</li>
-<li>New missions can interrupt an active mission based on priority</li>
-<li>Missions cannot be executed while manual mode is enabled</li>
+<li>Added configurable default mission parameters</li>
+<li>Added overrides for default parameters in the mission planning view</li>
+<li>Changed RTL to continue through landing</li>
+<li>Added priority-based preemption when a new mission arrives during mission execution</li>
+<li>Prevented mission execution while manual mode is enabled</li>
 </ul>
-<h3 id="ground-station">Ground Station<a class="headerlink" href="#ground-station" title="Permanent link">&para;</a></h3>
+<h3 id="ground-control-station"><strong>Ground Control Station</strong><a class="headerlink" href="#ground-control-station" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Changed the map from OSM to aerial imagery</li>
-<li>Added map overzoom support</li>
+<li>Added map overzoom</li>
 </ul>
-<h2 id="bug-fixes">Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h2>
+<h2 id="bug-fixes"><strong>Bug Fixes</strong><a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="v2121-2026218">v2.12.1 (2026/2/18)<a class="headerlink" href="#v2121-2026218" title="Permanent link">&para;</a></h3>
+<h3 id="v2121-2026218"><strong>v2.12.1 (2026/2/18)</strong><a class="headerlink" href="#v2121-2026218" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Fixed the Component Manager name</li>
-<li>Fixed the RCInput reception check</li>
+<li>Fixed the check for RCInput availability</li>
 </ul>
 
 

@@ -1181,10 +1181,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#operating-environment" class="md-nav__link">
+  <a href="#environment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Operating Environment
+        Environment
       
     </span>
   </a>
@@ -1303,39 +1303,39 @@
 
 
 <h1 id="release-v28">Release v2.8<a class="headerlink" href="#release-v28" title="Permanent link">&para;</a></h1>
-<h2 id="operating-environment">Operating Environment<a class="headerlink" href="#operating-environment" title="Permanent link">&para;</a></h2>
+<h2 id="environment"><strong>Environment</strong><a class="headerlink" href="#environment" title="Permanent link">&para;</a></h2>
 <hr />
 <p>ROS 2 Jazzy</p>
-<h2 id="changes">Changes<a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
+<h2 id="changes"><strong>Changes</strong><a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="sensor-processing">Sensor Processing<a class="headerlink" href="#sensor-processing" title="Permanent link">&para;</a></h3>
+<h3 id="sensor-processing"><strong>Sensor Processing</strong><a class="headerlink" href="#sensor-processing" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Implemented WMM-based compass calibration for large aircraft</li>
+<li>Added WMM-based compass calibration for large aircraft</li>
 </ul>
-<h3 id="communication">Communication<a class="headerlink" href="#communication" title="Permanent link">&para;</a></h3>
+<h3 id="communication"><strong>Communication</strong><a class="headerlink" href="#communication" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Implemented FC-to-GCS communication checking</li>
+<li>Added checking of communication from the FC to the GCS</li>
 </ul>
-<h3 id="ground-control-station">Ground Control Station<a class="headerlink" href="#ground-control-station" title="Permanent link">&para;</a></h3>
+<h3 id="ground-control-station"><strong>Ground Control Station</strong><a class="headerlink" href="#ground-control-station" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Stabilized screen updates during Qt event processing</li>
-<li>Display a dialog when the GCS is disconnected from the network</li>
-<li>Changed the GCS power button behavior to shut down only the FC while leaving the GCS running</li>
+<li>Stabilized screen updates in Qt event processing</li>
+<li>Added a dialog when the GCS disconnects from the network</li>
+<li>Changed the GCS power button to shut down only the FC while keeping the GCS running</li>
 </ul>
-<h3 id="flight-logs">Flight Logs<a class="headerlink" href="#flight-logs" title="Permanent link">&para;</a></h3>
+<h3 id="flight-logs"><strong>Flight Logs</strong><a class="headerlink" href="#flight-logs" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added user joint states</li>
 </ul>
-<h3 id="simulation">Simulation<a class="headerlink" href="#simulation" title="Permanent link">&para;</a></h3>
+<h3 id="simulation"><strong>Simulation</strong><a class="headerlink" href="#simulation" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Accounted for propeller inertial forces and gyroscopic effects</li>
+<li>Added propeller inertial forces and gyroscopic effects</li>
 <li>Replaced the Gazebo joint controller from <code>ros2_controllers</code> with a custom plugin</li>
 </ul>
-<h3 id="other">Other<a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
+<h3 id="other"><strong>Other</strong><a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Changed the specifications of the user Python package</li>
-<li>Implemented an option to disable the built-in controller</li>
-<li>Build projects in a separate thread</li>
+<li>Changed the user Python package specification</li>
+<li>Added an option to disable the built-in controller</li>
+<li>Moved project builds to a separate thread</li>
 <li>Changed the ROS 2 installation layout on the Raspberry Pi from <code>isolated</code> to <code>merged</code></li>
 </ul>
 

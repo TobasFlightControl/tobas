@@ -1028,10 +1028,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#writing-a-uadf" class="md-nav__link">
+  <a href="#writing-the-uadf" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Writing a UADF
+        Writing the UADF
       
     </span>
   </a>
@@ -1473,10 +1473,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#writing-a-uadf" class="md-nav__link">
+  <a href="#writing-the-uadf" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Writing a UADF
+        Writing the UADF
       
     </span>
   </a>
@@ -1607,63 +1607,63 @@
 
 
 <h1 id="what-is-uadf">What Is UADF?<a class="headerlink" href="#what-is-uadf" title="Permanent link">&para;</a></h1>
-<p>The Universal Aircraft Description Format (UADF), defined by Tobas,
-extends the Universal Robot Description Format (URDF), a general-purpose format for representing robots,
-with elements specific to aircraft.</p>
-<h2 id="what-is-urdf">What Is URDF?<a class="headerlink" href="#what-is-urdf" title="Permanent link">&para;</a></h2>
+<p>Universal Aircraft Description Format (UADF), defined by Tobas,
+extends Universal Robot Description Format (URDF), a widely used format for describing robots,
+with aircraft-specific elements.</p>
+<h2 id="what-is-urdf"><strong>What Is URDF?</strong><a class="headerlink" href="#what-is-urdf" title="Permanent link">&para;</a></h2>
 <hr />
 <p>URDF is a format for describing any robot that can be represented as a system of rigid links.
-It defines the mass, collision, and visual information of each link, as well as the joints connecting them.
+It defines each link's mass properties, collision geometry, and visual geometry, along with the joints connecting the links.
 For details, see <a href=https://wiki.ros.org/urdf target="_blank">urdf | ROS.org</a>.</p>
-<h2 id="differences-between-uadf-and-urdf">Differences Between UADF and URDF<a class="headerlink" href="#differences-between-uadf-and-urdf" title="Permanent link">&para;</a></h2>
+<h2 id="differences-between-uadf-and-urdf"><strong>Differences Between UADF and URDF</strong><a class="headerlink" href="#differences-between-uadf-and-urdf" title="Permanent link">&para;</a></h2>
 <hr />
-<p>In addition to the URDF joint types, UADF provides the following aircraft-specific joint types.</p>
-<h3 id="thrust">thrust<a class="headerlink" href="#thrust" title="Permanent link">&para;</a></h3>
+<p>In addition to the URDF joint types, UADF adds the following aircraft-specific joint types.</p>
+<h3 id="thrust"><strong>thrust</strong><a class="headerlink" href="#thrust" title="Permanent link">&para;</a></h3>
 <p>This joint represents a propulsion unit consisting of a motor and propeller.
-It is based on URDF's <code>continuous</code>, but differs in the following ways.</p>
+It is based on URDF's <code>continuous</code> joint, with the following differences:</p>
 <ul>
-<li><code>axis</code>: Axis of rotation. Thrust is assumed to act along this axis.</li>
-<li><code>direction</code>: Direction of rotation. Set <code>value</code> to either <code>cw</code> or <code>ccw</code>.</li>
+<li><code>axis</code>: The rotation axis. Thrust is assumed to act along this axis.</li>
+<li><code>direction</code>: The rotation direction. Set <code>value</code> to <code>cw</code> or <code>ccw</code>.</li>
 </ul>
 <!-- prettier-ignore-start -->
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>A <code>thrust</code> joint must be an end joint.</p>
+<p>A <code>thrust</code> joint must be a terminal joint.</p>
 </div>
 <!-- prettier-ignore-end -->
 
-<h3 id="cs">cs<a class="headerlink" href="#cs" title="Permanent link">&para;</a></h3>
+<h3 id="cs"><strong>cs</strong><a class="headerlink" href="#cs" title="Permanent link">&para;</a></h3>
 <p>This joint represents a control surface on a fixed-wing aircraft.
-It is based on URDF's <code>revolute</code>.</p>
+It is based on URDF's <code>revolute</code> joint.</p>
 <!-- prettier-ignore-start -->
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>A <code>cs</code> joint must be an end joint.</p>
+<p>A <code>cs</code> joint must be a terminal joint.</p>
 </div>
 <!-- prettier-ignore-end -->
 
-<h3 id="tilt">tilt<a class="headerlink" href="#tilt" title="Permanent link">&para;</a></h3>
-<p>This joint represents the tilt joint of an active tiltrotor.
-It is based on URDF's <code>revolute</code>.</p>
+<h3 id="tilt"><strong>tilt</strong><a class="headerlink" href="#tilt" title="Permanent link">&para;</a></h3>
+<p>This joint represents the tilting joint of an active tilt rotor.
+It is based on URDF's <code>revolute</code> joint.</p>
 <!-- prettier-ignore-start -->
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Exactly one <code>thrust</code> joint must be connected downstream of the <code>tilt</code> joint.</p>
+<p>A <code>tilt</code> joint must have one <code>thrust</code> joint connected downstream.</p>
 </div>
 <!-- prettier-ignore-end -->
 
-<h2 id="creating-a-uadf">Creating a UADF<a class="headerlink" href="#creating-a-uadf" title="Permanent link">&para;</a></h2>
+<h2 id="creating-a-uadf"><strong>Creating a UADF</strong><a class="headerlink" href="#creating-a-uadf" title="Permanent link">&para;</a></h2>
 <hr />
-<p>Here, we will create a UADF for the DJI F450, the typical quadcopter used in the tutorial.</p>
+<p>This section creates a UADF for the DJI F450, the conventional quadcopter used in the tutorial.</p>
 <p><img alt="f450" src="../../assets/what_is_uadf/f450.png" /></p>
 <p>URDF can reference mesh and texture files for visualization.
-Because these files are often distributed together with the URDF file itself,
+Because those files are often distributed together with the URDF,
 it is convenient to create a dedicated ROS package for each robot.
-Here, we will create a package named <code>tobas_f450_description</code> directly under <code>~/colcon_ws/src/</code> and include all required files in it.
-The completed package is available at
-<a href=https://github.com/TobasFlightControl/tobas_f450_description target="_blank">TobasFlightControl/tobas_f450_description</a>.</p>
-<h3 id="ros-package-structure-and-required-files">ROS Package Structure and Required Files<a class="headerlink" href="#ros-package-structure-and-required-files" title="Permanent link">&para;</a></h3>
-<p><code>tobas_f450_description</code> has the following structure.</p>
+Here, we create a package named <code>tobas_f450_description</code> directly under <code>~/colcon_ws/src/</code> and include all required files in it.
+<a href=https://github.com/TobasFlightControl/tobas_f450_description target="_blank">TobasFlightControl/tobas_f450_description</a>
+hosts the completed package.</p>
+<h3 id="ros-package-structure-and-required-files"><strong>ROS Package Structure and Required Files</strong><a class="headerlink" href="#ros-package-structure-and-required-files" title="Permanent link">&para;</a></h3>
+<p>The <code>tobas_f450_description</code> package has the following structure.</p>
 <div class="highlight"><pre><span></span><code>tobas_f450_description/
 ├── meshes
 │   ├── frame.stl
@@ -1675,9 +1675,9 @@ The completed package is available at
 ├── CMakeLists.txt
 └── package.xml
 </code></pre></div>
-<p><code>package.xml</code> describes the package overview and dependencies.
+<p><code>package.xml</code> describes the package and its dependencies.
 Every ROS package must have exactly one at its root.
-Because this package does not depend on any external packages, it contains only the minimum required elements, such as the package name and license.</p>
+Since this package does not depend on external packages, it only contains essential elements such as the package name and license.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">&lt;package</span><span class="w"> </span><span class="na">format=</span><span class="s">"3"</span><span class="nt">&gt;</span>
 <span class="w">    </span><span class="nt">&lt;name&gt;</span>tobas_f450_description<span class="nt">&lt;/name&gt;</span>
 <span class="w">    </span><span class="nt">&lt;version&gt;</span>0.0.0<span class="nt">&lt;/version&gt;</span>
@@ -1690,16 +1690,16 @@ Because this package does not depend on any external packages, it contains only 
 <span class="w">    </span><span class="nt">&lt;/export&gt;</span>
 <span class="nt">&lt;/package&gt;</span>
 </code></pre></div>
-<p><code>CMakeLists.txt</code> describes how to build and install the package.
-It is configured to install <code>meshes</code>, the directory containing mesh files, and <code>urdf</code>, the directory containing UADF files.</p>
+<p><code>CMakeLists.txt</code> defines how the package is built and installed.
+Configure it to install <code>meshes</code>, which contains the mesh files, and <code>urdf</code>, which contains the UADF.</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.25</span><span class="p">)</span>
 <span class="nb">project</span><span class="p">(</span><span class="s">tobas_f450_description</span><span class="p">)</span>
 <span class="nb">find_package</span><span class="p">(</span><span class="s">ament_cmake</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
 <span class="nb">install</span><span class="p">(</span><span class="s">DIRECTORY</span><span class="w"> </span><span class="s">meshes</span><span class="w"> </span><span class="s">urdf</span><span class="w"> </span><span class="s">DESTINATION</span><span class="w"> </span><span class="s">share/</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span><span class="p">)</span>
 <span class="nb">ament_package</span><span class="p">()</span>
 </code></pre></div>
-<h3 id="writing-a-uadf">Writing a UADF<a class="headerlink" href="#writing-a-uadf" title="Permanent link">&para;</a></h3>
-<p>The F450 UADF created here consists of the following components.</p>
+<h3 id="writing-the-uadf"><strong>Writing the UADF</strong><a class="headerlink" href="#writing-the-uadf" title="Permanent link">&para;</a></h3>
+<p>The F450 UADF we create here consists of the following components:</p>
 <ul>
 <li>An empty root link (required)</li>
 <li>The main frame, including the motors</li>
@@ -1707,10 +1707,10 @@ It is configured to install <code>meshes</code>, the directory containing mesh f
 <li>An FMU fixed to the main frame</li>
 <li>Four propellers</li>
 </ul>
-<p>Each component is described as a single rigid link,
-and they form a single tree structure by being connected with appropriate joints.</p>
-<p>In this example, all links from the main frame onward are attached to the root link.
-The complete tree structure is as follows.</p>
+<p>Each component is described as a single rigid link.
+Connecting the links with appropriate joints forms a single tree structure.</p>
+<p>In this example, all links, including the main frame, are attached directly to the root link.
+The overall tree structure is as follows:</p>
 <div class="highlight"><pre><span></span><code>base_link
 ├──frame
 ├──battery
@@ -1720,22 +1720,22 @@ The complete tree structure is as follows.</p>
 ├──propeller_2
 └──propeller_3
 </code></pre></div>
-<p>First, define the URDF root element.
-The root element of a URDF must be <code>robot</code> and must include the <code>name</code> attribute.
-All subsequent elements are placed inside this root element.</p>
+<p>First, write the URDF root element.
+The root element must be <code>robot</code>, and it must have a <code>name</code> attribute.
+All the elements below are written inside this root element.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">&lt;robot</span><span class="w"> </span><span class="na">name=</span><span class="s">"f450"</span><span class="nt">&gt;</span>
 <span class="nt">&lt;/robot&gt;</span>
 </code></pre></div>
-<p>Define an empty root link inside <code>robot</code>.
-The root link is a conceptual link with no size or mass, and every UADF must contain exactly one.</p>
+<p>Add an empty root link inside <code>robot</code>.
+The root link is a conceptual link with no size or mass. Every UADF must have exactly one root link.</p>
 <div class="highlight"><pre><span></span><code><span class="w">  </span><span class="cm">&lt;!-- Base Link (Empty) --&gt;</span>
 <span class="w">  </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">name=</span><span class="s">"base_link"</span><span class="nt">/&gt;</span>
 </code></pre></div>
-<p>Attach the main frame to the root link.
-The mesh file in <code>visual</code> is specified using a path relative to the package.
-In this way, <code>package://&lt;package name&gt;</code> can be used to specify a path relative to a ROS package.
-The collision geometry in <code>collision</code> is approximated by a box because using a mesh would make the simulation computationally expensive.
-The inertial properties in <code>inertial</code> are copied directly from values obtained from 3D CAD.</p>
+<p>Fix the main frame to the root link.
+The mesh file in <code>visual</code> is specified by a path relative to the package.
+Use <code>package://&lt;package name&gt;</code> to specify paths relative to a ROS package in this way.
+The <code>collision</code> geometry is approximated by a rectangular box because using a mesh would slow down the simulation.
+The mass properties in <code>inertial</code> are copied directly from 3D CAD.</p>
 <div class="highlight"><pre><span></span><code><span class="w">  </span><span class="cm">&lt;!-- Main Frame --&gt;</span>
 <span class="w">  </span><span class="nt">&lt;joint</span><span class="w"> </span><span class="na">name=</span><span class="s">"frame_joint"</span><span class="w"> </span><span class="na">type=</span><span class="s">"fixed"</span><span class="nt">&gt;</span>
 <span class="w">    </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"0 0 0"</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"0 0 0"</span><span class="nt">/&gt;</span>
@@ -1766,8 +1766,8 @@ The inertial properties in <code>inertial</code> are copied directly from values
 <span class="w">  </span><span class="nt">&lt;/link&gt;</span>
 </code></pre></div>
 <p>Add the battery and FMU in the same way as the main frame.
-Their moments of inertia are calculated assuming that their mass is uniformly distributed within a rectangular box of the same dimensions as <code>collision</code>.
-For details on the calculation, see <a href="../inertia_moment/">Inertia Moment</a>.</p>
+Their moments of inertia are calculated assuming that their mass is distributed uniformly in a rectangular box of the same size as their <code>collision</code> geometry.
+See <a href="../inertia_moment/">Moments of Inertia</a> for the calculation methods.</p>
 <div class="highlight"><pre><span></span><code><span class="w">  </span><span class="cm">&lt;!-- Battery --&gt;</span>
 <span class="w">  </span><span class="nt">&lt;joint</span><span class="w"> </span><span class="na">name=</span><span class="s">"battery_joint"</span><span class="w"> </span><span class="na">type=</span><span class="s">"fixed"</span><span class="nt">&gt;</span>
 <span class="w">    </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"0 0 -0.025"</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"0 0 0"</span><span class="nt">/&gt;</span>
@@ -1827,11 +1827,11 @@ For details on the calculation, see <a href="../inertia_moment/">Inertia Moment<
 <span class="w">  </span><span class="nt">&lt;/link&gt;</span>
 </code></pre></div>
 <p>Add a propeller.
-Specify the UADF-specific <code>thrust</code> as the joint type, set <code>axis</code> to the +Z axis as the thrust direction (<code>0 0 1</code>), and set <code>direction</code> to counterclockwise (<code>ccw</code>).
-The mesh file in <code>visual</code> is specified using a path relative to the package.
-The collision geometry in <code>collision</code> is approximated by a cylinder.
-The moment of inertia in <code>inertial</code> is calculated assuming that the mass is uniformly distributed within a cylinder of the same dimensions as <code>collision</code>.
-For details on the calculation, see <a href="../inertia_moment/">Inertia Moment</a>.</p>
+Set the joint type to the UADF-specific <code>thrust</code> type, <code>axis</code> to the +Z thrust direction (<code>0 0 1</code>), and <code>direction</code> to counterclockwise (<code>ccw</code>).
+The mesh file in <code>visual</code> is specified by a path relative to the package.
+The <code>collision</code> geometry is approximated by a cylinder.
+The moments of inertia in <code>inertial</code> are calculated assuming that the mass is distributed uniformly in a cylinder of the same size as the <code>collision</code> geometry.
+See <a href="../inertia_moment/">Moments of Inertia</a> for the calculation methods.</p>
 <div class="highlight"><pre><span></span><code><span class="w">  </span><span class="cm">&lt;!-- Propeller (0) --&gt;</span>
 <span class="w">  </span><span class="nt">&lt;joint</span><span class="w"> </span><span class="na">name=</span><span class="s">"propeller_0_joint"</span><span class="w"> </span><span class="na">type=</span><span class="s">"thrust"</span><span class="nt">&gt;</span>
 <span class="w">    </span><span class="nt">&lt;origin</span><span class="w"> </span><span class="na">xyz=</span><span class="s">"0.159099 -0.159099 0.0247"</span><span class="w"> </span><span class="na">rpy=</span><span class="s">"0 0 -0.785398"</span><span class="nt">/&gt;</span>
@@ -1863,9 +1863,9 @@ For details on the calculation, see <a href="../inertia_moment/">Inertia Moment<
 <span class="w">    </span><span class="nt">&lt;/collision&gt;</span>
 <span class="w">  </span><span class="nt">&lt;/link&gt;</span>
 </code></pre></div>
-<p>Similarly, add the other three propellers.
+<p>Add the other three propellers in the same way.
 Note that each has a different joint origin, rotation direction, and mesh path.</p>
-<p>The final UADF is as follows.</p>
+<p>The final UADF is shown below.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">&lt;robot</span><span class="w"> </span><span class="na">name=</span><span class="s">"f450"</span><span class="nt">&gt;</span>
 
 <span class="w">  </span><span class="cm">&lt;!-- Base Link (Empty) --&gt;</span>
@@ -2084,21 +2084,21 @@ Note that each has a different joint origin, rotation direction, and mesh path.<
 
 <span class="nt">&lt;/robot&gt;</span>
 </code></pre></div>
-<h2 id="uadf-examples">UADF Examples<a class="headerlink" href="#uadf-examples" title="Permanent link">&para;</a></h2>
+<h2 id="uadf-examples"><strong>UADF Examples</strong><a class="headerlink" href="#uadf-examples" title="Permanent link">&para;</a></h2>
 <hr />
-<p>Above, we created a simple quadcopter UADF, but UADF can also represent many other types of aircraft.
-Here are several other UADF examples.</p>
-<p>Unlike the previous example, these use XML macros called XACRO to perform the following programming-like operations:</p>
+<p>The example above creates a UADF for a simple quadcopter, but UADF can describe many other aircraft configurations.
+This section introduces several more examples.</p>
+<p>Unlike the previous example, these use XML macros called XACRO to perform programming-like operations such as:</p>
 <ul>
-<li>Include other files</li>
-<li>Define constants</li>
-<li>Perform simple numerical calculations</li>
-<li>Encapsulate repetitive operations in functions</li>
+<li>Including other files</li>
+<li>Defining constants</li>
+<li>Performing simple numerical calculations</li>
+<li>Encapsulating repeated operations in functions</li>
 </ul>
-<p>Using XACRO makes XML shorter and easier to understand.</p>
-<h3 id="non-planar-octacopter-toc8">Non-Planar Octacopter (TOC8)<a class="headerlink" href="#non-planar-octacopter-toc8" title="Permanent link">&para;</a></h3>
-<p>An octacopter with eight <code>thrust</code> joints.
-Each propeller, however, is positioned to point outward from a vertex of a cube.</p>
+<p>XACRO makes XML shorter and easier to understand.</p>
+<h3 id="non-planar-octacopter-toc8"><strong>Non-Planar Octacopter (TOC8)</strong><a class="headerlink" href="#non-planar-octacopter-toc8" title="Permanent link">&para;</a></h3>
+<p>An octocopter with eight <code>thrust</code> joints.
+Each propeller is positioned at a vertex of a cube and points outward.</p>
 <p><img alt="toc8_pt001" src="../../assets/what_is_uadf/toc8_pt001.png" /></p>
 <details><summary>Before XACRO Expansion</summary>
 
@@ -2775,7 +2775,7 @@ Each propeller, however, is positioned to point outward from a vertex of a cube.
 
 </details>
 <p><br></p>
-<h3 id="active-tilt-hexacopter-voliro-like">Active Tilt Hexacopter (Voliro Like)<a class="headerlink" href="#active-tilt-hexacopter-voliro-like" title="Permanent link">&para;</a></h3>
+<h3 id="active-tilt-hexacopter-voliro-like"><strong>Active Tilt Hexacopter (Voliro Like)</strong><a class="headerlink" href="#active-tilt-hexacopter-voliro-like" title="Permanent link">&para;</a></h3>
 <p>A hexacopter with six pairs of <code>thrust</code> and <code>tilt</code> joints.</p>
 <p><img alt="voliro_like_pt003" src="../../assets/what_is_uadf/voliro_like_pt003.png" /></p>
 <details><summary>Before XACRO Expansion</summary>
@@ -3504,9 +3504,9 @@ Each propeller, however, is positioned to point outward from a vertex of a cube.
 
 </details>
 <p><br></p>
-<h3 id="transformable-multicopter-jsk-hydrus">Transformable Multicopter (JSK Hydrus)<a class="headerlink" href="#transformable-multicopter-jsk-hydrus" title="Permanent link">&para;</a></h3>
+<h3 id="transformable-multicopter-jsk-hydrus"><strong>Transformable Multicopter (JSK Hydrus)</strong><a class="headerlink" href="#transformable-multicopter-jsk-hydrus" title="Permanent link">&para;</a></h3>
 <p>A quadcopter with three <code>revolute</code> joints in addition to four <code>thrust</code> joints.
-Users can freely specify command values for the <code>revolute</code> joints.</p>
+Users can freely specify commands for the <code>revolute</code> joints.</p>
 <p><img alt="hydrus" src="../../assets/what_is_uadf/hydrus.png" /></p>
 <details><summary>Before XACRO Expansion</summary>
 

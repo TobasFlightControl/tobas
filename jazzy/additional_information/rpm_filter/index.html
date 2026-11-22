@@ -1011,10 +1011,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#effects-of-the-rpm-filter" class="md-nav__link">
+  <a href="#benefits-of-the-rpm-filter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Effects of the RPM Filter
+        Benefits of the RPM Filter
       
     </span>
   </a>
@@ -1344,10 +1344,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#effects-of-the-rpm-filter" class="md-nav__link">
+  <a href="#benefits-of-the-rpm-filter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Effects of the RPM Filter
+        Benefits of the RPM Filter
       
     </span>
   </a>
@@ -1495,70 +1495,70 @@
 
 
 <h1 id="rpm-filter">RPM Filter<a class="headerlink" href="#rpm-filter" title="Permanent link">&para;</a></h1>
-<h2 id="what-is-an-rpm-filter">What Is an RPM Filter?<a class="headerlink" href="#what-is-an-rpm-filter" title="Permanent link">&para;</a></h2>
+<h2 id="what-is-an-rpm-filter"><strong>What Is an RPM Filter?</strong><a class="headerlink" href="#what-is-an-rpm-filter" title="Permanent link">&para;</a></h2>
 <hr />
-<p>An RPM filter is a notch filter centered on the motor's rotational frequency and its harmonics.
-In drones, especially multicopters, most vibration affecting the IMU is caused by the propellers.
-By making the notch filter's center frequency track the motor speed, this vibration can be effectively removed.</p>
-<h2 id="effects-of-the-rpm-filter">Effects of the RPM Filter<a class="headerlink" href="#effects-of-the-rpm-filter" title="Permanent link">&para;</a></h2>
+<p>An RPM filter is a notch filter whose center frequencies track the motor's rotational frequency and its harmonics.
+In drones, particularly multicopters, most IMU vibration comes from the propellers.
+Making the notch filter's center frequencies follow the rotational speed therefore removes these vibrations effectively.</p>
+<h2 id="benefits-of-the-rpm-filter"><strong>Benefits of the RPM Filter</strong><a class="headerlink" href="#benefits-of-the-rpm-filter" title="Permanent link">&para;</a></h2>
 <hr />
-<p>The greatest advantage of an RPM filter is its extremely high filtering effectiveness.
-The gain at the center frequency of a notch filter is zero, so vibration at that frequency is ideally eliminated completely.
-In practice, center-frequency and discretization errors prevent vibration from being eliminated completely,
-but the filtering is still far more effective than with a low-pass filter.</p>
-<p>The images below show IMU time-series data and frequency analysis results recorded while flying an F450.
-Gray represents the raw data, and blue represents the filtered data.
-The left column shows results with only a 40 Hz cutoff LPF applied, while the right column shows results with only the RPM filter applied.
-Although the LPF suppresses high frequencies, strong vibration at the motor's rotational frequency remains.
-In contrast, the RPM filter also significantly suppresses vibration at the motor's rotational frequency and its second and third harmonics.</p>
-<p><img src="../../assets/rpm_filter/lpf_imu.png" alt="lpf_imu" width="49%"/>
-<img src="../../assets/rpm_filter/notch_imu.png" alt="notch_imu" width="49%"/></p>
-<p><img src="../../assets/rpm_filter/lpf_imu_fft.png" alt="lpf_imu_fft" width="49%"/>
-<img src="../../assets/rpm_filter/notch_imu_fft.png" alt="notch_imu_fft" width="49%"/></p>
-<p>Reducing IMU vibration, particularly gyroscope vibration, also reduces fluctuations in motor speed.
-In the images below, blue represents the measured RPM and red represents the target RPM. The RPM fluctuates less when the notch filter is used.
-This not only improves attitude-control stability by preventing unwanted forces,
-but also reduces motor heat and produces a smoother propeller sound.</p>
-<p><img src="../../assets/rpm_filter/lpf_rpm.png" alt="lpf_rpm" width="49%"/>
-<img src="../../assets/rpm_filter/notch_rpm.png" alt="notch_rpm" width="49%"/></p>
-<h2 id="supported-fmus">Supported FMUs<a class="headerlink" href="#supported-fmus" title="Permanent link">&para;</a></h2>
+<p>The main advantage of an RPM filter is its very strong vibration attenuation.
+A notch filter has zero gain at its center frequency, so ideally it completely eliminates vibrations at that frequency.
+In practice, center-frequency errors and discretization errors prevent complete elimination,
+but attenuation is still much greater than with a low-pass filter.</p>
+<p>The images below show IMU time-series data and frequency analysis results from an F450 flight.
+Gray represents raw data, and blue represents filtered data.
+The left column uses only a low-pass filter (LPF) with a 40 Hz cutoff, while the right column uses only an RPM filter.
+The LPF attenuates high frequencies, but strong vibrations at the motor's rotational frequency remain.
+The RPM filter substantially attenuates vibrations at the motor's rotational frequency as well as its second and third harmonics.</p>
+<p><img alt="lpf_imu" src="../../assets/rpm_filter/lpf_imu.png" width="49%" />
+<img alt="notch_imu" src="../../assets/rpm_filter/notch_imu.png" width="49%" /></p>
+<p><img alt="lpf_imu_fft" src="../../assets/rpm_filter/lpf_imu_fft.png" width="49%" />
+<img alt="notch_imu_fft" src="../../assets/rpm_filter/notch_imu_fft.png" width="49%" /></p>
+<p>Reducing IMU vibration, especially gyro vibration, also reduces motor speed fluctuations.
+In the images below, blue shows measured speed and red shows target speed. The speed fluctuations are smaller when the notch filter is used.
+This improves attitude control stability by reducing unwanted forces,
+and also reduces motor heating and makes the propeller sound smoother.</p>
+<p><img alt="lpf_rpm" src="../../assets/rpm_filter/lpf_rpm.png" width="49%" />
+<img alt="notch_rpm" src="../../assets/rpm_filter/notch_rpm.png" width="49%" /></p>
+<h2 id="supported-fmus"><strong>Supported FMUs</strong><a class="headerlink" href="#supported-fmus" title="Permanent link">&para;</a></h2>
 <hr />
-<p>The RPM filter is available on the following FMUs.</p>
+<p>The RPM filter is available on the following FMUs:</p>
 <ul>
 <li>FC2xx</li>
 </ul>
-<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
+<h2 id="parameters"><strong>Parameters</strong><a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
 <hr />
 <p><img alt="param_tuning" src="../../assets/rpm_filter/param_tuning.png" /></p>
-<p>Filter settings can be configured under <code>IMU Filter</code> in <code>Param Tuning</code> on the GCS.
-The following sections describe each parameter, its default value, and how to tune it.</p>
-<h3 id="lowpass_filter_cutoff"><code>lowpass_filter/*_cutoff</code><a class="headerlink" href="#lowpass_filter_cutoff" title="Permanent link">&para;</a></h3>
-<p>These are the cutoff frequencies of low-pass filters separate from the RPM filter.
-Initially, set all three to 0 Hz. This disables the filters.
-Because the RPM filter cannot suppress vibration from sources other than the motors and propellers, selectively enable the LPFs if strong vibration remains.</p>
-<h3 id="rpm_filterquality_factor"><code>rpm_filter/quality_factor</code><a class="headerlink" href="#rpm_filterquality_factor" title="Permanent link">&para;</a></h3>
+<p>Configure the filter under <code>IMU Filter</code> in the GCS's <code>Param Tuning</code> tool.
+The following sections describe each parameter, its initial setting, and how to tune it.</p>
+<h3 id="lowpass_filter_cutoff"><strong><code>lowpass_filter/*_cutoff</code></strong><a class="headerlink" href="#lowpass_filter_cutoff" title="Permanent link">&para;</a></h3>
+<p>These are the cutoff frequencies of the low-pass filters that are separate from the RPM filter.
+Start by setting all three to 0 Hz to disable those filters.
+The RPM filter only attenuates vibrations originating from the motors and propellers. If strong vibrations remain, selectively enable the LPFs as needed.</p>
+<h3 id="rpm_filterquality_factor"><strong><code>rpm_filter/quality_factor</code></strong><a class="headerlink" href="#rpm_filterquality_factor" title="Permanent link">&para;</a></h3>
 <p>This value determines the sharpness of the notch filter.
-Higher values make the filter sharper (narrower bandwidth) while reducing delay.
-The default value is 0, which disables the filter.
-Initially, set it to 5 for a good balance between delay and bandwidth.
-After a test flight, if the FFT confirms that vibration has been suppressed enough that no peak is visible,
-increase the value one step at a time until just before a peak begins to remain.</p>
-<h3 id="rpm_filtermin_center_frequency-rpm_filterfade_range"><code>rpm_filter/min_center_frequency</code>, <code>rpm_filter/fade_range</code><a class="headerlink" href="#rpm_filtermin_center_frequency-rpm_filterfade_range" title="Permanent link">&para;</a></h3>
-<p>These parameters define the range of center frequencies over which the RPM filter is applied.
-If the former is <span class="arithmatex">\(f_\mathrm{m}\)</span> and the latter is <span class="arithmatex">\(f_\mathrm{f}\)</span>, the notch filter is applied to the center frequency <span class="arithmatex">\(f_\mathrm{c}\)</span> as follows.</p>
+Higher values produce a sharper notch (narrower bandwidth) with less delay.
+The default is 0, which disables the filter.
+Start with 5, which provides a balance between delay and bandwidth.
+After a test flight, confirm that vibration is attenuated enough that peaks are no longer visible in the FFT.
+Then increase the value in steps of 1, stopping just before the peaks reappear.</p>
+<h3 id="rpm_filtermin_center_frequency-rpm_filterfade_range"><strong><code>rpm_filter/min_center_frequency</code>, <code>rpm_filter/fade_range</code></strong><a class="headerlink" href="#rpm_filtermin_center_frequency-rpm_filterfade_range" title="Permanent link">&para;</a></h3>
+<p>These parameters determine the range of center frequencies over which the RPM filter is applied.
+Let the first parameter be <span class="arithmatex">\(f_\mathrm{m}\)</span> and the second be <span class="arithmatex">\(f_\mathrm{f}\)</span>. The notch filter is applied according to the center frequency <span class="arithmatex">\(f_\mathrm{c}\)</span> as follows:</p>
 <ul>
 <li><span class="arithmatex">\(f_\mathrm{c} \lt f_\mathrm{m}\)</span>: Filter disabled</li>
-<li><span class="arithmatex">\(f_\mathrm{m} \le f_\mathrm{c} \lt f_\mathrm{m} + f_\mathrm{f}\)</span>: Transition region (the filter becomes stronger as <span class="arithmatex">\(f_\mathrm{c}\)</span> increases)</li>
+<li><span class="arithmatex">\(f_\mathrm{m} \le f_\mathrm{c} \lt f_\mathrm{m} + f_\mathrm{f}\)</span>: Transition region (filtering becomes stronger as <span class="arithmatex">\(f_\mathrm{c}\)</span> increases)</li>
 <li><span class="arithmatex">\(f_\mathrm{m} + f_\mathrm{f} \le f_\mathrm{c}\)</span>: Filter enabled</li>
 </ul>
-<p>The disabled range is provided because filtering low frequencies near the control bandwidth may adversely affect responsiveness and stability.
-The transition region prevents abrupt changes in the overall filter characteristics when the RPM filter switches between enabled and disabled.
+<p>The disabled region prevents filtering at low frequencies near the control bandwidth, which could adversely affect responsiveness and stability.
+The transition region prevents abrupt changes in the overall filter characteristics when the RPM filter switches on or off.
 For a hovering rotational frequency of <span class="arithmatex">\(f_\mathrm{h}\)</span>,
-initially set approximately <span class="arithmatex">\(f_\mathrm{m}=\frac{f_\mathrm{h}}{2}\)</span> and <span class="arithmatex">\(f_\mathrm{f}=\frac{f_\mathrm{h}}{4}\)</span>.</p>
-<h3 id="rpm_filterlpf_cutoff"><code>rpm_filter/lpf_cutoff</code><a class="headerlink" href="#rpm_filterlpf_cutoff" title="Permanent link">&para;</a></h3>
+start with approximately <span class="arithmatex">\(f_\mathrm{m}=\frac{f_\mathrm{h}}{2}\)</span> and <span class="arithmatex">\(f_\mathrm{f}=\frac{f_\mathrm{h}}{4}\)</span>.</p>
+<h3 id="rpm_filterlpf_cutoff"><strong><code>rpm_filter/lpf_cutoff</code></strong><a class="headerlink" href="#rpm_filterlpf_cutoff" title="Permanent link">&para;</a></h3>
 <p>This is the cutoff frequency of the low-pass filter applied to the RPM filter's center frequency.
-The motor speed obtained from the ESC fluctuates considerably. Using it directly as the center frequency would cause excessive variation in the filter characteristics, so it is smoothed.
-In most cases, the default value is appropriate.</p>
+Motor speed readings from the ESC fluctuate considerably. They are smoothed because using them directly as the center frequency would cause excessive changes in the filter characteristics.
+The default value works well in most cases.</p>
 
 
 

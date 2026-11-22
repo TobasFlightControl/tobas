@@ -1495,12 +1495,12 @@
 
 
 <h1 id="rpm">RPMフィルタ<a class="headerlink" href="#rpm" title="Permanent link">&para;</a></h1>
-<h2 id="rpm_1">RPMフィルタとは<a class="headerlink" href="#rpm_1" title="Permanent link">&para;</a></h2>
+<h2 id="rpm_1"><strong>RPMフィルタとは</strong><a class="headerlink" href="#rpm_1" title="Permanent link">&para;</a></h2>
 <hr />
 <p>RPMフィルタとは，モータの回転周波数とその高調波を中心周波数とするノッチフィルタです．
 ドローン，特にマルチコプターにおいて，IMUに生じる振動のほとんどはプロペラによるものなので，
 その回転数にノッチフィルタの中心周波数を追従させることで振動を効果的に除去することができます．</p>
-<h2 id="rpm_2">RPMフィルタの効果<a class="headerlink" href="#rpm_2" title="Permanent link">&para;</a></h2>
+<h2 id="rpm_2"><strong>RPMフィルタの効果</strong><a class="headerlink" href="#rpm_2" title="Permanent link">&para;</a></h2>
 <hr />
 <p>RPMフィルタを用いる最大の利点は，フィルタリング効果が非常に高いことです．
 ノッチフィルタの中心周波数におけるゲインはゼロであり，理想的には中心周波数の振動は完全に消滅します．
@@ -1511,39 +1511,39 @@
 左列はカットオフ40HzのLPFのみを適用したとき，右列はRPMフィルタのみを適用したときです．
 LPFのみだと高周波は落とせてもモータ回転数の振動が強く残っているのに対し，
 RPMフィルタの場合はモータの回転周波数とその2，3倍周波の振動も大幅にカットできていることが分かります．</p>
-<p><img src="../../../assets/rpm_filter/lpf_imu.png" alt="lpf_imu" width="49%"/>
-<img src="../../../assets/rpm_filter/notch_imu.png" alt="notch_imu" width="49%"/></p>
-<p><img src="../../../assets/rpm_filter/lpf_imu_fft.png" alt="lpf_imu_fft" width="49%"/>
-<img src="../../../assets/rpm_filter/notch_imu_fft.png" alt="notch_imu_fft" width="49%"/></p>
+<p><img alt="lpf_imu" src="../../../assets/rpm_filter/lpf_imu.png" width="49%" />
+<img alt="notch_imu" src="../../../assets/rpm_filter/notch_imu.png" width="49%" /></p>
+<p><img alt="lpf_imu_fft" src="../../../assets/rpm_filter/lpf_imu_fft.png" width="49%" />
+<img alt="notch_imu_fft" src="../../../assets/rpm_filter/notch_imu_fft.png" width="49%" /></p>
 <p>IMU，特にジャイロの振動が減少すると，モータの回転数の変動も減少します．
 下の画像で青色が観測した回転数，赤色が目標の回転数ですが，ノッチフィルタを用いた場合の方が回転数の変動が小さいことが分かります．
 これにより，余計な力が働かないことで姿勢制御がより安定することに加え，
 モータの発熱量が減ったりプロペラの羽音が滑らかになるという効果も得られます．</p>
-<p><img src="../../../assets/rpm_filter/lpf_rpm.png" alt="lpf_rpm" width="49%"/>
-<img src="../../../assets/rpm_filter/notch_rpm.png" alt="notch_rpm" width="49%"/></p>
-<h2 id="fmu">対応FMU<a class="headerlink" href="#fmu" title="Permanent link">&para;</a></h2>
+<p><img alt="lpf_rpm" src="../../../assets/rpm_filter/lpf_rpm.png" width="49%" />
+<img alt="notch_rpm" src="../../../assets/rpm_filter/notch_rpm.png" width="49%" /></p>
+<h2 id="fmu"><strong>対応FMU</strong><a class="headerlink" href="#fmu" title="Permanent link">&para;</a></h2>
 <hr />
 <p>以下のFMUではRPMフィルタを使用することができます．</p>
 <ul>
 <li>FC2xx</li>
 </ul>
-<h2 id="_1">パラメータ<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h2 id="_1"><strong>パラメータ</strong><a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <hr />
 <p><img alt="param_tuning" src="../../../assets/rpm_filter/param_tuning.png" /></p>
 <p>GCSの<code>Param Tuning</code>の<code>IMU Filter</code>の項でフィルタの設定を行うことができます．
 それぞれのパラメータの説明，初期値，調整方法を以下に記します．</p>
-<h3 id="lowpass_filter_cutoff"><code>lowpass_filter/*_cutoff</code><a class="headerlink" href="#lowpass_filter_cutoff" title="Permanent link">&para;</a></h3>
+<h3 id="lowpass_filter_cutoff"><strong><code>lowpass_filter/*_cutoff</code></strong><a class="headerlink" href="#lowpass_filter_cutoff" title="Permanent link">&para;</a></h3>
 <p>RPMフィルタとは別のローパスフィルタのカットオフ周波数です．
 最初は3つ全て0Hzに設定してください．これでフィルタが無効化されます．
 RPMフィルタではモータ，プロペラ由来の振動以外は落とせないため，どうしても強い振動が残る場合は部分的にLPFを有効化してください．</p>
-<h3 id="rpm_filterquality_factor"><code>rpm_filter/quality_factor</code><a class="headerlink" href="#rpm_filterquality_factor" title="Permanent link">&para;</a></h3>
+<h3 id="rpm_filterquality_factor"><strong><code>rpm_filter/quality_factor</code></strong><a class="headerlink" href="#rpm_filterquality_factor" title="Permanent link">&para;</a></h3>
 <p>ノッチフィルタの鋭さを決める値です．
 大きいほど鋭い（バンド幅が狭い）代わりに遅延が小さくなります．
 デフォルトは0でフィルタが無効になっています．
 最初は遅延とバンド幅のバランスがとれた5に設定してください．
 実際に飛ばしてみてFFTでピークが視認できないほどに振動がカットされていることが確認できたら，
 ピークが残る直前まで1つずつ値を大きくしてみてください．</p>
-<h3 id="rpm_filtermin_center_frequency-rpm_filterfade_range"><code>rpm_filter/min_center_frequency</code>, <code>rpm_filter/fade_range</code><a class="headerlink" href="#rpm_filtermin_center_frequency-rpm_filterfade_range" title="Permanent link">&para;</a></h3>
+<h3 id="rpm_filtermin_center_frequency-rpm_filterfade_range"><strong><code>rpm_filter/min_center_frequency</code>, <code>rpm_filter/fade_range</code></strong><a class="headerlink" href="#rpm_filtermin_center_frequency-rpm_filterfade_range" title="Permanent link">&para;</a></h3>
 <p>RPMフィルタを適用する中心周波数の範囲に関するパラメータです．
 前者を<span class="arithmatex">\(f_\mathrm{m}\)</span>，後者を<span class="arithmatex">\(f_\mathrm{f}\)</span>とすると，中心周波数<span class="arithmatex">\(f_\mathrm{c}\)</span>に対してノッチフィルタは以下のように適用されます．</p>
 <ul>
@@ -1555,7 +1555,7 @@ RPMフィルタではモータ，プロペラ由来の振動以外は落とせ�
 遷移領域を設けているのは，RPMフィルタの有効・無効が切り替わった際に全体のフィルタ特性が急激に変化するのを避けるためです．
 ホバリング回転周波数<span class="arithmatex">\(f_\mathrm{h}\)</span>に対し，
 最初は<span class="arithmatex">\(f_\mathrm{m}=\frac{f_\mathrm{h}}{2}\)</span>，<span class="arithmatex">\(f_\mathrm{f}=\frac{f_\mathrm{h}}{4}\)</span>程度に設定してください．</p>
-<h3 id="rpm_filterlpf_cutoff"><code>rpm_filter/lpf_cutoff</code><a class="headerlink" href="#rpm_filterlpf_cutoff" title="Permanent link">&para;</a></h3>
+<h3 id="rpm_filterlpf_cutoff"><strong><code>rpm_filter/lpf_cutoff</code></strong><a class="headerlink" href="#rpm_filterlpf_cutoff" title="Permanent link">&para;</a></h3>
 <p>RPMフィルタの中心周波数にかけるローパスフィルタのカットオフ周波数です．
 ESCから得られるモータの回転数は変動が大きく，そのまま中心周波数として使用するとフィルタ特性の変動が大きすぎるため平滑化しています．
 多くの場合デフォルトのままで問題ありません．</p>

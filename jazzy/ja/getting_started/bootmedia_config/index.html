@@ -1575,30 +1575,30 @@
 <h1 id="_1">ブートデバイスの設定<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
 <p>まずは，ブートデバイスを直接編集して通信関連の初期設定を行います．
 Tobas のイメージが書き込まれたマイクロ SD カードを用意してください．</p>
-<h2 id="_2">準備<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h2 id="_2"><strong>準備</strong><a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="gui">設定用 GUI の起動<a class="headerlink" href="#gui" title="Permanent link">&para;</a></h3>
+<h3 id="gui"><strong>設定用 GUI の起動</strong><a class="headerlink" href="#gui" title="Permanent link">&para;</a></h3>
 <p>ターミナルで以下を実行し，Tobas Bootmedia Config を起動してください．
 ここでは外部ボリュームを扱うためにルート権限が必要です．</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>sudo<span class="w"> </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s1">'source /opt/ros/jazzy/setup.bash &amp;&amp; ros2 run tobas_bootmedia_config TobasBootmediaConfig'</span>
 </code></pre></div>
 <p><img alt="start" src="../../../assets/bootmedia_config/start.png" /></p>
-<h3 id="_3">ブートデバイスに接続<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<h3 id="_3"><strong>ブートデバイスに接続</strong><a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
 <p>適当な USB カードリーダを介して，SD カードを PC に挿入してください．
 Tobas イメージが正しく書き込まれていれば，GUI 上部の選択リストで SD カードが選択できるようになります．</p>
 <p>正しい SD カードが選択されていることを確認し，<code>Connect</code>をクリックしてください．
 すると，SD カードが PC にマウントされ，現在の設定が読み込まれます．</p>
 <p><img alt="connect" src="../../../assets/bootmedia_config/connect.png" /></p>
-<h2 id="_4">各種設定<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h2 id="_4"><strong>各種設定</strong><a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="hostname">Hostname<a class="headerlink" href="#hostname" title="Permanent link">&para;</a></h3>
+<h3 id="hostname"><strong>Hostname</strong><a class="headerlink" href="#hostname" title="Permanent link">&para;</a></h3>
 <p>Linux のホスト名を編集します．</p>
 <p>Tobas では，デフォルトだとネットワーク上の端末を識別するためにホスト名が使用されるため，
 想定されるサブネット内のホスト名がユニークである必要があります．
-固定 IP での識別も可能ですが，複数機を同時に使用する場合は念の為ホスト名が被らないようにしておくことを勧めます．</p>
+固定 IP での識別も可能ですが，複数機を同時に使用する場合は念の為ホスト名が被らないようにしておくとよいでしょう．</p>
 <p>ホスト名を編集し，<code>Write</code>をクリックすると新しいホスト名が SD カードに書き込まれます．</p>
 <p><img alt="hostname" src="../../../assets/bootmedia_config/hostname.png" /></p>
-<h3 id="login-password">Login Password<a class="headerlink" href="#login-password" title="Permanent link">&para;</a></h3>
+<h3 id="login-password"><strong>Login Password</strong><a class="headerlink" href="#login-password" title="Permanent link">&para;</a></h3>
 <p>ログインパスワードを編集します．</p>
 <p>デフォルトの<code>tobas</code>のままでも動作上は問題ありませんが，
 セキュリティの観点から変更することが推奨されています．</p>
@@ -1606,7 +1606,7 @@ Tobas イメージが正しく書き込まれていれば，GUI 上部の選択�
 両者が一致し，かつ有効なパスワードであれば<code>Write</code>ボタンが有効になります．
 <code>Write</code>をクリックすると，入力したパスワードが SD カードに書き込まれます．</p>
 <p><img alt="login_password" src="../../../assets/bootmedia_config/login_password.png" /></p>
-<h3 id="ssh-keys">SSH Keys<a class="headerlink" href="#ssh-keys" title="Permanent link">&para;</a></h3>
+<h3 id="ssh-keys"><strong>SSH Keys</strong><a class="headerlink" href="#ssh-keys" title="Permanent link">&para;</a></h3>
 <p>SSH 鍵認証の設定を行います．</p>
 <p>Tobas では地上局からフライトコントローラ (FC) を操作するのに一部 SSH 鍵認証を用いているため，
 地上局として使用する PC の公開鍵を FC に登録しておく必要があります．</p>
@@ -1619,12 +1619,12 @@ Tobas イメージが正しく書き込まれていれば，GUI 上部の選択�
 出てきたダイアログで<code>OK</code>をクリックすると SSH の公開鍵と秘密鍵が生成されます．パスワードは空欄のままで大丈夫です．
 その後<code>OpenSSH keys</code>をクリックすると作成された鍵が表示されていることが確認できます．
 鍵をダブルクリックし，出てきたダイアログで<code>Public key</code>をメモしたら<code>Passwords and Keys</code>を閉じてください．</p>
-<p><img src="../../../assets/bootmedia_config/ssh_key_1.png" alt="ssh_key_1" width="49%"/>
-<img src="../../../assets/bootmedia_config/ssh_key_2.png" alt="ssh_key_2" width="49%"/></p>
+<p><img alt="ssh_key_1" src="../../../assets/bootmedia_config/ssh_key_1.png" width="49%" />
+<img alt="ssh_key_2" src="../../../assets/bootmedia_config/ssh_key_2.png" width="49%" /></p>
 <p><code>Tobas Bootmedia Config</code>に戻って<code>Add</code>をクリックし，出現するダイアログに先程メモした公開鍵をコピー＆ペーストしてください．
 <code>OK</code>をクリックすると，公開鍵がリストに追加されると同時に SD カードにも書き込まれます．</p>
 <p><img alt="ssh_keys" src="../../../assets/bootmedia_config/ssh_keys.png" /></p>
-<h3 id="wi-fi-client">Wi-Fi Client<a class="headerlink" href="#wi-fi-client" title="Permanent link">&para;</a></h3>
+<h3 id="wi-fi-client"><strong>Wi-Fi Client</strong><a class="headerlink" href="#wi-fi-client" title="Permanent link">&para;</a></h3>
 <p>FC を Wi-Fi クライアントとして運用するための設定を行います．</p>
 <p>Tobas は遠隔通信に ROS 2 (DDS) を用いており，
 FC と地上局などの通信すべき端末は全て同じサブネットに属する必要があります．
@@ -1633,7 +1633,7 @@ FC と地上局などの通信すべき端末は全て同じサブネットに�
 <code>Priority</code>は接続の優先度であり，複数のネットワークが利用可能な場合にはこの値が大きいほど優先されます．
 <code>OK</code>をクリックすると，アクセスポイントがテーブルに追加されると同時に SD カードにも書き込まれます．</p>
 <p><img alt="wifi_client" src="../../../assets/bootmedia_config/wifi_client.png" /></p>
-<h3 id="wi-fi-hotspot">Wi-Fi Hotspot<a class="headerlink" href="#wi-fi-hotspot" title="Permanent link">&para;</a></h3>
+<h3 id="wi-fi-hotspot"><strong>Wi-Fi Hotspot</strong><a class="headerlink" href="#wi-fi-hotspot" title="Permanent link">&para;</a></h3>
 <p>FC を Wi-Fi アクセスポイントとして運用するための設定を行います．</p>
 <p>前述の通り，FC と地上局の通信のためには両者が同じサブネットに属する必要がありますが，
 FC 自体をアクセスポイントにしておくと，屋外での試験飛行などの際に外部のルータを用意する必要がなくて便利です．
@@ -1642,13 +1642,13 @@ FC を Wi-Fi クライアントとしてのみ運用する場合は，この項�
 両者とも有効であれば<code>Write</code>ボタンが有効になります．
 <code>Write</code>をクリックすると，入力した SSID と PSK が SD カードに書き込まれます．</p>
 <p><img alt="wifi_hotspot" src="../../../assets/bootmedia_config/wifi_hotspot.png" /></p>
-<h2 id="_5">終了<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h2 id="_5"><strong>終了</strong><a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <hr />
 <p>ここまでの設定が完了したら，<code>Disconnect</code>をクリックしてください．
 ブートデバイスがアンマウントされ，取り外し可能な状態になります．
 GUI を閉じ，SD カードを PC から取り外してください．</p>
 <p><img alt="disconnect" src="../../../assets/bootmedia_config/disconnect.png" /></p>
-<h2 id="_6">次の手順へ<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<h2 id="_6"><strong>次の手順へ</strong><a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <hr />
 <p>これで作業は完了です．
 次は Tobas Setup Assistant を用いて最初のプロジェクトを作成します．</p>

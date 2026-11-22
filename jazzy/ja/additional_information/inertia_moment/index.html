@@ -1375,7 +1375,7 @@
 <h1 id="_1">代表的な慣性モーメント<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
 <p>質量<span class="arithmatex">\(m\)</span>の密度均一な物体の重心周りの慣性モーメントの求め方を紹介します．
 URDF を作る際にご利用ください．</p>
-<h2 id="3-xyz">3 辺の長さが<span class="arithmatex">\(x\)</span>，<span class="arithmatex">\(y\)</span>，<span class="arithmatex">\(z\)</span>の直方体<a class="headerlink" href="#3-xyz" title="Permanent link">&para;</a></h2>
+<h2 id="3-xyz"><strong>3 辺の長さが<span class="arithmatex">\(x\)</span>，<span class="arithmatex">\(y\)</span>，<span class="arithmatex">\(z\)</span>の直方体</strong><a class="headerlink" href="#3-xyz" title="Permanent link">&para;</a></h2>
 <hr />
 <div class="arithmatex">\[
 \begin{aligned}
@@ -1389,7 +1389,7 @@ I_{xy} &amp;= I_{yz} = I_{zx} = 0 \\
 <span class="w">  </span><span class="nt">&lt;inertia</span><span class="w"> </span><span class="na">ixx=</span><span class="s">"${m * (y*y + z*z) / 12}"</span><span class="w"> </span><span class="na">ixy=</span><span class="s">"0.0"</span><span class="w"> </span><span class="na">ixz=</span><span class="s">"0.0"</span><span class="w"> </span><span class="na">iyy=</span><span class="s">"${m * (z*z + x*x) / 12}"</span><span class="w"> </span><span class="na">iyz=</span><span class="s">"0.0"</span><span class="w"> </span><span class="na">izz=</span><span class="s">"${m * (x*x + y*y) / 12}"</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;/xacro:macro&gt;</span>
 </code></pre></div>
-<h2 id="rh">半径<span class="arithmatex">\(r\)</span>，高さ<span class="arithmatex">\(h\)</span>の円柱<a class="headerlink" href="#rh" title="Permanent link">&para;</a></h2>
+<h2 id="rh"><strong>半径<span class="arithmatex">\(r\)</span>，高さ<span class="arithmatex">\(h\)</span>の円柱</strong><a class="headerlink" href="#rh" title="Permanent link">&para;</a></h2>
 <hr />
 <div class="arithmatex">\[
 \begin{aligned}
@@ -1402,7 +1402,7 @@ I_{xy} &amp;= I_{yz} = I_{zx} = 0 \\
 <span class="w">  </span><span class="nt">&lt;inertia</span><span class="w"> </span><span class="na">ixx=</span><span class="s">"${m*r*r/4 + m*h*h/12}"</span><span class="w"> </span><span class="na">ixy=</span><span class="s">"0.0"</span><span class="w"> </span><span class="na">ixz=</span><span class="s">"0.0"</span><span class="w"> </span><span class="na">iyy=</span><span class="s">"${m*r*r/4 + m*h*h/12}"</span><span class="w"> </span><span class="na">iyz=</span><span class="s">"0.0"</span><span class="w"> </span><span class="na">izz=</span><span class="s">"${m*r*r/2}"</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;/xacro:macro&gt;</span>
 </code></pre></div>
-<h2 id="r">半径<span class="arithmatex">\(r\)</span>の球<a class="headerlink" href="#r" title="Permanent link">&para;</a></h2>
+<h2 id="r"><strong>半径<span class="arithmatex">\(r\)</span>の球</strong><a class="headerlink" href="#r" title="Permanent link">&para;</a></h2>
 <hr />
 <div class="arithmatex">\[
 \begin{aligned}

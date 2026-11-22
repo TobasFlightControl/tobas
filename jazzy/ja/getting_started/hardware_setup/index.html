@@ -784,17 +784,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#fc" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        FC の電源を切る
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1505,17 +1494,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#fc" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        FC の電源を切る
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1595,15 +1573,15 @@
 
 
 <h1 id="_1">実機のセットアップ<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
-<h2 id="_2">実機の作成<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h2 id="_2"><strong>実機の作成</strong><a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <hr />
 <p>Setup Assistant で設定したとおりに実機を作成します．</p>
 <!-- TODO: Navio2のような詳細な手順 -->
 <!-- cf. https://docs.emlid.com/navio2/hardware-setup/ -->
 <!-- cf. https://docs.emlid.com/navio2/ardupilot/typical-setup-schemes/ -->
 
-<p><img src="../../../assets/hardware_setup/f450_1.png" alt="f450_1" width="49%"/>
-<img src="../../../assets/hardware_setup/f450_2.png" alt="f450_2" width="49%"/></p>
+<p><img alt="f450_1" src="../../../assets/hardware_setup/f450_1.png" width="49%" />
+<img alt="f450_2" src="../../../assets/hardware_setup/f450_2.png" width="49%" /></p>
 <!-- prettier-ignore-start -->
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1616,7 +1594,7 @@
 </div>
 <!-- prettier-ignore-end -->
 
-<h2 id="_3">プロポの設定<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h2 id="_3"><strong>プロポの設定</strong><a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <hr />
 <p>S.BUS の信号は 8 チャンネル以上を想定しています．
 Tobas では，RC 入力の各チャンネルの役割は以下のようになっています:</p>
@@ -1724,27 +1702,30 @@ GPSw (General Purpose Switch) はユーザが自由に使えるスイッチで�
 <p>また，Futaba のプロポを用いる場合はスロットルレバーをリバースに設定する必要があります．
 プロポの<code>+</code>ボタンを長押しでメニュー画面に入り，<code>リバース</code>を選択してください．
 スロットルレバー (<code>THR</code>) のみをリバース (<code>REV</code>) に設定してください．</p>
-<h2 id="tobas">Tobas プロジェクトの読み込みと書き込み<a class="headerlink" href="#tobas" title="Permanent link">&para;</a></h2>
+<h2 id="tobas"><strong>Tobas プロジェクトの読み込みと書き込み</strong><a class="headerlink" href="#tobas" title="Permanent link">&para;</a></h2>
 <hr />
 <p>地上局用の PC を FC と同じネットワークに接続します．
 <a href="../bootmedia_config/">Boot Device Configuration</a>で複数のネットワークを設定した場合は，
 利用可能な最も優先度の高いネットワークが選択されていることに注意してください．</p>
 <p>ターミナルで以下を実行し，Tobas GCS を起動します．</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nv">RMW_IMPLEMENTATION</span><span class="o">=</span>rmw_cyclonedds_cpp<span class="w"> </span>ros2<span class="w"> </span>launch<span class="w"> </span>tobas_gcs<span class="w"> </span>gcs.launch.py
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>/opt/ros/jazzy/setup.bash
+$<span class="w"> </span><span class="nv">RMW_IMPLEMENTATION</span><span class="o">=</span>rmw_cyclonedds_cpp<span class="w"> </span>ros2<span class="w"> </span>launch<span class="w"> </span>tobas_gcs<span class="w"> </span>gcs.launch.py
 </code></pre></div>
-<p><code>Load Project</code>をクリックし，Setup Assistant で作成した<code>tobas_f450.TBS</code>をダブルクリックして読み込みます．
-<code>Write Project</code>をクリックすると，プロジェクトが FC に送信された後にビルドされます．これには数分かかります．</p>
-<p><img alt="load_and_write" src="../../../assets/hardware_setup/load_and_write.png" /></p>
-<h2 id="sensor-calibration">Sensor Calibration<a class="headerlink" href="#sensor-calibration" title="Permanent link">&para;</a></h2>
+<p><img alt="start" src="../../../assets/hardware_setup/start.png" /></p>
+<p><code>Load Project</code>をクリックし，Setup Assistant で作成した<code>tobas_f450.TBS</code>をダブルクリックして読み込みます．</p>
+<p><img alt="load_project" src="../../../assets/hardware_setup/load_project.png" /></p>
+<p><code>Write Project</code>をクリックすると，プロジェクトが FC に送信された後にビルドされます．これには数分かかります．</p>
+<p><img alt="write_project" src="../../../assets/hardware_setup/write_project.png" /></p>
+<h2 id="sensor-calibration"><strong>Sensor Calibration</strong><a class="headerlink" href="#sensor-calibration" title="Permanent link">&para;</a></h2>
 <p>各センサのキャリブレーションを行います．
 画面上部のツールボタンの中にある<code>Sensor Calib</code>をクリックしてください．</p>
 <hr />
-<h3 id="accelerometer-calibration">Accelerometer Calibration<a class="headerlink" href="#accelerometer-calibration" title="Permanent link">&para;</a></h3>
+<h3 id="accelerometer-calibration"><strong>Accelerometer Calibration</strong><a class="headerlink" href="#accelerometer-calibration" title="Permanent link">&para;</a></h3>
 <p>加速度センサのキャリブレーションを行います．
 機体を水平面上に置き，<code>Start</code>をクリックしてください．
 数秒でキャリブレーションが完了し，しばらくするとタブが赤色から緑色に変化します．</p>
 <p><img alt="accel_calibration" src="../../../assets/hardware_setup/accel_calibration.png" /></p>
-<h3 id="magnetometer-calibration">Magnetometer Calibration<a class="headerlink" href="#magnetometer-calibration" title="Permanent link">&para;</a></h3>
+<h3 id="magnetometer-calibration"><strong>Magnetometer Calibration</strong><a class="headerlink" href="#magnetometer-calibration" title="Permanent link">&para;</a></h3>
 <p>地磁気センサのキャリブレーションを行います．
 地磁気センサは周囲の環境の影響を強く受けるため，FC を機体に取り付けた状態で実行してください．
 また，周囲に鉄筋などの磁性体が存在しない環境で実行することが望ましいです．</p>
@@ -1755,9 +1736,9 @@ GPSw (General Purpose Switch) はユーザが自由に使えるスイッチで�
 <li>完了したら<code>Finish</code>をクリックしてください．推定された楕円体が青色，歪み補正後の点群が緑色で表示されます．
    青色の楕円体が白色の点群に重なっており，緑色の点群が原点周りに球を描いていれば成功です．</li>
 </ol>
-<p><img src="../../../assets/hardware_setup/mag_calibration_1.png" alt="mag_calibration_1" width="49%"/>
-<img src="../../../assets/hardware_setup/mag_calibration_2.png" alt="mag_calibration_2" width="49%"/></p>
-<h3 id="radio-calibration">Radio Calibration<a class="headerlink" href="#radio-calibration" title="Permanent link">&para;</a></h3>
+<p><img alt="mag_calibration_1" src="../../../assets/hardware_setup/mag_calibration_1.png" />
+<img alt="mag_calibration_2" src="../../../assets/hardware_setup/mag_calibration_2.png" /></p>
+<h3 id="radio-calibration"><strong>Radio Calibration</strong><a class="headerlink" href="#radio-calibration" title="Permanent link">&para;</a></h3>
 <p>ラジオ入力 (S.BUS) のキャリブレーションを行います．</p>
 <ol>
 <li><code>Start</code>をクリックすると，S.BUS の各チャンネルの値が表示され始めます．</li>
@@ -1766,11 +1747,11 @@ GPSw (General Purpose Switch) はユーザが自由に使えるスイッチで�
 <li>完了したら<code>Finish</code>をクリックしてください．</li>
 </ol>
 <p><img alt="radio_calibration" src="../../../assets/hardware_setup/radio_calibration.png" /></p>
-<h2 id="actuator-test">Actuator Test<a class="headerlink" href="#actuator-test" title="Permanent link">&para;</a></h2>
+<h2 id="actuator-test"><strong>Actuator Test</strong><a class="headerlink" href="#actuator-test" title="Permanent link">&para;</a></h2>
 <p>各アクチュエータの動作テストを行います．
 画面上部のツールボタンの中にある<code>Actuator Test</code>をクリックしてください．</p>
 <hr />
-<h3 id="rotor-test">Rotor Test<a class="headerlink" href="#rotor-test" title="Permanent link">&para;</a></h3>
+<h3 id="rotor-test"><strong>Rotor Test</strong><a class="headerlink" href="#rotor-test" title="Permanent link">&para;</a></h3>
 <p><span style="color: red;"><strong>警告: この操作ではモータが回転します．プロペラを取り付けて実行する場合は十分に注意してください．</strong></span></p>
 <p><img alt="rotor_test" src="../../../assets/hardware_setup/rotor_test.png" /></p>
 <ol>
@@ -1791,19 +1772,13 @@ GPSw (General Purpose Switch) はユーザが自由に使えるスイッチで�
 </div>
 <!-- prettier-ignore-end -->
 
-<h3 id="joint-test">Joint Test<a class="headerlink" href="#joint-test" title="Permanent link">&para;</a></h3>
-<p>機体がチルトロータや固定翼機の操舵面のような PWM 駆動関節を持つ場合は，それぞれの関節の位置指令テストを行うことができます．
+<h3 id="joint-test"><strong>Joint Test</strong><a class="headerlink" href="#joint-test" title="Permanent link">&para;</a></h3>
+<p>機体がチルトロータや固定翼機の操舵面のような駆動関節を持つ場合は，それぞれの関節の位置指令テストを行うことができます．
 今回の機体はプロペラ以外の可動関節をもたないためスキップします．</p>
-<h2 id="fc">FC の電源を切る<a class="headerlink" href="#fc" title="Permanent link">&para;</a></h2>
-<hr />
-<ol>
-<li>画面右上にある赤色の電源ボタンを押すと FC がシャットダウンされます．</li>
-<li>ラズパイの電源ボタンが緑色から赤色に変化したことを確認して電源を抜いてください．</li>
-</ol>
-<p><img alt="power_off" src="../../../assets/hardware_setup/power_off.png" /></p>
-<h2 id="_4">次の手順へ<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h2 id="_4"><strong>次の手順へ</strong><a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <hr />
 <p>これで作業は完了です．
+Tobas GCS を閉じ，機体の電源を落としてください．
 次のステップではいよいよ機体を飛ばしてみます．</p>
 
 

@@ -1485,31 +1485,27 @@
 
 
 <h1 id="_1">インストール<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
-<h2 id="pc-tobas">PC への Tobas のインストール<a class="headerlink" href="#pc-tobas" title="Permanent link">&para;</a></h2>
+<h2 id="pc-tobas"><strong>PC への Tobas のインストール</strong><a class="headerlink" href="#pc-tobas" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="ros-2-jazzy">ROS 2 Jazzy のインストール<a class="headerlink" href="#ros-2-jazzy" title="Permanent link">&para;</a></h3>
+<h3 id="ros-2-jazzy"><strong>ROS 2 Jazzy のインストール</strong><a class="headerlink" href="#ros-2-jazzy" title="Permanent link">&para;</a></h3>
 <p><a href=https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html target="_blank">ROS 2 Jazzy の公式手順</a>
-に従って ROS 2 を deb パッケージからインストールしてください．
+に従って ROS 2 をインストールしてください．
 このドキュメントでは<code>ros-jazzy-desktop</code>を使用します．</p>
-<h3 id="tobas">Tobas のインストール<a class="headerlink" href="#tobas" title="Permanent link">&para;</a></h3>
+<h3 id="tobas"><strong>Tobas のインストール</strong><a class="headerlink" href="#tobas" title="Permanent link">&para;</a></h3>
 <p>ROS 2 の apt リポジトリから Tobas をインストールします．</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>update
 $<span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>ros-jazzy-tobas
 </code></pre></div>
-<p>Tobas を使用するターミナルでは，ROS 2 Jazzy の環境を読み込んでください．</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>/opt/ros/jazzy/setup.bash
-</code></pre></div>
-<h2 id="_2">フライトコントローラのイメージ書き込み<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h2 id="_2"><strong>フライトコントローラのイメージ書き込み</strong><a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="_3">必要なもの<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<h3 id="_3"><strong>必要なもの</strong><a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><a href=https://www.raspberrypi.com/products/raspberry-pi-5/ target="_blank">Raspberry Pi 5 (2 GB以上)</a></li>
-<li>Tobas HAT <!-- TODO: URL --></li>
 <li>16 GB 以上のマイクロ SD カード (例: <a href=https://www.sandisk.com/products/memory-cards/microsd-cards/sandisk-extreme-uhs-i-microsd target="_blank">SanDisk Extreme microSDXC™ UHS-I CARD - 32GB</a>)</li>
 <li>SD カードリーダー (例: <a href=https://www.sandisk.com/products/accessories/memory-card-readers/sandisk-quickflow-microsd-memory-card-reader-usb-c target="_blank">SANDISK QuickFlow microSD Card Reader with USB-C</a>)</li>
 </ul>
-<h3 id="_4">手順<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
-<p><a href=https://drive.google.com/file/d/1sGMYTKHDtHuGZBKRvX5tzlAJ_RVg4XYe/view target="_blank">tobas_2.16.9_arm64.img.gz</a>
+<h3 id="_4"><strong>手順</strong><a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<p><a href=https://drive.google.com/file/d/1z0_PBSmW7GaoakMl81ZoP50CtI2rSmT-/view target="_blank">Tobas のイメージファイル</a>
 をダウンロードしてください．</p>
 <p>適当なイメージフラッシャーをインストールしてください．例えば以下が使用可能です．</p>
 <ul>
@@ -1521,7 +1517,7 @@ $<span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>
 以下は balenaEtcher の画面です．</p>
 <p><img alt="balena_etcher" src="../../../assets/installation/balena_etcher.png" /></p>
 <p>正常に終了したら SD カードを PC から取り外してください．</p>
-<h2 id="_5">次の手順へ<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h2 id="_5"><strong>次の手順へ</strong><a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <hr />
 <p>これでインストールは完了です．
 インストール時に実行された変更を反映するため，次の操作に進む前に一度 PC を再起動しておくことをおすすめします．

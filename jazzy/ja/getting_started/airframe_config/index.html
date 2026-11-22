@@ -1603,7 +1603,7 @@ Tobas Setup Assistant は，Tobas を用いてドローンを飛ばすのに必�
 プロジェクトフォルダには，機体の質量特性，プロペラの空気特性，モータの電気特性といった，ドローンを飛ばすのに必要な全ての情報が含まれます．
 Tobas Setup Assistant を使用するためには，ユーザの機体を表現した Universal Aircraft Description Format (UADF) ファイルが必要です．
 UADF の詳細については<a href="../../additional_information/what_is_uadf/">What is UADF</a>をご参照ください．</p>
-<h2 id="_2">準備<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h2 id="_2"><strong>準備</strong><a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <hr />
 <p>このチュートリアルでは，典型的なクアッドコプターである DJI F450 を使用します．
 構成部品は以下のとおりです：</p>
@@ -1619,26 +1619,27 @@ UADF の詳細については<a href="../../additional_information/what_is_uadf/
 <li>RC 受信機: <a href=https://www.rc.futaba.co.jp/products/detail/I00000021 target="_blank">Futaba R2000SBM</a></li>
 </ul>
 <p>機体の UADF を作る必要がありますが，今回は既に用意してあるものを使用します．</p>
-<h2 id="_3">起動<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h2 id="_3"><strong>起動</strong><a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <hr />
 <p>ターミナルで以下を実行し，Tobas Setup Assistant を起動します．</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>ros2<span class="w"> </span>launch<span class="w"> </span>tobas_setup_assistant<span class="w"> </span>setup_assistant.launch.py
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>/opt/ros/jazzy/setup.bash
+$<span class="w"> </span>ros2<span class="w"> </span>launch<span class="w"> </span>tobas_setup_assistant<span class="w"> </span>setup_assistant.launch.py
 </code></pre></div>
 <p><img alt="start" src="../../../assets/airframe_config/start.png" /></p>
-<h2 id="uadf">UADF の読み込み<a class="headerlink" href="#uadf" title="Permanent link">&para;</a></h2>
+<h2 id="uadf"><strong>UADF の読み込み</strong><a class="headerlink" href="#uadf" title="Permanent link">&para;</a></h2>
 <hr />
 <p><code>New</code>をクリックし，ファイルダイアログで<code>/opt/ros/jazzy/share/tobas_description/urdf/f450.uadf</code>を選択して<code>Open</code>をクリックします．
 すると，モデルビューに機体が表示され，各設定ページが有効になります．</p>
-<p><img alt="load" src="../../../assets/airframe_config/load.png" /></p>
-<h2 id="propulsion-system">Propulsion System<a class="headerlink" href="#propulsion-system" title="Permanent link">&para;</a></h2>
+<p><img alt="new" src="../../../assets/airframe_config/new.png" /></p>
+<h2 id="propulsion-system"><strong>Propulsion System</strong><a class="headerlink" href="#propulsion-system" title="Permanent link">&para;</a></h2>
 <hr />
 <p>推進系の設定を行います．
 今回は電動機のため<code>Electric Propulsion System</code>にチェックを入れたままにします．</p>
-<h3 id="battery">Battery<a class="headerlink" href="#battery" title="Permanent link">&para;</a></h3>
+<h3 id="battery"><strong>Battery</strong><a class="headerlink" href="#battery" title="Permanent link">&para;</a></h3>
 <p>バッテリーの設定を行います．
 バッテリーの仕様を確認し，各項目に適切な値を入力してください．</p>
 <p><img alt="battery" src="../../../assets/airframe_config/propulsion/battery.png" /></p>
-<h3 id="propulsion-units">Propulsion Units<a class="headerlink" href="#propulsion-units" title="Permanent link">&para;</a></h3>
+<h3 id="propulsion-units"><strong>Propulsion Units</strong><a class="headerlink" href="#propulsion-units" title="Permanent link">&para;</a></h3>
 <p>各推進ユニットの設定を行います．</p>
 <p>まず<code>propeller_0</code>リンクの設定を行います．
 各部品の仕様を確認し，<code>ESC</code>，<code>Motor</code>，<code>Propeller</code>の各項目に適切な値を入力してください．</p>
@@ -1659,7 +1660,8 @@ UADF の詳細については<a href="../../additional_information/what_is_uadf/
 <p><img alt="propulsion/aerodynamics" src="../../../assets/airframe_config/propulsion/aerodynamics.png" /></p>
 <p>この機体の 4 つの推進ユニットは全て同一なため，<code>Copy To All</code>をクリックし，<code>propeller_0</code>の設定を他の 3 つにコピーします．
 <code>propeller_0</code>の設定が他のタブにも反映されていることを確認してください．</p>
-<h2 id="hardware-interface">Hardware Interface<a class="headerlink" href="#hardware-interface" title="Permanent link">&para;</a></h2>
+<p><img alt="propulsion/copy_to_all" src="../../../assets/airframe_config/propulsion/copy_to_all.png" /></p>
+<h2 id="hardware-interface"><strong>Hardware Interface</strong><a class="headerlink" href="#hardware-interface" title="Permanent link">&para;</a></h2>
 <hr />
 <p>ハードウェアの接続に関する設定を行います．
 <code>Tobas FC2xx</code>が選択されていることを確認し，
@@ -1674,24 +1676,24 @@ UADF の詳細については<a href="../../additional_information/what_is_uadf/
 </div>
 <!-- prettier-ignore-end -->
 
-<h2 id="remote-connection">Remote Connection<a class="headerlink" href="#remote-connection" title="Permanent link">&para;</a></h2>
+<h2 id="remote-connection"><strong>Remote Connection</strong><a class="headerlink" href="#remote-connection" title="Permanent link">&para;</a></h2>
 <hr />
 <p>地上局から FC に遠隔で接続するための設定を行います．</p>
-<h3 id="network-interface">Network Interface<a class="headerlink" href="#network-interface" title="Permanent link">&para;</a></h3>
+<h3 id="network-interface"><strong>Network Interface</strong><a class="headerlink" href="#network-interface" title="Permanent link">&para;</a></h3>
 <p>FC が外部と通信する際に使用するネットワークインターフェースを指定します．
 今回は FC と GCS の通信にポケット Wi-Fi を使うため，<code>Wireless</code>を選択します．
 有線 LAN を使用する場合は<code>Wired</code>，
 外部の通信モジュールを使わずラズパイ内蔵のアクセスポイントを使用する場合は<code>Access Point</code>を選択してください．
 これら以外の構成の場合，例えば VPN のインターフェース<code>tun0</code>を使う場合などは，<code>Other</code>を選択し直接インターフェース名を指定してください．</p>
-<h3 id="host">Host<a class="headerlink" href="#host" title="Permanent link">&para;</a></h3>
+<h3 id="host"><strong>Host</strong><a class="headerlink" href="#host" title="Permanent link">&para;</a></h3>
 <p>GCS が LAN 内で FC を識別するためのアドレスの設定を行います．
 FC の IP を固定していればそれを直接使用することもできますが，今回は手軽なホスト名を使用することにします．
 <code>Hostname</code>を選択し，<a href="../bootmedia_config/">Boot Device Configuration</a>で設定した FC のホスト名を入力してください．</p>
 <p><img alt="remote_connection" src="../../../assets/airframe_config/remote_connection.png" /></p>
-<h2 id="_4">プロジェクトの保存<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h2 id="_4"><strong>プロジェクトの保存</strong><a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <p><code>Save</code>をクリックし，ファイルダイアログで<code>~/.local/share/tobas/colcon_ws/src/</code>以下に<code>tobas_f450.TBS</code>として保存します．</p>
 <p><img alt="save" src="../../../assets/airframe_config/save.png" /></p>
-<h2 id="_5">次の手順へ<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h2 id="_5"><strong>次の手順へ</strong><a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <hr />
 <p>これで作業は完了です．
 Setup Assistant を閉じてください．

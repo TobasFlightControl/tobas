@@ -645,10 +645,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#launch" class="md-nav__link">
+  <a href="#launching-the-assistant" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Launch
+        Launching the Assistant
       
     </span>
   </a>
@@ -1394,10 +1394,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#launch" class="md-nav__link">
+  <a href="#launching-the-assistant" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Launch
+        Launching the Assistant
       
     </span>
   </a>
@@ -1595,105 +1595,107 @@
 
 
 <h1 id="airframe-configuration">Airframe Configuration<a class="headerlink" href="#airframe-configuration" title="Permanent link">&para;</a></h1>
-<!-- ゲームの広告と同じで，全てを理解することよりもとりあえず何も考えずに簡単に動かせることが大事． -->
-<!-- 後々必要になる面倒な作業は隠して面白いところを見せる． -->
+<!-- As with a game advertisement, making it easy to get started matters more than understanding everything at once. -->
+<!-- Show the interesting parts first and leave the more involved tasks for later. -->
 
-<p>Use Tobas Setup Assistant to configure the airframe.
-Tobas Setup Assistant is a GUI for creating the project folder required to fly a drone using Tobas.
-The project folder contains all the information required to fly the drone, including the aircraft's mass properties, the propeller's aerodynamic properties, and the motor's electrical properties.
-To use Tobas Setup Assistant, you need a Universal Aircraft Description Format (UADF) file that describes your aircraft.
+<p>Use Tobas Setup Assistant to configure your aircraft.
+Tobas Setup Assistant is a GUI for creating the project folder needed to fly a drone with Tobas.
+The project folder contains all the information needed for flight, including aircraft mass properties, propeller aerodynamics, and motor electrical characteristics.
+To use Tobas Setup Assistant, you need a Universal Aircraft Description Format (UADF) file describing your aircraft.
 For details about UADF, see <a href="../../additional_information/what_is_uadf/">What is UADF</a>.</p>
-<h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">&para;</a></h2>
+<h2 id="preparation"><strong>Preparation</strong><a class="headerlink" href="#preparation" title="Permanent link">&para;</a></h2>
 <hr />
-<p>This tutorial uses the DJI F450, a typical quadcopter.
-The components are as follows:</p>
+<p>This tutorial uses a DJI F450, a conventional quadcopter.
+Its components are:</p>
 <ul>
-<li>Flight controller: <a href=https://tobas.jp/product-fc201-en target="_blank">Tobas FC201</a></li>
-<li>Power module: <a href=https://tobas.jp/product-pm201-en target="_blank">Tobas PM201</a></li>
+<li>Flight controller: <a href=https://tobas.jp/product-fc201-jp target="_blank">Tobas FC201</a></li>
+<li>Power module: <a href=https://tobas.jp/product-pm201-jp target="_blank">Tobas PM201</a></li>
 <li>Frame: <a href=https://www.hawks-work.com/products/f450-drone-frame-450mm-wheelbase-quadcopter-frame-kit-with-landing-skid-gear target="_blank">DJI F450 Frame</a></li>
-<li>Motor: <a href=https://www.hawks-work.com/products/a2212-brushless-motor-920kv-for-multirotor-drone-and-others target="_blank">A2212 920KV</a> (CW x 2, CCW x 2)</li>
-<li>Propeller: <a href=https://www.hawks-work.com/products/9450-propellers-self-tightening-cw-ccw-propeller-for-multirotor-f450 target="_blank">DJI 9450</a> (CW x 2, CCW x 2)</li>
+<li>Motors: <a href=https://www.hawks-work.com/products/a2212-brushless-motor-920kv-for-multirotor-drone-and-others target="_blank">A2212 920KV</a> (CW x 2, CCW x 2)</li>
+<li>Propellers: <a href=https://www.hawks-work.com/products/9450-propellers-self-tightening-cw-ccw-propeller-for-multirotor-f450 target="_blank">DJI 9450</a> (CW x 2, CCW x 2)</li>
 <li>ESC: <a href="https://www.fly-color.net/index.php?c=category&id=234" target="_blank">Flycolor Raptor5 35A</a> x 4</li>
 <li>Battery: <a href=https://hrb-power.com/products/11-1v-5000mah-6000mah-50c-trx target="_blank">HRB 3S 5000mAh 50C</a></li>
 <li>GNSS antenna: <a href=https://www.topgnss.store/en-jp/products/top901-gnss-l1-l2-l5-unmanned-vehicle-high-precision-drone-measurement-full-frequency-rtk-antenna-new-small-high-gain-helical target="_blank">TOPGNSS TOP901</a></li>
 <li>RC receiver: <a href=https://www.rc.futaba.co.jp/products/detail/I00000021 target="_blank">Futaba R2000SBM</a></li>
 </ul>
-<p>You need to create a UADF file for the aircraft, but this tutorial uses a file that has already been prepared.</p>
-<h2 id="launch">Launch<a class="headerlink" href="#launch" title="Permanent link">&para;</a></h2>
+<p>You normally need to create a UADF for your aircraft, but this tutorial uses one that is already provided.</p>
+<h2 id="launching-the-assistant"><strong>Launching the Assistant</strong><a class="headerlink" href="#launching-the-assistant" title="Permanent link">&para;</a></h2>
 <hr />
-<p>Run the following command in a terminal to launch Tobas Setup Assistant.</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>ros2<span class="w"> </span>launch<span class="w"> </span>tobas_setup_assistant<span class="w"> </span>setup_assistant.launch.py
+<p>Run the following commands in a terminal to launch Tobas Setup Assistant.</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>/opt/ros/jazzy/setup.bash
+$<span class="w"> </span>ros2<span class="w"> </span>launch<span class="w"> </span>tobas_setup_assistant<span class="w"> </span>setup_assistant.launch.py
 </code></pre></div>
 <p><img alt="start" src="../../assets/airframe_config/start.png" /></p>
-<h2 id="loading-the-uadf">Loading the UADF<a class="headerlink" href="#loading-the-uadf" title="Permanent link">&para;</a></h2>
+<h2 id="loading-the-uadf"><strong>Loading the UADF</strong><a class="headerlink" href="#loading-the-uadf" title="Permanent link">&para;</a></h2>
 <hr />
-<p>Click <code>New</code>, select <code>/opt/ros/jazzy/share/tobas_description/urdf/f450.uadf</code> in the file dialog, and click <code>Open</code>.
-The aircraft will appear in the model view, and each configuration page will be enabled.</p>
-<p><img alt="load" src="../../assets/airframe_config/load.png" /></p>
-<h2 id="propulsion-system">Propulsion System<a class="headerlink" href="#propulsion-system" title="Permanent link">&para;</a></h2>
+<p>Click <code>New</code>, select <code>/opt/ros/jazzy/share/tobas_description/urdf/f450.uadf</code> in the file dialog, then click <code>Open</code>.
+The aircraft appears in the model view and the configuration pages become available.</p>
+<p><img alt="new" src="../../assets/airframe_config/new.png" /></p>
+<h2 id="propulsion-system"><strong>Propulsion System</strong><a class="headerlink" href="#propulsion-system" title="Permanent link">&para;</a></h2>
 <hr />
 <p>Configure the propulsion system.
-Because this aircraft is electrically powered, leave <code>Electric Propulsion System</code> checked.</p>
-<h3 id="battery">Battery<a class="headerlink" href="#battery" title="Permanent link">&para;</a></h3>
+Since this aircraft is electrically powered, leave <code>Electric Propulsion System</code> checked.</p>
+<h3 id="battery"><strong>Battery</strong><a class="headerlink" href="#battery" title="Permanent link">&para;</a></h3>
 <p>Configure the battery.
-Check the battery specifications and enter the appropriate value for each field.</p>
+Check the battery specifications and enter the appropriate values in each field.</p>
 <p><img alt="battery" src="../../assets/airframe_config/propulsion/battery.png" /></p>
-<h3 id="propulsion-units">Propulsion Units<a class="headerlink" href="#propulsion-units" title="Permanent link">&para;</a></h3>
+<h3 id="propulsion-units"><strong>Propulsion Units</strong><a class="headerlink" href="#propulsion-units" title="Permanent link">&para;</a></h3>
 <p>Configure each propulsion unit.</p>
-<p>First, configure the <code>propeller_0</code> link.
-Check the specifications of each component and enter the appropriate values for <code>ESC</code>, <code>Motor</code>, and <code>Propeller</code>.</p>
+<p>Start with the <code>propeller_0</code> link.
+Check each component's specifications and enter the appropriate values under <code>ESC</code>, <code>Motor</code>, and <code>Propeller</code>.</p>
 <!-- prettier-ignore-start -->
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>If you are unsure which link name corresponds to a propeller on the aircraft,
-click the link name under <code>Frame Tree</code> in the upper-left corner to highlight it in the model view.</p>
+<p>If you are unsure which propeller corresponds to a displayed link name,
+click the link name in the <code>Frame Tree</code> at the upper left to highlight it in the model view.</p>
 </div>
 <!-- prettier-ignore-end -->
 
 <p><img alt="propulsion/esc" src="../../assets/airframe_config/propulsion/esc.png" /></p>
 <p><img alt="propulsion/motor" src="../../assets/airframe_config/propulsion/motor.png" /></p>
 <p><img alt="propulsion/propeller" src="../../assets/airframe_config/propulsion/propeller.png" /></p>
-<p>Configure the propeller's aerodynamic properties under <code>Aerodynamics</code>.
-You can choose from several configuration methods. Because a model is already available for the DJI 9450 propeller used in this tutorial, use that model.
+<p>Use <code>Aerodynamics</code> to configure the propeller's aerodynamic characteristics.
+Several configuration methods are available. For the DJI 9450 propeller used here, a predefined model is provided.
 Select <code>Select Propeller Model</code> from the first list, then select <code>dji_9450</code> from the list below it.</p>
 <p><img alt="propulsion/aerodynamics" src="../../assets/airframe_config/propulsion/aerodynamics.png" /></p>
-<p>Because all four propulsion units on this aircraft are identical, click <code>Copy To All</code> to copy the <code>propeller_0</code> settings to the other three units.
-Confirm that the <code>propeller_0</code> settings have also been applied to the other tabs.</p>
-<h2 id="hardware-interface">Hardware Interface<a class="headerlink" href="#hardware-interface" title="Permanent link">&para;</a></h2>
+<p>All four propulsion units on this aircraft are identical, so click <code>Copy To All</code> to copy the <code>propeller_0</code> settings to the other three units.
+Confirm that the <code>propeller_0</code> settings are reflected in the other tabs.</p>
+<p><img alt="propulsion/copy_to_all" src="../../assets/airframe_config/propulsion/copy_to_all.png" /></p>
+<h2 id="hardware-interface"><strong>Hardware Interface</strong><a class="headerlink" href="#hardware-interface" title="Permanent link">&para;</a></h2>
 <hr />
 <p>Configure the hardware connections.
-Confirm that <code>Tobas FC2xx</code> is selected,
-then set the appropriate DShot channel for each of the four propulsion units.</p>
+Make sure <code>Tobas FC2xx</code> is selected,
+then assign the appropriate DShot channel to each of the four propulsion units.</p>
 <p><img alt="hardware_interface" src="../../assets/airframe_config/hardware_interface.png" /></p>
 <!-- prettier-ignore-start -->
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If you do not specify an interface here, such as when using a CAN-ESC,
-the hardware will not operate as-is.
-You must create a custom ROS node that connects the hardware to the Tobas software.</p>
+<p>If you do not specify an interface here, for example when using CAN ESCs,
+the hardware will not be driven by the default configuration.
+You will need to write your own ROS node to connect the hardware to the Tobas software.</p>
 </div>
 <!-- prettier-ignore-end -->
 
-<h2 id="remote-connection">Remote Connection<a class="headerlink" href="#remote-connection" title="Permanent link">&para;</a></h2>
+<h2 id="remote-connection"><strong>Remote Connection</strong><a class="headerlink" href="#remote-connection" title="Permanent link">&para;</a></h2>
 <hr />
-<p>Configure the remote connection from the ground control station to the FC.</p>
-<h3 id="network-interface">Network Interface<a class="headerlink" href="#network-interface" title="Permanent link">&para;</a></h3>
-<p>Specify the network interface that the FC uses to communicate with external devices.
-In this tutorial, pocket Wi-Fi is used for communication between the FC and GCS, so select <code>Wireless</code>.
-If using wired LAN, select <code>Wired</code>.
-If using the Raspberry Pi's built-in access point without an external communication module, select <code>Access Point</code>.
-For other configurations, such as when using the VPN interface <code>tun0</code>, select <code>Other</code> and enter the interface name directly.</p>
-<h3 id="host">Host<a class="headerlink" href="#host" title="Permanent link">&para;</a></h3>
-<p>Configure the address that the GCS uses to identify the FC on the LAN.
-You can use the FC's IP address directly if it is static, but this tutorial uses a convenient hostname instead.
+<p>Configure remote access from the ground station to the FC.</p>
+<h3 id="network-interface"><strong>Network Interface</strong><a class="headerlink" href="#network-interface" title="Permanent link">&para;</a></h3>
+<p>Specify the network interface the FC uses to communicate with external devices.
+This tutorial uses a portable Wi-Fi router for communication between the FC and GCS, so select <code>Wireless</code>.
+Select <code>Wired</code> if you use wired Ethernet.
+Select <code>Access Point</code> if you use the Raspberry Pi's built-in access point without an external communication module.
+For other configurations, such as a VPN interface named <code>tun0</code>, select <code>Other</code> and enter the interface name directly.</p>
+<h3 id="host"><strong>Host</strong><a class="headerlink" href="#host" title="Permanent link">&para;</a></h3>
+<p>Configure the address the GCS uses to identify the FC on the LAN.
+You can use a static IP address directly if one is configured, but this tutorial uses a hostname for convenience.
 Select <code>Hostname</code> and enter the FC hostname configured in <a href="../bootmedia_config/">Boot Device Configuration</a>.</p>
 <p><img alt="remote_connection" src="../../assets/airframe_config/remote_connection.png" /></p>
-<h2 id="saving-the-project">Saving the Project<a class="headerlink" href="#saving-the-project" title="Permanent link">&para;</a></h2>
+<h2 id="saving-the-project"><strong>Saving the Project</strong><a class="headerlink" href="#saving-the-project" title="Permanent link">&para;</a></h2>
 <p>Click <code>Save</code> and save the project as <code>tobas_f450.TBS</code> under <code>~/.local/share/tobas/colcon_ws/src/</code> in the file dialog.</p>
 <p><img alt="save" src="../../assets/airframe_config/save.png" /></p>
-<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<h2 id="next-steps"><strong>Next Steps</strong><a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <hr />
-<p>The configuration is now complete.
+<p>Configuration is now complete.
 Close Setup Assistant.
 Next, assemble the aircraft and set up the hardware.</p>
 

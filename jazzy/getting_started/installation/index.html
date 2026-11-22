@@ -578,15 +578,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#installing-tobas-on-a-pc" class="md-nav__link">
+  <a href="#installing-tobas-on-your-pc" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Installing Tobas on a PC
+        Installing Tobas on Your PC
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Installing Tobas on a PC">
+    <nav class="md-nav" aria-label="Installing Tobas on Your PC">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -629,10 +629,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#requirements" class="md-nav__link">
+  <a href="#what-you-need" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Requirements
+        What You Need
       
     </span>
   </a>
@@ -1328,15 +1328,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#installing-tobas-on-a-pc" class="md-nav__link">
+  <a href="#installing-tobas-on-your-pc" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Installing Tobas on a PC
+        Installing Tobas on Your PC
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Installing Tobas on a PC">
+    <nav class="md-nav" aria-label="Installing Tobas on Your PC">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1379,10 +1379,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#requirements" class="md-nav__link">
+  <a href="#what-you-need" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Requirements
+        What You Need
       
     </span>
   </a>
@@ -1485,46 +1485,43 @@
 
 
 <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h1>
-<h2 id="installing-tobas-on-a-pc">Installing Tobas on a PC<a class="headerlink" href="#installing-tobas-on-a-pc" title="Permanent link">&para;</a></h2>
+<h2 id="installing-tobas-on-your-pc"><strong>Installing Tobas on Your PC</strong><a class="headerlink" href="#installing-tobas-on-your-pc" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="installing-ros-2-jazzy">Installing ROS 2 Jazzy<a class="headerlink" href="#installing-ros-2-jazzy" title="Permanent link">&para;</a></h3>
+<h3 id="installing-ros-2-jazzy"><strong>Installing ROS 2 Jazzy</strong><a class="headerlink" href="#installing-ros-2-jazzy" title="Permanent link">&para;</a></h3>
 <p>Follow the <a href=https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html target="_blank">official ROS 2 Jazzy instructions</a>
-to install ROS 2 from deb packages.
-This documentation uses <code>ros-jazzy-desktop</code>.</p>
-<h3 id="installing-tobas">Installing Tobas<a class="headerlink" href="#installing-tobas" title="Permanent link">&para;</a></h3>
+to install ROS 2.
+This guide uses <code>ros-jazzy-desktop</code>.</p>
+<h3 id="installing-tobas"><strong>Installing Tobas</strong><a class="headerlink" href="#installing-tobas" title="Permanent link">&para;</a></h3>
 <p>Install Tobas from the ROS 2 apt repository.</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>update
 $<span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>ros-jazzy-tobas
 </code></pre></div>
-<p>In each terminal where you use Tobas, source the ROS 2 Jazzy environment.</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>/opt/ros/jazzy/setup.bash
-</code></pre></div>
-<h2 id="flashing-the-flight-controller-image">Flashing the Flight Controller Image<a class="headerlink" href="#flashing-the-flight-controller-image" title="Permanent link">&para;</a></h2>
+<h2 id="flashing-the-flight-controller-image"><strong>Flashing the Flight Controller Image</strong><a class="headerlink" href="#flashing-the-flight-controller-image" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h3>
+<h3 id="what-you-need"><strong>What You Need</strong><a class="headerlink" href="#what-you-need" title="Permanent link">&para;</a></h3>
 <ul>
 <li><a href=https://www.raspberrypi.com/products/raspberry-pi-5/ target="_blank">Raspberry Pi 5 (2 GB or more)</a></li>
-<li>Tobas HAT <!-- TODO: URL --></li>
-<li>A microSD card with at least 16 GB of storage (e.g., <a href=https://www.sandisk.com/products/memory-cards/microsd-cards/sandisk-extreme-uhs-i-microsd target="_blank">SanDisk Extreme microSDXC™ UHS-I CARD - 32GB</a>)</li>
+<li>A microSD card with at least 16 GB (e.g., <a href=https://www.sandisk.com/products/memory-cards/microsd-cards/sandisk-extreme-uhs-i-microsd target="_blank">SanDisk Extreme microSDXC™ UHS-I CARD - 32GB</a>)</li>
 <li>An SD card reader (e.g., <a href=https://www.sandisk.com/products/accessories/memory-card-readers/sandisk-quickflow-microsd-memory-card-reader-usb-c target="_blank">SANDISK QuickFlow microSD Card Reader with USB-C</a>)</li>
 </ul>
-<h3 id="procedure">Procedure<a class="headerlink" href="#procedure" title="Permanent link">&para;</a></h3>
-<p>Download <a href=https://drive.google.com/file/d/1sGMYTKHDtHuGZBKRvX5tzlAJ_RVg4XYe/view target="_blank">tobas_2.16.9_arm64.img.gz</a>.</p>
-<p>Install a suitable image flashing tool. For example, you can use one of the following:</p>
+<h3 id="procedure"><strong>Procedure</strong><a class="headerlink" href="#procedure" title="Permanent link">&para;</a></h3>
+<p>Download the <a href=https://drive.google.com/file/d/1z0_PBSmW7GaoakMl81ZoP50CtI2rSmT-/view target="_blank">Tobas image file</a>
+before proceeding.</p>
+<p>Install an image flashing tool. For example, you can use:</p>
 <ul>
 <li><a href=https://etcher.balena.io/ target="_blank">balenaEtcher</a></li>
 <li><a href=https://www.raspberrypi.com/software/ target="_blank">Raspberry Pi Imager</a></li>
 </ul>
-<p>Connect the SD card to the PC using the card reader.</p>
-<p>Launch the image flashing tool, select the downloaded image and the target SD card, and start flashing.
+<p>Connect the SD card to your PC using the card reader.</p>
+<p>Launch the flashing tool, select the downloaded image and the target SD card, and start flashing.
 The following screenshot shows balenaEtcher.</p>
 <p><img alt="balena_etcher" src="../../assets/installation/balena_etcher.png" /></p>
-<p>Once flashing completes successfully, remove the SD card from the PC.</p>
-<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<p>Once flashing completes successfully, remove the SD card from your PC.</p>
+<h2 id="next-steps"><strong>Next Steps</strong><a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <hr />
-<p>The installation is now complete.
-We recommend restarting the PC before proceeding to apply the changes made during installation.
-Next, use Tobas Bootmedia Config to perform the initial pre-boot configuration.</p>
+<p>Installation is now complete.
+We recommend restarting your PC before proceeding so that the changes made during installation take effect.
+Next, use Tobas Bootmedia Config to configure the initial settings before booting.</p>
 
 
 

@@ -1303,36 +1303,36 @@
 
 
 <h1 id="v211">リリース v2.11<a class="headerlink" href="#v211" title="Permanent link">&para;</a></h1>
-<h2 id="_1">動作環境<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h2 id="_1"><strong>動作環境</strong><a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <hr />
 <p>ROS 2 Jazzy</p>
-<h2 id="_2">変更点<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h2 id="_2"><strong>変更点</strong><a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="_3">状態推定<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<h3 id="_3"><strong>状態推定</strong><a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>加速度や速度だと誤検知しやすいため地面反力のみで離陸判定を行う</li>
 </ul>
-<h3 id="_4">制御<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<h3 id="_4"><strong>制御</strong><a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>積分誤差のリセットは着陸検知時ではなくディスアーム時に行う</li>
 <li>Y軸チルトマルチのレートモードを実装</li>
 </ul>
-<h3 id="_5">ミッション<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<h3 id="_5"><strong>ミッション</strong><a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>ミッション実行用のアクションサーバを1つのノードに統一</li>
 <li>先に全てのミッションコマンドをFCに送信してから実行</li>
 <li>Mission ExecutorをComponentで実行</li>
 <li>Landコマンドでは直前の目標経緯度を引き継ぐ</li>
 </ul>
-<h3 id="_6">マニュアルモード<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<h3 id="_6"><strong>マニュアルモード</strong><a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li>モード変更可否判定基準に<code>vehicle_health</code>を用いる</li>
 </ul>
-<h3 id="_7">飛行ログ<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<h3 id="_7"><strong>飛行ログ</strong><a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
 <ul>
 <li>フライトログのCSV出力機能を実装</li>
 </ul>
-<h3 id="_8">その他<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<h3 id="_8"><strong>その他</strong><a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>tobas_ros_interface</code>にアクションのインターフェースを実装</li>
 <li><code>external_pose</code>のリモートIFを追加</li>

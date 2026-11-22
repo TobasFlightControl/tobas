@@ -87,7 +87,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#configuring-the-boot-device" class="md-skip">
+        <a href="#boot-device-configuration" class="md-skip">
           Skip to content
         </a>
       
@@ -645,15 +645,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#settings" class="md-nav__link">
+  <a href="#configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Settings
+        Configuration
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Settings">
+    <nav class="md-nav" aria-label="Configuration">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1411,15 +1411,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#settings" class="md-nav__link">
+  <a href="#configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Settings
+        Configuration
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Settings">
+    <nav class="md-nav" aria-label="Configuration">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1572,83 +1572,85 @@
   
 
 
-<h1 id="configuring-the-boot-device">Configuring the Boot Device<a class="headerlink" href="#configuring-the-boot-device" title="Permanent link">&para;</a></h1>
-<p>First, edit the boot device directly to configure the initial communication settings.
-Prepare a microSD card containing the Tobas image.</p>
-<h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">&para;</a></h2>
+<h1 id="boot-device-configuration">Boot Device Configuration<a class="headerlink" href="#boot-device-configuration" title="Permanent link">&para;</a></h1>
+<p>First, configure the initial communication settings by editing the boot device directly.
+Prepare the microSD card containing the Tobas image.</p>
+<h2 id="preparation"><strong>Preparation</strong><a class="headerlink" href="#preparation" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="launching-the-configuration-gui">Launching the Configuration GUI<a class="headerlink" href="#launching-the-configuration-gui" title="Permanent link">&para;</a></h3>
+<h3 id="launching-the-configuration-gui"><strong>Launching the Configuration GUI</strong><a class="headerlink" href="#launching-the-configuration-gui" title="Permanent link">&para;</a></h3>
 <p>Run the following command in a terminal to launch Tobas Bootmedia Config.
-Root privileges are required because this tool accesses external volumes.</p>
+Root privileges are required to work with external volumes.</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>sudo<span class="w"> </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s1">'source /opt/ros/jazzy/setup.bash &amp;&amp; ros2 run tobas_bootmedia_config TobasBootmediaConfig'</span>
 </code></pre></div>
 <p><img alt="start" src="../../assets/bootmedia_config/start.png" /></p>
-<h3 id="connecting-to-the-boot-device">Connecting to the Boot Device<a class="headerlink" href="#connecting-to-the-boot-device" title="Permanent link">&para;</a></h3>
-<p>Insert the SD card into the PC using a suitable USB card reader.
-If the Tobas image has been written correctly, the SD card will appear in the selection list at the top of the GUI.</p>
-<p>Make sure that the correct SD card is selected, then click <code>Connect</code>.
-The SD card will be mounted on the PC, and its current settings will be loaded.</p>
+<h3 id="connecting-to-the-boot-device"><strong>Connecting to the Boot Device</strong><a class="headerlink" href="#connecting-to-the-boot-device" title="Permanent link">&para;</a></h3>
+<p>Insert the SD card into your PC using a suitable USB card reader.
+If the Tobas image was flashed correctly, the SD card will be available in the selection list at the top of the GUI.</p>
+<p>Make sure the correct SD card is selected, then click <code>Connect</code>.
+The SD card will be mounted on your PC and the current settings will be loaded.</p>
 <p><img alt="connect" src="../../assets/bootmedia_config/connect.png" /></p>
-<h2 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h2>
+<h2 id="configuration"><strong>Configuration</strong><a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="hostname">Hostname<a class="headerlink" href="#hostname" title="Permanent link">&para;</a></h3>
+<h3 id="hostname"><strong>Hostname</strong><a class="headerlink" href="#hostname" title="Permanent link">&para;</a></h3>
 <p>Edit the Linux hostname.</p>
-<p>By default, Tobas uses hostnames to identify devices on the network, so each hostname must be unique within the intended subnet.
-Devices can also be identified using static IP addresses, but when using multiple units simultaneously, we recommend assigning each one a unique hostname to avoid conflicts.</p>
+<p>By default, Tobas uses hostnames to identify devices on the network,
+so the hostname must be unique within the subnet you plan to use.
+You can also use a static IP address, but keeping hostnames unique is a good precaution when operating multiple aircraft at once.</p>
 <p>Edit the hostname and click <code>Write</code> to write the new hostname to the SD card.</p>
 <p><img alt="hostname" src="../../assets/bootmedia_config/hostname.png" /></p>
-<h3 id="login-password">Login Password<a class="headerlink" href="#login-password" title="Permanent link">&para;</a></h3>
+<h3 id="login-password"><strong>Login Password</strong><a class="headerlink" href="#login-password" title="Permanent link">&para;</a></h3>
 <p>Edit the login password.</p>
-<p>The default password, <code>tobas</code>, will work, but changing it is recommended for security reasons.</p>
-<p>Enter the login password in <code>New Password</code>, then enter the same password in <code>Confirm Password</code> for confirmation.
-If the passwords match and are valid, the <code>Write</code> button will be enabled.
+<p>The default password, <code>tobas</code>, will work,
+but changing it is recommended for security.</p>
+<p>Enter the login password in <code>New Password</code>, then enter it again in <code>Confirm Password</code>.
+The <code>Write</code> button becomes available when both entries match and the password is valid.
 Click <code>Write</code> to write the password to the SD card.</p>
 <p><img alt="login_password" src="../../assets/bootmedia_config/login_password.png" /></p>
-<h3 id="ssh-keys">SSH Keys<a class="headerlink" href="#ssh-keys" title="Permanent link">&para;</a></h3>
+<h3 id="ssh-keys"><strong>SSH Keys</strong><a class="headerlink" href="#ssh-keys" title="Permanent link">&para;</a></h3>
 <p>Configure SSH key authentication.</p>
-<p>Tobas uses SSH key authentication for some operations performed on the flight controller (FC) from the ground station.
-You must therefore register the public key of the PC used as the ground station with the FC.</p>
-<p>First, create an SSH key.
+<p>Tobas uses SSH key authentication for some operations from the ground station to the flight controller (FC),
+so you need to register the public key of your ground station PC on the FC.</p>
+<p>First, create an SSH key pair.
 Run the following command in a terminal to launch <code>Passwords and Keys</code>.</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>seahorse
 </code></pre></div>
-<p>From the <code>+</code> button in the upper-left corner, select <code>Secure Shell key</code>.
-In the dialog that appears, enter an identifier such as <code>&lt;username&gt;@&lt;hostname&gt;</code> in <code>Description</code>, then click <code>Generate</code>.
-In the next dialog, click <code>OK</code> to generate an SSH public and private key pair. You can leave the password blank.
-Then click <code>OpenSSH keys</code> and confirm that the generated key is displayed.
-Double-click the key, make a note of <code>Public key</code> in the dialog that appears, then close <code>Passwords and Keys</code>.</p>
-<p><img src="../../assets/bootmedia_config/ssh_key_1.png" alt="ssh_key_1" width="49%"/>
-<img src="../../assets/bootmedia_config/ssh_key_2.png" alt="ssh_key_2" width="49%"/></p>
-<p>Return to <code>Tobas Bootmedia Config</code>, click <code>Add</code>, then copy and paste the public key you noted earlier into the dialog that appears.
+<p>Click the <code>+</code> button in the upper left and select <code>Secure Shell key</code>.
+In the dialog, enter an identifier such as <code>&lt;username&gt;@&lt;hostname&gt;</code> in <code>Description</code>, then click <code>Generate</code>.
+Click <code>OK</code> in the next dialog to generate the SSH public and private keys. You can leave the password blank.
+Click <code>OpenSSH keys</code> to confirm that the newly created key is listed.
+Double-click the key, copy the <code>Public key</code> from the dialog, then close <code>Passwords and Keys</code>.</p>
+<p><img alt="ssh_key_1" src="../../assets/bootmedia_config/ssh_key_1.png" width="49%" />
+<img alt="ssh_key_2" src="../../assets/bootmedia_config/ssh_key_2.png" width="49%" /></p>
+<p>Return to <code>Tobas Bootmedia Config</code>, click <code>Add</code>, and paste the public key into the dialog.
 Click <code>OK</code> to add the public key to the list and write it to the SD card.</p>
 <p><img alt="ssh_keys" src="../../assets/bootmedia_config/ssh_keys.png" /></p>
-<h3 id="wi-fi-client">Wi-Fi Client<a class="headerlink" href="#wi-fi-client" title="Permanent link">&para;</a></h3>
+<h3 id="wi-fi-client"><strong>Wi-Fi Client</strong><a class="headerlink" href="#wi-fi-client" title="Permanent link">&para;</a></h3>
 <p>Configure the FC to operate as a Wi-Fi client.</p>
-<p>Tobas uses ROS 2 (DDS) for remote communication.
-The FC and all devices that need to communicate with it, such as the ground station, must belong to the same subnet.
+<p>Tobas uses ROS 2 (DDS) for remote communication,
+so all devices that need to communicate, including the FC and ground station, must be on the same subnet.
 You can skip this section if you only use Ethernet or operate the FC as an access point.</p>
-<p>Click <code>Add</code> and enter the SSID and PSK of the access point you want to connect to in the dialog that appears.
-<code>Priority</code> specifies the connection priority. If multiple networks are available, networks with higher values are given priority.
+<p>Click <code>Add</code> and enter the SSID and PSK of the access point you want to connect to in the dialog.
+<code>Priority</code> determines the connection priority. When multiple networks are available, higher values take precedence.
 Click <code>OK</code> to add the access point to the table and write it to the SD card.</p>
 <p><img alt="wifi_client" src="../../assets/bootmedia_config/wifi_client.png" /></p>
-<h3 id="wi-fi-hotspot">Wi-Fi Hotspot<a class="headerlink" href="#wi-fi-hotspot" title="Permanent link">&para;</a></h3>
+<h3 id="wi-fi-hotspot"><strong>Wi-Fi Hotspot</strong><a class="headerlink" href="#wi-fi-hotspot" title="Permanent link">&para;</a></h3>
 <p>Configure the FC to operate as a Wi-Fi access point.</p>
-<p>As described above, the FC and ground station must belong to the same subnet to communicate.
-Configuring the FC itself as an access point is convenient for outdoor test flights because no external router is required.
+<p>As described above, the FC and ground station must be on the same subnet to communicate.
+Using the FC itself as an access point is convenient for outdoor flight tests because it eliminates the need for an external router.
 You can skip this section if the FC will only operate as a Wi-Fi client.</p>
-<p>Enter the desired SSID and PSK in <code>New SSID</code> and <code>New PSK</code>, respectively.
-If both values are valid, the <code>Write</code> button will be enabled.
+<p>Enter your chosen SSID and PSK in <code>New SSID</code> and <code>New PSK</code>, respectively.
+The <code>Write</code> button becomes available when both values are valid.
 Click <code>Write</code> to write the SSID and PSK to the SD card.</p>
 <p><img alt="wifi_hotspot" src="../../assets/bootmedia_config/wifi_hotspot.png" /></p>
-<h2 id="finishing-up">Finishing Up<a class="headerlink" href="#finishing-up" title="Permanent link">&para;</a></h2>
+<h2 id="finishing-up"><strong>Finishing Up</strong><a class="headerlink" href="#finishing-up" title="Permanent link">&para;</a></h2>
 <hr />
-<p>Once you have completed the settings above, click <code>Disconnect</code>.
-The boot device will be unmounted and can then be safely removed.
-Close the GUI and remove the SD card from the PC.</p>
+<p>Once configuration is complete, click <code>Disconnect</code>.
+The boot device will be unmounted and can be safely removed.
+Close the GUI and remove the SD card from your PC.</p>
 <p><img alt="disconnect" src="../../assets/bootmedia_config/disconnect.png" /></p>
-<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<h2 id="next-steps"><strong>Next Steps</strong><a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <hr />
-<p>The configuration is now complete.
+<p>Configuration is now complete.
 Next, use Tobas Setup Assistant to create your first project.</p>
 
 

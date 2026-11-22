@@ -1181,10 +1181,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#operating-environment" class="md-nav__link">
+  <a href="#environment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Operating Environment
+        Environment
       
     </span>
   </a>
@@ -1281,36 +1281,36 @@
 
 
 <h1 id="release-v213">Release v2.13<a class="headerlink" href="#release-v213" title="Permanent link">&para;</a></h1>
-<h2 id="operating-environment">Operating Environment<a class="headerlink" href="#operating-environment" title="Permanent link">&para;</a></h2>
+<h2 id="environment"><strong>Environment</strong><a class="headerlink" href="#environment" title="Permanent link">&para;</a></h2>
 <hr />
 <p>ROS 2 Jazzy</p>
-<h2 id="changes">Changes<a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
+<h2 id="changes"><strong>Changes</strong><a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="control">Control<a class="headerlink" href="#control" title="Permanent link">&para;</a></h3>
+<h3 id="control"><strong>Control</strong><a class="headerlink" href="#control" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Removed controller output constraints</li>
-<li>Throttled translational control gains based on target thrust</li>
-<li>Implemented anti-windup for the position controller</li>
+<li>Added translational control gain scaling based on target thrust</li>
+<li>Added anti-windup to the position controller</li>
 <li>Added feedforward acceleration to position commands</li>
 <li>Added smooth target attitude transitions when changing flight modes</li>
 </ul>
-<h3 id="missions">Missions<a class="headerlink" href="#missions" title="Permanent link">&para;</a></h3>
+<h3 id="missions"><strong>Missions</strong><a class="headerlink" href="#missions" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Mission altitude is now relative to the arming location instead of the startup location</li>
-<li>Missions now stop smoothly before being overridden or canceled</li>
+<li>Changed mission altitude to use the arming location as its reference instead of the startup location</li>
+<li>Added a smooth stop when a mission is overwritten or canceled</li>
 </ul>
-<h3 id="manual-mode">Manual Mode<a class="headerlink" href="#manual-mode" title="Permanent link">&para;</a></h3>
+<h3 id="manual-mode"><strong>Manual Mode</strong><a class="headerlink" href="#manual-mode" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Motors now stop immediately upon receiving a disarm command</li>
-<li>Manual mode can no longer be enabled while the kill switch is engaged</li>
-<li>Limited the rate of change of commands from the RC transmitter</li>
+<li>Changed disarm commands to stop the motors immediately</li>
+<li>Prevented enabling manual mode while the kill switch is on</li>
+<li>Added rate limits to transmitter commands</li>
 </ul>
-<h3 id="other">Other<a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
+<h3 id="other"><strong>Other</strong><a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Changed the GPS marker</li>
+<li>Changed the GPS icon</li>
 <li>Improved the GCS message viewer</li>
-<li>Fixed the network interface</li>
-<li>ROS logs are now written to RAM instead of storage</li>
+<li>Fixed the network interface selection</li>
+<li>Moved ROS logs from storage to RAM</li>
 </ul>
 
 

@@ -718,10 +718,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#starting-and-stopping-the-simulation" class="md-nav__link">
+  <a href="#starting-and-stopping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Starting and Stopping the Simulation
+        Starting and Stopping
       
     </span>
   </a>
@@ -729,22 +729,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#control-via-an-rc-transmitter" class="md-nav__link">
+  <a href="#control-with-an-rc-transmitter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Control via an RC Transmitter
+        Control with an RC Transmitter
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Control via an RC Transmitter">
+    <nav class="md-nav" aria-label="Control with an RC Transmitter">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#preparing-a-usb-to-serial-converter" class="md-nav__link">
+  <a href="#preparing-a-usb-to-serial-module" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Preparing a USB-to-Serial Converter
+        Preparing a USB-to-Serial Module
       
     </span>
   </a>
@@ -752,10 +752,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#adding-the-user-to-the-dialout-group" class="md-nav__link">
+  <a href="#joining-the-dialout-group" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Adding the User to the dialout Group
+        Joining the dialout Group
       
     </span>
   </a>
@@ -763,10 +763,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#steps-required-each-time-you-run-the-simulation" class="md-nav__link">
+  <a href="#steps-for-each-simulation-run" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Steps Required Each Time You Run the Simulation
+        Steps for Each Simulation Run
       
     </span>
   </a>
@@ -1311,10 +1311,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#starting-and-stopping-the-simulation" class="md-nav__link">
+  <a href="#starting-and-stopping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Starting and Stopping the Simulation
+        Starting and Stopping
       
     </span>
   </a>
@@ -1322,22 +1322,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#control-via-an-rc-transmitter" class="md-nav__link">
+  <a href="#control-with-an-rc-transmitter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Control via an RC Transmitter
+        Control with an RC Transmitter
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Control via an RC Transmitter">
+    <nav class="md-nav" aria-label="Control with an RC Transmitter">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#preparing-a-usb-to-serial-converter" class="md-nav__link">
+  <a href="#preparing-a-usb-to-serial-module" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Preparing a USB-to-Serial Converter
+        Preparing a USB-to-Serial Module
       
     </span>
   </a>
@@ -1345,10 +1345,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#adding-the-user-to-the-dialout-group" class="md-nav__link">
+  <a href="#joining-the-dialout-group" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Adding the User to the dialout Group
+        Joining the dialout Group
       
     </span>
   </a>
@@ -1356,10 +1356,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#steps-required-each-time-you-run-the-simulation" class="md-nav__link">
+  <a href="#steps-for-each-simulation-run" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Steps Required Each Time You Run the Simulation
+        Steps for Each Simulation Run
       
     </span>
   </a>
@@ -1451,45 +1451,44 @@
 
 
 <h1 id="simulation">Simulation<a class="headerlink" href="#simulation" title="Permanent link">&para;</a></h1>
-<h2 id="starting-and-stopping-the-simulation">Starting and Stopping the Simulation<a class="headerlink" href="#starting-and-stopping-the-simulation" title="Permanent link">&para;</a></h2>
+<h2 id="starting-and-stopping"><strong>Starting and Stopping</strong><a class="headerlink" href="#starting-and-stopping" title="Permanent link">&para;</a></h2>
 <hr />
-<p>Launch Tobas GCS, load <code>tobas_f450.TBS</code>, and open <code>Simulation</code> from the toolbar.</p>
+<p>Launch Tobas GCS, load <code>tobas_f450.TBS</code>, and open <code>Simulation</code> from the tool buttons.</p>
 <p><img alt="simulation_settings" src="../../assets/simulation/simulation_settings.png" /></p>
-<p>Click <code>Start</code> to build the project and start the simulation.
-The first launch may take some time because the environment data must be downloaded.
-Although this depends on the environment complexity and network conditions, the simulation usually starts within 10 minutes.</p>
+<p>Click <code>Start</code> to build the project and launch the simulation.
+The first launch takes longer because environment data needs to be downloaded.
+Startup time depends on the complexity of the environment and your network connection, but it usually takes no more than 10 minutes.</p>
 <p><img alt="launch_gazebo" src="../../assets/simulation/launch_gazebo.png" /></p>
-<p>You can configure environmental settings such as wind speed from <code>Dynamic Configurations</code> and send commands to the aircraft from <code>Commanders</code>.
-Mission planning and parameter tuning introduced in <a href="../flight_test/">Flight Test</a> can also be performed in the same way as with an actual aircraft.</p>
+<p>Use <code>Dynamic Configurations</code> to adjust environmental settings such as wind speed, and <code>Commanders</code> to send commands to the aircraft.
+You can also use mission planning, parameter tuning, and the other features introduced in <a href="../flight_test/">Flight Test</a>, just as with real hardware.</p>
 <p><img alt="send_command" src="../../assets/simulation/send_command.png" /></p>
 <p>Click <code>Terminate</code> to stop the simulation.</p>
-<h2 id="control-via-an-rc-transmitter">Control via an RC Transmitter<a class="headerlink" href="#control-via-an-rc-transmitter" title="Permanent link">&para;</a></h2>
+<h2 id="control-with-an-rc-transmitter"><strong>Control with an RC Transmitter</strong><a class="headerlink" href="#control-with-an-rc-transmitter" title="Permanent link">&para;</a></h2>
 <hr />
-<p>You can control the aircraft in the simulation using an RC transmitter.
-Because the RC calibration results stored on the PC are used,
-complete the calibration on your PC before proceeding with the following steps.</p>
-<h3 id="preparing-a-usb-to-serial-converter">Preparing a USB-to-Serial Converter<a class="headerlink" href="#preparing-a-usb-to-serial-converter" title="Permanent link">&para;</a></h3>
-<p>Prepare a USB-to-serial converter such as the
-<a href=https://akizukidenshi.com/catalog/g/g108461/ target="_blank">FTDI FT234X</a>
-and configure it to invert High and Low.</p>
-<h3 id="adding-the-user-to-the-dialout-group">Adding the User to the <code>dialout</code> Group<a class="headerlink" href="#adding-the-user-to-the-dialout-group" title="Permanent link">&para;</a></h3>
-<p>To access USB serial devices, add the current user to the <code>dialout</code> group using the following command.</p>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>dialout<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">USER</span><span class="si">}</span><span class="s2">"</span>
+<p>You can control the simulated aircraft with an RC transmitter.
+The simulation uses the RC calibration results saved on your PC,
+so complete calibration on that PC before proceeding.</p>
+<h3 id="preparing-a-usb-to-serial-module"><strong>Preparing a USB-to-Serial Module</strong><a class="headerlink" href="#preparing-a-usb-to-serial-module" title="Permanent link">&para;</a></h3>
+<p><a href=https://akizukidenshi.com/catalog/g/g108461/ target="_blank">FTDI FT234X</a>
+is one example of a suitable USB-to-serial module. Configure the module to invert the signal's high and low levels.</p>
+<h3 id="joining-the-dialout-group"><strong>Joining the <code>dialout</code> Group</strong><a class="headerlink" href="#joining-the-dialout-group" title="Permanent link">&para;</a></h3>
+<p>To access USB serial devices, add your current user to the <code>dialout</code> group with the following command.</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>dialout<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">USER</span><span class="si">}</span><span class="s2">"</span>
 </code></pre></div>
-<p>Restart the PC after running the command to apply the change.
-This is required only the first time and does not need to be repeated.</p>
-<h3 id="steps-required-each-time-you-run-the-simulation">Steps Required Each Time You Run the Simulation<a class="headerlink" href="#steps-required-each-time-you-run-the-simulation" title="Permanent link">&para;</a></h3>
+<p>Restart your PC after running the command for the change to take effect.
+You only need to do this once.</p>
+<h3 id="steps-for-each-simulation-run"><strong>Steps for Each Simulation Run</strong><a class="headerlink" href="#steps-for-each-simulation-run" title="Permanent link">&para;</a></h3>
 <ol>
-<li>Connect the USB-to-serial converter to the PC and RC receiver.</li>
-<li>Select the device you are using in the <code>S.BUS/Device</code> field under <code>Simulation Settings</code>.</li>
-<li>Start the simulation. If the RC transmitter signals appear in <code>Control System</code>, the setup is successful. You can then control the aircraft in the same way as an actual aircraft.</li>
+<li>Connect the USB-to-serial module to your PC and RC receiver.</li>
+<li>Select your device in the <code>S.BUS/Device</code> field under <code>Simulation Settings</code>.</li>
+<li>Start the simulation. If transmitter signals appear in <code>Control System</code>, setup is successful and you can control the aircraft just as you would with real hardware.</li>
 </ol>
 <p><img alt="rc_teleop_setting" src="../../assets/simulation/rc_teleop_setting.png" /></p>
-<h2 id="control-via-ros">Control via ROS<a class="headerlink" href="#control-via-ros" title="Permanent link">&para;</a></h2>
+<h2 id="control-via-ros"><strong>Control via ROS</strong><a class="headerlink" href="#control-via-ros" title="Permanent link">&para;</a></h2>
 <hr />
-<p>All communication between the components of the flight controller is handled through ROS,
-allowing users to control the aircraft from their own programs.
-For details, see <a href="../../for_developers/user_code_py/">User Code (Python)</a> and <a href="../../for_developers/user_code_cpp/">User Code (C++)</a>.</p>
+<p>All communication between the flight controller's components uses ROS,
+so you can control the aircraft from your own programs.
+See <a href="../../for_developers/user_code_py/">User Code (Python)</a> and <a href="../../for_developers/user_code_cpp/">User Code (C++)</a> for details.</p>
 
 
 

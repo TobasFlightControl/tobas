@@ -1181,10 +1181,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#operating-environment" class="md-nav__link">
+  <a href="#environment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Operating Environment
+        Environment
       
     </span>
   </a>
@@ -1303,39 +1303,39 @@
 
 
 <h1 id="release-v211">Release v2.11<a class="headerlink" href="#release-v211" title="Permanent link">&para;</a></h1>
-<h2 id="operating-environment">Operating Environment<a class="headerlink" href="#operating-environment" title="Permanent link">&para;</a></h2>
+<h2 id="environment"><strong>Environment</strong><a class="headerlink" href="#environment" title="Permanent link">&para;</a></h2>
 <hr />
 <p>ROS 2 Jazzy</p>
-<h2 id="changes">Changes<a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
+<h2 id="changes"><strong>Changes</strong><a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="state-estimation">State Estimation<a class="headerlink" href="#state-estimation" title="Permanent link">&para;</a></h3>
+<h3 id="state-estimation"><strong>State Estimation</strong><a class="headerlink" href="#state-estimation" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Takeoff is detected using only ground reaction force, as acceleration and velocity are prone to false detection</li>
+<li>Changed takeoff detection to use only ground reaction force, since acceleration and velocity are prone to false detections</li>
 </ul>
-<h3 id="control">Control<a class="headerlink" href="#control" title="Permanent link">&para;</a></h3>
+<h3 id="control"><strong>Control</strong><a class="headerlink" href="#control" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Integral errors are reset upon disarming rather than when landing is detected</li>
-<li>Implemented rate mode for Y-axis tilt multirotors</li>
+<li>Moved integral error reset from landing detection to disarming</li>
+<li>Added rate mode for multicopters with Y-axis tilt</li>
 </ul>
-<h3 id="missions">Missions<a class="headerlink" href="#missions" title="Permanent link">&para;</a></h3>
+<h3 id="missions"><strong>Missions</strong><a class="headerlink" href="#missions" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Consolidated the action servers for mission execution into a single node</li>
-<li>All mission commands are sent to the FC before execution</li>
-<li>Run Mission Executor as a Component</li>
-<li>The Land command carries over the previous target latitude and longitude</li>
+<li>Consolidated mission execution action servers into a single node</li>
+<li>Changed mission execution to send all mission commands to the FC before starting</li>
+<li>Changed Mission Executor to run as a component</li>
+<li>Changed the Land command to inherit the preceding target latitude and longitude</li>
 </ul>
-<h3 id="manual-mode">Manual Mode<a class="headerlink" href="#manual-mode" title="Permanent link">&para;</a></h3>
+<h3 id="manual-mode"><strong>Manual Mode</strong><a class="headerlink" href="#manual-mode" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Use <code>vehicle_health</code> as the criterion for determining whether mode changes are allowed</li>
+<li>Changed mode-switch eligibility checks to use <code>vehicle_health</code></li>
 </ul>
-<h3 id="flight-logs">Flight Logs<a class="headerlink" href="#flight-logs" title="Permanent link">&para;</a></h3>
+<h3 id="flight-logs"><strong>Flight Logs</strong><a class="headerlink" href="#flight-logs" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Implemented CSV export for flight logs</li>
+<li>Added CSV export for flight logs</li>
 </ul>
-<h3 id="other">Other<a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
+<h3 id="other"><strong>Other</strong><a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Implemented an action interface in <code>tobas_ros_interface</code></li>
-<li>Added a remote IF for <code>external_pose</code></li>
+<li>Added an action interface to <code>tobas_ros_interface</code></li>
+<li>Added a remote interface for <code>external_pose</code></li>
 </ul>
 
 

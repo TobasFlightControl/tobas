@@ -1181,10 +1181,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#operating-environment" class="md-nav__link">
+  <a href="#environment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Operating Environment
+        Environment
       
     </span>
   </a>
@@ -1226,10 +1226,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#failsafe" class="md-nav__link">
+  <a href="#fail-safe" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Failsafe
+        Fail-Safe
       
     </span>
   </a>
@@ -1248,10 +1248,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ground-station" class="md-nav__link">
+  <a href="#ground-control-station" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Ground Station
+        Ground Control Station
       
     </span>
   </a>
@@ -1353,56 +1353,56 @@
 
 
 <h1 id="release-v29">Release v2.9<a class="headerlink" href="#release-v29" title="Permanent link">&para;</a></h1>
-<h2 id="operating-environment">Operating Environment<a class="headerlink" href="#operating-environment" title="Permanent link">&para;</a></h2>
+<h2 id="environment"><strong>Environment</strong><a class="headerlink" href="#environment" title="Permanent link">&para;</a></h2>
 <hr />
 <p>ROS 2 Jazzy</p>
-<h2 id="changes">Changes<a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
+<h2 id="changes"><strong>Changes</strong><a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="control">Control<a class="headerlink" href="#control" title="Permanent link">&para;</a></h3>
+<h3 id="control"><strong>Control</strong><a class="headerlink" href="#control" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Automatically disarm when landing is detected</li>
+<li>Added automatic disarming when landing is detected</li>
 </ul>
-<h3 id="missions">Missions<a class="headerlink" href="#missions" title="Permanent link">&para;</a></h3>
+<h3 id="missions"><strong>Missions</strong><a class="headerlink" href="#missions" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Improved path planning for waypoint flight</li>
+<li>Improved path planning for waypoint flights</li>
 </ul>
-<h3 id="failsafe">Failsafe<a class="headerlink" href="#failsafe" title="Permanent link">&para;</a></h3>
+<h3 id="fail-safe"><strong>Fail-Safe</strong><a class="headerlink" href="#fail-safe" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added alignment with the geomagnetic reference vector to the checklist</li>
+<li>Added a check for alignment with the reference magnetic field vector</li>
 </ul>
-<h3 id="manual-mode">Manual Mode<a class="headerlink" href="#manual-mode" title="Permanent link">&para;</a></h3>
+<h3 id="manual-mode"><strong>Manual Mode</strong><a class="headerlink" href="#manual-mode" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Reversed the throttle lever configuration to match Futaba</li>
-<li>Changed RC switch channels (CH5 is now used for flight mode)</li>
-<li>Reduced RPM at zero throttle</li>
+<li>Changed throttle input to assume a reversed stick, matching Futaba transmitters</li>
+<li>Changed RC switch channel assignments (CH5 is now the flight mode)</li>
+<li>Reduced motor speed at zero throttle</li>
 </ul>
-<h3 id="ground-station">Ground Station<a class="headerlink" href="#ground-station" title="Permanent link">&para;</a></h3>
+<h3 id="ground-control-station"><strong>Ground Control Station</strong><a class="headerlink" href="#ground-control-station" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Improved the layout</li>
 <li>Added GNSS status display</li>
 </ul>
-<h3 id="flight-logs">Flight Logs<a class="headerlink" href="#flight-logs" title="Permanent link">&para;</a></h3>
+<h3 id="flight-logs"><strong>Flight Logs</strong><a class="headerlink" href="#flight-logs" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added ESC communication error display</li>
 <li>Added CPU status display</li>
 </ul>
-<h3 id="simulation">Simulation<a class="headerlink" href="#simulation" title="Permanent link">&para;</a></h3>
+<h3 id="simulation"><strong>Simulation</strong><a class="headerlink" href="#simulation" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added a Gazebo world</li>
-<li>Added GUI support for selecting the FTDI USB device</li>
+<li>Added Gazebo worlds</li>
+<li>Added GUI selection of FTDI USB devices</li>
 </ul>
-<h3 id="other">Other<a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
+<h3 id="other"><strong>Other</strong><a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Reduced messages output under <code>/rosout</code> and <code>~/.ros/log/</code></li>
-<li>Added calculation and publishing of vibration levels from accelerometer readings</li>
-<li>Changed the world coordinate system from NWU to ENU</li>
-<li>Added Wi-Fi Key Management types</li>
-<li>Added the version to the GUI title</li>
-<li>Added Tobas project version checking</li>
+<li>Reduced messages output to <code>/rosout</code> and files under <code>~/.ros/log/</code></li>
+<li>Added calculation and publication of vibration levels from accelerometer readings</li>
+<li>Changed the world coordinate frame from NWU to ENU</li>
+<li>Added Wi-Fi key management types</li>
+<li>Added the version to GUI window titles</li>
+<li>Added Tobas project version checks</li>
 </ul>
-<h2 id="bug-fixes">Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h2>
+<h2 id="bug-fixes"><strong>Bug Fixes</strong><a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="v291-2025129">v2.9.1 (2025/12/9)<a class="headerlink" href="#v291-2025129" title="Permanent link">&para;</a></h3>
+<h3 id="v291-2025129"><strong>v2.9.1 (2025/12/9)</strong><a class="headerlink" href="#v291-2025129" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Automatically add the user to the <code>dialout</code> group during installation</li>
 </ul>

@@ -1262,24 +1262,24 @@
 
 
 <h1 id="user-code-c">User Code (C++)<a class="headerlink" href="#user-code-c" title="Permanent link">&para;</a></h1>
-<p>This section assumes that you have a basic understanding of C++ and ROS 2.
+<p>This section assumes you know the basics of C++ and ROS 2.
 To learn ROS 2, see
 <a href=https://docs.ros.org/en/jazzy/Tutorials.html target="_blank">Tutorials | ROS 2 Documentation</a>
-.</p>
+for tutorials.</p>
 <p>Among the ROS packages in a Tobas project created with Setup Assistant (e.g., tobas_f450.TBS),
-the user C++ package (e.g., tobas_f450_user_cpp) is a C++ package that users can edit freely.
-It contains the following five launch files.</p>
+the user C++ package (e.g., tobas_f450_user_cpp) is a C++ package you can freely edit.
+It contains the following five launch files:</p>
 <ul>
-<li><code>common_(interface/realtime).launch.py</code>: Launched on both real hardware and in simulation.</li>
-<li><code>real_(interface/realtime).launch.py</code>: Launched only on real hardware.</li>
-<li><code>gazebo.launch.py</code>: Launched only in simulation.</li>
+<li><code>common_(interface/realtime).launch.py</code>: Runs on both real hardware and in simulation.</li>
+<li><code>real_(interface/realtime).launch.py</code>: Runs only on real hardware.</li>
+<li><code>gazebo.launch.py</code>: Runs only in simulation.</li>
 </ul>
-<p><code>common</code> and <code>real</code> each contain two types of launch files: <code>interface</code> and <code>realtime</code>.
-Nodes launched with the former can perform ROS communication across networks, whereas nodes launched with the latter cannot.
-Therefore, for a node launched with <code>*_realtime.launch</code> to communicate across networks,
-it must go through an interface node launched with <code>*_interface.launch</code>.
-This design prevents the node discovery algorithm used by DDS, the ROS 2 backend, from adversely affecting real-time performance.</p>
-<p>As an example, let's create a C++ node that checks the GNSS status and outputs a message every second when a 3D fix is available.
+<p>Both <code>common</code> and <code>real</code> have <code>interface</code> and <code>realtime</code> launch files.
+Nodes started by the former can communicate over the network via ROS, while nodes started by the latter cannot.
+For nodes started by <code>*_realtime.launch</code> to communicate over the network,
+they must go through an interface node started by <code>*_interface.launch</code>.
+This arrangement prevents the node discovery algorithm in DDS, the ROS 2 backend, from adversely affecting real-time performance.</p>
+<p>As an example, create a C++ node that checks GNSS status and publishes a message once per second when a 3D fix is available.
 Edit <code>tobas_f450_user_cpp/nodes/user_node.cpp</code> as follows.</p>
 <div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;tobas_constants/ros_interface.hpp&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;tobas_node/node.hpp&gt;</span>
@@ -1315,13 +1315,13 @@ Edit <code>tobas_f450_user_cpp/nodes/user_node.cpp</code> as follows.</p>
 
 <span class="n">RCLCPP_COMPONENTS_REGISTER_NODE</span><span class="p">(</span><span class="n">UserNode</span><span class="p">)</span>
 </code></pre></div>
-<p>Add the dependency packages used by this node to <code>tobas_f450_user_cpp/package.xml</code>.</p>
+<p>Add the dependencies used by this node to <code>tobas_f450_user_cpp/package.xml</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">&lt;depend&gt;</span>tobas_constants<span class="nt">&lt;/depend&gt;</span>
 <span class="nt">&lt;depend&gt;</span>tobas_node<span class="nt">&lt;/depend&gt;</span>
 <span class="nt">&lt;depend&gt;</span>tobas_msgs_adapter<span class="nt">&lt;/depend&gt;</span>
 </code></pre></div>
-<p>Add this node as a build target.
-Add the dependency packages to <code>tobas_f450_user_cpp/CMakeLists.txt</code> and uncomment the build instructions.</p>
+<p>Add the node to the build targets.
+Add the dependencies to <code>tobas_f450_user_cpp/CMakeLists.txt</code> and uncomment the build instructions.</p>
 <div class="highlight"><pre><span></span><code><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.25</span><span class="p">)</span>
 <span class="nb">project</span><span class="p">(</span><span class="s">tobas_f450_user_cpp</span><span class="p">)</span>
 
@@ -1370,17 +1370,17 @@ Add the dependency packages to <code>tobas_f450_user_cpp/CMakeLists.txt</code> a
 
 <span class="nb">ament_package</span><span class="p">()</span>
 </code></pre></div>
-<p>Configure this node to start automatically.
-Although it could be launched as a regular ROS node, this time we will launch it as a component to eliminate copying in topic communication.</p>
-<p>In Tobas, three component managers (<code>component_manager_x (x = 1, 2, 3)</code>) run on separate CPUs,
-and topic communication between their components is also zero-copy.
-Lower-numbered managers handle faster processes that are less tolerant of latency. Their general roles are as follows.</p>
+<p>Configure the node to start automatically.
+You can start it as a regular ROS node, but here we load it as a component to eliminate copying in topic communication.</p>
+<p>Tobas runs three component managers (<code>component_manager_x (x=1,2,3)</code>), each on a separate CPU.
+Topic communication between their components also uses zero-copy transport.
+Lower-numbered managers handle faster, more latency-sensitive processing. Their approximate roles are:</p>
 <ul>
-<li><code>component_manager_1</code>: IMU filtering, state estimation, attitude/position control, etc. (400-800Hz)</li>
-<li><code>component_manager_2</code>: Path planning, mission execution, etc. (30-100Hz)</li>
-<li><code>component_manager_3</code>: Parameter server, logging, failsafe, etc. (1-10Hz)</li>
+<li><code>component_manager_1</code>: IMU filtering, state estimation, attitude/position control, etc. (400-800 Hz)</li>
+<li><code>component_manager_2</code>: Path planning, mission execution, etc. (30-100 Hz)</li>
+<li><code>component_manager_3</code>: Parameter server, logging, fail-safe processing, etc. (1-10 Hz)</li>
 </ul>
-<p>Because the processing performed by this node is not time-critical, plug it into <code>component_manager_3</code>, which handles the slowest processes.
+<p>The example node has no strict real-time requirements, so load it into <code>component_manager_3</code>, which handles the slowest processing.
 Uncomment the <code>add_action</code> section in <code>tobas_f450_user_cpp/launch/common_realtime.launch.py</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Do not delete or rename this file because it is executed in tobas_f450_config/common_realtime.launch.py.</span>
 
@@ -1409,9 +1409,9 @@ Uncomment the <code>add_action</code> section in <code>tobas_f450_user_cpp/launc
 
     <span class="k">return</span> <span class="n">ld</span>
 </code></pre></div>
-<p>When you start the simulation from the GCS, a message appears in the <code>Control System</code> console.</p>
+<p>When you start the simulation from the GCS, messages appear in the <code>Control System</code> console.</p>
 <p><img alt="console" src="../../assets/user_code_cpp/console.png" /></p>
-<p>For details about the API, see <a href="../ros_api/">ROS API</a>.</p>
+<p>See <a href="../ros_api/">ROS API</a> for API details.</p>
 
 
 

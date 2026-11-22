@@ -1741,16 +1741,15 @@
 
 
 <h1 id="_1">飛行試験<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
-<h2 id="_2">開始・終了の手順<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h2 id="_2"><strong>開始・終了の手順</strong><a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="_3">開始の手順<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<h3 id="_3"><strong>開始の手順</strong><a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
 <ol>
-<li>ドローンにバッテリーを接続します．</li>
-<li>PC を FC と同じネットワークに接続します．</li>
+<li>機体に電源を接続します．</li>
 <li>Tobas GCS を起動します．</li>
 <li><code>Load Project</code>をクリックし，<code>tobas_f450.TBS</code>を読み込みます．</li>
 <li>ツールボタンの中にある<code>Control System</code>をクリックして開きます．</li>
-<li>アーム前の安全確認にパスし，<code>Ready to Arm</code>が緑色に点灯していることを確認します．</li>
+<li>アーム前の安全確認にパスし，画面上部に<code>Ready to Arm</code>と表示されていることを確認します．</li>
 <li>プロポの電源を入れ，<code>Enable</code> スイッチをオンにし，<code>Kill</code>スイッチをオフにします．</li>
 <li>プロポのスイッチで飛行モードを決めます．最初は<code>Stabilize</code> (姿勢制御モード) が安全です．</li>
 <li>スロットルレバーを下，ヨーレバーを右に傾けた状態で 1 秒間維持するとアームします．</li>
@@ -1767,36 +1766,35 @@ Setup Assistant の Fail-Safe のタブからそれらに関するチェック�
 </div>
 <!-- prettier-ignore-end -->
 
-<h3 id="_4">終了の手順<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<h3 id="_4"><strong>終了の手順</strong><a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
 <ol>
 <li>スロットルレバーを下，ヨーレバーを左に傾けた状態で 1 秒間維持するとディスアームします．
    もしくは，<code>Kill</code>スイッチをオンにすることで即座にディスアームできます．</li>
-<li>GCS の電源ボタン (赤色) をクリックし，FC をシャットダウンします．</li>
-<li>安全に十分に気をつけて，FC と ESC への給電を切ります．</li>
+<li>安全に十分に気をつけて，機体の電源を落とします．</li>
 </ol>
 <p>以下では地上局の各機能について説明します．</p>
-<h2 id="control-system">Control System<a class="headerlink" href="#control-system" title="Permanent link">&para;</a></h2>
+<h2 id="control-system"><strong>Control System</strong><a class="headerlink" href="#control-system" title="Permanent link">&para;</a></h2>
 <hr />
 <p><code>Control System</code>は，ドローンの状態監視とミッション計画を行うためのツールです．</p>
 <p><img alt="control_system" src="../../../assets/flight_test/control_system.png" /></p>
-<h3 id="_5">状態監視機能<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<h3 id="_5"><strong>状態監視機能</strong><a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
 <p>画面左側は状態監視機能であり，以下の情報が表示されます．</p>
 <ul>
-<li>姿勢: ロール，ピッチ，ヨー</li>
+<li>位置姿勢: ロール，ピッチ，ヨー，高度</li>
 <li>バッテリーの状態: 電圧，電流</li>
 <li>CPU の状態: 温度，負荷</li>
 <li>GNSS の状態: ステータス，衛星数</li>
 <li>RC 入力: レバー，キル，飛行モード，その他スイッチ</li>
 <li>各モータの状態: 回転数，通信状態</li>
-<li>ステータス: Pre-Arm Check，Post-Arm Check，その他</li>
+<li>Pre-Arm Check: バッテリー電圧や状態推定の精度など</li>
 <li>各ノードからのメッセージ</li>
 </ul>
 <p><img alt="state_viewer" src="../../../assets/flight_test/state_viewer.png" /></p>
-<h3 id="_6">ミッション計画機能<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<h3 id="_6"><strong>ミッション計画機能</strong><a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
 <p>画面右側はミッション計画機能であり，飛行ミッションの計画と実行ができます．</p>
 <ol>
 <li><code>Add</code>をクリックしてコマンドを追加します．
-   下図では<code>Takeoff</code>の後，9 つの<code>Waypoint</code>を経由し，<code>Return to Home</code>してから<code>Land</code>するミッションを計画しています．</li>
+   下図では離陸後に 8 つのウェイポイントを経由し，離陸地点に帰還してから着陸するミッションを計画しています．</li>
 <li>画面右下のダイアログから各コマンドに対応したパラメータを設定します．
    ウェイポイントの座標は画面上のマップ中のアイコンをドラッグアンドドロップすることでも操作できます．</li>
 <li><code>Execute</code>ボタンを押すとミッションが実行されます．</li>
@@ -1809,18 +1807,18 @@ Setup Assistant の Fail-Safe のタブからそれらに関するチェック�
 <!-- prettier-ignore-end -->
 
 <p><img alt="mission_planner" src="../../../assets/flight_test/mission_planner.png" /></p>
-<h2 id="param-tuning">Param Tuning<a class="headerlink" href="#param-tuning" title="Permanent link">&para;</a></h2>
+<h2 id="param-tuning"><strong>Param Tuning</strong><a class="headerlink" href="#param-tuning" title="Permanent link">&para;</a></h2>
 <hr />
 <p><code>Param Tuning</code>は，飛行に関するパラメータをオンラインで調整するためのツールです．</p>
 <p><img alt="param_tuning" src="../../../assets/flight_test/param_tuning.png" /></p>
-<h3 id="_7">手順<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<h3 id="_7"><strong>手順</strong><a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
 <ol>
 <li><code>Load</code>をクリックすると，FC から現在のパラメータが読み込まれます．</li>
 <li>増減ボタンまたはスライダー操作でパラメータをオンラインで調整できます．</li>
 <li><code>Save</code>をクリックすると，現在のパラメータがローカル PC 内のプロジェクトフォルダに保存されます．</li>
-<li>飛行終了後に<code>Write</code>をクリックして保存したパラメータを FC にフラッシュします．</li>
+<li>飛行終了後に<code>Write Project</code>をクリックして保存したパラメータを FC にフラッシュします．</li>
 </ol>
-<h3 id="_8">主要なパラメータ<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<h3 id="_8"><strong>主要なパラメータ</strong><a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
 <h4 id="attitude_natural_frequency">attitude_natural_frequency<a class="headerlink" href="#attitude_natural_frequency" title="Permanent link">&para;</a></h4>
 <p>姿勢制御の応答性に関するパラメータです．
 大きいほど目標姿勢への応答が早くなりますが，大きすぎると姿勢制御が不安定になります．
@@ -1856,17 +1854,17 @@ Setup Assistant の Fail-Safe のタブからそれらに関するチェック�
 </div>
 <!-- prettier-ignore-end -->
 
-<h2 id="flight-log">Flight Log<a class="headerlink" href="#flight-log" title="Permanent link">&para;</a></h2>
+<h2 id="flight-log"><strong>Flight Log</strong><a class="headerlink" href="#flight-log" title="Permanent link">&para;</a></h2>
 <hr />
 <p><code>Flight Log</code>は，飛行中の状態の記録，再生を行うためのツールです．</p>
 <p><img alt="flight_log" src="../../../assets/flight_test/flight_log.png" /></p>
-<h3 id="_9">飛行ログの記録<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<h3 id="_9"><strong>飛行ログの記録</strong><a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
 <ol>
 <li><code>Log Name</code>にログの名前 (例: 20260101_f450_hover) を入力してください．</li>
 <li><code>Start Recording</code>ボタンを押すと，ログの記録が開始します．</li>
 <li><code>Stop Recording</code>ボタンを押すと記録が終了します．</li>
 </ol>
-<h3 id="_10">飛行ログの表示<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<h3 id="_10"><strong>飛行ログの表示</strong><a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
 <ol>
 <li>FC 側と PC 側の<code>Read</code>ボタンを押すと，それぞれに保存されているログのリストが表示されます．</li>
 <li>FC 側のリスト中のログ名の右にある<code>Download</code>ボタンを押すと，対応したログが PC 側にダウンロードされます．</li>

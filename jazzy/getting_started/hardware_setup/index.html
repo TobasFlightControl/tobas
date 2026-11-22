@@ -662,10 +662,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#assembling-the-vehicle" class="md-nav__link">
+  <a href="#assembling-the-aircraft" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Assembling the Vehicle
+        Assembling the Aircraft
       
     </span>
   </a>
@@ -673,10 +673,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#transmitter-setup" class="md-nav__link">
+  <a href="#rc-transmitter-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Transmitter Setup
+        RC Transmitter Configuration
       
     </span>
   </a>
@@ -684,10 +684,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#loading-and-writing-a-tobas-project" class="md-nav__link">
+  <a href="#loading-and-writing-the-tobas-project" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Loading and Writing a Tobas Project
+        Loading and Writing the Tobas Project
       
     </span>
   </a>
@@ -784,21 +784,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#powering-off-the-fc" class="md-nav__link">
+  <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Powering Off the FC
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-step" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next Step
+        Next Steps
       
     </span>
   </a>
@@ -1383,10 +1372,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#assembling-the-vehicle" class="md-nav__link">
+  <a href="#assembling-the-aircraft" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Assembling the Vehicle
+        Assembling the Aircraft
       
     </span>
   </a>
@@ -1394,10 +1383,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#transmitter-setup" class="md-nav__link">
+  <a href="#rc-transmitter-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Transmitter Setup
+        RC Transmitter Configuration
       
     </span>
   </a>
@@ -1405,10 +1394,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#loading-and-writing-a-tobas-project" class="md-nav__link">
+  <a href="#loading-and-writing-the-tobas-project" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Loading and Writing a Tobas Project
+        Loading and Writing the Tobas Project
       
     </span>
   </a>
@@ -1505,21 +1494,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#powering-off-the-fc" class="md-nav__link">
+  <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Powering Off the FC
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-step" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next Step
+        Next Steps
       
     </span>
   </a>
@@ -1595,36 +1573,36 @@
 
 
 <h1 id="hardware-setup">Hardware Setup<a class="headerlink" href="#hardware-setup" title="Permanent link">&para;</a></h1>
-<h2 id="assembling-the-vehicle">Assembling the Vehicle<a class="headerlink" href="#assembling-the-vehicle" title="Permanent link">&para;</a></h2>
+<h2 id="assembling-the-aircraft"><strong>Assembling the Aircraft</strong><a class="headerlink" href="#assembling-the-aircraft" title="Permanent link">&para;</a></h2>
 <hr />
-<p>Assemble the vehicle as configured in Setup Assistant.</p>
-<!-- TODO: Navio2のような詳細な手順 -->
+<p>Assemble the aircraft according to the configuration you created in Setup Assistant.</p>
+<!-- TODO: Add detailed instructions like the Navio2 guide. -->
 <!-- cf. https://docs.emlid.com/navio2/hardware-setup/ -->
 <!-- cf. https://docs.emlid.com/navio2/ardupilot/typical-setup-schemes/ -->
 
-<p><img src="../../assets/hardware_setup/f450_1.png" alt="f450_1" width="49%"/>
-<img src="../../assets/hardware_setup/f450_2.png" alt="f450_2" width="49%"/></p>
+<p><img alt="f450_1" src="../../assets/hardware_setup/f450_1.png" width="49%" />
+<img alt="f450_2" src="../../assets/hardware_setup/f450_2.png" width="49%" /></p>
 <!-- prettier-ignore-start -->
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>When mounting the flight controller on the vehicle, be sure to provide at least basic vibration isolation.
-If the mounting is too rigid, vibrations from the motors and propellers may make acceleration readings noisy and reduce attitude estimation accuracy.
-Conversely, if it is too soft, delayed gyro measurements may cause oscillations in angular velocity control.
-For readily available options, we recommend
+<p>Always provide at least basic vibration isolation when mounting the flight controller on the aircraft.
+An overly rigid mount can transmit motor and propeller vibrations to the accelerometer, reducing attitude estimation accuracy.
+An overly soft mount can delay the gyro response and cause oscillations in angular velocity control.
+For easy-to-use mounting materials, we recommend
 <a href=https://holybro.com/products/foam-pads-20pcs target="_blank">Holybro Foam Pads</a> or
 <a href=https://rc.kyosho.com/ja/z8006b.html target="_blank">Kyosho Z8006B</a>.</p>
 </div>
 <!-- prettier-ignore-end -->
 
-<h2 id="transmitter-setup">Transmitter Setup<a class="headerlink" href="#transmitter-setup" title="Permanent link">&para;</a></h2>
+<h2 id="rc-transmitter-configuration"><strong>RC Transmitter Configuration</strong><a class="headerlink" href="#rc-transmitter-configuration" title="Permanent link">&para;</a></h2>
 <hr />
 <p>The S.BUS signal is expected to provide at least eight channels.
-In Tobas, each RC input channel has the following role:</p>
+Tobas assigns the following roles to the RC input channels:</p>
 <table>
 <thead>
 <tr>
 <th style="text-align: left;">Channel</th>
-<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Role</th>
 <th style="text-align: left;">Interface</th>
 </tr>
 </thead>
@@ -1652,40 +1630,40 @@ In Tobas, each RC input channel has the following role:</p>
 <tr>
 <td style="text-align: left;">CH5</td>
 <td style="text-align: left;">Flight mode</td>
-<td style="text-align: left;">3-position switch</td>
+<td style="text-align: left;">Three-position switch</td>
 </tr>
 <tr>
 <td style="text-align: left;">CH6</td>
 <td style="text-align: left;">Sub-flight mode</td>
-<td style="text-align: left;">2-position switch</td>
+<td style="text-align: left;">Two-position switch</td>
 </tr>
 <tr>
 <td style="text-align: left;">CH7</td>
-<td style="text-align: left;">Enable/Disable</td>
-<td style="text-align: left;">2-position switch</td>
+<td style="text-align: left;">Enable/disable</td>
+<td style="text-align: left;">Two-position switch</td>
 </tr>
 <tr>
 <td style="text-align: left;">CH8</td>
 <td style="text-align: left;">Kill</td>
-<td style="text-align: left;">2-position switch</td>
+<td style="text-align: left;">Two-position switch</td>
 </tr>
 <tr>
 <td style="text-align: left;">CH9-16</td>
 <td style="text-align: left;">GPSw</td>
-<td style="text-align: left;">2-position switch</td>
+<td style="text-align: left;">Two-position switch</td>
 </tr>
 </tbody>
 </table>
 <p><br></p>
-<p>The sub-flight mode switch provides finer mode selection within specific flight modes.
-It is used when the four primary stick axes do not provide enough command degrees of freedom, such as when changing modes on a vehicle capable of controlling five or more axes simultaneously.
-GPSw (General Purpose Switch) is a switch that users can assign freely.
-You can configure the number of switches in Setup Assistant according to the transmitter, receiver, and intended use.</p>
-<p>The <a href=https://www.rc.futaba.co.jp/products/detail/I00000006 target="_blank">Futaba T10J</a>
+<p>The sub-flight mode switch selects more specific modes within certain flight modes.
+It is used when the four basic stick axes do not provide enough command degrees of freedom, such as when switching modes on aircraft capable of controlling five or more axes simultaneously.
+GPSw (General Purpose Switch) channels are freely available for user-defined purposes.
+You can set their number in Setup Assistant to suit your transmitter, receiver, and application.</p>
+<p><a href=https://www.rc.futaba.co.jp/products/detail/I00000006 target="_blank">Futaba T10J</a>
 has fixed assignments for channels 1 through 4 as shown in the table above,
-while switches can be assigned freely to channels 5 and above.
-Press and hold the <code>+</code> button on the transmitter to open the menu, then select <code>AUX Channel</code>.
-For this example, the channels were configured as follows.</p>
+while switches can be freely assigned to channels 5 and above.
+Hold the transmitter's <code>+</code> button to open the menu, then select <code>AUX Channel</code>.
+The following assignments are used in this tutorial.</p>
 <table>
 <thead>
 <tr>
@@ -1721,90 +1699,87 @@ For this example, the channels were configured as follows.</p>
 </tbody>
 </table>
 <p><br></p>
-<p>When using a Futaba transmitter, you must also reverse the throttle stick.
-Press and hold the <code>+</code> button on the transmitter to open the menu, then select <code>Reverse</code>.
+<p>When using a Futaba transmitter, you also need to reverse the throttle stick.
+Hold the transmitter's <code>+</code> button to open the menu, then select <code>Reverse</code>.
 Set only the throttle stick (<code>THR</code>) to reverse (<code>REV</code>).</p>
-<h2 id="loading-and-writing-a-tobas-project">Loading and Writing a Tobas Project<a class="headerlink" href="#loading-and-writing-a-tobas-project" title="Permanent link">&para;</a></h2>
+<h2 id="loading-and-writing-the-tobas-project"><strong>Loading and Writing the Tobas Project</strong><a class="headerlink" href="#loading-and-writing-the-tobas-project" title="Permanent link">&para;</a></h2>
 <hr />
-<p>Connect the ground station PC to the same network as the FC.
+<p>Connect your ground station PC to the same network as the FC.
 If you configured multiple networks in <a href="../bootmedia_config/">Boot Device Configuration</a>,
-note that the highest-priority available network will be selected.</p>
-<p>Run the following command in a terminal to launch Tobas GCS.</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nv">RMW_IMPLEMENTATION</span><span class="o">=</span>rmw_cyclonedds_cpp<span class="w"> </span>ros2<span class="w"> </span>launch<span class="w"> </span>tobas_gcs<span class="w"> </span>gcs.launch.py
+remember that the available network with the highest priority is selected.</p>
+<p>Run the following commands in a terminal to launch Tobas GCS.</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>/opt/ros/jazzy/setup.bash
+$<span class="w"> </span><span class="nv">RMW_IMPLEMENTATION</span><span class="o">=</span>rmw_cyclonedds_cpp<span class="w"> </span>ros2<span class="w"> </span>launch<span class="w"> </span>tobas_gcs<span class="w"> </span>gcs.launch.py
 </code></pre></div>
-<p>Click <code>Load Project</code>, then double-click <code>tobas_f450.TBS</code> created in Setup Assistant to load it.
-Clicking <code>Write Project</code> sends the project to the FC and then builds it. This takes several minutes.</p>
-<p><img alt="load_and_write" src="../../assets/hardware_setup/load_and_write.png" /></p>
-<h2 id="sensor-calibration">Sensor Calibration<a class="headerlink" href="#sensor-calibration" title="Permanent link">&para;</a></h2>
+<p><img alt="start" src="../../assets/hardware_setup/start.png" /></p>
+<p>Click <code>Load Project</code>, then double-click the <code>tobas_f450.TBS</code> project created in Setup Assistant to load it.</p>
+<p><img alt="load_project" src="../../assets/hardware_setup/load_project.png" /></p>
+<p>Click <code>Write Project</code> to send the project to the FC and build it there. This takes a few minutes.</p>
+<p><img alt="write_project" src="../../assets/hardware_setup/write_project.png" /></p>
+<h2 id="sensor-calibration"><strong>Sensor Calibration</strong><a class="headerlink" href="#sensor-calibration" title="Permanent link">&para;</a></h2>
 <p>Calibrate each sensor.
-Click <code>Sensor Calib</code> in the toolbar at the top of the screen.</p>
+Click <code>Sensor Calib</code> among the tool buttons at the top of the window.</p>
 <hr />
-<h3 id="accelerometer-calibration">Accelerometer Calibration<a class="headerlink" href="#accelerometer-calibration" title="Permanent link">&para;</a></h3>
+<h3 id="accelerometer-calibration"><strong>Accelerometer Calibration</strong><a class="headerlink" href="#accelerometer-calibration" title="Permanent link">&para;</a></h3>
 <p>Calibrate the accelerometer.
-Place the vehicle on a level surface and click <code>Start</code>.
+Place the aircraft on a level surface and click <code>Start</code>.
 Calibration completes in a few seconds, and the tab changes from red to green shortly afterward.</p>
 <p><img alt="accel_calibration" src="../../assets/hardware_setup/accel_calibration.png" /></p>
-<h3 id="magnetometer-calibration">Magnetometer Calibration<a class="headerlink" href="#magnetometer-calibration" title="Permanent link">&para;</a></h3>
+<h3 id="magnetometer-calibration"><strong>Magnetometer Calibration</strong><a class="headerlink" href="#magnetometer-calibration" title="Permanent link">&para;</a></h3>
 <p>Calibrate the magnetometer.
-Because the magnetometer is highly affected by its surroundings, perform the calibration with the FC mounted on the vehicle.
-It is also best to perform it away from magnetic materials such as steel reinforcement.</p>
+The magnetometer is strongly affected by its surroundings, so perform calibration with the FC mounted on the aircraft.
+Preferably, choose an area free of magnetic materials such as steel reinforcement.</p>
 <ol>
-<li>Click <code>Start</code>. The magnetometer readings will begin to appear as a white point cloud.</li>
-<li>For each of the FC's six faces, orient the face upward and slowly rotate the vehicle about the vertical axis.
-   This step is complete when the progress bar reaches 100%.</li>
-<li>When finished, click <code>Finish</code>. The estimated ellipsoid appears in blue, and the distortion-corrected point cloud appears in green.
+<li>Click <code>Start</code> to begin displaying magnetometer readings as a white point cloud.</li>
+<li>For each of the FC's six faces, hold that face upward and slowly rotate the aircraft about the vertical axis.
+   Calibration is complete when the progress bar reaches 100%.</li>
+<li>Click <code>Finish</code> when done. The estimated ellipsoid is shown in blue, and the corrected point cloud is shown in green.
    Calibration is successful if the blue ellipsoid overlaps the white point cloud and the green point cloud forms a sphere around the origin.</li>
 </ol>
-<p><img src="../../assets/hardware_setup/mag_calibration_1.png" alt="mag_calibration_1" width="49%"/>
-<img src="../../assets/hardware_setup/mag_calibration_2.png" alt="mag_calibration_2" width="49%"/></p>
-<h3 id="radio-calibration">Radio Calibration<a class="headerlink" href="#radio-calibration" title="Permanent link">&para;</a></h3>
+<p><img alt="mag_calibration_1" src="../../assets/hardware_setup/mag_calibration_1.png" />
+<img alt="mag_calibration_2" src="../../assets/hardware_setup/mag_calibration_2.png" /></p>
+<h3 id="radio-calibration"><strong>Radio Calibration</strong><a class="headerlink" href="#radio-calibration" title="Permanent link">&para;</a></h3>
 <p>Calibrate the radio input (S.BUS).</p>
 <ol>
-<li>Click <code>Start</code>. The value of each S.BUS channel will begin to appear.</li>
-<li>For each channel, move the stick or switch through its full range.
-   If the stick and GUI bar move in opposite directions, adjust the transmitter settings accordingly.</li>
-<li>When finished, click <code>Finish</code>.</li>
+<li>Click <code>Start</code> to begin displaying the values of each S.BUS channel.</li>
+<li>Move each stick or switch through its full operating range.
+   If a stick and its GUI bar move in opposite directions, adjust the transmitter settings accordingly.</li>
+<li>Click <code>Finish</code> when done.</li>
 </ol>
 <p><img alt="radio_calibration" src="../../assets/hardware_setup/radio_calibration.png" /></p>
-<h2 id="actuator-test">Actuator Test<a class="headerlink" href="#actuator-test" title="Permanent link">&para;</a></h2>
+<h2 id="actuator-test"><strong>Actuator Test</strong><a class="headerlink" href="#actuator-test" title="Permanent link">&para;</a></h2>
 <p>Test each actuator.
-Click <code>Actuator Test</code> in the toolbar at the top of the screen.</p>
+Click <code>Actuator Test</code> among the tool buttons at the top of the window.</p>
 <hr />
-<h3 id="rotor-test">Rotor Test<a class="headerlink" href="#rotor-test" title="Permanent link">&para;</a></h3>
-<p><span style="color: red;"><strong>Warning: This operation spins the motors. Exercise extreme caution if performing it with the propellers installed.</strong></span></p>
+<h3 id="rotor-test"><strong>Rotor Test</strong><a class="headerlink" href="#rotor-test" title="Permanent link">&para;</a></h3>
+<p><span style="color: red;"><strong>Warning: This operation spins the motors. Use extreme caution if you perform it with propellers attached.</strong></span></p>
 <p><img alt="rotor_test" src="../../assets/hardware_setup/rotor_test.png" /></p>
 <ol>
-<li>Click <code>Start</code> to enable all motors.</li>
-<li>For each motor, move the slider to command its speed, then verify that it is connected correctly and rotates in the correct direction.</li>
-<li>Adjust the control gain for each motor.
-   Increase the gains one at a time while changing the target speed and checking that no oscillation occurs.
-   In this example, all gains were set to 17.</li>
-<li>Click <code>Save</code> to save the control gains to the project on the PC.</li>
+<li>Click <code>Start</code> to enable all motors to spin.</li>
+<li>For each motor, move the slider to command its speed and verify that the connection and rotation direction are correct.</li>
+<li>Tune each motor's control gain.
+   Increase the gains one at a time while changing the target speed and checking that no oscillations occur.
+   In this example, all gains are set to 17.</li>
+<li>Click <code>Save</code> to save the control gains to the project on your PC.</li>
 <li>Click <code>Stop</code> to end the test.</li>
 <li>Click <code>Write Project</code> to flash the saved control gains to the FC.</li>
 </ol>
 <!-- prettier-ignore-start -->
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If the motors do not spin, check whether the <code>ERR</code> indicator on top of the FC is lit.
-If it is lit, turn the power off and then power the FC on again.</p>
+<p>If the motors do not spin, check whether the <code>ERR</code> indicator on the top of the FC is lit.
+If it is lit, try turning the power off and then back on.</p>
 </div>
 <!-- prettier-ignore-end -->
 
-<h3 id="joint-test">Joint Test<a class="headerlink" href="#joint-test" title="Permanent link">&para;</a></h3>
-<p>If the vehicle has PWM-driven joints, such as tilt-rotor mechanisms or fixed-wing control surfaces, you can test the position commands for each joint.
-This vehicle has no movable joints other than the propellers, so this test is skipped.</p>
-<h2 id="powering-off-the-fc">Powering Off the FC<a class="headerlink" href="#powering-off-the-fc" title="Permanent link">&para;</a></h2>
+<h3 id="joint-test"><strong>Joint Test</strong><a class="headerlink" href="#joint-test" title="Permanent link">&para;</a></h3>
+<p>If your aircraft has actuated joints, such as tilt rotors or fixed-wing control surfaces, you can test position commands for each joint.
+The aircraft in this tutorial has no movable joints other than the propellers, so skip this step.</p>
+<h2 id="next-steps"><strong>Next Steps</strong><a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <hr />
-<ol>
-<li>Press the red power button in the upper-right corner of the screen to shut down the FC.</li>
-<li>Confirm that the Raspberry Pi power button has changed from green to red before disconnecting the power.</li>
-</ol>
-<p><img alt="power_off" src="../../assets/hardware_setup/power_off.png" /></p>
-<h2 id="next-step">Next Step<a class="headerlink" href="#next-step" title="Permanent link">&para;</a></h2>
-<hr />
-<p>This completes the setup.
-In the next step, you will finally fly the vehicle.</p>
+<p>Hardware setup is now complete.
+Close Tobas GCS and turn off the aircraft.
+In the next step, you will fly the aircraft.</p>
 
 
 

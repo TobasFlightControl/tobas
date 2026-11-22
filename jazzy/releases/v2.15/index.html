@@ -1181,10 +1181,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#operating-environment" class="md-nav__link">
+  <a href="#environment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Operating Environment
+        Environment
       
     </span>
   </a>
@@ -1248,10 +1248,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#failsafe" class="md-nav__link">
+  <a href="#fail-safe" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Failsafe
+        Fail-Safe
       
     </span>
   </a>
@@ -1270,10 +1270,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ground-station" class="md-nav__link">
+  <a href="#ground-control-station" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Ground Station
+        Ground Control Station
       
     </span>
   </a>
@@ -1292,10 +1292,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#boot-device-settings" class="md-nav__link">
+  <a href="#boot-device-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Boot Device Settings
+        Boot Device Configuration
       
     </span>
   </a>
@@ -1347,63 +1347,63 @@
 
 
 <h1 id="release-v215">Release v2.15<a class="headerlink" href="#release-v215" title="Permanent link">&para;</a></h1>
-<h2 id="operating-environment">Operating Environment<a class="headerlink" href="#operating-environment" title="Permanent link">&para;</a></h2>
+<h2 id="environment"><strong>Environment</strong><a class="headerlink" href="#environment" title="Permanent link">&para;</a></h2>
 <hr />
 <p>ROS 2 Jazzy</p>
-<h2 id="changes">Changes<a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
+<h2 id="changes"><strong>Changes</strong><a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
 <hr />
-<h3 id="sensor-processing">Sensor Processing<a class="headerlink" href="#sensor-processing" title="Permanent link">&para;</a></h3>
+<h3 id="sensor-processing"><strong>Sensor Processing</strong><a class="headerlink" href="#sensor-processing" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added RPM filter support (FC201 and later)</li>
 </ul>
-<h3 id="state-estimation">State Estimation<a class="headerlink" href="#state-estimation" title="Permanent link">&para;</a></h3>
+<h3 id="state-estimation"><strong>State Estimation</strong><a class="headerlink" href="#state-estimation" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Fusion of barometric and GNSS altitudes</li>
+<li>Added fusion of barometric and GNSS altitude</li>
 </ul>
-<h3 id="control">Control<a class="headerlink" href="#control" title="Permanent link">&para;</a></h3>
+<h3 id="control"><strong>Control</strong><a class="headerlink" href="#control" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Mixing that accounts for motor and propeller efficiency (minimizes current while satisfying control commands)</li>
+<li>Added motor and propeller efficiency to mixing to minimize current while meeting control commands</li>
 </ul>
-<h3 id="missions">Missions<a class="headerlink" href="#missions" title="Permanent link">&para;</a></h3>
+<h3 id="missions"><strong>Missions</strong><a class="headerlink" href="#missions" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Mission save and load functionality</li>
-<li>Altitude can now be specified as either relative to the takeoff point or above sea level</li>
+<li>Added mission saving and loading</li>
+<li>Added altitude specification above sea level as well as relative to the takeoff location</li>
 </ul>
-<h3 id="failsafe">Failsafe<a class="headerlink" href="#failsafe" title="Permanent link">&para;</a></h3>
+<h3 id="fail-safe"><strong>Fail-Safe</strong><a class="headerlink" href="#fail-safe" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Disarm if the vehicle has not yet taken off</li>
-<li>Select the appropriate action based on position and velocity estimation accuracy</li>
+<li>Added disarming before takeoff</li>
+<li>Added selection of an appropriate response based on position and velocity estimation accuracy</li>
 </ul>
-<h3 id="manual-mode">Manual Mode<a class="headerlink" href="#manual-mode" title="Permanent link">&para;</a></h3>
+<h3 id="manual-mode"><strong>Manual Mode</strong><a class="headerlink" href="#manual-mode" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Adjustable stick deadband</li>
-<li>Command feedforward acceleration in position control mode</li>
+<li>Added adjustable stick deadbands</li>
+<li>Added feedforward acceleration commands in position control mode</li>
 </ul>
-<h3 id="ground-station">Ground Station<a class="headerlink" href="#ground-station" title="Permanent link">&para;</a></h3>
+<h3 id="ground-control-station"><strong>Ground Control Station</strong><a class="headerlink" href="#ground-control-station" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Display altitude relative to the startup position and MSL altitude</li>
-<li>Display the number of satellites used for GNSS positioning</li>
+<li>Added display of altitude relative to the startup position and MSL altitude</li>
+<li>Added display of the number of satellites used for GNSS positioning</li>
 </ul>
-<h3 id="flight-logs">Flight Logs<a class="headerlink" href="#flight-logs" title="Permanent link">&para;</a></h3>
+<h3 id="flight-logs"><strong>Flight Logs</strong><a class="headerlink" href="#flight-logs" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Recall flight log name history using the up and down buttons</li>
-<li>Display download progress</li>
-<li>rosbag output support</li>
+<li>Added up/down button navigation through flight log name history</li>
+<li>Added download progress display</li>
+<li>Added rosbag export</li>
 </ul>
-<h3 id="boot-device-settings">Boot Device Settings<a class="headerlink" href="#boot-device-settings" title="Permanent link">&para;</a></h3>
+<h3 id="boot-device-configuration"><strong>Boot Device Configuration</strong><a class="headerlink" href="#boot-device-configuration" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Read the current settings when connecting to a device</li>
-<li>Static IP configuration</li>
+<li>Added loading of current settings when connecting to a device</li>
+<li>Added static IP configuration</li>
 </ul>
-<h3 id="other">Other<a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
+<h3 id="other"><strong>Other</strong><a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Include user package launch files within the vehicle namespace</li>
-<li>Prevent GNSS position initialization during flight</li>
-<li>Output the new value to the console when a dynamic parameter is changed</li>
-<li>Automatically expand the partition on first boot</li>
-<li>Change message QoS to prevent dropped messages</li>
-<li>Change the CPU used by the interface node: 3 -&gt; 0</li>
-<li>Save motor RPM gains in the project folder</li>
+<li>Changed user package launch files to be included within the aircraft namespace</li>
+<li>Prevented GNSS position initialization during flight</li>
+<li>Added console output of new values when changing dynamic parameters</li>
+<li>Added automatic partition expansion on first boot</li>
+<li>Changed message QoS to prevent dropped messages</li>
+<li>Moved interface nodes from CPU3 to CPU0</li>
+<li>Added saving of motor speed control gains to the project folder</li>
 </ul>
 
 
