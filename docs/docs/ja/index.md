@@ -64,8 +64,8 @@ Tobas では機体の構造は[UADF (Universal Aircraft Description Format)](./a
 
 ### Tobas FC201
 
-<img src="../assets/introduction/fc201_1.jpg" alt="fc201_1" width="49%">
-<img src="../assets/introduction/fc201_2.jpg" alt="fc201_2" width="49%">
+![fc201_1](../assets/introduction/fc201_1.jpg){ width="49%" }
+![fc201_2](../assets/introduction/fc201_2.jpg){ width="49%" }
 
 #### Sensors & Processors
 

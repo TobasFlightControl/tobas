@@ -23,19 +23,19 @@ RPM フィルタを用いる最大の利点は，フィルタリング効果が�
 LPF のみだと高周波は落とせてもモータ回転数の振動が強く残っているのに対し，
 RPM フィルタの場合はモータの回転周波数とその 2，3 倍周波の振動も大幅にカットできていることが分かります．
 
-<img src="../../../assets/rpm_filter/lpf_imu.png" alt="lpf_imu" width="49%"/>
-<img src="../../../assets/rpm_filter/notch_imu.png" alt="notch_imu" width="49%"/>
+![lpf_imu](../../assets/rpm_filter/lpf_imu.png){ width="49%" }
+![notch_imu](../../assets/rpm_filter/notch_imu.png){ width="49%" }
 
-<img src="../../../assets/rpm_filter/lpf_imu_fft.png" alt="lpf_imu_fft" width="49%"/>
-<img src="../../../assets/rpm_filter/notch_imu_fft.png" alt="notch_imu_fft" width="49%"/>
+![lpf_imu_fft](../../assets/rpm_filter/lpf_imu_fft.png){ width="49%" }
+![notch_imu_fft](../../assets/rpm_filter/notch_imu_fft.png){ width="49%" }
 
 IMU，特にジャイロの振動が減少すると，モータの回転数の変動も減少します．
 下の画像で青色が観測した回転数，赤色が目標の回転数ですが，ノッチフィルタを用いた場合の方が回転数の変動が小さいことが分かります．
 これにより，余計な力が働かないことで姿勢制御がより安定することに加え，
 モータの発熱量が減ったりプロペラの羽音が滑らかになるという効果も得られます．
 
-<img src="../../../assets/rpm_filter/lpf_rpm.png" alt="lpf_rpm" width="49%"/>
-<img src="../../../assets/rpm_filter/notch_rpm.png" alt="notch_rpm" width="49%"/>
+![lpf_rpm](../../assets/rpm_filter/lpf_rpm.png){ width="49%" }
+![notch_rpm](../../assets/rpm_filter/notch_rpm.png){ width="49%" }
 
 ## 対応 FMU
 

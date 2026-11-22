@@ -142,6 +142,7 @@ nav:
 # https://squidfunk.github.io/mkdocs-material/setup/extensions/python-markdown/
 markdown_extensions:
   - admonition # Required for "note"
+  - attr_list # Required for image attributes
   - pymdownx.arithmatex: # Required for writing equations
       generic: true
   - toc: # Required for adding links for each heading
