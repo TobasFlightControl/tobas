@@ -1,3 +1,9 @@
+.md-typeset h2,
+.md-typeset h3 {
+  /* Equivalent to bold. */
+  font-weight: 700;
+}
+
 .md-banner {
   background-color: #000000;
 }
