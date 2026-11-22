@@ -4,10 +4,10 @@
 #include "tobas_control_system/power_source_viewer/battery_viewer.hpp"
 
 #include <algorithm>
-#include <format>
 #include <memory>
 
 #include <QFormLayout>
+#include <QString>
 
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
@@ -53,7 +53,7 @@ void BatteryViewerWidget::updateVoltage(double _voltage)
 {
   const auto volt_rate = math::remap(_voltage, eprop_->battery.sag_voltage, eprop_->battery.max_voltage, 0.0, 100.0);
   voltage_->setPercentage(volt_rate);
-  voltage_->setFormat(std::format("{:.1f} V ({:.0f} %)", _voltage, std::clamp(volt_rate, 0.0, 100.0)).c_str());
+  voltage_->setFormat(QString("%1 V (%2 %)").arg(_voltage, 0, 'f', 1).arg(std::clamp(volt_rate, 0.0, 100.0), 0, 'f', 0));
 
   if (volt_rate > 20.0) {
     voltage_->setFillColor(qt::color::green500());
@@ -70,7 +70,7 @@ void BatteryViewerWidget::updateCurrent(double _current)
 {
   const auto current_rate = math::remap(_current, 0.0, eprop_->battery.max_current, 0.0, 100.0);
   current_->setPercentage(current_rate);
-  current_->setFormat(std::format("{:.2f} A", _current).c_str());
+  current_->setFormat(QString("%1 A").arg(_current, 0, 'f', 2));
 
   if (_current < eprop_->battery.max_current * 0.6) {
     current_->setFillColor(qt::color::green500());

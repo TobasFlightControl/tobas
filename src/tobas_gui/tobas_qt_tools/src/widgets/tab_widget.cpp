@@ -3,6 +3,7 @@
 
 #include "tobas_qt_tools/widgets/tab_widget.hpp"
 
+#include <QString>
 #include <QStyleOptionTab>
 #include <QStylePainter>
 
@@ -121,20 +122,17 @@ void TabWidget::setTabVisible(QWidget* _tab, bool _visible)
 
 void TabWidget::setTabWidth(int _width)
 {
-  const auto qss = std::format("QTabBar::tab {{ width: {}px; }}", _width);
-  setStyleSheet(QString::fromStdString(qss));
+  setStyleSheet(QString("QTabBar::tab { width: %1px; }").arg(_width));
 }
 
 void TabWidget::setTabHeight(int _height)
 {
-  const auto qss = std::format("QTabBar::tab {{ height: {}px; }}", _height);
-  setStyleSheet(QString::fromStdString(qss));
+  setStyleSheet(QString("QTabBar::tab { height: %1px; }").arg(_height));
 }
 
 void TabWidget::setTabSize(int _width, int _height)
 {
-  const auto qss = std::format("QTabBar::tab {{ width: {}px; height: {}px; }}", _width, _height);
-  setStyleSheet(QString::fromStdString(qss));
+  setStyleSheet(QString("QTabBar::tab { width: %1px; height: %2px; }").arg(_width).arg(_height));
 }
 
 void TabWidget::removeAllTabs()

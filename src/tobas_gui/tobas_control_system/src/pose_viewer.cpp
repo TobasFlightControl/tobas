@@ -5,6 +5,7 @@
 
 #include <QDebug>
 #include <QPainter>
+#include <QString>
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
@@ -225,7 +226,7 @@ void PoseViewerWidget::drawRoll(QPainter& _painter)
     _painter.drawLine(0, -kRollRadius, 0, -outer_radius);
 
     // Draw numbers.
-    _painter.drawText(-12, -text_radius, std::format("{}°", math::wrap(deg, 180)).c_str());
+    _painter.drawText(-12, -text_radius, QString("%1°").arg(math::wrap(deg, 180)));
 
     // Advance by the tick interval.
     _painter.rotate(kScaleInterval);
@@ -275,7 +276,7 @@ void PoseViewerWidget::drawPitch(QPainter& _painter)
     _painter.drawLine(-line_half, 0, line_half, 0);
 
     // Draw numbers.
-    _painter.drawText(text_x, text_y, std::format("{}°", math::wrap(deg, 180)).c_str());
+    _painter.drawText(text_x, text_y, QString("%1°").arg(math::wrap(deg, 180)));
 
     // Advance by the tick interval.
     _painter.translate(0, y_interval);
@@ -327,7 +328,7 @@ void PoseViewerWidget::drawYaw(QPainter& _painter)
     _painter.drawLine(0, 0, 0, -kYawTickLength);
 
     // Draw numbers.
-    _painter.drawText(text_x, text_y, std::format("{}°", math::wrap(deg, 180)).c_str());
+    _painter.drawText(text_x, text_y, QString("%1°").arg(math::wrap(deg, 180)));
 
     // Advance by the tick interval.
     _painter.translate(-x_interval, 0);
@@ -365,12 +366,12 @@ void PoseViewerWidget::drawRelativeAltitude(QPainter& _painter)
     }
 
     _painter.drawLine(x, y, x + kAltitudeTickLength, y);
-    _painter.drawText(x + kAltitudeTickLength + 12, y + 4, std::format("{}m", alt).c_str());
+    _painter.drawText(x + kAltitudeTickLength + 12, y + 4, QString("%1m").arg(alt));
   }
 
   _painter.setPen(QPen(Qt::red, kLineWidth));
   _painter.drawLine(x - kAltitudeTickLength, center_y, x + kAltitudeTickLength * 2, center_y);
-  _painter.drawText(x + kAltitudeTickLength + 12, center_y - 12, std::format("{:.1f}m", alt_rel_).c_str());
+  _painter.drawText(x + kAltitudeTickLength + 12, center_y - 12, QString("%1m").arg(alt_rel_, 0, 'f', 1));
 
   _painter.restore();
 }
@@ -397,14 +398,14 @@ void PoseViewerWidget::drawMslAltitude(QPainter& _painter)
       }
 
       _painter.drawLine(x, y, x - kAltitudeTickLength, y);
-      _painter.drawText(x - kAltitudeTickLength - 44, y + 4, std::format("{}m", alt).c_str());
+      _painter.drawText(x - kAltitudeTickLength - 44, y + 4, QString("%1m").arg(alt));
     }
   }
 
   _painter.setPen(QPen(Qt::red, kLineWidth));
   _painter.drawLine(x + kAltitudeTickLength, center_y, x - kAltitudeTickLength * 2, center_y);
 
-  const QString text = alt_msl_valid_ ? std::format("{:.1f}m", alt_msl_).c_str() : "---m";
+  const auto text = alt_msl_valid_ ? QString("%1m").arg(alt_msl_, 0, 'f', 1) : QString("---m");
   _painter.drawText(x - kAltitudeTickLength - 44, center_y - 12, text);
 
   _painter.restore();

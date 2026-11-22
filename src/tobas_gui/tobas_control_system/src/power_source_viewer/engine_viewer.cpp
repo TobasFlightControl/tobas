@@ -4,10 +4,10 @@
 #include "tobas_control_system/power_source_viewer/engine_viewer.hpp"
 
 #include <algorithm>
-#include <format>
 #include <memory>
 
 #include <QFormLayout>
+#include <QString>
 
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
@@ -55,7 +55,7 @@ void EngineViewerWidget::updateFuelQuantity(double _fuel_quantity)
   const auto fuel_rate = math::remap(_fuel_quantity, 0.0, kMaxFuelQuantity, 0.0, 100.0);
   fuel_quantity_->setPercentage(fuel_rate);
   fuel_quantity_->setFormat(
-    std::format("{:.1f} L ({:.0f} %)", _fuel_quantity, std::clamp(fuel_rate, 0.0, 100.0)).c_str());
+    QString("%1 L (%2 %)").arg(_fuel_quantity, 0, 'f', 1).arg(std::clamp(fuel_rate, 0.0, 100.0), 0, 'f', 0));
 
   if (fuel_rate > 20.0) {
     fuel_quantity_->setFillColor(qt::color::green500());
@@ -74,7 +74,7 @@ void EngineViewerWidget::updateOilTemperature(double _oil_temp)
   constexpr double kMaxOilTemp = 130.0;  // [degC]
   const auto oil_temp_rate = math::remap(_oil_temp, kMinOilTemp, kMaxOilTemp, 0.0, 100.0);
   oil_temp_->setPercentage(oil_temp_rate);
-  oil_temp_->setFormat(std::format("{:.1f} ℃", _oil_temp).c_str());
+  oil_temp_->setFormat(QString("%1 ℃").arg(_oil_temp, 0, 'f', 1));
 
   // TODO: Include the proper oil temperature range in `EngineConfig`.
   if (_oil_temp < 60.0) {

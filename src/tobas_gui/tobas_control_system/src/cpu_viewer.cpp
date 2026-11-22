@@ -3,9 +3,8 @@
 
 #include "tobas_control_system/cpu_viewer.hpp"
 
-#include <format>
-
 #include <QFormLayout>
+#include <QString>
 
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
@@ -41,7 +40,7 @@ void CpuViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& _cpu)
   constexpr double kMaxTemp = 100.0;  // [degC]
   const auto temp_rate = math::remap(_cpu->temperature, kMinTemp, kMaxTemp, 0.0, 100.0);
   temp_->setPercentage(temp_rate);
-  temp_->setFormat(std::format("{:.0f} ℃", _cpu->temperature).c_str());
+  temp_->setFormat(QString("%1 ℃").arg(_cpu->temperature, 0, 'f', 0));
   if (_cpu->temperature > 85.0) {
     temp_->setFillColor(qt::color::magenta500());
   }
@@ -60,7 +59,7 @@ void CpuViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& _cpu)
 
   const auto load_percent = _cpu->load * 100.0;
   load_->setPercentage(load_percent);
-  load_->setFormat(std::format("{:.0f} %", load_percent).c_str());
+  load_->setFormat(QString("%1 %").arg(load_percent, 0, 'f', 0));
   if (load_percent > 80.0) {
     load_->setFillColor(qt::color::red500());
   }
