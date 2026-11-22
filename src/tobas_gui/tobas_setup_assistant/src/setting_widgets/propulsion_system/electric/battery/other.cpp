@@ -3,7 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/other.hpp"
 
-#include <tobas_qt_tools/layouts/form_layout.hpp>
+#include <QFormLayout>
+
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
@@ -21,7 +22,7 @@ constexpr char kResistanceLabel[] = "Internal Resistance";
 
 BatteryWidget_Other::BatteryWidget_Other()
 {
-  const auto form = new qt::FormLayout();
+  const auto form = new QFormLayout();
   setLayout(form);  // Do not pass `this` to the layout constructor.
 
   nominal_voltage_ = new qt::DoubleSpinBox();

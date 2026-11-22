@@ -3,11 +3,11 @@
 
 #include "tobas_setup_assistant/setting_tabs/controller/custom.hpp"
 
+#include <QFormLayout>
 #include <QVBoxLayout>
 #include <magic_enum/magic_enum.hpp>
 
 #include <tobas_gui_common/constants.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
@@ -74,7 +74,7 @@ CustomFrameWidget::CustomFrameWidget()
   }
 
   // Layout
-  const auto form = new qt::FormLayout();
+  const auto form = new QFormLayout();
   form->addRow(kAcrobatLabel, acrobat_mode_);
   form->labelForField(acrobat_mode_)->setToolTip(acrobat_mode_->toolTip());
   form->addRow(kStabilizeLabel, stabilize_mode_);

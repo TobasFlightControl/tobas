@@ -3,7 +3,8 @@
 
 #include "tobas_bootmedia_config/ip_address/ipv4.hpp"
 
-#include <tobas_qt_tools/layouts/form_layout.hpp>
+#include <QFormLayout>
+
 #include <tobas_qt_tools/message.hpp>
 
 #include "tobas_bootmedia_config/constants.hpp"
@@ -12,13 +13,13 @@ namespace tobas::gui::bm
 {
 IPv4Widget::IPv4Widget(const QString& _name) : name_(_name)
 {
-  const auto form = new qt::FormLayout(this);
+  const auto form = new QFormLayout(this);
   form->setHorizontalSpacing(kFormSpacing);
 
   method_ = new qt::ComboBox();
   method_->addItem("Automatic");
   method_->addItem("Manual");
-  form->addVAlignedRow("Method", method_);
+  form->addRow("Method", method_);
   connect(method_, qOverload<int>(&QComboBox::currentIndexChanged), this, &self::onMethodChanged);
 
   prefix_ = new qt::ComboBox();
@@ -32,13 +33,13 @@ IPv4Widget::IPv4Widget(const QString& _name) : name_(_name)
   prefix_->addItem("29 - 255.255.255.248");
   prefix_->addItem("30 - 255.255.255.252");
   prefix_->addItem("32 - 255.255.255.255");
-  form->addVAlignedRow("Prefix Length", prefix_);
+  form->addRow("Prefix Length", prefix_);
 
   address_ = new qt::IPv4Edit();
-  form->addVAlignedRow("Address", address_);
+  form->addRow("Address", address_);
 
   gateway_ = new qt::IPv4Edit();
-  form->addVAlignedRow("Gateway", gateway_);
+  form->addRow("Gateway", gateway_);
 }
 
 QString IPv4Widget::name() const

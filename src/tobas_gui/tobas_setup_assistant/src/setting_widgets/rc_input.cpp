@@ -3,8 +3,9 @@
 
 #include "tobas_setup_assistant/setting_tabs/rc_input.hpp"
 
+#include <QFormLayout>
+
 #include <tobas_constants/rc_input.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_yaml_tools/format.hpp>
 
 namespace tobas::gui::sa
@@ -39,7 +40,7 @@ RcInputWidget::RcInputWidget()
   disarm_duration_->setMaximum(10.0);
   disarm_duration_->setSuffix(" s");
 
-  const auto form = new qt::FormLayout(this);
+  const auto form = new QFormLayout(this);
   form->addRow(kNumSbusChannelsLabel, num_sbus_channels_);
   form->labelForField(num_sbus_channels_)->setToolTip(num_sbus_channels_->toolTip());
   form->addRow(kArmDurationLabel, arm_duration_);

@@ -3,7 +3,7 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/battery/lipo.hpp"
 
-#include <tobas_qt_tools/layouts/form_layout.hpp>
+#include <QFormLayout>
 
 namespace tobas::gui::sa::propulsion::electric
 {
@@ -17,7 +17,7 @@ constexpr char kResistanceLabel[] = "Internal Resistance";
 
 BatteryWidget_LiPo::BatteryWidget_LiPo()
 {
-  const auto form = new qt::FormLayout();
+  const auto form = new QFormLayout();
   setLayout(form);  // Do not pass `this` to the layout constructor.
 
   num_cells_ = new qt::SpinBox();

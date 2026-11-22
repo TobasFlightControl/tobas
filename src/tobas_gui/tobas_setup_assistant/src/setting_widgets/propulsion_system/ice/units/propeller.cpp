@@ -3,8 +3,9 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/propulsion_units/propeller.hpp"
 
+#include <QFormLayout>
+
 #include <tobas_qt_tools/cast.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/range.hpp>
@@ -26,7 +27,7 @@ constexpr char kMaxChordLabel[] = "Maximum Blade Chord Length";
 
 PropellerWidget::PropellerWidget()
 {
-  const auto form = new qt::FormLayout();
+  const auto form = new QFormLayout();
   setLayout(form);  // Do not pass `this` to the layout constructor.
 
   num_blades_ = new qt::SpinBox();

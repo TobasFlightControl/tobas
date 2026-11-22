@@ -21,7 +21,7 @@ CpuViewerWidget::CpuViewerWidget(const rqt::RosQtBridge& _bridge)
   const auto form = new QFormLayout(this);
   form->setContentsMargins(2, 0, 2, 0);
   form->setSpacing(2);
-  form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  form->setLabelAlignment(Qt::AlignLeft);
   form->addRow("CPU Temp", temp_);
   form->addRow("CPU Load", load_);
 

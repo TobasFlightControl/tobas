@@ -25,7 +25,7 @@ GnssViewerWidget::GnssViewerWidget(const rqt::RosQtBridge& _bridge)
   const auto form = new QFormLayout(this);
   form->setContentsMargins(2, 0, 2, 0);
   form->setSpacing(2);
-  form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  form->setLabelAlignment(Qt::AlignLeft);
   form->addRow("GNSS Status", status_);
   form->addRow("GNSS NSats", nsats_);
 

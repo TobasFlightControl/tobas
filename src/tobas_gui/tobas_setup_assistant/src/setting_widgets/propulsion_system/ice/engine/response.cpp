@@ -3,7 +3,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/ice/engine/response.hpp"
 
-#include <tobas_qt_tools/layouts/form_layout.hpp>
+#include <QFormLayout>
+
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
 namespace tobas::gui::sa::propulsion::ice
@@ -16,7 +17,7 @@ constexpr char kTimeConstDownLabel[] = "Speed Decrease Time Constant";
 
 EngineResponseWidget::EngineResponseWidget()
 {
-  const auto form = new qt::FormLayout(this);
+  const auto form = new QFormLayout(this);
 
   time_const_up_ = new qt::SpinBox();
   time_const_up_->setToolTip(

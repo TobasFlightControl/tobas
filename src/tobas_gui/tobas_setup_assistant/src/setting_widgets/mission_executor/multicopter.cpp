@@ -3,11 +3,11 @@
 
 #include "tobas_setup_assistant/setting_tabs/mission_executor/multicopter.hpp"
 
+#include <QFormLayout>
 #include <QFrame>
 #include <QLayout>
 #include <QVBoxLayout>
 
-#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
@@ -150,38 +150,38 @@ MulticopterWidget::MulticopterWidget()
   rtl_min_alt_->setMaximum(150.0);  // Japanese prohibited airspace.
   rtl_min_alt_->setSuffix(" m");
 
-  const auto wp_form = new qt::FormLayout();
-  wp_form->addVAlignedRow("Maximum Horizontal Velocity", wp_max_hor_vel_);
+  const auto wp_form = new QFormLayout();
+  wp_form->addRow("Maximum Horizontal Velocity", wp_max_hor_vel_);
   wp_form->labelForField(wp_max_hor_vel_)->setToolTip(wp_max_hor_vel_->toolTip());
-  wp_form->addVAlignedRow("Maximum Horizontal Acceleration", wp_max_hor_acc_);
+  wp_form->addRow("Maximum Horizontal Acceleration", wp_max_hor_acc_);
   wp_form->labelForField(wp_max_hor_acc_)->setToolTip(wp_max_hor_acc_->toolTip());
-  wp_form->addVAlignedRow("Maximum Horizontal Jerk", wp_max_hor_jerk_);
+  wp_form->addRow("Maximum Horizontal Jerk", wp_max_hor_jerk_);
   wp_form->labelForField(wp_max_hor_jerk_)->setToolTip(wp_max_hor_jerk_->toolTip());
-  wp_form->addVAlignedRow("Maximum Vertical Velocity", wp_max_ver_vel_);
+  wp_form->addRow("Maximum Vertical Velocity", wp_max_ver_vel_);
   wp_form->labelForField(wp_max_ver_vel_)->setToolTip(wp_max_ver_vel_->toolTip());
-  wp_form->addVAlignedRow("Maximum Vertical Acceleration", wp_max_ver_acc_);
+  wp_form->addRow("Maximum Vertical Acceleration", wp_max_ver_acc_);
   wp_form->labelForField(wp_max_ver_acc_)->setToolTip(wp_max_ver_acc_->toolTip());
-  wp_form->addVAlignedRow("Maximum Vertical Jerk", wp_max_ver_jerk_);
+  wp_form->addRow("Maximum Vertical Jerk", wp_max_ver_jerk_);
   wp_form->labelForField(wp_max_ver_jerk_)->setToolTip(wp_max_ver_jerk_->toolTip());
-  wp_form->addVAlignedRow("Maximum Heading Rate", wp_max_head_rate_);
+  wp_form->addRow("Maximum Heading Rate", wp_max_head_rate_);
   wp_form->labelForField(wp_max_head_rate_)->setToolTip(wp_max_head_rate_->toolTip());
-  wp_form->addVAlignedRow("Maximum Heading Acceleration", wp_max_head_acc_);
+  wp_form->addRow("Maximum Heading Acceleration", wp_max_head_acc_);
   wp_form->labelForField(wp_max_head_acc_)->setToolTip(wp_max_head_acc_->toolTip());
 
-  const auto takeoff_form = new qt::FormLayout();
-  takeoff_form->addVAlignedRow("Maximum Speed", takeoff_max_speed_);
+  const auto takeoff_form = new QFormLayout();
+  takeoff_form->addRow("Maximum Speed", takeoff_max_speed_);
   takeoff_form->labelForField(takeoff_max_speed_)->setToolTip(takeoff_max_speed_->toolTip());
-  takeoff_form->addVAlignedRow("Maximum Acceleration", takeoff_max_accel_);
+  takeoff_form->addRow("Maximum Acceleration", takeoff_max_accel_);
   takeoff_form->labelForField(takeoff_max_accel_)->setToolTip(takeoff_max_accel_->toolTip());
-  takeoff_form->addVAlignedRow("Maximum Jerk", takeoff_max_jerk_);
+  takeoff_form->addRow("Maximum Jerk", takeoff_max_jerk_);
   takeoff_form->labelForField(takeoff_max_jerk_)->setToolTip(takeoff_max_jerk_->toolTip());
 
-  const auto land_form = new qt::FormLayout();
-  land_form->addVAlignedRow("Speed", land_speed_);
+  const auto land_form = new QFormLayout();
+  land_form->addRow("Speed", land_speed_);
   land_form->labelForField(land_speed_)->setToolTip(land_speed_->toolTip());
 
-  const auto rtl_form = new qt::FormLayout();
-  rtl_form->addVAlignedRow("Minimum Altitude Above Launch Point", rtl_min_alt_);
+  const auto rtl_form = new QFormLayout();
+  rtl_form->addRow("Minimum Altitude Above Launch Point", rtl_min_alt_);
   rtl_form->labelForField(rtl_min_alt_)->setToolTip(rtl_min_alt_->toolTip());
 
   setTabWidth(160);

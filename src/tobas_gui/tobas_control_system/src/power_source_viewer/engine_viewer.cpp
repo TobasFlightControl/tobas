@@ -7,9 +7,10 @@
 #include <format>
 #include <memory>
 
+#include <QFormLayout>
+
 #include <tobas_math/core.hpp>
 #include <tobas_qt_tools/color.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
 
 namespace tobas::gui::ctrl
 {
@@ -19,10 +20,10 @@ EngineViewerWidget::EngineViewerWidget(const rqt::RosQtBridge& _bridge, const Dr
   oil_temp_ = new qt::ProgressBar();
 
   // Layout
-  const auto form = new qt::FormLayout(this);
+  const auto form = new QFormLayout(this);
   form->setContentsMargins(2, 0, 2, 0);
   form->setSpacing(2);
-  form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  form->setLabelAlignment(Qt::AlignLeft);
   form->addRow("Fuel QTY", fuel_quantity_);
   form->addRow("Oil Temp", oil_temp_);
 

@@ -3,11 +3,11 @@
 
 #include "tobas_simulation_gui/simulation_settings/pose.hpp"
 
+#include <QFormLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
 #include <tobas_gui_common/constants.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
@@ -22,7 +22,7 @@ PoseWidget::PoseWidget()
   const auto cols = new QHBoxLayout();
   rows->addLayout(cols);
 
-  const auto xyz_form = new qt::FormLayout();
+  const auto xyz_form = new QFormLayout();
   cols->addLayout(xyz_form, 1);
   constexpr std::array kLabelsXYZ = { "X:", "Y:", "Z:" };
   for (size_t i = 0; i < 3; ++i) {
@@ -36,7 +36,7 @@ PoseWidget::PoseWidget()
     xyz_form->labelForField(xyz_[i])->setToolTip(xyz_[i]->toolTip());
   }
 
-  const auto rpy_form = new qt::FormLayout();
+  const auto rpy_form = new QFormLayout();
   cols->addLayout(rpy_form, 1);
   constexpr std::array kLabelsRPY = { "Roll:", "Pitch:", "Yaw:" };
   for (size_t i = 0; i < 3; ++i) {

@@ -3,8 +3,9 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electric/propulsion_units/esc.hpp"
 
+#include <QFormLayout>
+
 #include <tobas_qt_tools/cast.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
 
 namespace tobas::gui::sa::propulsion::electric
 {
@@ -15,7 +16,7 @@ constexpr char kMaxContinuousCurrentLabel[] = "Maximum Continuous Current";
 
 ESCWidget::ESCWidget()
 {
-  const auto form = new qt::FormLayout();
+  const auto form = new QFormLayout();
   setLayout(form);  // Do not pass `this` to the layout constructor.
 
   max_cont_current_ = new qt::SpinBox();

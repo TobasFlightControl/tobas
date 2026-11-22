@@ -3,9 +3,9 @@
 
 #include "tobas_setup_assistant/setting_tabs/fixed_wing/vehicle.hpp"
 
+#include <QFormLayout>
 #include <QFrame>
 
-#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/range.hpp>
@@ -59,7 +59,7 @@ VehicleWidget::VehicleWidget()
   alpha_limit_->setDecimals(3);
   alpha_limit_->setSuffix(" rad");
 
-  const auto form = new qt::FormLayout();
+  const auto form = new QFormLayout();
   setLayout(form);  // Do not pass `this` to the layout constructor.
   form->addRow(kWingSurfaceLabel, wing_surface_);
   form->labelForField(wing_surface_)->setToolTip(wing_surface_->toolTip());

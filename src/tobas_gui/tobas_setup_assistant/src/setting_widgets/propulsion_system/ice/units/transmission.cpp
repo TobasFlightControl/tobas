@@ -5,8 +5,9 @@
 
 #include <utility>
 
+#include <QFormLayout>
+
 #include <tobas_qt_tools/cast.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
@@ -19,7 +20,7 @@ constexpr char kGearRatioLabel[] = "Gear Ratio";
 
 TransmissionWidget::TransmissionWidget()
 {
-  const auto form = new qt::FormLayout();
+  const auto form = new QFormLayout();
   setLayout(form);  // Do not pass `this` to the layout constructor.
 
   gear_ratio_ = new RatioWidget();

@@ -23,7 +23,7 @@ BatteryViewerWidget::BatteryViewerWidget(const rqt::RosQtBridge& _bridge, const 
   const auto form = new QFormLayout(this);
   form->setContentsMargins(2, 0, 2, 0);
   form->setSpacing(2);
-  form->setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  form->setLabelAlignment(Qt::AlignLeft);
   form->addRow("Voltage", voltage_);
   form->addRow("Current", current_);
 

@@ -3,7 +3,7 @@
 
 #include "tobas_setup_assistant/robot_properties.hpp"
 
-#include <tobas_qt_tools/layouts/form_layout.hpp>
+#include <QFormLayout>
 
 namespace tobas::gui::sa
 {
@@ -14,7 +14,7 @@ RobotPropertiesWidget::RobotPropertiesWidget(const uadf::Model& _uadf, const kdl
   frame_type_ = new qt::FramedLabel();
   mass_ = new qt::FramedLabel();
 
-  const auto form = new qt::FormLayout();
+  const auto form = new QFormLayout();
   setLayout(form);  // Do not pass `this` to the layout constructor.
   form->setHorizontalSpacing(8);
   form->addRow("Name", robot_name_);

@@ -11,6 +11,7 @@
 
 #include <QCollator>
 #include <QDebug>
+#include <QFormLayout>
 #include <QGridLayout>
 #include <QMap>
 #include <QRadioButton>
@@ -19,7 +20,6 @@
 
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_qt_tools/cast.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
@@ -52,7 +52,7 @@ AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* _pro
   addCategories(data_dir / "uiuc", kUiuc);
 
   // Layout
-  const auto category_form = new qt::FormLayout();
+  const auto category_form = new QFormLayout();
   category_form->addRow("Category", category_name_);
 
   const auto root_rows = new QVBoxLayout(this);

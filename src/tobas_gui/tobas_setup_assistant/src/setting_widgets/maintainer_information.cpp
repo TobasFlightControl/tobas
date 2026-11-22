@@ -4,9 +4,9 @@
 #include "tobas_setup_assistant/setting_tabs/maintainer_information.hpp"
 
 #include <QDebug>
+#include <QFormLayout>
 
 #include <tobas_git/core.hpp>
-#include <tobas_qt_tools/layouts/form_layout.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_string_tools/core.hpp>
@@ -62,7 +62,7 @@ QString getDefaultEmail()
 
 MaintainerInformationWidget::MaintainerInformationWidget()
 {
-  const auto form = new qt::FormLayout(this);
+  const auto form = new QFormLayout(this);
 
   name_ = new QLineEdit();
   name_->setToolTip("Name of the maintainer recorded in the generated ROS package manifests.");
