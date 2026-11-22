@@ -4,8 +4,11 @@
 #include "tobas_ic_drivers/bmm150.hpp"
 
 #include <chrono>
+#include <cstdint>
 #include <iostream>
 #include <thread>
+
+using namespace std::chrono_literals;
 
 namespace tobas::driver
 {
@@ -93,7 +96,6 @@ bool BMM150::readMag(double& _mx, double& _my, double& _mz)
 
   // Compensate for the temperature effect using resistance value of hall sensor based on
   // Ref: https://github.com/boschsensortec/BMM150_SensorAPI/blob/master/bmm150.c compensate_x
-  // (int16_t)raw_data * kResolution is approximately microteslas.
   constexpr double kResolution = 1.0 / 16.0;
   _mx = static_cast<double>(compensateX(raw_data_x, r_hall)) * kResolution;
   _my = static_cast<double>(compensateY(raw_data_y, r_hall)) * kResolution;
@@ -109,7 +111,7 @@ bool BMM150::enterSuspendMode()
     return false;
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(3));  // Wait for BMM150's suspend.
+  std::this_thread::sleep_for(3ms);  // Wait for BMM150's suspend.
   return true;
 }
 
@@ -120,7 +122,7 @@ bool BMM150::suspendToSleepMode()
     return false;
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(3));  // Wait for BMM150's start-up.
+  std::this_thread::sleep_for(3ms);  // Wait for BMM150's start-up.
   return true;
 }
 
@@ -148,7 +150,7 @@ bool BMM150::execSelfTest()
     return false;
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(3));  // Wait for BMM150's self test.
+  std::this_thread::sleep_for(3ms);  // Wait for BMM150's self test.
 
   return true;
 }
@@ -233,19 +235,21 @@ int16_t BMM150::compensateX(int16_t _mag_data_x, uint16_t _data_r_hall)
     }
     if (process_comp_x0 != 0) {
       // Processing compensation equations
-      const int32_t process_comp_x1 = ((int32_t)trim_data_.dig_xyz1) * 16384;
-      const uint16_t process_comp_x2 = ((uint16_t)(process_comp_x1 / process_comp_x0)) - ((uint16_t)0x4000);
-      int16_t retval = ((int16_t)process_comp_x2);
-      const int32_t process_comp_x3 = (((int32_t)retval) * ((int32_t)retval));
-      const int32_t process_comp_x4 = (((int32_t)trim_data_.dig_xy2) * (process_comp_x3 / 128));
-      const int32_t process_comp_x5 = (int32_t)(((int16_t)trim_data_.dig_xy1) * 128);
-      const int32_t process_comp_x6 = ((int32_t)retval) * process_comp_x5;
-      const int32_t process_comp_x7 = (((process_comp_x4 + process_comp_x6) / 512) + ((int32_t)0x100000));
-      const int32_t process_comp_x8 = ((int32_t)(((int16_t)trim_data_.dig_x2) + ((int16_t)0xA0)));
-      const int32_t process_comp_x9 = ((process_comp_x7 * process_comp_x8) / 4096);
-      const int32_t process_comp_x10 = ((int32_t)_mag_data_x) * process_comp_x9;
-      retval = ((int16_t)(process_comp_x10 / 8192));
-      return (retval + (((int16_t)trim_data_.dig_x1) * 8)) / 16;
+      const int32_t process_comp_x1 = static_cast<int32_t>(trim_data_.dig_xyz1) * 16384;
+      const uint16_t process_comp_x2 =
+        static_cast<uint16_t>(process_comp_x1 / process_comp_x0) - static_cast<uint16_t>(0x4000);
+      int16_t retval = static_cast<int16_t>(process_comp_x2);
+      const int32_t process_comp_x3 = static_cast<int32_t>(retval) * static_cast<int32_t>(retval);
+      const int32_t process_comp_x4 = static_cast<int32_t>(trim_data_.dig_xy2) * (process_comp_x3 / 128);
+      const int32_t process_comp_x5 = static_cast<int32_t>(static_cast<int16_t>(trim_data_.dig_xy1) * 128);
+      const int32_t process_comp_x6 = static_cast<int32_t>(retval) * process_comp_x5;
+      const int32_t process_comp_x7 = (process_comp_x4 + process_comp_x6) / 512 + static_cast<int32_t>(0x100000);
+      const int32_t process_comp_x8 =
+        static_cast<int32_t>(static_cast<int16_t>(trim_data_.dig_x2) + static_cast<int16_t>(0xA0));
+      const int32_t process_comp_x9 = (process_comp_x7 * process_comp_x8) / 4096;
+      const int32_t process_comp_x10 = static_cast<int32_t>(_mag_data_x) * process_comp_x9;
+      retval = static_cast<int16_t>(process_comp_x10 / 8192);
+      return (retval + static_cast<int16_t>(trim_data_.dig_x1) * 8) / 16;
     }
     else {
       return kOverflowOutput;
@@ -275,18 +279,19 @@ int16_t BMM150::compensateY(int16_t _mag_data_y, uint16_t _data_r_hall)
     }
     if (process_comp_y0 != 0) {
       // Processing compensation equations
-      const int32_t process_comp_y1 = (((int32_t)trim_data_.dig_xyz1) * 16384) / process_comp_y0;
-      const uint16_t process_comp_y2 = ((uint16_t)process_comp_y1) - ((uint16_t)0x4000);
-      int16_t retval = ((int16_t)process_comp_y2);
-      const int32_t process_comp_y3 = ((int32_t)retval) * ((int32_t)retval);
-      const int32_t process_comp_y4 = ((int32_t)trim_data_.dig_xy2) * (process_comp_y3 / 128);
-      const int32_t process_comp_y5 = ((int32_t)(((int16_t)trim_data_.dig_xy1) * 128));
-      const int32_t process_comp_y6 = ((process_comp_y4 + (((int32_t)retval) * process_comp_y5)) / 512);
-      const int32_t process_comp_y7 = ((int32_t)(((int16_t)trim_data_.dig_y2) + ((int16_t)0xA0)));
-      const int32_t process_comp_y8 = (((process_comp_y6 + ((int32_t)0x100000)) * process_comp_y7) / 4096);
-      const int32_t process_comp_y9 = (((int32_t)_mag_data_y) * process_comp_y8);
-      retval = (int16_t)(process_comp_y9 / 8192);
-      return (retval + (((int16_t)trim_data_.dig_y1) * 8)) / 16;
+      const int32_t process_comp_y1 = (static_cast<int32_t>(trim_data_.dig_xyz1) * 16384) / process_comp_y0;
+      const uint16_t process_comp_y2 = static_cast<uint16_t>(process_comp_y1) - static_cast<uint16_t>(0x4000);
+      int16_t retval = static_cast<int16_t>(process_comp_y2);
+      const int32_t process_comp_y3 = static_cast<int32_t>(retval) * static_cast<int32_t>(retval);
+      const int32_t process_comp_y4 = static_cast<int32_t>(trim_data_.dig_xy2) * (process_comp_y3 / 128);
+      const int32_t process_comp_y5 = static_cast<int32_t>(static_cast<int16_t>(trim_data_.dig_xy1) * 128);
+      const int32_t process_comp_y6 = (process_comp_y4 + static_cast<int32_t>(retval) * process_comp_y5) / 512;
+      const int32_t process_comp_y7 =
+        static_cast<int32_t>(static_cast<int16_t>(trim_data_.dig_y2) + static_cast<int16_t>(0xA0));
+      const int32_t process_comp_y8 = ((process_comp_y6 + static_cast<int32_t>(0x100000)) * process_comp_y7) / 4096;
+      const int32_t process_comp_y9 = static_cast<int32_t>(_mag_data_y) * process_comp_y8;
+      retval = static_cast<int16_t>(process_comp_y9 / 8192);
+      return (retval + static_cast<int16_t>(trim_data_.dig_y1) * 8) / 16;
     }
     else {
       return kOverflowOutput;
@@ -303,12 +308,14 @@ int16_t BMM150::compensateZ(int16_t _mag_data_z, uint16_t _data_r_hall)
   if (_mag_data_z != kZaxisHallOverflowAdcval) {
     if ((trim_data_.dig_z2 != 0) && (trim_data_.dig_z1 != 0) && (_data_r_hall != 0) && (trim_data_.dig_xyz1 != 0)) {
       // Processing compensation equations
-      const int16_t process_comp_z0 = ((int16_t)_data_r_hall) - ((int16_t)trim_data_.dig_xyz1);
-      const int32_t process_comp_z1 = (((int32_t)trim_data_.dig_z3) * ((int32_t)(process_comp_z0))) / 4;
-      const int32_t process_comp_z2 = (((int32_t)(_mag_data_z - trim_data_.dig_z4)) * 32768);
-      const int32_t process_comp_z3 = ((int32_t)trim_data_.dig_z1) * (((int16_t)_data_r_hall) * 2);
-      const int16_t process_comp_z4 = (int16_t)((process_comp_z3 + 32768) / 65536);
-      const int32_t retval = ((process_comp_z2 - process_comp_z1) / (trim_data_.dig_z2 + process_comp_z4));
+      const int16_t process_comp_z0 = static_cast<int16_t>(_data_r_hall) - static_cast<int16_t>(trim_data_.dig_xyz1);
+      const int32_t process_comp_z1 =
+        (static_cast<int32_t>(trim_data_.dig_z3) * static_cast<int32_t>(process_comp_z0)) / 4;
+      const int32_t process_comp_z2 = static_cast<int32_t>(_mag_data_z - trim_data_.dig_z4) * 32768;
+      const int32_t process_comp_z3 =
+        static_cast<int32_t>(trim_data_.dig_z1) * (static_cast<int16_t>(_data_r_hall) * 2);
+      const int16_t process_comp_z4 = static_cast<int16_t>((process_comp_z3 + 32768) / 65536);
+      const int32_t retval = (process_comp_z2 - process_comp_z1) / (trim_data_.dig_z2 + process_comp_z4);
 
       // Saturate result to +/- 2 micro-tesla.
       if (retval > kPositiveSaturationZ) {

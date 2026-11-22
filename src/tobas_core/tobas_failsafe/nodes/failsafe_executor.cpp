@@ -120,7 +120,7 @@ void FailsafeExecutorNode::startRTL()
         break;
       case rclcpp_action::ResultCode::UNKNOWN:
       default:
-        TOBAS_ERROR("Unknown result code: ", (int)_res.code);
+        TOBAS_ERROR("Unknown result code: ", static_cast<int>(_res.code));
         startLand();
         break;
     }
@@ -170,7 +170,7 @@ void FailsafeExecutorNode::startLand()
         break;
       case rclcpp_action::ResultCode::UNKNOWN:
       default:
-        TOBAS_ERROR("Unknown result code: ", (int)_res.code);
+        TOBAS_ERROR("Unknown result code: ", static_cast<int>(_res.code));
         disarm();
         break;
     }

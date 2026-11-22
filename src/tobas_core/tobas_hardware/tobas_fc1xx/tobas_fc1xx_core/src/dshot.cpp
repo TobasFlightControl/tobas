@@ -4,6 +4,7 @@
 #include "tobas_fc1xx_core/dshot.hpp"
 
 #include <cassert>
+#include <cstdint>
 #include <format>
 #include <iostream>
 
@@ -41,7 +42,7 @@ bool DShot::initialize() noexcept
 std::expected<void, std::string> DShot::transfer() noexcept
 {
   // Compute CRC.
-  tx_buf_[kChannelSize] = crc_.compute((uint8_t*)tx_buf_, sizeof(uint32_t) * kChannelSize);
+  tx_buf_[kChannelSize] = crc_.compute(reinterpret_cast<const uint8_t*>(tx_buf_), sizeof(uint32_t) * kChannelSize);
 
   // Transfer.
   if (!spi_.transfer(sizeof(tx_buf_))) {
@@ -50,7 +51,7 @@ std::expected<void, std::string> DShot::transfer() noexcept
 
   // Check CRC.
   const auto cs = rx_buf_[kChannelSize];
-  const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint32_t) * kChannelSize);
+  const auto cr = crc_.compute(reinterpret_cast<const uint8_t*>(rx_buf_), sizeof(uint32_t) * kChannelSize);
   if (cs != cr) {
     return std::unexpected(std::format("CRC mismatch: received 0x{:08X}, computed 0x{:08X}.", cs, cr));
   }

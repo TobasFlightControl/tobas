@@ -129,7 +129,7 @@ void RotorControllerNode::publishZeroThrottle()
       break;
     }
     default: {
-      TOBAS_ERROR("Invalid propulsion system type: ", (int)drone_->prop->type());
+      TOBAS_ERROR("Invalid propulsion system type: ", static_cast<int>(drone_->prop->type()));
       return;
     }
   }
@@ -244,7 +244,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       break;
     }
     default: {
-      TOBAS_ERROR("Invalid propulsion system type: ", (int)drone_->prop->type());
+      TOBAS_ERROR("Invalid propulsion system type: ", static_cast<int>(drone_->prop->type()));
       return;
     }
   }

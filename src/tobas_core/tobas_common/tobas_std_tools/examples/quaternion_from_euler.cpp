@@ -1,26 +1,25 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <cstdlib>
 #include <iostream>
 
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 
-using namespace std;
-
 int main(int _argc, char* _argv[])
 {
   if (_argc != 4) {
-    cerr << "Usage: " << _argv[0] << " <Roll> <Pitch> <Yaw> [degree]\n";
+    std::cerr << "Usage: " << _argv[0] << " <Roll> <Pitch> <Yaw> [degree]\n";
     return EXIT_FAILURE;
   }
 
-  const auto roll = tobas::st::deg2rad(atof(_argv[1]));
-  const auto pitch = tobas::st::deg2rad(atof(_argv[2]));
-  const auto yaw = tobas::st::deg2rad(atof(_argv[3]));
+  const auto roll = tobas::st::deg2rad(std::atof(_argv[1]));
+  const auto pitch = tobas::st::deg2rad(std::atof(_argv[2]));
+  const auto yaw = tobas::st::deg2rad(std::atof(_argv[3]));
 
   const auto [qx, qy, qz, qw] = tobas::st::quaternionFromEuler(roll, pitch, yaw);
-  cout << "Hamilton: " << qw << ", " << qx << ", " << qy << ", " << qz << '\n';
+  std::cout << "Hamilton: " << qw << ", " << qx << ", " << qy << ", " << qz << '\n';
 
   return EXIT_SUCCESS;
 }

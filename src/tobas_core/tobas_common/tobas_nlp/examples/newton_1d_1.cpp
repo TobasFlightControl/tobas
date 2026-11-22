@@ -3,12 +3,11 @@
 
 /** Solve: x^2 + 2x - 1 = 0 */
 
+#include <cstdlib>
 #include <iostream>
 
 #include <tobas_math/core.hpp>
 #include <tobas_nlp/newton_1d.hpp>
-
-using namespace std;
 
 double f(double _x)
 {
@@ -28,13 +27,13 @@ int main()
 
   const auto x = newton.solve(1.0);
   if (!x) {
-    cerr << x.error() << '\n';
+    std::cerr << x.error() << '\n';
     return EXIT_FAILURE;
   }
 
-  cout << "Optimal solution: " << *x << '\n';  // 0.4142
-  cout << "----------\n";
-  cout << "f(x*) = " << f(*x) << '\n';
+  std::cout << "Optimal solution: " << *x << '\n';  // 0.4142
+  std::cout << "----------\n";
+  std::cout << "f(x*) = " << f(*x) << '\n';
 
   return EXIT_SUCCESS;
 }

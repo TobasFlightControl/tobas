@@ -3,15 +3,17 @@
 
 #include "tobas_sbus_driver/sbus.hpp"
 
+#include <cstdint>
+#include <iomanip>
 #include <iostream>
 
 #include <boost/multiprecision/cpp_int.hpp>
 
 #include <tobas_std_tools/console.hpp>
 
-#define HEX_STREAM(c) "0x" << std::setw(2) << std::setfill('0') << std::hex << std::uppercase << (int)c << std::dec
-
-using namespace boost::multiprecision;
+/** Format a byte as an uppercase hexadecimal stream expression. */
+#define HEX_STREAM(_byte)                                                                                              \
+  "0x" << std::setw(2) << std::setfill('0') << std::hex << std::uppercase << static_cast<int>(_byte) << std::dec
 
 namespace tobas
 {
@@ -87,7 +89,7 @@ void SBUS::readThreadFunc(std::stop_token _st)
 
   uint8_t start_byte, end_byte, flags;
   std::array<uint8_t, kDataSize> data;
-  uint256_t bits;
+  boost::multiprecision::uint256_t bits;
 
   // Receive one byte at a time instead of in bulk.
   // The inverter or the Linux UART device may split the data unexpectedly.
@@ -128,7 +130,7 @@ void SBUS::readThreadFunc(std::stop_token _st)
     // Decode data.
     bits = 0;
     for (size_t idx = 0; idx < kDataSize; ++idx) {
-      bits |= (static_cast<uint256_t>(data[idx]) << (8 * idx));
+      bits |= (static_cast<boost::multiprecision::uint256_t>(data[idx]) << (8 * idx));
     }
     for (size_t ch = 0; ch < kChannelSize; ++ch) {
       constexpr size_t kChannelBits = 11;

@@ -25,7 +25,7 @@ const char* altFrameToText(mission::AltitudeFrame _frame)
     case mission::kMeanSeaLevel:
       return kMeanSeaLevelLabel;
     default:
-      throw std::runtime_error(std::format("Invalid altitude frame: {}", (int)_frame));
+      throw std::runtime_error(std::format("Invalid altitude frame: {}", static_cast<int>(_frame)));
   }
 }
 

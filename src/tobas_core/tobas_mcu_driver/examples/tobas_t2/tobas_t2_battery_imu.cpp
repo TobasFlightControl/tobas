@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <thread>
 
 #include <tobas_mcu_driver/tobas_t2/pwm_batt_imu.hpp>
 
-using namespace std;
+using namespace std::chrono_literals;
 
 int main(int _argc, char* _argv[])
 {
   if (_argc != 2) {
-    cerr << "Usage: " << _argv[0] << " <SPI Device>\n";
+    std::cerr << "Usage: " << _argv[0] << " <SPI Device>\n";
     return EXIT_FAILURE;
   }
   const auto device = _argv[1];
@@ -20,7 +21,7 @@ int main(int _argc, char* _argv[])
   tobas::t2::PwmBattImu driver;
 
   if (!driver.initialize(device)) {
-    cerr << "Failed to initialize the driver.\n";
+    std::cerr << "Failed to initialize the driver.\n";
     return EXIT_FAILURE;
   }
 
@@ -31,7 +32,7 @@ int main(int _argc, char* _argv[])
 
   while (true) {
     if (const auto result = driver.transfer(); !result) {
-      cerr << "Failed to communicate with the MCU: " << result.error() << '\n';
+      std::cerr << "Failed to communicate with the MCU: " << result.error() << '\n';
       continue;
     }
 
@@ -41,14 +42,14 @@ int main(int _argc, char* _argv[])
     driver.getRawGyro(gx, gy, gz);
     driver.getRawDGyro(dgx, dgy, dgz);
 
-    cout << "-----\n";
-    cout << "Voltage [V]     : " << volt << '\n';
-    cout << "Current [A]     : " << curr << '\n';
-    cout << "Accel [m/s^2]   : " << ax << ", " << ay << ", " << az << '\n';
-    cout << "Gyro [rad/s]    : " << gx << ", " << gy << ", " << gz << '\n';
-    cout << "D-Gyro [rad/s^2]: " << dgx << ", " << dgy << ", " << dgz << '\n';
+    std::cout << "-----\n";
+    std::cout << "Voltage [V]     : " << volt << '\n';
+    std::cout << "Current [A]     : " << curr << '\n';
+    std::cout << "Accel [m/s^2]   : " << ax << ", " << ay << ", " << az << '\n';
+    std::cout << "Gyro [rad/s]    : " << gx << ", " << gy << ", " << gz << '\n';
+    std::cout << "D-Gyro [rad/s^2]: " << dgx << ", " << dgy << ", " << dgz << '\n';
 
-    this_thread::sleep_for(10ms);
+    std::this_thread::sleep_for(10ms);
   }
 
   return EXIT_SUCCESS;

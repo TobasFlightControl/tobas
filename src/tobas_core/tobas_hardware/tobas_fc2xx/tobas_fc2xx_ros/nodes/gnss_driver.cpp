@@ -156,7 +156,8 @@ void GnssDriverNode::warnUnnecessaryUBXMessage()
 {
   const auto cls = gnss_.latestClass();
   const auto id = gnss_.latestId();
-  TOBAS_WARN("Unnecessary UBX message is received: (Class, ID) = (", (int)cls, ", ", (int)id, ")");
+  TOBAS_WARN(
+    "Unnecessary UBX message received: (Class, ID) = (", static_cast<int>(cls), ", ", static_cast<int>(id), ")");
 }
 
 void GnssDriverNode::initializeTimerCb()

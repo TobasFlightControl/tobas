@@ -173,7 +173,7 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
         break;
       }
       default: {
-        TOBAS_ERROR("The hardware interface of joint '", jnt_name, "' is invalid: ", (int)joint.hw_iface);
+        TOBAS_ERROR("The hardware interface of joint '", jnt_name, "' is invalid: ", static_cast<int>(joint.hw_iface));
         break;
       }
     }
@@ -194,26 +194,26 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
   pos_reset_timer_->reset();
 }
 
-void JointsHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _velocities)
+void JointsHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr&)
 {
   if (!drone_) {
     return;
   }
 
-  (void)_velocities;  // TODO
+  // TODO
 
   // Reset timeout timer.
   vel_commanded_ = true;
   vel_reset_timer_->reset();
 }
 
-void JointsHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& _efforts)
+void JointsHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr&)
 {
   if (!drone_) {
     return;
   }
 
-  (void)_efforts;  // TODO
+  // TODO
 
   // Reset timeout timer.
   eff_commanded_ = true;
@@ -256,7 +256,7 @@ void JointsHandlerNode::positionResetTimerCb()
         break;
       }
       default: {
-        TOBAS_WARN("The hardware interface of joint '", joint.name, "' is invalid: ", (int)joint.hw_iface);
+        TOBAS_WARN("The hardware interface of joint '", joint.name, "' is invalid: ", static_cast<int>(joint.hw_iface));
         break;
       }
     }

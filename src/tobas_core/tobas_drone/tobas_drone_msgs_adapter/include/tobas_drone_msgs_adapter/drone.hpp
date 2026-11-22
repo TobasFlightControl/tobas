@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <memory>
 
 #include <rclcpp/logging.hpp>
@@ -60,7 +61,7 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
           break;
         }
         default: {
-          RCLCPP_ERROR_STREAM(getLogger(), "Invalid propulsion system type: " << (int)prop_type);
+          RCLCPP_ERROR_STREAM(getLogger(), "Invalid propulsion system type: " << static_cast<int>(prop_type));
           _dst.prop_type = -1;
           break;
         }
@@ -118,7 +119,7 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
           break;
         }
         default: {
-          RCLCPP_ERROR_STREAM(getLogger(), "Invalid propulsion system type: " << (int)_src.prop_type);
+          RCLCPP_ERROR_STREAM(getLogger(), "Invalid propulsion system type: " << static_cast<int>(_src.prop_type));
           _dst.prop.reset();
           break;
         }

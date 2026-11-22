@@ -325,7 +325,8 @@ bool GnssReceiver::enableGps()
       std::cout << "GPS L1/L2/L5 has been enabled.\n";
       return true;
     default:
-      throw;
+      std::cerr << "Unsupported GNSS module.\n";
+      return false;
   }
 
   return false;
@@ -394,7 +395,8 @@ bool GnssReceiver::enableGalileo()
       std::cout << "Galileo E1/E5a/E6 has been enabled.\n";
       return true;
     default:
-      throw;
+      std::cerr << "Unsupported GNSS module.\n";
+      return false;
   }
 
   return false;
@@ -441,7 +443,8 @@ bool GnssReceiver::enableBeiDou()
       std::cout << "BeiDou B1I/B1C/B2a/B3I has been enabled.\n";
       return true;
     default:
-      throw;
+      std::cerr << "Unsupported GNSS module.\n";
+      return false;
   }
 
   return false;
@@ -488,7 +491,8 @@ bool GnssReceiver::enableQzss()
       std::cout << "QZSS L1/L2/L5 has been enabled.\n";
       return true;
     default:
-      throw;
+      std::cerr << "Unsupported GNSS module.\n";
+      return false;
   }
 
   return false;
@@ -531,7 +535,8 @@ bool GnssReceiver::enableGlonass()
       std::cout << "GLONASS L1 has been enabled.\n";
       return true;
     default:
-      throw;
+      std::cerr << "Unsupported GNSS module.\n";
+      return false;
   }
 
   return false;

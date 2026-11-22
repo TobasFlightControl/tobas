@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <cstdint>
+#include <ios>
 #include <iostream>
 
 #include <tobas_algorithm/crc.hpp>
-
-using namespace std;
 
 int main()
 {
@@ -13,5 +13,5 @@ int main()
   crc.initialize();
 
   const uint8_t data[] = "Example data for CRC calculation";
-  cout << "CRC-32: " << hex << uppercase << crc.compute(data, sizeof(data) - 1) << '\n';
+  std::cout << "CRC-32: " << std::hex << std::uppercase << crc.compute(data, sizeof(data) - 1) << '\n';
 }

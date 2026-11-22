@@ -5,14 +5,12 @@
 
 #include <tobas_linux/core.hpp>
 
-using namespace std;
-
 int main()
 {
   if (tobas::linux::isSuperUser()) {
-    cout << "Running with super privileges.\n";
+    std::cout << "Running with super privileges.\n";
   }
   else {
-    cout << "Running with regular privileges.\n";
+    std::cout << "Running with regular privileges.\n";
   }
 }

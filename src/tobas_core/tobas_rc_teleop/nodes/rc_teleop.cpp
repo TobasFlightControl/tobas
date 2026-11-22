@@ -194,7 +194,7 @@ void RCTeleopNode::initializeControllers()
         controllers_[mode] = std::make_unique<SpeedRollDeltaPitchController>();
         break;
       default:
-        TOBAS_EXIT("Invalid flight mode: ", (int)mode);
+        TOBAS_EXIT("Invalid flight mode: ", static_cast<int>(mode));
     }
 
     controllers_.at(mode)->initialize(this, mode);
@@ -277,7 +277,9 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode _mode)
           " mode cannot be applied because the horizontal position estimation accuracy has not been checked.");
         return false;
       default:
-        TOBAS_ERROR("The horizontal position accuracy state is invalid: ", (int)health_->horizontal_position_accuracy);
+        TOBAS_ERROR(
+          "The horizontal position accuracy state is invalid: ",
+          static_cast<int>(health_->horizontal_position_accuracy));
         return false;
     }
   }
@@ -300,7 +302,8 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode _mode)
           " mode cannot be applied because the vertical position estimation accuracy has not been checked.");
         return false;
       default:
-        TOBAS_ERROR("The vertical position accuracy state is invalid: ", (int)health_->vertical_position_accuracy);
+        TOBAS_ERROR(
+          "The vertical position accuracy state is invalid: ", static_cast<int>(health_->vertical_position_accuracy));
         return false;
     }
   }
@@ -321,7 +324,7 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode _mode)
           " mode cannot be applied because the attitude estimation accuracy has not been checked.");
         return false;
       default:
-        TOBAS_ERROR("The attitude accuracy state is invalid: ", (int)health_->attitude_accuracy);
+        TOBAS_ERROR("The attitude accuracy state is invalid: ", static_cast<int>(health_->attitude_accuracy));
         return false;
     }
   }
@@ -342,7 +345,7 @@ bool RCTeleopNode::isFlightModeApplicable(FlightMode _mode)
           " mode cannot be applied because the heading estimation accuracy has not been checked.");
         return false;
       default:
-        TOBAS_ERROR("The heading accuracy state is invalid: ", (int)health_->heading_accuracy);
+        TOBAS_ERROR("The heading accuracy state is invalid: ", static_cast<int>(health_->heading_accuracy));
         return false;
     }
   }
@@ -581,7 +584,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& _rcin)
     }
 
     default: {
-      TOBAS_ERROR("Invalid stage: ", (int)stage_);
+      TOBAS_ERROR("Invalid stage: ", static_cast<int>(stage_));
       break;
     }
   }

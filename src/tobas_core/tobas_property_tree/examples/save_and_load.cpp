@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
+#include <cstddef>
+#include <cstdlib>
 #include <iostream>
+#include <ostream>
+#include <string>
+#include <vector>
 
 #include <tobas_property_tree/property_tree.hpp>
 
-using namespace std;
-
+/** Write vector elements separated by spaces. */
 template <typename T>
-ostream& operator<<(ostream& _os, const vector<T>& _vec)
+std::ostream& operator<<(std::ostream& _os, const std::vector<T>& _vec)
 {
   const auto size = _vec.size();
 
@@ -18,7 +22,7 @@ ostream& operator<<(ostream& _os, const vector<T>& _vec)
   }
 
   _os << "[";
-  for (size_t i = 0; i < size - 1; ++i) {
+  for (std::size_t i = 0; i < size - 1; ++i) {
     _os << _vec[i] << " ";
   }
   _os << _vec[size - 1] << "]";
@@ -38,7 +42,7 @@ int main()
   tobas::ptree::PropertyTree pt;
 
   if (const auto result = pt.initialize("/tmp/example.json"); !result) {
-    cerr << result.error() << '\n';
+    std::cerr << result.error() << '\n';
     return EXIT_FAILURE;
   }
 
@@ -47,55 +51,55 @@ int main()
   pt.set(kStringKey, "This is a text.");
   pt.set<int>(kIntListKey, { 1, 2, 3, 4, 5 });
   pt.set<double>(kDoubleListKey, { 1.1, 2.2, 3.3, 4.4, 5.5 });
-  pt.set<string>(kStringListKey, { "apple", "orange", "banana" });
+  pt.set<std::string>(kStringListKey, { "apple", "orange", "banana" });
 
   if (const auto result = pt.save(); !result) {
-    cerr << result.error() << '\n';
+    std::cerr << result.error() << '\n';
     return EXIT_FAILURE;
   }
 
   int int_value;
   double double_value;
-  string string_value;
-  vector<int> int_list;
-  vector<double> dobule_list;
-  vector<string> string_list;
+  std::string string_value;
+  std::vector<int> int_list;
+  std::vector<double> double_list;
+  std::vector<std::string> string_list;
 
   if (!pt.get(kIntKey, int_value)) {
-    cerr << "Failed to get " << kIntKey << ".\n";
+    std::cerr << "Failed to get " << kIntKey << ".\n";
     return EXIT_FAILURE;
   }
-  cout << kIntKey << ": " << int_value << '\n';
+  std::cout << kIntKey << ": " << int_value << '\n';
 
   if (!pt.get(kDoubleKey, double_value)) {
-    cerr << "Failed to get " << kDoubleKey << ".\n";
+    std::cerr << "Failed to get " << kDoubleKey << ".\n";
     return EXIT_FAILURE;
   }
-  cout << kDoubleKey << ": " << double_value << '\n';
+  std::cout << kDoubleKey << ": " << double_value << '\n';
 
   if (!pt.get(kStringKey, string_value)) {
-    cerr << "Failed to get " << kStringKey << ".\n";
+    std::cerr << "Failed to get " << kStringKey << ".\n";
     return EXIT_FAILURE;
   }
-  cout << kStringKey << ": " << string_value << '\n';
+  std::cout << kStringKey << ": " << string_value << '\n';
 
   if (!pt.get(kIntListKey, int_list)) {
-    cerr << "Failed to get " << kIntListKey << ".\n";
+    std::cerr << "Failed to get " << kIntListKey << ".\n";
     return EXIT_FAILURE;
   }
-  cout << kIntListKey << ": " << int_list << '\n';
+  std::cout << kIntListKey << ": " << int_list << '\n';
 
-  if (!pt.get(kDoubleListKey, dobule_list)) {
-    cerr << "Failed to get " << kDoubleListKey << ".\n";
+  if (!pt.get(kDoubleListKey, double_list)) {
+    std::cerr << "Failed to get " << kDoubleListKey << ".\n";
     return EXIT_FAILURE;
   }
-  cout << kDoubleListKey << ": " << dobule_list << '\n';
+  std::cout << kDoubleListKey << ": " << double_list << '\n';
 
   if (!pt.get(kStringListKey, string_list)) {
-    cerr << "Failed to get " << kStringListKey << ".\n";
+    std::cerr << "Failed to get " << kStringListKey << ".\n";
     return EXIT_FAILURE;
   }
-  cout << kStringListKey << ": " << string_list << '\n';
+  std::cout << kStringListKey << ": " << string_list << '\n';
 
   return EXIT_SUCCESS;
 }

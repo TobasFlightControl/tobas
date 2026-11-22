@@ -3,12 +3,11 @@
 
 /** Solve: x^3 + 2 x^2 + 10 x - 20 = 0 */
 
+#include <cstdlib>
 #include <iostream>
 
 #include <tobas_math/core.hpp>
 #include <tobas_nlp/newton_1d.hpp>
-
-using namespace std;
 
 double f(double _x)
 {
@@ -28,13 +27,13 @@ int main()
 
   const auto x = newton.solve(1.5);
   if (!x) {
-    cerr << x.error() << '\n';
+    std::cerr << x.error() << '\n';
     return EXIT_FAILURE;
   }
 
-  cout << "Optimal solution: " << *x << '\n';  // 1.3688081
-  cout << "----------\n";
-  cout << "f(x*) = " << f(*x) << '\n';
+  std::cout << "Optimal solution: " << *x << '\n';  // 1.3688081
+  std::cout << "----------\n";
+  std::cout << "f(x*) = " << f(*x) << '\n';
 
   return EXIT_SUCCESS;
 }

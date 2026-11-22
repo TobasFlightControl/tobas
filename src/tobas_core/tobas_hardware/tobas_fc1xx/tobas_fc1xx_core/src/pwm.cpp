@@ -5,6 +5,8 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
+#include <cstring>
 
 namespace tobas::fc1xx
 {
@@ -31,7 +33,8 @@ void PWM::setPeriod(size_t _ch, uint16_t _period_us)
 bool PWM::transfer()
 {
   // Compute CRC.
-  *(uint32_t*)(tx_buf_ + kChannelSize) = crc_.compute((uint8_t*)tx_buf_, sizeof(uint16_t) * kChannelSize);
+  const auto crc = crc_.compute(reinterpret_cast<const uint8_t*>(tx_buf_), sizeof(uint16_t) * kChannelSize);
+  std::memcpy(tx_buf_ + kChannelSize, &crc, sizeof(crc));
 
   // Transfer.
   if (!spi_.transfer(sizeof(tx_buf_))) {

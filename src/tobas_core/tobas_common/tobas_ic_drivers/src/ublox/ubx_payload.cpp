@@ -4,6 +4,7 @@
 #include "tobas_ic_drivers/ublox/ubx_payload.hpp"
 
 #include <bit>
+#include <cstdint>
 #include <cstring>
 #include <ranges>
 
@@ -381,14 +382,14 @@ void NAV_VELNED::decode(const uint8_t* _p)
 
 void ACK_NAK::print(std::ostream& _os) const
 {
-  _os << "Class ID of the Not-Acknowledged Message: " << (int)clsID << '\n';
-  _os << "Message ID of the Not-Acknowledged Message: " << (int)msgID << '\n';
+  _os << "Class ID of the Not-Acknowledged Message: " << static_cast<int>(clsID) << '\n';
+  _os << "Message ID of the Not-Acknowledged Message: " << static_cast<int>(msgID) << '\n';
 }
 
 void ACK_ACK::print(std::ostream& _os) const
 {
-  _os << "Class ID of the Acknowledged Message: " << (int)clsID << '\n';
-  _os << "Message ID of the Acknowledged Message: " << (int)msgID << '\n';
+  _os << "Class ID of the Acknowledged Message: " << static_cast<int>(clsID) << '\n';
+  _os << "Message ID of the Acknowledged Message: " << static_cast<int>(msgID) << '\n';
 }
 
 void MON_VER::print(std::ostream& _os) const
@@ -501,12 +502,12 @@ void NAV_PVT::print(std::ostream& _os) const
 {
   _os << "GPS time of week: " << iTOW << "[ms]\n";
 
-  _os << "Year (UTC): " << (int)year << '\n';
-  _os << "Month, range 1..12 (UTC): " << (int)month << '\n';
-  _os << "Day of month, range 1..31 (UTC): " << (int)day << '\n';
-  _os << "Hour of day, range 0..23 (UTC): " << (int)hour << '\n';
-  _os << "Minute of hour, range 0..59 (UTC): " << (int)min << '\n';
-  _os << "Seconds of minute, range 0..60 (UTC): " << (int)sec << '\n';
+  _os << "Year (UTC): " << static_cast<int>(year) << '\n';
+  _os << "Month, range 1..12 (UTC): " << static_cast<int>(month) << '\n';
+  _os << "Day of month, range 1..31 (UTC): " << static_cast<int>(day) << '\n';
+  _os << "Hour of day, range 0..23 (UTC): " << static_cast<int>(hour) << '\n';
+  _os << "Minute of hour, range 0..59 (UTC): " << static_cast<int>(min) << '\n';
+  _os << "Seconds of minute, range 0..60 (UTC): " << static_cast<int>(sec) << '\n';
 
   _os << "Valid UTC Date: " << validDate << '\n';
   _os << "Valid UTC time of day: " << validTime << '\n';
@@ -516,11 +517,11 @@ void NAV_PVT::print(std::ostream& _os) const
   _os << "Time accuracy estimate (UTC): " << tAcc << "[ns]\n";
   _os << "Fraction of second, range -1e9 .. 1e9 (UTC): " << nano << "[ns]\n";
 
-  _os << "GNSSfix Type: " << (int)fixType << '\n';
+  _os << "GNSSfix Type: " << static_cast<int>(fixType) << '\n';
 
   _os << "Valid fix (i.e within DOP & accuracy masks): " << gnssFixOk << '\n';
   _os << "Differential corrections were applied: " << diffSoln << '\n';
-  _os << "Power Save Mode state: " << (int)psmState << '\n';
+  _os << "Power Save Mode state: " << static_cast<int>(psmState) << '\n';
   _os << "Heading of vehicle is valid: " << headVehValid << '\n';
   _os << "Carrier phase range solution status: " << carrSoln << '\n';
 
@@ -528,7 +529,7 @@ void NAV_PVT::print(std::ostream& _os) const
   _os << "UTC Date validity could be confirmed: " << confirmedDate << '\n';
   _os << "UTC Time of Day could be confirmed: " << confirmedTime << '\n';
 
-  _os << "Number of satellites used in Nav Solution: " << (int)numSV << '\n';
+  _os << "Number of satellites used in Nav Solution: " << static_cast<int>(numSV) << '\n';
 
   _os << "Longitude: " << lon << "[deg]\n";
   _os << "Latitude: " << lat << "[deg]\n";
@@ -565,15 +566,18 @@ void NAV_RESETODO::print(std::ostream&) const
 void NAV_SAT::print(std::ostream& _os) const
 {
   _os << "GPS time of week: " << iTOW << "[ms]\n";
-  _os << "Message version: " << (int)version << '\n';
-  _os << "Number of satellites: " << (int)numSvs << '\n';
+  _os << "Message version: " << static_cast<int>(version) << '\n';
+  _os << "Number of satellites: " << static_cast<int>(numSvs) << '\n';
 
   for (const auto& [i, sat] : std::views::enumerate(satellites)) {
-    _os << "Satellite[" << i << "] " << "gnssId=" << (int)sat.gnssId << ", " << "svId=" << (int)sat.svId << ", "
-        << "cno=" << (int)sat.cno << "[dB-Hz], " << "elev=" << (int)sat.elev << "[deg], " << "azim=" << sat.azim
-        << "[deg], " << "prRes=" << sat.prRes << "[m], " << "qualityInd=" << (int)sat.qualityInd << ", "
-        << "svUsed=" << sat.svUsed << ", " << "health=" << (int)sat.health << ", " << "diffCorr=" << sat.diffCorr
-        << ", " << "smoothed=" << sat.smoothed << ", " << "orbitSource=" << (int)sat.orbitSource << ", "
+    _os << "Satellite[" << i << "] " << "gnssId=" << static_cast<int>(sat.gnssId) << ", "
+        << "svId=" << static_cast<int>(sat.svId) << ", "
+        << "cno=" << static_cast<int>(sat.cno) << "[dB-Hz], " << "elev=" << static_cast<int>(sat.elev) << "[deg], "
+        << "azim=" << sat.azim << "[deg], " << "prRes=" << sat.prRes << "[m], "
+        << "qualityInd=" << static_cast<int>(sat.qualityInd) << ", "
+        << "svUsed=" << sat.svUsed << ", " << "health=" << static_cast<int>(sat.health) << ", "
+        << "diffCorr=" << sat.diffCorr << ", " << "smoothed=" << sat.smoothed << ", "
+        << "orbitSource=" << static_cast<int>(sat.orbitSource) << ", "
         << "ephAvail=" << sat.ephAvail << ", " << "almAvail=" << sat.almAvail << ", " << "anoAvail=" << sat.anoAvail
         << ", " << "aopAvail=" << sat.aopAvail << ", " << "sbasCorrUsed=" << sat.sbasCorrUsed << ", "
         << "rtcmCorrUsed=" << sat.rtcmCorrUsed << ", " << "slasCorrUsed=" << sat.slasCorrUsed << ", "
@@ -601,7 +605,7 @@ void NAV_SLAS::print(std::ostream&) const
 void NAV_STATUS::print(std::ostream& _os) const
 {
   _os << "GPS time of week: " << iTOW << "[ms]\n";
-  _os << "GPSfix Type: " << (int)gpsFix << '\n';
+  _os << "GPSfix Type: " << static_cast<int>(gpsFix) << '\n';
 
   _os << "Position and velocity valid and within DOP and ACC Masks: " << gpsFixOk << '\n';
   _os << "Differential corrections were applied: " << diffSoln << '\n';
@@ -609,10 +613,10 @@ void NAV_STATUS::print(std::ostream& _os) const
   _os << "Time of Week valid: " << towSet << '\n';
 
   _os << "Differential corrections available: " << diffCorr << '\n';
-  _os << "Map matching status: " << (int)mapMatching << '\n';
+  _os << "Map matching status: " << static_cast<int>(mapMatching) << '\n';
 
-  _os << "Power save mode state: " << (int)psmState << '\n';
-  _os << "Spoofing detection state: " << (int)spoofDetState << '\n';
+  _os << "Power save mode state: " << static_cast<int>(psmState) << '\n';
+  _os << "Spoofing detection state: " << static_cast<int>(spoofDetState) << '\n';
 
   _os << "Time to first fix: " << ttff << "[ms]\n";
   _os << "Milliseconds since Startup / Reset: " << msss << "[ms]\n";
@@ -643,7 +647,7 @@ void NAV_TIMEGPS::print(std::ostream& _os) const
   _os << "GPS time of week of the navigation epoch: " << iTOW << "[ms]\n";
   _os << "Fractional part of iTOW: " << fTOW << "[ns]\n";
   _os << "GPS week number of the navigation epoch: " << week << '\n';
-  _os << "GPS leap seconds (GPS-UTC): " << (int)leapS << "[s]\n";
+  _os << "GPS leap seconds (GPS-UTC): " << static_cast<int>(leapS) << "[s]\n";
 
   _os << "Valid GPS time of week: " << towValid << '\n';
   _os << "Valid GPS week number: " << weekValid << '\n';
