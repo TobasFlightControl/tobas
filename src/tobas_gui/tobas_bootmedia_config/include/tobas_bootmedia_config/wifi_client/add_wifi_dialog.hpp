@@ -25,7 +25,7 @@ class AddWifiDialog : public QDialog
 public:
   explicit AddWifiDialog(QWidget* _parent);
 
-  QString getKeyMgmt() const;
+  wpa::KeyMgmt getKeyMgmt() const;
   QString getSsid() const;
   QString getPsk() const;
   int getPriority() const;

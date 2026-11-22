@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QPushButton>
+#include <QString>
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
@@ -33,7 +34,7 @@ private:
 
   BaseNetworkWidget* getWidget(int _index);
 
-  static std::string networkFilePath(const std::string& _name);
+  static QString networkFilePath(const QString& _name);
 
 private Q_SLOTS:
   void onWriteButtonClicked();

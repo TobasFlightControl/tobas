@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <QString>
+
 #include <tobas_kdl/tree_joint_axis_solver.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_uadf/model.hpp>
@@ -14,7 +16,7 @@ namespace tobas::gui::sa
 struct FrameTypeDetectionResult
 {
   FrameType frame_type;
-  std::string warning_message;
+  QString warning_message;
 };
 
 class FrameTypeDetector

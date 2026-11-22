@@ -8,11 +8,13 @@
 #include <string>
 #include <vector>
 
+#include <QString>
+
 namespace tobas::gui::bm
 {
 struct Network
 {
-  std::string name;       ///< e.g. wlan0, eth0
+  QString name;           ///< e.g. wlan0, eth0
   bool automatic = true;  ///< If true, DHCP is used.
 
   /** Fixed IP address configuration */
@@ -25,6 +27,6 @@ struct Network
   } manual;
 };
 
-std::expected<Network, std::string> loadNetwork(const std::string& _path);
-bool saveNetwork(const std::string& _path, const Network& _network);
+std::expected<Network, std::string> loadNetwork(const QString& _path);
+bool saveNetwork(const QString& _path, const Network& _network);
 }  // namespace tobas::gui::bm

@@ -48,37 +48,4 @@ bool enumFromToken(const std::string& _token, KeyMgmt& _dst)
     return false;
   }
 }
-
-std::string labelFromEnum(KeyMgmt _key_mgmt)
-{
-  switch (_key_mgmt) {
-    case KeyMgmt::NONE:
-      return kNoneLabel;
-    case KeyMgmt::WPA_PSK:
-      return kWpaPskLabel;
-    case KeyMgmt::SAE:
-      return kSaeLabel;
-    default:
-      throw;
-  }
-}
-
-bool enumFromLabel(const std::string& _label, KeyMgmt& _dst)
-{
-  if (_label == kNoneLabel) {
-    _dst = KeyMgmt::NONE;
-    return true;
-  }
-  else if (_label == kWpaPskLabel) {
-    _dst = KeyMgmt::WPA_PSK;
-    return true;
-  }
-  else if (_label == kSaeLabel) {
-    _dst = KeyMgmt::SAE;
-    return true;
-  }
-  else {
-    return false;
-  }
-}
 }  // namespace tobas::wpa

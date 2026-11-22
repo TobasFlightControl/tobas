@@ -25,7 +25,7 @@ FrameTypeDetectionResult FrameTypeDetector::determineFrameType()
 {
   constexpr char kIsNotSupported[] = "\nis not supported.";
 
-  std::string msg = "An airframe\n\n";
+  QString msg = "An airframe\n\n";
 
   if (uadf_.control_surfaces.empty()) {
     msg += "  • which does not have fixed wings\n";

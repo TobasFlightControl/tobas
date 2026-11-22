@@ -83,7 +83,7 @@ Network IPv4Widget::dump() const
 {
   Network res;
 
-  res.name = name_.toStdString();
+  res.name = name_;
 
   switch (method_->currentIndex()) {
     case Method::kAutomatic:

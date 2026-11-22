@@ -161,8 +161,8 @@ bool SetupAssistantWidget::updateInternalDataStructures()
 
   // Determine the frame type.
   const auto frame_type_detection_result = frame_type_detector_.determineFrameType();
-  if (!frame_type_detection_result.warning_message.empty()) {
-    qt::qWarnBox(this, QString::fromStdString(frame_type_detection_result.warning_message));
+  if (!frame_type_detection_result.warning_message.isEmpty()) {
+    qt::qWarnBox(this, frame_type_detection_result.warning_message);
   }
 
   // Apply the frame type to widgets.

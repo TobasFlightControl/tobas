@@ -52,7 +52,7 @@ bool IpAddressWidget::onConnected()
 {
   for (int i = 0; i < tabs_->count(); ++i) {
     const auto widget = getWidget(i);
-    const auto path = networkFilePath(widget->name().toStdString());
+    const auto path = networkFilePath(widget->name());
 
     const auto network = loadNetwork(path);
     if (network) {
@@ -70,9 +70,9 @@ BaseNetworkWidget* IpAddressWidget::getWidget(int _index)
   return qt::qPointerCast<BaseNetworkWidget>(tabs_->widget(_index));
 }
 
-std::string IpAddressWidget::networkFilePath(const std::string& _name)
+QString IpAddressWidget::networkFilePath(const QString& _name)
 {
-  return std::string(kRootPath) + "/etc/systemd/network/20-" + _name + ".network";
+  return QString(kRootPath) + "/etc/systemd/network/20-" + _name + ".network";
 }
 
 void IpAddressWidget::onWriteButtonClicked()
@@ -81,7 +81,7 @@ void IpAddressWidget::onWriteButtonClicked()
     const auto network = getWidget(i)->dump();
     const auto path = networkFilePath(network.name);
     if (!saveNetwork(path, network)) {
-      qt::qErrorBox(this, "Failed to write the settings of '" + QString::fromStdString(network.name) + "'.");
+      qt::qErrorBox(this, "Failed to write the settings of '" + network.name + "'.");
       return;
     }
   }

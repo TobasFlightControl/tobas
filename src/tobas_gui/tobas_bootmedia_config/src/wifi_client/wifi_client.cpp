@@ -8,6 +8,7 @@
 #include <QHeaderView>
 #include <QString>
 #include <QVBoxLayout>
+#include <QVariant>
 
 #include <tobas_qt_tools/cast.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -16,6 +17,7 @@
 
 #include "tobas_bootmedia_config/constants.hpp"
 #include "tobas_bootmedia_config/wifi_client/add_wifi_dialog.hpp"
+#include "tobas_bootmedia_config/wifi_client/key_mgmt.hpp"
 
 namespace tobas::gui::bm
 {
@@ -106,7 +108,7 @@ bool WifiClientWidget::onConnected()
   table_->removeAll();
   for (const auto& network : wpa_data_.networks) {
     addRow(
-      QString::fromStdString(wpa::labelFromEnum(network.key_mgmt)),
+      network.key_mgmt,
       QString::fromStdString(network.ssid),
       QString::fromStdString(network.psk),
       network.priority,
@@ -131,9 +133,9 @@ void WifiClientWidget::changeEvent(QEvent* _event)
   }
 }
 
-QString WifiClientWidget::getKeyMgmt(int _row) const
+wpa::KeyMgmt WifiClientWidget::getKeyMgmt(int _row) const
 {
-  return table_->item(_row, kKeyMgmtCol)->text();
+  return table_->item(_row, kKeyMgmtCol)->data(Qt::UserRole).value<wpa::KeyMgmt>();
 }
 
 QString WifiClientWidget::getSsid(int _row) const
@@ -158,7 +160,7 @@ bool WifiClientWidget::getHidden(int _row) const
 }
 
 void WifiClientWidget::addRow(
-  const QString& _key_mgmt,
+  wpa::KeyMgmt _key_mgmt,
   const QString& _ssid,
   const QString& _psk,
   int _priority,
@@ -167,7 +169,9 @@ void WifiClientWidget::addRow(
   const auto row = table_->rowCount();
   table_->insertRow(row);
 
-  table_->setItem(row, kKeyMgmtCol, new QTableWidgetItem(_key_mgmt));
+  const auto key_mgmt_it = new QTableWidgetItem(keyMgmtLabel(_key_mgmt));
+  key_mgmt_it->setData(Qt::UserRole, QVariant::fromValue(_key_mgmt));
+  table_->setItem(row, kKeyMgmtCol, key_mgmt_it);
 
   table_->setItem(row, kSsidCol, new QTableWidgetItem(_ssid));
 
@@ -215,12 +219,7 @@ bool WifiClientWidget::writeCurrentConfig()
   for (int row = 0; row < table_->rowCount(); ++row) {
     wpa::Network network;
 
-    const auto key_mgmt = getKeyMgmt(row);
-    if (!wpa::enumFromLabel(key_mgmt.toStdString(), network.key_mgmt)) {
-      qt::qErrorBox(this, "Invalid key management: " + key_mgmt);
-      return false;
-    }
-
+    network.key_mgmt = getKeyMgmt(row);
     network.ssid = getSsid(row).toStdString();
     network.psk = getPsk(row).toStdString();
     network.priority = getPriority(row);

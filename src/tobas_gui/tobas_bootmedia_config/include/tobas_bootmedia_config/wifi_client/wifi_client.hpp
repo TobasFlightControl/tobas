@@ -6,6 +6,7 @@
 #include <QPushButton>
 
 #include <tobas_qt_tools/widgets/table_widget.hpp>
+#include <tobas_wpa_supplicant/key_mgmt.hpp>
 #include <tobas_wpa_supplicant/wpa_supplicant.hpp>
 
 #include "../base.hpp"
@@ -41,13 +42,13 @@ private:
 
   qt::TableWidget* table_;
 
-  QString getKeyMgmt(int _row) const;
+  wpa::KeyMgmt getKeyMgmt(int _row) const;
   QString getSsid(int _row) const;
   QString getPsk(int _row) const;
   int getPriority(int _row) const;
   bool getHidden(int _row) const;
 
-  void addRow(const QString& _key_mgmt, const QString& _ssid, const QString& _psk, int _priority, bool _hidden);
+  void addRow(wpa::KeyMgmt _key_mgmt, const QString& _ssid, const QString& _psk, int _priority, bool _hidden);
 
   /** Match the styles of embedded widgets to the other cells. */
   void updateTableCellStyles();

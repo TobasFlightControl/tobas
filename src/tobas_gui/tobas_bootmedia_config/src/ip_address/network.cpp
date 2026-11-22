@@ -77,19 +77,19 @@ std::string prefixIntToString(uint8_t _prefix)
 }
 }  // namespace
 
-std::expected<Network, std::string> loadNetwork(const std::string& _path)
+std::expected<Network, std::string> loadNetwork(const QString& _path)
 {
   Network network;
   CSimpleIniCaseA ini;
   ini.SetUnicode(true);
   ini.SetMultiKey(true);
 
-  if (ini.LoadFile(_path.c_str()) != SI_OK) {
+  if (ini.LoadFile(_path.toUtf8().constData()) != SI_OK) {
     return std::unexpected("INI load failed.");
   }
 
-  network.name = ini.GetValue(kMatchSection, kNameKey, "");
-  if (network.name.empty()) {
+  network.name = QString::fromUtf8(ini.GetValue(kMatchSection, kNameKey, ""));
+  if (network.name.isEmpty()) {
     return std::unexpected("NIC name is not defined.");
   }
 
@@ -150,13 +150,13 @@ std::expected<Network, std::string> loadNetwork(const std::string& _path)
   return network;
 }
 
-bool saveNetwork(const std::string& _path, const Network& _network)
+bool saveNetwork(const QString& _path, const Network& _network)
 {
   CSimpleIniCaseA ini;
   ini.SetUnicode(true);
   ini.SetMultiKey(true);
 
-  ini.SetValue(kMatchSection, kNameKey, _network.name.c_str());
+  ini.SetValue(kMatchSection, kNameKey, _network.name.toUtf8().constData());
 
   if (_network.automatic) {
     ini.SetValue(kNetworkSection, kDhcpKey, "yes");
@@ -172,7 +172,7 @@ bool saveNetwork(const std::string& _path, const Network& _network)
     }
   }
 
-  if (ini.SaveFile(_path.c_str()) != SI_OK) {
+  if (ini.SaveFile(_path.toUtf8().constData()) != SI_OK) {
     return false;
   }
 

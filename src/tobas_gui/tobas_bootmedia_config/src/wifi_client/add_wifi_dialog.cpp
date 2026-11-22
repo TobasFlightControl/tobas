@@ -6,9 +6,11 @@
 #include <QFormLayout>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QVariant>
 #include <magic_enum/magic_enum.hpp>
 
 #include "tobas_bootmedia_config/constants.hpp"
+#include "tobas_bootmedia_config/wifi_client/key_mgmt.hpp"
 
 namespace tobas::gui::bm
 {
@@ -18,9 +20,9 @@ AddWifiDialog::AddWifiDialog(QWidget* _parent) : super(_parent)
 
   key_mgmt_ = new QComboBox();
   for (const auto val : magic_enum::enum_values<wpa::KeyMgmt>()) {
-    key_mgmt_->addItem(QString::fromStdString(wpa::labelFromEnum(val)));
+    key_mgmt_->addItem(keyMgmtLabel(val), QVariant::fromValue(val));
   }
-  key_mgmt_->setCurrentText(QString::fromStdString(wpa::labelFromEnum(wpa::KeyMgmt::WPA_PSK)));
+  key_mgmt_->setCurrentIndex(key_mgmt_->findData(QVariant::fromValue(wpa::KeyMgmt::WPA_PSK)));
 
   ssid_ = new QLineEdit();
 
@@ -51,16 +53,16 @@ AddWifiDialog::AddWifiDialog(QWidget* _parent) : super(_parent)
   rows->addWidget(btn_box_);
 
   // Connection
-  connect(key_mgmt_, &QComboBox::currentTextChanged, this, &self::onChanged);
+  connect(key_mgmt_, &QComboBox::currentIndexChanged, this, &self::onChanged);
   connect(ssid_, &QLineEdit::textChanged, this, &self::onChanged);
   connect(psk_, &QLineEdit::textChanged, this, &self::onChanged);
   connect(btn_box_, &QDialogButtonBox::accepted, this, &self::accept);
   connect(btn_box_, &QDialogButtonBox::rejected, this, &self::reject);
 }
 
-QString AddWifiDialog::getKeyMgmt() const
+wpa::KeyMgmt AddWifiDialog::getKeyMgmt() const
 {
-  return key_mgmt_->currentText();
+  return key_mgmt_->currentData().value<wpa::KeyMgmt>();
 }
 
 QString AddWifiDialog::getSsid() const
@@ -98,7 +100,7 @@ void AddWifiDialog::onChanged()
   }
 
   // Check PSK.
-  if (getKeyMgmt().toStdString() == wpa::labelFromEnum(wpa::KeyMgmt::NONE)) {
+  if (getKeyMgmt() == wpa::KeyMgmt::NONE) {
     psk_->setEnabled(false);
   }
   else {
