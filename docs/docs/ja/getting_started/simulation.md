@@ -39,7 +39,7 @@ PC 内に保存された RC キャリブレーションの結果を使用する�
 USB シリアルデバイスにアクセスするため，次のコマンドで現在のユーザを`dialout`グループに追加してください．
 
 ```bash
-sudo usermod -aG dialout "${USER}"
+$ sudo usermod -aG dialout "${USER}"
 ```
 
 設定を反映するため，コマンドの実行後に PC を再起動してください．
