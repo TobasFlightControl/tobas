@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <vector>
 
 #include <tobas_linux/types.hpp>
@@ -23,7 +24,8 @@ public:
   void setCpuAffinity(size_t _idx, uint32_t _affinity);
   void setNumThreads(size_t _idx, size_t _num_threads);
 
-  void spin();
+  /** Spin until ROS shuts down, or stop and join the executors after the optional waiter returns. */
+  void spin(const std::function<void()>& _wait_for_stop = {});
 
 private:
   struct ManagerConfig

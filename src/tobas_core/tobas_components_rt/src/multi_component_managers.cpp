@@ -3,6 +3,7 @@
 
 #include "tobas_components_rt/multi_component_managers.hpp"
 
+#include <chrono>
 #include <future>
 #include <ranges>
 #include <thread>
@@ -13,6 +14,8 @@
 #include <tobas_linux/realtime.hpp>
 
 #include "tobas_components_rt/component_manager.hpp"
+
+using namespace std::chrono_literals;
 
 namespace tobas
 {
@@ -56,7 +59,7 @@ void MultiComponentManagers::setNumThreads(size_t _idx, size_t _num_threads)
   configs_.at(_idx).num_threads = _num_threads;
 }
 
-void MultiComponentManagers::spin()
+void MultiComponentManagers::spin(const std::function<void()>& _wait_for_stop)
 {
   const auto logger = rclcpp::get_logger("multi_component_managers");
 
@@ -70,6 +73,7 @@ void MultiComponentManagers::spin()
   node_options.start_parameter_event_publisher(false);
   node_options.append_parameter_override("start_type_description_service", false);
 
+  // Start each executor with its configured scheduling settings and attach its component manager.
   for (auto&& [i, manager, cfg] : std::views::zip(std::views::iota(0), managers, configs_)) {
     std::promise<rclcpp::executors::EventsCBGExecutor::SharedPtr> executor_ready;
     auto executor_future = executor_ready.get_future();
@@ -105,8 +109,32 @@ void MultiComponentManagers::spin()
     node_ready.set_value();
   }
 
+  // Allow callers to stop the executors while the ROS context is still valid.
+  if (_wait_for_stop) {
+    // Do not let an early stop cancel an executor before `spin()` starts and resets its spinning flag.
+    for (const auto& manager : managers) {
+      while (rclcpp::ok() && !manager.executor->is_spinning()) {
+        std::this_thread::sleep_for(1s);
+      }
+    }
+
+    _wait_for_stop();
+    for (const auto& manager : managers) {
+      manager.executor->cancel();
+    }
+  }
+
+  // Wait for all running callbacks to finish before releasing executors and components.
   for (auto& manager : managers) {
     manager.thread.join();
+  }
+
+  // Release executor caches before unloading component libraries, after all callbacks have returned.
+  for (auto& manager : managers) {
+    manager.executor.reset();
+  }
+  for (auto& manager : managers) {
+    manager.node.reset();
   }
 }
 }  // namespace tobas

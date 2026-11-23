@@ -3,25 +3,41 @@
 
 #include "tobas_components_rt/multi_component_managers.hpp"
 
+#include <pthread.h>
 #include <sched.h>
+#include <signal.h>
+#include <time.h>
 
 #include <algorithm>
+#include <cerrno>
 #include <charconv>
-#include <csignal>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <limits>
 #include <system_error>
 #include <thread>
 
+#include <rclcpp/init_options.hpp>
 #include <rclcpp/utilities.hpp>
 
 int main(int _argc, char* _argv[])
 {
-  // Initialize ROS nodes.
-  const auto args = rclcpp::init_and_remove_ros_arguments(_argc, _argv);
+  // All ROS and executor threads inherit this mask. Consume stop signals outside a signal handler.
+  sigset_t stop_signals;
+  sigemptyset(&stop_signals);
+  sigaddset(&stop_signals, SIGINT);
+  sigaddset(&stop_signals, SIGTERM);
+  if (const auto error = pthread_sigmask(SIG_BLOCK, &stop_signals, nullptr); error != 0) {
+    std::cerr << "Failed to block stop signals: " << std::strerror(error) << '\n';
+    return EXIT_FAILURE;
+  }
+
+  // Keep the ROS context alive until callbacks finish and component destructors release their hardware.
+  rclcpp::init(_argc, _argv, rclcpp::InitOptions(), rclcpp::SignalHandlerOptions::None);
+  const auto args = rclcpp::remove_ros_arguments(_argc, _argv);
 
   // CPU 0 is reserved, and each manager needs one bit in the CPU affinity mask.
   constexpr size_t kMaxManagers = std::numeric_limits<uint32_t>::digits - 1;
@@ -65,10 +81,20 @@ int main(int _argc, char* _argv[])
     managers.setNumThreads(i, 1);
   }
 
-  // Exit immediately on Ctrl+C.
-  signal(SIGINT, [](int) { rclcpp::shutdown(); });
-
-  // Spin all component managers until ROS shuts down.
-  managers.spin();
+  // Stop the executors before shutting down ROS, so active timers are not freed during their callbacks.
+  managers.spin(
+    [&stop_signals]()
+    {
+      constexpr timespec timeout{ 0, 100'000'000 };  // 100ms
+      while (rclcpp::ok()) {
+        if (sigtimedwait(&stop_signals, nullptr, &timeout) >= 0) {
+          return;
+        }
+        if (errno != EAGAIN && errno != EINTR) {
+          std::cerr << "Failed to wait for stop signals: " << std::strerror(errno) << '\n';
+          return;
+        }
+      }
+    });
   rclcpp::shutdown();
 }

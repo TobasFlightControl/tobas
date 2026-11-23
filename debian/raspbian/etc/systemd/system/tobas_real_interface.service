@@ -12,6 +12,8 @@ Environment="CYCLONEDDS_URI=/etc/tobas/config/cyclonedds.xml"
 # Wait until the NIC used for inter-network communication has an IP address.
 ExecStartPre=/usr/lib/systemd/systemd-networkd-wait-online --interface=${TOBAS_NIC}:routable --ipv4 --timeout=0
 ExecStart=/bin/bash -c 'source /etc/tobas/colcon_ws/install/setup.bash && exec ros2 launch ${TOBAS_CONFIG_PKG} real_interface.launch.py id:=${TOBAS_ID}'
+# Let ros2 launch wait for its children to shut down before exiting.
+KillSignal=SIGINT
 Restart=no
 CPUSchedulingPolicy=fifo
 CPUSchedulingPriority=10
