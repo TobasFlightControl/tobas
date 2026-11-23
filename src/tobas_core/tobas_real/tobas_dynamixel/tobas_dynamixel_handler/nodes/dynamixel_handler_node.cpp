@@ -9,6 +9,7 @@
 
 #include <dynamixel_sdk/dynamixel_sdk.h>
 
+#include <tobas_constants/time.hpp>
 #include <tobas_dynamixel_ros_interface/ros_interface.hpp>
 #include <tobas_math/core.hpp>
 #include <tobas_node/node.hpp>
@@ -269,7 +270,7 @@ void DynamixelHandlerNode::cleanUp()
 {
   pub_states_timer_.reset();
 
-  if (poh_ != nullptr && pah_ != nullptr) {
+  if (poh_ && pah_) {
     disableTorques();
   }
 
@@ -278,7 +279,7 @@ void DynamixelHandlerNode::cleanUp()
   pos_sync_write_.reset();
   vel_sync_write_.reset();
 
-  if (poh_ != nullptr) {
+  if (poh_) {
     poh_->closePort();
     delete poh_;
     poh_ = nullptr;
@@ -563,7 +564,7 @@ void DynamixelHandlerNode::printHardwareErrorStatus()
 void DynamixelHandlerNode::positionsCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& _positions)
 {
   if (!is_enabled_) {
-    TOBAS_ERROR("Motors are disabled. You cannot command positions.");
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Motors are disabled. You cannot command positions.");
     return;
   }
 
@@ -610,7 +611,7 @@ void DynamixelHandlerNode::velocitiesCmdCb(
   const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& _velocities)
 {
   if (!is_enabled_) {
-    TOBAS_ERROR("Motors are disabled. You cannot command velocities.");
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Motors are disabled. You cannot command velocities.");
     return;
   }
 
@@ -652,7 +653,7 @@ void DynamixelHandlerNode::velocitiesCmdCb(
 void DynamixelHandlerNode::effortsCmdCb(const tobas_dynamixel_msgs::msg::MotorCommandArray::ConstSharedPtr& _efforts)
 {
   if (!is_enabled_) {
-    TOBAS_ERROR("Motors are disabled. You cannot command efforts.");
+    TOBAS_ERROR_THROTTLE(kTypicalErrorPeriod, "Motors are disabled. You cannot command efforts.");
     return;
   }
 
