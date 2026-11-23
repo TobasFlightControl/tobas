@@ -147,6 +147,11 @@ void QpMixer::registerInternalDataReset()
   require_internal_data_reset_ = true;
 }
 
+void QpMixer::setVelocityReliability(const bool& _is_velocity_reliable)
+{
+  is_velocity_reliable_ = _is_velocity_reliable;
+}
+
 std::expected<MixerSolution, std::string> QpMixer::solve(
   const double& dt,
   const double& rho,
@@ -167,7 +172,7 @@ std::expected<MixerSolution, std::string> QpMixer::solve(
   const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
-  const auto airspeed = cur_vel_G.norm();
+  const auto airspeed = is_velocity_reliable_ ? cur_vel_G.norm() : 0.0;
 
   // 固定翼手動操縦モードからの復帰時
   if (require_internal_data_reset_) {

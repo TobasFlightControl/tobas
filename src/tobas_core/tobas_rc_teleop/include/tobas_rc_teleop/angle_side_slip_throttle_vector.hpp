@@ -7,6 +7,7 @@
 
 #include <tobas_command_msgs/msg/roll_pitch_side_slip_throttle_vector.hpp>
 #include <tobas_command_msgs_adapter/angle_throttle_vector.hpp>
+#include <tobas_msgs/msg/vehicle_health.hpp>
 
 #include "./base_controller.hpp"
 
@@ -45,6 +46,7 @@ private:
   traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_, thrust_angle_filt_;
   double tar_yaw_;
   ControlType last_control_type_ = ControlType::MULTICOPTER;
+  bool is_velocity_accurate_ = false;
 
   // ROS parameters.
   double max_roll_;       // [rad]
@@ -59,6 +61,7 @@ private:
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::msg::RollPitchSideSlipThrottleVector> fixed_wing_cmd_pub_;
   ros2::PublisherPtr<tobas_command_msgs::AngleThrottleVector> multicopter_cmd_pub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::VehicleHealth> health_sub_;
 
   void maxRollCb(double _p);
   void maxRollRateCb(double _p);
@@ -71,6 +74,8 @@ private:
   void pitchExpoCb(double _p);
   void yawExpoCb(double _p);
   void throttleExpoCb(double _p);
+
+  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health);
 };
 }  // namespace rc
 }  // namespace tobas

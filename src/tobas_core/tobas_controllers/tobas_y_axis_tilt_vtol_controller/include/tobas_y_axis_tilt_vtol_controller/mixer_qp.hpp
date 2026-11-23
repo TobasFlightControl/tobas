@@ -38,6 +38,7 @@ public:
 
   void updateInternalDataStructures() override;
   void registerInternalDataReset();
+  void setVelocityReliability(const bool& _is_velocity_reliable);
 
   std::expected<MixerSolution, std::string> solve(
     const double& dt,
@@ -109,7 +110,8 @@ private:
   ctrl::PIController y_controller_;
   ctrl::PIController z_controller_;
   ctrl::PIController z2_controller_;
-  bool require_internal_data_reset_;
+  bool require_internal_data_reset_ = false;
+  bool is_velocity_reliable_ = false;
 
   void calcModesAngularFreq();
   double
