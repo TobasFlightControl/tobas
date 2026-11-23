@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Tobas, Inc.
 
 #include <cstdint>
+#include <expected>
 #include <filesystem>
 #include <fstream>
 #include <optional>
@@ -73,8 +74,8 @@ public:
   ~DynamixelHandlerNode() override;
 
 private:
-  dynamixel::PortHandler* poh_;
-  dynamixel::PacketHandler* pah_;
+  dynamixel::PortHandler* poh_ = nullptr;
+  dynamixel::PacketHandler* pah_ = nullptr;
   std::optional<dynamixel::GroupSyncRead> core_sync_read_;
   std::optional<dynamixel::GroupSyncRead> hes_sync_read_;
   std::optional<dynamixel::GroupSyncWrite> pos_sync_write_;
@@ -83,7 +84,7 @@ private:
   std::vector<int32_t> goal_positions_;
   std::vector<int32_t> goal_velocities_;
   tobas_dynamixel_msgs::msg::MotorState motor_state_;
-  bool is_enabled_ = true;
+  bool is_enabled_ = false;
 
   // Parameters
   std::vector<std::string> jnt_names_;
@@ -104,9 +105,12 @@ private:
   ros2::ServiceServerPtr<std_srvs::srv::SetBool> enable_torques_ss_;
 
   // Timer
+  ros2::TimerPtr initialize_timer_;
   ros2::TimerPtr pub_states_timer_;
 
+  std::expected<void, std::string> initialize();
   bool getStaticRosParams();
+  void cleanUp();
   void registerPublishers();
   void registerSubscribers();
   bool getMotorConfigs();
@@ -122,23 +126,36 @@ private:
     const std_srvs::srv::SetBool::Request::ConstSharedPtr& _req,
     const std_srvs::srv::SetBool::Response::SharedPtr& _res);
 
+  void initializeTimerCb();
   void publishCurrentStatesTimerCb();
 };
 
 DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& _options)
   : super("dynamixel_handler", nodeOptions_Default(_options))
 {
-  // Get ROS parameters.
   if (!getStaticRosParams()) {
     return;
   }
 
+  if (const auto result = initialize(); !result) {
+    cleanUp();
+    TOBAS_WARN(result.error(), " Retrying...");
+    initialize_timer_ = createWallTimer(1s, &self::initializeTimerCb, this);
+  }
+}
+
+DynamixelHandlerNode::~DynamixelHandlerNode()
+{
+  cleanUp();
+}
+
+std::expected<void, std::string> DynamixelHandlerNode::initialize()
+{
   // Get the device absolute path.
   std::error_code ec;
   const auto resolved_device = fs::canonical(device_name_, ec);
   if (ec) {
-    TOBAS_ERROR("Failed to resolve " + device_name_ + ": " + ec.message());
-    return;
+    return std::unexpected("Failed to resolve " + device_name_ + ": " + ec.message());
   }
 
   // Initialize Dynamixel SDK.
@@ -158,60 +175,52 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& _options)
 
   // Open serial port.
   if (!poh_->openPort()) {
-    TOBAS_ERROR("Failed to open port '", resolved_device, "'");
-    return;
+    return std::unexpected("Failed to open port '" + resolved_device.string() + "'.");
   }
 
   // Set baudrate.
   if (!poh_->setBaudRate(baudrate_)) {
-    TOBAS_ERROR("Failed to set baudrate to ", baudrate_);
-    return;
+    return std::unexpected("Failed to set baudrate to " + std::to_string(baudrate_) + ".");
   }
 
   // Get motor configurations.
   if (!getMotorConfigs()) {
-    return;
+    return std::unexpected("Failed to get motor configurations.");
   }
 
   for (const auto& [name, cfg] : motors_) {
     // Add parameters to dynamixel::GroupSyncRead objects.
     if (!core_sync_read_->addParam(cfg.id) || !hes_sync_read_->addParam(cfg.id)) {
-      TOBAS_ERROR("Motor ID ", static_cast<int>(cfg.id), " is duplicated.");
-      return;
+      return std::unexpected("Motor ID " + std::to_string(cfg.id) + " is duplicated.");
     }
 
     // Disable torque.
     if (pah_->write1ByteTxRx(poh_, cfg.id, address::kToruqeEnable, torque_enable::kDisable) < 0) {
-      TOBAS_ERROR("Failed to disable torque of '", name, "'.");
-      return;
+      return std::unexpected("Failed to disable torque of '" + name + "'.");
     }
 
     // Set return delay time.
     if (pah_->write1ByteTxRx(poh_, cfg.id, address::kReturnDelayTime, return_delay_time_) < 0) {
-      TOBAS_ERROR("Failed to set return delay time of '", name, "'.");
-      return;
+      return std::unexpected("Failed to set return delay time of '" + name + "'.");
     }
 
     // Set operating mode.
     if (pah_->write1ByteTxRx(poh_, cfg.id, address::kOperatingMode, cfg.operating_mode) < 0) {
-      TOBAS_ERROR("Failed to set operating mode of '", name, "'.");
-      return;
+      return std::unexpected("Failed to set operating mode of '" + name + "'.");
     }
 
     // Enable torque.
     if (pah_->write1ByteTxRx(poh_, cfg.id, address::kToruqeEnable, torque_enable::kEnable) < 0) {
-      TOBAS_ERROR("Failed to enable torque of '", name, "'.");
-      return;
+      return std::unexpected("Failed to enable torque of '" + name + "'.");
     }
-
-    TOBAS_INFO("'", name, "' has been initialized.");
   }
 
   // Reduce latency.
   if (!setMinimumLatency(resolved_device)) {
-    TOBAS_ERROR("Failed to set communication latency.");
-    return;
+    return std::unexpected("Failed to set communication latency.");
   }
+
+  is_enabled_ = true;
 
   // Register publishers and subscribers.
   registerPublishers();
@@ -223,15 +232,9 @@ DynamixelHandlerNode::DynamixelHandlerNode(const rclcpp::NodeOptions& _options)
   // Start main timer with maximum rate.
   const auto state_pub_period = state_pub_rate_ > 0 ? ch::duration<double>(1.0 / state_pub_rate_) : 0ms;
   pub_states_timer_ = createWallTimer(state_pub_period, &self::publishCurrentStatesTimerCb, this);
-}
 
-DynamixelHandlerNode::~DynamixelHandlerNode()
-{
-  // Disable torque.
-  disableTorques();
-
-  // Close serial port.
-  poh_->closePort();
+  TOBAS_INFO("Dynamixel handler has been initialized with device '", resolved_device, "'.");
+  return {};
 }
 
 bool DynamixelHandlerNode::getStaticRosParams()
@@ -260,6 +263,30 @@ bool DynamixelHandlerNode::getStaticRosParams()
   }
 
   return true;
+}
+
+void DynamixelHandlerNode::cleanUp()
+{
+  pub_states_timer_.reset();
+
+  if (poh_ != nullptr && pah_ != nullptr) {
+    disableTorques();
+  }
+
+  core_sync_read_.reset();
+  hes_sync_read_.reset();
+  pos_sync_write_.reset();
+  vel_sync_write_.reset();
+
+  if (poh_ != nullptr) {
+    poh_->closePort();
+    delete poh_;
+    poh_ = nullptr;
+  }
+  pah_ = nullptr;
+
+  is_enabled_ = false;
+  motors_.clear();
 }
 
 void DynamixelHandlerNode::registerPublishers()
@@ -672,6 +699,17 @@ void DynamixelHandlerNode::enableTorquesCb(
       _res->message = "Failed to disable torques.";
     }
   }
+}
+
+void DynamixelHandlerNode::initializeTimerCb()
+{
+  if (const auto result = initialize(); !result) {
+    cleanUp();
+    TOBAS_WARN(result.error(), " Retrying...");
+    return;
+  }
+
+  initialize_timer_->cancel();
 }
 
 void DynamixelHandlerNode::publishCurrentStatesTimerCb()
