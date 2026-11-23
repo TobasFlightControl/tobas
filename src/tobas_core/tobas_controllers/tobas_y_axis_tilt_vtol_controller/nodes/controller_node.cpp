@@ -36,6 +36,7 @@
 #include <tobas_msgs/msg/fluid_pressure.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs_adapter/odometry_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
@@ -123,6 +124,7 @@ private:
   ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::FluidPressure> air_pressure_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::VehicleHealth> health_sub_;
   ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
@@ -156,6 +158,7 @@ private:
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _js);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
   void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& _pressure);
+  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health);
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom_flu);
   void multicopterAngleCmdCb(const tobas_command_msgs::AngleThrottleVector::ConstSharedPtr& _cmd);
   void multicopterPosCmdCb(const tobas_command_msgs::PosVelAccPitchYaw::ConstSharedPtr& _cmd);
@@ -205,6 +208,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& _options)
   tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
   air_pressure_sub_ = createSubscriber(topic::kAirPressure, &self::airPressureCb, this);
+  health_sub_ = createSubscriber(topic::kVehicleHealth, &self::healthCb, this);
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
   multicopter_angle_cmd_sub_ = createSubscriber(topic::kAngleThrotVectorCmd, &self::multicopterAngleCmdCb, this);
   multicopter_pos_cmd_sub_ = createSubscriber(topic::kPosVelAccPitchYawCmd, &self::multicopterPosCmdCb, this);
@@ -376,6 +380,14 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _ar
 void ControllerNode::airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& _pressure)
 {
   air_pressure_ = _pressure;
+}
+
+void ControllerNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health)
+{
+  const auto passed = tobas_msgs::msg::VehicleHealth::PASSED;
+  const auto is_velocity_accurate =
+    (_health->horizontal_position_accuracy == passed) && (_health->vertical_position_accuracy == passed);
+  mixer_.setVelocityReliability(is_velocity_accurate);
 }
 
 void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom_flu)
@@ -557,7 +569,19 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     const auto tar_drpy = angle_gain.hadamard(ep);
 
     // Convert Euler angle rates to gyro values.
-    *tar_gyro_ = eigen::angvelFromEulerrateLocal(tar_drpy.data, cur_rpy.roll, cur_rpy.pitch);
+    // マルチコプタの際とは違いRが無制御なので計算方法が異なる
+    // \dot{\phi} = P + Q \sin\Phi\tan\Theta + R \cos\Phi\tan\Theta
+    // \dot{\theta} = Q \cos\Phi - R\sin\Phi
+    // をRを現在の角速度としてP, Qに関して逆解きする
+    Eigen::Matrix2d C;
+    C << 1, -std::tan(cur_rpy.roll) * std::tan(cur_rpy.pitch), 0, 1.0 / std::cos(cur_rpy.roll);
+    const Eigen::Vector2d tar_gyro_xy =
+      C * Eigen::Vector2d(
+            tar_drpy.x() - cur_gyro_G.z() * std::cos(cur_rpy.roll) * std::tan(cur_rpy.pitch),
+            tar_drpy.y() + cur_gyro_G.z() * std::sin(cur_rpy.roll));
+    tar_gyro_->x() = tar_gyro_xy.x();
+    tar_gyro_->y() = tar_gyro_xy.y();
+    tar_gyro_->z() = tar_drpy.z();
 
     // Fill the feedback message.
     setpoint->odom.frame.M =

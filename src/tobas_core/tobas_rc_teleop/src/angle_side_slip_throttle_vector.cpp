@@ -51,6 +51,7 @@ void AngleSideSlipThrottleVectorController::initialize(BaseNode* _node, FlightMo
   _node->addDynamicDoubleParam(addMode("yaw_expo", _mode), &self::yawExpoCb, this, 5.0, -3, -20, 20);
   _node->addDynamicDoubleParam(addMode("throttle_expo", _mode), &self::throttleExpoCb, this, 5.0, 0, 0, 20);
 
+  health_sub_ = _node->createSubscriber(topic::kVehicleHealth, &self::healthCb, this);
   multicopter_cmd_pub_ = _node->createPublisher<tobas_command_msgs::AngleThrottleVector>(topic::kAngleThrotVectorCmd);
   fixed_wing_cmd_pub_ = _node->createPublisher<tobas_command_msgs::msg::RollPitchSideSlipThrottleVector>(
     topic::kRollPitchSideSlipThrotVectorCmd);
@@ -91,7 +92,30 @@ void AngleSideSlipThrottleVectorController::update(const tobas_msgs::RCInput& rc
   thrust_angle_filt_.setTargetPointAndUpdate(remap(rcin.vr, kMinThrustAngle, kMaxThrustAngle), dt);
   const auto thrust_angle = thrust_angle_filt_.getTrajectoryPosition();
 
-  // Pitch & Thrust Angle
+  // Mo GPS flight
+  if (!is_velocity_accurate_) {
+    if (last_control_type_ == ControlType::FIXED_WING) {
+      const auto [cur_roll, cur_pitch, cur_yaw] = odom.frame.M.getRPY();
+      tar_yaw_ = cur_yaw;
+    }
+    last_control_type_ = ControlType::MULTICOPTER;
+    // Yaw
+    const auto yawrate = expoRemapDead(rcin.yaw, yaw_expo_, -max_yaw_rate_, max_yaw_rate_);
+    tar_yaw_ += yawrate * dt;
+
+    auto cmd = std::make_unique<tobas_command_msgs::AngleThrottleVector>();
+    cmd->header = rcin.header;
+    cmd->priority.data = tobas_command_msgs::msg::Priority::MANUAL;
+    cmd->angle.roll = roll;
+    cmd->angle.pitch = pitch;
+    cmd->angle.yaw = tar_yaw_;
+    cmd->throttle = throttle;
+    cmd->thrust_angle = std::min(thrust_angle, kModeChangeThrustAngle);
+    multicopter_cmd_pub_->publish(std::move(cmd));
+    return;
+  }
+
+  // Publish
   if (thrust_angle < kModeChangeThrustAngle) {
     if (last_control_type_ == ControlType::FIXED_WING) {
       const auto [cur_roll, cur_pitch, cur_yaw] = odom.frame.M.getRPY();
@@ -179,6 +203,13 @@ void AngleSideSlipThrottleVectorController::yawExpoCb(double _p)
 void AngleSideSlipThrottleVectorController::throttleExpoCb(double _p)
 {
   throt_expo_ = _p / kExpoScale;
+}
+
+void AngleSideSlipThrottleVectorController::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health)
+{
+  const auto passed = tobas_msgs::msg::VehicleHealth::PASSED;
+  is_velocity_accurate_ =
+    (_health->horizontal_position_accuracy == passed) && (_health->vertical_position_accuracy == passed);
 }
 }  // namespace rc
 }  // namespace tobas
