@@ -25,7 +25,7 @@ UbxTransportUart::UbxTransportUart(const char* _device) : device_(_device)
 
 bool UbxTransportUart::initialize() noexcept
 {
-  if (!uart_.initialize(device_, true)) {
+  if (!uart_.initialize(device_, false)) {
     return false;
   }
 
@@ -66,11 +66,6 @@ bool UbxTransportUart::configureBaudRate() noexcept
     return false;
   }
 
-  // Allow UART reads to time out during baudrate detection.
-  if (!uart_.setTimeout(1) || !uart_.setMinimumChars(0)) {
-    return false;
-  }
-
   // Keep the current baudrate if communication already works at 230400.
   if (!checkBaudRate(kTargetBaudRate)) {
     // Try the fallback baudrate if 230400 does not respond.
@@ -96,8 +91,7 @@ bool UbxTransportUart::configureBaudRate() noexcept
     }
   }
 
-  // Restore blocking reception for normal operation.
-  return uart_.setTimeout(0) && uart_.setMinimumChars(1);
+  return true;
 }
 
 bool UbxTransportUart::checkBaudRate(uint32_t _baud_rate) noexcept
@@ -131,9 +125,8 @@ bool UbxTransportUart::checkBaudRate(uint32_t _baud_rate) noexcept
 
   while (Clock::now() < deadline) {
     const auto byte = uart_.receiveByte();
-
-    // Continue checking when a UART read times out.
     if (!byte) {
+      std::this_thread::sleep_for(1ms);
       continue;
     }
 

@@ -65,6 +65,11 @@ bool SBUS::initialize(const char* _device)
     return false;
   }
 
+  // Bound each read so the receive thread can observe stop requests even without input.
+  if (!uart_.setTimeout(0, 1)) {  // 100ms
+    return false;
+  }
+
   return true;
 }
 
@@ -80,7 +85,9 @@ void SBUS::stop()
 
 void SBUS::spin()
 {
-  read_thread_.join();
+  if (read_thread_.joinable()) {
+    read_thread_.join();
+  }
 }
 
 void SBUS::readThreadFunc(std::stop_token _st)
@@ -91,12 +98,22 @@ void SBUS::readThreadFunc(std::stop_token _st)
   std::array<uint8_t, kDataSize> data;
   boost::multiprecision::uint256_t bits;
 
+  const auto receive_byte = [this, &_st](uint8_t& _byte)
+  {
+    while (!_st.stop_requested()) {
+      if (uart_.receive(&_byte, 1)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   // Receive one byte at a time instead of in bulk.
   // The inverter or the Linux UART device may split the data unexpectedly.
-  while (!_st.stop_requested()) {
+  while (true) {
     // Start byte
-    if (!uart_.receive(&start_byte, 1)) {
-      continue;
+    if (!receive_byte(start_byte)) {
+      return;
     }
     PRINT_DEBUG("Start byte: " << HEX_STREAM(start_byte));
     if (start_byte != 0x0F) {
@@ -105,21 +122,21 @@ void SBUS::readThreadFunc(std::stop_token _st)
 
     // Data
     for (size_t i = 0; i < kDataSize; ++i) {
-      if (!uart_.receive(&data[i], 1)) {
-        continue;
+      if (!receive_byte(data[i])) {
+        return;
       }
       PRINT_DEBUG("Data byte " << i + 1 << ": " << HEX_STREAM(data[i]));
     }
 
     // Flags
-    if (!uart_.receive(&flags, 1)) {
-      continue;
+    if (!receive_byte(flags)) {
+      return;
     }
     PRINT_DEBUG("Flags byte: " << HEX_STREAM(flags));
 
     // End byte
-    if (!uart_.receive(&end_byte, 1)) {
-      continue;
+    if (!receive_byte(end_byte)) {
+      return;
     }
     PRINT_DEBUG("End byte: " << HEX_STREAM(end_byte));
     if (!isEndByte(end_byte)) {

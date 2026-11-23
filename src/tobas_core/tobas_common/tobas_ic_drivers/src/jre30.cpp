@@ -103,7 +103,9 @@ void JRE30::stop()
 
 void JRE30::spin()
 {
-  read_thread_.join();
+  if (read_thread_.joinable()) {
+    read_thread_.join();
+  }
 }
 
 void JRE30::readThreadFunc(std::stop_token _st)

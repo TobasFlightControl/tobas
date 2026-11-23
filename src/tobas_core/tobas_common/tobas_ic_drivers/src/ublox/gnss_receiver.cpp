@@ -78,10 +78,9 @@ bool GnssReceiver::update(bool _blocking)
   scan_rate_.start();
   while (scanner_.state() != UbxScanner::kDone) {
     const auto data = transport_->receiveByte();
-    if (!data) {
-      return false;
+    if (data) {
+      scanner_.update(*data);
     }
-    scanner_.update(*data);
     scan_rate_.sleep();
   }
 

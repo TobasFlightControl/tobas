@@ -38,10 +38,14 @@ public:
   bool disableParity();
   bool enableHungupClose();
   bool disableHungupClose();
-  bool setTimeout(cc_t _msec_100);
 
-  /** Set the minimum number of characters that `receive()` waits for. */
-  bool setMinimumChars(uint8_t _num);
+  /**
+   * Set the minimum receive byte count and timeout together.
+   *
+   * @param _minimum_chars Minimum receive byte count (`VMIN`).
+   * @param _msec_100 Timeout in units of 100ms (`VTIME`).
+   */
+  bool setTimeout(uint8_t _minimum_chars, cc_t _msec_100);
 
   bool send(const uint8_t* _data, size_t _length);
   bool receive(uint8_t* _data, size_t _length);

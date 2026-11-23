@@ -19,6 +19,7 @@ class SbusDriverNode : public BaseNode
 
 public:
   explicit SbusDriverNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
+  ~SbusDriverNode() override;
 
 private:
   std::string device_;
@@ -43,6 +44,13 @@ SbusDriverNode::SbusDriverNode(const rclcpp::NodeOptions& _options)
   sbus_pub_ = createPublisher<tobas_msgs::msg::Sbus>(topic::kSbus);
 
   initialize_timer_ = createWallTimer(1s, &self::initialize, this);
+}
+
+SbusDriverNode::~SbusDriverNode()
+{
+  // The receive callback uses the publisher, so stop it before member destruction releases the publisher.
+  sbus_.stop();
+  sbus_.spin();
 }
 
 void SbusDriverNode::initialize()

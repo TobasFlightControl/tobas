@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include <cassert>
 #include <chrono>
 #include <iostream>
 #include <map>
@@ -230,28 +231,22 @@ bool UARTdev::disableHungupClose()
   return setConfig();
 }
 
-bool UARTdev::setTimeout(cc_t _msec_100)
+bool UARTdev::setTimeout(uint8_t _minimum_chars, cc_t _msec_100)
 {
-  if (!block_mode_ && _msec_100 > 0) {
-    std::cerr << "The timeout configuration is disabled in non-blocking mode.\n";
+  if (!block_mode_ && (_minimum_chars > 0 || _msec_100 > 0)) {
+    std::cerr << "The receive timing configuration is disabled in non-blocking mode.\n";
     return false;
   }
-  options_.c_cc[VTIME] = _msec_100;  // FIXME: Not reflected
-  return setConfig();
-}
 
-bool UARTdev::setMinimumChars(uint8_t _num)
-{
-  if (!block_mode_ && _num > 0) {
-    std::cerr << "The minimum number of characters configuration is disabled in non-blocking mode.\n";
-    return false;
-  }
-  options_.c_cc[VMIN] = _num;
+  options_.c_cc[VMIN] = _minimum_chars;
+  options_.c_cc[VTIME] = _msec_100;
   return setConfig();
 }
 
 bool UARTdev::send(const uint8_t* _data, size_t _length)
 {
+  assert(_length > 0);
+
   const auto res = ::write(uart_fd_, _data, _length);
   if (res < 0) {
     std::cerr << "UART TX failed: " << st::strError() << '\n';
@@ -267,9 +262,10 @@ bool UARTdev::send(const uint8_t* _data, size_t _length)
 
 bool UARTdev::receive(uint8_t* _data, size_t _length)
 {
+  assert(_length > 0);
+
   const auto res = ::read(uart_fd_, _data, _length);
-  if (res < 0) {
-    std::cerr << "UART RX failed: " << st::strError() << '\n';
+  if (res <= 0) {
     return false;
   }
   if (res != static_cast<ssize_t>(_length)) {
