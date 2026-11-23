@@ -211,29 +211,29 @@ void GnssDriverNode::mainTimerCb()
   gnss_msg->longitude = pvt_.lon;
   gnss_msg->height_wgs84 = static_cast<double>(pvt_.height) * 1e-3;
   gnss_msg->height_msl = static_cast<double>(pvt_.hMSL) * 1e-3;
-  gnss_msg->position_covariance(0, 0) = cov_.posCovNN;
-  gnss_msg->position_covariance(0, 1) = cov_.posCovNE;
-  gnss_msg->position_covariance(0, 2) = cov_.posCovND;
-  gnss_msg->position_covariance(1, 0) = cov_.posCovNE;
-  gnss_msg->position_covariance(1, 1) = cov_.posCovEE;
-  gnss_msg->position_covariance(1, 2) = cov_.posCovED;
-  gnss_msg->position_covariance(2, 0) = cov_.posCovND;
-  gnss_msg->position_covariance(2, 1) = cov_.posCovED;
-  gnss_msg->position_covariance(2, 2) = cov_.posCovDD;
+  gnss_msg->position_covariance(0, 0) = cov_.posCovEE;   // EE
+  gnss_msg->position_covariance(0, 1) = cov_.posCovNE;   // EN
+  gnss_msg->position_covariance(0, 2) = -cov_.posCovED;  // EU
+  gnss_msg->position_covariance(1, 0) = cov_.posCovNE;   // NE
+  gnss_msg->position_covariance(1, 1) = cov_.posCovNN;   // NN
+  gnss_msg->position_covariance(1, 2) = -cov_.posCovND;  // NU
+  gnss_msg->position_covariance(2, 0) = -cov_.posCovED;  // Up-East
+  gnss_msg->position_covariance(2, 1) = -cov_.posCovND;  // UN
+  gnss_msg->position_covariance(2, 2) = cov_.posCovDD;   // UU
 
   // Fill velocity.
   gnss_msg->ground_speed.x(static_cast<double>(pvt_.velE) * 1e-3);
   gnss_msg->ground_speed.y(static_cast<double>(pvt_.velN) * 1e-3);
   gnss_msg->ground_speed.z(-static_cast<double>(pvt_.velD) * 1e-3);
-  gnss_msg->velocity_covariance(0, 0) = cov_.velCovNN;
-  gnss_msg->velocity_covariance(0, 1) = cov_.velCovNE;
-  gnss_msg->velocity_covariance(0, 2) = cov_.velCovND;
-  gnss_msg->velocity_covariance(1, 0) = cov_.velCovNE;
-  gnss_msg->velocity_covariance(1, 1) = cov_.velCovEE;
-  gnss_msg->velocity_covariance(1, 2) = cov_.velCovED;
-  gnss_msg->velocity_covariance(2, 0) = cov_.velCovND;
-  gnss_msg->velocity_covariance(2, 1) = cov_.velCovED;
-  gnss_msg->velocity_covariance(2, 2) = cov_.velCovDD;
+  gnss_msg->velocity_covariance(0, 0) = cov_.velCovEE;   // EE
+  gnss_msg->velocity_covariance(0, 1) = cov_.velCovNE;   // EN
+  gnss_msg->velocity_covariance(0, 2) = -cov_.velCovED;  // EU
+  gnss_msg->velocity_covariance(1, 0) = cov_.velCovNE;   // NE
+  gnss_msg->velocity_covariance(1, 1) = cov_.velCovNN;   // NN
+  gnss_msg->velocity_covariance(1, 2) = -cov_.velCovND;  // NU
+  gnss_msg->velocity_covariance(2, 0) = -cov_.velCovED;  // Up-East
+  gnss_msg->velocity_covariance(2, 1) = -cov_.velCovND;  // UN
+  gnss_msg->velocity_covariance(2, 2) = cov_.velCovDD;   // UU
 
   // Fill other status.
   gnss_msg->fix_type = pvt_.fixType;
