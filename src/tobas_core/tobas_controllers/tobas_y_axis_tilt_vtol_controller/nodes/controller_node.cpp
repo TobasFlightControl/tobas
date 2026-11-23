@@ -33,6 +33,7 @@
 #include <tobas_msgs/msg/fluid_pressure.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs/msg/vehicle_health.hpp>
 #include <tobas_msgs_adapter/odometry_stamped.hpp>
 #include <tobas_msgs_adapter/odometry_with_covariance_stamped.hpp>
 
@@ -106,6 +107,7 @@ private:
   ros2::SubscriberPtr<Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::FluidPressure> air_pressure_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::VehicleHealth> health_sub_;
   ros2::SubscriberPtr<tobas_msgs::OdometryWithCovarianceStamped> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
@@ -131,6 +133,7 @@ private:
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& _js);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _arming);
   void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& _pressure);
+  void healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health);
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom_flu);
   void multicopterAngleCmdCb(const tobas_command_msgs::AngleThrottleVector::ConstSharedPtr& _cmd);
   void fixedWingManualCmdCb(const tobas_command_msgs::msg::AileElevRudThrottle::ConstSharedPtr& _cmd);
@@ -170,6 +173,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& _options)
   tree_sub_ = createSubscriber(topic::kKdlTree, &self::treeCb, this, true, true);
   arming_sub_ = createSubscriber(topic::kArming, &self::armingCb, this);
   air_pressure_sub_ = createSubscriber(topic::kAirPressure, &self::airPressureCb, this);
+  health_sub_ = createSubscriber(topic::kVehicleHealth, &self::healthCb, this);
   odom_sub_ = createSubscriber(topic::kOdometry, &self::odomCb, this);
   multicopter_angle_cmd_sub_ = createSubscriber(topic::kAngleThrotVectorCmd, &self::multicopterAngleCmdCb, this);
   fixed_wing_manual_cmd_sub_ = createSubscriber(topic::kAileElevRudThrottleCmd, &self::fixedWingManualCmdCb, this);
@@ -301,6 +305,14 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _ar
 void ControllerNode::airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& _pressure)
 {
   air_pressure_ = _pressure;
+}
+
+void ControllerNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedPtr& _health)
+{
+  const auto passed = tobas_msgs::msg::VehicleHealth::PASSED;
+  const auto is_velocity_accurate =
+    (_health->horizontal_position_accuracy == passed) && (_health->vertical_position_accuracy == passed);
+  mixer_.setVelocityReliability(is_velocity_accurate);
 }
 
 void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom_flu)
