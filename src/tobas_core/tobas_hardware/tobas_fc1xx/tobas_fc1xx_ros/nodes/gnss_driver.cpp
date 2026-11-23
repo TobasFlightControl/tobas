@@ -217,7 +217,7 @@ void GnssDriverNode::mainTimerCb()
   gnss_msg->position_covariance(1, 0) = cov_.posCovNE;   // NE
   gnss_msg->position_covariance(1, 1) = cov_.posCovNN;   // NN
   gnss_msg->position_covariance(1, 2) = -cov_.posCovND;  // NU
-  gnss_msg->position_covariance(2, 0) = -cov_.posCovED;  // Up-East
+  gnss_msg->position_covariance(2, 0) = -cov_.posCovED;  // UE
   gnss_msg->position_covariance(2, 1) = -cov_.posCovND;  // UN
   gnss_msg->position_covariance(2, 2) = cov_.posCovDD;   // UU
 
@@ -231,7 +231,7 @@ void GnssDriverNode::mainTimerCb()
   gnss_msg->velocity_covariance(1, 0) = cov_.velCovNE;   // NE
   gnss_msg->velocity_covariance(1, 1) = cov_.velCovNN;   // NN
   gnss_msg->velocity_covariance(1, 2) = -cov_.velCovND;  // NU
-  gnss_msg->velocity_covariance(2, 0) = -cov_.velCovED;  // Up-East
+  gnss_msg->velocity_covariance(2, 0) = -cov_.velCovED;  // UE
   gnss_msg->velocity_covariance(2, 1) = -cov_.velCovND;  // UN
   gnss_msg->velocity_covariance(2, 2) = cov_.velCovDD;   // UU
 
