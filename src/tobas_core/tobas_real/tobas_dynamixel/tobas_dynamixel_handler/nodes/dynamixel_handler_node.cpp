@@ -233,7 +233,7 @@ std::expected<void, std::string> DynamixelHandlerNode::initialize()
   const auto state_pub_period = state_pub_rate_ > 0 ? ch::duration<double>(1.0 / state_pub_rate_) : 0ms;
   pub_states_timer_ = createWallTimer(state_pub_period, &self::publishCurrentStatesTimerCb, this);
 
-  TOBAS_INFO("Dynamixel handler has been initialized with device '", resolved_device, "'.");
+  TOBAS_INFO("Dynamixel handler has been initialized with device '", resolved_device.string(), "'.");
   return {};
 }
 

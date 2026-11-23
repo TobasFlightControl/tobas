@@ -50,7 +50,7 @@ size_t RosbagRecorderNode::getDiskAvailableSize() const noexcept
     return info.available;
   }
   catch (...) {
-    TOBAS_ERROR("Failed to get the space information: ", rosbag_dir_);
+    TOBAS_ERROR("Failed to get the space information: ", rosbag_dir_.string());
     return 0;
   }
 }
