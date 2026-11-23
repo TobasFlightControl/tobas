@@ -151,6 +151,26 @@ bool WifiHotspotWidget::isValid64HexPsk(const QString& _psk)
   return re.match(_psk).hasMatch();
 }
 
+void WifiHotspotWidget::onTextChanged()
+{
+  QString msg;
+
+  if (!checkSsid(msg)) {
+    warn_text_->setText(msg);
+    write_button_->setEnabled(false);
+    return;
+  }
+
+  if (!checkPsk(msg)) {
+    warn_text_->setText(msg);
+    write_button_->setEnabled(false);
+    return;
+  }
+
+  warn_text_->clear();
+  write_button_->setEnabled(true);
+}
+
 void WifiHotspotWidget::onWriteButtonClicked()
 {
   // Create data.
@@ -174,25 +194,5 @@ void WifiHotspotWidget::onWriteButtonClicked()
   }
 
   qt::qInfoBox(this, "Access point configuration was written successfully.");
-}
-
-void WifiHotspotWidget::onTextChanged()
-{
-  QString msg;
-
-  if (!checkSsid(msg)) {
-    warn_text_->setText(msg);
-    write_button_->setEnabled(false);
-    return;
-  }
-
-  if (!checkPsk(msg)) {
-    warn_text_->setText(msg);
-    write_button_->setEnabled(false);
-    return;
-  }
-
-  warn_text_->clear();
-  write_button_->setEnabled(true);
 }
 }  // namespace tobas::gui::bm

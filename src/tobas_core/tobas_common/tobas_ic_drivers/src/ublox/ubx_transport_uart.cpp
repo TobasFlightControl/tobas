@@ -44,6 +44,21 @@ bool UbxTransportUart::initialize() noexcept
   return configureBaudRate();
 }
 
+std::optional<uint8_t> UbxTransportUart::receiveByte() noexcept
+{
+  return uart_.receiveByte();
+}
+
+bool UbxTransportUart::send(const uint8_t* _data, size_t _length) noexcept
+{
+  return uart_.send(_data, _length);
+}
+
+UbxTransport::Interface UbxTransportUart::interface() const noexcept
+{
+  return Interface::UART;
+}
+
 bool UbxTransportUart::configureBaudRate() noexcept
 {
   // Start by checking the target baudrate.
@@ -145,20 +160,5 @@ bool UbxTransportUart::checkBaudRate(uint32_t _baud_rate) noexcept
   }
 
   return false;
-}
-
-std::optional<uint8_t> UbxTransportUart::receiveByte() noexcept
-{
-  return uart_.receiveByte();
-}
-
-bool UbxTransportUart::send(const uint8_t* _data, size_t _length) noexcept
-{
-  return uart_.send(_data, _length);
-}
-
-UbxTransport::Interface UbxTransportUart::interface() const noexcept
-{
-  return Interface::UART;
 }
 }  // namespace tobas::ublox

@@ -78,6 +78,11 @@ std::expected<JntArray, std::string> TreeIkSolverVel::cartToJnt(const JntArray& 
   return JntArray(*qd_out);
 }
 
+const Eigen::Vector6d& TreeIkSolverVel::getWeightTS() const
+{
+  return Wt_;
+}
+
 void TreeIkSolverVel::setWeightTS(const Eigen::Vector6d& _wt)
 {
   assert((_wt.array() >= 0.0).all());
@@ -85,9 +90,9 @@ void TreeIkSolverVel::setWeightTS(const Eigen::Vector6d& _wt)
   Wt_ = _wt;
 }
 
-const Eigen::Vector6d& TreeIkSolverVel::getWeightTS() const
+const double& TreeIkSolverVel::getWeightJS() const
 {
-  return Wt_;
+  return Wj_;
 }
 
 void TreeIkSolverVel::setWeightJS(double _wj)
@@ -96,11 +101,6 @@ void TreeIkSolverVel::setWeightJS(double _wj)
   assert(_wj > 0.0);
 
   Wj_ = _wj;
-}
-
-const double& TreeIkSolverVel::getWeightJS() const
-{
-  return Wj_;
 }
 
 void TreeIkSolverVel::resize()

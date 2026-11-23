@@ -56,11 +56,6 @@ const char* LoginPasswordWidget::title() const
   return "Set Login Password";
 }
 
-bool LoginPasswordWidget::onConnected()
-{
-  return true;
-}
-
 void LoginPasswordWidget::reset()
 {
   pswd1_->reset();
@@ -71,17 +66,9 @@ void LoginPasswordWidget::reset()
   write_button_->setEnabled(false);
 }
 
-void LoginPasswordWidget::onWriteButtonClicked()
+bool LoginPasswordWidget::onConnected()
 {
-  const auto shadow_path = fs::path(kRootPath) / "etc/shadow";
-  const auto pswd = pswd1_->text().toStdString();
-
-  if (!crypt::setShadowPassword(shadow_path, gui::cmn::kUserNameFC, pswd, crypt::Yescrypt())) {
-    qt::qErrorBox(this, "Failed to update login password.");
-    return;
-  }
-
-  qt::qInfoBox(this, "Login password was updated successfully.");
+  return true;
 }
 
 void LoginPasswordWidget::onTextChanged()
@@ -146,5 +133,18 @@ void LoginPasswordWidget::onTextChanged()
 
   warn_text_->clear();
   write_button_->setEnabled(true);
+}
+
+void LoginPasswordWidget::onWriteButtonClicked()
+{
+  const auto shadow_path = fs::path(kRootPath) / "etc/shadow";
+  const auto pswd = pswd1_->text().toStdString();
+
+  if (!crypt::setShadowPassword(shadow_path, gui::cmn::kUserNameFC, pswd, crypt::Yescrypt())) {
+    qt::qErrorBox(this, "Failed to update login password.");
+    return;
+  }
+
+  qt::qInfoBox(this, "Login password was updated successfully.");
 }
 }  // namespace tobas::gui::bm

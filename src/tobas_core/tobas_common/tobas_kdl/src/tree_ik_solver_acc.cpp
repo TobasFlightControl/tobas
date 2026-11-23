@@ -84,6 +84,11 @@ TreeIkSolverAcc::cartToJnt(const JntArray& _q_in, const JntArray& _qd_in, const 
   return JntArray(*qdd_out);
 }
 
+const Eigen::Vector6d& TreeIkSolverAcc::getWeightTS() const
+{
+  return Wt_;
+}
+
 void TreeIkSolverAcc::setWeightTS(const Eigen::Vector6d& _wt)
 {
   assert((_wt.array() >= 0.0).all());
@@ -91,9 +96,9 @@ void TreeIkSolverAcc::setWeightTS(const Eigen::Vector6d& _wt)
   Wt_ = _wt;
 }
 
-const Eigen::Vector6d& TreeIkSolverAcc::getWeightTS() const
+const double& TreeIkSolverAcc::getWeightJS() const
 {
-  return Wt_;
+  return Wj_;
 }
 
 void TreeIkSolverAcc::setWeightJS(double _wj)
@@ -102,11 +107,6 @@ void TreeIkSolverAcc::setWeightJS(double _wj)
   assert(_wj > 0.0);
 
   Wj_ = _wj;
-}
-
-const double& TreeIkSolverAcc::getWeightJS() const
-{
-  return Wj_;
 }
 
 void TreeIkSolverAcc::resize()

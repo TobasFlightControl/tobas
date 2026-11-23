@@ -32,11 +32,6 @@ AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(const PropellerWidget* _propell
   rows->addWidget(data_);
 }
 
-void AerodynamicsWidget_UIUC::setToDefaults()
-{
-  data_->clearData();
-}
-
 const char* AerodynamicsWidget_UIUC::name() const
 {
   return "Estimate from UIUC Propeller Data";
@@ -48,6 +43,11 @@ const char* AerodynamicsWidget_UIUC::description() const
          "<a href='https://m-selig.ae.illinois.edu/props/propDB.html'>UIUC Propeller Data Site</a>, "
          "use its static thrust and power coefficient data to estimate the aerodynamic constants. "
          "The propeller diameter is taken from the Propeller tab.";
+}
+
+void AerodynamicsWidget_UIUC::setToDefaults()
+{
+  data_->clearData();
 }
 
 bool AerodynamicsWidget_UIUC::isValid()

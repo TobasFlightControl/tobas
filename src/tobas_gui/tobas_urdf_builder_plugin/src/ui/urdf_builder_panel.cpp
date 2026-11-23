@@ -466,6 +466,13 @@ void UrdfBuilderPanel::reloadRobot()
   ogre_ctrl_->reload(vm_);
 }
 
+void UrdfBuilderPanel::addRootLink()
+{
+  const auto link_vm = std::make_shared<view_model::LinkViewModel>(nullptr);
+  link_vm->name("root");
+  vm_.addLink(link_vm);
+}
+
 void UrdfBuilderPanel::selectRootLink()
 {
   const auto root_item = ui_->LinkTreeWidget->topLevelItem(0);
@@ -494,13 +501,6 @@ void UrdfBuilderPanel::reflectSelectedItem(QTreeWidgetItem* _item)
 
   // Make it uneditable if it is the root link.
   link_dialog_->setTabsEnabled(link_name != vm_.rootLink()->name);
-}
-
-void UrdfBuilderPanel::addRootLink()
-{
-  const auto link_vm = std::make_shared<view_model::LinkViewModel>(nullptr);
-  link_vm->name("root");
-  vm_.addLink(link_vm);
 }
 
 bool UrdfBuilderPanel::saveURDF(const QString& _file_path)

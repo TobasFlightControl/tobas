@@ -54,16 +54,6 @@ AerodynamicsWidget::AerodynamicsWidget(const PropellerWidget* _propeller) : prop
   connect(methods_, &QStackedWidget::currentChanged, this, &AerodynamicsWidget::updateDescription);
 }
 
-void AerodynamicsWidget::updateDescription(int _index)
-{
-  if (_index < 0) {
-    description_->clear();
-    return;
-  }
-
-  description_->setText(selected()->description());
-}
-
 void AerodynamicsWidget::setToDefaults()
 {
   for (int i = 0; i < methods_->count(); ++i) {
@@ -150,5 +140,15 @@ AerodynamicsWidget_Base* AerodynamicsWidget::selected()
 const AerodynamicsWidget_Base* AerodynamicsWidget::selected() const
 {
   return qt::qConstPointerCast<AerodynamicsWidget_Base>(methods_->currentWidget());
+}
+
+void AerodynamicsWidget::updateDescription(int _index)
+{
+  if (_index < 0) {
+    description_->clear();
+    return;
+  }
+
+  description_->setText(selected()->description());
 }
 }  // namespace tobas::gui::sa::propulsion::electric

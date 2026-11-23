@@ -57,17 +57,6 @@ void RcInputPublisher::initialize()
   TOBAS_INFO("Gamepad driver has been initialized.");
 }
 
-void RcInputPublisher::timerCallback()
-{
-  const auto state = gamepad_.read();
-  if (!state) {
-    TOBAS_WARN("Failed to read gamepad RC input: ", state.error());
-    return;
-  }
-
-  publishFromState(*state);
-}
-
 void RcInputPublisher::publishFromState(const GamepadState& _state)
 {
   auto msg = std::make_unique<tobas_msgs::RCInput>();
@@ -83,6 +72,17 @@ void RcInputPublisher::publishFromState(const GamepadState& _state)
   msg->kill = _state.kill;
   msg->gpsw = _state.gpsw;
   publisher_->publish(std::move(msg));
+}
+
+void RcInputPublisher::timerCallback()
+{
+  const auto state = gamepad_.read();
+  if (!state) {
+    TOBAS_WARN("Failed to read gamepad RC input: ", state.error());
+    return;
+  }
+
+  publishFromState(*state);
 }
 }  // namespace tobas::gamepad
 

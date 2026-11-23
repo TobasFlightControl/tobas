@@ -12,6 +12,11 @@ namespace
 {
 constexpr char kAliveBackgroundColor[] = "transparent";
 constexpr char kDeadBackgroundColor[] = "red";
+
+QString bottomText(int _rpm)
+{
+  return QString::number(_rpm) + " RPM";
+}
 }  // namespace
 
 RotorsViewerWiddget::RotorsViewerWiddget(const rqt::RosQtBridge& _bridge, const Drone& _drone) : drone_(_drone)
@@ -87,10 +92,5 @@ void RotorsViewerWiddget::rotorLivelinessCb(const tobas_msgs::msg::RotorLiveline
       meter->setBackgroundColor(kDeadBackgroundColor);
     }
   }
-}
-
-QString RotorsViewerWiddget::bottomText(int _rpm)
-{
-  return QString::number(_rpm) + " RPM";
 }
 }  // namespace tobas::gui::ctrl

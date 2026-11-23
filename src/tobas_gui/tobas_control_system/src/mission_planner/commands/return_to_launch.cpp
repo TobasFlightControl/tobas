@@ -87,14 +87,14 @@ double ReturnToLaunchWidget::maxHorizontalAccel() const
   return getValueOrDefault(max_hor_acc_);
 }
 
-double ReturnToLaunchWidget::maxVerticalVelocity() const
-{
-  return getValueOrDefault(max_ver_vel_);
-}
-
 double ReturnToLaunchWidget::maxHorizontalJerk() const
 {
   return getValueOrDefault(max_hor_jerk_);
+}
+
+double ReturnToLaunchWidget::maxVerticalVelocity() const
+{
+  return getValueOrDefault(max_ver_vel_);
 }
 
 double ReturnToLaunchWidget::maxVerticalAccel() const

@@ -464,6 +464,12 @@ double GazeboElectricPropulsionSystemPlugin::computeNextVelocity(double _dt) con
   return param_.direction * next_speed;
 }
 
+void GazeboElectricPropulsionSystemPlugin::failRotor()
+{
+  is_intact_ = false;
+  throt_ = 0.0;
+}
+
 void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(
   const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& _throttle)
 {
@@ -498,12 +504,6 @@ void GazeboElectricPropulsionSystemPlugin::batteryGtCb(const tobas_msgs::msg::Ba
 void GazeboElectricPropulsionSystemPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& _wind_gt)
 {
   vectorKDLToGazebo(_wind_gt->vel, wind_vel_W_);
-}
-
-void GazeboElectricPropulsionSystemPlugin::failRotor()
-{
-  is_intact_ = false;
-  throt_ = 0.0;
 }
 
 void GazeboElectricPropulsionSystemPlugin::breakCb(

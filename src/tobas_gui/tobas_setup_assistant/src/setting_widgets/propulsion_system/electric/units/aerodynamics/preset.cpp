@@ -63,15 +63,6 @@ AerodynamicsWidget_Preset::AerodynamicsWidget_Preset(const PropellerWidget* _pro
   connect(category_name_, &qt::ComboBox::currentIndexChanged, data_lists_, &QStackedWidget::setCurrentIndex);
 }
 
-void AerodynamicsWidget_Preset::setToDefaults()
-{
-  for (const auto& category : data_categories_) {
-    category.buttons->button(0)->setChecked(true);
-  }
-
-  selectData("thrust_stand/dji/9450.csv");
-}
-
 const char* AerodynamicsWidget_Preset::name() const
 {
   return "Select Propeller Model";
@@ -81,6 +72,15 @@ const char* AerodynamicsWidget_Preset::description() const
 {
   return "Select a bundled dataset that matches your propeller to estimate its aerodynamic constants. "
          "Use a measurement-based method if no suitable dataset is available.";
+}
+
+void AerodynamicsWidget_Preset::setToDefaults()
+{
+  for (const auto& category : data_categories_) {
+    category.buttons->button(0)->setChecked(true);
+  }
+
+  selectData("thrust_stand/dji/9450.csv");
 }
 
 bool AerodynamicsWidget_Preset::isValid()
@@ -121,6 +121,48 @@ YAML::Node AerodynamicsWidget_Preset::dump() const
 void AerodynamicsWidget_Preset::load(const YAML::Node& _node)
 {
   selectData(_node[kDataPathKey].as<std::string>());
+}
+
+double AerodynamicsWidget_Preset::motorConst() const
+{
+  const auto data_path = getCurrentDataPath();
+  const auto data_type = getCurrentDataType();
+
+  switch (data_type) {
+    case kThrustStand: {
+      const auto [rpms, thrusts, _] = parseThrustStandData(data_path);
+      return motorConstFromThrustStand(rpms, thrusts);
+    }
+    case kUiuc: {
+      const auto [_, cts, __] = parseUiucData(data_path);
+      const auto d = propeller_->diameter();
+      return motorConstFromUiuc(cts, d);
+    }
+    default: {
+      throw;
+    }
+  }
+}
+
+double AerodynamicsWidget_Preset::momentConst() const
+{
+  const auto data_path = getCurrentDataPath();
+  const auto data_type = getCurrentDataType();
+
+  switch (data_type) {
+    case kThrustStand: {
+      const auto [_, thrusts, torques] = parseThrustStandData(data_path);
+      return momentConstFromThrustStand(thrusts, torques);
+    }
+    case kUiuc: {
+      const auto [_, cts, cps] = parseUiucData(data_path);
+      const auto d = propeller_->diameter();
+      return momentConstFromUiuc(cts, cps, d);
+    }
+    default: {
+      throw;
+    }
+  }
 }
 
 void AerodynamicsWidget_Preset::addCategories(const fs::path& _directory, DataType _type)
@@ -222,48 +264,6 @@ void AerodynamicsWidget_Preset::selectData(const std::string& _name)
   }
 
   throw std::runtime_error("Unknown propeller dataset: " + _name);
-}
-
-double AerodynamicsWidget_Preset::motorConst() const
-{
-  const auto data_path = getCurrentDataPath();
-  const auto data_type = getCurrentDataType();
-
-  switch (data_type) {
-    case kThrustStand: {
-      const auto [rpms, thrusts, _] = parseThrustStandData(data_path);
-      return motorConstFromThrustStand(rpms, thrusts);
-    }
-    case kUiuc: {
-      const auto [_, cts, __] = parseUiucData(data_path);
-      const auto d = propeller_->diameter();
-      return motorConstFromUiuc(cts, d);
-    }
-    default: {
-      throw;
-    }
-  }
-}
-
-double AerodynamicsWidget_Preset::momentConst() const
-{
-  const auto data_path = getCurrentDataPath();
-  const auto data_type = getCurrentDataType();
-
-  switch (data_type) {
-    case kThrustStand: {
-      const auto [_, thrusts, torques] = parseThrustStandData(data_path);
-      return momentConstFromThrustStand(thrusts, torques);
-    }
-    case kUiuc: {
-      const auto [_, cts, cps] = parseUiucData(data_path);
-      const auto d = propeller_->diameter();
-      return momentConstFromUiuc(cts, cps, d);
-    }
-    default: {
-      throw;
-    }
-  }
 }
 
 fs::path AerodynamicsWidget_Preset::getCurrentDataPath() const

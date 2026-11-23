@@ -27,34 +27,11 @@ ActuatorTestWidget::ActuatorTestWidget(const rqt::RosQtBridge& _bridge, const kd
   setTabWidgetsEnabled(false);
 }
 
-QWidget* ActuatorTestWidget::createTabPage(BaseWidget* _content)
-{
-  const auto page = new qt::Widget();
-  page->setAutoFillBackground(true);
-
-  const auto title = new QLabel(_content->title());
-  title->setFont(qt::makeFont(cmn::kTitlePointSize, QFont::Bold));
-
-  _content->layout()->setContentsMargins(0, 0, 0, 0);
-
-  const auto rows = new QVBoxLayout(page);
-  rows->addWidget(title, 0, Qt::AlignTop);
-  rows->addSpacing(16);
-  rows->addWidget(_content, 1);
-
-  return page;
-}
-
 void ActuatorTestWidget::reset()
 {
   for (int i = 0; i < count(); ++i) {
     getWidget(i)->reset();
   }
-}
-
-void ActuatorTestWidget::setProjectPath(const QString& _proj_path)
-{
-  rotor_test_->setProjectPath(_proj_path);
 }
 
 void ActuatorTestWidget::updateInternalDataStructures()
@@ -68,6 +45,11 @@ void ActuatorTestWidget::updateInternalDataStructures()
 
   // Adjust distortion caused by showing or hiding tabs.
   update();
+}
+
+void ActuatorTestWidget::setProjectPath(const QString& _proj_path)
+{
+  rotor_test_->setProjectPath(_proj_path);
 }
 
 void ActuatorTestWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns)
@@ -90,5 +72,23 @@ BaseWidget* ActuatorTestWidget::getWidget(int _index)
 const BaseWidget* ActuatorTestWidget::getWidget(int _index) const
 {
   return widget(_index)->findChild<BaseWidget*>({}, Qt::FindDirectChildrenOnly);
+}
+
+QWidget* ActuatorTestWidget::createTabPage(BaseWidget* _content)
+{
+  const auto page = new qt::Widget();
+  page->setAutoFillBackground(true);
+
+  const auto title = new QLabel(_content->title());
+  title->setFont(qt::makeFont(cmn::kTitlePointSize, QFont::Bold));
+
+  _content->layout()->setContentsMargins(0, 0, 0, 0);
+
+  const auto rows = new QVBoxLayout(page);
+  rows->addWidget(title, 0, Qt::AlignTop);
+  rows->addSpacing(16);
+  rows->addWidget(_content, 1);
+
+  return page;
 }
 }  // namespace tobas::gui::at

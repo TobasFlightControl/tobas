@@ -122,6 +122,24 @@ double IcePropulsionSystemConfig::thrustFromThrottle(const std::string& _link_na
   return irotor->thrustFromPitch(engine_speed, irotor->center_pitch);  // Return thrust at the center pitch angle.
 }
 
+IceRotorConfig::SharedPtr IcePropulsionSystemConfig::getRotor(const std::string& _link_name)
+{
+  const auto it = rotors.find(_link_name);
+  if (it == rotors.end()) {
+    return nullptr;
+  }
+  return std::static_pointer_cast<IceRotorConfig>(it->second);
+}
+
+IceRotorConfig::ConstSharedPtr IcePropulsionSystemConfig::getRotor(const std::string& _link_name) const
+{
+  const auto it = rotors.find(_link_name);
+  if (it == rotors.end()) {
+    return nullptr;
+  }
+  return std::static_pointer_cast<IceRotorConfig>(it->second);
+}
+
 double IcePropulsionSystemConfig::maxEngineSpeed()
 {
   // Compute the engine speed at full throttle only once.
@@ -188,23 +206,5 @@ double IcePropulsionSystemConfig::calc_k() const
     res += irotor->motorConst(phi_r) * irotor->momentConst(phi_r) / math::cube(n);
   }
   return res;
-}
-
-IceRotorConfig::SharedPtr IcePropulsionSystemConfig::getRotor(const std::string& _link_name)
-{
-  const auto it = rotors.find(_link_name);
-  if (it == rotors.end()) {
-    return nullptr;
-  }
-  return std::static_pointer_cast<IceRotorConfig>(it->second);
-}
-
-IceRotorConfig::ConstSharedPtr IcePropulsionSystemConfig::getRotor(const std::string& _link_name) const
-{
-  const auto it = rotors.find(_link_name);
-  if (it == rotors.end()) {
-    return nullptr;
-  }
-  return std::static_pointer_cast<IceRotorConfig>(it->second);
 }
 }  // namespace tobas

@@ -73,6 +73,15 @@ bool GamepadDriver::isOpen() const
   return fd_ >= 0 && dev_;
 }
 
+std::expected<GamepadState, std::string> GamepadDriver::read()
+{
+  if (const auto result = poll(); !result) {
+    return std::unexpected(result.error());
+  }
+
+  return state_;
+}
+
 std::expected<void, std::string> GamepadDriver::poll()
 {
   if (!isOpen()) {
@@ -119,15 +128,6 @@ std::expected<void, std::string> GamepadDriver::poll()
     state_.ok = false;
     return std::unexpected("Failed to read input device: " + st::strError(-rc));
   }
-}
-
-std::expected<GamepadState, std::string> GamepadDriver::read()
-{
-  if (const auto result = poll(); !result) {
-    return std::unexpected(result.error());
-  }
-
-  return state_;
 }
 
 double GamepadDriver::normalizeAbs(int _code, int _value, bool _invert) const

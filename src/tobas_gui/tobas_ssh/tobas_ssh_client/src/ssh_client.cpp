@@ -37,16 +37,16 @@ SshClient::SshClient(rclcpp::Node::SharedPtr _node)
     });
 }
 
-std::string SshClient::endpoint() const
-{
-  const std::lock_guard lock(mutex_);
-  return endpoint_;
-}
-
 bool SshClient::waitForLocalServer()
 {
   // The endpoint configuration service is always available, so use it to detect the server.
   return set_endpoint_sc_.waitForService();
+}
+
+std::string SshClient::endpoint() const
+{
+  const std::lock_guard lock(mutex_);
+  return endpoint_;
 }
 
 bool SshClient::setEndpoint(const std::string& _host, const std::string& _user)

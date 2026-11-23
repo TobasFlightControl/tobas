@@ -47,6 +47,18 @@ void IntSliderTextWidget::set(int _value)
   setLineEditText(_value);
 }
 
+void IntSliderTextWidget::setSliderValue(int _value)
+{
+  const QSignalBlocker block(slider_);
+  slider_->setValue(_value);
+}
+
+void IntSliderTextWidget::setLineEditText(int _value)
+{
+  const QSignalBlocker block(line_edit_);
+  line_edit_->setText(QString::number(_value));
+}
+
 void IntSliderTextWidget::onSliderValueChanged()
 {
   const auto value = slider_->value();
@@ -59,18 +71,6 @@ void IntSliderTextWidget::onLineEditReturnPressed()
   const auto value = line_edit_->text().toInt();
   setSliderValue(value);
   Q_EMIT valueChanged(value);
-}
-
-void IntSliderTextWidget::setSliderValue(int _value)
-{
-  const QSignalBlocker block(slider_);
-  slider_->setValue(_value);
-}
-
-void IntSliderTextWidget::setLineEditText(int _value)
-{
-  const QSignalBlocker block(line_edit_);
-  line_edit_->setText(QString::number(_value));
 }
 
 DoubleSliderTextWidget::DoubleSliderTextWidget(double _minimum, double _maximum, int _decimals, QWidget* _parent)
@@ -106,6 +106,18 @@ void DoubleSliderTextWidget::set(double _value)
   setLineEditText(_value);
 }
 
+void DoubleSliderTextWidget::setSliderValue(double _value)
+{
+  const QSignalBlocker block(slider_);
+  slider_->setValue(_value);
+}
+
+void DoubleSliderTextWidget::setLineEditText(double _value)
+{
+  const QSignalBlocker block(line_edit_);
+  line_edit_->setText(QString::number(_value, 'f', decimals_));
+}
+
 void DoubleSliderTextWidget::onSliderValueChanged()
 {
   const auto value = slider_->value();
@@ -118,17 +130,5 @@ void DoubleSliderTextWidget::onLineEditReturnPressed()
   const auto value = line_edit_->text().toDouble();
   setSliderValue(value);
   Q_EMIT valueChanged(value);
-}
-
-void DoubleSliderTextWidget::setSliderValue(double _value)
-{
-  const QSignalBlocker block(slider_);
-  slider_->setValue(_value);
-}
-
-void DoubleSliderTextWidget::setLineEditText(double _value)
-{
-  const QSignalBlocker block(line_edit_);
-  line_edit_->setText(QString::number(_value, 'f', decimals_));
 }
 }  // namespace tobas::qt

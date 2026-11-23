@@ -123,6 +123,20 @@ void CompleteMagCalibWidget::clearRosInterfaces()
   set_params_sc_.reset();
 }
 
+void CompleteMagCalibWidget::paintEvent(QPaintEvent*)
+{
+  // Determine the minimum point size.
+  auto psize = INT32_MAX;
+  for (const auto& face_circle : face_circles_) {
+    psize = std::min(psize, face_circle->calcMaxTextPointSize());
+  }
+
+  // Align to the minimum point size.
+  for (const auto& face_circle : face_circles_) {
+    face_circle->setTextPointSize(psize);
+  }
+}
+
 void CompleteMagCalibWidget::initializeRviz()
 {
   constexpr char kSampledPointsTopic[] = "rviz/mag_calibration/sampled";
@@ -165,20 +179,6 @@ void CompleteMagCalibWidget::initializeRviz()
   removed_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(rviz_node, kRemovedPointsTopic);
   calibrated_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(rviz_node, kCalibratedPointsTopic);
   ellipsoid_pub_ = ros2::createPublisher<visualization_msgs::msg::MarkerArray>(rviz_node, kEllipsoidTopic);
-}
-
-void CompleteMagCalibWidget::paintEvent(QPaintEvent*)
-{
-  // Determine the minimum point size.
-  auto psize = INT32_MAX;
-  for (const auto& face_circle : face_circles_) {
-    psize = std::min(psize, face_circle->calcMaxTextPointSize());
-  }
-
-  // Align to the minimum point size.
-  for (const auto& face_circle : face_circles_) {
-    face_circle->setTextPointSize(psize);
-  }
 }
 
 void CompleteMagCalibWidget::resetToPreStart()

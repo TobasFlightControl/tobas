@@ -32,11 +32,6 @@ AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand()
   rows->addWidget(data_);
 }
 
-void AerodynamicsWidget_ThrustStand::setToDefaults()
-{
-  data_->clearData();
-}
-
 const char* AerodynamicsWidget_ThrustStand::name() const
 {
   return "Estimate from Thrust Stand Data";
@@ -48,6 +43,11 @@ const char* AerodynamicsWidget_ThrustStand::description() const
   return "Estimate propeller aerodynamic constants from measured rotational speed, thrust, and torque. "
          "For example, see "
          "<a href='https://www.tytorobotics.com/pages/series-1580-1585'>Tyto Robotics Series 1585 Thrust Stand</a>.";
+}
+
+void AerodynamicsWidget_ThrustStand::setToDefaults()
+{
+  data_->clearData();
 }
 
 bool AerodynamicsWidget_ThrustStand::isValid()

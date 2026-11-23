@@ -202,13 +202,6 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
   }
 }
 
-void RCInputCalibrationWidget::clearRosInterfaces()
-{
-  set_params_sc_.reset();
-
-  ros_initialized_ = false;
-}
-
 void RCInputCalibrationWidget::initializeRosInterfaces(
   rclcpp::Node::SharedPtr _node,
   const std::string& _ns,
@@ -221,6 +214,13 @@ void RCInputCalibrationWidget::initializeRosInterfaces(
 
   simulation_ = _simulation;
   ros_initialized_ = true;
+}
+
+void RCInputCalibrationWidget::clearRosInterfaces()
+{
+  set_params_sc_.reset();
+
+  ros_initialized_ = false;
 }
 
 size_t RCInputCalibrationWidget::numOfGpswChannels() const

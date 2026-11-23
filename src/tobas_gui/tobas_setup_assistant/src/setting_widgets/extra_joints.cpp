@@ -155,6 +155,12 @@ QString ExtraJointsWidget::getJointName(int _row) const
   return jointNameWidget(_row)->text();
 }
 
+JointRole ExtraJointsWidget::getRole(int _row) const
+{
+  const auto cmd_iface = getCommandInterface(_row);
+  return cmd_iface == JointCommandInterface::kNone ? JointRole::kUserPassive : JointRole::kUserActive;
+}
+
 JointCommandInterface ExtraJointsWidget::getCommandInterface(int _row) const
 {
   const auto text = commandIfaceWidget(_row)->currentText();
@@ -174,12 +180,6 @@ JointCommandInterface ExtraJointsWidget::getCommandInterface(int _row) const
   else {
     throw;
   }
-}
-
-JointRole ExtraJointsWidget::getRole(int _row) const
-{
-  const auto cmd_iface = getCommandInterface(_row);
-  return cmd_iface == JointCommandInterface::kNone ? JointRole::kUserPassive : JointRole::kUserActive;
 }
 
 double ExtraJointsWidget::getHomePosition(int _row) const

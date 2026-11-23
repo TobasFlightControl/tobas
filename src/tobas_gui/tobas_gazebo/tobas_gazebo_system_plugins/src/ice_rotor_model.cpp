@@ -64,11 +64,6 @@ double IceRotorModel::getDragConst() const
   return drag_const_.compute(getPitchAngle());
 }
 
-double IceRotorModel::getPitchAngle() const
-{
-  return pitch_angle_.getCurrentPosition();
-}
-
 double IceRotorModel::getSpeed(double _engine_speed) const
 {
   return _engine_speed / gear_ratio_;
@@ -87,6 +82,11 @@ double IceRotorModel::getThrust(double _engine_speed) const
 double IceRotorModel::getTorque(double _engine_speed) const
 {
   return getMomentConst() * getThrust(_engine_speed);
+}
+
+double IceRotorModel::getPitchAngle() const
+{
+  return pitch_angle_.getCurrentPosition();
 }
 
 void IceRotorModel::setTargetPitchAngle(double _tar_pitch)

@@ -103,13 +103,6 @@ QWidget* RvizFrameManager::widget()
   return frame_;
 }
 
-void RvizFrameManager::resetTime()
-{
-  if (manager_) {
-    manager_->resetTime();
-  }
-}
-
 QString RvizFrameManager::getFixedFrame() const
 {
   return manager_->getFixedFrame();
@@ -157,6 +150,13 @@ void RvizFrameManager::setOrbitView(
     return;
   }
   focal_point->setVector(Ogre::Vector3(_focal_x, _focal_y, _focal_z));
+}
+
+void RvizFrameManager::resetTime()
+{
+  if (manager_) {
+    manager_->resetTime();
+  }
 }
 
 std::vector<rviz_common::Display*> RvizFrameManager::getDisplays(const QString& _name)

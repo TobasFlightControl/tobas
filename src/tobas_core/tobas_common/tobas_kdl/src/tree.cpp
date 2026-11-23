@@ -151,39 +151,6 @@ std::expected<void, std::string> Tree::validate() const
   return validateRecursive(root_seg_, seg_names, jnt_names);
 }
 
-std::expected<void, std::string> Tree::validateRecursive(
-  const SegmentMap::const_iterator& _seg_it,
-  std::unordered_set<std::string>& _seg_names,
-  std::unordered_set<std::string>& _jnt_names) const
-{
-  const auto& elem = _seg_it->second;
-  const auto& seg = elem.segment;
-
-  const auto& seg_name = seg.name();
-  if (!_seg_names.insert(seg_name).second) {
-    return std::unexpected("Segment name '" + seg_name + "' is duplicated.");
-  }
-
-  if (_seg_it != root_seg_) {
-    const auto& jnt_name = seg.joint().name;
-    if (!_jnt_names.insert(jnt_name).second) {
-      return std::unexpected("Joint name '" + jnt_name + "' is duplicated.");
-    }
-
-    if (const auto result = seg.validate(); !result) {
-      return result;
-    }
-  }
-
-  for (const auto& child_it : elem.children) {
-    if (const auto result = validateRecursive(child_it, _seg_names, _jnt_names); !result) {
-      return result;
-    }
-  }
-
-  return {};
-}
-
 bool Tree::addSegment(const Segment& _segment, const std::string& _hook_name)
 {
   if (segments_.contains(_segment.name())) {
@@ -259,20 +226,6 @@ bool Tree::addTree(const Tree& _tree, const std::string& _hook_name)
   return addTreeRecursive(_tree.getRootSegment(), _hook_name);
 }
 
-bool Tree::addTreeRecursive(const SegmentMap::const_iterator& _seg, const std::string& _hook_name)
-{
-  for (const auto& child : _seg->second.children) {
-    if (!addSegment(child->second.segment, _hook_name)) {
-      return false;
-    }
-    if (!addTreeRecursive(child, child->first)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 bool Tree::getSubTree(const std::string& _seg_name, Tree& _tree, bool _root_mass_ok) const
 {
   // Confirm that the specified segment exists.
@@ -325,6 +278,53 @@ bool Tree::isFixedToRoot(const std::string& _seg_name) const
 
   const auto& parent_name = elem.parent->first;
   return isFixedToRoot(parent_name);
+}
+
+std::expected<void, std::string> Tree::validateRecursive(
+  const SegmentMap::const_iterator& _seg_it,
+  std::unordered_set<std::string>& _seg_names,
+  std::unordered_set<std::string>& _jnt_names) const
+{
+  const auto& elem = _seg_it->second;
+  const auto& seg = elem.segment;
+
+  const auto& seg_name = seg.name();
+  if (!_seg_names.insert(seg_name).second) {
+    return std::unexpected("Segment name '" + seg_name + "' is duplicated.");
+  }
+
+  if (_seg_it != root_seg_) {
+    const auto& jnt_name = seg.joint().name;
+    if (!_jnt_names.insert(jnt_name).second) {
+      return std::unexpected("Joint name '" + jnt_name + "' is duplicated.");
+    }
+
+    if (const auto result = seg.validate(); !result) {
+      return result;
+    }
+  }
+
+  for (const auto& child_it : elem.children) {
+    if (const auto result = validateRecursive(child_it, _seg_names, _jnt_names); !result) {
+      return result;
+    }
+  }
+
+  return {};
+}
+
+bool Tree::addTreeRecursive(const SegmentMap::const_iterator& _seg, const std::string& _hook_name)
+{
+  for (const auto& child : _seg->second.children) {
+    if (!addSegment(child->second.segment, _hook_name)) {
+      return false;
+    }
+    if (!addTreeRecursive(child, child->first)) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 std::ostream& operator<<(std::ostream& _os, const Tree& _arg)

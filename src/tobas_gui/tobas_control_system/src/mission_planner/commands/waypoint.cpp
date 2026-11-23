@@ -126,14 +126,14 @@ double WaypointWidget::maxHorizontalAccel() const
   return getValueOrDefault(max_hor_acc_);
 }
 
-double WaypointWidget::maxVerticalVelocity() const
-{
-  return getValueOrDefault(max_ver_vel_);
-}
-
 double WaypointWidget::maxHorizontalJerk() const
 {
   return getValueOrDefault(max_hor_jerk_);
+}
+
+double WaypointWidget::maxVerticalVelocity() const
+{
+  return getValueOrDefault(max_ver_vel_);
 }
 
 double WaypointWidget::maxVerticalAccel() const

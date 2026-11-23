@@ -61,74 +61,6 @@ WaitSpinnerWidget::WaitSpinnerWidget(Qt::WindowModality _modality, QWidget* _par
   setAttribute(Qt::WA_TranslucentBackground);
 }
 
-void WaitSpinnerWidget::initialize()
-{
-  timer_ = new QTimer(this);
-  connect(timer_, &QTimer::timeout, this, &self::rotate);
-  updateSize();
-  updateTimer();
-  hide();
-}
-
-void WaitSpinnerWidget::paintEvent(QPaintEvent*)
-{
-  updatePosition();
-
-  QPainter painter(this);
-  painter.fillRect(rect(), Qt::transparent);
-  painter.setRenderHint(QPainter::Antialiasing, true);
-  painter.setPen(Qt::NoPen);
-
-  if (cur_counter_ >= num_lines_) {
-    cur_counter_ = 0;
-  }
-
-  for (int i = 0; i < num_lines_; ++i) {
-    painter.save();
-
-    const auto rotate_angle = static_cast<double>(360 * i) / static_cast<double>(num_lines_);
-    painter.translate(inner_radius_ + line_length_, inner_radius_ + line_length_);
-    painter.rotate(rotate_angle);
-    painter.translate(inner_radius_, 0);
-
-    const auto distance = lineCountDistanceFromPrimary(i, cur_counter_, num_lines_);
-    const auto color = currentLineColor(distance, num_lines_, trail_fade_perc_, min_trail_opacity_, color_);
-    painter.setBrush(color);
-
-    const QRect rect(0, -line_width_ / 2, line_length_, line_width_);
-    painter.drawRoundedRect(rect, roundness_, roundness_, Qt::RelativeSize);
-
-    painter.restore();
-  }
-}
-
-void WaitSpinnerWidget::start()
-{
-  if (is_spinning_) {
-    return;
-  }
-
-  updatePosition();
-  show();
-
-  timer_->start();
-  cur_counter_ = 0;
-  is_spinning_ = true;
-}
-
-void WaitSpinnerWidget::stop()
-{
-  if (!is_spinning_) {
-    return;
-  }
-
-  hide();
-
-  timer_->stop();
-  cur_counter_ = 0;
-  is_spinning_ = false;
-}
-
 void WaitSpinnerWidget::setColor(QColor _color)
 {
   color_ = _color;
@@ -230,6 +162,65 @@ bool WaitSpinnerWidget::isSpinning() const
   return is_spinning_;
 }
 
+void WaitSpinnerWidget::start()
+{
+  if (is_spinning_) {
+    return;
+  }
+
+  updatePosition();
+  show();
+
+  timer_->start();
+  cur_counter_ = 0;
+  is_spinning_ = true;
+}
+
+void WaitSpinnerWidget::stop()
+{
+  if (!is_spinning_) {
+    return;
+  }
+
+  hide();
+
+  timer_->stop();
+  cur_counter_ = 0;
+  is_spinning_ = false;
+}
+
+void WaitSpinnerWidget::paintEvent(QPaintEvent*)
+{
+  updatePosition();
+
+  QPainter painter(this);
+  painter.fillRect(rect(), Qt::transparent);
+  painter.setRenderHint(QPainter::Antialiasing, true);
+  painter.setPen(Qt::NoPen);
+
+  if (cur_counter_ >= num_lines_) {
+    cur_counter_ = 0;
+  }
+
+  for (int i = 0; i < num_lines_; ++i) {
+    painter.save();
+
+    const auto rotate_angle = static_cast<double>(360 * i) / static_cast<double>(num_lines_);
+    painter.translate(inner_radius_ + line_length_, inner_radius_ + line_length_);
+    painter.rotate(rotate_angle);
+    painter.translate(inner_radius_, 0);
+
+    const auto distance = lineCountDistanceFromPrimary(i, cur_counter_, num_lines_);
+    const auto color = currentLineColor(distance, num_lines_, trail_fade_perc_, min_trail_opacity_, color_);
+    painter.setBrush(color);
+
+    const QRect rect(0, -line_width_ / 2, line_length_, line_width_);
+    painter.drawRoundedRect(rect, roundness_, roundness_, Qt::RelativeSize);
+
+    painter.restore();
+  }
+}
+
 void WaitSpinnerWidget::rotate()
 {
   ++cur_counter_;
@@ -237,6 +228,15 @@ void WaitSpinnerWidget::rotate()
     cur_counter_ = 0;
   }
   update();
+}
+
+void WaitSpinnerWidget::initialize()
+{
+  timer_ = new QTimer(this);
+  connect(timer_, &QTimer::timeout, this, &self::rotate);
+  updateSize();
+  updateTimer();
+  hide();
 }
 
 void WaitSpinnerWidget::updateSize()

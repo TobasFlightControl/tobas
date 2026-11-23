@@ -154,61 +154,6 @@ std::expected<void, std::string> Rotation::validate() const
   return {};
 }
 
-void Rotation::getQuaternion(double& _x, double& _y, double& _z, double& _w) const
-{
-  const auto trace = data.trace();
-  if (trace > kEps) {
-    const auto s = 0.5 / std::sqrt(trace + 1.0);
-    _w = 0.25 / s;
-    _x = (data(2, 1) - data(1, 2)) * s;
-    _y = (data(0, 2) - data(2, 0)) * s;
-    _z = (data(1, 0) - data(0, 1)) * s;
-  }
-  else {
-    if (data(0, 0) > data(1, 1) && data(0, 0) > data(2, 2)) {
-      const auto s = 2.0 * std::sqrt(1.0 + data(0, 0) - data(1, 1) - data(2, 2));
-      _w = (data(2, 1) - data(1, 2)) / s;
-      _x = 0.25 * s;
-      _y = (data(0, 1) + data(1, 0)) / s;
-      _z = (data(0, 2) + data(2, 0)) / s;
-    }
-    else if (data(1, 1) > data(2, 2)) {
-      const auto s = 2.0 * std::sqrt(1.0 + data(1, 1) - data(0, 0) - data(2, 2));
-      _w = (data(0, 2) - data(2, 0)) / s;
-      _x = (data(0, 1) + data(1, 0)) / s;
-      _y = 0.25 * s;
-      _z = (data(1, 2) + data(2, 1)) / s;
-    }
-    else {
-      const auto s = 2.0 * std::sqrt(1.0 + data(2, 2) - data(0, 0) - data(1, 1));
-      _w = (data(1, 0) - data(0, 1)) / s;
-      _x = (data(0, 2) + data(2, 0)) / s;
-      _y = (data(1, 2) + data(2, 1)) / s;
-      _z = 0.25 * s;
-    }
-  }
-}
-
-void Rotation::getRPY(double& _roll, double& _pitch, double& _yaw) const
-{
-  _pitch = getPitch();
-  if (std::abs(_pitch) > (M_PI_2 - kEps)) {
-    _yaw = std::atan2(-data(0, 1), data(1, 1));
-    _roll = 0.0;
-  }
-  else {
-    _roll = std::atan2(data(2, 1), data(2, 2));
-    _yaw = std::atan2(data(1, 0), data(0, 0));
-  }
-}
-
-std::tuple<double, double, double> Rotation::getRPY() const
-{
-  double roll, pitch, yaw;
-  getRPY(roll, pitch, yaw);
-  return { roll, pitch, yaw };
-}
-
 Vector Rotation::getRot() const
 {
   const auto [angle, axis] = Rotation::getAngleAxis();
@@ -273,5 +218,60 @@ std::pair<double, Vector> Rotation::getAngleAxis() const
   const Vector axis(x, y, z);
   const auto angle = std::atan2(axis.norm() / 2, f);
   return { angle, axis.normalized() };
+}
+
+void Rotation::getQuaternion(double& _x, double& _y, double& _z, double& _w) const
+{
+  const auto trace = data.trace();
+  if (trace > kEps) {
+    const auto s = 0.5 / std::sqrt(trace + 1.0);
+    _w = 0.25 / s;
+    _x = (data(2, 1) - data(1, 2)) * s;
+    _y = (data(0, 2) - data(2, 0)) * s;
+    _z = (data(1, 0) - data(0, 1)) * s;
+  }
+  else {
+    if (data(0, 0) > data(1, 1) && data(0, 0) > data(2, 2)) {
+      const auto s = 2.0 * std::sqrt(1.0 + data(0, 0) - data(1, 1) - data(2, 2));
+      _w = (data(2, 1) - data(1, 2)) / s;
+      _x = 0.25 * s;
+      _y = (data(0, 1) + data(1, 0)) / s;
+      _z = (data(0, 2) + data(2, 0)) / s;
+    }
+    else if (data(1, 1) > data(2, 2)) {
+      const auto s = 2.0 * std::sqrt(1.0 + data(1, 1) - data(0, 0) - data(2, 2));
+      _w = (data(0, 2) - data(2, 0)) / s;
+      _x = (data(0, 1) + data(1, 0)) / s;
+      _y = 0.25 * s;
+      _z = (data(1, 2) + data(2, 1)) / s;
+    }
+    else {
+      const auto s = 2.0 * std::sqrt(1.0 + data(2, 2) - data(0, 0) - data(1, 1));
+      _w = (data(1, 0) - data(0, 1)) / s;
+      _x = (data(0, 2) + data(2, 0)) / s;
+      _y = (data(1, 2) + data(2, 1)) / s;
+      _z = 0.25 * s;
+    }
+  }
+}
+
+void Rotation::getRPY(double& _roll, double& _pitch, double& _yaw) const
+{
+  _pitch = getPitch();
+  if (std::abs(_pitch) > (M_PI_2 - kEps)) {
+    _yaw = std::atan2(-data(0, 1), data(1, 1));
+    _roll = 0.0;
+  }
+  else {
+    _roll = std::atan2(data(2, 1), data(2, 2));
+    _yaw = std::atan2(data(1, 0), data(0, 0));
+  }
+}
+
+std::tuple<double, double, double> Rotation::getRPY() const
+{
+  double roll, pitch, yaw;
+  getRPY(roll, pitch, yaw);
+  return { roll, pitch, yaw };
 }
 }  // namespace tobas::kdl

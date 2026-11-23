@@ -141,6 +141,69 @@ void UpdateLinkDialog::onCollisionGeometryTypeComboBoxIndexChanged(int)
   emitChanged();
 }
 
+void UpdateLinkDialog::onJointParentComboBoxIndexChanged(int)
+{
+  qDebug() << "UpdateLinkDialog::onJointParentComboBoxIndexChanged";
+
+  readFromUI(link_vm_->joint());
+
+  emitChanged();
+}
+
+void UpdateLinkDialog::onJointTypeComboBoxIndexChanged(int)
+{
+  qDebug() << "UpdateLinkDialog::onJointTypeComboBoxIndexChanged";
+
+  readFromUI(link_vm_->joint());
+
+  const auto& joint = link_vm_->joint();
+  ui_->JointLimitGroupBox->setVisible(joint->limitsEnabled());
+
+  // Do not show Axis or Dynamics for fixed joints.
+  if (joint->isFixed()) {
+    ui_->JointAxisGroupBox->setVisible(false);
+    ui_->JointDynamicsGroupBox->setVisible(false);
+  }
+  else {
+    ui_->JointAxisGroupBox->setVisible(true);
+    ui_->JointDynamicsGroupBox->setVisible(true);
+  }
+
+  emitChanged();
+}
+
+void UpdateLinkDialog::onJointSpinBoxValueChanged(double)
+{
+  qDebug() << "UpdateLinkDialog::onJointSpinBoxValueChanged";
+
+  readFromUI(link_vm_->joint());
+  emitChanged();
+}
+
+void UpdateLinkDialog::onVisualSpinBoxValueChanged(double)
+{
+  qDebug() << "UpdateLinkDialog::onVisualSpinBoxValueChanged";
+
+  readFromUI(visual_vm_);
+  emitChanged();
+}
+
+void UpdateLinkDialog::onCollisionSpinBoxValueChanged(double)
+{
+  qDebug() << "UpdateLinkDialog::onCollisionSpinBoxValueChanged";
+
+  readFromUI(collision_vm_);
+  emitChanged();
+}
+
+void UpdateLinkDialog::onInertialSpinBoxValueChanged(double)
+{
+  qDebug() << "UpdateLinkDialog::onInertialSpinBoxValueChanged";
+
+  readFromUI(link_vm_->inertial());
+  emitChanged();
+}
+
 void UpdateLinkDialog::onLinkNameLineEditTextChanged(const QString& _text)
 {
   qDebug().nospace() << "UpdateLinkDialog::onLinkNameLineEditTextChanged(" << _text << ")";
@@ -217,69 +280,6 @@ void UpdateLinkDialog::onMaterialTexturePathLineEditTextChanged(const QString& _
   visual_vm_->material()->textureFileName(_text);
   link_vm_->sync();
 
-  emitChanged();
-}
-
-void UpdateLinkDialog::onJointParentComboBoxIndexChanged(int)
-{
-  qDebug() << "UpdateLinkDialog::onJointParentComboBoxIndexChanged";
-
-  readFromUI(link_vm_->joint());
-
-  emitChanged();
-}
-
-void UpdateLinkDialog::onJointTypeComboBoxIndexChanged(int)
-{
-  qDebug() << "UpdateLinkDialog::onJointTypeComboBoxIndexChanged";
-
-  readFromUI(link_vm_->joint());
-
-  const auto& joint = link_vm_->joint();
-  ui_->JointLimitGroupBox->setVisible(joint->limitsEnabled());
-
-  // Do not show Axis or Dynamics for fixed joints.
-  if (joint->isFixed()) {
-    ui_->JointAxisGroupBox->setVisible(false);
-    ui_->JointDynamicsGroupBox->setVisible(false);
-  }
-  else {
-    ui_->JointAxisGroupBox->setVisible(true);
-    ui_->JointDynamicsGroupBox->setVisible(true);
-  }
-
-  emitChanged();
-}
-
-void UpdateLinkDialog::onJointSpinBoxValueChanged(double)
-{
-  qDebug() << "UpdateLinkDialog::onJointSpinBoxValueChanged";
-
-  readFromUI(link_vm_->joint());
-  emitChanged();
-}
-
-void UpdateLinkDialog::onVisualSpinBoxValueChanged(double)
-{
-  qDebug() << "UpdateLinkDialog::onVisualSpinBoxValueChanged";
-
-  readFromUI(visual_vm_);
-  emitChanged();
-}
-
-void UpdateLinkDialog::onCollisionSpinBoxValueChanged(double)
-{
-  qDebug() << "UpdateLinkDialog::onCollisionSpinBoxValueChanged";
-
-  readFromUI(collision_vm_);
-  emitChanged();
-}
-
-void UpdateLinkDialog::onInertialSpinBoxValueChanged(double)
-{
-  qDebug() << "UpdateLinkDialog::onInertialSpinBoxValueChanged";
-
-  readFromUI(link_vm_->inertial());
   emitChanged();
 }
 

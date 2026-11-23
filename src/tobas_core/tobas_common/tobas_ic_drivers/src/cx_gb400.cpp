@@ -76,28 +76,6 @@ bool CxGb400::sendCopterAttitude(double _q_w, double _q_x, double _q_y, double _
   return true;
 }
 
-bool CxGb400::fullReset()
-{
-  uint8_t reset = 1;
-  const uvc_xu_control_query full_reset_query = { kUnit1, 0x05, UVC_SET_CUR, 1, &reset };
-  if (!execUvcControl(full_reset_query)) {
-    std::cerr << "Failed to execute full reset.\n";
-    return false;
-  }
-  return true;
-}
-
-bool CxGb400::turnOffUavcan()
-{
-  uint8_t is_uavcan_on = 0;
-  const uvc_xu_control_query check_uavcan_query = { kUnit2, 0x1E, UVC_SET_CUR, 1, &is_uavcan_on };
-  if (!execUvcControl(check_uavcan_query)) {
-    std::cerr << "Failed to turn off UAVCAN.\n";
-    return false;
-  }
-  return true;
-}
-
 bool CxGb400::sendGimbalCtrl(double _pitch_deg, double _yaw_deg)
 {
   if (_pitch_deg > kPitchCmdMax) {
@@ -136,6 +114,28 @@ bool CxGb400::sendGimbalCtrl(double _pitch_deg, double _yaw_deg)
     return false;
   }
 
+  return true;
+}
+
+bool CxGb400::fullReset()
+{
+  uint8_t reset = 1;
+  const uvc_xu_control_query full_reset_query = { kUnit1, 0x05, UVC_SET_CUR, 1, &reset };
+  if (!execUvcControl(full_reset_query)) {
+    std::cerr << "Failed to execute full reset.\n";
+    return false;
+  }
+  return true;
+}
+
+bool CxGb400::turnOffUavcan()
+{
+  uint8_t is_uavcan_on = 0;
+  const uvc_xu_control_query check_uavcan_query = { kUnit2, 0x1E, UVC_SET_CUR, 1, &is_uavcan_on };
+  if (!execUvcControl(check_uavcan_query)) {
+    std::cerr << "Failed to turn off UAVCAN.\n";
+    return false;
+  }
   return true;
 }
 

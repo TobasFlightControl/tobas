@@ -76,12 +76,6 @@ TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& _options)
   initial_publish_timer_ = createTimer(0s, &self::initialPublishTimerCb, this);
 }
 
-void TreeServerNode::initialPublishTimerCb()
-{
-  initial_publish_timer_->cancel();
-  publishTree();
-}
-
 std::string TreeServerNode::loadSegmentName(const std::string& _id)
 {
   return "attached_load/" + _id;
@@ -102,6 +96,12 @@ void TreeServerNode::publishTree()
 {
   auto tree_msg = std::make_unique<kdl::Tree>(tree_);
   tree_pub_->publish(std::move(tree_msg));
+}
+
+void TreeServerNode::initialPublishTimerCb()
+{
+  initial_publish_timer_->cancel();
+  publishTree();
 }
 
 void TreeServerNode::attachCb(const AttachSrv::Request::ConstSharedPtr& _req, const AttachSrv::Response::SharedPtr& _res)
