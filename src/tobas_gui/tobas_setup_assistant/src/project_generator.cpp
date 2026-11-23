@@ -392,6 +392,18 @@ Drone ProjectGenerator::createDrone() const
       }
       joint.home_pos = 0.0;
       TOBAS_CHECK(drone.joints.insert({ joint.name, joint }).second);
+
+      if (joint.hw_iface == HardwareInterface::kPwm) {
+        PwmConfig cs_pwm;
+        const auto pwm_channel = settings_->hardware->pwm()->channel(QString::fromStdString(cur_jnt.name));
+        cs_pwm.channel = pwm_channel;
+        cs_pwm.name = joint.name;
+        cs_pwm.period_range.first = settings_->hardware->pwm()->periodLb(pwm_channel);
+        cs_pwm.period_range.second = settings_->hardware->pwm()->periodUb(pwm_channel);
+        cs_pwm.value_range.first = cur_jnt.lower_limit;
+        cs_pwm.value_range.second = cur_jnt.upper_limit;
+        TOBAS_CHECK(drone.pwms.insert({ link_name, cs_pwm }).second);
+      }
     }
   }
 
