@@ -424,7 +424,19 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     const auto tar_drpy = angle_gain.hadamard(ep);
 
     // Convert Euler angle rates to gyro values.
-    *tar_gyro_ = eigen::angvelFromEulerrateLocal(tar_drpy.data, cur_rpy.roll, cur_rpy.pitch);
+    // マルチコプタの際とは違いRが無制御なので計算方法が異なる
+    // \dot{\phi} = P + Q \sin\Phi\tan\Theta + R \cos\Phi\tan\Theta
+    // \dot{\theta} = Q \cos\Phi - R\sin\Phi
+    // をRを現在の角速度としてP, Qに関して逆解きする
+    Eigen::Matrix2d C;
+    C << 1, -std::tan(cur_rpy.roll) * std::tan(cur_rpy.pitch), 0, 1.0 / std::cos(cur_rpy.roll);
+    const Eigen::Vector2d tar_gyro_xy =
+      C * Eigen::Vector2d(
+            tar_drpy.x() - cur_gyro_G.z() * std::cos(cur_rpy.roll) * std::tan(cur_rpy.pitch),
+            tar_drpy.y() + cur_gyro_G.z() * std::sin(cur_rpy.roll));
+    tar_gyro_->x() = tar_gyro_xy.x();
+    tar_gyro_->y() = tar_gyro_xy.y();
+    tar_gyro_->z() = tar_drpy.z();
 
     // Fill the feedback message.
     setpoint->odom.frame.M =
