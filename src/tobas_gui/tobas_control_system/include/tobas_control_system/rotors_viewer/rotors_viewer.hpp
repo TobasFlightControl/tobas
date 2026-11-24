@@ -33,8 +33,6 @@ private:
 
   void setSpeed(const std::string& _link_name, double _rps);
 
-  static QString bottomText(int _rpm);
-
 private Q_SLOTS:
   void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& _msg);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& _msg);
