@@ -222,31 +222,30 @@ bool ExportThreadCsv::rotorLinkNamesValid(const tobas_msgs::msg::RotorSpeedArray
 
 std::string ExportThreadCsv::makeCsvHeader() const
 {
-  std::string csv_header =
-    "Time[s],"
-    "Pose/X[m],Pose/Y[m],Pose/Z[m],"
-    "Pose/Roll[deg],Pose/Pitch[deg],Pose/Yaw[deg],"
-    "Twist/LinearVelocity/X[m/s],Twist/LinearVelocity/Y[m/s],Twist/LinearVelocity/Z[m/s],"
-    "Twist/AngularVelocity/X[rad/s],Twist/AngularVelocity/Y[rad/s],Twist/AngularVelocity/Z[rad/s],"
-    "Accel/LinearAccel/X[m/s^2],Accel/LinearAccel/Y[m/s^2],Accel/LinearAccel/Z[m/s^2],"
-    "Accel/AngularAccel/X[rad/s^2],Accel/AngularAccel/Y[rad/s^2],Accel/AngularAccel/Z[rad/s^2],"
-    "TargetPose/X[m],TargetPose/Y[m],TargetPose/Z[m],"
-    "TargetPose/Roll[deg],TargetPose/Pitch[deg],TargetPose/Yaw[deg],"
-    "TargetTwist/LinearVelocity/X[m/s],TargetTwist/LinearVelocity/Y[m/s],TargetTwist/LinearVelocity/Z[m/s],"
-    "TargetTwist/AngularVelocity/X[rad/s],TargetTwist/AngularVelocity/Y[rad/s],TargetTwist/AngularVelocity/Z[rad/s],"
-    "TargetAccel/LinearAccel/X[m/s^2],TargetAccel/LinearAccel/Y[m/s^2],TargetAccel/LinearAccel/Z[m/s^2],"
-    "TargetAccel/AngularAccel/X[rad/s^2],TargetAccel/AngularAccel/Y[rad/s^2],TargetAccel/AngularAccel/Z[rad/s^2],"
-    "IMU/Accel/X[m/s^2],IMU/Accel/Y[m/s^2],IMU/Accel/Z[m/s^2],"
-    "IMU/Gyro/X[rad/s],IMU/Gyro/Y[rad/s],IMU/Gyro/Z[rad/s],"
-    "IMU/DGyro/X[rad/s^2],IMU/DGyro/Y[rad/s^2],IMU/DGyro/Z[rad/s^2],"
-    "MagneticField/X[-],MagneticField/Y[-],MagneticField/Z[-],"
-    "GNSS/Latitude[deg],GNSS/Longitude[deg],GNSS/HeightMSL[m],"
-    "GNSS/EastSpeed[m/s],GNSS/NorthSpeed[m/s],GNSS/UpSpeed[m/s],"
-    "RCInput/Roll,RCInput/Pitch,RCInput/Throttle,RCInput/Yaw,"
-    "RCInput/FlightMode,RCInput/SubMode,RCInput/Enable,RCInput/Kill,"
-    "Battery/Voltage[V],Battery/Current[A],"
-    "Engine/Throttle[%],"
-    "CPU/Frequency[GHz],CPU/Temperature[degC],CPU/Load[%],";
+  std::string csv_header = "Time,"
+                           "Pose/X,Pose/Y,Pose/Z,"
+                           "Pose/Roll,Pose/Pitch,Pose/Yaw,"
+                           "Twist/LinearVelocity/X,Twist/LinearVelocity/Y,Twist/LinearVelocity/Z,"
+                           "Twist/AngularVelocity/X,Twist/AngularVelocity/Y,Twist/AngularVelocity/Z,"
+                           "Accel/LinearAccel/X,Accel/LinearAccel/Y,Accel/LinearAccel/Z,"
+                           "Accel/AngularAccel/X,Accel/AngularAccel/Y,Accel/AngularAccel/Z,"
+                           "TargetPose/X,TargetPose/Y,TargetPose/Z,"
+                           "TargetPose/Roll,TargetPose/Pitch,TargetPose/Yaw,"
+                           "TargetTwist/LinearVelocity/X,TargetTwist/LinearVelocity/Y,TargetTwist/LinearVelocity/Z,"
+                           "TargetTwist/AngularVelocity/X,TargetTwist/AngularVelocity/Y,TargetTwist/AngularVelocity/Z,"
+                           "TargetAccel/LinearAccel/X,TargetAccel/LinearAccel/Y,TargetAccel/LinearAccel/Z,"
+                           "TargetAccel/AngularAccel/X,TargetAccel/AngularAccel/Y,TargetAccel/AngularAccel/Z,"
+                           "IMU/Accel/X,IMU/Accel/Y,IMU/Accel/Z,"
+                           "IMU/Gyro/X,IMU/Gyro/Y,IMU/Gyro/Z,"
+                           "IMU/DGyro/X,IMU/DGyro/Y,IMU/DGyro/Z,"
+                           "MagneticField/X,MagneticField/Y,MagneticField/Z,"
+                           "GNSS/Latitude,GNSS/Longitude,GNSS/HeightMSL,"
+                           "GNSS/EastSpeed,GNSS/NorthSpeed,GNSS/UpSpeed,"
+                           "RCInput/Roll,RCInput/Pitch,RCInput/Throttle,RCInput/Yaw,"
+                           "RCInput/FlightMode,RCInput/SubMode,RCInput/Enable,RCInput/Kill,"
+                           "Battery/Voltage,Battery/Current,"
+                           "Engine/Throttle,"
+                           "CPU/Frequency,CPU/Temperature,CPU/Load,";
 
   for (const auto& link_name : rotor_link_names_) {
     csv_header += "Rotor/TargetRPM/" + link_name + ',';
@@ -258,23 +257,23 @@ std::string ExportThreadCsv::makeCsvHeader() const
     csv_header += "Rotor/Link/" + link_name + ',';
   }
 
-  csv_header += "Latency/ControlLatency[us],"
-                "VibrationLevel/X[m/s^2],VibrationLevel/Y[m/s^2],VibrationLevel/Z[m/s^2],"
-                "AdditionalAccel/X[m/s^2],AdditionalAccel/Y[m/s^2],AdditionalAccel/Z[m/s^2],"
-                "DisturbanceForce/Force/X[N],DisturbanceForce/Force/Y[N],DisturbanceForce/Force/Z[N],"
-                "DisturbanceForce/Torque/X[Nm],DisturbanceForce/Torque/Y[Nm],DisturbanceForce/Torque/Z[Nm],"
-                "Observer/AccelBias/X[m/s^2],Observer/AccelBias/Y[m/s^2],Observer/AccelBias/Z[m/s^2],"
-                "Observer/GyroBias/X[rad/s],Observer/GyroBias/Y[rad/s],Observer/GyroBias/Z[rad/s],"
-                "Observer/MagHardIronBias/X[-],Observer/MagHardIronBias/Y[-],Observer/MagHardIronBias/Z[-],"
-                "Observer/MagSoftIronBias/XX[-],Observer/MagSoftIronBias/YY[-],Observer/MagSoftIronBias/ZZ[-],"
-                "Observer/MagSoftIronBias/XY[-],Observer/MagSoftIronBias/YZ[-],Observer/MagSoftIronBias/ZX[-],"
-                "Observer/BarometerAltitudeBias[m],Observer/Gravity[m/s^2],Observer/GNSSAnomalyScore,"
-                "MultirotorController/IntegralError/X[m*s],"
-                "MultirotorController/IntegralError/Y[m*s],"
-                "MultirotorController/IntegralError/Z[m*s],"
-                "MultirotorController/IntegralError/Roll[rad*s],"
-                "MultirotorController/IntegralError/Pitch[rad*s],"
-                "MultirotorController/IntegralError/Yaw[rad*s]";
+  csv_header += "Latency/ControlLatency,"
+                "VibrationLevel/X,VibrationLevel/Y,VibrationLevel/Z,"
+                "AdditionalAccel/X,AdditionalAccel/Y,AdditionalAccel/Z,"
+                "DisturbanceForce/Force/X,DisturbanceForce/Force/Y,DisturbanceForce/Force/Z,"
+                "DisturbanceForce/Torque/X,DisturbanceForce/Torque/Y,DisturbanceForce/Torque/Z,"
+                "Observer/AccelBias/X,Observer/AccelBias/Y,Observer/AccelBias/Z,"
+                "Observer/GyroBias/X,Observer/GyroBias/Y,Observer/GyroBias/Z,"
+                "Observer/MagHardIronBias/X,Observer/MagHardIronBias/Y,Observer/MagHardIronBias/Z,"
+                "Observer/MagSoftIronBias/XX,Observer/MagSoftIronBias/YY,Observer/MagSoftIronBias/ZZ,"
+                "Observer/MagSoftIronBias/XY,Observer/MagSoftIronBias/YZ,Observer/MagSoftIronBias/ZX,"
+                "Observer/BarometerAltitudeBias,Observer/Gravity,Observer/GNSSAnomalyScore,"
+                "MultirotorController/IntegralError/X,"
+                "MultirotorController/IntegralError/Y,"
+                "MultirotorController/IntegralError/Z,"
+                "MultirotorController/IntegralError/Roll,"
+                "MultirotorController/IntegralError/Pitch,"
+                "MultirotorController/IntegralError/Yaw";
 
   return csv_header;
 }
@@ -401,7 +400,12 @@ const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedD
     3,
     [&](const auto& _msg)
     {
-      std::format_to(std::back_inserter(res), "{:d},{:.6g},{:.6g},", _msg.frequency, _msg.temperature, _msg.load * 100);
+      std::format_to(
+        std::back_inserter(res),
+        "{:.6g},{:.6g},{:.6g},",
+        static_cast<double>(_msg.frequency) * 1e-9,
+        _msg.temperature,
+        _msg.load * 100);
     });
 
   // Target Rotor Speeds

@@ -104,6 +104,7 @@ plugins:
             UADFとは: What Is UADF?
             慣性モーメント: Inertia Moment
             RPMフィルタ: RPM Filter
+            飛行ログのCSV出力: Flight Log CSV Export
             3Dモデル: 3D Models
             システム構成: System Architecture
             トラブルシューティング: Troubleshooting
@@ -132,6 +133,7 @@ nav:
       - UADFとは: additional_information/what_is_uadf.md
       - 慣性モーメント: additional_information/inertia_moment.md
       - RPMフィルタ: additional_information/rpm_filter.md
+      - 飛行ログのCSV出力: additional_information/flight_log_csv.md
       - 3Dモデル: additional_information/cad_models.md
       - システム構成: additional_information/system_architecture.md
       - トラブルシューティング: additional_information/troubleshooting.md
