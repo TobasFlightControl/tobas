@@ -3,12 +3,13 @@
 
 #pragma once
 
-#include <fstream>
 #include <map>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
+
+#include <QIODevice>
 
 #include <rosbag2_cpp/reader.hpp>
 
@@ -86,6 +87,6 @@ private:
   /** Returns the row buffer, which is overwritten by the next call. */
   const std::string& makeCsvDataRow(Time _time, const SerializedDataMap& _data);
 
-  bool exportOldestImuLine(std::ofstream& _file, Time _before_this_time = INT64_MAX);
+  bool exportOldestImuLine(QIODevice& _file, Time _before_this_time = INT64_MAX);
 };
 }  // namespace tobas::gui::log

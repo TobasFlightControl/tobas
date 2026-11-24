@@ -10,6 +10,7 @@
 #include <utility>
 
 #include <QDebug>
+#include <QSaveFile>
 
 #include <tobas_constants/path.hpp>
 #include <tobas_constants/ros.hpp>
@@ -64,14 +65,16 @@ void ExportThreadCsv::run()
   }
 
   // Open the output file.
-  std::ofstream csv_file(save_path_.toStdString());
-  if (!csv_file.is_open()) {
+  QSaveFile csv_file(save_path_);
+  if (!csv_file.open(QIODevice::WriteOnly)) {
     finished(false, "Failed to open " + save_path_);
     return;
   }
 
   // Write header.
-  csv_file << makeCsvHeader() << '\n';
+  const auto header = makeCsvHeader();
+  csv_file.write(header.data(), header.size());
+  csv_file.write("\n", 1);
 
   // Read and export data.
   histmap_.clear();
@@ -122,7 +125,6 @@ void ExportThreadCsv::run()
       else if (topic.ends_with(str::concat('/', topic::kRotorStates).data())) {
         const auto& msg = rotor_states_decoder_.decode(ser_data);
         if (!rotorLinkNamesValid(msg)) {
-          csv_file.close();
           Q_EMIT finished(false, "Rotor link names mismatch.");
           return;
         }
@@ -131,7 +133,6 @@ void ExportThreadCsv::run()
       else if (topic.ends_with(str::concat('/', topic::kRotorSpeedsCmd).data())) {
         const auto& msg = rotor_speeds_decoder_.decode(ser_data);
         if (!rotorLinkNamesValid(msg)) {
-          csv_file.close();
           Q_EMIT finished(false, "Rotor link names mismatch.");
           return;
         }
@@ -160,7 +161,6 @@ void ExportThreadCsv::run()
       }
     }
     catch (const std::exception& e) {
-      csv_file.close();
       Q_EMIT finished(false, "Failed to deserialize '" + QString::fromStdString(topic) + "'.");
       return;
     }
@@ -169,8 +169,12 @@ void ExportThreadCsv::run()
   // Write all remaining data.
   while (exportOldestImuLine(csv_file)) {}
 
-  csv_file.close();
-  Q_EMIT finished(true, "");
+  if (csv_file.commit()) {
+    Q_EMIT finished(true, "");
+  }
+  else {
+    Q_EMIT finished(false, "Failed to save CSV: " + csv_file.errorString());
+  }
 }
 
 bool ExportThreadCsv::openRosBag(const std::string& _path)
@@ -488,7 +492,7 @@ const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedD
   return res;
 }
 
-bool ExportThreadCsv::exportOldestImuLine(std::ofstream& _file, Time _before_this_time)
+bool ExportThreadCsv::exportOldestImuLine(QIODevice& _file, Time _before_this_time)
 {
   // Check whether any IMU data older than the time threshold exists.
   Time imu_time = -1;
@@ -513,7 +517,9 @@ bool ExportThreadCsv::exportOldestImuLine(std::ofstream& _file, Time _before_thi
   }
 
   // Write data to one row.
-  _file << makeCsvDataRow(imu_time, line_data) << '\n';
+  const auto& row = makeCsvDataRow(imu_time, line_data);
+  _file.write(row.data(), row.size());
+  _file.write("\n", 1);
 
   return true;
 }
