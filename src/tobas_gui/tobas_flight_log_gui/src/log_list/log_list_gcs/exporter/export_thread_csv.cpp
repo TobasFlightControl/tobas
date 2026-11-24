@@ -141,6 +141,9 @@ void ExportThreadCsv::run()
       else if (topic.ends_with(str::concat('/', topic::kIcePropulsionSystemCmd).data())) {
         save_message(topic::kIcePropulsionSystemCmd, ice_cmd_decoder_.decode(ser_data));
       }
+      else if (topic.ends_with(str::concat('/', topic::kImuSamplingTime).data())) {
+        save_message(topic::kImuSamplingTime, latency_decoder_.decode(ser_data));
+      }
       else if (topic.ends_with(str::concat('/', topic::kControlLatency).data())) {
         save_message(topic::kControlLatency, latency_decoder_.decode(ser_data));
       }
@@ -257,7 +260,7 @@ std::string ExportThreadCsv::makeCsvHeader() const
     csv_header += "Rotor/Link/" + link_name + ',';
   }
 
-  csv_header += "Latency/ControlLatency,"
+  csv_header += "Latency/IMUSamplingTime,Latency/ControlLatency,"
                 "VibrationLevel/X,VibrationLevel/Y,VibrationLevel/Z,"
                 "AdditionalAccel/X,AdditionalAccel/Y,AdditionalAccel/Z,"
                 "DisturbanceForce/Force/X,DisturbanceForce/Force/Y,DisturbanceForce/Force/Z,"
@@ -435,6 +438,13 @@ const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedD
         std::format_to(std::back_inserter(res), "{:d},", comm_ok);
       }
     });
+
+  // IMU Sampling Time
+  append_message(
+    topic::kImuSamplingTime,
+    latency_decoder_,
+    1,
+    [&](const auto& _msg) { std::format_to(std::back_inserter(res), "{:.6g},", ros2::microseconds(_msg.data)); });
 
   // Control Latency
   append_message(
