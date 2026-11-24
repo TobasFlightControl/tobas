@@ -169,8 +169,32 @@ void AerodynamicsWidget_Preset::addCategories(const fs::path& _directory, DataTy
 {
   // Use familiar manufacturer labels, falling back to the directory name for unknown manufacturers.
   static const QMap<QString, QString> manufacturer_names{
-    { "aeronaut", "Aeronaut" }, { "apc", "APC" },     { "dji", "DJI" },         { "gemfan", "Gemfan" },
-    { "hqprop", "HQProp" },     { "tarot", "Tarot" }, { "t_hobby", "T-Hobby" }, { "t_motor", "T-Motor" },
+    { "aeronaut", "Aeronaut" },
+    { "apc", "APC" },
+    { "crazyflie", "Crazyflie" },
+    { "da4002", "DA4002" },
+    { "da4022", "DA4022" },
+    { "da4052", "DA4052" },
+    { "dji", "DJI" },
+    { "e_flite", "E-Flite" },
+    { "gemfan", "Gemfan" },
+    { "graupner", "Graupner" },
+    { "gws", "GWS" },
+    { "hqprop", "HQProp" },
+    { "kavon", "Kavon" },
+    { "kp", "KP" },
+    { "kyosho", "Kyosho" },
+    { "master_airscrew", "Master Airscrew" },
+    { "micro_invent", "Micro Invent" },
+    { "nr640", "NR640" },
+    { "plantraco", "Plantraco" },
+    { "rev_up", "Rev Up" },
+    { "tarot", "Tarot" },
+    { "t_hobby", "T-Hobby" },
+    { "t_motor", "T-Motor" },
+    { "union", "Union" },
+    { "vapor", "Vapor" },
+    { "zingali", "Zingali" },
   };
 
   // Each manufacturer directory under this data source becomes a category.
