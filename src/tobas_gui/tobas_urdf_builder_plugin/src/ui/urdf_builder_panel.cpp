@@ -24,6 +24,19 @@ namespace tobas::gui::ub::ui
 namespace
 {
 constexpr char kConfigKey_LastOpenedDir[] = "urdf_builder_panel/last_opened_dir";
+
+void collectUncheckedLinks(QTreeWidgetItem* _item, QSet<QString>& _set)
+{
+  if (_item->checkState(0) == Qt::Unchecked) {
+    const auto link_name = _item->text(0);
+    _set.insert(link_name);
+  }
+
+  // Traverse child items.
+  for (int i = 0; i < _item->childCount(); ++i) {
+    collectUncheckedLinks(_item->child(i), _set);
+  }
+}
 }  // namespace
 
 UrdfBuilderPanel::UrdfBuilderPanel(QWidget* _parent)
@@ -572,19 +585,6 @@ bool UrdfBuilderPanel::isJointsValid()
   }
 
   return true;
-}
-
-void UrdfBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* _item, QSet<QString>& _set)
-{
-  if (_item->checkState(0) == Qt::Unchecked) {
-    const auto link_name = _item->text(0);
-    _set.insert(link_name);
-  }
-
-  // Traverse child items.
-  for (int i = 0; i < _item->childCount(); ++i) {
-    collectUncheckedLinks(_item->child(i), _set);
-  }
 }
 }  // namespace tobas::gui::ub::ui
 

@@ -13,8 +13,5 @@ public:
   explicit Exporter();
 
   std::string exportText(const Data& _src) const;
-
-private:
-  static const char* countryCodeToString(CountryCode _cc);
 };
 }  // namespace tobas::wpa

@@ -20,7 +20,5 @@ public:
 
 private:
   qt::ComboBox* combo_box_;
-
-  static std::filesystem::path worldDirectoryPath();
 };
 }  // namespace tobas::gui::sim

@@ -7,6 +7,26 @@
 
 namespace tobas::ctrl
 {
+namespace
+{
+/** Create the overall inequality constraint matrix from the time series of inequality conditions A x <= b. */
+Eigen::MatrixXd makeConstraintMatrix(const std::vector<LinearEquation>& _consts, Eigen::Index _h)
+{
+  const auto const_size = _consts[0].equationSize();
+  const auto var_size = _consts[0].variableSize();
+
+  Eigen::MatrixXd res(const_size * _h, var_size * _h + 1);
+  res.setZero();
+
+  for (Eigen::Index k = 0; k < _h; ++k) {
+    res.block(const_size * k, var_size * k, const_size, var_size) = _consts[k].A;
+    res.block(const_size * k, var_size * _h, const_size, 1) = -_consts[k].b;
+  }
+
+  return res;
+}
+}  // namespace
+
 LinearMPC::LinearMPC()
 {
 }
@@ -366,21 +386,5 @@ std::vector<Eigen::VectorXd> LinearMPC::makeDecays()
   }
 
   return decays;
-}
-
-Eigen::MatrixXd LinearMPC::makeConstraintMatrix(const std::vector<LinearEquation>& _consts, Eigen::Index _h)
-{
-  const auto const_size = _consts[0].equationSize();
-  const auto var_size = _consts[0].variableSize();
-
-  Eigen::MatrixXd res(const_size * _h, var_size * _h + 1);
-  res.setZero();
-
-  for (Eigen::Index k = 0; k < _h; ++k) {
-    res.block(const_size * k, var_size * k, const_size, var_size) = _consts[k].A;
-    res.block(const_size * k, var_size * _h, const_size, 1) = -_consts[k].b;
-  }
-
-  return res;
 }
 }  // namespace tobas::ctrl

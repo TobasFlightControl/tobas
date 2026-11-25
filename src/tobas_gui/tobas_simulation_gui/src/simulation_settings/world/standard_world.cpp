@@ -10,6 +10,15 @@ namespace fs = std::filesystem;
 
 namespace tobas::gui::sim
 {
+namespace
+{
+fs::path worldDirectoryPath()
+{
+  const auto pkg_path = ament_index_cpp::get_package_share_path("tobas_gazebo_sim");
+  return pkg_path / "worlds";
+}
+}  // namespace
+
 WorldWidget_Standard::WorldWidget_Standard()
 {
   setToolTip("Select a bundled Gazebo world for the simulation.");
@@ -36,11 +45,5 @@ fs::path WorldWidget_Standard::worldPath() const
 {
   const auto world_name = combo_box_->currentText().toStdString();
   return (worldDirectoryPath() / world_name).replace_extension(".world");
-}
-
-fs::path WorldWidget_Standard::worldDirectoryPath()
-{
-  const auto pkg_path = ament_index_cpp::get_package_share_path("tobas_gazebo_sim");
-  return pkg_path / "worlds";
 }
 }  // namespace tobas::gui::sim

@@ -14,6 +14,14 @@
 
 namespace tobas::gui::bm
 {
+namespace
+{
+QString networkFilePath(const QString& _name)
+{
+  return QString(kRootPath) + "/etc/systemd/network/20-" + _name + ".network";
+}
+}  // namespace
+
 IpAddressWidget::IpAddressWidget()
 {
   tabs_ = new qt::TabWidget();
@@ -68,11 +76,6 @@ bool IpAddressWidget::onConnected()
 BaseNetworkWidget* IpAddressWidget::getWidget(int _index)
 {
   return qt::qPointerCast<BaseNetworkWidget>(tabs_->widget(_index));
-}
-
-QString IpAddressWidget::networkFilePath(const QString& _name)
-{
-  return QString(kRootPath) + "/etc/systemd/network/20-" + _name + ".network";
 }
 
 void IpAddressWidget::onWriteButtonClicked()

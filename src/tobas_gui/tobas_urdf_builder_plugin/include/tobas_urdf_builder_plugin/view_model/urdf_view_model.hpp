@@ -57,7 +57,5 @@ private:
 
   /** Add a suffix to all links and joints under this node. */
   void addNameSuffixRec(const LinkViewModelPtr& _link_vm, const QString& _suffix);
-
-  static void removeTextureTagsWithoutFilename(tinyxml2::XMLElement* _element);
 };
 }  // namespace tobas::gui::ub::view_model

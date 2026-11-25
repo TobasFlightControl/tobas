@@ -41,8 +41,6 @@ private:
 
   const BootMedia& currentBootMedia() const;
 
-  static std::pair<QString, QString> getVendorAndModel(udev_device* _dev);
-
 private Q_SLOTS:
   void onConnectButtonClicked();
   void onDisconnectButtonClicked();

@@ -7,6 +7,36 @@
 
 namespace tobas::kdl
 {
+namespace
+{
+/** Recursive function to walk through tree. */
+void addChildrenToTree(const ::urdf::LinkConstSharedPtr& _root, Tree& _tree)
+{
+  // Construct the KDL joint.
+  const auto joint = jointUrdfToKdl(*_root->parent_joint);
+
+  // Construct the tip frame.
+  const auto f_tip = poseUrdfToKdl(_root->parent_joint->parent_to_joint_origin_transform);
+
+  // Construct the optional inertia.
+  RigidBodyInertia inertia;
+  if (_root->inertial) {
+    inertiaUrdfToKdl(*_root->inertial, inertia);
+  }
+
+  // Construct the KDL segment.
+  const Segment segment(_root->name, joint, f_tip, inertia);
+
+  // Add segment to tree.
+  _tree.addSegment(segment, _root->parent_joint->parent_link_name);
+
+  // Recurslively add all children.
+  for (const auto& child : _root->child_links) {
+    addChildrenToTree(child, _tree);
+  }
+}
+}  // namespace
+
 TreeParser::TreeParser()
 {
 }
@@ -55,31 +85,5 @@ std::expected<Tree, std::string> TreeParser::parseFromUrdf(const ::urdf::ModelIn
   }
 
   return tree;
-}
-
-void TreeParser::addChildrenToTree(const ::urdf::LinkConstSharedPtr& _root, Tree& _tree)
-{
-  // Construct the KDL joint.
-  const auto joint = jointUrdfToKdl(*_root->parent_joint);
-
-  // Construct the tip frame.
-  const auto f_tip = poseUrdfToKdl(_root->parent_joint->parent_to_joint_origin_transform);
-
-  // Construct the optional inertia.
-  RigidBodyInertia inertia;
-  if (_root->inertial) {
-    inertiaUrdfToKdl(*_root->inertial, inertia);
-  }
-
-  // Construct the KDL segment.
-  const Segment segment(_root->name, joint, f_tip, inertia);
-
-  // Add segment to tree.
-  _tree.addSegment(segment, _root->parent_joint->parent_link_name);
-
-  // Recurslively add all children.
-  for (const auto& child : _root->child_links) {
-    addChildrenToTree(child, _tree);
-  }
 }
 }  // namespace tobas::kdl

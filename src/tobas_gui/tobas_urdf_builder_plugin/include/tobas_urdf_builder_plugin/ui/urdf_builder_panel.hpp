@@ -92,7 +92,5 @@ private:
   bool isValid();
   bool isRobotNameValid();
   bool isJointsValid();
-
-  static void collectUncheckedLinks(QTreeWidgetItem* _item, QSet<QString>& _set);
 };
 }  // namespace tobas::gui::ub::ui

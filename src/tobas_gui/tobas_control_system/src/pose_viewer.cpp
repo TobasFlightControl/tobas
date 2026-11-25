@@ -26,6 +26,24 @@ constexpr int kAltitudeTickLength = 12;
 constexpr int kAltitudeTickX = 40;
 constexpr int kAltitudeTextY = kYawLineY + 40;
 constexpr int kAltitudeTickMaxY = kAltitudeTextY + 12;
+
+/** Convert pitch angle [rad] to window height. */
+double pitchToHeight(double _pitch)
+{
+  return kOriginalSize * _pitch / kPitchAngleOfView;
+}
+
+/** Convert yaw angle [rad] to window width. */
+double yawToWidth(double _yaw)
+{
+  return kOriginalSize * _yaw / kYawAngleOfView;
+}
+
+/** Convert altitude difference [m] to window height. */
+double altitudeToHeight(double _altitude)
+{
+  return (kOriginalSize / 2) * _altitude / kAltitudeVisualRange;
+}
 }  // namespace
 
 PoseViewerWidget::PoseViewerWidget(const rqt::RosQtBridge& _bridge)
@@ -443,21 +461,6 @@ bool PoseViewerWidget::isSky(const QPoint& _p, double _a, double _b) const
   else {
     return left > right;
   }
-}
-
-double PoseViewerWidget::pitchToHeight(double _pitch)
-{
-  return kOriginalSize * _pitch / kPitchAngleOfView;
-}
-
-double PoseViewerWidget::yawToWidth(double _yaw)
-{
-  return kOriginalSize * _yaw / kYawAngleOfView;
-}
-
-double PoseViewerWidget::altitudeToHeight(double _altitude)
-{
-  return (kOriginalSize / 2) * _altitude / kAltitudeVisualRange;
 }
 
 void PoseViewerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom)

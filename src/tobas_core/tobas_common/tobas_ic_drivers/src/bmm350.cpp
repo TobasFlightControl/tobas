@@ -10,6 +10,49 @@
 
 namespace tobas::driver
 {
+namespace
+{
+/** Sign-extend as an `n`-bit signed value. */
+int32_t fixSign(uint32_t _raw, int _bits)
+{
+  int32_t sign_bit_index = 0;
+  int32_t full_scale = 0;
+  switch (_bits) {
+    case 8:
+      sign_bit_index = 7;
+      full_scale = 1 << 8;
+      break;
+    case 12:
+      sign_bit_index = 11;
+      full_scale = 1 << 12;
+      break;
+    case 16:
+      sign_bit_index = 15;
+      full_scale = 1 << 16;
+      break;
+    case 24:
+      sign_bit_index = 23;
+      full_scale = 1 << 24;
+      break;
+    default:
+      return static_cast<int32_t>(_raw);
+  }
+
+  const std::bitset<32> raw_bits(_raw);
+  int32_t value = static_cast<int32_t>(_raw);
+  if (raw_bits.test(static_cast<size_t>(sign_bit_index))) {
+    value -= full_scale;
+  }
+  return value;
+}
+
+/** Wait in microseconds. */
+void delayUs(uint32_t _period_us)
+{
+  std::this_thread::sleep_for(std::chrono::microseconds(_period_us));
+}
+}  // namespace
+
 BMM350::BMM350()
 {
 }
@@ -196,16 +239,6 @@ bool BMM350::applyConfiguration()
   return true;
 }
 
-bool BMM350::isValidOdr(uint8_t _odr)
-{
-  return _odr == ODR_100Hz || _odr == ODR_25Hz;
-}
-
-bool BMM350::isValidAveraging(uint8_t _averaging)
-{
-  return _averaging == AVG_2 || _averaging == AVG_4;
-}
-
 bool BMM350::magneticResetAndWait()
 {
   PmuCmdStatus0 status{};
@@ -342,48 +375,48 @@ void BMM350::updateCompensationFromOtp()
     static_cast<uint16_t>((otp_data_[OTP_MAG_OFFSET_Y] & 0x0F00) + (otp_data_[OTP_MAG_OFFSET_Z] & LSB_MASK));
   const uint16_t t_off = otp_data_[OTP_TEMP_OFF_SENS] & LSB_MASK;
 
-  mag_comp_.offset_x = static_cast<float>(fixSign(off_x, SIGNED_12_BIT));
-  mag_comp_.offset_y = static_cast<float>(fixSign(off_y, SIGNED_12_BIT));
-  mag_comp_.offset_z = static_cast<float>(fixSign(off_z, SIGNED_12_BIT));
-  mag_comp_.t_offs = static_cast<float>(fixSign(t_off, SIGNED_8_BIT)) / 5.0f;
+  mag_comp_.offset_x = static_cast<float>(fixSign(off_x, 12));
+  mag_comp_.offset_y = static_cast<float>(fixSign(off_y, 12));
+  mag_comp_.offset_z = static_cast<float>(fixSign(off_z, 12));
+  mag_comp_.t_offs = static_cast<float>(fixSign(t_off, 8)) / 5.0f;
 
   const uint8_t sens_x = static_cast<uint8_t>((otp_data_[OTP_MAG_SENS_X] & MSB_MASK) >> 8);
   const uint8_t sens_y = static_cast<uint8_t>(otp_data_[OTP_MAG_SENS_Y] & LSB_MASK);
   const uint8_t sens_z = static_cast<uint8_t>((otp_data_[OTP_MAG_SENS_Z] & MSB_MASK) >> 8);
   const uint8_t t_sens = static_cast<uint8_t>((otp_data_[OTP_TEMP_OFF_SENS] & MSB_MASK) >> 8);
 
-  mag_comp_.sens_x = static_cast<float>(fixSign(sens_x, SIGNED_8_BIT)) / 256.0f;
-  mag_comp_.sens_y = static_cast<float>(fixSign(sens_y, SIGNED_8_BIT)) / 256.0f;
-  mag_comp_.sens_z = static_cast<float>(fixSign(sens_z, SIGNED_8_BIT)) / 256.0f;
-  mag_comp_.t_sens = static_cast<float>(fixSign(t_sens, SIGNED_8_BIT)) / 512.0f;
+  mag_comp_.sens_x = static_cast<float>(fixSign(sens_x, 8)) / 256.0f;
+  mag_comp_.sens_y = static_cast<float>(fixSign(sens_y, 8)) / 256.0f;
+  mag_comp_.sens_z = static_cast<float>(fixSign(sens_z, 8)) / 256.0f;
+  mag_comp_.t_sens = static_cast<float>(fixSign(t_sens, 8)) / 512.0f;
 
   const uint8_t tco_x = static_cast<uint8_t>(otp_data_[OTP_MAG_TCO_X] & LSB_MASK);
   const uint8_t tco_y = static_cast<uint8_t>(otp_data_[OTP_MAG_TCO_Y] & LSB_MASK);
   const uint8_t tco_z = static_cast<uint8_t>(otp_data_[OTP_MAG_TCO_Z] & LSB_MASK);
 
-  mag_comp_.tco_x = static_cast<float>(fixSign(tco_x, SIGNED_8_BIT)) / 32.0f;
-  mag_comp_.tco_y = static_cast<float>(fixSign(tco_y, SIGNED_8_BIT)) / 32.0f;
-  mag_comp_.tco_z = static_cast<float>(fixSign(tco_z, SIGNED_8_BIT)) / 32.0f;
+  mag_comp_.tco_x = static_cast<float>(fixSign(tco_x, 8)) / 32.0f;
+  mag_comp_.tco_y = static_cast<float>(fixSign(tco_y, 8)) / 32.0f;
+  mag_comp_.tco_z = static_cast<float>(fixSign(tco_z, 8)) / 32.0f;
 
   const uint8_t tcs_x = static_cast<uint8_t>((otp_data_[OTP_MAG_TCS_X] & MSB_MASK) >> 8);
   const uint8_t tcs_y = static_cast<uint8_t>((otp_data_[OTP_MAG_TCS_Y] & MSB_MASK) >> 8);
   const uint8_t tcs_z = static_cast<uint8_t>((otp_data_[OTP_MAG_TCS_Z] & MSB_MASK) >> 8);
 
-  mag_comp_.tcs_x = static_cast<float>(fixSign(tcs_x, SIGNED_8_BIT)) / 16384.0f;
-  mag_comp_.tcs_y = static_cast<float>(fixSign(tcs_y, SIGNED_8_BIT)) / 16384.0f;
-  mag_comp_.tcs_z = static_cast<float>(fixSign(tcs_z, SIGNED_8_BIT)) / 16384.0f;
+  mag_comp_.tcs_x = static_cast<float>(fixSign(tcs_x, 8)) / 16384.0f;
+  mag_comp_.tcs_y = static_cast<float>(fixSign(tcs_y, 8)) / 16384.0f;
+  mag_comp_.tcs_z = static_cast<float>(fixSign(tcs_z, 8)) / 16384.0f;
 
-  mag_comp_.t0 = static_cast<float>(fixSign(otp_data_[OTP_MAG_DUT_T0], SIGNED_16_BIT)) / 512.0f + 23.0f;
+  mag_comp_.t0 = static_cast<float>(fixSign(otp_data_[OTP_MAG_DUT_T0], 16)) / 512.0f + 23.0f;
 
   const uint8_t cross_x_y = static_cast<uint8_t>(otp_data_[OTP_CROSS_X_Y] & LSB_MASK);
   const uint8_t cross_y_x = static_cast<uint8_t>((otp_data_[OTP_CROSS_Y_X] & MSB_MASK) >> 8);
   const uint8_t cross_z_x = static_cast<uint8_t>(otp_data_[OTP_CROSS_Z_X] & LSB_MASK);
   const uint8_t cross_z_y = static_cast<uint8_t>((otp_data_[OTP_CROSS_Z_Y] & MSB_MASK) >> 8);
 
-  mag_comp_.cross_x_y = static_cast<float>(fixSign(cross_x_y, SIGNED_8_BIT)) / 800.0f;
-  mag_comp_.cross_y_x = static_cast<float>(fixSign(cross_y_x, SIGNED_8_BIT)) / 800.0f;
-  mag_comp_.cross_z_x = static_cast<float>(fixSign(cross_z_x, SIGNED_8_BIT)) / 800.0f;
-  mag_comp_.cross_z_y = static_cast<float>(fixSign(cross_z_y, SIGNED_8_BIT)) / 800.0f;
+  mag_comp_.cross_x_y = static_cast<float>(fixSign(cross_x_y, 8)) / 800.0f;
+  mag_comp_.cross_y_x = static_cast<float>(fixSign(cross_y_x, 8)) / 800.0f;
+  mag_comp_.cross_z_x = static_cast<float>(fixSign(cross_z_x, 8)) / 800.0f;
+  mag_comp_.cross_z_y = static_cast<float>(fixSign(cross_z_y, 8)) / 800.0f;
 }
 
 bool BMM350::setOdrPerformance(uint8_t _odr, uint8_t _avg)
@@ -420,10 +453,10 @@ bool BMM350::readRawMagData(RawMagData& _raw)
   const uint32_t raw_t = static_cast<uint32_t>(raw_data_[9]) | (static_cast<uint32_t>(raw_data_[10]) << 8) |
                          (static_cast<uint32_t>(raw_data_[11]) << 16);
 
-  _raw.x = ((axis_en_ & 0x01) == 0) ? 0 : fixSign(raw_x, SIGNED_24_BIT);
-  _raw.y = ((axis_en_ & 0x02) == 0) ? 0 : fixSign(raw_y, SIGNED_24_BIT);
-  _raw.z = ((axis_en_ & 0x04) == 0) ? 0 : fixSign(raw_z, SIGNED_24_BIT);
-  _raw.t = fixSign(raw_t, SIGNED_24_BIT);
+  _raw.x = ((axis_en_ & 0x01) == 0) ? 0 : fixSign(raw_x, 24);
+  _raw.y = ((axis_en_ & 0x02) == 0) ? 0 : fixSign(raw_y, 24);
+  _raw.z = ((axis_en_ & 0x04) == 0) ? 0 : fixSign(raw_z, 24);
+  _raw.t = fixSign(raw_t, 24);
   return true;
 }
 
@@ -461,43 +494,5 @@ float BMM350::compensateZ(float _x, float _y, float _z, float) const
   return _z + (_x * (mag_comp_.cross_y_x * mag_comp_.cross_z_y - mag_comp_.cross_z_x) -
                _y * (mag_comp_.cross_z_y - mag_comp_.cross_x_y * mag_comp_.cross_z_x)) /
                 denom;
-}
-
-int32_t BMM350::fixSign(uint32_t _raw, int _bits)
-{
-  int32_t sign_bit_index = 0;
-  int32_t full_scale = 0;
-  switch (_bits) {
-    case SIGNED_8_BIT:
-      sign_bit_index = 7;
-      full_scale = 1 << 8;
-      break;
-    case SIGNED_12_BIT:
-      sign_bit_index = 11;
-      full_scale = 1 << 12;
-      break;
-    case SIGNED_16_BIT:
-      sign_bit_index = 15;
-      full_scale = 1 << 16;
-      break;
-    case SIGNED_24_BIT:
-      sign_bit_index = 23;
-      full_scale = 1 << 24;
-      break;
-    default:
-      return static_cast<int32_t>(_raw);
-  }
-
-  const std::bitset<32> raw_bits(_raw);
-  int32_t value = static_cast<int32_t>(_raw);
-  if (raw_bits.test(static_cast<size_t>(sign_bit_index))) {
-    value -= full_scale;
-  }
-  return value;
-}
-
-void BMM350::delayUs(uint32_t _period_us)
-{
-  std::this_thread::sleep_for(std::chrono::microseconds(_period_us));
 }
 }  // namespace tobas::driver

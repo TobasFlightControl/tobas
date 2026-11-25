@@ -20,6 +20,38 @@ using namespace std::chrono_literals;
 
 namespace tobas::gui::bm
 {
+namespace
+{
+std::pair<QString, QString> getVendorAndModel(udev_device* _dev)
+{
+  auto vendor = QString::fromStdString(udv::getPropertyValue(_dev, "ID_VENDOR"));
+  auto model = QString::fromStdString(udv::getPropertyValue(_dev, "ID_MODEL"));
+
+  // If this cannot be obtained, fill it from the USB device.
+  if (vendor.isEmpty() || model.isEmpty()) {
+    const auto usb = udev_device_get_parent_with_subsystem_devtype(_dev, "usb", "usb_device");
+    if (!usb) {
+      return {};
+    }
+
+    if (vendor.isEmpty()) {
+      vendor = QString::fromStdString(udv::getSysAttrValue(usb, "manufacturer"));
+      if (vendor.isEmpty()) {
+        return {};
+      }
+    }
+    if (model.isEmpty()) {
+      model = QString::fromStdString(udv::getSysAttrValue(usb, "product"));
+      if (model.isEmpty()) {
+        return {};
+      }
+    }
+  }
+
+  return { vendor, model };
+}
+}  // namespace
+
 MediaManagerWidget::MediaManagerWidget()
 {
   media_name_ = new qt::ComboBox();
@@ -55,35 +87,6 @@ const BootMedia& MediaManagerWidget::currentBootMedia() const
   }
 
   return medias_.at(media_name);
-}
-
-std::pair<QString, QString> MediaManagerWidget::getVendorAndModel(udev_device* _dev)
-{
-  auto vendor = QString::fromStdString(udv::getPropertyValue(_dev, "ID_VENDOR"));
-  auto model = QString::fromStdString(udv::getPropertyValue(_dev, "ID_MODEL"));
-
-  // If this cannot be obtained, fill it from the USB device.
-  if (vendor.isEmpty() || model.isEmpty()) {
-    const auto usb = udev_device_get_parent_with_subsystem_devtype(_dev, "usb", "usb_device");
-    if (!usb) {
-      return {};
-    }
-
-    if (vendor.isEmpty()) {
-      vendor = QString::fromStdString(udv::getSysAttrValue(usb, "manufacturer"));
-      if (vendor.isEmpty()) {
-        return {};
-      }
-    }
-    if (model.isEmpty()) {
-      model = QString::fromStdString(udv::getSysAttrValue(usb, "product"));
-      if (model.isEmpty()) {
-        return {};
-      }
-    }
-  }
-
-  return { vendor, model };
 }
 
 void MediaManagerWidget::onConnectButtonClicked()

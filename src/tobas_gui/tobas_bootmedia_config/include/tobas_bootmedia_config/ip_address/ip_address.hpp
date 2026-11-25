@@ -34,8 +34,6 @@ private:
 
   BaseNetworkWidget* getWidget(int _index);
 
-  static QString networkFilePath(const QString& _name);
-
 private Q_SLOTS:
   void onWriteButtonClicked();
 };

@@ -21,6 +21,17 @@
 
 namespace tobas::gui::ub::ui
 {
+namespace
+{
+void arrangeVisualGeometryTypeFrames(const std::map<QString, QFrame*>& _map, const QString& _type)
+{
+  for (const auto& pair : _map) {
+    pair.second->hide();
+  }
+  _map.at(_type)->show();
+}
+}  // namespace
+
 UpdateLinkDialog::UpdateLinkDialog(UrdfBuilderPanel* _main)
   : super(_main)
   , settings_store_("tobas", "urdf_builder")
@@ -884,13 +895,5 @@ void UpdateLinkDialog::blockSignals(bool _block)
 void UpdateLinkDialog::emitChanged()
 {
   Q_EMIT Changed();
-}
-
-void UpdateLinkDialog::arrangeVisualGeometryTypeFrames(const std::map<QString, QFrame*>& _map, const QString& _type)
-{
-  for (const auto& pair : _map) {
-    pair.second->hide();
-  }
-  _map.at(_type)->show();
 }
 }  // namespace tobas::gui::ub::ui

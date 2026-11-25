@@ -14,6 +14,15 @@ namespace ch = std::chrono;
 
 namespace tobas::ublox
 {
+namespace
+{
+size_t spliceMemory(uint8_t* _dest, const void* _src, size_t _size, size_t _dest_offset)
+{
+  std::memmove(_dest + _dest_offset, _src, _size);
+  return _dest_offset + _size;
+}
+}  // namespace
+
 GnssReceiver::GnssReceiver(std::unique_ptr<UbxTransport> _transport)
   : transport_(std::move(_transport)), scan_rate_(50us)
 {
@@ -600,6 +609,15 @@ bool GnssReceiver::enableUsb(bool _enable)
   return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_USB, 0x01, _enable);  // CFG-USB-ENABLED
 }
 
+template <typename T>
+bool GnssReceiver::cfgValSetSingle(CfgSize _size, CfgGroup _group, uint8_t _id, T _value)
+{
+  CfgValSet<T, 1> cfg;
+  cfg.data[0].key = configKeyID(_size, _group, _id);
+  cfg.data[0].value = _value;
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
 bool GnssReceiver::sendMessage(UbxClass _cls, uint8_t _id, const void* _msg, uint16_t _size)
 {
   // Allocate space for the header, payload, and checksum of this message.
@@ -917,12 +935,6 @@ GnssReceiver::CheckSum GnssReceiver::computeChecksum(const uint8_t* _message, si
   }
 
   return ck;
-}
-
-size_t GnssReceiver::spliceMemory(uint8_t* _dest, const void* _src, size_t _size, size_t _dest_offset)
-{
-  std::memmove(_dest + _dest_offset, _src, _size);
-  return _dest_offset + _size;
 }
 
 uint32_t GnssReceiver::configKeyID(CfgSize _size, CfgGroup _group, uint16_t _id)

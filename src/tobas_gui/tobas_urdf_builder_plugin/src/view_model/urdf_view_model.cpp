@@ -12,6 +12,26 @@
 
 namespace tobas::gui::ub::view_model
 {
+namespace
+{
+void removeTextureTagsWithoutFilename(tinyxml2::XMLElement* _element)
+{
+  if (!_element) {
+    return;
+  }
+
+  for (auto child = _element->FirstChildElement(); child; child = child->NextSiblingElement()) {
+    // FIXME: Changing the tree structure during iteration may be unsafe. List target elements and delete them later.
+    if (std::string(child->Name()) == "texture" && !child->Attribute("filename")) {
+      _element->DeleteChild(child);
+    }
+
+    // Check child elements recursively.
+    removeTextureTagsWithoutFilename(child);
+  }
+}
+}  // namespace
+
 URDFViewModel::URDFViewModel() : urdf_(new ::urdf::Model())
 {
 }
@@ -290,23 +310,6 @@ void URDFViewModel::addNameSuffixRec(const LinkViewModelPtr& _link_vm, const QSt
   for (const auto& child_link_vm : _link_vm->children()) {
     child_link_vm->joint()->parentLinkName(new_link_name);
     addNameSuffixRec(child_link_vm, _suffix);
-  }
-}
-
-void URDFViewModel::removeTextureTagsWithoutFilename(tinyxml2::XMLElement* _element)
-{
-  if (!_element) {
-    return;
-  }
-
-  for (auto child = _element->FirstChildElement(); child; child = child->NextSiblingElement()) {
-    // FIXME: Changing the tree structure during iteration may be unsafe. List target elements and delete them later.
-    if (std::string(child->Name()) == "texture" && !child->Attribute("filename")) {
-      _element->DeleteChild(child);
-    }
-
-    // Check child elements recursively.
-    removeTextureTagsWithoutFilename(child);
   }
 }
 }  // namespace tobas::gui::ub::view_model

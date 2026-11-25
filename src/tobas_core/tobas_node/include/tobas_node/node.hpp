@@ -292,8 +292,6 @@ private:
   void getDParamCb(
     const tobas_dparam_msgs::srv::GetParams::Request::ConstSharedPtr& _req,
     const tobas_dparam_msgs::srv::GetParams::Response::SharedPtr& _res);
-
-  static void setClockType(rclcpp::NodeOptions& _options);
 };
 
 inline std::string BaseNode::ns() const

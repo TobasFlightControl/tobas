@@ -42,9 +42,6 @@ private:
   bool checkSsid(QString& _msg) const;
   bool checkPsk(QString& _msg) const;
 
-  static bool isValidAsciiPsk(const QString& _psk);
-  static bool isValid64HexPsk(const QString& _psk);
-
 private Q_SLOTS:
   void onTextChanged();
   void onWriteButtonClicked();

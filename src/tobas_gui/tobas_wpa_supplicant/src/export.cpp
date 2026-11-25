@@ -9,56 +9,9 @@
 
 namespace tobas::wpa
 {
-Exporter::Exporter()
+namespace
 {
-}
-
-std::string Exporter::exportText(const Data& _src) const
-{
-  std::ostringstream oss;
-
-  // Country
-  oss << kCountryPrefix << countryCodeToString(_src.country) << "\n";
-
-  // ctrl_interface
-  oss << kCtrlInterfacePrefix << _src.ctrl_interface << "\n";
-
-  // update_config
-  oss << kUpdateConfigPrefix << (_src.update_config ? "1" : "0") << "\n";
-
-  // Networks
-  for (const auto& network : _src.networks) {
-    oss << "\n" << kStartNetworkBlock << "\n";
-
-    oss << "\t" << kSsidPrefix << "\"" << network.ssid << "\"\n";
-    oss << "\t" << kPriorityPrefix << network.priority << "\n";
-
-    if (network.scan_ssid) {
-      oss << "\t" << kScanSsidPrefix << "1\n";
-    }
-
-    oss << "\t" << kKeyMgmtPrefix << tokenFromEnum(network.key_mgmt) << "\n";
-    switch (network.key_mgmt) {
-      case KeyMgmt::NONE:
-        break;
-      case KeyMgmt::WPA_PSK:
-        oss << "\t" << kPskPrefix << "\"" << network.psk << "\"\n";
-        break;
-      case KeyMgmt::SAE:
-        oss << "\t" << kSaePasswordPrefix << "\"" << network.psk << "\"\n";
-        oss << "\t" << kIeee80211wPrefix << 2 << "\n";  // PMF required.
-        break;
-      default:
-        throw;
-    }
-
-    oss << kStopNetworkBlock << "\n";
-  }
-
-  return oss.str();
-}
-
-const char* Exporter::countryCodeToString(CountryCode _cc)
+const char* countryCodeToString(CountryCode _cc)
 {
   switch (_cc) {
     case CountryCode::AF:
@@ -544,5 +497,55 @@ const char* Exporter::countryCodeToString(CountryCode _cc)
     default:
       throw;
   }
+}
+}  // namespace
+
+Exporter::Exporter()
+{
+}
+
+std::string Exporter::exportText(const Data& _src) const
+{
+  std::ostringstream oss;
+
+  // Country
+  oss << kCountryPrefix << countryCodeToString(_src.country) << "\n";
+
+  // ctrl_interface
+  oss << kCtrlInterfacePrefix << _src.ctrl_interface << "\n";
+
+  // update_config
+  oss << kUpdateConfigPrefix << (_src.update_config ? "1" : "0") << "\n";
+
+  // Networks
+  for (const auto& network : _src.networks) {
+    oss << "\n" << kStartNetworkBlock << "\n";
+
+    oss << "\t" << kSsidPrefix << "\"" << network.ssid << "\"\n";
+    oss << "\t" << kPriorityPrefix << network.priority << "\n";
+
+    if (network.scan_ssid) {
+      oss << "\t" << kScanSsidPrefix << "1\n";
+    }
+
+    oss << "\t" << kKeyMgmtPrefix << tokenFromEnum(network.key_mgmt) << "\n";
+    switch (network.key_mgmt) {
+      case KeyMgmt::NONE:
+        break;
+      case KeyMgmt::WPA_PSK:
+        oss << "\t" << kPskPrefix << "\"" << network.psk << "\"\n";
+        break;
+      case KeyMgmt::SAE:
+        oss << "\t" << kSaePasswordPrefix << "\"" << network.psk << "\"\n";
+        oss << "\t" << kIeee80211wPrefix << 2 << "\n";  // PMF required.
+        break;
+      default:
+        throw;
+    }
+
+    oss << kStopNetworkBlock << "\n";
+  }
+
+  return oss.str();
 }
 }  // namespace tobas::wpa

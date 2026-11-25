@@ -50,8 +50,6 @@ private:
   void setTargetRPMBox(int _rpm);
   void setGainBox(int _gain);
 
-  static QString rpmToText(int _rpm);
-
 private Q_SLOTS:
   void onTargetRPMChanged(int _rpm);
   void onGainChanged(int _gain);

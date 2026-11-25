@@ -7,6 +7,35 @@
 
 namespace tobas
 {
+namespace
+{
+void setClockType(rclcpp::NodeOptions& _options)
+{
+  const auto clock_type = ros2::getEnv("TOBAS_CLOCK_TYPE");
+
+  if (!clock_type) {
+    std::cerr << clock_type.error() << '\n';
+    return;
+  }
+
+  if (std::strcmp(*clock_type, "ros_time") == 0) {
+    _options.clock_type(RCL_ROS_TIME);  // Use the system clock if no reference clock is available.
+    _options.use_clock_thread(true);    // Use a dedicated thread because `/clock` may be received.
+  }
+  else if (std::strcmp(*clock_type, "system_time") == 0) {
+    _options.clock_type(RCL_SYSTEM_TIME);  // System clock synchronized with NTP.
+    _options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
+  }
+  else if (std::strcmp(*clock_type, "steady_time") == 0) {
+    _options.clock_type(RCL_STEADY_TIME);  // Monotonic timer unaffected by NTP.
+    _options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
+  }
+  else {
+    std::cerr << "Unknown clock type: " << *clock_type << '\n';
+  }
+}
+}  // namespace
+
 BaseNode::BaseNode(const std::string& _node_name, const rclcpp::NodeOptions& _options)
   : super(_node_name, _options), dparam_sub_(this)
 {
@@ -244,31 +273,5 @@ void BaseNode::getDParamCb(
   const tobas_dparam_msgs::srv::GetParams::Response::SharedPtr& _res)
 {
   _res->params = dparams_;
-}
-
-void BaseNode::setClockType(rclcpp::NodeOptions& _options)
-{
-  const auto clock_type = ros2::getEnv("TOBAS_CLOCK_TYPE");
-
-  if (!clock_type) {
-    std::cerr << clock_type.error() << '\n';
-    return;
-  }
-
-  if (std::strcmp(*clock_type, "ros_time") == 0) {
-    _options.clock_type(RCL_ROS_TIME);  // Use the system clock if no reference clock is available.
-    _options.use_clock_thread(true);    // Use a dedicated thread because `/clock` may be received.
-  }
-  else if (std::strcmp(*clock_type, "system_time") == 0) {
-    _options.clock_type(RCL_SYSTEM_TIME);  // System clock synchronized with NTP.
-    _options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
-  }
-  else if (std::strcmp(*clock_type, "steady_time") == 0) {
-    _options.clock_type(RCL_STEADY_TIME);  // Monotonic timer unaffected by NTP.
-    _options.use_clock_thread(false);      // No dedicated thread is needed because `/clock` is not received.
-  }
-  else {
-    std::cerr << "Unknown clock type: " << *clock_type << '\n';
-  }
 }
 }  // namespace tobas

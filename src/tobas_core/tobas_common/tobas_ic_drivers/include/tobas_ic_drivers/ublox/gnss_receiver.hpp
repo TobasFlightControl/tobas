@@ -344,8 +344,6 @@ private:
   /** 5.4 UBX Checksum */
   static CheckSum computeChecksum(const uint8_t* _message, size_t _checksum_pos);
 
-  static size_t spliceMemory(uint8_t* _dest, const void* _src, size_t _size, size_t _dest_offset = 0);
-
   /** Configuration Key ID | 6.2 Configuration Items */
   static uint32_t configKeyID(CfgSize _size, CfgGroup _group, uint16_t _id);
 };
@@ -363,15 +361,6 @@ inline uint8_t GnssReceiver::latestId() const
 inline const uint8_t* GnssReceiver::payload() const
 {
   return scanner_.getPayload();
-}
-
-template <typename T>
-bool GnssReceiver::cfgValSetSingle(CfgSize _size, CfgGroup _group, uint8_t _id, T _value)
-{
-  CfgValSet<T, 1> cfg;
-  cfg.data[0].key = configKeyID(_size, _group, _id);
-  cfg.data[0].value = _value;
-  return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 }  // namespace tobas::ublox
 

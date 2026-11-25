@@ -40,10 +40,6 @@ private:
   kdl::Vector ei_ = kdl::Vector::Zero();
 
   void updateGain();
-
-  static kdl::Vector computeProportionalError(const kdl::Euler& _cur_rpy, const kdl::Euler& _tar_rpy);
-  static kdl::Vector
-  computeDerivativeError(const kdl::Euler& _cur_rpy, const kdl::Vector& _cur_gyro, const kdl::Vector& _tar_gyro);
 };
 
 inline const kdl::Vector& EulerPID::getIntegralError() const

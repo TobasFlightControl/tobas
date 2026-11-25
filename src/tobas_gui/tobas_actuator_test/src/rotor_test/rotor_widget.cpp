@@ -11,6 +11,14 @@
 
 namespace tobas::gui::at
 {
+namespace
+{
+QString rpmToText(int _rpm)
+{
+  return QString::number(_rpm) + " RPM";
+}
+}  // namespace
+
 RotorWidget::RotorWidget()
 {
   text_ = new QLabel();
@@ -146,11 +154,6 @@ void RotorWidget::setTargetRPMBox(int _rpm)
 void RotorWidget::setGainBox(int _gain)
 {
   gain_box_->setText(QString::number(_gain));
-}
-
-QString RotorWidget::rpmToText(int _rpm)
-{
-  return QString::number(_rpm) + " RPM";
 }
 
 void RotorWidget::onTargetRPMChanged(int _rpm)

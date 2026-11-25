@@ -104,8 +104,5 @@ private:
   /** Create Tau on p.90 based on Example 1.3 on p.12. */
   Eigen::VectorXd makeTau(const Eigen::VectorXd& _x, const Eigen::VectorXd& _z, const Eigen::MatrixXd& _cz);
   std::vector<Eigen::VectorXd> makeDecays();
-
-  /** Create the overall inequality constraint matrix from the time series of inequality conditions A x <= b. */
-  static Eigen::MatrixXd makeConstraintMatrix(const std::vector<LinearEquation>& _ineqs, Eigen::Index _h);
 };
 }  // namespace tobas::ctrl

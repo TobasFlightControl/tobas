@@ -24,8 +24,5 @@ public:
 
 private:
   urdf::Parser urdf_parser_;
-
-  /** Recursive function to walk through tree. */
-  static void addChildrenToTree(const ::urdf::LinkConstSharedPtr& _root, Tree& _tree);
 };
 }  // namespace tobas::kdl

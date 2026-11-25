@@ -103,7 +103,5 @@ private:
 
   void blockSignals(bool _block);
   void emitChanged();
-
-  static void arrangeVisualGeometryTypeFrames(const std::map<QString, QFrame*>& _map, const QString& _type);
 };
 }  // namespace tobas::gui::ub::ui

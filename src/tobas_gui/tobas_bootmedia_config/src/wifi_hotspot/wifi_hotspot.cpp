@@ -19,6 +19,21 @@ namespace fs = std::filesystem;
 
 namespace tobas::gui::bm
 {
+namespace
+{
+bool isValidAsciiPsk(const QString& _psk)
+{
+  const QRegularExpression re(R"(^[ -~]{8,63}$)");
+  return re.match(_psk).hasMatch();
+}
+
+bool isValid64HexPsk(const QString& _psk)
+{
+  const QRegularExpression re(R"(^[0-9A-Fa-f]{64}$)");
+  return re.match(_psk).hasMatch();
+}
+}  // namespace
+
 WifiHotspotWidget::WifiHotspotWidget()
 {
   ssid_ = new QLineEdit();
@@ -137,18 +152,6 @@ bool WifiHotspotWidget::checkPsk(QString& _msg) const
 
   _msg.clear();
   return true;
-}
-
-bool WifiHotspotWidget::isValidAsciiPsk(const QString& _psk)
-{
-  const QRegularExpression re(R"(^[ -~]{8,63}$)");
-  return re.match(_psk).hasMatch();
-}
-
-bool WifiHotspotWidget::isValid64HexPsk(const QString& _psk)
-{
-  const QRegularExpression re(R"(^[0-9A-Fa-f]{64}$)");
-  return re.match(_psk).hasMatch();
 }
 
 void WifiHotspotWidget::onTextChanged()

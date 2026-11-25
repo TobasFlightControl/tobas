@@ -114,14 +114,6 @@ private:
     MSB_MASK = 0xFF00,
   };
 
-  enum SignBits : int
-  {
-    SIGNED_8_BIT = 8,
-    SIGNED_12_BIT = 12,
-    SIGNED_16_BIT = 16,
-    SIGNED_24_BIT = 24,
-  };
-
   /** Matches the wait times in `bmm350_defs.h` from the Bosch BMM350 SensorAPI. */
   enum TimingUs : uint32_t
   {
@@ -214,8 +206,7 @@ private:
   bool setPowerMode(uint8_t _mode);
   bool checkWhoAmI();
   bool applyConfiguration();
-  static bool isValidOdr(uint8_t _odr);
-  static bool isValidAveraging(uint8_t _averaging);
+
   bool configure();
   bool magneticResetAndWait();
   bool getPmuCmdStatus0(PmuCmdStatus0& _status);
@@ -268,11 +259,6 @@ private:
    * @return float Compensated Z-axis magnetic field data [uT].
    */
   float compensateZ(float _x, float _y, float _z, float _temperature) const;
-
-  /** Sign-extend as an `n`-bit signed value. */
-  static int32_t fixSign(uint32_t _raw, int _bits);
-  /** Wait in microseconds. */
-  static void delayUs(uint32_t _period_us);
 
   linux::I2Cdev i2c_;
   uint16_t otp_data_[32]{};

@@ -42,15 +42,6 @@ private:
   /** Determine whether a point in the camera frame is included in the sky. */
   bool isSky(const QPoint& _p, double _a, double _b) const;
 
-  /** Convert pitch angle [rad] to window height. */
-  static double pitchToHeight(double _pitch);
-
-  /** Convert yaw angle [rad] to window width. */
-  static double yawToWidth(double _yaw);
-
-  /** Convert altitude difference [m] to window height. */
-  static double altitudeToHeight(double _altitude);
-
 private Q_SLOTS:
   void odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom);
   void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss);

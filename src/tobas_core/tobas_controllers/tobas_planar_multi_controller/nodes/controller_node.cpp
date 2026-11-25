@@ -39,6 +39,18 @@
 
 namespace tobas::planar_multicopter
 {
+namespace
+{
+kdl::Vector computeEulerError(const kdl::Euler& _cur_rpy, const kdl::Euler& _tar_rpy)
+{
+  // Note that a straight line connecting two Euler angles is not the shortest distance in rotation.
+  const auto roll_err = algo::wrapPi(_tar_rpy.roll - _cur_rpy.roll);
+  const auto pitch_err = algo::wrapPi(_tar_rpy.pitch - _cur_rpy.pitch);
+  const auto yaw_err = algo::wrapPi(_tar_rpy.yaw - _cur_rpy.yaw);
+  return { roll_err, pitch_err, yaw_err };
+}
+}  // namespace
+
 class ControllerNode : public BaseNode
 {
   using self = ControllerNode;
@@ -133,7 +145,6 @@ private:
   void updateInternalDataStructures();
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& _priority);
   void startSmoothTargetAttitude();
-  static kdl::Vector computeEulerError(const kdl::Euler& _cur_rpy, const kdl::Euler& _tar_rpy);
 
   // Parameter callbacks
   void horizontalNaturalFreqCb(double _p);
@@ -274,15 +285,6 @@ void ControllerNode::startSmoothTargetAttitude()
 
   smooth_tar_roll_ = true;
   smooth_tar_pitch_ = true;
-}
-
-kdl::Vector ControllerNode::computeEulerError(const kdl::Euler& _cur_rpy, const kdl::Euler& _tar_rpy)
-{
-  // Note that a straight line connecting two Euler angles is not the shortest distance in rotation.
-  const auto roll_err = algo::wrapPi(_tar_rpy.roll - _cur_rpy.roll);
-  const auto pitch_err = algo::wrapPi(_tar_rpy.pitch - _cur_rpy.pitch);
-  const auto yaw_err = algo::wrapPi(_tar_rpy.yaw - _cur_rpy.yaw);
-  return { roll_err, pitch_err, yaw_err };
 }
 
 void ControllerNode::horizontalNaturalFreqCb(double _p)

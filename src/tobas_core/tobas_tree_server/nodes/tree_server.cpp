@@ -19,6 +19,25 @@ using namespace std::chrono_literals;
 
 namespace tobas
 {
+namespace
+{
+std::string loadSegmentName(const std::string& _id)
+{
+  return "attached_load/" + _id;
+}
+
+kdl::RigidBodyInertia parseLoad(const tobas_msgs::srv::AttachLoad::Request& _req)
+{
+  kdl::Vector cog;
+  tobas_kdl_msgs::VectorAdapter::convert_to_custom(_req.inertia.cog, cog);
+
+  kdl::RotationalInertia i_cog;
+  tobas_kdl_msgs::RotationalInertiaAdapter::convert_to_custom(_req.inertia.i_cog, i_cog);
+
+  return kdl::RigidBodyInertia(_req.inertia.mass, cog, i_cog);
+}
+}  // namespace
+
 class TreeServerNode : public BaseNode
 {
   using self = TreeServerNode;
@@ -38,9 +57,6 @@ private:
   ros2::TimerPtr initial_publish_timer_;
   ros2::ServiceServerPtr<AttachSrv> attach_srv_;
   ros2::ServiceServerPtr<DetachSrv> detach_srv_;
-
-  static std::string loadSegmentName(const std::string& _id);
-  static kdl::RigidBodyInertia parseLoad(const AttachSrv::Request& _req);
 
   void publishTree();
   void initialPublishTimerCb();
@@ -74,22 +90,6 @@ TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& _options)
 
   // Defer the initial publication until the executor starts processing callbacks.
   initial_publish_timer_ = createTimer(0s, &self::initialPublishTimerCb, this);
-}
-
-std::string TreeServerNode::loadSegmentName(const std::string& _id)
-{
-  return "attached_load/" + _id;
-}
-
-kdl::RigidBodyInertia TreeServerNode::parseLoad(const AttachSrv::Request& _req)
-{
-  kdl::Vector cog;
-  tobas_kdl_msgs::VectorAdapter::convert_to_custom(_req.inertia.cog, cog);
-
-  kdl::RotationalInertia i_cog;
-  tobas_kdl_msgs::RotationalInertiaAdapter::convert_to_custom(_req.inertia.i_cog, i_cog);
-
-  return kdl::RigidBodyInertia(_req.inertia.mass, cog, i_cog);
 }
 
 void TreeServerNode::publishTree()
