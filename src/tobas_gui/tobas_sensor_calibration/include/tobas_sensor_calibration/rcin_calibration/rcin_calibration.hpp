@@ -41,7 +41,6 @@ private:
   std::optional<rqt::SyncServiceClientWrapper<tobas_real_msgs::srv::SetRcInputParams>> set_params_sc_;
 
   bool ros_initialized_ = false;
-  bool simulation_ = false;
   bool running_ = false;
   tobas_msgs::msg::Sbus::ConstSharedPtr sbus_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
@@ -64,8 +63,7 @@ private:
 
   size_t numOfGpswChannels() const;
 
-  bool saveParamsToGcs();
-  bool saveParamsToFc();
+  bool setParams();
 
 private Q_SLOTS:
   void onStartButtonClicked();

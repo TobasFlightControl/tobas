@@ -14,7 +14,6 @@ set(AMENT_DEPENDENCIES
     tobas_kdl_conversions
     tobas_time_tools
     tobas_geographic
-    tobas_property_tree
     tobas_drone_core
     tobas_real_common
     tobas_real_msgs
@@ -49,7 +48,6 @@ target_link_libraries(
   tobas_kdl_conversions::tobas_kdl_conversions
   tobas_time_tools::tobas_time_tools
   tobas_geographic::tobas_geographic
-  tobas_property_tree::tobas_property_tree
   tobas_drone_core::tobas_drone_core
   tobas_real_common::tobas_real_common
   tobas_real_msgs::tobas_real_msgs

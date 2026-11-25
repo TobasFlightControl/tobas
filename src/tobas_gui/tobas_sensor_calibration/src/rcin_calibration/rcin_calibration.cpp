@@ -8,15 +8,12 @@
 #include <QString>
 #include <QVBoxLayout>
 
-#include <tobas_constants/path.hpp>
 #include <tobas_constants/ros.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_property_tree/property_tree.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_real_common/handler.hpp>
-#include <tobas_ros2_tools/util.hpp>
 
 #include "tobas_sensor_calibration/constants.hpp"
 
@@ -202,17 +199,11 @@ void RCInputCalibrationWidget::updateInternalDataStructures()
   }
 }
 
-void RCInputCalibrationWidget::initializeRosInterfaces(
-  rclcpp::Node::SharedPtr _node,
-  const std::string& _ns,
-  bool _simulation)
+void RCInputCalibrationWidget::initializeRosInterfaces(rclcpp::Node::SharedPtr _node, const std::string& _ns, bool)
 {
-  if (!_simulation) {
-    const auto set_params_srv = path::join(_ns, kRemoteIfaceNS, real::handler::rcin::kSetParamSrv);
-    set_params_sc_.emplace(std::move(_node), set_params_srv);
-  }
+  const auto set_params_srv = path::join(_ns, kRemoteIfaceNS, real::handler::rcin::kSetParamSrv);
+  set_params_sc_.emplace(std::move(_node), set_params_srv);
 
-  simulation_ = _simulation;
   ros_initialized_ = true;
 }
 
@@ -237,56 +228,7 @@ size_t RCInputCalibrationWidget::numOfGpswChannels() const
   return drone_.num_sbus_channels - kMinSbusChannels;
 }
 
-bool RCInputCalibrationWidget::saveParamsToGcs()
-{
-  ptree::PropertyTree pt;
-  const auto config_path = ros2::expandUser(kConfigDirHome) / real::handler::rcin::kConfigFileName;
-  if (const auto result = pt.initialize(config_path); !result) {
-    qt::qErrorBox(this, "Failed to initialize property tree: " + QString::fromStdString(result.error()));
-    return false;
-  }
-
-  const auto& section = drone_.name;
-
-  pt.set(section, real::handler::rcin::kRollLeftKey, roll_range_->getLower().value());
-  pt.set(section, real::handler::rcin::kRollRightKey, roll_range_->getUpper().value());
-  pt.set(section, real::handler::rcin::kPitchUpKey, pitch_range_->getLower().value());
-  pt.set(section, real::handler::rcin::kPitchDownKey, pitch_range_->getUpper().value());
-  pt.set(section, real::handler::rcin::kYawLeftKey, yaw_range_->getLower().value());
-  pt.set(section, real::handler::rcin::kYawRightKey, yaw_range_->getUpper().value());
-  pt.set(section, real::handler::rcin::kThrotUpKey, throt_range_->getLower().value());
-  pt.set(section, real::handler::rcin::kThrotDownKey, throt_range_->getUpper().value());
-  pt.set(section, real::handler::rcin::kModeAcrobatKey, mode_range_->getUpper().value());
-  pt.set(section, real::handler::rcin::kModeStabilizeKey, mode_range_->getMiddle().value());
-  pt.set(section, real::handler::rcin::kModeLoiterKey, mode_range_->getLower().value());
-  pt.set(section, real::handler::rcin::kSubModeOnKey, sub_mode_range_->getLower().value());
-  pt.set(section, real::handler::rcin::kSubModeOffKey, sub_mode_range_->getUpper().value());
-  pt.set(section, real::handler::rcin::kEnableOnKey, enable_range_->getLower().value());
-  pt.set(section, real::handler::rcin::kEnableOffKey, enable_range_->getUpper().value());
-  pt.set(section, real::handler::rcin::kKillOnKey, kill_range_->getLower().value());
-  pt.set(section, real::handler::rcin::kKillOffKey, kill_range_->getUpper().value());
-
-  std::array<int, kMaxNumOfGpsw> gpsw_on, gpsw_off;
-  for (size_t i = 0; i < numOfGpswChannels(); ++i) {
-    gpsw_on[i] = gpsw_ranges_[i]->getLower().value();
-    gpsw_off[i] = gpsw_ranges_[i]->getUpper().value();
-  }
-  for (size_t i = numOfGpswChannels(); i < kMaxNumOfGpsw; ++i) {
-    gpsw_on[i] = std::numeric_limits<uint16_t>::max();
-    gpsw_off[i] = 0;
-  }
-  pt.set(section, real::handler::rcin::kGpswOnKey, gpsw_on);
-  pt.set(section, real::handler::rcin::kGpswOffKey, gpsw_off);
-
-  if (const auto result = pt.save(); !result) {
-    qt::qErrorBox(this, "Failed to save calibration results on GCS: " + QString::fromStdString(result.error()));
-    return false;
-  }
-
-  return true;
-}
-
-bool RCInputCalibrationWidget::saveParamsToFc()
+bool RCInputCalibrationWidget::setParams()
 {
   const auto req = std::make_shared<tobas_real_msgs::srv::SetRcInputParams::Request>();
 
@@ -427,10 +369,8 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
     }
   }
 
-  if (!saveParamsToGcs()) {
-    return;
-  }
-  if (!simulation_ && !saveParamsToFc()) {
+  // Apply and save the parameters.
+  if (!setParams()) {
     return;
   }
 

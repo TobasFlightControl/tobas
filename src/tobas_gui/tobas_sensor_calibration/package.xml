@@ -19,7 +19,6 @@
   <depend>tobas_gui_common</depend>
   <depend>tobas_kdl</depend>
   <depend>tobas_kdl_conversions</depend>
-  <depend>tobas_property_tree</depend>
   <depend>tobas_qt_tools</depend>
   <depend>tobas_real_common</depend>
   <depend>tobas_real_msgs</depend>
