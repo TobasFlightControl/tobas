@@ -370,6 +370,8 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
   }
 
   // Apply and save the parameters.
+  // Do not save parameters to the GCS when calibrating the physical vehicle,
+  // since the physical vehicle and simulation may use different receivers.
   if (!setParams()) {
     return;
   }
