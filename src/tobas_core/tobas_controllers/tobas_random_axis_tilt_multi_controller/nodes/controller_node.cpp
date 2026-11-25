@@ -8,10 +8,9 @@
 #include <tobas_constants/time.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_pose_pid/angle_axis_pi.hpp>
-#include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_tools/command_priority_handler.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 
@@ -57,13 +56,24 @@ private:
   bool do_dist_comp_rot_;
 
   // Controllers
-  PositionPID pos_pid_;
-  AngleAxisPI rot_pi_;
   QpMixer mixer_;
-  double atti_wn_, head_wn_;      ///< [rad/s]
-  double atti_zeta_, head_zeta_;  ///< [-]
-  kdl::Vector rate_gain_;
-  kdl::Vector max_dgyro_;  ///< Per-axis angular acceleration limits [rad/s^2].
+  kdl::Vector max_dgyro_;        ///< Per-axis angular acceleration limits [rad/s^2].
+  double throttle_gain_thresh_;  ///< [-]
+  struct TranslationControlParameters
+  {
+    double hor_wn, ver_wn;      ///< [rad/s]
+    double hor_zeta, ver_zeta;  ///< [-]
+    double hor_ki, ver_ki;
+    double hor_max_i_acc, ver_max_i_acc;
+    kdl::Vector ei = kdl::Vector::Zero();
+  } trans_ctrl_;
+  struct RotationControlParameters
+  {
+    double atti_wn, head_wn;      ///< [rad/s]
+    double atti_zeta, head_zeta;  ///< [-]
+    double atti_ki, head_ki;
+    kdl::Vector ei = kdl::Vector::Zero();
+  } rot_ctrl_;
 
   // Mutable variables
   bool js_received_ = false;
@@ -105,8 +115,6 @@ private:
   ros2::TimerPtr check_topics_timer_;
 
   void updateInternalDataStructures();
-  void updateAttitudePDGain();
-  void updateHeadingPDGain();
   bool isCommandAccepted(const tobas_command_msgs::msg::Priority& _priority);
 
   void horizontalNaturalFreqCb(double _p);
@@ -125,6 +133,7 @@ private:
   void headingDampingRatioCb(double _p);
   void headingIGainCb(double _p);
   void headingMaxAccelCb(double _p);
+  void throttleGainThresholdCb(double _p);
   void tiltAsixSingularDeclinationLBCb(double _lb_deg);
   void tiltAsixSingularDeclinationUBCb(double _ub_deg);
 
@@ -168,6 +177,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& _options)
   addDynamicDoubleParam("vertical_i_max_accel", &self::verticalIMaxAccelCb, this, 0.5, 4, 1, 20, " m/s^2");
   addDynamicDoubleParam("attitude_max_accel", &self::attitudeMaxAccelCb, this, 2.0, 30, 1, 30, " rad/s^2");
   addDynamicDoubleParam("heading_max_accel", &self::headingMaxAccelCb, this, 1.0, 30, 1, 30, " rad/s^2");
+  addDynamicDoubleParam("throttle_gain_threshold", &self::throttleGainThresholdCb, this, 1.0, 70, 0, 100, " %");
   addDynamicDoubleParam(
     "tilt_axis_singular_declination_lb", &self::tiltAsixSingularDeclinationLBCb, this, 1.0, 10, 0, 45, " deg");
   addDynamicDoubleParam(
@@ -204,28 +214,6 @@ void ControllerNode::updateInternalDataStructures()
   mixer_.updateInternalDataStructures();
 }
 
-void ControllerNode::updateAttitudePDGain()
-{
-  // Compute gains when PD control is split into two stages (memo: 3-22).
-  const auto angle_gain = atti_wn_ / atti_zeta_ / 2;
-  const auto rate_gain = atti_wn_ * atti_zeta_ * 2;
-
-  rate_gain_.x(rate_gain);
-  rate_gain_.y(rate_gain);
-  rot_pi_.setProportionalGain(0, angle_gain);
-  rot_pi_.setProportionalGain(1, angle_gain);
-}
-
-void ControllerNode::updateHeadingPDGain()
-{
-  // Compute gains when PD control is split into two stages (memo: 3-22).
-  const auto angle_gain = head_wn_ / head_zeta_ / 2;
-  const auto rate_gain = head_wn_ * head_zeta_ * 2;
-
-  rate_gain_.z(rate_gain);
-  rot_pi_.setProportionalGain(2, angle_gain);
-}
-
 bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& _priority)
 {
   if (!topics_received_) {
@@ -248,64 +236,57 @@ bool ControllerNode::isCommandAccepted(const tobas_command_msgs::msg::Priority& 
 
 void ControllerNode::horizontalNaturalFreqCb(double _p)
 {
-  pos_pid_.setNaturalFreq(0, _p);
-  pos_pid_.setNaturalFreq(1, _p);
+  trans_ctrl_.hor_wn = _p;
 }
 
 void ControllerNode::horizontalDampingRatioCb(double _p)
 {
-  pos_pid_.setDampingRatio(0, _p);
-  pos_pid_.setDampingRatio(1, _p);
+  trans_ctrl_.hor_zeta = _p;
 }
 
 void ControllerNode::horizontalIGainCb(double _p)
 {
-  pos_pid_.setIntegralGain(0, _p);
-  pos_pid_.setIntegralGain(1, _p);
+  trans_ctrl_.hor_ki = _p;
 }
 
 void ControllerNode::horizontalIMaxAccelCb(double _p)
 {
-  pos_pid_.setMaxIntegralAccel(0, _p);
-  pos_pid_.setMaxIntegralAccel(1, _p);
+  trans_ctrl_.hor_max_i_acc = _p;
 }
 
 void ControllerNode::verticalNaturalFreqCb(double _p)
 {
-  pos_pid_.setNaturalFreq(2, _p);
+  trans_ctrl_.ver_wn = _p;
 }
 
 void ControllerNode::verticalDampingRatioCb(double _p)
 {
-  pos_pid_.setDampingRatio(2, _p);
+  trans_ctrl_.ver_zeta = _p;
 }
 
 void ControllerNode::verticalIGainCb(double _p)
 {
-  pos_pid_.setIntegralGain(2, _p);
+  trans_ctrl_.ver_ki = _p;
 }
 
 void ControllerNode::verticalIMaxAccelCb(double _p)
 {
-  pos_pid_.setMaxIntegralAccel(2, _p);
+  trans_ctrl_.ver_max_i_acc = _p;
 }
 
 void ControllerNode::attitudeNaturalFreqCb(double _p)
 {
-  atti_wn_ = _p;
-  updateAttitudePDGain();
+  rot_ctrl_.atti_wn = _p;
 }
 
 void ControllerNode::attitudeDampingRatioCb(double _p)
 {
-  atti_zeta_ = _p;
-  updateAttitudePDGain();
+  rot_ctrl_.atti_zeta = _p;
 }
 
 void ControllerNode::attitudeIGainCb(double _p)
 {
-  rot_pi_.setIntegralGain(0, _p);
-  rot_pi_.setIntegralGain(1, _p);
+  rot_ctrl_.atti_ki = _p;
 }
 
 void ControllerNode::attitudeMaxAccelCb(double _p)
@@ -316,19 +297,22 @@ void ControllerNode::attitudeMaxAccelCb(double _p)
 
 void ControllerNode::headingNaturalFreqCb(double _p)
 {
-  head_wn_ = _p;
-  updateHeadingPDGain();
+  rot_ctrl_.head_wn = _p;
 }
 
 void ControllerNode::headingDampingRatioCb(double _p)
 {
-  head_zeta_ = _p;
-  updateHeadingPDGain();
+  rot_ctrl_.head_zeta = _p;
 }
 
 void ControllerNode::headingIGainCb(double _p)
 {
-  rot_pi_.setIntegralGain(2, _p);
+  rot_ctrl_.head_ki = _p;
+}
+
+void ControllerNode::throttleGainThresholdCb(double _p)
+{
+  throttle_gain_thresh_ = _p / 100.0;
 }
 
 void ControllerNode::headingMaxAccelCb(double _p)
@@ -400,23 +384,54 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   const auto& cur_vel_B = _odom->odom.odom.twist.vel;
   const auto& cur_gyro_B = _odom->odom.odom.twist.rot;
 
+  // To prevent relatively large tilt-angle variations at low upward thrust,
+  // reduce the controllers' natural frequencies in proportion to the target specific force when it falls below the threshold.
+  const auto tar_sf = acc_cmd_ ? std::max(acc_cmd_->accel.z() + st::kGravity, 0.0) : 0.0;
+  const auto sf_thresh = st::kGravity * throttle_gain_thresh_;
+  const auto land_suspect = (tar_sf < sf_thresh);
+  const auto gain_throt = land_suspect ? tar_sf / sf_thresh : 1.0;
+
   // Position controller.
   if (pos_cmd_) {
     if (!acc_cmd_) {
       acc_cmd_.emplace();
     }
 
-    // Current position and velocity viewed from the world coordinate system.
-    const auto cur_vel_W = cur_rot * cur_vel_B;
+    // Determine gains.
+    const auto hor_wn = trans_ctrl_.hor_wn * gain_throt;
+    const auto ver_wn = trans_ctrl_.ver_wn;  // Do not throttle the vertical direction.
+    const auto hor_kp = math::sqr(hor_wn);
+    const auto ver_kp = math::sqr(ver_wn);
+    const auto hor_ki = trans_ctrl_.hor_ki * gain_throt;
+    const auto ver_ki = trans_ctrl_.ver_ki;  // Do not throttle the vertical direction.
+    const auto hor_kd = 2 * trans_ctrl_.hor_zeta * hor_wn;
+    const auto ver_kd = 2 * trans_ctrl_.ver_zeta * ver_wn;
+    const kdl::Vector kp(hor_kp, hor_kp, ver_kp);
+    const kdl::Vector ki(hor_ki, hor_ki, ver_ki);
+    const kdl::Vector kd(hor_kd, hor_kd, ver_kd);
 
-    // Compute target acceleration; do not integrate error while grounded.
-    acc_cmd_->accel =
-      pos_cmd_->acc + pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, landed_->landed ? 0.0 : dt);
+    // Compute error.
+    const auto ep = pos_cmd_->pos - cur_pos_W;
+    const auto ed = pos_cmd_->vel - cur_rot * cur_vel_B;
+
+    // Accumulate integral error while airborne.
+    if (!land_suspect) {
+      assert(trans_ctrl_.hor_ki > 0.0);
+      assert(trans_ctrl_.ver_ki > 0.0);
+      const auto hor_max_ei = trans_ctrl_.hor_max_i_acc / trans_ctrl_.hor_ki;
+      const auto ver_max_ei = trans_ctrl_.ver_max_i_acc / trans_ctrl_.ver_ki;
+      const kdl::Vector max_ei(hor_max_ei, hor_max_ei, ver_max_ei);
+      const auto next_ei = trans_ctrl_.ei + ep * dt;
+      trans_ctrl_.ei = next_ei.clamp(-max_ei, max_ei);
+    }
+
+    // Compute target acceleration.
+    acc_cmd_->accel = pos_cmd_->acc + kp.hadamard(ep) + ki.hadamard(trans_ctrl_.ei) + kd.hadamard(ed);
 
     // Fill the feedback message.
     setpoint->odom.frame.p = pos_cmd_->pos;
     setpoint->odom.twist.vel = cur_rot.inverse(pos_cmd_->vel);
-    feedback->position_integral_error = pos_pid_.getIntegralError();
+    feedback->position_integral_error = trans_ctrl_.ei;
   }
 
   // Attitude controller.
@@ -425,13 +440,38 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       rate_cmd_.emplace();
     }
 
-    // Compute target angular velocity; do not integrate error while grounded.
+    // Determine gains.
+    const auto atti_wn = rot_ctrl_.atti_wn * gain_throt;
+    const auto head_wn = rot_ctrl_.head_wn * gain_throt;
+    const auto atti_angle_gain = atti_wn / rot_ctrl_.atti_zeta / 2;
+    const auto head_angle_gain = head_wn / rot_ctrl_.head_zeta / 2;
+    const kdl::Vector angle_gain(atti_angle_gain, atti_angle_gain, head_angle_gain);
+    const auto atti_ki = rot_ctrl_.atti_ki * gain_throt;
+    const auto head_ki = rot_ctrl_.head_ki * gain_throt;
+    const kdl::Vector ki(atti_ki, atti_ki, head_ki);
+
+    // Compute rotation error.
     const auto tar_rot = angle_cmd_->angle.toRotation();
-    rate_cmd_->rate = rot_pi_.update(cur_rot, tar_rot, landed_->landed ? 0.0 : dt);
+    const auto ep = (cur_rot.inverse() * tar_rot).getRot();
+
+    // Accumulate integral error while airborne.
+    if (!land_suspect) {
+      for (int i = 0; i < 3; ++i) {
+        if (ki(i) > 0.0) {
+          rot_ctrl_.ei(i) += ep(i) * dt;
+        }
+        else {
+          rot_ctrl_.ei(i) = 0.0;
+        }
+      }
+    }
+
+    // Compute target angular velocity.
+    rate_cmd_->rate = angle_gain.hadamard(ep) + ki.hadamard(rot_ctrl_.ei);
 
     // Fill the feedback message.
     setpoint->odom.frame.M = tar_rot;
-    feedback->angle_integral_error = rot_pi_.getIntegralError();
+    feedback->angle_integral_error = rot_ctrl_.ei;
   }
 
   // Angular velocity controller.
@@ -440,9 +480,16 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       tar_dgyro_.emplace();
     }
 
+    // Determine gains.
+    const auto atti_wn = rot_ctrl_.atti_wn * gain_throt;
+    const auto head_wn = rot_ctrl_.head_wn * gain_throt;
+    const auto atti_rate_gain = atti_wn * rot_ctrl_.atti_zeta * 2;
+    const auto head_rate_gain = head_wn * rot_ctrl_.head_zeta * 2;
+    const kdl::Vector rate_gain(atti_rate_gain, atti_rate_gain, head_rate_gain);
+
     // Compute target angular acceleration and apply per-axis limits.
     // Limiting angular acceleration can help prevent the mixer from outputting extreme tilt angles.
-    *tar_dgyro_ = rate_gain_.hadamard(rate_cmd_->rate - cur_gyro_B).clamp(-max_dgyro_, max_dgyro_);
+    *tar_dgyro_ = rate_gain.hadamard(rate_cmd_->rate - cur_gyro_B).clamp(-max_dgyro_, max_dgyro_);
 
     // Fill the feedback message.
     setpoint->odom.twist.rot = rate_cmd_->rate;
@@ -527,8 +574,8 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _ar
 
   // Reset integral errors and commands when disarmed.
   if (!_arming->data && arming_->data) {
-    pos_pid_.resetIntegralError();
-    rot_pi_.resetIntegralError();
+    trans_ctrl_.ei.setZero();
+    rot_ctrl_.ei.setZero();
 
     pos_cmd_.reset();
     acc_cmd_.reset();
