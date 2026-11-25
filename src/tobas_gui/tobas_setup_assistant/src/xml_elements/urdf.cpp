@@ -36,7 +36,7 @@ std::string toString<std::string>(const std::string& _data)
 template <>
 std::string toString<double>(double _data)
 {
-  return std::format("{:.{}g}", _data, 9);
+  return std::format("{:.9g}", _data);
 }
 
 template <>
@@ -220,7 +220,7 @@ void addElectricPropulsionSystemPlugin(
   plugin->InsertNewChildElement("robotNamespace")->SetText(_ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(_link_name.c_str());
   plugin->InsertNewChildElement("kv")->SetText(toString(_kv).c_str());
-  plugin->InsertNewChildElement("internalResistance")->SetText(_internal_resistance);
+  plugin->InsertNewChildElement("internalResistance")->SetText(toString(_internal_resistance).c_str());
   plugin->InsertNewChildElement("numberOfBlades")->SetText(toString(_num_blades).c_str());
   plugin->InsertNewChildElement("motorConstant")->SetText(toString(_motor_const).c_str());
   plugin->InsertNewChildElement("momentConstant")->SetText(toString(_moment_const).c_str());
