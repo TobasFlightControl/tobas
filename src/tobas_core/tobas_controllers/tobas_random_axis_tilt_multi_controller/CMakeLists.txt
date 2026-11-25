@@ -4,14 +4,8 @@ project(tobas_random_axis_tilt_multi_controller)
 find_package(tobas_cmake REQUIRED)
 tobas_default_build_type()
 
-set(AMENT_DEPENDENCIES
-    tobas_nlp
-    tobas_node
-    tobas_pose_pid
-    tobas_tools
-    tobas_nonplanar_multi_controller
-    tobas_drone_msgs_adapter
-    tobas_debug_msgs_adapter
+set(AMENT_DEPENDENCIES tobas_nlp tobas_node tobas_tools tobas_nonplanar_multi_controller tobas_drone_msgs_adapter
+                       tobas_debug_msgs_adapter
 )
 
 find_package(ament_cmake REQUIRED)
@@ -28,7 +22,6 @@ target_link_libraries(
   ${PROJECT_NAME}
   tobas_nlp::tobas_nlp
   tobas_node::tobas_node
-  tobas_pose_pid::tobas_pose_pid
   tobas_tools::tobas_tools
   tobas_nonplanar_multi_controller::tobas_nonplanar_multi_controller
   tobas_drone_msgs_adapter::tobas_drone_msgs_adapter

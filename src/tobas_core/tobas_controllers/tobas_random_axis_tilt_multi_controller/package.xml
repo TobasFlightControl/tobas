@@ -13,7 +13,6 @@
   <depend>tobas_nlp</depend>
   <depend>tobas_node</depend>
   <depend>tobas_nonplanar_multi_controller</depend>
-  <depend>tobas_pose_pid</depend>
   <depend>tobas_tools</depend>
 
   <export>

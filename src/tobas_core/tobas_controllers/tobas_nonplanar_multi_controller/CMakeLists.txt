@@ -4,7 +4,7 @@ project(tobas_nonplanar_multi_controller)
 find_package(tobas_cmake REQUIRED)
 tobas_default_build_type()
 
-set(AMENT_DEPENDENCIES tobas_node tobas_pose_pid tobas_tools tobas_drone_msgs_adapter tobas_debug_msgs_adapter)
+set(AMENT_DEPENDENCIES tobas_node tobas_tools tobas_drone_msgs_adapter tobas_debug_msgs_adapter)
 
 find_package(ament_cmake REQUIRED)
 foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
@@ -17,8 +17,8 @@ file(GLOB_RECURSE LIB_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} s
 add_library(${PROJECT_NAME} STATIC ${LIB_TARGETS})
 tobas_target_defaults(${PROJECT_NAME})
 target_link_libraries(
-  ${PROJECT_NAME} tobas_node::tobas_node tobas_pose_pid::tobas_pose_pid tobas_tools::tobas_tools
-  tobas_drone_msgs_adapter::tobas_drone_msgs_adapter tobas_debug_msgs_adapter::tobas_debug_msgs_adapter
+  ${PROJECT_NAME} tobas_node::tobas_node tobas_tools::tobas_tools tobas_drone_msgs_adapter::tobas_drone_msgs_adapter
+  tobas_debug_msgs_adapter::tobas_debug_msgs_adapter
 )
 
 file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} nodes/*.cpp)
