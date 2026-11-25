@@ -506,9 +506,9 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     const auto head_wn = rot_ctrl_.head_wn * gain_throt;
     const auto atti_angle_gain = atti_wn / rot_ctrl_.atti_zeta / 2;
     const auto head_angle_gain = head_wn / rot_ctrl_.head_zeta / 2;
+    const kdl::Vector angle_gain(atti_angle_gain, atti_angle_gain, head_angle_gain);
     const auto atti_ki = rot_ctrl_.atti_ki * gain_throt;
     const auto head_ki = rot_ctrl_.head_ki * gain_throt;
-    const kdl::Vector angle_gain(atti_angle_gain, atti_angle_gain, head_angle_gain);
     const kdl::Vector ki(atti_ki, atti_ki, head_ki);
 
     // Determine target attitude.
