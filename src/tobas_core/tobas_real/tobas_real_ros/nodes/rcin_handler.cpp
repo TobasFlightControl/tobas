@@ -191,10 +191,9 @@ FlightMode RCInputHandlerNode::getClosestFlightMode(uint16_t _period)
 void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& _sbus)
 {
   if (!timeout_timer_) {
-    // The longest S.BUS period is 14 ms.
-    // Treat the receiver as abnormal if 3 or more frames are missing.
     // Always publish some message because subscribers are harder to implement as event-driven logic if messages may stop.
-    timeout_timer_ = createWallTimer(14ms * 3, &self::timeoutTimerCb, this);
+    constexpr auto kSbusTimeout = 100ms;
+    timeout_timer_ = createWallTimer(kSbusTimeout, &self::timeoutTimerCb, this);
   }
 
   timeout_timer_->reset();
