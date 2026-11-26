@@ -13,7 +13,6 @@
 #include <rviz_common/view_manager.hpp>
 #include <rviz_common/visualization_frame.hpp>  // `rviz_rendering/render_window.hpp` does not support `DQT_NO_KEYWORD`.
 #include <rviz_common/visualization_manager.hpp>
-#include <rviz_common/yaml_config_reader.hpp>
 
 namespace tobas::rviz
 {
@@ -48,21 +47,15 @@ void RvizFrameManager::initialize(const QString& _config_path)
 {
   removeDefaultColorMaterials();
 
-  // Read configuration.
-  rviz_common::YamlConfigReader reader;
-  rviz_common::Config config;
-  reader.readFile(config, _config_path);
-
   // Create a visualization frame.
   // Keep the frame parentless so that QLayout::addWidget() reparents it as an embedded widget and clears its Qt::Window flag.
   frame_ = new rviz_common::VisualizationFrame(node_, nullptr);
 
   // Initialize the visualization frame.
-  frame_->setSplashPath("");  // Do not show a splash image.
-  frame_->initialize(node_);  // The initialization method must be called after the splash path is set.
+  frame_->setSplashPath("");                // Do not show a splash image.
+  frame_->initialize(node_, _config_path);  // Pass the configuration here to avoid loading ~/.rviz2/default.rviz.
 
   // Configure the visualization frame.
-  frame_->load(config);
   frame_->menuBar()->hide();
   frame_->statusBar()->hide();
   frame_->setHideButtonVisibility(false);
