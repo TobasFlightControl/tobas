@@ -28,7 +28,7 @@ GnssStateCheckerNode::GnssStateCheckerNode(const rclcpp::NodeOptions& _options)
 
 void GnssStateCheckerNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss)
 {
-  if (_gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
+  if (_gnss->fix_type >= tobas_msgs::msg::Gnss::FIX_3D) {
     TOBAS_INFO_THROTTLE(1.0, "GNSS 3D Fix");
   }
 }

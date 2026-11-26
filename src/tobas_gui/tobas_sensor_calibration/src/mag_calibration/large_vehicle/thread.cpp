@@ -42,7 +42,7 @@ void LargeVehicleMagCalibThread::run()
   }
 
   // Confirm that position information has been received.
-  if (gnss_->fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
+  if (gnss_->fix_type < tobas_msgs::msg::Gnss::FIX_3D) {
     Q_EMIT finished(false, "A 3D GNSS fix is required.");
     return;
   }

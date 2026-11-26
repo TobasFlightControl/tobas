@@ -98,7 +98,7 @@ void GnssPlotWidget::setData(const QVector<tobas_msgs::msg::Gnss>& _gnss_msgs)
   QVector<double> up_speed_data;
 
   for (const auto& gnss : _gnss_msgs) {
-    if (gnss.fix_type != tobas_msgs::msg::Gnss::FIX_3D) {
+    if (gnss.fix_type < tobas_msgs::msg::Gnss::FIX_3D) {
       continue;
     }
 

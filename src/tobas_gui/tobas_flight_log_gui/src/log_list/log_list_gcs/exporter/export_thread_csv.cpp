@@ -348,7 +348,7 @@ const std::string& ExportThreadCsv::makeCsvDataRow(Time _time, const SerializedD
     6,
     [&](const auto& _msg)
     {
-      if (_msg.fix_type == tobas_msgs::msg::Gnss::FIX_3D) {
+      if (_msg.fix_type >= tobas_msgs::msg::Gnss::FIX_3D) {
         std::format_to(std::back_inserter(res), "{:.8f},{:.8f},{:.6g},", _msg.latitude, _msg.longitude, _msg.height_msl);
         append_vector3(_msg.ground_speed);
       }
