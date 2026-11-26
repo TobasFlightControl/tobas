@@ -79,6 +79,8 @@ private:
   {
     double alpha;  ///< Tilt angle offsets viewed from the body frame [rad].
     double last_thrust_angle = 0.0;
+    double desiable_thrust = 0.0;
+    double desiable_thrust_angle = 0.0;
   };
   struct ControlSurfaceInfo
   {
@@ -122,9 +124,10 @@ private:
   double
   calcThrustAngle(const double& tilt_angle, const StaticRotorLinkInfo& info, const DynamicRotorLinkState& state) const;
   void updateControlJointPositions(const kdl::JntArray& cur_q);
-  st::Range<Eigen::Vector3d> calcMomentRange(
-    const double& desiable_thrust,
-    const double& thrust_angle,
-    const Eigen::Matrix<double, 5, Eigen::Dynamic>& E) const;
+  void setDesiableRotorInfo(
+    const double& _desiable_thrust,
+    const double& _thrust_angle,
+    const Eigen::Matrix<double, 5, Eigen::Dynamic>& _E);
+  st::Range<Eigen::Vector3d> calcMomentRange(const Eigen::Matrix<double, 5, Eigen::Dynamic>& E) const;
 };
 }  // namespace tobas::y_axis_tilt_vtol

@@ -271,7 +271,8 @@ std::expected<MixerSolution, std::string> QpMixer::solve(
 
   // Right-hand side of the EoM matrix equality.
   // 出せる最大角速度を求める
-  const auto moment_range = calcMomentRange(thrust, thrust_angle, E_);
+  setDesiableRotorInfo(thrust, thrust_angle, E_);
+  const auto moment_range = calcMomentRange(E_);
   const Eigen::Vector3d max_angular_acc = I_B.data.diagonal().cwiseInverse().cwiseProduct(moment_range.upper);
   const Eigen::Vector3d min_angular_acc = I_B.data.diagonal().cwiseInverse().cwiseProduct(moment_range.lower);
   // 空力による応答遅れの影響を考慮してPI要素を挟む アンチワインドアップを実施
@@ -308,11 +309,9 @@ std::expected<MixerSolution, std::string> QpMixer::solve(
 
   // Weights for thrust.
   const auto thrust_scale = mass * st::kGravity / drone_.prop->numRotors();  // [N]
-  const auto thrust_weight_base = cfg_.thrust_weight / math::sqr(thrust_scale);
+  const auto thrust_weight = cfg_.thrust_weight / math::sqr(thrust_scale);
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
-    const auto& rotor = rotor_it.second;
     const auto& info = info_[idx];
-    const auto thrust_weight = thrust_weight_base * rotor->effortWeight();
     size_t size = 0;
     if (info.is_tilt) {
       size = 2;
@@ -346,13 +345,12 @@ std::expected<MixerSolution, std::string> QpMixer::solve(
 
     if (info.is_tilt) {
       const auto last_thrust_angle = state.last_thrust_angle;
-      const double max_delta_tilt_angle = kMaxTiltVelocity * dt;
       const auto thrust_angle_lim0 = calcThrustAngle(info.min_tilt_angle, info, state);
       const auto thrust_angle_lim1 = calcThrustAngle(info.max_tilt_angle, info, state);
       const auto physical_min_thrust_angle = std::min(thrust_angle_lim0, thrust_angle_lim1);
       const auto physical_max_thrust_angle = std::max(thrust_angle_lim0, thrust_angle_lim1);
-      const auto min_thrust_angle = std::max(physical_min_thrust_angle, last_thrust_angle - max_delta_tilt_angle);
-      const auto max_thrust_angle = std::min(physical_max_thrust_angle, last_thrust_angle + max_delta_tilt_angle);
+      const auto min_thrust_angle = std::max(physical_min_thrust_angle, state.desiable_thrust_angle - kTiltAngleMargin);
+      const auto max_thrust_angle = std::min(physical_max_thrust_angle, state.desiable_thrust_angle + kTiltAngleMargin);
       auto row = info.inequality_row;
       qp_.problem.A(row, info.column) = -std::cos(min_thrust_angle);
       qp_.problem.A(row, info.column + 1) = std::sin(min_thrust_angle);
@@ -557,30 +555,49 @@ void QpMixer::updateControlJointPositions(const kdl::JntArray& cur_q)
   }
 }
 
-st::Range<Eigen::Vector3d> QpMixer::calcMomentRange(
-  const double& desiable_thrust,
-  const double& thrust_angle,
-  const Eigen::Matrix<double, 5, Eigen::Dynamic>& E) const
+void QpMixer::setDesiableRotorInfo(
+  const double& _desiable_thrust,
+  const double& _thrust_angle,
+  const Eigen::Matrix<double, 5, Eigen::Dynamic>& _E)
 {
   // calculate desirable thrusts
   const auto thrusts_size = cs_info_.at(0).column;
-  Eigen::Vector5d f_unit(0, 0, 0, std::sin(thrust_angle), std::cos(thrust_angle));
+  Eigen::Vector5d f_unit(0, 0, 0, std::sin(_thrust_angle), std::cos(_thrust_angle));
   const Eigen::VectorXd desiable_unit_thrusts =
-    E.leftCols(thrusts_size).jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_unit);
+    _E.leftCols(thrusts_size).jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f_unit);
 
+  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
+    const auto& info = info_[idx];
+    auto& state = state_[idx];
+
+    if (info.is_tilt) {
+      const auto desiable_thrust_here = _desiable_thrust * desiable_unit_thrusts.segment<2>(info.column).norm();
+      const auto desiable_thrust_angle =
+        std::atan2(desiable_unit_thrusts(info.column), desiable_unit_thrusts(info.column + 1));
+      state.desiable_thrust = desiable_thrust_here;
+      state.desiable_thrust_angle = desiable_thrust_angle;
+    }
+    else {
+      state.desiable_thrust = _desiable_thrust * desiable_unit_thrusts(info.column);
+    }
+  }
+}
+
+st::Range<Eigen::Vector3d> QpMixer::calcMomentRange(const Eigen::Matrix<double, 5, Eigen::Dynamic>& E) const
+{
   st::Range<Eigen::Vector3d> moment_range(Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero());
 
   for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
     const auto& rotor = rotor_it.second;
     const auto& info = info_[idx];
+    const auto& state = state_[idx];
+    const auto desiable_thrust_here = state.desiable_thrust;
 
     if (info.is_tilt) {
-      const auto desiable_thrust_here = desiable_thrust * desiable_unit_thrusts.segment<2>(info.column).norm();
       const auto min_thrust = std::max(0.0, (1.0 - kMomentThrustRatio) * desiable_thrust_here);
       const auto max_thrust =
         std::min((1.0 + kMomentThrustRatio) * desiable_thrust_here, drone_.prop->maxThrust(rotor->link_name));
-      const auto desiable_tilt_angle =
-        std::atan2(desiable_unit_thrusts(info.column), desiable_unit_thrusts(info.column + 1));
+      const auto desiable_tilt_angle = state.desiable_thrust_angle;
       const auto min_tilt_angle = desiable_tilt_angle - kTiltAngleMargin;
       const auto max_tilt_angle = desiable_tilt_angle + kTiltAngleMargin;
 
@@ -598,7 +615,6 @@ st::Range<Eigen::Vector3d> QpMixer::calcMomentRange(
       moment_range.upper += candidate_1.cwiseMax(candidate_2).cwiseMax(candidate_3).cwiseMax(candidate_4);
     }
     else {
-      const auto desiable_thrust_here = desiable_thrust * desiable_unit_thrusts(info.column);
       const auto min_thrust = std::max(0.0, (1.0 - kMomentThrustRatio) * desiable_thrust_here);
       const auto max_thrust =
         std::min((1.0 + kMomentThrustRatio) * desiable_thrust_here, drone_.prop->maxThrust(rotor->link_name));

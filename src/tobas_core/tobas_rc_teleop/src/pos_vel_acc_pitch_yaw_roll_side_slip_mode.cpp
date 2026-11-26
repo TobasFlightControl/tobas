@@ -57,9 +57,17 @@ void PosVelAccPitchYawRollSideSlipModeController::initialize(BaseNode* node, Fli
   node->addDynamicDoubleParam(addMode("roll_expo", mode), &self::rollExpoCb, this, 5.0, 0, -20, 20);
   node->addDynamicDoubleParam(addMode("yaw_expo", mode), &self::yawExpoCb, this, 5.0, -3, -20, 20);
 
+  // publishers
   multicopter_cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelAccPitchYaw>(topic::kPosVelAccPitchYawCmd);
   fixed_wing_cmd_pub_ =
     node->createPublisher<tobas_command_msgs::msg::VelRollSideSlipMode>(topic::kVelRollSideSlipModeCmd);
+
+  // subscribers
+  multicopter_angle_cmd_sub_ = node->createSubscriber(topic::kAngleThrotVectorCmd, &self::multicopterAngleCmdCb, this);
+  fixed_wing_manual_cmd_sub_ =
+    node->createSubscriber(topic::kAileElevRudThrottleCmd, &self::fixedWingManualCmdCb, this);
+  fixed_wing_angle_cmd_sub_ =
+    node->createSubscriber(topic::kRollPitchSideSlipThrotVectorCmd, &self::fixedWingAngleCmdCb, this);
 }
 
 void PosVelAccPitchYawRollSideSlipModeController::reset(
@@ -69,15 +77,8 @@ void PosVelAccPitchYawRollSideSlipModeController::reset(
 {
   t_last_rcin_ = _stamp;
 
-  // TODO : 逆遷移中にmanual modeからこのモードに入れたときに正しくモードを判断する
-  if (_setpoint.twist.vel.norm() < kBackwardTransitionFinishSpeed) {
-    mode_ = ControlMode::MULTICOPTER;
-    resetMulticopterControllers(_setpoint, _landed);
-  }
-  else {
-    mode_ = ControlMode::FORWARD_FLIGHT;
-    resetFixedWingControllers(_setpoint, _landed);
-  }
+  resetMulticopterControllers(_setpoint, _landed);
+  resetFixedWingControllers(_setpoint, _landed);
 }
 
 void PosVelAccPitchYawRollSideSlipModeController::update(
@@ -89,6 +90,7 @@ void PosVelAccPitchYawRollSideSlipModeController::update(
   const auto dt = (_rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = _rcin.header.stamp;
 
+  // TODO : 逆遷移中にmanual modeからこのモードに入れたときに正しくモードを判断する
   // Mode transition
   switch (mode_) {
     case ControlMode::MULTICOPTER: {
@@ -109,7 +111,9 @@ void PosVelAccPitchYawRollSideSlipModeController::update(
       break;
     }
     case ControlMode::BACKWARD_TRANSITION: {
-      if (_odom.twist.vel.norm() < kBackwardTransitionFinishSpeed) {
+      if (
+        _odom.twist.vel.x() <
+        kBackwardTransitionFinishSpeed) {  // z方向速度をコマンドしているときにmulticopterにならないのを避けるためnormを取らない
         mode_ = ControlMode::MULTICOPTER;
         std::cout << "backward transition -> multicopter" << std::endl;
         resetMulticopterControllers(_odom, _landed);
@@ -225,6 +229,24 @@ void PosVelAccPitchYawRollSideSlipModeController::update(
     default:
       break;
   }
+}
+
+void PosVelAccPitchYawRollSideSlipModeController::multicopterAngleCmdCb(
+  const tobas_command_msgs::AngleThrottleVector::ConstSharedPtr&)
+{
+  mode_ = ControlMode::MULTICOPTER;
+}
+
+void PosVelAccPitchYawRollSideSlipModeController::fixedWingManualCmdCb(
+  const tobas_command_msgs::msg::AileElevRudThrottle::ConstSharedPtr&)
+{
+  mode_ = ControlMode::FORWARD_FLIGHT;
+}
+
+void PosVelAccPitchYawRollSideSlipModeController::fixedWingAngleCmdCb(
+  const tobas_command_msgs::msg::RollPitchSideSlipThrottleVector::ConstSharedPtr&)
+{
+  mode_ = ControlMode::FORWARD_FLIGHT;
 }
 
 void PosVelAccPitchYawRollSideSlipModeController::resetFixedWingControllers(const tobas_msgs::Odometry& _setpoint, bool)

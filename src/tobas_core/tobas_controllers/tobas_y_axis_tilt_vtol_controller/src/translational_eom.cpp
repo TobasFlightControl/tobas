@@ -77,6 +77,48 @@ bool TranslationalEoM::solve(
   return true;
 }
 
+bool TranslationalEoM::solveMulticopterDynamicsWithThrustAngleFixed(
+  const kdl::Vector& _tar_acc_W,
+  const double& _tar_yaw,
+  const double& _tar_thrust_angle,
+  double& _thrust_out,
+  kdl::Euler& _angle_out)
+{
+  // Compute the target force viewed from the world coordinate system.
+  const auto& mass = mass_holder_.getMass();
+  auto f_W = mass * (_tar_acc_W - grav_W_);
+
+  // When the acceleration magnitude is small, such as during landing,
+  // the rate of change in the tilt-angle solution becomes relatively large.
+  // The mixer ignores delay in tilt-angle tracking, so large tilt-angle displacement should be avoided.
+  // Therefore, at minimum, ensure that thrust is generated vertically upward.
+  f_W.z(std::max(f_W.z(), mass * kMinVerticalForcePerMass));
+
+  // Convert the target force to the local coordinate system before pitch & roll.
+  const auto f_L = kdl::Rotation::RPY(0.0, 0.0, _tar_yaw).inverse(f_W);
+
+  // Compute T
+  _thrust_out = f_L.norm();
+
+  // Compute roll angle
+  const auto sin_phi = std::clamp(f_L.y() / (-_thrust_out * std::cos(_tar_thrust_angle)), -1.0, 1.0);
+  const auto phi = std::asin(sin_phi);
+
+  // Compute pitch angle
+  const auto T_sin_chi = _thrust_out * std::sin(_tar_thrust_angle);
+  const auto T_cos_chi_cos_phi = _thrust_out * std::cos(_tar_thrust_angle) * std::cos(phi);
+  Eigen::Matrix2d C;
+  C << T_sin_chi, T_cos_chi_cos_phi, T_cos_chi_cos_phi, -T_sin_chi;
+  Eigen::Vector2d rhs(f_L.x(), f_L.z());
+  Eigen::Vector2d x = C.inverse() * rhs;  // [cos(theta), sin(theta)]
+  const auto theta = std::atan2(x(1), x(0));
+
+  // Compute the target attitude after solving the nonlinear equation.
+  _angle_out = kdl::Euler(kdl::Rotation::RPY(phi, theta, _tar_yaw));
+
+  return true;
+}
+
 bool TranslationalEoM::solveXZDynamics(
   const double& _tar_acc_x,
   const double& _tar_acc_z,

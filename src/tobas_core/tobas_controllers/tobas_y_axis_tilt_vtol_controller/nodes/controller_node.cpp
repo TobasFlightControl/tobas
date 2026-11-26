@@ -185,6 +185,7 @@ namespace
 {
 constexpr double kBetaDotCutOffFreq = 30.0;  // beta dot filterのカットオフ周波数
 constexpr double kThrustClipValue = 1.0e-1;  // これより下の値はmixerに入れない
+constexpr double kMinThrustAngle = 0.0;      // これより下の値はmixerに入れない
 }  // namespace
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& _options)
@@ -526,6 +527,15 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
           *tar_angle_)) {
       TOBAS_FATAL("Failed to solve the translational EoM.");
       return;
+    }
+
+    if (thrust_angle_ < kMinThrustAngle) {
+      thrust_angle_ = kMinThrustAngle;
+      if (!trans_eom_.solveMulticopterDynamicsWithThrustAngleFixed(
+            multicopter_acc_cmd_->accel, multicopter_acc_cmd_->yaw, kMinThrustAngle, thrust_, *tar_angle_)) {
+        TOBAS_FATAL("Failed to solve the translational EoM.");
+        return;
+      }
     }
 
     // Fill the feedback message.

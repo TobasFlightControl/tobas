@@ -5,7 +5,10 @@
 
 #include <tobas_trajectory_generation/online/velocity_limited.hpp>
 
+#include <tobas_command_msgs/msg/aile_elev_rud_throttle.hpp>
+#include <tobas_command_msgs/msg/roll_pitch_side_slip_throttle_vector.hpp>
 #include <tobas_command_msgs/msg/vel_roll_side_slip_mode.hpp>
+#include <tobas_command_msgs_adapter/angle_throttle_vector.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_acc_pitch_yaw.hpp>
 
 #include "./base_controller.hpp"
@@ -42,7 +45,7 @@ private:
     BACKWARD_TRANSITION,
   };
 
-  ControlMode mode_;
+  ControlMode mode_ = ControlMode::MULTICOPTER;
   rclcpp::Time t_last_rcin_;
   SecondOrderVelocityFilter vx_filt_, vy_filt_, vz_filt_;
   traj::VelocityLimitedOnlineTrajectoryGenerator roll_filt_, pitch_filt_;
@@ -64,6 +67,15 @@ private:
   // Publisher
   ros2::PublisherPtr<tobas_command_msgs::PosVelAccPitchYaw> multicopter_cmd_pub_;
   ros2::PublisherPtr<tobas_command_msgs::msg::VelRollSideSlipMode> fixed_wing_cmd_pub_;
+
+  // Subscriber
+  ros2::SubscriberPtr<tobas_command_msgs::AngleThrottleVector> multicopter_angle_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::msg::AileElevRudThrottle> fixed_wing_manual_cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::msg::RollPitchSideSlipThrottleVector> fixed_wing_angle_cmd_sub_;
+
+  void multicopterAngleCmdCb(const tobas_command_msgs::AngleThrottleVector::ConstSharedPtr& _cmd);
+  void fixedWingManualCmdCb(const tobas_command_msgs::msg::AileElevRudThrottle::ConstSharedPtr& _cmd);
+  void fixedWingAngleCmdCb(const tobas_command_msgs::msg::RollPitchSideSlipThrottleVector::ConstSharedPtr& _cmd);
 
   void resetFixedWingControllers(const tobas_msgs::Odometry& setpoint, bool landed);
   void resetMulticopterControllers(const tobas_msgs::Odometry& setpoint, bool landed);
