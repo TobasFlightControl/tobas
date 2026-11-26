@@ -200,7 +200,6 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr _
 
   resetFlightControllerPlaceholder();
   reset();
-  fc_scanner_->start();
 }
 
 bool GroundControlStationWidget::eventFilter(QObject* _watched, QEvent* _event)
@@ -237,6 +236,8 @@ void GroundControlStationWidget::reset()
   else {
     remote_conn_->stop();
   }
+
+  fc_scanner_->reset();
 
   sensor_calib_->reset();
   actuator_test_->reset();

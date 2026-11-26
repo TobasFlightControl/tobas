@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <memory>
 
+#include <QDebug>
 #include <QMap>
 #include <QSet>
 
@@ -14,6 +15,8 @@ namespace tobas::gui::gcs
 namespace
 {
 constexpr char kServiceType[] = "_tobas-fc._tcp";
+constexpr int kScanInterval = 5000;  // [ms]
+constexpr int kScanTimeout = 10000;  // [ms]
 
 QMap<QString, QString> parseTxtField(const QString& _txt)
 {
@@ -102,7 +105,6 @@ QVector<DiscoveredFlightController> parseAvahiBrowseResult(const QString& _outpu
 
 FlightControllerScanner::FlightControllerScanner(QObject* _parent) : super(_parent)
 {
-  constexpr int kScanInterval = 5000;  // [ms]
   scan_timer_.setInterval(kScanInterval);
 
   // These callbacks run on the scanner's thread; the external processes run asynchronously.
@@ -111,31 +113,52 @@ FlightControllerScanner::FlightControllerScanner(QObject* _parent) : super(_pare
   connect(&process_, &QProcess::errorOccurred, this, &self::onScanFailed);
 }
 
-void FlightControllerScanner::start()
+void FlightControllerScanner::reset()
 {
   scan_timer_.start();
+
   scanOnce();
 }
 
-void FlightControllerScanner::stop()
+void FlightControllerScanner::cancel()
 {
   scan_timer_.stop();
+
+  scan_discarded_ = true;
+  killProcesses();
+}
+
+void FlightControllerScanner::killProcesses()
+{
+  // Stop service discovery (`avahi-browse`).
+  process_.kill();
+
+  // Stop IPv4 hostname lookups (`avahi-resolve-host-name`), which can outlive service discovery.
+  for (const auto resolver : findChildren<QProcess*>()) {
+    resolver->kill();
+  }
 }
 
 void FlightControllerScanner::scanOnce()
 {
   // Browsing may have exited while IPv4 lookups are still pending. Wait for the entire scan to finish.
   if (process_.state() != QProcess::NotRunning || pending_resolutions_ > 0) {
+    // A stalled external command must not block every subsequent scan.
+    if (scan_elapsed_.hasExpired(kScanTimeout)) {
+      qWarning() << "Flight controller scan timed out; stopping pending discovery processes.";
+      killProcesses();
+    }
     return;
   }
 
-  failure_reported_ = false;
+  scan_discarded_ = false;
+  scan_elapsed_.start();
   process_.start("avahi-browse", { "--parsable", "--resolve", "--terminate", kServiceType });
 }
 
 void FlightControllerScanner::onScanFinished(int _exit_code, QProcess::ExitStatus _exit_status)
 {
-  if (failure_reported_) {
+  if (scan_discarded_) {
     return;
   }
 
@@ -175,7 +198,7 @@ void FlightControllerScanner::onScanFinished(int _exit_code, QProcess::ExitStatu
       }
       resolver->deleteLater();
       // Publish once, after every lookup has finished.
-      if (--pending_resolutions_ == 0) {
+      if (--pending_resolutions_ == 0 && !scan_discarded_) {
         Q_EMIT finished(*controllers_ipv4);
       }
     };
@@ -197,7 +220,12 @@ void FlightControllerScanner::onScanFinished(int _exit_code, QProcess::ExitStatu
 
 void FlightControllerScanner::onScanFailed(QProcess::ProcessError)
 {
-  failure_reported_ = true;
+  if (scan_discarded_) {
+    return;
+  }
+
+  scan_discarded_ = true;
+
   auto message = process_.errorString();
   if (process_.error() == QProcess::FailedToStart) {
     message = "Failed to start avahi-browse. Install the avahi-utils package.";

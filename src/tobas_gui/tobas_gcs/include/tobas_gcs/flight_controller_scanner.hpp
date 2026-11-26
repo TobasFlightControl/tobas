@@ -5,6 +5,7 @@
 
 #include <optional>
 
+#include <QElapsedTimer>
 #include <QProcess>
 #include <QString>
 #include <QTimer>
@@ -34,13 +35,22 @@ Q_SIGNALS:
 public:
   explicit FlightControllerScanner(QObject* _parent);
 
-  void start();
-  void stop();
+  /**
+   * Start or restart periodic scanning and request an immediate scan.
+   * An active scan continues until completion or timeout.
+   */
+  void reset();
+
+  /** Stop periodic scanning and kill active discovery processes, discarding their results. */
+  void cancel();
 
 private:
+  void killProcesses();
+
   QProcess process_;
   QTimer scan_timer_;
-  bool failure_reported_ = false;
+  QElapsedTimer scan_elapsed_;
+  bool scan_discarded_ = false;
   int pending_resolutions_ = 0;
 
 private Q_SLOTS:
