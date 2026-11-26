@@ -7,11 +7,11 @@
 
 namespace tobas
 {
-enum class FlightMode
+enum class FlightMode : uint8_t
 {
-  kAcrobat,
-  kStabilize,
-  kLoiter,
+  kAcrobat = 0,
+  kStabilize = 1,
+  kLoiter = 2,
 };
 
 std::string textFromEnum(FlightMode _mode);
