@@ -5,7 +5,6 @@
 
 #include <QCloseEvent>
 #include <QCoreApplication>
-#include <QGuiApplication>
 #include <QIcon>
 #include <QSettings>
 #include <QVBoxLayout>
@@ -13,8 +12,7 @@
 namespace
 {
 constexpr char kWindowGroup[] = "window";
-constexpr char kPositionKey[] = "position";
-constexpr char kSizeKey[] = "size";
+constexpr char kGeometryKey[] = "geometry";
 
 bool hasSettingsIdentity()
 {
@@ -33,7 +31,7 @@ MainWidget::MainWidget(const QString& _title, const QString& _icon_path, QWidget
   }
 
   const auto rows = new QVBoxLayout(this);
-
+  rows->setContentsMargins(0, 0, 0, 0);
   rows->addWidget(_widget);
 
   restoreWindowGeometry();
@@ -60,19 +58,8 @@ void MainWidget::restoreWindowGeometry()
   QSettings settings;
   settings.beginGroup(kWindowGroup);
 
-  const auto size = settings.value(kSizeKey).toSize();
-  if (size.isValid()) {
-    resize(size);
-  }
-
-  if (settings.contains(kPositionKey)) {
-    const auto position = settings.value(kPositionKey).toPoint();
-    if (QGuiApplication::screenAt(position)) {
-      move(position);
-    }
-  }
-
-  settings.endGroup();
+  // Qt restores normal geometry and maximized state, adjusting windows to the available screens.
+  restoreGeometry(settings.value(kGeometryKey).toByteArray());
 }
 
 void MainWidget::saveWindowGeometry()
@@ -83,8 +70,9 @@ void MainWidget::saveWindowGeometry()
 
   QSettings settings;
   settings.beginGroup(kWindowGroup);
-  settings.setValue(kPositionKey, pos());
-  settings.setValue(kSizeKey, size());
+
+  settings.setValue(kGeometryKey, saveGeometry());
+
   settings.endGroup();
   settings.sync();
 }

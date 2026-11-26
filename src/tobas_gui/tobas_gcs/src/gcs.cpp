@@ -179,10 +179,9 @@ GroundControlStationWidget::GroundControlStationWidget(rclcpp::Node::SharedPtr _
   header_cols->addWidget(remote_conn_);
   header_cols->addLayout(configuration);
 
-  const auto rows = new QVBoxLayout(this);
-  rows->setContentsMargins(0, 0, 0, 0);
-  rows->addLayout(header_cols, 0);
-  rows->addWidget(app_sw_, 1);
+  const auto root_rows = new QVBoxLayout(this);
+  root_rows->addLayout(header_cols, 0);
+  root_rows->addWidget(app_sw_, 1);
 
   // Connection
   connect(app_btn_group_, &QButtonGroup::idClicked, app_sw_, &QStackedWidget::setCurrentIndex);

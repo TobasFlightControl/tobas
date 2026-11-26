@@ -54,7 +54,6 @@ URDFBuilder::URDFBuilder() : rviz_manager_("rviz_urdf_builder")
 
   // Embed the RViz frame without adding outer layout margins.
   const auto rows = new QVBoxLayout(this);
-  rows->setContentsMargins(0, 0, 0, 0);
   rows->addWidget(rviz_manager_.widget());
 }
 }  // namespace tobas::gui::ub
