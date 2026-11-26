@@ -18,8 +18,10 @@ if [[ "$device" == *[0-9] ]]; then
 fi
 
 # Unmount mounted partitions before checking or resizing the filesystem.
+sudo apt install -y util-linux
 for partition in "${partition_prefix}1" "${partition_prefix}2"; do
   if findmnt --source "$partition" >/dev/null; then
+    sudo apt install -y mount
     sudo umount "$partition"
   fi
 done
@@ -27,6 +29,7 @@ done
 # Check and repair filesystem inconsistencies before shrinking.
 # Exit status 1 means filesystem errors were successfully corrected.
 status=0
+sudo apt install -y e2fsprogs
 sudo e2fsck -f "${partition_prefix}2" || status=$?
 if ((status > 1)); then
   exit "$status"
