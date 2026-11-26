@@ -78,7 +78,6 @@ private:
   struct DynamicRotorLinkState
   {
     double alpha;  ///< Tilt angle offsets viewed from the body frame [rad].
-    double last_thrust_angle = 0.0;
     double desiable_thrust = 0.0;
     double desiable_thrust_angle = 0.0;
   };

@@ -344,13 +344,14 @@ std::expected<MixerSolution, std::string> QpMixer::solve(
     const auto& state = state_[idx];
 
     if (info.is_tilt) {
-      const auto last_thrust_angle = state.last_thrust_angle;
       const auto thrust_angle_lim0 = calcThrustAngle(info.min_tilt_angle, info, state);
       const auto thrust_angle_lim1 = calcThrustAngle(info.max_tilt_angle, info, state);
       const auto physical_min_thrust_angle = std::min(thrust_angle_lim0, thrust_angle_lim1);
       const auto physical_max_thrust_angle = std::max(thrust_angle_lim0, thrust_angle_lim1);
       const auto min_thrust_angle = std::max(physical_min_thrust_angle, state.desiable_thrust_angle - kTiltAngleMargin);
       const auto max_thrust_angle = std::min(physical_max_thrust_angle, state.desiable_thrust_angle + kTiltAngleMargin);
+      const auto mid_thrust_angle = 0.5 * (min_thrust_angle + max_thrust_angle);
+      const auto view_angle = 0.5 * (max_thrust_angle - min_thrust_angle);
       auto row = info.inequality_row;
       qp_.problem.A(row, info.column) = -std::cos(min_thrust_angle);
       qp_.problem.A(row, info.column + 1) = std::sin(min_thrust_angle);
@@ -360,13 +361,13 @@ std::expected<MixerSolution, std::string> QpMixer::solve(
       qp_.problem.A(row, info.column + 1) = -std::sin(max_thrust_angle);
       qp_.problem.b(row) = 0;
       row++;
-      qp_.problem.A(row, info.column) = -std::sin(last_thrust_angle);
-      qp_.problem.A(row, info.column + 1) = -std::cos(last_thrust_angle);
+      qp_.problem.A(row, info.column) = -std::sin(mid_thrust_angle);
+      qp_.problem.A(row, info.column + 1) = -std::cos(mid_thrust_angle);
       qp_.problem.b(row) = -drone_.prop->minThrust(rotor->link_name);
       row++;
-      qp_.problem.A(row, info.column) = std::sin(last_thrust_angle);
-      qp_.problem.A(row, info.column + 1) = std::cos(last_thrust_angle);
-      qp_.problem.b(row) = drone_.prop->maxThrust(rotor->link_name);
+      qp_.problem.A(row, info.column) = std::sin(mid_thrust_angle);
+      qp_.problem.A(row, info.column + 1) = std::cos(mid_thrust_angle);
+      qp_.problem.b(row) = drone_.prop->maxThrust(rotor->link_name) * std::cos(view_angle);
     }
     else {
       qp_.problem.A(info.inequality_row, info.column) = -1;
@@ -405,7 +406,6 @@ std::expected<MixerSolution, std::string> QpMixer::solve(
       auto& state = state_[idx];
       const auto tilt_angle = calcTiltAngle(tx, tz, info, state);
       tilt_angles(idx) = tilt_angle;
-      state.last_thrust_angle = tilt_angle;
     }
     else {
       thrusts(idx) = x(info.column);
@@ -534,17 +534,7 @@ void QpMixer::updateControlJointPositions(const kdl::JntArray& cur_q)
     }
   }
 
-  // Update last tilt joints & control surfaces positions
-  for (const auto& [idx, rotor_it] : std::views::enumerate(drone_.prop->rotors)) {
-    const auto& info = info_[idx];
-    if (info.is_tilt) {
-      const auto rotor = rotor_it.second;
-      const auto tilt_joint_name = rotor->tilt_joint_name;
-      const auto kdl_idx = jnt_parser_.jointIndex(tilt_joint_name);  // Index in the tree
-      auto& state = state_[idx];
-      state.last_thrust_angle = calcThrustAngle(cur_q(kdl_idx), info, state);
-    }
-  }
+  // Update control surfaces positions
   for (const auto& [idx, cs_it] : std::views::enumerate(drone_.fixed_wing->control_surfaces)) {
     const auto link_name = cs_it.first;
     const auto cs = cs_it.second;
