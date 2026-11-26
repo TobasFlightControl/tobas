@@ -23,6 +23,7 @@ static constexpr char kImuFilt[] = "imu_filtered";
 static constexpr char kMagneticField[] = "magnetic_field";
 static constexpr char kAirPressure[] = "air_pressure";
 static constexpr char kGnss[] = "gnss";
+static constexpr char kRtcmCorrection[] = "rtcm_correction";
 static constexpr char kRotorStates[] = "rotor_states";
 static constexpr char kRotorLiv[] = "rotor_liveliness";
 static constexpr char kJointStates[] = "joint_states_2";
