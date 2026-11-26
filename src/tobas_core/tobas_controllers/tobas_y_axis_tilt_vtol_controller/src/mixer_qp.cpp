@@ -25,8 +25,6 @@ constexpr double kTiltAngleMargin =
   30.0 / 180.0 * M_PI;  ///< 実行可能最大モーメントを出すために行って良い最大ティルト角変更
 ///< TODO: 機体ごとに定める
 constexpr double kMaxTiltVelocity = 90.0 / 180.0 * M_PI;  ///< rad/s
-constexpr double kMinTiltAngle = -0.25 * M_PI;            ///< rad
-constexpr double kMaxTiltAngle = 0.75 * M_PI;             ///< rad
 constexpr double kMaxCsVelocity = M_PI;                   ///< rad/s
 }  // namespace
 
@@ -98,10 +96,13 @@ void QpMixer::updateInternalDataStructures()
 
       // Store the sign of the tilt axis.
       const auto& B_T_gpar = frames.at(gpar_elem.segment.name());
-      const auto tilt_axis = B_T_gpar.M * par_elem.segment.joint().axis();  // Tilt axis viewed from the base link.
+      const auto tilt_joint = par_elem.segment.joint();
+      const auto tilt_axis = B_T_gpar.M * tilt_joint.axis();  // Tilt axis viewed from the base link.
       const auto tilt_axis_y = tilt_axis.normalized().y();
       assert(math::isClose(std::abs(tilt_axis_y), 1.0));
       info.sign = math::sign(tilt_axis_y);
+      info.min_tilt_angle = tilt_joint.lower_limit;
+      info.max_tilt_angle = tilt_joint.upper_limit;
     }
   }
 
@@ -344,25 +345,29 @@ std::expected<MixerSolution, std::string> QpMixer::solve(
     const auto& state = state_[idx];
 
     if (info.is_tilt) {
-      const auto last_tilt_angle = state.last_thrust_angle;
+      const auto last_thrust_angle = state.last_thrust_angle;
       const double max_delta_tilt_angle = kMaxTiltVelocity * dt;
-      const auto min_tilt_angle = std::max(kMinTiltAngle, last_tilt_angle - max_delta_tilt_angle);
-      const auto max_tilt_angle = std::min(kMaxTiltAngle, last_tilt_angle + max_delta_tilt_angle);
+      const auto thrust_angle_lim0 = calcThrustAngle(info.min_tilt_angle, info, state);
+      const auto thrust_angle_lim1 = calcThrustAngle(info.max_tilt_angle, info, state);
+      const auto physical_min_thrust_angle = std::min(thrust_angle_lim0, thrust_angle_lim1);
+      const auto physical_max_thrust_angle = std::max(thrust_angle_lim0, thrust_angle_lim1);
+      const auto min_thrust_angle = std::max(physical_min_thrust_angle, last_thrust_angle - max_delta_tilt_angle);
+      const auto max_thrust_angle = std::min(physical_max_thrust_angle, last_thrust_angle + max_delta_tilt_angle);
       auto row = info.inequality_row;
-      qp_.problem.A(row, info.column) = -std::cos(min_tilt_angle);
-      qp_.problem.A(row, info.column + 1) = std::sin(min_tilt_angle);
+      qp_.problem.A(row, info.column) = -std::cos(min_thrust_angle);
+      qp_.problem.A(row, info.column + 1) = std::sin(min_thrust_angle);
       qp_.problem.b(row) = 0;
       row++;
-      qp_.problem.A(row, info.column) = std::cos(max_tilt_angle);
-      qp_.problem.A(row, info.column + 1) = -std::sin(max_tilt_angle);
+      qp_.problem.A(row, info.column) = std::cos(max_thrust_angle);
+      qp_.problem.A(row, info.column + 1) = -std::sin(max_thrust_angle);
       qp_.problem.b(row) = 0;
       row++;
-      qp_.problem.A(row, info.column) = -std::sin(last_tilt_angle);
-      qp_.problem.A(row, info.column + 1) = -std::cos(last_tilt_angle);
+      qp_.problem.A(row, info.column) = -std::sin(last_thrust_angle);
+      qp_.problem.A(row, info.column + 1) = -std::cos(last_thrust_angle);
       qp_.problem.b(row) = -drone_.prop->minThrust(rotor->link_name);
       row++;
-      qp_.problem.A(row, info.column) = std::sin(last_tilt_angle);
-      qp_.problem.A(row, info.column + 1) = std::cos(last_tilt_angle);
+      qp_.problem.A(row, info.column) = std::sin(last_thrust_angle);
+      qp_.problem.A(row, info.column + 1) = std::cos(last_thrust_angle);
       qp_.problem.b(row) = drone_.prop->maxThrust(rotor->link_name);
     }
     else {

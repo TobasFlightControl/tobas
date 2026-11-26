@@ -71,6 +71,8 @@ private:
     bool is_tilt;
     size_t column;
     int sign;  ///< Signs of the Y components of tilt axes viewed from the body frame.
+    double min_tilt_angle;
+    double max_tilt_angle;
     size_t inequality_row;
   };
   struct DynamicRotorLinkState

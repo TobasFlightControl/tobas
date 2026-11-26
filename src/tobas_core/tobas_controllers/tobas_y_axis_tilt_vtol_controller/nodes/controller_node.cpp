@@ -30,6 +30,7 @@
 #include <tobas_command_msgs_adapter/accel_pitch_yaw.hpp>
 #include <tobas_command_msgs_adapter/angle_throttle_vector.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_acc_pitch_yaw.hpp>
+#include <tobas_debug_msgs_adapter/multicopter_controller_feedback.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_msgs/msg/arming.hpp>
@@ -70,6 +71,7 @@ private:
   bool tree_received_ = false;
   bool js_received_ = false;
   bool topics_received_ = false;
+  bool is_velocity_accurate_ = false;
   CommandPriorityHandler cmd_priority_handler_;
   tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;         // Atmospheric pressure
   tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr odom_flu_;  // Current state in the FLU coordinate system
@@ -103,6 +105,8 @@ private:
   TranslationalEoM trans_eom_;
   TransitionHandler transition_handler_;
   QpMixer mixer_;
+  double cruise_velocity_;       // [m/s]
+  double throttle_gain_thresh_;  ///< [-]
   struct TranslationControlParameters
   {
     double hor_wn, ver_wn;      // [rad/s]
@@ -110,15 +114,18 @@ private:
   } trans_ctrl_;
   struct RotationControlParameters
   {
-    double atti_wn, head_wn;      // [rad/s]
-    double atti_zeta, head_zeta;  // [-]
-    // TODO: add integral error gain while airborne
+    double multi_atti_wn, multi_head_wn;  // [rad/s]
+    double fw_atti_wn, fw_sideslip_wn;    // [rad/s]
+    double atti_zeta, head_zeta;          // [-]
+    double atti_ki, head_ki;
+    kdl::Vector ei = kdl::Vector::Zero();
   } rot_ctrl_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
   ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> tar_angles_pub_;
   ros2::PublisherPtr<tobas_msgs::OdometryStamped> setpoint_pub_;
+  ros2::PublisherPtr<tobas_debug_msgs::MulticopterControllerFeedback> feedback_pub_;
 
   // Subscribers
   ros2::SubscriberPtr<Drone> drone_sub_;
@@ -148,10 +155,15 @@ private:
   void horizontalDampingRatioCb(double _p);
   void verticalNaturalFreqCb(double _p);
   void verticalDampingRatioCb(double _p);
-  void attitudeNaturalFreqCb(double _p);
+  void multicopterAttitudeNaturalFreqCb(double _p);
+  void fixedWingAttitudeNaturalFreqCb(double _p);
   void attitudeDampingRatioCb(double _p);
+  void attitudeIGainCb(double _p);
   void headingNaturalFreqCb(double _p);
+  void sideSlipNaturalFreqCb(double _p);
   void headingDampingRatioCb(double _p);
+  void headingIGainCb(double _p);
+  void throttleGainThresholdCb(double _p);
 
   void droneCb(const Drone::ConstSharedPtr& _drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& _tree);
@@ -191,17 +203,25 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& _options)
   addDynamicDoubleParam("max_tilt_velocity", &self::minTransitionTimeCb, this, 1, 5, 1, 10, " s");
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFreqCb, this, 0.2, 5, 1, 30, " rad/s");
   addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFreqCb, this, 0.2, 10, 1, 30, " rad/s");
-  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFreqCb, this, 1.0, 10, 1, 30, " rad/s");
+  addDynamicDoubleParam(
+    "multicopter_attitude_natural_frequency", &self::multicopterAttitudeNaturalFreqCb, this, 1.0, 10, 1, 30, " rad/s");
+  addDynamicDoubleParam(
+    "fixed_wing_attitude_natural_frequency", &self::fixedWingAttitudeNaturalFreqCb, this, 1.0, 10, 1, 30, " rad/s");
   addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFreqCb, this, 0.2, 10, 1, 30, " rad/s");
+  addDynamicDoubleParam("sideslip_natural_frequency", &self::sideSlipNaturalFreqCb, this, 0.2, 10, 1, 30, " rad/s");
   addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 0.1, 7, 1, 20);
   addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 0.1, 10, 1, 20);
   addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 0.1, 10, 1, 20);
   addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 0.1, 10, 1, 20);
+  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, 10, 0, 30);
+  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.01, 10, 0, 30);
+  addDynamicDoubleParam("throttle_gain_threshold", &self::throttleGainThresholdCb, this, 1.0, 70, 0, 100, " %");
 
   // Register publishers.
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(topic::kRotorThrustsCmd);
   tar_angles_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(topic::kJointPosCmd);
   setpoint_pub_ = createPublisher<tobas_msgs::OdometryStamped>(topic::kTrajSetpoint);
+  feedback_pub_ = createPublisher<tobas_debug_msgs::MulticopterControllerFeedback>(topic::kMRCtrlFeedback);
 
   // Register subscribers.
   drone_sub_ = createSubscriber(topic::kDrone, &self::droneCb, this, true, true);
@@ -265,6 +285,7 @@ kdl::Vector ControllerNode::computeEulerError(const kdl::Euler& _cur_rpy, const 
 
 void ControllerNode::cruiseVelocityCb(double _p)
 {
+  cruise_velocity_ = _p;
   transition_handler_.setCruiseVelocity(_p);
 }
 
@@ -295,9 +316,14 @@ void ControllerNode::verticalDampingRatioCb(double _p)
   trans_ctrl_.ver_zeta = _p;
 }
 
-void ControllerNode::attitudeNaturalFreqCb(double _p)
+void ControllerNode::multicopterAttitudeNaturalFreqCb(double _p)
 {
-  rot_ctrl_.atti_wn = _p;
+  rot_ctrl_.multi_atti_wn = _p;
+}
+
+void ControllerNode::fixedWingAttitudeNaturalFreqCb(double _p)
+{
+  rot_ctrl_.fw_atti_wn = _p;
 }
 
 void ControllerNode::attitudeDampingRatioCb(double _p)
@@ -305,14 +331,34 @@ void ControllerNode::attitudeDampingRatioCb(double _p)
   rot_ctrl_.atti_zeta = _p;
 }
 
+void ControllerNode::attitudeIGainCb(double _p)
+{
+  rot_ctrl_.atti_ki = _p;
+}
+
 void ControllerNode::headingNaturalFreqCb(double _p)
 {
-  rot_ctrl_.head_wn = _p;
+  rot_ctrl_.multi_head_wn = _p;
+}
+
+void ControllerNode::sideSlipNaturalFreqCb(double _p)
+{
+  rot_ctrl_.fw_sideslip_wn = _p;
 }
 
 void ControllerNode::headingDampingRatioCb(double _p)
 {
   rot_ctrl_.head_zeta = _p;
+}
+
+void ControllerNode::headingIGainCb(double _p)
+{
+  rot_ctrl_.head_ki = _p;
+}
+
+void ControllerNode::throttleGainThresholdCb(double _p)
+{
+  throttle_gain_thresh_ = _p / 100.0;
 }
 
 void ControllerNode::droneCb(const Drone::ConstSharedPtr& _drone)
@@ -367,6 +413,8 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& _ar
   arming_ = _arming;
 
   if (!_arming->data) {
+    rot_ctrl_.ei.setZero();
+
     multicopter_pos_cmd_.reset();
     multicopter_acc_cmd_.reset();
     fixed_wing_vel_cmd_.reset();
@@ -388,6 +436,7 @@ void ControllerNode::healthCb(const tobas_msgs::msg::VehicleHealth::ConstSharedP
   const auto is_velocity_accurate =
     (_health->horizontal_position_accuracy == passed) && (_health->vertical_position_accuracy == passed);
   mixer_.setVelocityReliability(is_velocity_accurate);
+  is_velocity_accurate_ = is_velocity_accurate;
 }
 
 void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::ConstSharedPtr& _odom_flu)
@@ -407,6 +456,10 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   setpoint->header.stamp = cur_time;
   setpoint->odom.setNaN();
 
+  // Create the feedback message.
+  auto feedback = std::make_unique<tobas_debug_msgs::MulticopterControllerFeedback>();
+  feedback->header.stamp = cur_time;
+
   // Aliases.
   const auto& cur_pos_W = _odom_flu->odom.odom.frame.p;
   const auto& cur_rot = _odom_flu->odom.odom.frame.M;
@@ -417,6 +470,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
   const auto& cur_gyro_G = cur_twist_G.rot;
   kdl::Vector cur_vel_G_frd;
   kdl::vectorFluToFrd(cur_vel_G, cur_vel_G_frd);
+  const auto airspeed = is_velocity_accurate_ ? cur_vel_G.norm() : 0.0;
 
   // Updates.
   const auto beta = cur_vel_G_frd.x() > kAngleCalcThreshold ?
@@ -500,27 +554,48 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
       tar_gyro_ = std::make_unique<kdl::Vector>();
     }
 
+    // When target thrust is below the threshold defined as a fraction of weight,
+    // reduce the controller natural frequency as thrust decreases.
+    const auto thrust_thresh = mass_holder_.getMass() * st::kGravity * throttle_gain_thresh_;
+    const auto land_suspect = (thrust_ < thrust_thresh);
+    const auto gain_throt = land_suspect ? thrust_ / thrust_thresh : 1.0;
+
     // Determine gains.
-    const auto atti_wn = rot_ctrl_.atti_wn;
-    const auto head_wn = rot_ctrl_.head_wn;
+    const auto r = std::min(airspeed / cruise_velocity_, 1.0);
+    const auto atti_wn = ((1.0 - r) * rot_ctrl_.multi_atti_wn + r * rot_ctrl_.fw_atti_wn) * gain_throt;
+    const auto head_wn = ((1.0 - r) * rot_ctrl_.multi_head_wn + r * rot_ctrl_.fw_sideslip_wn) * gain_throt;
     const auto atti_angle_gain = atti_wn / rot_ctrl_.atti_zeta / 2;
     const auto head_angle_gain = head_wn / rot_ctrl_.head_zeta / 2;
+    const auto atti_ki = rot_ctrl_.atti_ki * gain_throt;
+    const auto head_ki = rot_ctrl_.head_ki * gain_throt;
     const kdl::Vector angle_gain(atti_angle_gain, atti_angle_gain, head_angle_gain);
+    const kdl::Vector ki(atti_ki, atti_ki, head_ki);
 
     // Compute rotation error. yaw角の大きなズレを考慮外にするためEuler角による引き算を行う
     const kdl::Euler cur_rpy(cur_rot);
     const auto ep = computeEulerError(cur_rpy, *tar_angle_);
 
-    // TODO: Accumulate integral error while airborne.
+    // Accumulate integral error while airborne.
+    if (!land_suspect) {
+      for (int i = 0; i < 3; ++i) {
+        if (ki(i) > 0.0) {
+          rot_ctrl_.ei(i) += ep(i) * dt;
+        }
+        else {
+          rot_ctrl_.ei(i) = 0.0;
+        }
+      }
+    }
 
     // Compute target Euler angle rates.
-    const auto tar_drpy = angle_gain.hadamard(ep);
+    const auto tar_drpy = angle_gain.hadamard(ep) + ki.hadamard(rot_ctrl_.ei);
 
     // Convert Euler angle rates to gyro values.
     *tar_gyro_ = eigen::angvelFromEulerrateLocal(tar_drpy.data, cur_rpy.roll, cur_rpy.pitch);
 
     // Fill the feedback message.
     setpoint->odom.frame.M = tar_angle_->toRotation();
+    feedback->angle_integral_error = rot_ctrl_.ei;
 
     // Angular velocity controller
     if (!tar_dgyro_) {
@@ -544,11 +619,16 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     }
 
     // Determine gains.
-    const auto atti_wn = rot_ctrl_.atti_wn;
-    const auto head_wn = rot_ctrl_.head_wn;
+    // 固定翼時は推力によらず浮いている
+    const auto r = std::min(airspeed / cruise_velocity_, 1.0);
+    const auto atti_wn = ((1.0 - r) * rot_ctrl_.multi_atti_wn + r * rot_ctrl_.fw_atti_wn);
+    const auto head_wn = ((1.0 - r) * rot_ctrl_.multi_head_wn + r * rot_ctrl_.fw_sideslip_wn);
     const auto atti_angle_gain = atti_wn / rot_ctrl_.atti_zeta / 2;
     const auto head_angle_gain = head_wn / rot_ctrl_.atti_zeta / 2;
+    const auto atti_ki = rot_ctrl_.atti_ki;
+    const auto head_ki = rot_ctrl_.head_ki;
     const kdl::Vector angle_gain(atti_angle_gain, atti_angle_gain, head_angle_gain);
+    const kdl::Vector ki(atti_ki, atti_ki, head_ki);
 
     // Determine target attitude.
     // TODO: Limit the target-attitude rate during transition to avoid discontinuous target-attitude changes
@@ -563,10 +643,18 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
     const auto beta_err = algo::wrapPi(tar_rpb.side_slip - beta);
     kdl::Vector ep(roll_err, pitch_err, beta_err);
 
-    // TODO: Accumulate integral error while airborne.
+    // Accumulate integral error while airborne.
+    for (int i = 0; i < 3; ++i) {
+      if (ki(i) > 0.0) {
+        rot_ctrl_.ei(i) += ep(i) * dt;
+      }
+      else {
+        rot_ctrl_.ei(i) = 0.0;
+      }
+    }
 
     // Compute target Euler angle rates.
-    const auto tar_drpy = angle_gain.hadamard(ep);
+    const auto tar_drpy = angle_gain.hadamard(ep) + ki.hadamard(rot_ctrl_.ei);
 
     // Convert Euler angle rates to gyro values.
     // マルチコプタの際とは違いRが無制御なので計算方法が異なる
@@ -678,6 +766,7 @@ void ControllerNode::odomCb(const tobas_msgs::OdometryWithCovarianceStamped::Con
 
   // Publish the feedback message.
   setpoint_pub_->publish(std::move(setpoint));
+  feedback_pub_->publish(std::move(feedback));
 }
 
 void ControllerNode::multicopterPosCmdCb(const tobas_command_msgs::PosVelAccPitchYaw::ConstSharedPtr& _cmd)
