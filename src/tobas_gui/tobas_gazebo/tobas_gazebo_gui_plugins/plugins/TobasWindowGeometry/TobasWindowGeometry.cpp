@@ -9,7 +9,6 @@
 #include <QDebug>
 #include <QEvent>
 #include <QGuiApplication>
-#include <QList>
 #include <QScreen>
 #include <gz/common/Console.hh>
 #include <gz/gui/Application.hh>
@@ -22,31 +21,6 @@ namespace
 {
 constexpr char kGeometryKey[] = "geometry";
 constexpr char kMaximizedKey[] = "maximized";
-
-QRect fitWindowGeometry(const QRect& _geometry, const QList<QRect>& _screens)
-{
-  if (!_geometry.isValid() || _screens.isEmpty()) {
-    return _geometry;
-  }
-
-  // Fall back to the primary screen when the saved monitor is disconnected.
-  auto available = _screens.front();
-  auto largest_overlap = 0;
-  for (const auto& screen : _screens) {
-    const auto overlap = _geometry.intersected(screen);
-    const auto area = overlap.width() * overlap.height();
-    if (area > largest_overlap) {
-      available = screen;
-      largest_overlap = area;
-    }
-  }
-
-  auto geometry = _geometry;
-  geometry.setSize(geometry.size().boundedTo(available.size()));
-  geometry.moveLeft(std::clamp(geometry.x(), available.left(), available.right() - geometry.width() + 1));
-  geometry.moveTop(std::clamp(geometry.y(), available.top(), available.bottom() - geometry.height() + 1));
-  return geometry;
-}
 }  // namespace
 
 void TobasWindowGeometry::LoadConfig(const tinyxml2::XMLElement*)
@@ -90,17 +64,26 @@ void TobasWindowGeometry::initialize()
     return;
   }
 
-  const auto saved_geometry = settings_.value(kGeometryKey).toRect();
-  if (saved_geometry.isValid()) {
-    QList<QRect> screens;
-    for (const auto screen : QGuiApplication::screens()) {
+  auto geometry = settings_.value(kGeometryKey).toRect();
+  if (geometry.isValid()) {
+    // Select the saved screen from global coordinates, falling back to the primary screen.
+    auto screen = QGuiApplication::screenAt(geometry.center());
+    if (!screen) {
+      screen = QGuiApplication::screenAt(geometry.topLeft());
+    }
+    if (!screen) {
+      screen = QGuiApplication::primaryScreen();
+    }
+    if (screen) {
+      window_->setScreen(screen);
       // Leave space for the window manager's title bar and borders.
       const auto available = screen->availableGeometry().marginsRemoved(window_->frameMargins());
       if (available.isValid()) {
-        screens.push_back(available);
+        geometry.setSize(geometry.size().boundedTo(available.size()));
+        geometry.moveLeft(std::clamp(geometry.x(), available.left(), available.right() - geometry.width() + 1));
+        geometry.moveTop(std::clamp(geometry.y(), available.top(), available.bottom() - geometry.height() + 1));
       }
     }
-    const auto geometry = fitWindowGeometry(saved_geometry, screens);
     if (QGuiApplication::platformName().startsWith("wayland")) {
       // Native Wayland does not expose global window positioning.
       window_->resize(geometry.size());
@@ -111,12 +94,16 @@ void TobasWindowGeometry::initialize()
   }
 
   normal_geometry_ = window_->geometry();
+  if (const auto screen = window_->screen()) {
+    normal_screen_position_ = screen->geometry().topLeft();
+  }
 
   if (settings_.value(kMaximizedKey, false).toBool()) {
     window_->showMaximized();
   }
 
   window_->installEventFilter(this);
+  connect(window_, &QWindow::screenChanged, this, [this](QScreen*) { save_timer_.start(0); });
   connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &TobasWindowGeometry::save);
 }
 
@@ -127,8 +114,13 @@ void TobasWindowGeometry::save()
   }
 
   const auto maximized = window_->windowStates().testFlag(Qt::WindowMaximized);
+  const auto screen = window_->screen();
   if (!maximized) {
     normal_geometry_ = window_->geometry();
+  }
+  else if (screen) {
+    // Moving a maximized window must also move the geometry used when it is restored to normal size.
+    normal_geometry_.translate(screen->geometry().topLeft() - normal_screen_position_);
   }
   if (!normal_geometry_.isValid()) {
     return;
@@ -136,6 +128,9 @@ void TobasWindowGeometry::save()
 
   settings_.setValue(kGeometryKey, normal_geometry_);
   settings_.setValue(kMaximizedKey, maximized);
+  if (screen) {
+    normal_screen_position_ = screen->geometry().topLeft();
+  }
 
   // Terminate may stop Gazebo without closing its window, so flush while it is running.
   settings_.sync();

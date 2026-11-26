@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QPoint>
 #include <QPointer>
 #include <QRect>
 #include <QSettings>
@@ -36,5 +37,6 @@ private:
   QSettings settings_{ QSettings::IniFormat, QSettings::UserScope, "Tobas", "GazeboSim" };
   QTimer save_timer_;
   QRect normal_geometry_;
+  QPoint normal_screen_position_;
 };
 }  // namespace tobas::gazebo
