@@ -113,7 +113,6 @@ public:
     NAV_VELNED = 0x12,     ///< Velocity solution in NED frame
   };
 
-  /** RXM message identifiers. Only the ones handled by `enableMessage()` are listed. */
   enum UbxRxmId : uint8_t
   {
     RXM_RTCM = 0x32,  ///< RTCM input status
@@ -136,7 +135,7 @@ public:
     E_SCOOTER = 12,
   };
 
-  /** GNSS identifiers, which are the same as `gnssId` in UBX messages */
+  /** GNSS identifiers (same as `gnssId` in UBX messages) */
   enum GnssId : uint8_t
   {
     GNSS_GPS = 0,
@@ -152,8 +151,7 @@ public:
   struct RtcmObservation
   {
     GnssId gnss;
-
-    bool more_messages_follow;
+    bool more_messages_follow;  ///< Whether more observation messages of the same epoch follow
   };
 
   explicit GnssReceiver(std::unique_ptr<UbxTransport> _transport);
@@ -169,22 +167,18 @@ public:
   Module getModule() const;
 
   /**
-   * Passes RTCM correction data to the transport to be sent to the receiver.
+   * Pass RTCM correction data to the transport to be sent to the receiver.
+   * Observations of a GNSS disabled in the receiver are discarded unless they end an epoch.
    *
-   * @param _data RTCM correction data, preferably a single RTCM 3 frame.
-   * @return False if the transport failed to accept the data.
-   *
-   * @note With SPI, the data is sent byte by byte while UBX messages are received in `update()`.
-   * @note If `_data` is a single RTCM 3 frame holding observations of a GNSS disabled in the receiver, it is discarded
-   * unless it is the last observation message of its epoch.
+   * @return false if the transport failed to accept the data.
    */
   bool registerRtcmCorrectionData(const std::vector<uint8_t>& _data);
 
   /**
-   * Parses the GNSS and the position in the epoch of an RTCM 3 observation message.
+   * Parse the GNSS and the position in the epoch of an RTCM 3 observation message.
    *
    * @param _frame RTCM 3 frame including the preamble, the length and the CRC.
-   * @return `std::nullopt` if `_frame` is not a single RTCM 3 frame or is not an observation message, e.g. 1005, 1033.
+   * @return std::nullopt if `_frame` is not a single RTCM 3 frame or is not an observation message (e.g. 1005).
    */
   static std::optional<RtcmObservation> parseRtcmObservation(const std::vector<uint8_t>& _frame);
 
@@ -338,7 +332,6 @@ private:
 
   // ==============================
 
-  /** Number of `GnssId` values, which is one more than the largest one */
   static constexpr size_t kGnssIdCount = GNSS_NAVIC + 1;
 
   const std::unique_ptr<UbxTransport> transport_;
@@ -348,7 +341,7 @@ private:
 
   /**
    * Whether each GNSS is enabled in the receiver, indexed by `GnssId`.
-   * A GNSS that has not been configured is regarded as enabled so that its RTCM data is not discarded.
+   * GNSS that have not been configured are regarded as enabled so that their RTCM data is not discarded.
    */
   std::array<bool, kGnssIdCount> gnss_enabled_ = { true, true, true, true, true, true, true, true };
   mutable std::mutex gnss_enabled_mutex_;
@@ -364,7 +357,7 @@ private:
   /** Polls the receiver for version information and waits for the response. */
   std::expected<payload::MON_VER, std::string> pollVersion();
 
-  /** Enables or disables a GNSS with the given CFG-SIGNAL-XXX_ENA key ID and records the resulting state. */
+  /** Enable or disable a GNSS with the given CFG-SIGNAL-XXX_ENA key and record the state. */
   bool enableGnss(GnssId _gnss, uint16_t _key_id, bool _enable);
 
   bool enableGps(bool _enable);

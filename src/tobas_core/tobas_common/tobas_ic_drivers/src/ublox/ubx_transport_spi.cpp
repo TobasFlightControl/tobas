@@ -18,8 +18,7 @@ bool UbxTransportSpi::initialize() noexcept
 
 std::optional<uint8_t> UbxTransportSpi::receiveByte() noexcept
 {
-  // Filler byte defined by the u-blox SPI protocol, sent while there is no queued data.
-  constexpr uint8_t kIdleData = 0xFF;
+  constexpr uint8_t kIdleData = 0xFF;  // Sent while there is no queued data.
 
   // SPI is full duplex, so send one byte of the queued data in exchange for each received byte.
   const std::lock_guard lock(send_queue_mutex_);

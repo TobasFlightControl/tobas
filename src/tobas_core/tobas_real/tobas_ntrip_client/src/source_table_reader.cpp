@@ -19,7 +19,7 @@ SourceTableReader::SourceTableReader(const std::string& _data)
   std::stringstream data_stream(_data);
   std::string record;
   while (std::getline(data_stream, record)) {
-    // Keep only the stream records. Lines such as `SOURCETABLE 200 OK` do not describe a mount point.
+    // Skip lines that are not stream records, which start with STR.
     if (!record.starts_with("STR")) {
       continue;
     }
@@ -31,7 +31,7 @@ SourceTableReader::SourceTableReader(const std::string& _data)
       columns.push_back(column);
     }
 
-    // Keep the record only if it reaches at least the longitude column.
+    // Check that the columns reach at least the longitude.
     if (columns.size() > kLongitude) {
       mount_points_.push_back(columns);
     }
@@ -46,7 +46,6 @@ std::vector<std::string> SourceTableReader::sortMountPoints(double _latitude, do
   const auto query_y = std::cos(_latitude * st::kDeg2Rad) * std::sin(_longitude * st::kDeg2Rad);
   const auto query_z = std::sin(_latitude * st::kDeg2Rad);
 
-  // Compute the squared chord distance from the query position to every mount point.
   std::vector<std::pair<double, std::string>> distances_and_names;
   distances_and_names.reserve(mount_points_.size());
   for (const auto& columns : mount_points_) {
@@ -78,7 +77,7 @@ std::vector<std::string> SourceTableReader::sortMountPoints(double _latitude, do
     distances_and_names.emplace_back(dx * dx + dy * dy + dz * dz, columns[kMountPoint]);
   }
 
-  // Sort by ascending distance and return the names only.
+  // Sort by ascending distance.
   std::sort(distances_and_names.begin(), distances_and_names.end());
 
   std::vector<std::string> sorted_names;

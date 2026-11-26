@@ -9,9 +9,8 @@
 namespace tobas::ntrip
 {
 /**
- * A byte-by-byte scanner for RTCM 3.x frames.
- *
- * A frame is laid out as the preamble, the length (2 bytes), the payload, and the checksum (3 bytes).
+ * Scan RTCM 3.x data byte by byte.
+ * A frame is laid out as the preamble, the length (2 bytes), the payload and the checksum (3 bytes).
  */
 class RtcmScanner
 {
@@ -40,10 +39,10 @@ public:
 
   inline State state() const;
 
-  /** Return the length of the current frame, including the header, the payload and the checksum. */
+  /** Return the length of the header, the payload and the checksum. */
   inline size_t messageLength() const;
 
-  /** Compute the CRC-24Q checksum of the current frame and compare it with the transmitted one. */
+  /** Compute the checksum and check that it matches. */
   bool checkSum() const;
 
   // The getters below are usable only once `state()` has reached `kDone`.
@@ -53,7 +52,7 @@ public:
   inline const uint8_t* getPayload() const;
   inline const uint8_t* getChecksum() const;
 
-  /** Return a pointer to one past the last byte of the current frame. */
+  /** Return a pointer to the end of the frame. */
   inline const uint8_t* getEnd() const;
 
 private:
@@ -67,9 +66,9 @@ private:
 
   static constexpr uint8_t kRtcmPreamble = 0xd3;
 
-  uint8_t buffer_[kRtcmBufferLength];  ///< Buffer for the RTCM 3.x frame being scanned
-  size_t payload_length_;              ///< Payload length of the current frame
-  size_t pos_;                         ///< Current offset in `buffer_`
+  uint8_t buffer_[kRtcmBufferLength];  ///< Buffer for RTCM 3.x message
+  size_t payload_length_;              ///< Length of current message payload
+  size_t pos_;                         ///< Current buffer offset
   State state_;                        ///< Current scanner state
 };
 

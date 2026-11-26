@@ -19,7 +19,7 @@ std::string createGgaSentence(
   double _hdop,
   const std::chrono::system_clock::time_point& _time)
 {
-  // Break the time stamp down into UTC fields.
+  // Get the UTC time.
   const auto duration = _time.time_since_epoch();
   const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
   const auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration - seconds).count();
@@ -54,7 +54,7 @@ std::string createGgaSentence(
   const double lon_min = (lon_abs - lon_deg) * 60.0;
   std::snprintf(lon_buf, sizeof(lon_buf), "%03d%08.5f", lon_deg, lon_min);
 
-  // Build the payload, which is everything between `$` and `*`.
+  // Build the payload.
   char payload[160];
   std::snprintf(
     payload,
@@ -71,7 +71,7 @@ std::string createGgaSentence(
     _altitude_msl,
     _geoid_height);
 
-  // Append the checksum and the sentence terminator.
+  // Calculate the checksum.
   const uint8_t checksum = calculateChecksum(payload);
 
   char full_sentence[180];

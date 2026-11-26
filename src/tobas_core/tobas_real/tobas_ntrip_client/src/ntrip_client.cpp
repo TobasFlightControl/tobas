@@ -34,14 +34,14 @@ bool NtripClient::initialize(
 {
   closeSocket();
 
-  // Create the socket for the TCP connection.
+  // Create the socket for TCP.
   socket_ = socket(AF_INET, SOCK_STREAM, 0);
   if (socket_ < 0) {
     std::cerr << "Failed to create socket." << std::endl;
     return false;
   }
 
-  // Resolve the address of the caster, accepting both a dotted-decimal address and a host name.
+  // Set the address of the NTRIP caster.
   server_address_.sin_family = AF_INET;
   server_address_.sin_port = htons(_server_port);
   const auto addr = inet_addr(_server_ip);
@@ -58,7 +58,7 @@ bool NtripClient::initialize(
     server_address_.sin_addr = *reinterpret_cast<in_addr*>(he->h_addr_list[0]);
   }
 
-  // Connect to the caster.
+  // Connect to the NTRIP caster.
   timeval timeout;
   timeout.tv_sec = kTimeout;
   timeout.tv_usec = 0;
@@ -79,8 +79,7 @@ bool NtripClient::initialize(
     return false;
   }
 
-  // The mount point is unavailable but the caster returned its source table,
-  // so recommend the mount points nearest to the given position.
+  // The mount point is unavailable, so recommend the nearest ones.
   if (mount_point_status == kGetSourceTable) {
     std::cerr << "Receiving source table..." << std::endl;
     while (true) {
@@ -116,7 +115,7 @@ std::vector<std::vector<uint8_t>> NtripClient::receiveRtcmData()
     return {};
   }
 
-  // Drain everything the mount point has sent so far.
+  // Receive data from the mount point.
   while (true) {
     errno = 0;
     const auto receive_size = nonblockReceive(socket_, receive_buffer_, kChunkSize, 0);
@@ -136,7 +135,7 @@ std::vector<std::vector<uint8_t>> NtripClient::receiveRtcmData()
     receive_deque_.insert(receive_deque_.end(), receive_buffer_, receive_buffer_ + receive_size);
   }
 
-  // Split the received bytes into RTCM 3.x frames, dropping the frames whose checksum does not match.
+  // Parse the received data.
   std::vector<std::vector<uint8_t>> packets;
   while (!receive_deque_.empty()) {
     scanner_.update(receive_deque_.front());
@@ -233,7 +232,7 @@ NtripClient::checkMountPoint(const std::string& _mount_point, const std::string&
 
   const std::string response_str(receive_deque_.end() - receive_size, receive_deque_.end());
 
-  // The caster is reachable but it returned its source table instead of the requested stream.
+  // A source table was returned instead of the stream.
   if (response_str.find("SOURCETABLE 200 OK") != std::string::npos) {
     std::cerr << "Received source table. Probably the mountpoint is not valid." << std::endl;
     return kGetSourceTable;
@@ -248,7 +247,6 @@ NtripClient::checkMountPoint(const std::string& _mount_point, const std::string&
   if (
     response_str.find("ICY 200 OK") != std::string::npos || response_str.find("HTTP/1.1 200 OK") != std::string::npos ||
     response_str.find("HTTP/1.0 200 OK") != std::string::npos || response_str.find("200 OK") != std::string::npos) {
-    // Drop the response header so that only the stream itself is parsed as RTCM.
     const auto header_end = response_str.find("\r\n\r\n");
     if (header_end != std::string::npos) {
       size_t pop_count = header_end + 4;
@@ -268,7 +266,7 @@ NtripClient::checkMountPoint(const std::string& _mount_point, const std::string&
 
 bool NtripClient::connectWithTimeout(int _fd, const sockaddr* _addr, socklen_t _len, timeval& _timeout)
 {
-  // Make the socket non-blocking so that `connect()` returns immediately.
+  // Switch to non-blocking before connecting.
   const auto flags = fcntl(_fd, F_GETFL);
   if (flags == -1) {
     std::cerr << "Failed in fcntl" << std::endl;
@@ -279,11 +277,9 @@ bool NtripClient::connectWithTimeout(int _fd, const sockaddr* _addr, socklen_t _
     return false;
   }
 
-  // `connect()` returns 0 on immediate success and -1 on failure, so the status must be read from `errno`.
-  // `EINPROGRESS` is not a failure here: the handshake has started and `select()` below waits for it to complete.
+  // EINPROGRESS means the handshake has started, so wait for it with select() below.
   errno = 0;
   if (connect(_fd, _addr, _len) == -1 && errno != EINPROGRESS) {
-    // The connection failed, so restore the blocking mode.
     std::cerr << "Failed in connect" << std::endl;
     fcntl(_fd, F_SETFL, flags);
     return false;

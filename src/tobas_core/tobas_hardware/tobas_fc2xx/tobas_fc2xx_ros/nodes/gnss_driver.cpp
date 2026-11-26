@@ -17,20 +17,13 @@ namespace tobas::fc2xx
 namespace
 {
 /**
- * Converts the UBX fix status into a `tobas_msgs::msg::Gnss` fix type.
- *
- * @param _fix_type Fix type reported by UBX-NAV-PVT.
- * @param _carr_soln Carrier phase range solution status reported by UBX-NAV-PVT.
- * @return One of the `fix_type` constants of `tobas_msgs::msg::Gnss`.
- *
- * @note Dead-reckoning and time-only fixes are reported as `NO_FIX` because they carry no GNSS position.
+ * Convert the UBX fix status into a `tobas_msgs::msg::Gnss` fix type.
+ * Dead reckoning and time-only fixes are regarded as no fix.
  */
 uint8_t toGnssFixType(ublox::payload::FixType _fix_type, ublox::payload::NAV_PVT::CarrierPhaseRangeSolution _carr_soln)
 {
   switch (_fix_type) {
-    // A 3D fix may carry an RTK solution, so the carrier phase range solution status refines the result.
-    case ublox::payload::FIX_3D:
-    case ublox::payload::GPS_DEAD_RECKONING_COMBINED: {
+    case ublox::payload::FIX_3D: {
       switch (_carr_soln) {
         case ublox::payload::NAV_PVT::FIXED:
           return tobas_msgs::msg::Gnss::RTK_FIX;
@@ -45,11 +38,11 @@ uint8_t toGnssFixType(ublox::payload::FixType _fix_type, ublox::payload::NAV_PVT
       return tobas_msgs::msg::Gnss::FIX_2D;
     case ublox::payload::NO_FIX:
     case ublox::payload::DEAD_RECKONING_ONLY:
+    case ublox::payload::GPS_DEAD_RECKONING_COMBINED:
     case ublox::payload::TIME_ONLY_FIX:
       return tobas_msgs::msg::Gnss::NO_FIX;
   }
 
-  // The fix type is decoded from the wire, so an undefined value must be treated as no fix.
   return tobas_msgs::msg::Gnss::NO_FIX;
 }
 }  // namespace
@@ -109,7 +102,7 @@ bool GnssDriverNode::initialize()
 
   gnss_pub_ = createPublisher<tobas_msgs::Gnss>(topic::kGnss);
 
-  // The queue must be deep enough not to drop the burst of RTCM messages that arrives in one epoch.
+  // Deep enough not to drop the burst of RTCM messages in one epoch.
   constexpr size_t kRtcmQueueSize = 100;
   rtcm_correction_sub_ = createSubscriber(
     topic::kRtcmCorrection,
@@ -303,7 +296,6 @@ void GnssDriverNode::mainTimerCb()
 
 void GnssDriverNode::rtcmCorrectionSubCb(const tobas_msgs::msg::BinaryPacket::ConstSharedPtr& _rtcm_correction)
 {
-  // The data is queued in the transport and sent while UBX messages are received in `mainTimerCb()`.
   if (!gnss_.registerRtcmCorrectionData(_rtcm_correction->data)) {
     TOBAS_WARN_THROTTLE(1.0, "Failed to send RTCM correction data to the GNSS receiver.");
   }

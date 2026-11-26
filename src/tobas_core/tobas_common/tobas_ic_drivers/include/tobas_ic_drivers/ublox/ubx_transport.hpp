@@ -32,17 +32,12 @@ public:
   virtual bool send(const uint8_t* _data, size_t _length) noexcept = 0;
 
   /**
-   * Queues data to be sent to the receiver without interrupting the reception of UBX messages.
-   *
-   * @param _data Data to send.
-   * @param _length Length of the data in bytes.
-   * @return True if the data was queued.
-   *
-   * @note The data may be sent later, for example byte by byte in `receiveByte()`.
+   * Queue data to be sent to the receiver without interrupting the reception of UBX messages.
+   * The data may be sent later, e.g. byte by byte in `receiveByte()`.
    */
   virtual bool enqueue(const uint8_t* _data, size_t _length) noexcept = 0;
 
-  /** Returns true if queued data remains to be sent. */
+  /** Return true if queued data remains to be sent. */
   virtual bool hasPendingData() const noexcept = 0;
 
   virtual Interface interface() const noexcept = 0;

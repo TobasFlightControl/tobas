@@ -40,7 +40,7 @@ void RtcmScanner::update(uint8_t _data)
       break;
 
     case kLength1:
-      // The first length byte holds 6 reserved bits, which must be 0, and the 2 most significant payload length bits.
+      // RTCM 3.x: Byte 1 has 6 reserved bits (must be 0) and 2 bits of message length
       if ((_data & 0xFC) != 0) {
         reset();
         break;
@@ -88,7 +88,7 @@ void RtcmScanner::update(uint8_t _data)
 
 bool RtcmScanner::checkSum() const
 {
-  // Compute the CRC-24Q checksum over the header and the payload.
+  // Calculate the CRC24Q checksum.
   uint32_t crc = 0;
   for (size_t i = 0; i < messageLength() - kRtcmCheckSumLength; i++) {
     crc ^= static_cast<uint32_t>(buffer_[i]) << 16;
@@ -103,7 +103,6 @@ bool RtcmScanner::checkSum() const
     }
   }
 
-  // Compare it with the checksum transmitted in the last three bytes of the frame.
   const uint32_t checksum = static_cast<uint32_t>(buffer_[messageLength() - 3]) << 16 |
                             static_cast<uint32_t>(buffer_[messageLength() - 2]) << 8 |
                             static_cast<uint32_t>(buffer_[messageLength() - 1]);

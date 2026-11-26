@@ -73,7 +73,7 @@ bool GnssReceiver::update(bool _blocking)
 
   if (!_blocking) {
     // Check the start byte.
-    // Keep receiving while queued data remains, because some transports send it only while receiving, e.g. SPI.
+    // Keep receiving while queued data remains, because some transports (e.g. SPI) send it only while receiving.
     scan_rate_.start();
     while (true) {
       const auto first_byte = transport_->receiveByte();
@@ -82,7 +82,6 @@ bool GnssReceiver::update(bool _blocking)
       }
       scanner_.update(*first_byte);
 
-      // A message has started.
       if (scanner_.state() != UbxScanner::kSync1) {
         break;
       }
@@ -120,8 +119,6 @@ GnssReceiver::Module GnssReceiver::getModule() const
 
 bool GnssReceiver::registerRtcmCorrectionData(const std::vector<uint8_t>& _data)
 {
-  // Observations of a disabled GNSS are useless, so they are discarded to save the bandwidth of the transport.
-  // The last observation message of an epoch is always sent because the receiver processes the epoch on receiving it.
   const auto observation = parseRtcmObservation(_data);
   if (observation && observation->more_messages_follow) {
     const std::lock_guard lock(gnss_enabled_mutex_);
@@ -136,7 +133,7 @@ bool GnssReceiver::registerRtcmCorrectionData(const std::vector<uint8_t>& _data)
 std::optional<GnssReceiver::RtcmObservation> GnssReceiver::parseRtcmObservation(const std::vector<uint8_t>& _frame)
 {
   constexpr uint8_t kRtcmPreamble = 0xD3;
-  constexpr size_t kRtcmHeaderLength = 3;  // The preamble and the message length
+  constexpr size_t kRtcmHeaderLength = 3;  // Preamble and message length
   constexpr size_t kRtcmCrcLength = 3;
   constexpr size_t kMinPayloadLength = 7;  // The message type and the flags read below are in the first 7 bytes.
 
@@ -162,8 +159,8 @@ std::optional<GnssReceiver::RtcmObservation> GnssReceiver::parseRtcmObservation(
     return RtcmObservation{ .gnss = kMsmGnss[(type - 1071) / 10], .more_messages_follow = bit(54) };
   }
 
-  // Legacy RTK observations. The synchronous GNSS flag follows the message type, the station ID and the epoch time,
-  // which is 30 bits for GPS and 27 bits for GLONASS.
+  // Legacy RTK observations. The synchronous GNSS flag follows the message type, the station ID and the epoch time
+  // (30 bits for GPS, 27 bits for GLONASS).
   if (type >= 1001 && type <= 1004) {
     return RtcmObservation{ .gnss = GNSS_GPS, .more_messages_follow = bit(54) };
   }
@@ -179,7 +176,6 @@ bool GnssReceiver::enableMessage(UbxClass _cls, uint8_t _id, bool _enable)
   constexpr char kNotImplemented[] = "Not implemented.\n";
   constexpr char kNotReceivable[] = "Not receivable.\n";
 
-  /** CFG-MSGOUT key IDs of one message, one per interface */
   struct MsgOutIds
   {
     uint16_t spi;

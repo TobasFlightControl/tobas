@@ -25,7 +25,7 @@ long computeGpsDelayFromToW(uint32_t _gps_tow_ms)
   gps_time->tm_min = 0;
   gps_time->tm_hour = 0;
   gps_time->tm_mday -= gps_time->tm_wday;  // Move back from the current weekday to Sunday.
-  // Use `timegm()` because `mktime()` interprets the broken-down time as local time.
+  // Use `timegm()` because `mktime()` interprets the time as local time.
   const auto start_of_week = ch::system_clock::from_time_t(timegm(gps_time));
 
   // Calculate the elapsed time from the start of the week to now.

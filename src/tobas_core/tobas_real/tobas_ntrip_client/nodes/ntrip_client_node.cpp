@@ -27,7 +27,6 @@ bool hasValidFix(const tobas_msgs::msg::Gnss& _gnss)
 }
 }  // namespace
 
-/** A node that streams RTCM corrections from an NTRIP caster and reports its own position to the caster. */
 class NtripClientNode : public BaseNode
 {
   using self = NtripClientNode;
@@ -42,7 +41,7 @@ private:
   static constexpr double kDefaultSendPositionInterval = 1.0;  ///< [s]
   static constexpr double kDefaultReconnectInterval = 5.0;     ///< [s]
 
-  // Japan's geodetic origin, used to look up a mount point before a GNSS fix is available.
+  // Japan's geodetic origin
   static constexpr double kDefaultLatitude = 35.6580992;
   static constexpr double kDefaultLongitude = 139.7413575;
 

@@ -12,19 +12,7 @@
 
 namespace tobas::ntrip::nmea
 {
-/**
- * Build an NMEA GGA sentence (`$GPGGA,...*CS\r\n`) from a position and its status.
- *
- * @param _latitude_deg Geodetic latitude [deg]
- * @param _longitude_deg Geodetic longitude [deg]
- * @param _altitude_msl Height above mean sea level [m]
- * @param _geoid_height Height of the geoid above the WGS 84 ellipsoid [m]
- * @param _fix_quality GGA quality indicator, e.g. 1 = GNSS fix, 4 = RTK fix, 5 = RTK float
- * @param _num_satellites Number of satellites used in the solution
- * @param _hdop Horizontal dilution of precision
- * @param _time UTC time stamped on the sentence
- * @return The sentence including the checksum and the trailing `\r\n`.
- */
+/** Build an NMEA GGA sentence (`$GPGGA,...*CS\r\n`) from a position and its status. */
 std::string createGgaSentence(
   double _latitude_deg,
   double _longitude_deg,
@@ -38,6 +26,6 @@ std::string createGgaSentence(
 /** Build an NMEA GGA sentence from a GNSS message. */
 std::string createGgaSentence(const tobas_msgs::msg::Gnss& _gnss);
 
-/** Compute the NMEA checksum, which is the XOR of the bytes between `$` and `*`. */
+/** Compute the NMEA checksum, the XOR of the bytes between `$` and `*`. */
 uint8_t calculateChecksum(std::string_view _sentence);
 }  // namespace tobas::ntrip::nmea
