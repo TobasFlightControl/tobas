@@ -226,14 +226,14 @@ class SSHServerNode(Node):
             except Exception as e:
                 result.error_message = f"SCP-Put with superuser privilege failed: {e}"
                 goal_handle.abort()
-                return
+                return result
         else:
             try:
                 self._cli.scp_put_dir(goal.local_dir, goal.remote_dir, goal.exclude_dirs, progress)
             except Exception as e:
                 result.error_message = f"SCP-Put failed: {e}"
                 goal_handle.abort()
-                return
+                return result
 
         goal_handle.succeed()
         return result
