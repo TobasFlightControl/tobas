@@ -1334,7 +1334,6 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& _gh)
   // Execute mission.
   const auto& items = goal->mission.items;
   for (size_t idx = 0; idx < items.size();) {
-    const auto& item = items[idx];
     const auto cmd_number = idx + 1;
     TOBAS_INFO("Start mission No. ", cmd_number);
 
@@ -1345,11 +1344,12 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& _gh)
 
     res->last_command_index = idx;
 
-    switch (item.type) {
+    const auto& cur_item = items[idx];
+    switch (cur_item.type) {
       case kWaypoint: {
         std::vector<Waypoint> waypoints;
         for (; idx < items.size() && items[idx].type == kWaypoint; ++idx) {
-          const auto waypoint = st::fromBytes<Waypoint>(item.data);
+          const auto waypoint = st::fromBytes<Waypoint>(items[idx].data);
           waypoints.push_back(waypoint);
           if (waypoint.stop_at_waypoint) {
             ++idx;
@@ -1364,7 +1364,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& _gh)
         break;
       }
       case kTakeoff: {
-        const auto takeoff = st::fromBytes<Takeoff>(item.data);
+        const auto takeoff = st::fromBytes<Takeoff>(cur_item.data);
         if (!executeTakeoff(takeoff, _gh, res)) {
           is_executing_ = false;
           return;
@@ -1373,7 +1373,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& _gh)
         break;
       }
       case kLand: {
-        const auto land = st::fromBytes<Land>(item.data);
+        const auto land = st::fromBytes<Land>(cur_item.data);
         if (!executeLand(land, _gh, res)) {
           is_executing_ = false;
           return;
@@ -1382,7 +1382,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& _gh)
         break;
       }
       case kReturnToLaunch: {
-        const auto rtl = st::fromBytes<ReturnToLaunch>(item.data);
+        const auto rtl = st::fromBytes<ReturnToLaunch>(cur_item.data);
         if (!executeRTL(rtl, _gh, res)) {
           is_executing_ = false;
           return;
@@ -1392,7 +1392,7 @@ void MulticopterMissionExecutorNode::execute(const GoalHandlePtr& _gh)
       }
       default: {
         res->error_code.data = tobas_mission_msgs::msg::ErrorCode::OTHER_ERROR;
-        res->error_message = "Invalid mission type: " + std::to_string(item.type);
+        res->error_message = "Invalid mission type: " + std::to_string(cur_item.type);
         _gh->abort(res);
         is_executing_ = false;
         return;
