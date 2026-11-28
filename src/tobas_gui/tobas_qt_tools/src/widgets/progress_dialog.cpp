@@ -24,18 +24,6 @@ ProgressDialog::ProgressDialog(const QString& _title, int _num_steps, QWidget* _
   connect(&timer_, &QTimer::timeout, this, &self::onTimerTimeout);
 }
 
-void ProgressDialog::show()
-{
-  timer_.start(250ms);
-  super::show();
-}
-
-void ProgressDialog::hide()
-{
-  timer_.stop();
-  super::hide();
-}
-
 void ProgressDialog::setLabelText(const QString& _text)
 {
   qInfo().noquote() << _text;
@@ -64,6 +52,18 @@ void ProgressDialog::setStep(int _step)
 void ProgressDialog::progressStep()
 {
   setStep(step_ + 1);
+}
+
+void ProgressDialog::showEvent(QShowEvent* _event)
+{
+  super::showEvent(_event);
+  timer_.start(250ms);
+}
+
+void ProgressDialog::hideEvent(QHideEvent* _event)
+{
+  timer_.stop();
+  super::hideEvent(_event);
 }
 
 void ProgressDialog::onTimerTimeout()
