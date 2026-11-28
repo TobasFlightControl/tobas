@@ -19,19 +19,6 @@ namespace tobas::y_axis_tilt_vtol
 class QpMixer : public MixerI
 {
   using super = MixerI;
-  static constexpr size_t kFixedRotorInequalitySize = 2;
-  static constexpr size_t kTiltRotorInequalitySize = 4;
-  static constexpr size_t kControlSurfaceInequalitySize = 2;
-  static constexpr double kCruiseSpeed = 15.0;  ///< m/s, 固定翼機運動モード計算のための仮のクルーズ時対気速度
-  static constexpr double kMomentThrustRatio =
-    1.0 / 3.0;  ///< 実行可能最大モーメントを出すために行って良い最大推力変更比率 3軸あるので1軸制御分には1/3
-  static constexpr double kTiltAngleMargin =
-    30.0 / 180.0 * M_PI;  ///< 実行可能最大モーメントを出すために行って良い最大ティルト角変更
-  ///< TODO: 機体ごとに定める
-  static constexpr double kMaxTiltVelocity = 90.0 / 180.0 * M_PI;  ///< rad/s
-  static constexpr double kMinTiltAngle = -0.25 * M_PI;            ///< rad
-  static constexpr double kMaxTiltAngle = 0.75 * M_PI;             ///< rad
-  static constexpr double kMaxCsVelocity = M_PI;                   ///< rad/s
 
 public:
   explicit QpMixer(const Drone& drone, const kdl::Tree& tree);

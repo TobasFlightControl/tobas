@@ -16,8 +16,9 @@ namespace tobas::y_axis_tilt_vtol
 namespace
 {
 constexpr size_t kFixedRotorInequalitySize = 2;
-constexpr size_t kTiltRotorInequalitySize = 4;
 constexpr size_t kControlSurfaceInequalitySize = 2;
+constexpr size_t kApproxSize = 3;
+constexpr size_t kTiltRotorInequalitySize = 3 + kApproxSize;
 constexpr double kCruiseSpeed = 15.0;  ///< m/s, 固定翼機運動モード計算のための仮のクルーズ時対気速度
 constexpr double kMomentThrustRatio =
   1.0 / 3.0;  ///< 実行可能最大モーメントを出すために行って良い最大推力変更比率 3軸あるので1軸制御分には1/3
@@ -26,6 +27,22 @@ constexpr double kTiltAngleMargin =
 ///< TODO: 機体ごとに定める
 constexpr double kMaxTiltVelocity = 90.0 / 180.0 * M_PI;  ///< rad/s
 constexpr double kMaxCsVelocity = M_PI;                   ///< rad/s
+
+const std::pair<Eigen::Matrix<double, kApproxSize, 2>, Eigen::Vector<double, kApproxSize>>
+approxMaxThrustConstraint(const double& min_thrust_angle, const double& max_thrust_angle, const double& max_thrust)
+{
+  Eigen::Matrix<double, kApproxSize, 2> A;
+  Eigen::Vector<double, kApproxSize> b;
+
+  const double delta_chi = (max_thrust_angle - min_thrust_angle) / (2.0 * kApproxSize);
+  for (size_t i = 0; i < kApproxSize; i++) {
+    const double chi = min_thrust_angle + delta_chi * (2 * i + 1);
+    A.row(i) << std::sin(chi), std::cos(chi);
+    b(i) = max_thrust * std::cos(delta_chi);
+  }
+
+  return { A, b };
+}
 }  // namespace
 
 QpMixer::QpMixer(const Drone& drone, const kdl::Tree& tree)
@@ -351,7 +368,6 @@ std::expected<MixerSolution, std::string> QpMixer::solve(
       const auto min_thrust_angle = std::max(physical_min_thrust_angle, state.desiable_thrust_angle - kTiltAngleMargin);
       const auto max_thrust_angle = std::min(physical_max_thrust_angle, state.desiable_thrust_angle + kTiltAngleMargin);
       const auto mid_thrust_angle = 0.5 * (min_thrust_angle + max_thrust_angle);
-      const auto view_angle = 0.5 * (max_thrust_angle - min_thrust_angle);
       auto row = info.inequality_row;
       qp_.problem.A(row, info.column) = -std::cos(min_thrust_angle);
       qp_.problem.A(row, info.column + 1) = std::sin(min_thrust_angle);
@@ -365,9 +381,10 @@ std::expected<MixerSolution, std::string> QpMixer::solve(
       qp_.problem.A(row, info.column + 1) = -std::cos(mid_thrust_angle);
       qp_.problem.b(row) = -drone_.prop->minThrust(rotor->link_name);
       row++;
-      qp_.problem.A(row, info.column) = std::sin(mid_thrust_angle);
-      qp_.problem.A(row, info.column + 1) = std::cos(mid_thrust_angle);
-      qp_.problem.b(row) = drone_.prop->maxThrust(rotor->link_name) * std::cos(view_angle);
+      const auto pair =
+        approxMaxThrustConstraint(min_thrust_angle, max_thrust_angle, drone_.prop->maxThrust(rotor->link_name));
+      qp_.problem.A.block<kApproxSize, 2>(row, info.column) = pair.first;
+      qp_.problem.b.segment<kApproxSize>(row) = pair.second;
     }
     else {
       qp_.problem.A(info.inequality_row, info.column) = -1;
