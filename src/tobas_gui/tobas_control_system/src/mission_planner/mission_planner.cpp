@@ -148,11 +148,9 @@ MissionPlannerWidget::MissionPlannerWidget(const rqt::RosQtBridge& _bridge) : sp
 
 void MissionPlannerWidget::reset()
 {
-  map_->clear();
   map_->setArrowPosition(0.0, 0.0);
   map_->setArrowRotation(0.0);
 
-  clearMission();
   updateCommandHeader(-1);
   setEditMode();
 
@@ -187,6 +185,7 @@ void MissionPlannerWidget::setMissionDir(const QString& _file_path)
 
 void MissionPlannerWidget::clearMission()
 {
+  map_->clear();
   command_list_->clear();
   commands_->clear();
   pairs_.clear();
@@ -639,10 +638,7 @@ void MissionPlannerWidget::onClearButtonClicked()
     return;
   }
 
-  map_->clear();
-  command_list_->clear();
-  commands_->clear();
-  pairs_.clear();
+  clearMission();
 }
 
 void MissionPlannerWidget::onCacheButtonClicked()
@@ -856,6 +852,8 @@ void MissionPlannerWidget::odomCb(const tobas_msgs::OdometryWithCovarianceStampe
 
 void MissionPlannerWidget::actionGoalResponseCb(bool _ok)
 {
+  qDebug().nospace() << "MissionPlannerWidget::actionGoalResponseCb(" << _ok << ")";
+
   spinner_.stop();
 
   if (!_ok) {
@@ -867,13 +865,18 @@ void MissionPlannerWidget::actionGoalResponseCb(bool _ok)
   setExecuteMode();
 }
 
-void MissionPlannerWidget::actionFeedbackCb(uint32_t)
+void MissionPlannerWidget::actionFeedbackCb(uint32_t _cur_cmd_idx)
 {
+  qDebug().nospace() << "MissionPlannerWidget::actionFeedbackCb(" << _cur_cmd_idx << ")";
+
   // TODO
 }
 
 void MissionPlannerWidget::actionResultCb(rclcpp_action::ResultCode _code, const QString& _message, uint32_t _last_cmd_idx)
 {
+  qDebug().nospace() << "MissionPlannerWidget::actionResultCb(" << static_cast<int8_t>(_code) << ", " << _message
+                     << ", " << _last_cmd_idx << ")";
+
   switch (_code) {
     case rclcpp_action::ResultCode::UNKNOWN:
       qt::qWarnBox(this, "The result of the mission is unknown.");
