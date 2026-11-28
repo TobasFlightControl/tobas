@@ -38,7 +38,8 @@ private:
 DynamicParamServer::DynamicParamServer(const rclcpp::NodeOptions& _options)
   : super("dynamic_parameter_server", nodeOptions_Default(_options))
 {
-  cb_group_ = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
+  // Serialize requests to protect `clients_` and keep a worker available for parameter responses.
+  cb_group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
   services_.push_back(createService<SetBool>(kSetBoolSrv, &self::callback<SetBool, bool>, this, cb_group_));
   services_.push_back(createService<SetInt>(kSetIntSrv, &self::callback<SetInt, long>, this, cb_group_));
