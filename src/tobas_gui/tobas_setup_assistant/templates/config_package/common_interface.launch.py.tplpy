@@ -53,16 +53,22 @@ def generate_launch_description():
         )
     )
 
-    # Launch interface bridge
-    ld.add_action(
-        Node(
-            package="tobas_ros_interface",
-            executable="ros_interface",
-            namespace=namespace,
-            ros_arguments=ros_args,
-            output=output,
+    # Launch interface bridges
+    for executable in (
+        "topic_interface_logic_to_iface",
+        "topic_interface_iface_to_logic",
+        "service_interface",
+        "action_interface",
+    ):
+        ld.add_action(
+            Node(
+                package="tobas_ros_interface",
+                executable=executable,
+                namespace=namespace,
+                ros_arguments=ros_args,
+                output=output,
+            )
         )
-    )
 
     # Launch user nodes
     ld.add_action(

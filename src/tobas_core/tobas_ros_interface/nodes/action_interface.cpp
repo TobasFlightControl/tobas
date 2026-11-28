@@ -1,58 +1,38 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#pragma once
-
 #include <algorithm>
 #include <chrono>
 #include <map>
+#include <memory>
 #include <mutex>
+#include <string>
+#include <vector>
 
+#include <rclcpp/executors/events_cbg_executor/events_cbg_executor.hpp>
+#include <rclcpp/node.hpp>
 #include <rclcpp/timer.hpp>
+#include <rclcpp/utilities.hpp>
 #include <rclcpp_action/create_client.hpp>
+#include <rclcpp_action/create_server.hpp>
 #include <rclcpp_action/exceptions.hpp>
 
 #include <tobas_constants/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_tools/util.hpp>
 
+#include <tobas_mission_msgs/action/execute_mission.hpp>
+
 namespace tobas
 {
-struct TopicBase
+namespace
 {
-  using SharedPtr = std::shared_ptr<TopicBase>;
-};
-
-template <typename MsgType>
-struct Topic : public TopicBase
-{
-  using SharedPtr = std::shared_ptr<Topic<MsgType>>;
-
-  typename rclcpp::Publisher<MsgType>::SharedPtr publisher;
-  typename rclcpp::Subscription<MsgType>::SharedPtr subscriber;
-};
-
-struct ServiceBase
-{
-  using SharedPtr = std::shared_ptr<ServiceBase>;
-
-  std::string name;
-};
-
-template <typename SrvType>
-struct Service : public ServiceBase
-{
-  using SharedPtr = std::shared_ptr<Service<SrvType>>;
-
-  typename rclcpp::Service<SrvType>::SharedPtr server;
-  typename rclcpp::Client<SrvType>::SharedPtr client;
-};
-
 struct ActionBase
 {
   using SharedPtr = std::shared_ptr<ActionBase>;
 
   std::string name;
+  std::mutex mutex;
 };
 
 template <typename ActType>
@@ -70,64 +50,22 @@ struct Action : public ActionBase
   typename rclcpp_action::Server<ActType>::SharedPtr server;
   typename rclcpp_action::Client<ActType>::SharedPtr client;
 
-  std::mutex goals_mutex;
   std::map<rclcpp_action::GoalUUID, Goal> goals;
 };
 
-class RosInterfaceNode : public BaseNode
+class ActionInterfaceNode : public BaseNode
 {
   using super = BaseNode;
 
 public:
-  explicit RosInterfaceNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
+  explicit ActionInterfaceNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
-  rclcpp::CallbackGroup::SharedPtr topic_group_;
   rclcpp::CallbackGroup::SharedPtr server_group_;
-
-  std::vector<TopicBase::SharedPtr> topics_;
-  std::vector<ServiceBase::SharedPtr> services_;
   std::vector<ActionBase::SharedPtr> actions_;
-
-  void registerTopicsLogicToIface();
-  void registerTopicsIfaceToLogic();
-  void registerServices();
-  void registerActions();
-
-  template <typename MsgType>
-  void
-  addTopic(const std::string& _sub_topic, const std::string& _pub_topic, bool _latch, bool _reliable, size_t _queue_size);
-
-  template <typename MsgType>
-  void addTopicLogicToIface(
-    const std::string& _sub_topic,
-    const std::string& _pub_topic,
-    bool _latch = ros2::qos::kDefaultLatch,
-    bool _reliable = ros2::qos::kDefaultReliable,
-    size_t _queue_size = ros2::qos::kDefaultQueueSize);
-
-  template <typename MsgType>
-  void addTopicIfaceToLogic(
-    const std::string& _sub_topic,
-    const std::string& _pub_topic,
-    bool _latch = ros2::qos::kDefaultLatch,
-    bool _reliable = ros2::qos::kDefaultReliable,
-    size_t _queue_size = ros2::qos::kDefaultQueueSize);
-
-  template <typename SrvType>
-  void addService(const std::string& _service_name);
 
   template <typename ActType>
   void addAction(const std::string& _action_name);
-
-  template <typename MsgType>
-  void topicCallback(typename Topic<MsgType>::SharedPtr _topic, const typename MsgType::ConstSharedPtr& _msg);
-
-  template <typename SrvType>
-  void serviceCallback(
-    typename Service<SrvType>::SharedPtr _service,
-    const typename SrvType::Request::SharedPtr& _req,
-    const typename SrvType::Response::SharedPtr& _res);
 
   template <typename ActType>
   void actionFeedbackCallback(
@@ -158,69 +96,16 @@ private:
     const typename rclcpp_action::ClientGoalHandle<ActType>::WrappedResult& _res);
 };
 
-template <typename MsgType>
-void RosInterfaceNode::addTopic(
-  const std::string& _sub_topic,
-  const std::string& _pub_topic,
-  bool _latch,
-  bool _reliable,
-  size_t _queue_size)
+ActionInterfaceNode::ActionInterfaceNode(const rclcpp::NodeOptions& _options)
+  : super("action_interface", nodeOptions_Default(_options))
 {
-  const auto topic = std::make_shared<Topic<MsgType>>();
-
-  const ros2::qos::QoS qos(_latch, _reliable, _queue_size);
-
-  topic->publisher = create_publisher<MsgType>(_pub_topic, qos);
-
-  const auto cb = [this, topic](const typename MsgType::ConstSharedPtr& _msg) { topicCallback<MsgType>(topic, _msg); };
-  rclcpp::SubscriptionOptions opts;
-  opts.callback_group = topic_group_;
-  topic->subscriber = create_subscription<MsgType>(_sub_topic, qos, cb, opts);
-
-  topics_.push_back(topic);
-}
-
-template <typename MsgType>
-void RosInterfaceNode::addTopicLogicToIface(
-  const std::string& _sub_topic,
-  const std::string& _pub_topic,
-  bool _latch,
-  bool _reliable,
-  size_t _queue_size)
-{
-  addTopic<MsgType>(_sub_topic, addIfaceNS(_pub_topic), _latch, _reliable, _queue_size);
-}
-
-template <typename MsgType>
-void RosInterfaceNode::addTopicIfaceToLogic(
-  const std::string& _sub_topic,
-  const std::string& _pub_topic,
-  bool _latch,
-  bool _reliable,
-  size_t _queue_size)
-{
-  addTopic<MsgType>(addIfaceNS(_sub_topic), _pub_topic, _latch, _reliable, _queue_size);
-}
-
-template <typename SrvType>
-void RosInterfaceNode::addService(const std::string& _service_name)
-{
-  const auto service = std::make_shared<Service<SrvType>>();
-  service->name = _service_name;
-
-  const auto cb =
-    [this, service](const typename SrvType::Request::SharedPtr& _req, const typename SrvType::Response::SharedPtr& _res)
-  { serviceCallback<SrvType>(service, _req, _res); };
-  const auto qos = rclcpp::ServicesQoS();
-  service->server = create_service<SrvType>(addIfaceNS(_service_name), cb, qos, server_group_);
-
-  service->client = create_client<SrvType>(_service_name);
-
-  services_.push_back(service);
+  // Goal/cancel callbacks wait for client responses, which run in the separate default group.
+  server_group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+  addAction<tobas_mission_msgs::action::ExecuteMission>(action::kExecuteMission);
 }
 
 template <typename ActType>
-void RosInterfaceNode::addAction(const std::string& _action_name)
+void ActionInterfaceNode::addAction(const std::string& _action_name)
 {
   using GoalPtr = typename ActType::Goal::ConstSharedPtr;
   using GoalHandlePtr = std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>;
@@ -247,42 +132,15 @@ void RosInterfaceNode::addAction(const std::string& _action_name)
   actions_.push_back(action);
 }
 
-template <typename MsgType>
-void RosInterfaceNode::topicCallback(
-  typename Topic<MsgType>::SharedPtr _topic,
-  const typename MsgType::ConstSharedPtr& _msg)
-{
-  // Subscribers are expected to be out of process, so publish without creating a unique_ptr or copying.
-  _topic->publisher->publish(*_msg);
-}
-
-template <typename SrvType>
-void RosInterfaceNode::serviceCallback(
-  typename Service<SrvType>::SharedPtr _service,
-  const typename SrvType::Request::SharedPtr& _req,
-  const typename SrvType::Response::SharedPtr& _res)
-{
-  if (!_service->client->service_is_ready()) {
-    TOBAS_ERROR("'", _service->name, "' service is not ready.");
-    return;
-  }
-
-  auto future =
-    _service->client->async_send_request(_req);  // `async_send_request` requires a non-const request pointer.
-  future.wait();
-
-  *_res = *future.get();  // `future` must be non-const here.
-}
-
 template <typename ActType>
-void RosInterfaceNode::actionFeedbackCallback(
+void ActionInterfaceNode::actionFeedbackCallback(
   typename Action<ActType>::SharedPtr _action,
   const rclcpp_action::GoalUUID& _uuid,
   const typename ActType::Feedback::ConstSharedPtr& _fb_in)
 {
   std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>> server_gh;
   {
-    const std::lock_guard lock(_action->goals_mutex);
+    const std::lock_guard lock(_action->mutex);
     if (const auto it = _action->goals.find(_uuid); it != _action->goals.end()) {
       server_gh = it->second.server_gh;
     }
@@ -298,7 +156,7 @@ void RosInterfaceNode::actionFeedbackCallback(
 }
 
 template <typename ActType>
-rclcpp_action::GoalResponse RosInterfaceNode::actionHandleGoal(
+rclcpp_action::GoalResponse ActionInterfaceNode::actionHandleGoal(
   typename Action<ActType>::SharedPtr _action,
   const rclcpp_action::GoalUUID& _uuid,
   const typename ActType::Goal::ConstSharedPtr& _goal)
@@ -324,19 +182,19 @@ rclcpp_action::GoalResponse RosInterfaceNode::actionHandleGoal(
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  const std::lock_guard lock(_action->goals_mutex);
+  const std::lock_guard lock(_action->mutex);
   _action->goals.emplace(_uuid, typename Action<ActType>::Goal{ client_gh, nullptr, nullptr });
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
 template <typename ActType>
-rclcpp_action::CancelResponse RosInterfaceNode::actionHandleCancel(
+rclcpp_action::CancelResponse ActionInterfaceNode::actionHandleCancel(
   typename Action<ActType>::SharedPtr _action,
   const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>& _server_gh)
 {
   typename rclcpp_action::ClientGoalHandle<ActType>::SharedPtr client_gh;
   {
-    const std::lock_guard lock(_action->goals_mutex);
+    const std::lock_guard lock(_action->mutex);
     const auto it = _action->goals.find(_server_gh->get_goal_id());
     if (it == _action->goals.end()) {
       return rclcpp_action::CancelResponse::REJECT;
@@ -363,7 +221,7 @@ rclcpp_action::CancelResponse RosInterfaceNode::actionHandleCancel(
 }
 
 template <typename ActType>
-void RosInterfaceNode::actionHandleAccepted(
+void ActionInterfaceNode::actionHandleAccepted(
   typename Action<ActType>::SharedPtr _action,
   const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>& _server_gh)
 {
@@ -371,7 +229,7 @@ void RosInterfaceNode::actionHandleAccepted(
 
   typename GoalHandle::SharedPtr client_gh;
   {
-    const std::lock_guard lock(_action->goals_mutex);
+    const std::lock_guard lock(_action->mutex);
     auto& goal = _action->goals.at(_server_gh->get_goal_id());
     goal.server_gh = _server_gh;
     client_gh = goal.client_gh;
@@ -380,7 +238,7 @@ void RosInterfaceNode::actionHandleAccepted(
   // Return immediately so the server can accept cancellations and subsequent goals.
   const auto result_cb = [this, _action, _server_gh](const typename GoalHandle::WrappedResult& _res)
   {
-    const std::lock_guard lock(_action->goals_mutex);
+    const std::lock_guard lock(_action->mutex);
     auto& goal = _action->goals.at(_server_gh->get_goal_id());
     // Complete in the server group after any cancel callback has returned and its state transition has finished.
     goal.result_timer = create_wall_timer(
@@ -392,13 +250,13 @@ void RosInterfaceNode::actionHandleAccepted(
 }
 
 template <typename ActType>
-void RosInterfaceNode::actionResultCallback(
+void ActionInterfaceNode::actionResultCallback(
   typename Action<ActType>::SharedPtr _action,
   const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>& _server_gh,
   const typename rclcpp_action::ClientGoalHandle<ActType>::WrappedResult& _res)
 {
   {
-    const std::lock_guard lock(_action->goals_mutex);
+    const std::lock_guard lock(_action->mutex);
     const auto it = _action->goals.find(_server_gh->get_goal_id());
     if (it == _action->goals.end()) {
       return;
@@ -424,4 +282,14 @@ void RosInterfaceNode::actionResultCallback(
       break;
   }
 }
+}  // namespace
 }  // namespace tobas
+
+int main(int _argc, char* _argv[])
+{
+  rclcpp::init(_argc, _argv);
+  const auto node = std::make_shared<tobas::ActionInterfaceNode>();
+  rclcpp::executors::EventsCBGExecutor exec(rclcpp::ExecutorOptions(), 2);
+  exec.add_node(node);
+  exec.spin();
+}

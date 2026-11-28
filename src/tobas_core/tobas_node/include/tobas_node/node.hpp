@@ -221,7 +221,7 @@ public:
   std::vector<std::string>
   getStringArrayParam(const std::string& _param_name, const std::vector<std::string>& _default_value) noexcept;
 
-  /** Tobas default node options. */
+  /** Tobas default node options, preserving the caller's intra-process communication setting. */
   static rclcpp::NodeOptions nodeOptions_Default(rclcpp::NodeOptions _options);
 
   /** Node options for nodes with dynamic parameters. */

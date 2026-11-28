@@ -230,7 +230,6 @@ BaseNode::getStringArrayParam(const std::string& _param_name, const std::vector<
 rclcpp::NodeOptions BaseNode::nodeOptions_Default(rclcpp::NodeOptions _options)
 {
   _options.enable_rosout(false);
-  _options.use_intra_process_comms(true);
   _options.start_parameter_services(false);
   _options.start_parameter_event_publisher(false);
   setClockType(_options);

@@ -21,22 +21,24 @@ foreach(dependency IN ITEMS ${AMENT_DEPENDENCIES})
   find_package(${dependency} REQUIRED)
 endforeach()
 
-file(GLOB_RECURSE NODE_TARGETS CONFIGURE_DEPENDS RELATIVE ${PROJECT_SOURCE_DIR} src/*.cpp)
-add_executable(ros_interface ${NODE_TARGETS})
-tobas_target_defaults(ros_interface)
-target_link_libraries(
-  ros_interface
-  std_srvs::std_srvs
-  tobas_node::tobas_node
-  tobas_tools::tobas_tools
-  tobas_kdl_msgs::tobas_kdl_msgs
-  tobas_msgs::tobas_msgs
-  tobas_drone_msgs::tobas_drone_msgs
-  tobas_real_common::tobas_real_common
-  tobas_real_msgs::tobas_real_msgs
-  tobas_mission_msgs::tobas_mission_msgs
-)
+set(NODE_TARGETS action_interface service_interface topic_interface_logic_to_iface topic_interface_iface_to_logic)
+foreach(target IN ITEMS ${NODE_TARGETS})
+  add_executable(${target} nodes/${target}.cpp)
+  tobas_target_defaults(${target})
+  target_link_libraries(
+    ${target}
+    std_srvs::std_srvs
+    tobas_node::tobas_node
+    tobas_tools::tobas_tools
+    tobas_kdl_msgs::tobas_kdl_msgs
+    tobas_msgs::tobas_msgs
+    tobas_drone_msgs::tobas_drone_msgs
+    tobas_real_common::tobas_real_common
+    tobas_real_msgs::tobas_real_msgs
+    tobas_mission_msgs::tobas_mission_msgs
+  )
+endforeach()
 
-install(TARGETS ros_interface DESTINATION lib/${PROJECT_NAME})
+install(TARGETS ${NODE_TARGETS} DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
