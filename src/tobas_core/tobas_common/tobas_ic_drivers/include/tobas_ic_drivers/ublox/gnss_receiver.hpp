@@ -3,10 +3,13 @@
 
 #pragma once
 
+#include <array>
 #include <expected>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include <tobas_time_tools/rate.hpp>
 
@@ -110,6 +113,11 @@ public:
     NAV_VELNED = 0x12,     ///< Velocity solution in NED frame
   };
 
+  enum UbxRxmId : uint8_t
+  {
+    RXM_RTCM = 0x32,  ///< RTCM input status
+  };
+
   /** Constants for CFG-NAVSPG-DYNMODEL */
   enum DynamicsModel : uint8_t
   {
@@ -127,6 +135,25 @@ public:
     E_SCOOTER = 12,
   };
 
+  /** GNSS identifiers (same as `gnssId` in UBX messages) */
+  enum GnssId : uint8_t
+  {
+    GNSS_GPS = 0,
+    GNSS_SBAS = 1,
+    GNSS_GALILEO = 2,
+    GNSS_BEIDOU = 3,
+    GNSS_QZSS = 5,
+    GNSS_GLONASS = 6,
+    GNSS_NAVIC = 7,
+  };
+
+  /** GNSS and position in the epoch of an RTCM 3 observation message */
+  struct RtcmObservation
+  {
+    GnssId gnss;
+    bool more_messages_follow;  ///< Whether more observation messages of the same epoch follow
+  };
+
   explicit GnssReceiver(std::unique_ptr<UbxTransport> _transport);
 
   GnssReceiver(GnssReceiver&& _other) = delete;
@@ -138,6 +165,22 @@ public:
   bool update(bool _blocking = false);
 
   Module getModule() const;
+
+  /**
+   * Pass RTCM correction data to the transport to be sent to the receiver.
+   * Observations of a GNSS disabled in the receiver are discarded unless they end an epoch.
+   *
+   * @return false if the transport failed to accept the data.
+   */
+  bool registerRtcmCorrectionData(const std::vector<uint8_t>& _data);
+
+  /**
+   * Parse the GNSS and the position in the epoch of an RTCM 3 observation message.
+   *
+   * @param _frame RTCM 3 frame including the preamble, the length and the CRC.
+   * @return std::nullopt if `_frame` is not a single RTCM 3 frame or is not an observation message (e.g. 1005).
+   */
+  static std::optional<RtcmObservation> parseRtcmObservation(const std::vector<uint8_t>& _frame);
 
   // ===== Configurations =====
 
@@ -289,13 +332,22 @@ private:
 
   // ==============================
 
+  static constexpr size_t kGnssIdCount = GNSS_NAVIC + 1;
+
   const std::unique_ptr<UbxTransport> transport_;
   UbxScanner scanner_;
   tim::Rate scan_rate_;
   std::optional<Module> module_;
 
+  /**
+   * Whether each GNSS is enabled in the receiver, indexed by `GnssId`.
+   * GNSS that have not been configured are regarded as enabled so that their RTCM data is not discarded.
+   */
+  std::array<bool, kGnssIdCount> gnss_enabled_ = { true, true, true, true, true, true, true, true };
+  mutable std::mutex gnss_enabled_mutex_;
+
   template <typename T>
-  bool cfgValSetSingle(CfgSize _size, CfgGroup _group, uint8_t _id, T _value);
+  bool cfgValSetSingle(CfgSize _size, CfgGroup _group, uint16_t _id, T _value);
 
   bool sendMessage(UbxClass _cls, uint8_t _id, const void* _msg, uint16_t _size);
   bool waitForAcknowledge(UbxClass _cls, uint8_t _id);
@@ -304,6 +356,9 @@ private:
 
   /** Polls the receiver for version information and waits for the response. */
   std::expected<payload::MON_VER, std::string> pollVersion();
+
+  /** Enable or disable a GNSS with the given CFG-SIGNAL-XXX_ENA key and record the state. */
+  bool enableGnss(GnssId _gnss, uint16_t _key_id, bool _enable);
 
   bool enableGps(bool _enable);
   bool enableGpsL1();

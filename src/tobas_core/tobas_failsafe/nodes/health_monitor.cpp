@@ -641,7 +641,7 @@ void HealthMonitorNode::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& _gnss)
 {
   constexpr auto kGnssFixLossTimeThresh = 1s;
   constexpr auto kGnssFixRecoveryTimeThresh = 3s;
-  const auto fix_available = (_gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
+  const auto fix_available = (_gnss->fix_type >= tobas_msgs::msg::Gnss::FIX_3D);
   const auto& cur_time = _gnss->header.stamp;
 
   gnss_ = _gnss;

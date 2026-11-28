@@ -6,6 +6,8 @@
 #include <cassert>
 #include <cstring>
 #include <memory>
+#include <mutex>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -71,15 +73,25 @@ bool GnssReceiver::update(bool _blocking)
 
   if (!_blocking) {
     // Check the start byte.
-    const auto first_byte = transport_->receiveByte();
-    if (!first_byte) {
-      return false;
-    }
-    scanner_.update(*first_byte);
+    // Keep receiving while queued data remains, because some transports (e.g. SPI) send it only while receiving.
+    scan_rate_.start();
+    while (true) {
+      const auto first_byte = transport_->receiveByte();
+      if (!first_byte) {
+        return false;
+      }
+      scanner_.update(*first_byte);
 
-    // Return if no data has arrived.
-    if (scanner_.state() == UbxScanner::kSync1) {
-      return false;
+      if (scanner_.state() != UbxScanner::kSync1) {
+        break;
+      }
+
+      // Return if no data has arrived and no data is left to send.
+      if (!transport_->hasPendingData()) {
+        return false;
+      }
+
+      scan_rate_.sleep();
     }
   }
 
@@ -105,12 +117,70 @@ GnssReceiver::Module GnssReceiver::getModule() const
   return *module_;
 }
 
+bool GnssReceiver::registerRtcmCorrectionData(const std::vector<uint8_t>& _data)
+{
+  const auto observation = parseRtcmObservation(_data);
+  if (observation && observation->more_messages_follow) {
+    const std::lock_guard lock(gnss_enabled_mutex_);
+    if (!gnss_enabled_[observation->gnss]) {
+      return true;
+    }
+  }
+
+  return transport_->enqueue(_data.data(), _data.size());
+}
+
+std::optional<GnssReceiver::RtcmObservation> GnssReceiver::parseRtcmObservation(const std::vector<uint8_t>& _frame)
+{
+  constexpr uint8_t kRtcmPreamble = 0xD3;
+  constexpr size_t kRtcmHeaderLength = 3;  // Preamble and message length
+  constexpr size_t kRtcmCrcLength = 3;
+  constexpr size_t kMinPayloadLength = 7;  // The message type and the flags read below are in the first 7 bytes.
+
+  // Only a single complete frame can be parsed, so anything else is passed through as is.
+  if (_frame.size() < kRtcmHeaderLength + kMinPayloadLength + kRtcmCrcLength || _frame[0] != kRtcmPreamble) {
+    return std::nullopt;
+  }
+  const size_t payload_length = (static_cast<size_t>(_frame[1] & 0x03) << 8) | _frame[2];
+  if (_frame.size() != kRtcmHeaderLength + payload_length + kRtcmCrcLength) {
+    return std::nullopt;
+  }
+
+  const uint8_t* const body = &_frame[kRtcmHeaderLength];
+  const auto bit = [body](size_t _pos) { return static_cast<bool>((body[_pos / 8] >> (7 - _pos % 8)) & 1); };
+  const auto type = static_cast<uint16_t>((body[0] << 4) | (body[1] >> 4));
+
+  // MSM1-MSM7: 1071-1077 (GPS), 1081-1087 (GLONASS), ..., 1131-1137 (NavIC)
+  // The multiple message bit follows the message type (12 bits), the station ID (12 bits) and the epoch time (30 bits).
+  if (type >= 1071 && type <= 1137 && type % 10 >= 1 && type % 10 <= 7) {
+    constexpr GnssId kMsmGnss[] = {
+      GNSS_GPS, GNSS_GLONASS, GNSS_GALILEO, GNSS_SBAS, GNSS_QZSS, GNSS_BEIDOU, GNSS_NAVIC,
+    };
+    return RtcmObservation{ .gnss = kMsmGnss[(type - 1071) / 10], .more_messages_follow = bit(54) };
+  }
+
+  // Legacy RTK observations. The synchronous GNSS flag follows the message type, the station ID and the epoch time
+  // (30 bits for GPS, 27 bits for GLONASS).
+  if (type >= 1001 && type <= 1004) {
+    return RtcmObservation{ .gnss = GNSS_GPS, .more_messages_follow = bit(54) };
+  }
+  if (type >= 1009 && type <= 1012) {
+    return RtcmObservation{ .gnss = GNSS_GLONASS, .more_messages_follow = bit(51) };
+  }
+
+  return std::nullopt;
+}
+
 bool GnssReceiver::enableMessage(UbxClass _cls, uint8_t _id, bool _enable)
 {
   constexpr char kNotImplemented[] = "Not implemented.\n";
   constexpr char kNotReceivable[] = "Not receivable.\n";
 
-  CfgValSet<uint8_t, 1> cfg;
+  struct MsgOutIds
+  {
+    uint16_t spi;
+    uint16_t uart1;
+  } msgout_ids;
 
   switch (_cls) {
     case CLASS_ACK: {
@@ -138,12 +208,6 @@ bool GnssReceiver::enableMessage(UbxClass _cls, uint8_t _id, bool _enable)
       return false;
     }
     case CLASS_NAV: {
-      struct MsgOutIds
-      {
-        uint16_t spi;
-        uint16_t uart1;
-      } msgout_ids;
-
       switch (_id) {
         case NAV_CLOCK:
           msgout_ids = { 0x069, 0x066 };  // CFG-MSGOUT-UBX_NAV_CLOCK: SPI, UART1
@@ -240,20 +304,6 @@ bool GnssReceiver::enableMessage(UbxClass _cls, uint8_t _id, bool _enable)
           return false;
       }
 
-      uint16_t item_id;
-
-      switch (transport_->interface()) {
-        case UbxTransport::Interface::SPI:
-          item_id = msgout_ids.spi;
-          break;
-        case UbxTransport::Interface::UART:
-          item_id = msgout_ids.uart1;
-          break;
-        default:
-          return false;
-      }
-
-      cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, item_id);
       break;
     }
     case CLASS_NAV2: {
@@ -261,8 +311,16 @@ bool GnssReceiver::enableMessage(UbxClass _cls, uint8_t _id, bool _enable)
       return false;
     }
     case CLASS_RXM: {
-      std::cerr << kNotImplemented;  // TODO
-      return false;
+      switch (_id) {
+        case RXM_RTCM:
+          msgout_ids = { 0x26C, 0x269 };  // CFG-MSGOUT-UBX_RXM_RTCM: SPI, UART1
+          break;
+        default:
+          std::cerr << kNotImplemented;  // TODO
+          return false;
+      }
+
+      break;
     }
     case CLASS_SEC: {
       std::cerr << kNotImplemented;  // TODO
@@ -282,6 +340,21 @@ bool GnssReceiver::enableMessage(UbxClass _cls, uint8_t _id, bool _enable)
     }
   }
 
+  uint16_t item_id;
+
+  switch (transport_->interface()) {
+    case UbxTransport::Interface::SPI:
+      item_id = msgout_ids.spi;
+      break;
+    case UbxTransport::Interface::UART:
+      item_id = msgout_ids.uart1;
+      break;
+    default:
+      return false;
+  }
+
+  CfgValSet<uint8_t, 1> cfg;
+  cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, item_id);
   cfg.data[0].value = _enable ? 1 : 0;  // Maximum rate if enabled.
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
@@ -364,7 +437,7 @@ bool GnssReceiver::enableSbas()
 
 bool GnssReceiver::disableSbas()
 {
-  return enableGps(false);
+  return enableSbas(false);
 }
 
 bool GnssReceiver::enableGalileo()
@@ -610,7 +683,7 @@ bool GnssReceiver::enableUsb(bool _enable)
 }
 
 template <typename T>
-bool GnssReceiver::cfgValSetSingle(CfgSize _size, CfgGroup _group, uint8_t _id, T _value)
+bool GnssReceiver::cfgValSetSingle(CfgSize _size, CfgGroup _group, uint16_t _id, T _value)
 {
   CfgValSet<T, 1> cfg;
   cfg.data[0].key = configKeyID(_size, _group, _id);
@@ -748,9 +821,20 @@ std::expected<payload::MON_VER, std::string> GnssReceiver::pollVersion()
   }
 }
 
+bool GnssReceiver::enableGnss(GnssId _gnss, uint16_t _key_id, bool _enable)
+{
+  if (!cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, _key_id, _enable)) {
+    return false;
+  }
+
+  const std::lock_guard lock(gnss_enabled_mutex_);
+  gnss_enabled_[_gnss] = _enable;
+  return true;
+}
+
 bool GnssReceiver::enableGps(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x1F, _enable);  // CFG-SIGNAL-GPS_ENA
+  return enableGnss(GNSS_GPS, 0x1F, _enable);  // CFG-SIGNAL-GPS_ENA
 }
 
 bool GnssReceiver::enableGpsL1()
@@ -770,7 +854,7 @@ bool GnssReceiver::enableGpsL5()
 
 bool GnssReceiver::enableSbas(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x20, _enable);  // CFG-SIGNAL-SBAS_ENA
+  return enableGnss(GNSS_SBAS, 0x20, _enable);  // CFG-SIGNAL-SBAS_ENA
 }
 
 bool GnssReceiver::enableSbasL1()
@@ -780,7 +864,7 @@ bool GnssReceiver::enableSbasL1()
 
 bool GnssReceiver::enableGalileo(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x21, _enable);  // CFG-SIGNAL-GAL_ENA
+  return enableGnss(GNSS_GALILEO, 0x21, _enable);  // CFG-SIGNAL-GAL_ENA
 }
 
 bool GnssReceiver::enableGalileoE1()
@@ -805,7 +889,7 @@ bool GnssReceiver::enableGalileoE6()
 
 bool GnssReceiver::enableBeiDou(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x22, _enable);  // CFG-SIGNAL-BDS_ENA
+  return enableGnss(GNSS_BEIDOU, 0x22, _enable);  // CFG-SIGNAL-BDS_ENA
 }
 
 bool GnssReceiver::enableBeiDouB1I()
@@ -835,7 +919,7 @@ bool GnssReceiver::enableBeiDouB3I()
 
 bool GnssReceiver::enableQzss(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x24, _enable);  // CFG-SIGNAL-QZSS_ENA
+  return enableGnss(GNSS_QZSS, 0x24, _enable);  // CFG-SIGNAL-QZSS_ENA
 }
 
 bool GnssReceiver::enableQzssL1()
@@ -865,7 +949,7 @@ bool GnssReceiver::enableQzssL5()
 
 bool GnssReceiver::enableGlonass(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x25, _enable);  // CFG-SIGNAL-GLO_ENA
+  return enableGnss(GNSS_GLONASS, 0x25, _enable);  // CFG-SIGNAL-GLO_ENA
 }
 
 bool GnssReceiver::enableGlonassL1()
@@ -880,7 +964,7 @@ bool GnssReceiver::enableGlonassL2()
 
 bool GnssReceiver::enableNavIc(bool _enable)
 {
-  return cfgValSetSingle<uint8_t>(ONE_BIT, CFG_SIGNAL, 0x26, _enable);  // CFG-SIGNAL-NAVIC_ENA
+  return enableGnss(GNSS_NAVIC, 0x26, _enable);  // CFG-SIGNAL-NAVIC_ENA
 }
 
 bool GnssReceiver::enableNavIcL5()

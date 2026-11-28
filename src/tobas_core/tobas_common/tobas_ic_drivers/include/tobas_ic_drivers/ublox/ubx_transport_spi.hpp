@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <deque>
+#include <mutex>
+
 #include <tobas_linux/spi_dev.hpp>
 
 #include "./ubx_transport.hpp"
@@ -22,6 +25,8 @@ public:
   bool initialize() noexcept override;
   std::optional<uint8_t> receiveByte() noexcept override;
   bool send(const uint8_t* _data, size_t _length) noexcept override;
+  bool enqueue(const uint8_t* _data, size_t _length) noexcept override;
+  bool hasPendingData() const noexcept override;
   Interface interface() const noexcept override;
 
 private:
@@ -33,5 +38,8 @@ private:
   linux::SPIdev spi_;
   uint8_t tx_buf_[kSpiBufSize];
   uint8_t rx_buf_[kSpiBufSize];
+
+  std::deque<uint8_t> send_queue_;  ///< Data sent byte by byte in `receiveByte()`
+  mutable std::mutex send_queue_mutex_;
 };
 }  // namespace tobas::ublox

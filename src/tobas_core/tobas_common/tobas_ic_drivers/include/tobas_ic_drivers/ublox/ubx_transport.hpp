@@ -30,6 +30,16 @@ public:
   virtual bool initialize() noexcept = 0;
   virtual std::optional<uint8_t> receiveByte() noexcept = 0;
   virtual bool send(const uint8_t* _data, size_t _length) noexcept = 0;
+
+  /**
+   * Queue data to be sent to the receiver without interrupting the reception of UBX messages.
+   * The data may be sent later, e.g. byte by byte in `receiveByte()`.
+   */
+  virtual bool enqueue(const uint8_t* _data, size_t _length) noexcept = 0;
+
+  /** Return true if queued data remains to be sent. */
+  virtual bool hasPendingData() const noexcept = 0;
+
   virtual Interface interface() const noexcept = 0;
 };
 }  // namespace tobas::ublox

@@ -54,6 +54,17 @@ bool UbxTransportUart::send(const uint8_t* _data, size_t _length) noexcept
   return uart_.send(_data, _length);
 }
 
+bool UbxTransportUart::enqueue(const uint8_t* _data, size_t _length) noexcept
+{
+  // UART sends and receives independently, so the data can be sent immediately.
+  return send(_data, _length);
+}
+
+bool UbxTransportUart::hasPendingData() const noexcept
+{
+  return false;
+}
+
 UbxTransport::Interface UbxTransportUart::interface() const noexcept
 {
   return Interface::UART;

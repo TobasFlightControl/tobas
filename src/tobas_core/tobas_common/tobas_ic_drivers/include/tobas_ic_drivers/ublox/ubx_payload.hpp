@@ -533,4 +533,25 @@ struct NAV_VELNED : public Payload
   void decode(const uint8_t* _p) override;
   void print(std::ostream& _os) const override;
 };
+
+struct RXM_RTCM : public Payload
+{
+  uint8_t version;  ///< Message version (0x02 for this version)
+
+  // flags: RTCM input status flags
+  bool crcFailed;  ///< Whether the message failed the CRC check
+  enum MessageUsage : uint8_t
+  {
+    UNKNOWN = 0,
+    NOT_USED = 1,  ///< Not used, e.g. the reference station is unknown
+    USED = 2,      ///< Used by the receiver
+  } msgUsed;
+
+  uint16_t subType;     ///< Message subtype (only applies for RTCM 4072 message)
+  uint16_t refStation;  ///< Reference station ID
+  uint16_t msgType;     ///< RTCM message type (e.g. 1005, 1075, 1115)
+
+  void decode(const uint8_t* _p) override;
+  void print(std::ostream& _os) const override;
+};
 }  // namespace tobas::ublox::payload

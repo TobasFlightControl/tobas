@@ -200,14 +200,15 @@ std_msgs/Header header
 		uint32 nanosec
 	string frame_id
 
-# Fix Type: gpsFix (UBX-STATUS), fixType (UBX-PVT)
+# Fix Type
+# Larger values mean better fixes. RTK_FLOAT and RTK_FIX are 3D fixes with an RTK solution.
+# Dead reckoning and time-only fixes are regarded as NO_FIX.
 uint8 fix_type
 uint8 NO_FIX = 0
-uint8 DEAD_RECHONING_ONLY = 1
-uint8 FIX_2D = 2
-uint8 FIX_3D = 3
-uint8 GPS_DEAD_RECHONING_COMBINED = 4
-uint8 TIME_ONLY_FIX = 5
+uint8 FIX_2D = 1
+uint8 FIX_3D = 2
+uint8 RTK_FLOAT = 3
+uint8 RTK_FIX = 4
 
 # Position
 float64 latitude                               # Geodetic latitude [deg]

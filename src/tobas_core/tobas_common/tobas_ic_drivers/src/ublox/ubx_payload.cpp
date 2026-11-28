@@ -378,6 +378,19 @@ void NAV_VELNED::decode(const uint8_t* _p)
   cAcc = algo::decodeU32(_p + 32) * 1e-5;
 }
 
+void RXM_RTCM::decode(const uint8_t* _p)
+{
+  version = algo::decodeU8(_p + 0);
+
+  const auto flags = algo::decodeU8(_p + 1);
+  crcFailed = (flags >> 0) & 1;
+  msgUsed = static_cast<payload::RXM_RTCM::MessageUsage>((flags >> 1) & 0b11);
+
+  subType = algo::decodeU16(_p + 2);
+  refStation = algo::decodeU16(_p + 4);
+  msgType = algo::decodeU16(_p + 6);
+}
+
 /* ===== Print Methods ===== */
 
 void ACK_NAK::print(std::ostream& _os) const
@@ -690,5 +703,17 @@ void NAV_VELNED::print(std::ostream& _os) const
 
   _os << "Speed accuracy estimate: " << sAcc << "[mm/s]\n";
   _os << "Course / Heading accuracy estimate: " << cAcc << "[deg]\n";
+}
+
+void RXM_RTCM::print(std::ostream& _os) const
+{
+  _os << "Message version: " << static_cast<int>(version) << '\n';
+
+  _os << "RTCM message was received with a CRC failure: " << crcFailed << '\n';
+  _os << "Status of the RTCM message usage: " << static_cast<int>(msgUsed) << '\n';
+
+  _os << "Message subtype: " << subType << '\n';
+  _os << "Reference station ID: " << refStation << '\n';
+  _os << "RTCM message type: " << msgType << '\n';
 }
 }  // namespace tobas::ublox::payload

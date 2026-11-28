@@ -1,0 +1,20 @@
+<package format="3">
+  <name>tobas_ntrip_client</name>
+  <version>2.18.0</version>
+  <description>NTRIP client for streaming RTCM corrections and sending NMEA GGA positions.</description>
+  <maintainer email="m.dohi@tobas.jp">Masayoshi Dohi</maintainer>
+  <license>GPL-3.0-or-later</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>libboost-dev</depend>
+
+  <depend>tobas_constants</depend>
+  <depend>tobas_msgs</depend>
+  <depend>tobas_node</depend>
+  <depend>tobas_std_tools</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
