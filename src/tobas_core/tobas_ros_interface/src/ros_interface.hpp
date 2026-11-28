@@ -3,7 +3,14 @@
 
 #pragma once
 
+#include <algorithm>
+#include <chrono>
+#include <map>
+#include <mutex>
+
+#include <rclcpp/timer.hpp>
 #include <rclcpp_action/create_client.hpp>
+#include <rclcpp_action/exceptions.hpp>
 
 #include <tobas_constants/time.hpp>
 #include <tobas_node/node.hpp>
@@ -53,10 +60,18 @@ struct Action : public ActionBase
 {
   using SharedPtr = std::shared_ptr<Action<ActType>>;
 
+  struct Goal
+  {
+    typename rclcpp_action::ClientGoalHandle<ActType>::SharedPtr client_gh;
+    std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>> server_gh;
+    rclcpp::TimerBase::SharedPtr result_timer;
+  };
+
   typename rclcpp_action::Server<ActType>::SharedPtr server;
   typename rclcpp_action::Client<ActType>::SharedPtr client;
-  std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>> server_gh;
-  typename rclcpp_action::ClientGoalHandle<ActType>::SharedPtr client_gh;
+
+  std::mutex goals_mutex;
+  std::map<rclcpp_action::GoalUUID, Goal> goals;
 };
 
 class RosInterfaceNode : public BaseNode
@@ -67,7 +82,8 @@ public:
   explicit RosInterfaceNode(const rclcpp::NodeOptions& _options = rclcpp::NodeOptions());
 
 private:
-  rclcpp::CallbackGroup::SharedPtr group_;
+  rclcpp::CallbackGroup::SharedPtr topic_group_;
+  rclcpp::CallbackGroup::SharedPtr server_group_;
 
   std::vector<TopicBase::SharedPtr> topics_;
   std::vector<ServiceBase::SharedPtr> services_;
@@ -116,6 +132,7 @@ private:
   template <typename ActType>
   void actionFeedbackCallback(
     typename Action<ActType>::SharedPtr _action,
+    const rclcpp_action::GoalUUID& _uuid,
     const typename ActType::Feedback::ConstSharedPtr& _fb);
 
   template <typename ActType>
@@ -133,6 +150,12 @@ private:
   void actionHandleAccepted(
     typename Action<ActType>::SharedPtr _action,
     const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>& _gh);
+
+  template <typename ActType>
+  void actionResultCallback(
+    typename Action<ActType>::SharedPtr _action,
+    const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>& _gh,
+    const typename rclcpp_action::ClientGoalHandle<ActType>::WrappedResult& _res);
 };
 
 template <typename MsgType>
@@ -151,7 +174,7 @@ void RosInterfaceNode::addTopic(
 
   const auto cb = [this, topic](const typename MsgType::ConstSharedPtr& _msg) { topicCallback<MsgType>(topic, _msg); };
   rclcpp::SubscriptionOptions opts;
-  opts.callback_group = group_;
+  opts.callback_group = topic_group_;
   topic->subscriber = create_subscription<MsgType>(_sub_topic, qos, cb, opts);
 
   topics_.push_back(topic);
@@ -189,7 +212,7 @@ void RosInterfaceNode::addService(const std::string& _service_name)
     [this, service](const typename SrvType::Request::SharedPtr& _req, const typename SrvType::Response::SharedPtr& _res)
   { serviceCallback<SrvType>(service, _req, _res); };
   const auto qos = rclcpp::ServicesQoS();
-  service->server = create_service<SrvType>(addIfaceNS(_service_name), cb, qos, group_);
+  service->server = create_service<SrvType>(addIfaceNS(_service_name), cb, qos, server_group_);
 
   service->client = create_client<SrvType>(_service_name);
 
@@ -217,9 +240,9 @@ void RosInterfaceNode::addAction(const std::string& _action_name)
     handle_cancel,
     handle_accepted,
     rcl_action_server_get_default_options(),
-    group_);
+    server_group_);
 
-  action->client = rclcpp_action::create_client<ActType>(this, _action_name, group_);
+  action->client = rclcpp_action::create_client<ActType>(this, _action_name);
 
   actions_.push_back(action);
 }
@@ -254,21 +277,30 @@ void RosInterfaceNode::serviceCallback(
 template <typename ActType>
 void RosInterfaceNode::actionFeedbackCallback(
   typename Action<ActType>::SharedPtr _action,
+  const rclcpp_action::GoalUUID& _uuid,
   const typename ActType::Feedback::ConstSharedPtr& _fb_in)
 {
-  if (!_action->server_gh) {
+  std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>> server_gh;
+  {
+    const std::lock_guard lock(_action->goals_mutex);
+    if (const auto it = _action->goals.find(_uuid); it != _action->goals.end()) {
+      server_gh = it->second.server_gh;
+    }
+  }
+
+  if (!server_gh) {
     TOBAS_WARN_THROTTLE(kTypicalWarnPeriod, "Waiting for '", _action->name, "' action server goal handle.");
     return;
   }
 
   const auto fb_out = std::make_shared<typename ActType::Feedback>(*_fb_in);  // Remove constness.
-  _action->server_gh->publish_feedback(fb_out);
+  server_gh->publish_feedback(fb_out);
 }
 
 template <typename ActType>
 rclcpp_action::GoalResponse RosInterfaceNode::actionHandleGoal(
   typename Action<ActType>::SharedPtr _action,
-  const rclcpp_action::GoalUUID&,
+  const rclcpp_action::GoalUUID& _uuid,
   const typename ActType::Goal::ConstSharedPtr& _goal)
 {
   using Client = rclcpp_action::Client<ActType>;
@@ -281,36 +313,53 @@ rclcpp_action::GoalResponse RosInterfaceNode::actionHandleGoal(
 
   typename Client::SendGoalOptions opts;
   opts.feedback_callback =
-    [this, _action](const typename GoalHandle::SharedPtr&, const typename ActType::Feedback::ConstSharedPtr& _fb)
-  { actionFeedbackCallback<ActType>(_action, _fb); };
+    [this, _action, _uuid](const typename GoalHandle::SharedPtr&, const typename ActType::Feedback::ConstSharedPtr& _fb)
+  { actionFeedbackCallback<ActType>(_action, _uuid, _fb); };
 
   const auto future = _action->client->async_send_goal(*_goal, opts);
   future.wait();
 
-  _action->client_gh = future.get();
-  if (_action->client_gh) {
-    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;  // -> `actionHandleAccepted` is called.
-  }
-  else {
+  const auto client_gh = future.get();
+  if (!client_gh) {
     return rclcpp_action::GoalResponse::REJECT;
   }
+
+  const std::lock_guard lock(_action->goals_mutex);
+  _action->goals.emplace(_uuid, typename Action<ActType>::Goal{ client_gh, nullptr, nullptr });
+  return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
 template <typename ActType>
 rclcpp_action::CancelResponse RosInterfaceNode::actionHandleCancel(
   typename Action<ActType>::SharedPtr _action,
-  const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>&)
+  const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>& _server_gh)
 {
-  const auto future = _action->client->async_cancel_goal(_action->client_gh);
-  future.wait();
+  typename rclcpp_action::ClientGoalHandle<ActType>::SharedPtr client_gh;
+  {
+    const std::lock_guard lock(_action->goals_mutex);
+    const auto it = _action->goals.find(_server_gh->get_goal_id());
+    if (it == _action->goals.end()) {
+      return rclcpp_action::CancelResponse::REJECT;
+    }
+    client_gh = it->second.client_gh;
+  }
 
-  const auto res = future.get();
-  if (res->return_code == action_msgs::srv::CancelGoal::Response::ERROR_NONE) {
-    return rclcpp_action::CancelResponse::ACCEPT;
+  try {
+    const auto future = _action->client->async_cancel_goal(client_gh);
+    future.wait();
+
+    const auto res = future.get();
+    const auto is_canceling = std::ranges::any_of(
+      res->goals_canceling, [&client_gh](const auto& _goal) { return _goal.goal_id.uuid == client_gh->get_goal_id(); });
+    if (res->return_code == action_msgs::srv::CancelGoal::Response::ERROR_NONE && is_canceling) {
+      return rclcpp_action::CancelResponse::ACCEPT;
+    }
   }
-  else {
-    return rclcpp_action::CancelResponse::REJECT;
+  catch (const rclcpp_action::exceptions::UnknownGoalHandleError&) {
+    // The downstream goal may finish before its result is forwarded in the server group.
   }
+
+  return rclcpp_action::CancelResponse::REJECT;
 }
 
 template <typename ActType>
@@ -318,31 +367,61 @@ void RosInterfaceNode::actionHandleAccepted(
   typename Action<ActType>::SharedPtr _action,
   const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>& _server_gh)
 {
-  // Store `ServerGoalHandle` so feedback can be published from another method.
-  _action->server_gh = _server_gh;
+  using GoalHandle = rclcpp_action::ClientGoalHandle<ActType>;
 
-  const auto future = _action->client->async_get_result(_action->client_gh);
-  future.wait();
+  typename GoalHandle::SharedPtr client_gh;
+  {
+    const std::lock_guard lock(_action->goals_mutex);
+    auto& goal = _action->goals.at(_server_gh->get_goal_id());
+    goal.server_gh = _server_gh;
+    client_gh = goal.client_gh;
+  }
 
-  const auto res = future.get();
-  switch (res.code) {
+  // Return immediately so the server can accept cancellations and subsequent goals.
+  const auto result_cb = [this, _action, _server_gh](const typename GoalHandle::WrappedResult& _res)
+  {
+    const std::lock_guard lock(_action->goals_mutex);
+    auto& goal = _action->goals.at(_server_gh->get_goal_id());
+    // Complete in the server group after any cancel callback has returned and its state transition has finished.
+    goal.result_timer = create_wall_timer(
+      std::chrono::nanoseconds(0),
+      [this, _action, _server_gh, _res]() { actionResultCallback<ActType>(_action, _server_gh, _res); },
+      server_group_);
+  };
+  _action->client->async_get_result(client_gh, result_cb);
+}
+
+template <typename ActType>
+void RosInterfaceNode::actionResultCallback(
+  typename Action<ActType>::SharedPtr _action,
+  const std::shared_ptr<rclcpp_action::ServerGoalHandle<ActType>>& _server_gh,
+  const typename rclcpp_action::ClientGoalHandle<ActType>::WrappedResult& _res)
+{
+  {
+    const std::lock_guard lock(_action->goals_mutex);
+    const auto it = _action->goals.find(_server_gh->get_goal_id());
+    if (it == _action->goals.end()) {
+      return;
+    }
+    it->second.result_timer->cancel();
+    _action->goals.erase(it);
+  }
+
+  switch (_res.code) {
     case rclcpp_action::ResultCode::SUCCEEDED:
-      _server_gh->succeed(res.result);
+      _server_gh->succeed(_res.result);
       break;
     case rclcpp_action::ResultCode::CANCELED:
-      _server_gh->canceled(res.result);
+      _server_gh->canceled(_res.result);
       break;
     case rclcpp_action::ResultCode::ABORTED:
-      _server_gh->abort(res.result);
+      _server_gh->abort(_res.result);
       break;
     case rclcpp_action::ResultCode::UNKNOWN:
     default:
-      TOBAS_ERROR("Invalid action result code: ", static_cast<int>(res.code));
-      _server_gh->abort(res.result);
+      TOBAS_ERROR("Invalid action result code: ", static_cast<int>(_res.code));
+      _server_gh->abort(_res.result);
       break;
   }
-
-  _action->server_gh.reset();
-  _action->client_gh.reset();
 }
 }  // namespace tobas

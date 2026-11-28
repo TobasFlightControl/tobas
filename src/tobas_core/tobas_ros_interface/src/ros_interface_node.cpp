@@ -1,36 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Tobas, Inc.
 
-#include <rclcpp/executors/multi_threaded_executor.hpp>
+#include <rclcpp/executors/events_cbg_executor/events_cbg_executor.hpp>
 
 #include "./ros_interface.hpp"
 
 int main(int _argc, char* _argv[])
 {
-  constexpr long kDefaultNumThreads = 4;
-  constexpr long kMinNumThreads = 2;
-
   rclcpp::init(_argc, _argv);
-
   const auto node = std::make_shared<tobas::RosInterfaceNode>();
-
-  long num_threads = kDefaultNumThreads;
-  if (node->has_parameter("num_threads")) {
-    num_threads = node->get_parameter("num_threads").as_int();
-  }
-
-  if (num_threads < kMinNumThreads) {
-    RCLCPP_WARN_STREAM(
-      node->get_logger(),
-      "To avoid deadlock with recursive service calls, at least " << kMinNumThreads << " threads are required.");
-    num_threads = kMinNumThreads;
-  }
-
-  RCLCPP_INFO_STREAM(node->get_logger(), "The number of threads has been set to " << num_threads << ".");
-
-  // Action relays wait for client responses inside server callbacks, so reentrant callbacks must run concurrently.
-  rclcpp::executors::MultiThreadedExecutor exec(rclcpp::ExecutorOptions(), num_threads);
+  rclcpp::executors::EventsCBGExecutor exec(rclcpp::ExecutorOptions(), 2);
   exec.add_node(node);
-
   exec.spin();
 }
